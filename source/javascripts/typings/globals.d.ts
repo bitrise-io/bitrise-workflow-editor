@@ -42,7 +42,7 @@ declare global {
       featureFlags?: {
         user: { [s: string]: unknown };
         account: { [s: string]: unknown } & {
-          availableBuildHosts?: string;
+          machineTypeHosts?: string;
         };
       };
     };

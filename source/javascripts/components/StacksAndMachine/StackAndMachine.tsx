@@ -48,8 +48,8 @@ const StackAndMachine = ({
   const { projectStackId, projectMachineTypeId } = useProjectStackAndMachine();
 
   const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
-  const availableBuildHosts = GlobalProps.accountFeatureFlags()?.availableBuildHosts;
-  const disableRollbackOption = availableBuildHosts === 'external';
+  const machineTypeHosts = GlobalProps.accountFeatureFlags()?.machineTypeHosts;
+  const disableRollbackOption = machineTypeHosts === 'external';
 
   const {
     selectedStack,
