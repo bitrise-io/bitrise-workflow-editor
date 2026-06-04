@@ -4,6 +4,7 @@ import { useResizeObserver } from 'usehooks-ts';
 
 import ToolVersions from '@/components/ToolVersions/ToolVersions';
 import StackAndMachineService from '@/core/services/StackAndMachineService';
+import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
@@ -47,6 +48,8 @@ const StackAndMachine = ({
   const { projectStackId, projectMachineTypeId } = useProjectStackAndMachine();
 
   const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
+  const availableBuildHosts = GlobalProps.accountFeatureFlags()?.availableBuildHosts;
+  const disableRollbackOption = availableBuildHosts === 'external';
 
   const {
     selectedStack,
@@ -122,6 +125,7 @@ const StackAndMachine = ({
             handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
           }
           isRollbackVersionAvailable={!!availableRollbackVersion}
+          disableRollbackOption={disableRollbackOption}
           useRollbackVersion={useRollbackVersion}
           width={orientation === 'horizontal' ? '50%' : undefined}
         />
