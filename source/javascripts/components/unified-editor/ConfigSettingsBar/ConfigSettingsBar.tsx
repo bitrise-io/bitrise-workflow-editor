@@ -8,7 +8,6 @@ import {
   IconDownload,
   IconFolder,
   IconMoreVertical,
-  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
@@ -73,7 +72,7 @@ const ConfigSettingsBar = () => {
       display="flex"
       alignItems="center"
       justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
-      gap={isYmlPage ? rem(14) : '8'}
+      gap="12"
     >
       <Box minWidth={0}>
         <BitkitList variant="inline" textColor="body" size="md">
