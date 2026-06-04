@@ -119,7 +119,7 @@ const Navigation = (props: Props) => {
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
-    <Sidebar minW={['88px', '256px']} {...props}>
+    <Sidebar width={['88px', '256px']} flexShrink={0} {...props}>
       {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar />}
       <SidebarContainer>
         <NavigationItem

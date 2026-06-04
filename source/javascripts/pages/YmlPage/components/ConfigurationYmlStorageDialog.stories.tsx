@@ -13,6 +13,18 @@ export default {
   argTypes: {
     onClose: { type: 'function' },
   },
+  beforeEach: () => {
+    window.parent.pageProps = {
+      ...window.parent.pageProps,
+      project: {
+        ...window.parent.pageProps?.project,
+        name: 'Storybook project',
+        slug: 'project-slug',
+        defaultBranch: 'master',
+        gitRepoSlug: 'bitrise-io-ios-xcode80-today-extension',
+      },
+    };
+  },
   parameters: {
     msw: {
       handlers: [...defaultMswHandlers],
