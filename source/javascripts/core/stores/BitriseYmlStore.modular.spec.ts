@@ -26,7 +26,6 @@ function node(nodeId: string, overrides: Partial<TreeNode> = {}): TreeNode {
     contents: `workflows:\n  ${nodeId}: {}\n`,
     source: null,
     commitSha: 'sha',
-    version: `v-${nodeId}`,
     editable: true,
     includes: [],
     ...overrides,
@@ -204,14 +203,13 @@ describe('BitriseYmlStore — modular tree', () => {
 
       closeTab('child-a');
 
-      const { openTabs, selectedNodeId, ymlDocument, savedYmlDocument, version, files } = bitriseYmlStore.getState();
+      const { openTabs, selectedNodeId, ymlDocument, savedYmlDocument, files } = bitriseYmlStore.getState();
       expect(openTabs.map((t) => t.nodeId)).toEqual(['root', 'child-b']);
       expect(selectedNodeId).toBe('child-b');
       // The active editing document must rebind to the neighbor — selecting
       // without rebinding would leave the content window on the closed file.
       expect(ymlDocument).toBe(files['child-b'].ymlDocument);
       expect(savedYmlDocument).toBe(files['child-b'].savedYmlDocument);
-      expect(version).toBe(files['child-b'].version);
     });
 
     it('does not change the active document when closing an inactive tab', () => {
@@ -452,6 +450,18 @@ describe('BitriseYmlStore — modular tree', () => {
       // Read-only and untouched nodes are still present in the payload.
       expect(tree?.includes.map((n) => n.nodeId).sort()).toEqual(['child-a', 'child-b', 'readonly']);
     });
+
+    it('flags only the changed file as modified (BE pushes editable+modified files)', () => {
+      updateFileDocument('child-a', ({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'Edited');
+        return doc;
+      });
+
+      const tree = getModularConfigTree();
+      expect(tree?.modified).toBe(false); // root untouched
+      expect(tree?.includes.find((n) => n.nodeId === 'child-a')?.modified).toBe(true);
+      expect(tree?.includes.find((n) => n.nodeId === 'child-b')?.modified).toBe(false);
+    });
   });
 
   describe('applyModularSaveResult', () => {
@@ -462,8 +472,8 @@ describe('BitriseYmlStore — modular tree', () => {
       const refreshed = node('root', {
         path: 'bitrise.yml',
         contents: 'format_version: "13"\n',
-        version: 'v2-root',
-        includes: [node('child-a', { version: 'v2-child-a' })],
+        commitSha: 'sha2',
+        includes: [node('child-a', { commitSha: 'sha2' })],
       });
 
       applyModularSaveResult({
@@ -472,7 +482,7 @@ describe('BitriseYmlStore — modular tree', () => {
       });
 
       const state = bitriseYmlStore.getState();
-      expect(state.files['child-a'].version).toBe('v2-child-a');
+      expect(state.files['child-a'].commitSha).toBe('sha2');
       // child-b/readonly are gone now; their tabs are dropped, child-a kept.
       expect(state.openTabs.map((t) => t.nodeId)).toEqual(['root', 'child-a']);
       expect(state.selectedNodeId).toBe('child-a');

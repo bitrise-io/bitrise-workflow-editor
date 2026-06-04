@@ -121,8 +121,8 @@ type WireTreeNode = {
   contents: string;
   source: WireTreeNodeSource | null;
   commit_sha: string;
-  version: string;
   editable: boolean;
+  modified?: boolean;
   includes: WireTreeNode[];
 };
 
@@ -173,8 +173,8 @@ function wireToTreeNode(node: WireTreeNode): TreeNode {
     contents: node.contents,
     source: mapSource(node.source),
     commitSha: node.commit_sha,
-    version: node.version,
     editable: node.editable,
+    modified: node.modified,
     includes: (node.includes ?? []).map(wireToTreeNode),
   };
 }
@@ -186,8 +186,8 @@ function treeNodeToWire(node: TreeNode): WireTreeNode {
     contents: node.contents,
     source: node.source,
     commit_sha: node.commitSha,
-    version: node.version,
     editable: node.editable,
+    modified: node.modified,
     includes: node.includes.map(treeNodeToWire),
   };
 }
@@ -342,4 +342,6 @@ export default {
   getMergedConfig,
   pushConfigTree,
   mapSaveConflict,
+  // Exposed so the push-to-branch flow can serialize a full tree to the wire shape.
+  treeNodeToWire,
 };

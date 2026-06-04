@@ -14,7 +14,6 @@ const ROOT_NODE = {
   contents: 'format_version: "13"\ninclude:\n  - path: modules/workflows.yml\n',
   source: null,
   commit_sha: 'a1b2c3d4e5f6789012345678901234567890abcd',
-  version: 'v-root',
   editable: true,
   includes: [
     {
@@ -23,7 +22,6 @@ const ROOT_NODE = {
       contents: 'workflows:\n  build:\n    steps:\n      - script@1: {}\n',
       source: { path: 'modules/workflows.yml', repository: null, branch: null, tag: null, commit: null },
       commit_sha: 'a1b2c3d4e5f6789012345678901234567890abcd',
-      version: 'v-workflows',
       editable: true,
       includes: [],
     },
@@ -53,7 +51,6 @@ const SINGLE_NODE_ROOT = {
   contents: 'format_version: "13"\nworkflows:\n  build:\n    steps:\n      - script@1: {}\n',
   source: null,
   commit_sha: 'a1b2c3d4e5f6789012345678901234567890abcd',
-  version: 'v-single',
   editable: true,
   includes: [],
 };

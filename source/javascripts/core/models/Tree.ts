@@ -33,12 +33,20 @@ export type TreeNode = {
   contents: string;
   /** Verbatim `include:` directive; `null` for the root. */
   source: TreeNodeSource | null;
-  /** Full 40-char commit SHA the contents were read from. Deep links / drift. */
+  /**
+   * Full 40-char commit SHA the contents were read from. Deep links / drift, and
+   * the conflict token for saves (the git/repo path compares commit SHAs, not
+   * content hashes).
+   */
   commitSha: string;
-  /** `SHA256(contents)` — the conflict token compared on save. */
-  version: string;
   /** Single source of truth for edit gating. The FE never re-derives this. */
   editable: boolean;
+  /**
+   * FE→BE save marker: `true` for files the user changed since load. Set only
+   * when building the save payload (the BE pushes the editable+modified files and
+   * validates the whole tree). Absent on the load response.
+   */
+  modified?: boolean;
   /** Recursive children; `[]` for leaves. */
   includes: TreeNode[];
 };

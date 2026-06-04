@@ -8,7 +8,6 @@ function node(nodeId: string, overrides: Partial<TreeNode> = {}): TreeNode {
     contents: `# ${nodeId}\n`,
     source: null,
     commitSha: 'sha',
-    version: `v-${nodeId}`,
     editable: true,
     includes: [],
     ...overrides,
@@ -112,25 +111,27 @@ describe('TreeService', () => {
   });
 
   describe('serializeTree', () => {
-    it('splices live contents and version while preserving structure', () => {
+    it('splices live contents + the modified flag while preserving structure', () => {
       const result = TreeService.serializeTree(buildTree(), {
-        'child-a': { contents: 'edited-a', version: 'v2-a' },
+        'child-a': { contents: 'edited-a', modified: true },
       });
 
       const childA = TreeService.findNode(result, 'child-a');
       expect(childA?.contents).toBe('edited-a');
-      expect(childA?.version).toBe('v2-a');
+      expect(childA?.modified).toBe(true);
       expect(TreeService.findNode(result, 'grandchild')?.nodeId).toBe('grandchild');
     });
 
-    it('keeps loaded contents for nodes missing from the live map', () => {
+    it('keeps loaded contents and marks unmodified for nodes missing from the live map', () => {
       const result = TreeService.serializeTree(buildTree(), {});
-      expect(TreeService.findNode(result, 'child-b')?.contents).toBe('# child-b\n');
+      const childB = TreeService.findNode(result, 'child-b');
+      expect(childB?.contents).toBe('# child-b\n');
+      expect(childB?.modified).toBe(false);
     });
 
     it('does not mutate the input tree', () => {
       const tree = buildTree();
-      TreeService.serializeTree(tree, { root: { contents: 'x', version: 'y' } });
+      TreeService.serializeTree(tree, { root: { contents: 'x', modified: true } });
       expect(tree.contents).toBe('# root\n');
     });
   });

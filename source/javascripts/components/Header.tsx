@@ -115,9 +115,9 @@ const Header = () => {
   });
 
   const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
-    onSuccess: async (newConfig) => {
+    onSuccess: () => {
+      // The store refresh (single-file or modular tree) is handled inside usePushBranch.
       closePushBranchDialog();
-      initializeBitriseYmlDocument(newConfig);
     },
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;

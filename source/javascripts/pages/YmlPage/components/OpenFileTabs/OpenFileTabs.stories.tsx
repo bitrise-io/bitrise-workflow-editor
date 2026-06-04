@@ -12,7 +12,6 @@ const leaf = (nodeId: string, path: string, source: TreeNode['source'], editable
   contents: `# ${path}\n`,
   source,
   commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
-  version: `v-${nodeId}`,
   editable,
   includes: [],
 });
@@ -23,7 +22,6 @@ const ROOT: TreeNode = {
   contents: 'format_version: "13"\n',
   source: null,
   commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
-  version: 'v-root',
   editable: true,
   includes: [
     leaf('n_local', 'modules/workflows.yml', {

@@ -2,10 +2,11 @@ import { TreeNode, TreeNodeSource } from '@/core/models/Tree';
 
 /**
  * Live per-file state to splice into a structural tree when serializing it for
- * a save payload. Keyed by `nodeId`. Kept store-agnostic on purpose so this
- * stays a pure function with no `BitriseYmlStore` import.
+ * a save payload. Keyed by `nodeId`. `modified` marks files changed since load.
+ * Kept store-agnostic on purpose so this stays a pure function with no
+ * `BitriseYmlStore` import.
  */
-type LiveContents = Record<string, { contents: string; version: string }>;
+type LiveContents = Record<string, { contents: string; modified: boolean }>;
 
 type Visitor = (node: TreeNode, parent: TreeNode | undefined, depth: number) => void;
 
@@ -65,7 +66,7 @@ function serializeTree(root: TreeNode, live: LiveContents): TreeNode {
     return {
       ...node,
       contents: liveNode?.contents ?? node.contents,
-      version: liveNode?.version ?? node.version,
+      modified: liveNode?.modified ?? false,
       includes: node.includes.map(rebuild),
     };
   };

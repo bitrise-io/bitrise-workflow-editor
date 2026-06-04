@@ -21,7 +21,6 @@ export type FileSlice = {
   path: string;
   source: TreeNodeSource | null;
   commitSha: string;
-  version: string;
   editable: boolean;
   ymlDocument: Document;
   savedYmlDocument: Document;
@@ -275,7 +274,9 @@ function activeFilePatch(nodeId: string) {
   }
   return {
     selectedNodeId: nodeId,
-    version: slice.version,
+    // The single-file `version` token is unused in modular mode (the git/repo
+    // path keys conflict detection off commit_sha), so it stays empty here.
+    version: '',
     ymlDocument: slice.ymlDocument,
     savedYmlDocument: slice.savedYmlDocument,
     __invalidYmlString: undefined,
@@ -292,7 +293,6 @@ function buildFileSlices(root: TreeNode): Record<string, FileSlice> {
       path: node.path,
       source: node.source,
       commitSha: node.commitSha,
-      version: node.version,
       editable: node.editable,
       ymlDocument: doc,
       // Same object as ymlDocument until the first edit clones it (matches the
@@ -324,9 +324,12 @@ export function getModularConfigTree(): TreeNode | undefined {
     return undefined;
   }
 
-  const live: Record<string, { contents: string; version: string }> = {};
+  const live: Record<string, { contents: string; modified: boolean }> = {};
   Object.values(files).forEach((slice) => {
-    live[slice.nodeId] = { contents: YmlUtils.toYml(slice.ymlDocument), version: slice.version };
+    live[slice.nodeId] = {
+      contents: YmlUtils.toYml(slice.ymlDocument),
+      modified: !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument),
+    };
   });
 
   return TreeService.serializeTree(tree, live);
@@ -355,7 +358,7 @@ export function initializeModularConfig({
     selectedNodeId: root.nodeId,
     openTabs: [{ nodeId: root.nodeId, isPreview: false }],
     // The root file is the initial active document the whole WFE binds to.
-    version: rootSlice.version,
+    version: '',
     ymlDocument: rootSlice.ymlDocument,
     savedYmlDocument: rootSlice.savedYmlDocument,
     __invalidYmlString: undefined,
@@ -395,7 +398,7 @@ export function applyModularSaveResult({ root, entityIndex }: { root: TreeNode; 
     entityIndex,
     openTabs: nextTabs,
     selectedNodeId: nextSelected,
-    version: activeSlice.version,
+    version: '',
     ymlDocument: activeSlice.ymlDocument,
     savedYmlDocument: activeSlice.savedYmlDocument,
     __invalidYmlString: undefined,

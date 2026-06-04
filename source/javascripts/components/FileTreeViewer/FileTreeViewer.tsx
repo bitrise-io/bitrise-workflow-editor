@@ -26,7 +26,6 @@ function syntheticRoot(root: TreeNode): TreeNode {
     contents: '',
     source: null,
     commitSha: '',
-    version: '',
     editable: true,
     includes: [root],
   };

@@ -11,7 +11,12 @@ import {
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
-import { getYmlString } from '@/core/stores/BitriseYmlStore';
+import {
+  getModularConfigTree,
+  getYmlString,
+  initializeBitriseYmlDocument,
+  initializeModularConfig,
+} from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -21,7 +26,8 @@ export type PushBranchPayload = {
 };
 
 type UsePushBranchOptions = {
-  onSuccess?: (response: { ymlString: string; version: string; branch?: string; commitSha?: string }) => void;
+  /** Called after a successful push + store refresh (e.g. to close the dialog). */
+  onSuccess?: () => void;
   onMergeConflict?: (branch: string) => void;
 };
 
@@ -30,6 +36,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
   const appSlug = PageProps.appSlug();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const configCommitSha = useBitriseYmlStore((s) => s.configCommitSha);
+  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
 
   const [pushError, setPushError] = useState<string | undefined>();
   const clearPushError = () => setPushError(undefined);
@@ -39,14 +46,13 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       if (!configBranch || !configCommitSha) {
         throw new Error('Configuration is not loaded. Please reload and try again.');
       }
-      return BranchesApi.pushBranch({
-        appSlug,
-        branch,
-        sourceBranch: configBranch,
-        commitSha: configCommitSha,
-        bitriseYml: getYmlString(),
-        message,
-      });
+
+      const common = { appSlug, branch, sourceBranch: configBranch, commitSha: configCommitSha, message };
+      // Modular: send the full tree (BE validates the merged config, then pushes
+      // the modified editable files). Single-file: the one bitrise.yml.
+      return isModular
+        ? BranchesApi.pushBranch({ ...common, root: getModularConfigTree() })
+        : BranchesApi.pushBranch({ ...common, bitriseYml: getYmlString() });
     },
     onMutate: ({ branch }: PushBranchPayload) => {
       trackPushConfigChangesAttempted(configBranch, branch);
@@ -67,11 +73,23 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
             }
           : undefined,
       });
-      const newConfig = await BitriseYmlApi.getCiConfig({
-        projectSlug: PageProps.appSlug(),
-        branch,
-      });
-      onSuccess?.(newConfig);
+
+      // Reload the pushed branch so the editor reflects the saved state (edits
+      // are no longer dirty). Modular reloads the whole tree; single-file the one doc.
+      if (isModular) {
+        const config = await BitriseYmlApi.getConfig({ projectSlug: appSlug, branch });
+        initializeModularConfig({
+          root: config.root,
+          entityIndex: config.entityIndex,
+          mergedYml: config.mergedYml,
+          branch: config.branch,
+          commitSha: config.root.commitSha,
+        });
+      } else {
+        const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
+        initializeBitriseYmlDocument(newConfig);
+      }
+      onSuccess?.();
     },
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
