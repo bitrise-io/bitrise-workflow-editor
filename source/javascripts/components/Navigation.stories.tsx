@@ -47,7 +47,7 @@ export const SwitchBranchError: Story = {
 export const FailedToLoadBranches: Story = {
   parameters: {
     msw: {
-      handlers: [getBranchesError(), getCiConfig(), getYmlSettings()],
+      handlers: [getBranchesError(), getCiConfig(), getYmlSettings({ uses_repository_yml: true })],
     },
   },
 };
@@ -61,7 +61,7 @@ export const SwitchBranchSingleOption: Story = {
           return HttpResponse.json<GetBranchesResult>({ branches: ['main'] });
         }),
         getCiConfig(),
-        getYmlSettings(),
+        getYmlSettings({ uses_repository_yml: true }),
       ],
     },
   },
