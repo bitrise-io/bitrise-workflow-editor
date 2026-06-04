@@ -7,7 +7,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
-import { useIsMergedConfigSelected } from '@/hooks/useTree';
+import { useDefiningFilePath, useIsMergedConfigSelected } from '@/hooks/useTree';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
@@ -42,6 +42,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
   const isMergedView = useIsMergedConfigSelected();
   const canJumpToDefinition = isMergedView && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
   const showDefinitionLink = isCrossFile || canJumpToDefinition;
+  const definingPath = useDefiningFilePath('workflows', id);
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
@@ -68,14 +69,26 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           <Text as="h3" textStyle="heading/h3">
             {title || id || 'Workflow'}
           </Text>
-          {showSubTitle && (
+          {showSubTitle && !isCrossFile && (
             <Text textStyle="body/sm/regular" color="text/secondary">
               {WorkflowService.getUsedByText(dependants)}
             </Text>
           )}
           {showDefinitionLink && (
             <Text textStyle="body/sm/regular" color="text/secondary">
-              {isCrossFile && 'Defined in another file • '}
+              {isCrossFile && (
+                <>
+                  Defined in{' '}
+                  {definingPath ? (
+                    <Text as="span" textStyle="body/sm/semibold">
+                      {definingPath}
+                    </Text>
+                  ) : (
+                    'another file'
+                  )}{' '}
+                  •{' '}
+                </>
+              )}
               <Link as="button" colorScheme="purple" onClick={() => jumpToDefinition('workflows', id)}>
                 {isMergedView ? 'Go to definition' : 'Edit definition'}
               </Link>

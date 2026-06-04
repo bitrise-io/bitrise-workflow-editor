@@ -5,6 +5,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 
 import { BitriseYml } from '../models/BitriseYml';
 import { emptyEntityIndex, EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
+import EntityIndexService from '../services/EntityIndexService';
 import TreeService from '../services/TreeService';
 import RuntimeUtils from '../utils/RuntimeUtils';
 import YmlUtils from '../utils/YmlUtils';
@@ -604,5 +605,28 @@ bitriseYmlStore.subscribe(
     equalityFn: (a, b) => {
       return a.ymlDocument === b.ymlDocument && a.savedYmlDocument === b.savedYmlDocument;
     },
+  },
+);
+
+// Keep `entityIndex` live. The BE ships a snapshot at load/save, but unsaved
+// edits to module files (e.g. adding a workflow to `included.yml`) must be
+// reflected immediately — otherwise cross-file detection + jump-to-definition
+// only see the stale snapshot until the next save. Re-derive from the live file
+// documents on every `files` change, mirroring the BE precedence. (Deriving
+// from `files` matches "BE snapshot as the seed, then updated with in-mem
+// changes": at load the files equal the BE tree, so the derived index equals the
+// seed; the dedupe below then keeps the seed reference.)
+bitriseYmlStore.subscribe(
+  (s) => s.files,
+  (files) => {
+    const { tree, entityIndex } = bitriseYmlStore.getState();
+    if (!tree) {
+      return;
+    }
+
+    const next = EntityIndexService.buildFromFiles(tree, files);
+    if (!EntityIndexService.equals(next, entityIndex)) {
+      bitriseYmlStore.setState({ entityIndex: next });
+    }
   },
 );

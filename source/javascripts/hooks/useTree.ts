@@ -1,6 +1,7 @@
 import { useStore } from 'zustand';
 
-import { TreeNode } from '@/core/models/Tree';
+import { EntityKind, TreeNode } from '@/core/models/Tree';
+import EntityIndexService from '@/core/services/EntityIndexService';
 import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -27,6 +28,21 @@ export function useSelectedNodeId(): string | undefined {
  */
 export function useIsMergedConfigSelected(): boolean {
   return useStore(bitriseYmlStore, (s) => s.selectedNodeId === MERGED_CONFIG_NODE_ID);
+}
+
+/**
+ * The repo-relative path of the file that *defines* a cross-file entity, or
+ * `undefined` when the entity isn't in the index (single-file mode, or defined
+ * locally). Resolved purely from already-loaded metadata (entity index + the
+ * per-node `path` on each file slice) — it never reads the other file's
+ * contents, so it honours the "only show what's available from the open file"
+ * rule. Used to render "Defined in <file>" provenance on cross-file references.
+ */
+export function useDefiningFilePath(kind: EntityKind, id: string): string | undefined {
+  return useStore(bitriseYmlStore, (s) => {
+    const nodeId = EntityIndexService.definingNodeId(s.entityIndex, kind, id);
+    return nodeId ? s.files[nodeId]?.path : undefined;
+  });
 }
 
 /** node_ids of files with unsaved edits. */

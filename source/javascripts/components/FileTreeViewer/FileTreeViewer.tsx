@@ -79,7 +79,12 @@ const FileTreeViewer = () => {
         </BitkitButton>
       </Popover.Trigger>
       <Portal>
-        <Popover.Positioner>
+        {/* This raw @chakra-ui/react Popover doesn't pick up bitkit's Popover
+            recipe z-index, so the portaled positioner defaults to `auto` and
+            loses to positioned canvas chrome (e.g. the Pipelines toolbar at
+            zIndex 10, whose relative parent forms no stacking context). Pin it
+            to the popover layer so it sits above the editor surfaces. */}
+        <Popover.Positioner zIndex="popover">
           <Popover.Content
             width="360px"
             maxWidth="360px"

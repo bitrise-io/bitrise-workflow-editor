@@ -9,6 +9,7 @@ import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
+import { useDefiningFilePath } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -38,6 +39,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   // definition-level and lives in the other file, so it's omitted here. The
   // config drawer exposes the jump-to-definition link.
   const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
+  const definingPath = useDefiningFilePath('workflows', id);
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -172,20 +174,21 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               />
             )}
 
-            {!isCrossFile && (
-              <ControlButton
-                size="xs"
-                tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-                className="nopan"
-                onClick={onToggle}
-                isDisabled={isDragging}
-                iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-                aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
-                tooltipProps={{
-                  'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
-                }}
-              />
-            )}
+            {/* The chevron stays visible for cross-file references (visual
+                parity) but is disabled — the chained workflow's own steps/chains
+                are definition-level and live in another file. */}
+            <ControlButton
+              size="xs"
+              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+              className="nopan"
+              onClick={onToggle}
+              isDisabled={isDragging || isCrossFile}
+              iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+              aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
+              tooltipProps={{
+                'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
+              }}
+            />
 
             <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
               <Text textStyle="body/md/semibold" hasEllipsis>
@@ -194,7 +197,11 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                 {placement}
                 {' • '}
-                {WorkflowService.getUsedByText(dependants)}
+                {/* "used by N" counts the active file only — show the defining
+                    file for a cross-file reference instead. */}
+                {isCrossFile
+                  ? `Defined in ${definingPath || 'another file'}`
+                  : WorkflowService.getUsedByText(dependants)}
               </Text>
             </Box>
 

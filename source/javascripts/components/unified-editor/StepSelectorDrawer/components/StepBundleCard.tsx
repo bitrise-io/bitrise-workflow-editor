@@ -14,6 +14,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useStepBundle from '@/hooks/useStepBundle';
+import { useDefiningFilePath } from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -52,6 +53,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const hasLocalDefinition = useBitriseYmlStore(({ yml }) => Boolean(yml.step_bundles?.[bundleId]));
   const isCrossFile =
     !hasLocalDefinition && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', bundleId));
+  const definingPath = useDefiningFilePath('stepBundles', bundleId);
   const { isSelected } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -195,9 +197,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               onClick={handleClick}
               role={isButton ? 'button' : 'div'}
             >
-              {isCollapsable && !isCrossFile && (
+              {/* The chevron stays visible for cross-file references (visual
+                  parity with local cards) but is disabled — the step list is
+                  definition-level and lives in another file, so there's nothing
+                  to expand here. */}
+              {isCollapsable && (
                 <ControlButton
                   size="xs"
+                  isDisabled={isCrossFile}
                   tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
                   className="nopan"
                   onClick={(e) => {
@@ -217,7 +224,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {usedInWorkflowsText}
+                    {/* "used in N workflows" counts the active file only — show
+                        the defining file for a cross-file reference instead. */}
+                    {isCrossFile ? `Defined in ${definingPath || 'another file'}` : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
                     <>

@@ -4,6 +4,7 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import PipelineService from '@/core/services/PipelineService';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
+import { useDefiningFilePath } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -82,6 +83,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   // the index is empty, so this is always false and behaviour is unchanged.
   const entityIndex = useEntityIndex();
   const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', workflowId));
+  const definingPath = useDefiningFilePath('workflows', workflowId);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
@@ -109,12 +111,26 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
   }
 
+  // For a cross-file reference the stack lives in the other file; show its
+  // provenance instead of an empty/foreign stack name.
+  let subtitle = stackName;
+  if (uses) {
+    subtitle = `Uses ${uses}`;
+  } else if (isCrossFile) {
+    subtitle = `Defined in ${definingPath || 'another file'}`;
+  }
+
   return (
     <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
-        {isCollapsable && !isCrossFile && (
+        {/* The chevron stays visible for cross-file references (visual parity
+            with local cards) but is disabled — the steps/chains are
+            definition-level and live in another file, so there's nothing to
+            expand here. */}
+        {isCollapsable && (
           <ControlButton
             size="xs"
+            isDisabled={isCrossFile}
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
             className="nopan"
             onClick={onToggle}
@@ -129,7 +145,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {uses ? `Uses ${uses}` : stackName}
+            {subtitle}
           </Text>
         </Box>
 

@@ -55,8 +55,11 @@ export type TreeNode = {
 export type EntityIndexEntries = Record<string, { nodeId: string }>;
 
 /**
- * Server-built map of "which node defines which entity," returned alongside the
- * tree. Read-only on the FE; replaced wholesale on every load/save response.
+ * Map of "which node defines which entity." The BE ships a snapshot alongside
+ * the tree, but the FE keeps it **live** — re-derived from the open file
+ * documents on every edit (see `EntityIndexService.buildFromFiles` + the store
+ * subscription) so unsaved cross-file edits are reflected immediately. The BE
+ * snapshot is just the load/save seed.
  */
 export type EntityIndex = {
   workflows: EntityIndexEntries;

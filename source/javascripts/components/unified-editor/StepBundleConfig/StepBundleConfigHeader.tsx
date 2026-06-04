@@ -8,7 +8,7 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import useNavigation from '@/hooks/useNavigation';
-import { useIsMergedConfigSelected } from '@/hooks/useTree';
+import { useDefiningFilePath, useIsMergedConfigSelected } from '@/hooks/useTree';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
@@ -37,22 +37,41 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   // module — jump to it rather than navigate within the read-only merged doc.
   const isMergedView = useIsMergedConfigSelected();
   const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.step_bundles?.[stepBundleId]));
+  const isCrossFile = !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
   const shouldJumpToDefinition =
     (!isLocal || isMergedView) && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
   const onEditDefinition = shouldJumpToDefinition
     ? () => jumpToDefinition('stepBundles', stepBundleId)
     : () => replace('/step_bundles', { step_bundle_id: stepBundleId });
+  const definingPath = useDefiningFilePath('stepBundles', stepBundleId);
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
   let subtitle: ReactNode = usedIn;
   if (variant === 'drawer') {
+    // "used in N" counts dependants in the active file only — meaningless for a
+    // cross-file reference, so it's replaced by the defining file's path there.
+    const middle = isCrossFile ? (
+      <>
+        Defined in{' '}
+        {definingPath ? (
+          <Text as="span" textStyle="body/md/semibold">
+            {definingPath}
+          </Text>
+        ) : (
+          'another file'
+        )}
+      </>
+    ) : (
+      usedIn
+    );
+
     subtitle = (
       <>
         Instance of{' '}
         <Text as="span" textStyle="body/md/semibold">
           {stepBundleId}
         </Text>{' '}
-        • {usedIn} •{' '}
+        • {middle} •{' '}
         <Link as="button" colorScheme="purple" onClick={onEditDefinition}>
           Edit definition
         </Link>

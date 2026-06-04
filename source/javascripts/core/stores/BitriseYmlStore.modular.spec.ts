@@ -81,8 +81,31 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
       expect(state.configBranch).toBe('main');
       expect(state.configCommitSha).toBe('abc');
-      expect(state.entityIndex).toBe(entityIndex);
       expect(state.mergedYmlStale).toBe(true);
+      // The index is derived live from the file documents (the BE snapshot is
+      // only the seed) — so it reflects every workflow the files actually
+      // define, including ones the seed omitted (child-b, readonly).
+      expect(state.entityIndex).toEqual({
+        workflows: {
+          'child-a': { nodeId: 'child-a' },
+          'child-b': { nodeId: 'child-b' },
+          readonly: { nodeId: 'readonly' },
+        },
+        pipelines: {},
+        stepBundles: {},
+      });
+    });
+
+    it('keeps the entity index live as module files are edited (cross-file detection before save)', () => {
+      // Add a brand-new workflow to a module file (as if typed in the source
+      // view) — the index must pick it up immediately, without a save/reload.
+      updateFileDocument('child-a', ({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'brand-new'], {});
+        return doc;
+      });
+
+      const { entityIndex: index } = bitriseYmlStore.getState();
+      expect(index.workflows['brand-new']).toEqual({ nodeId: 'child-a' });
     });
 
     it('leaves the merged config stale when no initial mergedYml is provided', () => {
