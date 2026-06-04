@@ -9,7 +9,7 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 import { BitkitSegmentedControl, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import {
@@ -69,9 +69,11 @@ const Header = () => {
 
   // Remember the last visual page so switching back from YAML returns to it.
   const lastVisualPathRef = useRef<string>(paths.workflows);
-  if (!isYmlPage) {
-    lastVisualPathRef.current = path;
-  }
+  useEffect(() => {
+    if (!isYmlPage) {
+      lastVisualPathRef.current = path;
+    }
+  }, [isYmlPage, path]);
 
   const handleEditorViewChange = useCallback(
     (value: string | null) => {
