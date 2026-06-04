@@ -32,7 +32,11 @@ const MainLayout = () => {
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
       <Box display="flex" flex="1" alignItems="stretch" minH={0}>
-        {!isYmlPage && <Navigation borderRight="1px solid" borderColor="border/regular" />}
+        <Navigation
+          borderRight="1px solid"
+          borderColor="border/regular"
+          style={{ display: isYmlPage ? 'none' : undefined }}
+        />
         <Box flex="1" overflowX="hidden" overflowY="auto">
           <Router hook={useHashLocation} searchHook={useHashSearch}>
             <InvalidYmlRedirect />
