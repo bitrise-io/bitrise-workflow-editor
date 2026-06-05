@@ -1,5 +1,5 @@
 import { Link } from '@bitrise/bitkit';
-import { BitkitTreeView, createTreeCollection, IconFileDoc } from '@bitrise/bitkit-v2';
+import { BitkitTreeView, createTreeCollection, IconFileYml } from '@bitrise/bitkit-v2';
 import { Popover } from '@chakra-ui/react/popover';
 import { Portal } from '@chakra-ui/react/portal';
 import { cloneElement, ReactElement, ReactNode, useMemo, useState } from 'react';
@@ -134,7 +134,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger }: Props) => {
                   return (
                     <BitkitTreeView.Leaf
                       label={TreeService.fileName(node.path)}
-                      icon={IconFileDoc}
+                      icon={IconFileYml}
                       suffixText={suffix || undefined}
                     />
                   );

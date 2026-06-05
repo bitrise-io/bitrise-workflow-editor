@@ -104,11 +104,49 @@ function fileName(path: string): string {
   return path.split('/').filter(Boolean).pop() ?? path;
 }
 
+/**
+ * The **effective** source badge for a node — its own `source`, or, for a
+ * path-only include that inherits its parent's cross-ref (so it's read-only but
+ * carries no `source` of its own), the nearest ancestor's source. Walking up the
+ * include chain mirrors how `editable`/the effective ref tuple is inherited on
+ * the backend, so a read-only child names the branch/tag/repo it was pulled from.
+ */
+function effectiveSourceLabel(root: TreeNode | undefined, nodeId: string): string | null {
+  if (!root) {
+    return null;
+  }
+  const find = (node: TreeNode, chain: TreeNode[]): TreeNode[] | null => {
+    const next = [...chain, node];
+    if (node.nodeId === nodeId) {
+      return next;
+    }
+    for (const child of node.includes) {
+      const found = find(child, next);
+      if (found) {
+        return found;
+      }
+    }
+    return null;
+  };
+  const chain = find(root, []);
+  if (!chain) {
+    return null;
+  }
+  for (let i = chain.length - 1; i >= 0; i -= 1) {
+    const label = sourceLabel(chain[i].source);
+    if (label) {
+      return label;
+    }
+  }
+  return null;
+}
+
 export default {
   walk,
   findNode,
   flatten,
   serializeTree,
   sourceLabel,
+  effectiveSourceLabel,
   fileName,
 };

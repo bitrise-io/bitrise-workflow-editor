@@ -7,17 +7,19 @@ import {
   DialogFooter,
   Input,
   Link,
+  Notification,
   Radio,
   RadioGroup,
-  Select,
   Text,
+  Tooltip,
 } from '@bitrise/bitkit';
 import { BitkitIconButton, IconPlus } from '@bitrise/bitkit-v2';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import TreeService from '@/core/services/TreeService';
-import { addInclude, createFile, openTab } from '@/core/stores/BitriseYmlStore';
-import { useTree } from '@/hooks/useTree';
+import { addInclude, createFile } from '@/core/stores/BitriseYmlStore';
+import { useFile } from '@/hooks/useFile';
+import { useTabs } from '@/hooks/useTabs';
 
 type Mode = 'create' | 'existing';
 
@@ -25,20 +27,21 @@ type Mode = 'create' | 'existing';
  * "Add module file" button (next to "Open module") + its dialog. Two modes:
  *
  *   - Create new file — makes an empty editable module file, opens it in a tab,
- *     and (optionally) adds an `include:` for it to a chosen module. No source
- *     params (a new file has no other source).
+ *     and adds an `include:` for it to the currently-open file. No source params.
  *   - Add existing file — writes an `include:` directive (with optional
- *     repository/branch/tag/commit) into a chosen module; the referenced file is
- *     resolved from Git on the next refresh. No file is created here.
+ *     repository/branch/tag/commit) into the currently-open file; the referenced
+ *     file is resolved from Git on the next refresh. No file is created here.
  *
- * Live re-resolution isn't done — the user refreshes after adding an include.
+ * The included file always goes into the file open in the active tab. The button
+ * is disabled on the Merged Config tab (no backing file) and on read-only files.
  */
 const CreateFileButton = () => {
-  const tree = useTree();
+  const { activeTab, mergedConfigNodeId } = useTabs();
+  const activeFile = useFile(activeTab ?? '');
+
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<Mode>('create');
   const [path, setPath] = useState('');
-  const [includeInto, setIncludeInto] = useState('');
   const [repository, setRepository] = useState('');
   const [branch, setBranch] = useState('');
   const [tag, setTag] = useState('');
@@ -46,22 +49,23 @@ const CreateFileButton = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [error, setError] = useState<string>();
 
-  // Editable module files are the valid targets for an `include:` directive.
-  const editableFiles = useMemo(() => {
-    const nodes: { nodeId: string; path: string }[] = [];
-    TreeService.walk(tree, (node) => {
-      if (node.editable) {
-        nodes.push({ nodeId: node.nodeId, path: node.path });
-      }
-    });
-    return nodes;
-  }, [tree]);
+  // The active file is the include target. It must be a real, editable file (not
+  // the Merged Config tab, not a read-only cross-ref file).
+  const isMerged = activeTab === mergedConfigNodeId;
+  const targetNodeId = activeFile?.editable ? activeFile.nodeId : undefined;
+  const targetName = activeFile ? TreeService.fileName(activeFile.path) : undefined;
+
+  let disabledReason: string | undefined;
+  if (isMerged) {
+    disabledReason = 'Switch to a file tab to add a module file — includes are written into the open file.';
+  } else if (!targetNodeId) {
+    disabledReason = 'This file is read-only, so it cannot include other files. Open an editable file first.';
+  }
 
   const close = () => {
     setIsOpen(false);
     setMode('create');
     setPath('');
-    setIncludeInto('');
     setRepository('');
     setBranch('');
     setTag('');
@@ -73,54 +77,52 @@ const CreateFileButton = () => {
   const clearError = () => setError(undefined);
 
   const submit = () => {
+    if (!targetNodeId) {
+      setError('No editable file is open to include into.');
+      return;
+    }
+
     if (mode === 'create') {
-      // Open the include target first (it stays pinned in the background) so the
-      // newly created file ends up the active tab below.
-      if (includeInto) {
-        openTab(includeInto, { preview: false });
-      }
       // Attach the new file under its include target so the backend matches it to
       // the directive instead of fetching it from Git.
-      const result = createFile(path, includeInto || undefined);
+      const result = createFile(path, targetNodeId);
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      if (includeInto) {
-        const included = addInclude(includeInto, { path: path.trim().replace(/^\/+|\/+$/g, '') });
-        if (!included.ok) {
-          setError(included.error);
-          return;
-        }
+      const included = addInclude(targetNodeId, { path: path.trim().replace(/^\/+|\/+$/g, '') });
+      if (!included.ok) {
+        setError(included.error);
+        return;
       }
       close();
       return;
     }
 
     // mode === 'existing'
-    if (!includeInto) {
-      setError('Select a module file to include into.');
-      return;
-    }
-    const result = addInclude(includeInto, { path, repository, branch, tag, commit });
+    const result = addInclude(targetNodeId, { path, repository, branch, tag, commit });
     if (!result.ok) {
       setError(result.error);
       return;
     }
-    // Open the module the include was added to so the change is visible.
-    openTab(includeInto, { preview: false });
     close();
   };
 
   return (
     <>
-      <BitkitIconButton
-        label="Add module file"
-        variant="secondary"
-        size="sm"
-        icon={IconPlus}
-        onClick={() => setIsOpen(true)}
-      />
+      <Tooltip label={disabledReason} isDisabled={!disabledReason}>
+        {/* The Box gives the tooltip a hover target even when the button is disabled. */}
+        <Box>
+          <BitkitIconButton
+            label="Add module file"
+            variant="secondary"
+            size="sm"
+            icon={IconPlus}
+            state={disabledReason ? 'disabled' : undefined}
+            onClick={() => setIsOpen(true)}
+          />
+        </Box>
+      </Tooltip>
       <Dialog isOpen={isOpen} onClose={close} title="Add module file">
         <DialogBody display="flex" flexDir="column" gap="16">
           <RadioGroup
@@ -157,30 +159,33 @@ const CreateFileButton = () => {
             }}
           />
 
-          <Select
-            label="Include into"
-            isRequired={mode === 'existing'}
-            placeholder="Select a module file…"
-            value={includeInto}
-            helperText={
-              mode === 'create'
-                ? 'Optionally add an include for the new file to this module.'
-                : 'The module that will include this file.'
-            }
-            onChange={(e) => {
-              setIncludeInto(e.target.value);
-              clearError();
-            }}
-          >
-            {editableFiles.map((file) => (
-              <option key={file.nodeId} value={file.nodeId}>
-                {TreeService.fileName(file.path)} — {file.path}
-              </option>
-            ))}
-          </Select>
+          {targetName && (
+            <Text textStyle="body/sm/regular" color="text/secondary">
+              Will be added as an{' '}
+              <Text as="span" fontWeight="bold">
+                include
+              </Text>{' '}
+              to{' '}
+              <Text as="span" fontWeight="bold">
+                {targetName}
+              </Text>{' '}
+              (the open file).
+            </Text>
+          )}
 
           {mode === 'existing' && (
             <>
+              <Notification status="warning">
+                Only the{' '}
+                <Text as="span" fontWeight="bold">
+                  include
+                </Text>{' '}
+                directive is added now. The components from this file are picked up and become visible only after you{' '}
+                <Text as="span" fontWeight="bold">
+                  save
+                </Text>{' '}
+                your changes.
+              </Notification>
               <Link as="button" colorScheme="purple" onClick={() => setShowAdvanced((v) => !v)} alignSelf="flex-start">
                 {showAdvanced ? 'Hide source options' : 'Source options (optional)'}
               </Link>
@@ -232,7 +237,7 @@ const CreateFileButton = () => {
           <Button variant="secondary" onClick={close}>
             Cancel
           </Button>
-          <Button onClick={submit} isDisabled={!path.trim() || (mode === 'existing' && !includeInto)}>
+          <Button onClick={submit} isDisabled={!path.trim()}>
             {mode === 'create' ? 'Create' : 'Add'}
           </Button>
         </DialogFooter>

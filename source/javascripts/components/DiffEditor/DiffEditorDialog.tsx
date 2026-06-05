@@ -10,11 +10,19 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
+import { Editor, type EditorProps } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
-import { forceRefreshStates, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import {
+  forceRefreshStates,
+  getYmlString,
+  MERGED_CONFIG_NODE_ID,
+  updateBitriseYmlDocumentByString,
+} from '@/core/stores/BitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
@@ -27,6 +35,17 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   const modifiedText = getYmlString();
   const originalText = getYmlString('savedYmlDocument');
+
+  // A session-created file (editable, not yet on the branch → empty commitSha)
+  // has no saved baseline; show a plain code view instead of a two-sided diff.
+  const isNewFile = useBitriseYmlStore((s) => {
+    const nodeId = s.selectedNodeId;
+    if (!nodeId || nodeId === MERGED_CONFIG_NODE_ID) {
+      return false;
+    }
+    const slice = s.files[nodeId];
+    return Boolean(slice?.editable && !slice.commitSha);
+  });
 
   const isApplyChangesDisabled = currentText === undefined || ymlStatus === 'invalid' || currentText === modifiedText;
 
@@ -46,6 +65,13 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   const handleEditorMount: DiffEditorProps['onMount'] = (editor) => {
     const model = editor.getModifiedEditor().getModel();
+    if (model) {
+      subscribeToModel(model);
+    }
+  };
+
+  const handlePlainEditorMount: EditorProps['onMount'] = (editor) => {
+    const model = editor.getModel();
     if (model) {
       subscribeToModel(model);
     }
@@ -80,15 +106,32 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" gap="16" flexDirection="column">
         <Notification status="info">
-          You can edit the right side of the diff view, and your changes will be saved
+          {isNewFile
+            ? 'This is a new file — edit it below and your changes will be saved.'
+            : 'You can edit the right side of the diff view, and your changes will be saved'}
         </Notification>
-        {originalText && modifiedText && (
-          <DiffEditor
-            originalText={originalText}
-            modifiedText={modifiedText}
-            onChange={handleChange}
-            onMount={handleEditorMount}
-          />
+        {isNewFile ? (
+          <Box flex="1" display="flex" minHeight="0">
+            <Editor
+              theme="vs-dark"
+              language="yaml"
+              defaultValue={modifiedText}
+              onChange={(value) => setCurrentText(typeof value === 'string' ? value : undefined)}
+              onMount={handlePlainEditorMount}
+              options={{ minimap: { enabled: false } }}
+              wrapperProps={{ style: { flex: 1, display: 'flex' } }}
+            />
+          </Box>
+        ) : (
+          originalText &&
+          modifiedText && (
+            <DiffEditor
+              originalText={originalText}
+              modifiedText={modifiedText}
+              onChange={handleChange}
+              onMount={handleEditorMount}
+            />
+          )
         )}
       </DialogBody>
       <DialogFooter>

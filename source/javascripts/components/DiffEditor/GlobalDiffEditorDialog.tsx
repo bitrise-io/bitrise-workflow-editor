@@ -11,6 +11,7 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { Editor, type EditorProps } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { useMemo, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -45,6 +46,21 @@ function syntheticRoot(root: TreeNode): TreeNode {
   };
 }
 
+/**
+ * Prune the tree to only the affected (dirty) files, but keep each one's full
+ * include path (its ancestor chain back to the root) for context. A node is kept
+ * when it's dirty or has a dirty descendant; unrelated branches are dropped.
+ * Kept-but-not-dirty ancestors stay visible (greyed/non-selectable) so the path
+ * flow to each changed file reads clearly.
+ */
+function pruneToDirty(node: TreeNode, dirtyIds: Set<string>): TreeNode | null {
+  const includes = node.includes.map((child) => pruneToDirty(child, dirtyIds)).filter((n): n is TreeNode => Boolean(n));
+  if (dirtyIds.has(node.nodeId) || includes.length > 0) {
+    return { ...node, includes };
+  }
+  return null;
+}
+
 const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   // The full include tree is shown; non-dirty nodes are disabled (greyed,
   // non-selectable). The dirty set drives which nodes are enabled (reactive: a
@@ -61,7 +77,9 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   const dirtyFiles = useBitriseYmlStore((s) =>
     Object.values(s.files)
       .filter((slice) => isFileDirty(slice))
-      .map((slice) => ({ nodeId: slice.nodeId, editable: slice.editable })),
+      // `commitSha` is empty for a session-created file (not on the branch yet) —
+      // such a file has no saved baseline, so it gets a plain code view, not a diff.
+      .map((slice) => ({ nodeId: slice.nodeId, editable: slice.editable, isNew: slice.editable && !slice.commitSha })),
   );
 
   const activeNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
@@ -74,6 +92,7 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   const selected = dirtyFiles.find((file) => file.nodeId === selectedNodeId) ?? dirtyFiles[0];
   const effectiveNodeId = selected?.nodeId;
+  const isNewFile = Boolean(selected?.isNew);
 
   const { originalText, modifiedText } = useMemo(() => {
     if (!effectiveNodeId) {
@@ -110,6 +129,13 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
     }
   };
 
+  const handlePlainEditorMount: EditorProps['onMount'] = (editor) => {
+    const model = editor.getModel();
+    if (model) {
+      subscribeToModel(model);
+    }
+  };
+
   useEventListener(
     'keydown',
     (e: KeyboardEvent) => {
@@ -125,7 +151,15 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
     { capture: true },
   );
 
-  const treeRoot = useMemo(() => (tree ? syntheticRoot(tree) : undefined), [tree]);
+  // Show only the affected files, each with its full include path back to the
+  // root (not the entire tree).
+  const treeRoot = useMemo(() => {
+    if (!tree) {
+      return undefined;
+    }
+    const pruned = pruneToDirty(tree, dirtyIds);
+    return pruned ? syntheticRoot(pruned) : undefined;
+  }, [tree, dirtyIds]);
 
   return (
     <>
@@ -154,17 +188,36 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
         </Box>
         <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
           <Notification status="info">
-            You can edit the right side of the diff view, and your changes will be saved
+            {isNewFile
+              ? 'This is a new file — edit it below and your changes will be saved.'
+              : 'You can edit the right side of the diff view, and your changes will be saved'}
           </Notification>
-          {effectiveNodeId && (
-            <DiffEditor
-              key={effectiveNodeId}
-              originalText={originalText}
-              modifiedText={modifiedText}
-              onChange={setCurrentText}
-              onMount={handleEditorMount}
-            />
-          )}
+          {effectiveNodeId &&
+            (isNewFile ? (
+              // A session-created file has no saved baseline; show a plain code
+              // view (not a diff against the empty stub) so it isn't a confusing
+              // "comment vs null" comparison.
+              <Box flex="1" display="flex" minHeight="0">
+                <Editor
+                  key={effectiveNodeId}
+                  theme="vs-dark"
+                  language="yaml"
+                  defaultValue={modifiedText}
+                  onChange={(value) => setCurrentText(typeof value === 'string' ? value : undefined)}
+                  onMount={handlePlainEditorMount}
+                  options={{ minimap: { enabled: false } }}
+                  wrapperProps={{ style: { flex: 1, display: 'flex' } }}
+                />
+              </Box>
+            ) : (
+              <DiffEditor
+                key={effectiveNodeId}
+                originalText={originalText}
+                modifiedText={modifiedText}
+                onChange={setCurrentText}
+                onMount={handleEditorMount}
+              />
+            ))}
         </Box>
       </DialogBody>
       <DialogFooter>
