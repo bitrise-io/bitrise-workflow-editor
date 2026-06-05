@@ -42,7 +42,7 @@ declare global {
       featureFlags?: {
         user: { [s: string]: unknown };
         account: { [s: string]: unknown } & {
-          machineTypeHosts?: string;
+          rollbackVersionFeatureEnabled?: boolean;
         };
       };
     };
