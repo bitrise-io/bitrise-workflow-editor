@@ -1,6 +1,4 @@
-import { BitkitIconButton, BitkitTag, IconCross, IconLock } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
-import { Text } from '@chakra-ui/react/text';
+import { BitkitTabs, IconLock } from '@bitrise/bitkit-v2';
 
 import TreeService from '@/core/services/TreeService';
 import { useFile, useFileIsDirty } from '@/hooks/useFile';
@@ -8,12 +6,16 @@ import { useTabs } from '@/hooks/useTabs';
 
 type Props = {
   nodeId: string;
-  isPreview: boolean;
-  isActive: boolean;
 };
 
-const FileTab = ({ nodeId, isPreview, isActive }: Props) => {
-  const { selectTab, closeTab } = useTabs();
+/**
+ * One open-file tab, rendered as a `BitkitTabs.Trigger`. Selection is driven by
+ * the enclosing `BitkitTabs.Root` (`onValueChange`); the trigger contributes the
+ * unsaved-changes dot (`changed`, which becomes a close button on hover) and the
+ * read-only lock icon + source-ref subtext for cross-ref files.
+ */
+const FileTab = ({ nodeId }: Props) => {
+  const { closeTab } = useTabs();
   const file = useFile(nodeId);
   const isDirty = useFileIsDirty(nodeId);
 
@@ -25,46 +27,15 @@ const FileTab = ({ nodeId, isPreview, isActive }: Props) => {
   const refLabel = TreeService.sourceLabel(file.source);
 
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      gap="6"
-      flexShrink={0}
-      paddingInline="12"
-      height="40px"
-      cursor="pointer"
-      borderRightWidth="1px"
-      borderRightColor="border/minimal"
-      borderBottomWidth="2px"
-      borderBottomColor={isActive ? 'border/selected' : 'transparent'}
-      backgroundColor={isActive ? 'background/selected' : 'transparent'}
-      _hover={{ backgroundColor: isActive ? 'background/selected' : 'background/hover' }}
-      onClick={() => selectTab(nodeId)}
-      role="tab"
-      aria-selected={isActive}
+    <BitkitTabs.Trigger
+      value={nodeId}
+      icon={file.editable ? undefined : IconLock}
+      secondaryText={refLabel ?? undefined}
+      changed={isDirty}
+      onClose={() => closeTab(nodeId)}
     >
-      {!file.editable && <IconLock size="16" />}
-      <Text
-        textStyle="body/md/regular"
-        color="text/primary"
-        fontStyle={isPreview ? 'italic' : undefined}
-        whiteSpace="nowrap"
-      >
-        {name}
-      </Text>
-      {refLabel && <BitkitTag labelText={refLabel} />}
-      {isDirty && <Box width="6px" height="6px" borderRadius="full" backgroundColor="text/secondary" />}
-      <BitkitIconButton
-        icon={IconCross}
-        label={`Close ${name}`}
-        size="sm"
-        variant="tertiary"
-        onClick={(event) => {
-          event.stopPropagation();
-          closeTab(nodeId);
-        }}
-      />
-    </Box>
+      {name}
+    </BitkitTabs.Trigger>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useDisclosure } from '@bitrise/bitkit';
-import { BitkitIconButton, IconGit } from '@bitrise/bitkit-v2';
+import { BitkitIconButton, IconArrowsHorizontal } from '@bitrise/bitkit-v2';
 
 import DiffEditorDialog from '@/components/DiffEditor/DiffEditorDialog';
 import MergedDiffDialog from '@/components/DiffEditor/MergedDiffDialog';
@@ -34,7 +34,7 @@ const TabDiffButton = () => {
         label="Show diff for this file"
         variant="secondary"
         size="sm"
-        icon={IconGit}
+        icon={IconArrowsHorizontal}
         state={isDirty ? undefined : 'disabled'}
         onClick={onOpen}
       />
