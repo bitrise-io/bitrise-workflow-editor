@@ -1,12 +1,12 @@
 import { Box, Link, Tab, TabList, Text } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import StepBundleService from '@/core/services/StepBundleService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
-import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import useNavigation from '@/hooks/useNavigation';
 import { useDefiningFilePath, useIsMergedConfigSelected } from '@/hooks/useTree';
 
@@ -26,7 +26,6 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
   const { replace } = useNavigation();
   const entityIndex = useEntityIndex();
-  const jumpToDefinition = useJumpToDefinition();
 
   // When the definition lives in another module file (cross-file reference) the
   // drawer is editing only the instance-level overrides; "Edit definition" must
@@ -40,9 +39,17 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const isCrossFile = !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
   const shouldJumpToDefinition =
     (!isLocal || isMergedView) && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', stepBundleId));
-  const onEditDefinition = shouldJumpToDefinition
-    ? () => jumpToDefinition('stepBundles', stepBundleId)
-    : () => replace('/step_bundles', { step_bundle_id: stepBundleId });
+  // Cross-file (or merged) → jump to the defining file, with a chooser when the
+  // bundle is defined in more than one layer. Local → navigate within this file.
+  const editDefinitionLink = shouldJumpToDefinition ? (
+    <JumpToDefinitionLink kind="stepBundles" id={stepBundleId}>
+      Edit definition
+    </JumpToDefinitionLink>
+  ) : (
+    <Link as="button" colorScheme="purple" onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}>
+      Edit definition
+    </Link>
+  );
   const definingPath = useDefiningFilePath('stepBundles', stepBundleId);
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
@@ -71,10 +78,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
         <Text as="span" textStyle="body/md/semibold">
           {stepBundleId}
         </Text>{' '}
-        • {middle} •{' '}
-        <Link as="button" colorScheme="purple" onClick={onEditDefinition}>
-          Edit definition
-        </Link>
+        • {middle} • {editDefinitionLink}
       </>
     );
   }

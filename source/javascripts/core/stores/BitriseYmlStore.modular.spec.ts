@@ -2,12 +2,15 @@ import { TreeNode } from '@/core/models/Tree';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 import {
+  addInclude,
   applyModularSaveResult,
   bitriseYmlStore,
   closeTab,
+  createFile,
   discardBitriseYmlDocument,
   getModularConfigTree,
   initializeModularConfig,
+  isFileDirty,
   MERGED_CONFIG_NODE_ID,
   openTab,
   recordActiveTabLocation,
@@ -17,6 +20,7 @@ import {
   updateBitriseYmlDocument,
   updateBitriseYmlDocumentByString,
   updateFileDocument,
+  updateFileDocumentByString,
 } from './BitriseYmlStore';
 
 function node(nodeId: string, overrides: Partial<TreeNode> = {}): TreeNode {
@@ -48,7 +52,7 @@ function buildRoot(): TreeNode {
 }
 
 const entityIndex = {
-  workflows: { 'child-a': { nodeId: 'child-a' } },
+  workflows: { 'child-a': [{ nodeId: 'child-a' }] },
   pipelines: {},
   stepBundles: {},
 };
@@ -65,6 +69,104 @@ describe('BitriseYmlStore — modular tree', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('createFile', () => {
+    it('adds an editable file node, opens it, and binds the active document', () => {
+      const result = createFile('modules/new.yml');
+      expect(result).toEqual({ ok: true, nodeId: expect.stringMatching(/^n_new_/) });
+
+      const state = bitriseYmlStore.getState();
+      const nodeId = result.ok ? result.nodeId : '';
+      // File slice exists, editable, with the normalized repo-relative path.
+      expect(state.files[nodeId]).toMatchObject({ path: 'modules/new.yml', editable: true, commitSha: '' });
+      // Added as a child of the root in the tree (so it's walked / merged / pushed).
+      expect(state.tree?.includes.some((node) => node.nodeId === nodeId)).toBe(true);
+      // Opened as a permanent tab and selected (active document rebound).
+      expect(state.selectedNodeId).toBe(nodeId);
+      expect(state.openTabs.some((tab) => tab.nodeId === nodeId && !tab.isPreview)).toBe(true);
+      // A fresh edit anywhere invalidates the merged view.
+      expect(state.mergedYmlStale).toBe(true);
+    });
+
+    it('strips a leading slash and rejects a duplicate path', () => {
+      const first = createFile('/modules/dup.yml');
+      expect(first.ok).toBe(true);
+      const nodeId = first.ok ? first.nodeId : '';
+      expect(bitriseYmlStore.getState().files[nodeId]?.path).toBe('modules/dup.yml');
+
+      const second = createFile('modules/dup.yml');
+      expect(second.ok).toBe(false);
+    });
+
+    it('rejects an empty path and a non-YAML extension', () => {
+      expect(createFile('   ').ok).toBe(false);
+      expect(createFile('modules/notyaml.txt').ok).toBe(false);
+    });
+
+    it('attaches the new file under its include target (not the root)', () => {
+      const result = createFile('modules/under-a.yml', 'child-a');
+      const nodeId = result.ok ? result.nodeId : '';
+      const state = bitriseYmlStore.getState();
+      // Not a direct child of the root...
+      expect(state.tree?.includes.some((node) => node.nodeId === nodeId)).toBe(false);
+      // ...but a child of the chosen target node.
+      const target = state.tree?.includes.find((node) => node.nodeId === 'child-a');
+      expect(target?.includes.some((node) => node.nodeId === nodeId)).toBe(true);
+    });
+
+    it('counts as unsaved (dirty) when freshly created — never on the branch', () => {
+      const result = createFile('modules/clean.yml');
+      const nodeId = result.ok ? result.nodeId : '';
+      const slice = bitriseYmlStore.getState().files[nodeId];
+      // No edits yet, so the documents are equal...
+      expect(YmlUtils.isEquals(slice!.ymlDocument, slice!.savedYmlDocument)).toBe(true);
+      // ...but an empty commitSha (not yet pushed) makes it dirty → the tab shows
+      // the unsaved dot.
+      expect(isFileDirty(slice)).toBe(true);
+      // ...and it flips tree-wide hasChanges so Save/Discard/Show-diff light up.
+      expect(bitriseYmlStore.getState().hasChanges).toBe(true);
+    });
+
+    it('marks the new file modified in the serialized tree even when untouched', () => {
+      const result = createFile('modules/fresh.yml');
+      const nodeId = result.ok ? result.nodeId : '';
+      const wireTree = getModularConfigTree();
+      const newNode = wireTree?.includes.find((node) => node.nodeId === nodeId);
+      // Empty commitSha ⇒ always "modified" ⇒ the push creates it.
+      expect(newNode?.modified).toBe(true);
+    });
+  });
+
+  describe('addInclude', () => {
+    function includeList(nodeId: string) {
+      const doc = bitriseYmlStore.getState().files[nodeId]?.ymlDocument;
+      return YmlUtils.getSeqIn(doc!, ['include'])?.toJSON() ?? [];
+    }
+
+    it('appends a path-only include directive to an editable file', () => {
+      const result = addInclude('root', { path: 'modules/extra.yml' });
+      expect(result).toEqual({ ok: true });
+      expect(includeList('root')).toEqual([{ path: 'modules/extra.yml' }]);
+      expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
+    });
+
+    it('writes only the provided source refs', () => {
+      addInclude('root', { path: 'shared.yml', repository: 'shared', branch: 'main', tag: '', commit: '' });
+      expect(includeList('root')).toEqual([{ path: 'shared.yml', repository: 'shared', branch: 'main' }]);
+    });
+
+    it('rejects a read-only target, a missing target, and a non-YAML path', () => {
+      expect(addInclude('readonly', { path: 'x.yml' }).ok).toBe(false);
+      expect(addInclude('nope', { path: 'x.yml' }).ok).toBe(false);
+      expect(addInclude('root', { path: 'x.txt' }).ok).toBe(false);
+    });
+
+    it('enforces the backend include rules (repo needs a ref; commit length)', () => {
+      expect(addInclude('root', { path: 'x.yml', repository: 'other' }).ok).toBe(false);
+      expect(addInclude('root', { path: 'x.yml', commit: 'abc' }).ok).toBe(false);
+      expect(addInclude('root', { path: 'x.yml', commit: 'abcdef0' }).ok).toBe(true);
+    });
   });
 
   describe('initializeModularConfig', () => {
@@ -87,9 +189,9 @@ describe('BitriseYmlStore — modular tree', () => {
       // define, including ones the seed omitted (child-b, readonly).
       expect(state.entityIndex).toEqual({
         workflows: {
-          'child-a': { nodeId: 'child-a' },
-          'child-b': { nodeId: 'child-b' },
-          readonly: { nodeId: 'readonly' },
+          'child-a': [{ nodeId: 'child-a' }],
+          'child-b': [{ nodeId: 'child-b' }],
+          readonly: [{ nodeId: 'readonly' }],
         },
         pipelines: {},
         stepBundles: {},
@@ -105,7 +207,7 @@ describe('BitriseYmlStore — modular tree', () => {
       });
 
       const { entityIndex: index } = bitriseYmlStore.getState();
-      expect(index.workflows['brand-new']).toEqual({ nodeId: 'child-a' });
+      expect(index.workflows['brand-new']).toEqual([{ nodeId: 'child-a' }]);
     });
 
     it('leaves the merged config stale when no initial mergedYml is provided', () => {
@@ -188,6 +290,34 @@ describe('BitriseYmlStore — modular tree', () => {
     it('no-ops and warns for an unknown node_id', () => {
       updateFileDocument('missing', ({ doc }) => doc);
       expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('no file with node_id'));
+    });
+  });
+
+  describe('updateFileDocumentByString', () => {
+    it('applies a YAML string to a non-active file (global diff Apply)', () => {
+      // child-a is not the active tab (root is) → updates just that slice.
+      updateFileDocumentByString('child-a', 'workflows:\n  via-string: {}\n');
+
+      const state = bitriseYmlStore.getState();
+      expect(YmlUtils.toJSON(state.files['child-a'].ymlDocument)).toEqual({ workflows: { 'via-string': {} } });
+      // The active document (root) is untouched.
+      expect(state.selectedNodeId).toBe('root');
+      expect(state.entityIndex.workflows['via-string']).toEqual([{ nodeId: 'child-a' }]);
+    });
+
+    it('keeps the active bound document in sync when the file is the active tab', () => {
+      selectNode('child-a');
+      updateFileDocumentByString('child-a', 'workflows:\n  active-edit: {}\n');
+
+      const state = bitriseYmlStore.getState();
+      expect(state.yml).toEqual({ workflows: { 'active-edit': {} } });
+      expect(YmlUtils.toJSON(state.files['child-a'].ymlDocument)).toEqual({ workflows: { 'active-edit': {} } });
+    });
+
+    it('ignores invalid YAML for a non-active file', () => {
+      const before = bitriseYmlStore.getState().files['child-a'].ymlDocument;
+      updateFileDocumentByString('child-a', 'workflows: : : invalid');
+      expect(bitriseYmlStore.getState().files['child-a'].ymlDocument).toBe(before);
     });
   });
 
@@ -407,6 +537,44 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.yml).not.toMatchObject({ workflows: { 'child-b': { title: 'B-edit' } } });
     });
 
+    it('drops a session-created file (tab, tree node, slice) on discard', () => {
+      const result = createFile('modules/created.yml', 'child-a');
+      const nodeId = result.ok ? result.nodeId : '';
+      // It's the active tab now.
+      expect(bitriseYmlStore.getState().selectedNodeId).toBe(nodeId);
+
+      discardBitriseYmlDocument();
+
+      const state = bitriseYmlStore.getState();
+      expect(state.files[nodeId]).toBeUndefined();
+      expect(state.openTabs.some((tab) => tab.nodeId === nodeId)).toBe(false);
+      const target = state.tree?.includes.find((node) => node.nodeId === 'child-a');
+      expect(target?.includes.some((node) => node.nodeId === nodeId)).toBe(false);
+      // Active selection moved off the dropped tab, and no edits remain.
+      expect(state.selectedNodeId).not.toBe(nodeId);
+      expect(state.hasChanges).toBe(false);
+      // The live entity index no longer lists the dropped file's workflow.
+      expect(state.entityIndex.workflows[nodeId]).toBeUndefined();
+    });
+
+    it('freezes the saved merged baseline while edits are pending, for the merged diff', () => {
+      // Clean state: a merge sets both current + saved baseline.
+      setMergedConfig('merged: original');
+      expect(bitriseYmlStore.getState().savedMergedYml).toBe('merged: original');
+
+      // Edit a file → now dirty; a fresh merge updates current but NOT the saved
+      // baseline (so the merged-tab diff compares saved → current).
+      updateFileDocument('child-a', ({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'edited');
+        return doc;
+      });
+      setMergedConfig('merged: with-edits');
+
+      const state = bitriseYmlStore.getState();
+      expect(state.mergedYml).toBe('merged: with-edits');
+      expect(state.savedMergedYml).toBe('merged: original');
+    });
+
     it('marks the merged config stale on discard so the merged view reloads to the original', () => {
       selectNode('child-a');
       updateBitriseYmlDocument(({ doc }) => {
@@ -523,6 +691,28 @@ describe('BitriseYmlStore — modular tree', () => {
       const state = bitriseYmlStore.getState();
       expect(state.openTabs.map((t) => t.nodeId)).toEqual(['root']);
       expect(state.selectedNodeId).toBe('root');
+    });
+
+    it('preserves the Merged-config selection + open tabs across the reload (push-to-branch)', () => {
+      openTab('child-a', { preview: false });
+      selectMergedConfig();
+
+      applyModularSaveResult({
+        root: buildRoot(),
+        entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} },
+        branch: 'feature-x',
+        commitSha: 'pushed-sha',
+      });
+
+      const state = bitriseYmlStore.getState();
+      // The merged view stays selected (not reset to a single root tab) and the
+      // open file tab survives; the branch/commit reflect the pushed branch.
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+      expect(state.openTabs.map((t) => t.nodeId)).toContain('child-a');
+      expect(state.configBranch).toBe('feature-x');
+      expect(state.configCommitSha).toBe('pushed-sha');
+      // Merged view is marked stale so useMergedConfigSync refetches + rebinds it.
+      expect(state.mergedYmlStale).toBe(true);
     });
   });
 });

@@ -27,6 +27,7 @@ import {
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
@@ -41,6 +42,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import GlobalDiffEditorDialog from './DiffEditor/GlobalDiffEditorDialog';
 import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
@@ -55,6 +57,7 @@ const Header = () => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
+  const isModular = useBitriseYmlStore((s) => !!s.tree);
   const ymlStatus = useYmlValidationStatus();
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -289,7 +292,11 @@ const Header = () => {
           </Button>
         </Tooltip>
       </Box>
-      <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      {isModular ? (
+        <GlobalDiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      ) : (
+        <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      )}
       <ConfigMergeDialog
         isOpen={isMergeDialogOpen}
         onClose={closeMergeDialog}

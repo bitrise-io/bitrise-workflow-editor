@@ -1,12 +1,12 @@
-import { Box, Button, Link, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
-import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import { useDefiningFilePath, useIsMergedConfigSelected } from '@/hooks/useTree';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
@@ -26,7 +26,6 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   const dependants = useDependantWorkflows({ workflowId: id });
   const entityIndex = useEntityIndex();
-  const jumpToDefinition = useJumpToDefinition();
 
   // The workflow's definition may live in another module file (cross-file
   // reference). Here we only edit the instance-level config (Configuration tab);
@@ -89,9 +88,9 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
                   •{' '}
                 </>
               )}
-              <Link as="button" colorScheme="purple" onClick={() => jumpToDefinition('workflows', id)}>
+              <JumpToDefinitionLink kind="workflows" id={id}>
                 {isMergedView ? 'Go to definition' : 'Edit definition'}
-              </Link>
+              </JumpToDefinitionLink>
             </Text>
           )}
         </div>

@@ -126,7 +126,7 @@ type WireTreeNode = {
   includes: WireTreeNode[];
 };
 
-type WireEntityEntries = Record<string, { node_id: string }>;
+type WireEntityEntries = Record<string, Array<{ node_id: string }>>;
 
 type WireEntityIndex = {
   workflows: WireEntityEntries;
@@ -193,7 +193,9 @@ function treeNodeToWire(node: TreeNode): WireTreeNode {
 }
 
 function mapEntityEntries(entries: WireEntityEntries = {}): EntityIndex['workflows'] {
-  return Object.fromEntries(Object.entries(entries).map(([id, { node_id }]) => [id, { nodeId: node_id }]));
+  return Object.fromEntries(
+    Object.entries(entries).map(([id, defs]) => [id, defs.map(({ node_id }) => ({ nodeId: node_id }))]),
+  );
 }
 
 function wireToEntityIndex(index: WireEntityIndex): EntityIndex {

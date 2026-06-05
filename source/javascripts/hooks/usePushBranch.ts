@@ -1,5 +1,5 @@
 import { useToast } from '@bitrise/bitkit';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import {
@@ -12,13 +12,14 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
+  applyModularSaveResult,
   getModularConfigTree,
   getYmlString,
   initializeBitriseYmlDocument,
-  initializeModularConfig,
 } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { CI_CONFIG_TREE_QUERY_KEY } from '@/hooks/useCiConfigTree';
 
 export type PushBranchPayload = {
   branch: string;
@@ -33,6 +34,7 @@ type UsePushBranchOptions = {
 
 function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}) {
   const toast = useToast();
+  const queryClient = useQueryClient();
   const appSlug = PageProps.appSlug();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const configCommitSha = useBitriseYmlStore((s) => s.configCommitSha);
@@ -75,16 +77,25 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       });
 
       // Reload the pushed branch so the editor reflects the saved state (edits
-      // are no longer dirty). Modular reloads the whole tree; single-file the one doc.
+      // are no longer dirty). Modular: refresh the tree in place via
+      // applyModularSaveResult, which **preserves the open tabs + active selection**
+      // (including the Merged-config view) by stable node_id — rather than the
+      // hard reset initializeModularConfig does (which would drop the user back to
+      // a single root tab). Single-file: re-seed the one doc.
       if (isModular) {
         const config = await BitriseYmlApi.getConfig({ projectSlug: appSlug, branch });
-        initializeModularConfig({
+        applyModularSaveResult({
           root: config.root,
           entityIndex: config.entityIndex,
-          mergedYml: config.mergedYml,
           branch: config.branch,
           commitSha: config.root.commitSha,
         });
+        // Sync React Query's config-tree cache with the freshly pushed tree.
+        // Without this the cache still holds the pre-push tree (keyed to the
+        // branch first loaded), and any later re-seed of the store from that
+        // stale entry (a dev HMR/StrictMode remount of InitialDataLoader, etc.)
+        // would silently revert the editor to the old module tree.
+        queryClient.setQueriesData({ queryKey: [CI_CONFIG_TREE_QUERY_KEY, appSlug] }, config);
       } else {
         const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
         initializeBitriseYmlDocument(newConfig);

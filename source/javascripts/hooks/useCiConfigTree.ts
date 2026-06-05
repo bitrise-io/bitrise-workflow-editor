@@ -4,7 +4,7 @@ import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
 import { GetConfigResponse, SaveTreeResult, TreeNode } from '@/core/models/Tree';
 
-const CI_CONFIG_TREE_QUERY_KEY = 'ci_config_tree';
+export const CI_CONFIG_TREE_QUERY_KEY = 'ci_config_tree';
 
 type UseGetCiConfigTreeProps = {
   projectSlug: string;

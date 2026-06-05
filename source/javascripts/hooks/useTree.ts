@@ -2,9 +2,16 @@ import { useStore } from 'zustand';
 
 import { EntityKind, TreeNode } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
-import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
-import YmlUtils from '@/core/utils/YmlUtils';
+import TreeService from '@/core/services/TreeService';
+import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+// EntityKind → the active document's top-level section key.
+const SECTION_BY_KIND: Record<EntityKind, 'workflows' | 'pipelines' | 'step_bundles'> = {
+  workflows: 'workflows',
+  pipelines: 'pipelines',
+  stepBundles: 'step_bundles',
+};
 
 /**
  * The tree root (structural skeleton), by reference. Walk it via `TreeService`;
@@ -45,11 +52,44 @@ export function useDefiningFilePath(kind: EntityKind, id: string): string | unde
   });
 }
 
+export type CrossFileEntityInfo = {
+  /** The entity is referenced here but defined in another file. */
+  isCrossFile: boolean;
+  /** Repo-relative path of the (top-most) defining file. */
+  definingPath?: string;
+  /** Source ref of that file (e.g. `@feature-x`, `tag: v1.2`), if any. */
+  sourceLabel?: string;
+};
+
+/**
+ * Provenance for a candidate entity in the global selector pickers: whether it's
+ * defined outside the active file, and — when it is — the top-most defining
+ * file's path + source ref (branch/tag). All from already-loaded metadata (entity
+ * index + the per-node `path`/`source` on each file slice); never reads the other
+ * file's contents. `isCrossFile` is false in single-file mode (empty index) and
+ * for entities defined in the active file. See `behavior.md` ("Entity pickers").
+ */
+export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntityInfo {
+  return useBitriseYmlStore((s) => {
+    const isLocal = Boolean(s.yml[SECTION_BY_KIND[kind]]?.[id]);
+    const nodeId = EntityIndexService.definingNodeId(s.entityIndex, kind, id);
+    if (isLocal || !nodeId) {
+      return { isCrossFile: false };
+    }
+    const file = s.files[nodeId];
+    return {
+      isCrossFile: true,
+      definingPath: file?.path,
+      sourceLabel: TreeService.sourceLabel(file?.source ?? null) ?? undefined,
+    };
+  });
+}
+
 /** node_ids of files with unsaved edits. */
 export function useDirtyNodeIds(): string[] {
   return useBitriseYmlStore((s) =>
     Object.values(s.files)
-      .filter((file) => !YmlUtils.isEquals(file.ymlDocument, file.savedYmlDocument))
+      .filter((file) => isFileDirty(file))
       .map((file) => file.nodeId),
   );
 }

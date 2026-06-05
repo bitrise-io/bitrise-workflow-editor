@@ -1,6 +1,6 @@
 import { Document } from 'yaml';
 
-import { EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
+import { EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 import TreeService from './TreeService';
@@ -22,15 +22,26 @@ const KIND_SECTIONS: ReadonlyArray<{ section: string; key: EntityKind }> = [
   { section: 'step_bundles', key: 'stepBundles' },
 ];
 
-/** The `nodeId` of the node that defines this entity, or `undefined`. */
+/** All places this entity is defined, in merge order (`[0]` = top-most). */
+function definitionsOf(index: EntityIndex, kind: EntityKind, id: string): EntityDefinition[] {
+  return index[kind]?.[id] ?? [];
+}
+
+/**
+ * The `nodeId` of the **top-most** (highest-precedence) node that defines this
+ * entity, or `undefined`. This is what selectors and provenance use — the single
+ * "finalish" definition. Use `definitionsOf` when every layer matters (the
+ * jump-to-definition chooser).
+ */
 function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): string | undefined {
-  return index[kind]?.[id]?.nodeId;
+  return definitionsOf(index, kind, id)[0]?.nodeId;
 }
 
 /**
  * Build the entity index live from the open file documents — the FE equivalent
- * of the BE `EntityIndexBuilder`. Mirrors its precedence exactly: a pre-order
- * walk (root, then each include subtree in order) with first-writer-wins. The BE
+ * of the BE `EntityIndexBuilder`. Mirrors it exactly: a pre-order walk (root,
+ * then each include subtree in order), collecting **every** definition of an id
+ * into an ordered array (`[0]` = top-most/highest-precedence layer). The BE
  * snapshot seeds the index at load, but this keeps it current with unsaved edits
  * so cross-file detection + jump-to-definition stay correct before save.
  */
@@ -47,10 +58,12 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
       const map = YmlUtils.getMapIn(doc, [section]);
       map?.items.forEach((pair) => {
         const entityId = String(pair.key);
-        // First writer wins — don't overwrite a higher-precedence definition.
-        if (entityId && !index[key][entityId]) {
-          index[key][entityId] = { nodeId: node.nodeId };
+        if (!entityId) {
+          return;
         }
+        // Collect every definition in pre-order — no first-writer-wins. The
+        // first appended is the top-most layer; later ones are lower layers.
+        (index[key][entityId] ||= []).push({ nodeId: node.nodeId });
       });
     });
   });
@@ -64,24 +77,32 @@ function equals(a: EntityIndex, b: EntityIndex): boolean {
     const aEntries = a[key];
     const bEntries = b[key];
     const aIds = Object.keys(aEntries);
-    return (
-      aIds.length === Object.keys(bEntries).length && aIds.every((id) => aEntries[id].nodeId === bEntries[id]?.nodeId)
-    );
+    if (aIds.length !== Object.keys(bEntries).length) {
+      return false;
+    }
+    return aIds.every((id) => {
+      const aDefs = aEntries[id];
+      const bDefs = bEntries[id];
+      return (
+        bDefs !== undefined && aDefs.length === bDefs.length && aDefs.every((def, i) => def.nodeId === bDefs[i]?.nodeId)
+      );
+    });
   });
 }
 
 /**
- * `true` when the entity is defined in a node other than the one the editor is
- * currently scoped to (a "ghost" reference). `false` when it's defined in the
- * current node, or when the index doesn't know about it at all.
+ * `true` when the entity is defined, but in none of the active node's layers (a
+ * cross-file reference). `false` when one of its definitions lives in the current
+ * node (it's local — we render the real card), or when the index doesn't know it.
  */
 function isGhost(index: EntityIndex, kind: EntityKind, id: string, currentNodeId: string): boolean {
-  const definingId = definingNodeId(index, kind, id);
-  return definingId !== undefined && definingId !== currentNodeId;
+  const defs = definitionsOf(index, kind, id);
+  return defs.length > 0 && !defs.some((def) => def.nodeId === currentNodeId);
 }
 
 export default {
   definingNodeId,
+  definitionsOf,
   isGhost,
   buildFromFiles,
   equals,

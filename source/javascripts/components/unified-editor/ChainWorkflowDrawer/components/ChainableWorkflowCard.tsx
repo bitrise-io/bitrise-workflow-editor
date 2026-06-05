@@ -1,7 +1,9 @@
 import { Box, Button, ButtonGroup, Card, Divider, Text } from '@bitrise/bitkit';
 
+import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useCrossFileEntity } from '@/hooks/useTree';
 
 import type { ChainWorkflowCallback } from '../ChainWorkflowDrawer';
 
@@ -13,6 +15,7 @@ type Props = {
 
 const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
   const dependants = useDependantWorkflows({ workflowId: chainableWorkflowId });
+  const crossFile = useCrossFileEntity('workflows', chainableWorkflowId);
   return (
     <Card
       className="group"
@@ -33,7 +36,11 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           {chainableWorkflowId}
         </Text>
         <Text textStyle="body/sm/regular" color="text/secondary">
-          {WorkflowService.getUsedByText(dependants)}
+          {crossFile.isCrossFile ? (
+            <CrossFileProvenanceText definingPath={crossFile.definingPath} sourceLabel={crossFile.sourceLabel} />
+          ) : (
+            WorkflowService.getUsedByText(dependants)
+          )}
         </Text>
       </Box>
       <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>

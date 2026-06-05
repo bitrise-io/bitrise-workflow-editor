@@ -1,7 +1,6 @@
 import { useStore } from 'zustand';
 
-import { bitriseYmlStore, FileSlice } from '@/core/stores/BitriseYmlStore';
-import YmlUtils from '@/core/utils/YmlUtils';
+import { bitriseYmlStore, FileSlice, isFileDirty } from '@/core/stores/BitriseYmlStore';
 
 /**
  * One file's slice, by reference. Stable identity per file: `updateFileDocument`
@@ -14,8 +13,5 @@ export function useFile(nodeId: string): FileSlice | undefined {
 }
 
 export function useFileIsDirty(nodeId: string): boolean {
-  return useStore(bitriseYmlStore, (s) => {
-    const file = s.files[nodeId];
-    return file ? !YmlUtils.isEquals(file.ymlDocument, file.savedYmlDocument) : false;
-  });
+  return useStore(bitriseYmlStore, (s) => isFileDirty(s.files[nodeId]));
 }

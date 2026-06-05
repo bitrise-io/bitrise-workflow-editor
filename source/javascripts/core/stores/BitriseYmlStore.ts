@@ -72,6 +72,10 @@ export const bitriseYmlStore = createStore(
     // (POST /config/merge) whenever a file edit marks it stale.
     mergedYml: undefined as string | undefined,
     mergedYmlStale: true,
+    // The merged config of the *saved* files (no unsaved edits) — the baseline
+    // for the merged-tab diff. Captured whenever a merge is set while nothing is
+    // dirty (a clean merge == the saved merge); frozen while edits are pending.
+    savedMergedYml: undefined as string | undefined,
   })),
 );
 
@@ -128,23 +132,65 @@ export function discardBitriseYmlDocument() {
     return;
   }
 
-  // Modular mode: discard every file's edits back to its saved document, then
-  // rebind the active editing document to the (now-reverted) active file.
+  // Modular mode: discard every saved file's edits back to its saved document,
+  // and DROP session-created files entirely (editable + empty commitSha = never
+  // on the branch, so there's nothing to revert to — they shouldn't linger as a
+  // tab/tree node/index entry after discard).
+  const dropIds = new Set(
+    Object.values(state.files)
+      .filter((slice) => slice.editable && !slice.commitSha)
+      .map((slice) => slice.nodeId),
+  );
+
   const files: Record<string, FileSlice> = {};
   Object.values(state.files).forEach((slice) => {
+    if (dropIds.has(slice.nodeId)) {
+      return;
+    }
     files[slice.nodeId] = { ...slice, ymlDocument: slice.savedYmlDocument };
   });
-  const activeSlice = state.selectedNodeId ? files[state.selectedNodeId] : undefined;
+
+  const tree = state.tree ? pruneNodes(state.tree, dropIds) : state.tree;
+  const openTabs = state.openTabs.filter((tab) => !dropIds.has(tab.nodeId));
+
+  // Rebind the active editing document. If the active tab was a dropped file,
+  // fall back to a remaining tab (else the merged config); otherwise rebind to
+  // the (now-reverted) active file.
+  const activeDropped = !!state.selectedNodeId && dropIds.has(state.selectedNodeId);
+  let selectionPatch: ReturnType<typeof mergedConfigPatch> | ReturnType<typeof activeFilePatch>;
+  if (activeDropped) {
+    const neighborNodeId = openTabs[openTabs.length - 1]?.nodeId;
+    const neighbor = neighborNodeId ? files[neighborNodeId] : undefined;
+    selectionPatch = neighbor
+      ? {
+          selectedNodeId: neighbor.nodeId,
+          version: '',
+          ymlDocument: neighbor.savedYmlDocument,
+          savedYmlDocument: neighbor.savedYmlDocument,
+          __invalidYmlString: undefined,
+        }
+      : mergedConfigPatch();
+  } else {
+    const activeSlice = state.selectedNodeId ? files[state.selectedNodeId] : undefined;
+    selectionPatch = {
+      selectedNodeId: state.selectedNodeId ?? MERGED_CONFIG_NODE_ID,
+      version: '',
+      ymlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
+      savedYmlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
+      __invalidYmlString: undefined,
+    };
+  }
 
   bitriseYmlStore.setState({
     discardKey: Date.now(),
     files,
-    ymlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
-    savedYmlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
-    __invalidYmlString: undefined,
-    // File contents just changed (reverted to saved), so the merged config no
-    // longer reflects them — refetch it. On the merged tab this is what resets
-    // the view to the original merge (it has no file slice to rebind from).
+    tree,
+    openTabs,
+    ...selectionPatch,
+    // File contents just changed (reverted to saved, dropped files removed), so
+    // the merged config no longer reflects them — refetch it. On the merged tab
+    // this is what resets the view to the original merge (no file slice to
+    // rebind from). The entity index recomputes from `files` via subscription.
     mergedYmlStale: true,
   });
 }
@@ -257,8 +303,15 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
 
 // --- Modular YAML tree actions ---
 
-function isFileDirty(slice?: FileSlice) {
-  return !!slice && !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument);
+export function isFileDirty(slice?: FileSlice) {
+  if (!slice) {
+    return false;
+  }
+  // A never-saved editable file (created in-editor, not yet on the branch →
+  // empty commitSha) is always unsaved, even before the user types anything. A
+  // read-only cross-ref file can also lack a commitSha (unresolved) but can't be
+  // edited, so it's never dirty.
+  return (slice.editable && !slice.commitSha) || !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument);
 }
 
 /**
@@ -329,11 +382,206 @@ export function getModularConfigTree(): TreeNode | undefined {
   Object.values(files).forEach((slice) => {
     live[slice.nodeId] = {
       contents: YmlUtils.toYml(slice.ymlDocument),
-      modified: !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument),
+      // A brand-new file (created in-editor, not yet on the branch → empty
+      // commitSha) is always "modified" so the push creates it, even if the user
+      // left it at the empty template.
+      modified: !slice.commitSha || !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument),
     };
   });
 
   return TreeService.serializeTree(tree, live);
+}
+
+/** Normalize a user-entered repo-relative path: trim, drop leading/trailing
+ *  slashes, collapse runs of slashes. */
+function normalizeFilePath(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/\/{2,}/g, '/');
+}
+
+/**
+ * Stable opaque `node_id` for an FE-created file, derived from its path (djb2).
+ * The backend re-derives real ids on the post-save reload; this only needs
+ * session-stable uniqueness, and the `_new_` marker keeps it clear of BE ids.
+ */
+function localNodeId(path: string): string {
+  let h = 5381;
+  for (let i = 0; i < path.length; i += 1) {
+    h = (h * 33) ^ path.charCodeAt(i);
+  }
+  return `n_new_${(h >>> 0).toString(16)}`;
+}
+
+export type CreateFileResult = { ok: true; nodeId: string } | { ok: false; error: string };
+
+/** Return a deep clone of `root` with `child` appended under the node whose id
+ *  is `parentNodeId` (clones only the path to that node; siblings keep identity).
+ *  Falls back to appending under the root if the parent isn't found. */
+function insertChild(root: TreeNode, parentNodeId: string, child: TreeNode): TreeNode {
+  if (root.nodeId === parentNodeId) {
+    return { ...root, includes: [...root.includes, child] };
+  }
+  return { ...root, includes: root.includes.map((node) => insertChild(node, parentNodeId, child)) };
+}
+
+/** Return a clone of `root` with every node whose id is in `dropIds` removed
+ *  (recursively). The root itself is never dropped. */
+function pruneNodes(root: TreeNode, dropIds: Set<string>): TreeNode {
+  return {
+    ...root,
+    includes: root.includes.filter((child) => !dropIds.has(child.nodeId)).map((child) => pruneNodes(child, dropIds)),
+  };
+}
+
+/**
+ * Create a new, empty module file at `rawPath` (repo-relative) and open it in a
+ * tab. It's added as a child of `parentNodeId` (the module that will `include:`
+ * it) so the backend reconciler matches it to that directive instead of trying
+ * to fetch it from Git; with no parent it's added under the root. Either way it's
+ * part of every derived view — editable, walked by the entity index, merged, and
+ * pushed (marked modified via its empty commitSha) once something includes it.
+ */
+export function createFile(rawPath: string, parentNodeId?: string): CreateFileResult {
+  const { tree, files } = bitriseYmlStore.getState();
+  if (!tree) {
+    return { ok: false, error: 'No modular configuration is loaded.' };
+  }
+
+  const path = normalizeFilePath(rawPath);
+  if (!path) {
+    return { ok: false, error: 'Enter a file path.' };
+  }
+  if (!/\.ya?ml$/i.test(path)) {
+    return { ok: false, error: 'The path must end in .yml or .yaml.' };
+  }
+  if (Object.values(files).some((file) => file.path === path)) {
+    return { ok: false, error: `A file already exists at "${path}".` };
+  }
+
+  let nodeId = localNodeId(path);
+  while (files[nodeId]) {
+    nodeId += 'x'; // djb2 collision between distinct paths — astronomically rare.
+  }
+
+  const source: TreeNodeSource = { path, repository: null, branch: null, tag: null, commit: null };
+  const doc = YmlUtils.toDoc(`# ${path}\n`);
+  const slice: FileSlice = {
+    nodeId,
+    path,
+    source,
+    commitSha: '',
+    editable: true,
+    ymlDocument: doc,
+    savedYmlDocument: doc,
+  };
+  const node: TreeNode = {
+    nodeId,
+    path,
+    contents: YmlUtils.toYml(doc),
+    source,
+    commitSha: '',
+    editable: true,
+    includes: [],
+  };
+
+  const nextTree =
+    parentNodeId && files[parentNodeId]
+      ? insertChild(tree, parentNodeId, node)
+      : { ...tree, includes: [...tree.includes, node] };
+
+  bitriseYmlStore.setState({
+    tree: nextTree,
+    files: { ...files, [nodeId]: slice },
+    mergedYmlStale: true,
+  });
+  // Pins a permanent tab, selects it, and rebinds the active editing document.
+  openTab(nodeId, { preview: false });
+
+  return { ok: true, nodeId };
+}
+
+export type IncludeSource = {
+  path: string;
+  repository?: string;
+  branch?: string;
+  tag?: string;
+  commit?: string;
+};
+
+export type AddIncludeResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Append an `include:` directive to an editable module file's document, pointing
+ * at `source.path` with optional cross-source refs (repository/branch/tag/commit).
+ * The directive is the only thing written — the referenced file is resolved from
+ * Git on the next `/config/tree` load (live re-resolution is intentionally not
+ * done; the user refreshes after adding an include). Mirrors the backend
+ * validation in `YMLFile#validate_include` so the user gets feedback before push.
+ */
+export function addInclude(targetNodeId: string, source: IncludeSource): AddIncludeResult {
+  const { files } = bitriseYmlStore.getState();
+  const slice = files[targetNodeId];
+
+  if (!slice) {
+    return { ok: false, error: 'Select a module file to include into.' };
+  }
+  if (!slice.editable) {
+    return { ok: false, error: `"${slice.path}" is read-only; you can't add an include to it.` };
+  }
+
+  const path = source.path.trim().replace(/^\/+/, '');
+  if (!path) {
+    return { ok: false, error: 'Enter a file path to include.' };
+  }
+  if (!/\.ya?ml$/i.test(path)) {
+    return { ok: false, error: 'The path must end in .yml or .yaml.' };
+  }
+
+  const repository = source.repository?.trim() || undefined;
+  const branch = source.branch?.trim() || undefined;
+  const tag = source.tag?.trim() || undefined;
+  const commit = source.commit?.trim() || undefined;
+
+  if (commit && commit.length !== 40 && (commit.length <= 5 || commit.length >= 9)) {
+    return { ok: false, error: 'Commit must be a short (6–8 char) or full (40 char) hash.' };
+  }
+  if (repository && !branch && !tag && !commit) {
+    return { ok: false, error: 'When a repository is set, also provide a branch, tag or commit.' };
+  }
+
+  const entry: Record<string, string> = { path };
+  if (repository) entry.repository = repository;
+  if (branch) entry.branch = branch;
+  if (tag) entry.tag = tag;
+  if (commit) entry.commit = commit;
+
+  updateFileDocument(targetNodeId, ({ doc }) => {
+    YmlUtils.addIn(doc, ['include'], entry);
+    return doc;
+  });
+
+  return { ok: true };
+}
+
+/**
+ * Apply a full YAML string to a specific file's slice (used by the global diff
+ * dialog's per-file "Apply changes"). When the file is the active tab it routes
+ * through `updateBitriseYmlDocumentByString` so the bound active document stays
+ * in sync; otherwise it updates just that slice. Invalid YAML is ignored (the
+ * dialog already blocks Apply on an invalid model).
+ */
+export function updateFileDocumentByString(nodeId: string, ymlString: string) {
+  const state = bitriseYmlStore.getState();
+  if (nodeId === state.selectedNodeId) {
+    updateBitriseYmlDocumentByString(ymlString);
+    return;
+  }
+  const doc = YmlUtils.toDoc(ymlString);
+  if (doc.errors.length === 0) {
+    updateFileDocument(nodeId, () => doc);
+  }
 }
 
 export function initializeModularConfig({
@@ -370,18 +618,33 @@ export function initializeModularConfig({
     // local edit flips it stale → re-fetched via POST /config/merge.
     mergedYml,
     mergedYmlStale: mergedYml === undefined,
+    // At load the files are clean, so the bootstrap merge is the saved baseline.
+    savedMergedYml: mergedYml,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
   });
 }
 
 /**
- * Apply a refreshed tree + index after a successful save. Re-uses stable
- * `node_id`s so the selected file and open tabs are preserved across the
- * post-save reload; tabs whose nodes vanished (e.g. an `include:` was removed)
- * are dropped.
+ * Apply a refreshed tree + index after a successful save or push-to-branch.
+ * Re-uses stable `node_id`s so the selected file and open tabs are preserved
+ * across the reload (the Merged-config selection too) — unlike
+ * `initializeModularConfig`, which resets to a single root tab; tabs whose nodes
+ * vanished (e.g. an `include:` was removed) are dropped. Pass `branch`/`commitSha`
+ * when the reload targeted a different branch (push-to-branch) so the config
+ * base is updated.
  */
-export function applyModularSaveResult({ root, entityIndex }: { root: TreeNode; entityIndex: EntityIndex }) {
+export function applyModularSaveResult({
+  root,
+  entityIndex,
+  branch,
+  commitSha,
+}: {
+  root: TreeNode;
+  entityIndex: EntityIndex;
+  branch?: string;
+  commitSha?: string;
+}) {
   const files = buildFileSlices(root);
   const { openTabs, selectedNodeId } = bitriseYmlStore.getState();
 
@@ -391,6 +654,9 @@ export function applyModularSaveResult({ root, entityIndex }: { root: TreeNode; 
   const nextSelected = selectedStillValid ? selectedNodeId : root.nodeId;
 
   // Rebind the active editing document to the refreshed active file (or root).
+  // When the merged tab is active there's no file slice to bind, so bind the root
+  // doc transiently — `useMergedConfigSync` refetches the merge (stale below) and
+  // rebinds the merged document once it arrives.
   const activeSlice = nextSelected && nextSelected !== MERGED_CONFIG_NODE_ID ? files[nextSelected] : files[root.nodeId];
 
   bitriseYmlStore.setState({
@@ -406,6 +672,10 @@ export function applyModularSaveResult({ root, entityIndex }: { root: TreeNode; 
     __savedInvalidYmlString: undefined,
     mergedYml: undefined,
     mergedYmlStale: true,
+    // Push-to-branch may target a different branch than was loaded; reflect the
+    // branch/commit actually reloaded so subsequent pushes use the right base.
+    ...(branch !== undefined ? { configBranch: branch || undefined } : {}),
+    ...(commitSha !== undefined ? { configCommitSha: commitSha || undefined } : {}),
   });
 }
 
@@ -560,7 +830,11 @@ export function closeTab(nodeId: string) {
 }
 
 export function setMergedConfig(mergedYml: string) {
-  const { selectedNodeId } = bitriseYmlStore.getState();
+  const { selectedNodeId, hasChanges } = bitriseYmlStore.getState();
+  // A merge computed while nothing is dirty IS the saved baseline (load or a
+  // post-save reload); while edits are pending the baseline stays frozen so the
+  // merged-tab diff compares saved → current.
+  const savedMergedYml = hasChanges ? bitriseYmlStore.getState().savedMergedYml : mergedYml;
 
   // If the merged tab is currently active, rebind the active document to the
   // freshly merged config so the entity views update in place.
@@ -569,6 +843,7 @@ export function setMergedConfig(mergedYml: string) {
     bitriseYmlStore.setState({
       mergedYml,
       mergedYmlStale: false,
+      savedMergedYml,
       version: '',
       ymlDocument: doc,
       savedYmlDocument: doc,
@@ -577,7 +852,7 @@ export function setMergedConfig(mergedYml: string) {
     return;
   }
 
-  bitriseYmlStore.setState({ mergedYml, mergedYmlStale: false });
+  bitriseYmlStore.setState({ mergedYml, mergedYmlStale: false, savedMergedYml });
 }
 
 bitriseYmlStore.subscribe(
@@ -593,7 +868,7 @@ bitriseYmlStore.subscribe(
     // tree-wide (any file dirty), so Save/discard see edits across all tabs, not
     // just the one currently open.
     const hasChanges = state.tree
-      ? Object.values(state.files).some((slice) => !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument))
+      ? Object.values(state.files).some((slice) => isFileDirty(slice))
       : !YmlUtils.isEquals(ymlDocument, savedYmlDocument);
 
     bitriseYmlStore.setState({
@@ -627,6 +902,15 @@ bitriseYmlStore.subscribe(
     const next = EntityIndexService.buildFromFiles(tree, files);
     if (!EntityIndexService.equals(next, entityIndex)) {
       bitriseYmlStore.setState({ entityIndex: next });
+    }
+
+    // `hasChanges` is tree-wide. The document subscription above only recomputes
+    // it when the ACTIVE document changes, so an edit to a non-active file (e.g.
+    // `addInclude` / the global diff Apply / a background `updateFileDocument`)
+    // must refresh it here too.
+    const hasChanges = Object.values(files).some((slice) => isFileDirty(slice));
+    if (hasChanges !== bitriseYmlStore.getState().hasChanges) {
+      bitriseYmlStore.setState({ hasChanges });
     }
   },
 );

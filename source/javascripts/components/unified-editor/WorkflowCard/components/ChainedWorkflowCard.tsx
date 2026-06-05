@@ -1,9 +1,11 @@
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { BitkitIconButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef } from 'react';
 
 import DragHandle from '@/components/DragHandle/DragHandle';
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -206,6 +208,27 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
             </Box>
 
             {buttonGroup}
+
+            {/* Jump to the definition (in another file). Rendered last so it
+                stays pinned at the right edge while the hover-only actions appear
+                to its left. Single definition jumps; multiple opens the chooser. */}
+            {isCrossFile && (
+              <Box onClick={(e) => e.stopPropagation()} className="nopan">
+                <JumpToDefinitionLink
+                  kind="workflows"
+                  id={id}
+                  trigger={
+                    <BitkitIconButton
+                      size="sm"
+                      variant="tertiary"
+                      color="icon/secondary"
+                      label="Go to definition"
+                      icon={IconArrowNortheast}
+                    />
+                  }
+                />
+              </Box>
+            )}
           </Box>
 
           {!isCrossFile && (

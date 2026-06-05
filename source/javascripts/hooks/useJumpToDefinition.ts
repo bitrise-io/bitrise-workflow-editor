@@ -23,8 +23,13 @@ const KIND_PARAM: Record<EntityKind, string> = {
 /**
  * Jump to where a cross-file entity is defined: activate the defining file's tab
  * (which rebinds the whole WFE to that file), then navigate to the entity's page
- * with it selected. Used by the wf/pl/sb ghost cards. No-ops if the entity isn't
- * in the index.
+ * with it selected. Used by the wf/pl/sb cross-file drawer headers. No-ops if the
+ * entity isn't in the index.
+ *
+ * `targetNodeId` selects a specific defining layer; when omitted it defaults to
+ * the **top-most** (highest-precedence) definition. An entity can be defined in
+ * several layers — the `JumpToDefinitionLink` chooser passes the layer the user
+ * picked; everyone else jumps to the top-most.
  */
 export default function useJumpToDefinition() {
   const entityIndex = useEntityIndex();
@@ -32,8 +37,8 @@ export default function useJumpToDefinition() {
   const [searchParams] = useSearchParams();
 
   return useCallback(
-    (kind: EntityKind, id: string) => {
-      const nodeId = EntityIndexService.definingNodeId(entityIndex, kind, id);
+    (kind: EntityKind, id: string, targetNodeId?: string) => {
+      const nodeId = targetNodeId ?? EntityIndexService.definingNodeId(entityIndex, kind, id);
       if (!nodeId) {
         return;
       }

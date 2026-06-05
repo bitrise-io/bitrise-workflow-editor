@@ -309,7 +309,10 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
 function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     getPipelineOrThrowError(pipelineId, doc);
-    WorkflowService.getWorkflowOrThrowError(workflowId, doc);
+    // The workflow may be defined in another module file (cross-file reference);
+    // adding it to a pipeline only writes a reference, so its definition needn't
+    // be in the active document — accept any workflow the entity index knows.
+    WorkflowService.assertWorkflowReferenceable(workflowId, doc);
 
     const workflows = YmlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'], true);
 

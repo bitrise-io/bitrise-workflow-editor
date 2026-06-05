@@ -5,7 +5,9 @@ import { Text } from '@chakra-ui/react/text';
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
 import { useTabs } from '@/hooks/useTabs';
 
+import CreateFileButton from './CreateFileButton';
 import FileTab from './FileTab';
+import TabDiffButton from './TabDiffButton';
 
 /**
  * The editor-area tab strip for the modular config. The "Merged Config" tab is
@@ -58,7 +60,9 @@ const OpenFileTabs = () => {
         ))}
       </Box>
 
-      <Box flexShrink={0} paddingInline="12">
+      <Box flexShrink={0} display="flex" alignItems="center" gap="8" paddingInline="12">
+        <TabDiffButton />
+        <CreateFileButton />
         <FileTreeViewer />
       </Box>
     </Box>

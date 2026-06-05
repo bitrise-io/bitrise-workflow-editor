@@ -1,6 +1,7 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
 
 import StepBundleService from '@/core/services/StepBundleService';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useNavigation from '@/hooks/useNavigation';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
@@ -14,6 +15,7 @@ type StepBundleListProps = {
 };
 
 const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListProps) => {
+  const entityIndex = useEntityIndex();
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
@@ -22,10 +24,18 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
     );
   });
 
+  // Global candidate set: active-file bundles unioned with bundles defined in
+  // other module files (one row per id; the index keys are deduped to the
+  // top-most definition). Single-file mode → empty index → active file only.
+  const allBundleIds = [...new Set([...Object.keys(stepBundles), ...Object.keys(entityIndex.stepBundles)])];
+
+  // Chains only exist for local bundles; a cross-file bundle has no entry, so
+  // guard the lookup (its own chain isn't visible here — cycle prevention across
+  // files is the backend's job). Without a chain it can't be excluded → keep it.
   const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
-  const bundleIds = Object.keys(stepBundles).filter((id) => {
+  const bundleIds = allBundleIds.filter((id) => {
     if (excludedStepBundleId) {
-      return !stepBundleChains[id].includes(excludedStepBundleId);
+      return !stepBundleChains[id]?.includes(excludedStepBundleId);
     }
     return true;
   });

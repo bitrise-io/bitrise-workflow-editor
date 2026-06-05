@@ -3,8 +3,9 @@ import { Document, isMap, isSeq } from 'yaml';
 
 import { Pipelines, Stages, WorkflowModel, Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
-import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
+import EntityIndexService from './EntityIndexService';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -87,7 +88,6 @@ function getWorkflowChain(workflows: Workflows, id: string): string[] {
 
 function getAllWorkflowChains(workflows: Workflows): Record<string, string[]> {
   return Object.keys(workflows || {}).reduce<Record<string, string[]>>((chains, id) => {
-    // eslint-disable-next-line no-param-reassign
     chains[id] = getWorkflowChain(workflows, id);
     return chains;
   }, {});
@@ -153,6 +153,26 @@ function getWorkflowOrThrowError(id: string, doc: Document) {
   }
 
   return workflow;
+}
+
+/**
+ * Assert a workflow can be *referenced* (chained, or added to a pipeline). Unlike
+ * `getWorkflowOrThrowError`, this accepts a cross-file workflow: its definition
+ * may live in another module file (known via the entity index), and writing the
+ * reference doesn't need the definition present in the active document. Only a
+ * truly-unknown id throws. In single-file mode the index is empty, so this
+ * behaves exactly like the local existence check.
+ */
+function assertWorkflowReferenceable(id: string, doc: Document) {
+  if (YmlUtils.getMapIn(doc, ['workflows', id])) {
+    return;
+  }
+  const isCrossFile = Boolean(
+    EntityIndexService.definingNodeId(bitriseYmlStore.getState().entityIndex, 'workflows', id),
+  );
+  if (!isCrossFile) {
+    getWorkflowOrThrowError(id, doc); // throws the canonical "not found" error
+  }
 }
 
 function createWorkflow(id: string, baseId?: string) {
@@ -259,7 +279,9 @@ function addChainedWorkflow(prentWorkflowId: string, placement: ChainedWorkflowP
     }
 
     const parentWorkflow = getWorkflowOrThrowError(prentWorkflowId, doc);
-    getWorkflowOrThrowError(chainableWorkflowId, doc);
+    // The chained workflow may be cross-file (defined in another module); chaining
+    // only writes its id into before_run/after_run, so the definition needn't be local.
+    assertWorkflowReferenceable(chainableWorkflowId, doc);
 
     YmlUtils.addIn(parentWorkflow, [placement], chainableWorkflowId);
 
@@ -337,6 +359,7 @@ export default {
   getDependantWorkflows,
   countInPipelines,
   getWorkflowOrThrowError,
+  assertWorkflowReferenceable,
   createWorkflow,
   renameWorkflow,
   updateWorkflowField,

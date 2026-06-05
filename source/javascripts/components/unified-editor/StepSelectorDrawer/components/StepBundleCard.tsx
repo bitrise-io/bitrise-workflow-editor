@@ -1,9 +1,11 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import { BitkitIconButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef } from 'react';
 
 import DragHandle from '@/components/DragHandle/DragHandle';
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
@@ -240,6 +242,27 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Box>
               </Box>
               {buttonGroup}
+              {/* Jump to the definition (in another file). Rendered after the
+                  step menu so it stays pinned at the right edge. Single
+                  definition → jumps instantly; multiple → opens the chooser. The
+                  wrapper stops the click from selecting the card. */}
+              {isCrossFile && (
+                <Box onClick={(e) => e.stopPropagation()} className="nopan">
+                  <JumpToDefinitionLink
+                    kind="stepBundles"
+                    id={bundleId}
+                    trigger={
+                      <BitkitIconButton
+                        size="sm"
+                        variant="tertiary"
+                        color="icon/secondary"
+                        label="Go to definition"
+                        icon={IconArrowNortheast}
+                      />
+                    }
+                  />
+                </Box>
+              )}
             </Box>
           </Box>
           {/* The step list is definition-level: for a cross-file bundle the

@@ -51,8 +51,20 @@ export type TreeNode = {
   includes: TreeNode[];
 };
 
-/** `{ entityId: { nodeId } }` per kind. */
-export type EntityIndexEntries = Record<string, { nodeId: string }>;
+/** A single place an entity is defined. */
+export type EntityDefinition = { nodeId: string };
+
+/**
+ * `{ entityId: [{ nodeId }, …] }` per kind. An entity id can be defined in
+ * several files (same-repo overrides, or the same path included from different
+ * branches/tags) — there is no single "winner": the merger deep-merges the
+ * layers into one final entity. The array is in pre-order include/merge order,
+ * so index `0` is the **top-most / highest-precedence layer** ("finalish") and
+ * later entries are lower layers merged underneath. Use `definingNodeId` (top-
+ * most) for selectors + provenance, and `definitionsOf` (full array) to offer a
+ * jump-to-definition chooser when there's more than one.
+ */
+export type EntityIndexEntries = Record<string, EntityDefinition[]>;
 
 /**
  * Map of "which node defines which entity." The BE ships a snapshot alongside

@@ -29,7 +29,7 @@ const ROOT_NODE = {
 };
 
 const ENTITY_INDEX = {
-  workflows: { build: { node_id: 'n_workflows' } },
+  workflows: { build: [{ node_id: 'n_workflows' }] },
   pipelines: {},
   step_bundles: {},
 };
@@ -57,7 +57,7 @@ const SINGLE_NODE_ROOT = {
 
 const SINGLE_NODE_RESPONSE = {
   root: SINGLE_NODE_ROOT,
-  entity_index: { workflows: { build: { node_id: 'n_root' } }, pipelines: {}, step_bundles: {} },
+  entity_index: { workflows: { build: [{ node_id: 'n_root' }] }, pipelines: {}, step_bundles: {} },
   merged_yml: SINGLE_NODE_ROOT.contents,
   branch: 'main',
 };

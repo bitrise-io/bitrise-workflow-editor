@@ -3,7 +3,6 @@ import { useState } from 'react';
 
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useWorkflows } from '@/hooks/useWorkflows';
 
 import NoWorkflowsEmptyState from './NoWorkflowsEmptyState';
 import SearchResultEmptyState from './SearchResultEmptyState';
@@ -16,7 +15,14 @@ type Props = {
 
 const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const [search, setSearch] = useState('');
-  const allWorkflowIds = useWorkflows((s) => Object.keys(s));
+  // Global candidate set: workflows from the active file unioned with every
+  // workflow the entity index knows about (defined in other module files). One
+  // row per id — `entityIndex.workflows` keys are already deduped to the top-most
+  // definition. In single-file mode the index is empty, so this is just the
+  // active file's workflows (unchanged).
+  const allWorkflowIds = useBitriseYmlStore((s) => [
+    ...new Set([...Object.keys(s.yml.workflows || {}), ...Object.keys(s.entityIndex.workflows)]),
+  ]);
   const workflowIdsInPipeline = useBitriseYmlStore((s) => Object.keys(s.yml.pipelines?.[pipelineId]?.workflows || {}));
 
   const workflowIds = allWorkflowIds.filter((id) => {

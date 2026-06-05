@@ -1,6 +1,8 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { BitkitIconButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import PipelineService from '@/core/services/PipelineService';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
@@ -185,6 +187,27 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 onClick={() => onRemoveWorkflow(id)}
               />
             )}
+          </Box>
+        )}
+
+        {/* Jump to the definition (in another file). Rendered last so it stays
+            pinned at the right edge while the hover-only actions appear to its
+            left. Single definition jumps instantly, multiple opens the chooser. */}
+        {isCrossFile && (
+          <Box onClick={(e) => e.stopPropagation()} className="nopan">
+            <JumpToDefinitionLink
+              kind="workflows"
+              id={workflowId}
+              trigger={
+                <BitkitIconButton
+                  size="sm"
+                  variant="tertiary"
+                  color="icon/secondary"
+                  label="Go to definition"
+                  icon={IconArrowNortheast}
+                />
+              }
+            />
           </Box>
         )}
       </Box>
