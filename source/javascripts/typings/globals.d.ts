@@ -41,7 +41,9 @@ declare global {
       };
       featureFlags?: {
         user: { [s: string]: unknown };
-        account: { [s: string]: unknown };
+        account: { [s: string]: unknown } & {
+          rollbackVersionFeatureEnabled?: boolean;
+        };
       };
     };
     pageProps?: {
