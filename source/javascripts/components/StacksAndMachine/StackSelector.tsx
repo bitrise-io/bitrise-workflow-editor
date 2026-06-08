@@ -80,6 +80,7 @@ type Props = Pick<BoxProps, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isRollbackVersionAvailable: boolean;
+  disableRollbackOption?: boolean;
   useRollbackVersion?: boolean;
   stack: StackWithValue;
   optionGroups: StackOptionGroup[];
@@ -90,12 +91,15 @@ const StackSelector = ({
   isLoading,
   isInvalid,
   isRollbackVersionAvailable,
+  disableRollbackOption,
   useRollbackVersion,
   stack,
   optionGroups,
   onChange,
   ...boxProps
 }: Props) => {
+  const isRollbackDisabled = !isRollbackVersionAvailable || !!disableRollbackOption;
+
   return (
     <Box {...boxProps} flex="1">
       <Dropdown
@@ -118,14 +122,20 @@ const StackSelector = ({
             </DropdownGroup>
           ))}
       </Dropdown>
-      <Checkbox
-        isDisabled={!isRollbackVersionAvailable}
-        isChecked={isRollbackVersionAvailable && useRollbackVersion}
-        onChange={(e) => onChange(stack.value, e.target.checked)}
-        mt="16"
+      <Tooltip
+        label="Stack rollback is not available when your workspace is configured to use external hosts only."
+        isDisabled={!disableRollbackOption}
       >
-        Use previous stack version <PreviousStackVersionTip />
-      </Checkbox>
+        <Box display="inline-block" mt="16">
+          <Checkbox
+            isDisabled={isRollbackDisabled}
+            isChecked={!isRollbackDisabled && useRollbackVersion}
+            onChange={(e) => onChange(stack.value, e.target.checked)}
+          >
+            Use previous stack version <PreviousStackVersionTip />
+          </Checkbox>
+        </Box>
+      </Tooltip>
     </Box>
   );
 };
