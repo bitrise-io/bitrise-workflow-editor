@@ -16,6 +16,15 @@ const leaf = (nodeId: string, path: string, source: TreeNode['source'], editable
   includes: [],
 });
 
+const src = (partial: Partial<NonNullable<TreeNode['source']>>): TreeNode['source'] => ({
+  path: null,
+  repository: null,
+  branch: null,
+  tag: null,
+  commit: null,
+  ...partial,
+});
+
 const ROOT: TreeNode = {
   nodeId: 'n_root',
   path: 'bitrise.yml',
@@ -24,25 +33,40 @@ const ROOT: TreeNode = {
   commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
   editable: true,
   includes: [
-    leaf('n_local', 'modules/workflows.yml', {
-      path: 'modules/workflows.yml',
-      repository: null,
-      branch: null,
-      tag: null,
-      commit: null,
-    }),
+    // Same repo, collapsed deep folder chain with per-file ref deviations.
+    leaf('n_testing', 'e2e/bitrise/testing/testing.yml', src({ path: 'e2e/bitrise/testing/testing.yml' })),
     leaf(
-      'n_repo',
-      'shared/build.yml',
-      { path: 'shared/build.yml', repository: 'shared-modules', branch: 'main', tag: null, commit: null },
-      false,
+      'n_pipelines',
+      'e2e/bitrise/testing/browserstack/pipelines.yml',
+      src({ path: 'e2e/bitrise/testing/browserstack/pipelines.yml', branch: 'branch-a' }),
     ),
     leaf(
-      'n_tag',
-      'pinned/release.yml',
-      { path: 'pinned/release.yml', repository: null, branch: null, tag: 'v1.4.0', commit: null },
-      false,
+      'n_wf',
+      'e2e/bitrise/testing/browserstack/workflows/workflows.yml',
+      src({ path: 'e2e/bitrise/testing/browserstack/workflows/workflows.yml', commit: '9d1df0011223344' }),
     ),
+    leaf(
+      'n_wf2',
+      'e2e/bitrise/testing/browserstack/workflows/workflows2.yml',
+      src({ path: 'e2e/bitrise/testing/browserstack/workflows/workflows2.yml', tag: 'tag-a' }),
+    ),
+    leaf(
+      'n_build',
+      'e2e/bitrise/testing/browserstack/workflows/build_app.yml',
+      src({ path: 'e2e/bitrise/testing/browserstack/workflows/build_app.yml' }),
+    ),
+    // Cross-repo (read-only) group: its own bitrise.yml + a nested module.
+    {
+      ...leaf('n_other', 'bitrise.yml', src({ repository: 'another-repo-name', branch: 'main' }), false),
+      includes: [
+        leaf(
+          'n_other_wf',
+          'workflow_templates/workflows.yml',
+          src({ path: 'workflow_templates/workflows.yml' }),
+          false,
+        ),
+      ],
+    },
   ],
 };
 

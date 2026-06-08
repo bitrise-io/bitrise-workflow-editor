@@ -1,106 +1,160 @@
-import { Tooltip } from '@bitrise/bitkit';
-import { BitkitTreeView, createTreeCollection, IconFileYml, IconLock } from '@bitrise/bitkit-v2';
+import { Box, Text } from '@bitrise/bitkit';
+import {
+  BitkitIconButton,
+  BitkitTreeView,
+  createTreeCollection,
+  IconFileYml,
+  IconInfoCircle,
+} from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';
-import TreeService from '@/core/services/TreeService';
-
-// The tree-view renders the root node's children, so callers pass a (possibly
-// synthetic) root whose `includes` are the entries to show; this id keeps that
-// wrapper out of selection.
-export const SYNTHETIC_ROOT_ID = '__tree_root__';
+import FileTreeService, { FileTreeFolder, FileTreeGroup } from '@/core/services/FileTreeService';
+import PageProps from '@/core/utils/PageProps';
 
 type Props = {
-  /** Root node whose `includes` are rendered as the tree. */
+  /** The real tree root; grouping + folder layout are derived from it. */
   rootNode: TreeNode;
+  /** When set, only files matching this predicate are shown (e.g. dirty-only). */
+  filter?: (node: TreeNode) => boolean;
   selectedNodeId?: string;
   onSelect: (nodeId: string) => void;
-  /** Optional predicate to disable (non-selectable, greyed) individual nodes. */
+  /** Optional predicate to disable (non-selectable, greyed) individual files. */
   isNodeDisabled?: (node: TreeNode) => boolean;
 };
 
-/**
- * The shared file-tree rendering used by the "Open module" popover and the
- * global diff dialog's file switcher. Pure presentation.
- *
- * These are files including files — NOT folders — so every node is rendered as a
- * file row (YML file icon), never a folder, and the include hierarchy is shown
- * by indentation rather than collapsible folders. Read-only cross-ref files show
- * a lock icon whose tooltip names the source (the badge text is too long to sit
- * inline). Disabled nodes (e.g. unchanged files in the diff) are greyed out.
- */
-const FileTreeView = ({ rootNode, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
-  // Pre-order flatten so the include hierarchy renders as a flat, indented list
-  // of files (no collapsible folders). Each entry keeps its depth for indenting
-  // and its effective source label (own source, else inherited from the nearest
-  // cross-ref ancestor) so read-only children name the ref they were pulled from.
-  const flat = useMemo(() => {
-    const entries: { node: TreeNode; depth: number; sourceLabel: string | null }[] = [];
-    const visit = (node: TreeNode, depth: number, inherited: string | null) => {
-      const own = TreeService.sourceLabel(node.source) ?? inherited;
-      entries.push({ node, depth, sourceLabel: own });
-      node.includes.forEach((child) => visit(child, depth + 1, own));
-    };
-    rootNode.includes.forEach((child) => visit(child, 0, null));
-    return entries;
-  }, [rootNode]);
+// A single collection node — a synthetic group root, a (possibly collapsed)
+// folder, or a file leaf. Folder ids are path strings, file ids are node_ids.
+type RenderNode = {
+  id: string;
+  label: string;
+  isFile: boolean;
+  node?: TreeNode;
+  children: RenderNode[];
+};
 
-  const metaOf = useMemo(() => {
-    const map = new Map<string, { depth: number; sourceLabel: string | null }>();
-    flat.forEach(({ node, depth, sourceLabel }) => map.set(node.nodeId, { depth, sourceLabel }));
-    return map;
-  }, [flat]);
+const GROUP_ROOT_ID = '__group_root__';
+
+function toRenderNode(folder: FileTreeFolder): RenderNode[] {
+  const folders = folder.folders.map(
+    (child): RenderNode => ({ id: child.id, label: child.label, isFile: false, children: toRenderNode(child) }),
+  );
+  const files = folder.files.map(
+    (file): RenderNode => ({
+      id: file.nodeId,
+      label: file.fileName,
+      isFile: true,
+      node: file.node,
+      children: [],
+    }),
+  );
+  // Files before folders at every level, matching the design.
+  return [...files, ...folders];
+}
+
+function collectFolderIds(nodes: RenderNode[], acc: string[]): string[] {
+  nodes.forEach((node) => {
+    if (!node.isFile) {
+      acc.push(node.id);
+      collectFolderIds(node.children, acc);
+    }
+  });
+  return acc;
+}
+
+const GroupTree = ({
+  group,
+  selectedNodeId,
+  onSelect,
+  isNodeDisabled,
+}: {
+  group: FileTreeGroup;
+} & Pick<Props, 'selectedNodeId' | 'onSelect' | 'isNodeDisabled'>) => {
+  const children = useMemo(() => toRenderNode(group.root), [group.root]);
 
   const collection = useMemo(
     () =>
-      createTreeCollection<TreeNode>({
-        // Flat collection: the synthetic root holds every node as a direct child,
-        // so each renders as a leaf (file) instead of a folder branch.
-        rootNode: { ...rootNode, nodeId: SYNTHETIC_ROOT_ID, includes: flat.map((e) => e.node) },
-        nodeToValue: (node) => node.nodeId,
-        nodeToString: (node) => TreeService.fileName(node.path),
-        nodeToChildren: (node) => (node.nodeId === SYNTHETIC_ROOT_ID ? flat.map((e) => e.node) : []),
-        isNodeDisabled: (node) => node.nodeId !== SYNTHETIC_ROOT_ID && (isNodeDisabled?.(node) ?? false),
+      createTreeCollection<RenderNode>({
+        rootNode: { id: GROUP_ROOT_ID, label: '', isFile: false, children },
+        nodeToValue: (node) => node.id,
+        nodeToString: (node) => node.label,
+        nodeToChildren: (node) => node.children,
+        isNodeDisabled: (node) => Boolean(node.isFile && node.node && isNodeDisabled?.(node.node)),
       }),
-    [rootNode, flat, isNodeDisabled],
+    [children, isNodeDisabled],
   );
+
+  const expandedValue = useMemo(() => [GROUP_ROOT_ID, ...collectFolderIds(children, [])], [children]);
 
   return (
     <BitkitTreeView
+      variant="files"
       collection={collection}
       selectionMode="single"
       selectedValue={selectedNodeId ? [selectedNodeId] : []}
-      defaultExpandedValue={[SYNTHETIC_ROOT_ID]}
+      defaultExpandedValue={expandedValue}
       onSelectionChange={(details) => {
-        const nodeId = details.selectedValue[0];
-        if (nodeId && nodeId !== SYNTHETIC_ROOT_ID) {
-          onSelect(nodeId);
+        const id = details.selectedValue[0];
+        const selected = id ? collection.findNode(id) : undefined;
+        if (selected?.isFile) {
+          onSelect(selected.id);
         }
       }}
-      render={({ node }) => {
-        const label = TreeService.fileName(node.path);
-        const meta = metaOf.get(node.nodeId);
-        const depth = meta?.depth ?? 0;
-
-        const leaf = (
-          <BitkitTreeView.Leaf
-            label={label}
-            icon={IconFileYml}
-            suffixIcon={node.editable ? undefined : IconLock}
-            style={{ paddingInlineStart: `${depth * 20}px` }}
-          />
-        );
-
-        // Read-only files (including path-only includes that inherit a parent's
-        // cross-ref) show the source in the lock's tooltip rather than inline (it
-        // can be long, e.g. "@some-feature-branch").
-        if (!node.editable) {
-          const tip = meta?.sourceLabel ? `Read-only — included from ${meta.sourceLabel}` : 'Read-only';
-          return <Tooltip label={tip}>{leaf}</Tooltip>;
-        }
-        return leaf;
-      }}
+      render={({ node, nodeState }) =>
+        nodeState.isBranch ? (
+          <BitkitTreeView.Branch label={node.label} />
+        ) : (
+          <BitkitTreeView.Leaf label={node.label} icon={IconFileYml} />
+        )
+      }
     />
+  );
+};
+
+/**
+ * The shared file/folder selector used by the "Open module" popover, the global
+ * diff file switcher and the jump-to-definition chooser. Files are grouped by the
+ * repository they effectively come from (working repo first), and within a group
+ * laid out by their on-disk path with single-child directory chains collapsed.
+ * Cross-repo groups carry a read-only info tooltip. Pure presentation — all model
+ * shaping lives in `FileTreeService`.
+ */
+const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
+  const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
+
+  const groups = useMemo(
+    () => FileTreeService.buildFileTree(rootNode, { projectRepoLabel, filter }),
+    [rootNode, projectRepoLabel, filter],
+  );
+
+  return (
+    <Box display="flex" flexDirection="column" gap="16">
+      {groups.map((group) => (
+        <Box key={group.key} display="flex" flexDirection="column">
+          {/* No `px` here so the header left-aligns with the title; the tree's own
+              8px inset (`--tree-padding-inline-start`) gives the file rows their
+              slight indent past the header, matching the design. `py` matches the
+              tree rows' vertical padding so the header sits in the same rhythm. */}
+          <Box display="flex" alignItems="center" gap="4" py="6">
+            <Text textStyle="body/md/semibold">{group.header}</Text>
+            {group.isReadOnly && (
+              <BitkitIconButton
+                size="sm"
+                variant="tertiary"
+                label="Modules included from another repository or ref are read-only."
+                icon={IconInfoCircle}
+              />
+            )}
+          </Box>
+          <GroupTree
+            group={group}
+            selectedNodeId={selectedNodeId}
+            onSelect={onSelect}
+            isNodeDisabled={isNodeDisabled}
+          />
+        </Box>
+      ))}
+    </Box>
   );
 };
 

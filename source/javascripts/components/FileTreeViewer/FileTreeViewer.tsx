@@ -1,27 +1,14 @@
-import { BitkitIconButton, IconFolder } from '@bitrise/bitkit-v2';
+import { Box, Text } from '@bitrise/bitkit';
+import { BitkitCloseButton, BitkitIconButton, IconFolder } from '@bitrise/bitkit-v2';
 import { Popover } from '@chakra-ui/react/popover';
 import { Portal } from '@chakra-ui/react/portal';
 import { useState } from 'react';
 
-import { TreeNode } from '@/core/models/Tree';
 import { useTabs } from '@/hooks/useTabs';
 import { useSelectedNodeId, useTree } from '@/hooks/useTree';
+import CreateFileButton from '@/pages/YmlPage/components/OpenFileTabs/CreateFileButton';
 
-import FileTreeView, { SYNTHETIC_ROOT_ID } from './FileTreeView';
-
-function syntheticRoot(root: TreeNode): TreeNode {
-  // Wrap the real root in a hidden synthetic node so `bitrise.yml` stays visible
-  // as the top-level entry (the tree-view renders the root's children).
-  return {
-    nodeId: SYNTHETIC_ROOT_ID,
-    path: '',
-    contents: '',
-    source: null,
-    commitSha: '',
-    editable: true,
-    includes: [root],
-  };
-}
+import FileTreeView from './FileTreeView';
 
 const FileTreeViewer = () => {
   const tree = useTree();
@@ -37,11 +24,25 @@ const FileTreeViewer = () => {
     <Popover.Root
       open={isOpen}
       onOpenChange={(details) => setIsOpen(details.open)}
-      positioning={{ placement: 'bottom-end' }}
+      positioning={{ placement: 'bottom-end', gutter: 4 }}
     >
-      <Popover.Trigger asChild>
-        <BitkitIconButton label="Open module" variant="secondary" size="sm" icon={IconFolder} />
-      </Popover.Trigger>
+      {/* Position against an explicit `Popover.Anchor` element rather than the
+          trigger's ref. The trigger ref has to thread through BitkitIconButton's
+          `asChild` → IconButton → BitkitLabelTooltip wrapper, and when that chain
+          drops the ref the popper can't find its reference and renders at the
+          window's top-left. The Anchor is a plain wrapper div around the button,
+          so positioning is robust regardless of the inner ref plumbing.
+
+          Inside it we keep BitkitIconButton's `asChild` so `Popover.Trigger`
+          becomes the real button *within* the label tooltip (clicking toggles
+          open). Wrapping the other way (`Popover.Trigger asChild` around
+          BitkitIconButton) would clone the trigger onto the tooltip root and
+          break the tooltip's own anchoring. */}
+      <Popover.Anchor display="inline-flex">
+        <BitkitIconButton asChild label="Open module" variant="secondary" size="sm" icon={IconFolder}>
+          <Popover.Trigger />
+        </BitkitIconButton>
+      </Popover.Anchor>
       <Portal>
         {/* The z-index MUST live on Popover.Content, not the Positioner. Zag
             (chakra v3's popover engine) hard-codes the positioner's inline
@@ -58,15 +59,42 @@ const FileTreeViewer = () => {
             zIndex={1500}
             width="360px"
             maxWidth="360px"
+            maxHeight="60vh"
+            display="flex"
+            flexDirection="column"
+            overflow="hidden"
             backgroundColor="background/primary"
             border="1px solid"
             borderColor="border/regular"
-            borderRadius="8"
-            boxShadow="large"
+            borderRadius="12px"
+            boxShadow="0 2px 24px 0 rgba(0, 0, 0, 0.08)"
           >
-            <Popover.Body p="8" maxHeight="50vh" overflowY="auto">
+            {/* Fixed header — title + close stay put while the tree below scrolls. */}
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              gap="16"
+              px="24"
+              pt="24"
+              pb="16"
+              flexShrink={0}
+            >
+              <Text textStyle="heading/h3" as="h2">
+                Open module
+              </Text>
+              <Box display="flex" alignItems="center" gap="8">
+                <CreateFileButton />
+                {/* Close via the controlled state rather than `Popover.CloseTrigger
+                    asChild` — wrapping BitkitCloseButton's tooltip element with the
+                    trigger breaks the label tooltip's anchoring (it renders at the
+                    window's top-left). Esc / outside-click still close via onOpenChange. */}
+                <BitkitCloseButton size="sm" aria-label="Close" onClick={() => setIsOpen(false)} />
+              </Box>
+            </Box>
+            <Popover.Body px="24" pt="0" pb="24" flex="1" minHeight="0" overflowY="auto">
               <FileTreeView
-                rootNode={syntheticRoot(tree)}
+                rootNode={tree}
                 selectedNodeId={selectedNodeId}
                 onSelect={(nodeId) => {
                   openFile(nodeId);

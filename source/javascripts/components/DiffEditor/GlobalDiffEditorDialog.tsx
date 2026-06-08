@@ -16,8 +16,7 @@ import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { useMemo, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
-import FileTreeView, { SYNTHETIC_ROOT_ID } from '@/components/FileTreeViewer/FileTreeView';
-import { TreeNode } from '@/core/models/Tree';
+import FileTreeView from '@/components/FileTreeViewer/FileTreeView';
 import {
   bitriseYmlStore,
   forceRefreshStates,
@@ -32,39 +31,9 @@ import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
-/** Wrap the real tree root in a hidden synthetic node so `bitrise.yml` stays a
- *  visible top-level entry (the tree-view renders the root's children). */
-function syntheticRoot(root: TreeNode): TreeNode {
-  return {
-    nodeId: SYNTHETIC_ROOT_ID,
-    path: '',
-    contents: '',
-    source: null,
-    commitSha: '',
-    editable: true,
-    includes: [root],
-  };
-}
-
-/**
- * Prune the tree to only the affected (dirty) files, but keep each one's full
- * include path (its ancestor chain back to the root) for context. A node is kept
- * when it's dirty or has a dirty descendant; unrelated branches are dropped.
- * Kept-but-not-dirty ancestors stay visible (greyed/non-selectable) so the path
- * flow to each changed file reads clearly.
- */
-function pruneToDirty(node: TreeNode, dirtyIds: Set<string>): TreeNode | null {
-  const includes = node.includes.map((child) => pruneToDirty(child, dirtyIds)).filter((n): n is TreeNode => Boolean(n));
-  if (dirtyIds.has(node.nodeId) || includes.length > 0) {
-    return { ...node, includes };
-  }
-  return null;
-}
-
 const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
-  // The full include tree is shown; non-dirty nodes are disabled (greyed,
-  // non-selectable). The dirty set drives which nodes are enabled (reactive: a
-  // per-file Apply can drop one out of it).
+  // Only the affected (dirty) files are listed, grouped by repo + folder path
+  // (the dirty set is reactive: a per-file Apply can drop one out of it).
   const tree = useBitriseYmlStore((s) => s.tree);
   const dirtyIds = useBitriseYmlStore(
     (s) =>
@@ -151,15 +120,8 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
     { capture: true },
   );
 
-  // Show only the affected files, each with its full include path back to the
-  // root (not the entire tree).
-  const treeRoot = useMemo(() => {
-    if (!tree) {
-      return undefined;
-    }
-    const pruned = pruneToDirty(tree, dirtyIds);
-    return pruned ? syntheticRoot(pruned) : undefined;
-  }, [tree, dirtyIds]);
+  // Show only the affected files, in their repo + folder layout.
+  const isDirty = useMemo(() => (node: { nodeId: string }) => dirtyIds.has(node.nodeId), [dirtyIds]);
 
   return (
     <>
@@ -174,11 +136,11 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" gap="16" minHeight="0">
         <Box width="280px" flexShrink={0} overflowY="auto" borderRight="1px solid" borderColor="border/minimal" pr="8">
-          {treeRoot && (
+          {tree && (
             <FileTreeView
-              rootNode={treeRoot}
+              rootNode={tree}
+              filter={isDirty}
               selectedNodeId={effectiveNodeId}
-              isNodeDisabled={(node) => !dirtyIds.has(node.nodeId)}
               onSelect={(nodeId) => {
                 setSelectedNodeId(nodeId);
                 setCurrentText(undefined);
