@@ -10,7 +10,7 @@ import {
   IconMoreVertical,
   rem,
 } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -26,7 +26,6 @@ import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
-import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -34,11 +33,10 @@ import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/Configurati
 
 import SwitchBranchDialog from '../SwitchBranchDialog/SwitchBranchDialog';
 
-const ConfigSettingsBar = () => {
+const ConfigSettingsBar = (props: BoxProps) => {
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
 
-  const isYmlPage = useCurrentPage() === 'yml';
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
   const hasChanges = useYmlHasChanges();
 
@@ -66,14 +64,14 @@ const ConfigSettingsBar = () => {
       paddingLeft="32"
       paddingRight="12"
       paddingBlock="12"
-      marginBottom={isYmlPage ? undefined : '24'}
       minHeight={rem(65)}
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
       alignItems="center"
-      justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
+      justifyContent="space-between"
       gap="12"
+      {...props}
     >
       <Box minWidth={0}>
         <BitkitList variant="inline" textColor="body" size="md">

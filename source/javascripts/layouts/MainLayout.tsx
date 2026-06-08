@@ -4,6 +4,8 @@ import { Redirect, Router, Switch } from 'wouter';
 import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
 import Navigation from '@/components/Navigation';
+import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/ConfigSettingsBar';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
@@ -27,18 +29,28 @@ const InvalidYmlRedirect = () => {
 const MainLayout = () => {
   const [currentPath] = useHashLocation();
   const isYmlPage = currentPath.startsWith(paths.yml);
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
-      <Box display="flex" flex="1" alignItems="stretch" minH={0}>
+      <Box
+        display="grid"
+        flex="1"
+        minH={0}
+        gridTemplateColumns={isYmlPage ? '1fr' : '256px 1fr'}
+        gridTemplateRows="auto 1fr"
+        gridTemplateAreas={isYmlPage ? `"bar" "content"` : `"bar content" "nav content"`}
+      >
+        {isWebsiteMode && <ConfigSettingsBar gridArea="bar" />}
         {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
         <Navigation
+          gridArea="nav"
           borderRight="1px solid"
           borderColor="border/regular"
           style={{ display: isYmlPage ? 'none' : undefined }}
         />
-        <Box flex="1" overflowX="hidden" overflowY="auto">
+        <Box gridArea="content" overflowX="hidden" overflowY="auto">
           <Router hook={useHashLocation} searchHook={useHashSearch}>
             <InvalidYmlRedirect />
             <Switch>
