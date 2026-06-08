@@ -68,10 +68,10 @@ const Header = () => {
   const editorView = isYmlPage ? 'yaml' : 'visual';
 
   // Remember the last visual page so switching back from YAML returns to it.
-  const lastVisualPathRef = useRef<string>(paths.workflows);
+  const lastVisualPathnameRef = useRef<string>(paths.workflows);
   useEffect(() => {
     if (!isYmlPage) {
-      lastVisualPathRef.current = path;
+      lastVisualPathnameRef.current = path.split('?')[0];
     }
   }, [isYmlPage, path]);
 
@@ -95,7 +95,10 @@ const Header = () => {
           return;
         }
 
-        navigate(lastVisualPathRef.current);
+        const searchParamsString = new URLSearchParams(searchParams).toString();
+        navigate(
+          searchParamsString ? `${lastVisualPathnameRef.current}?${searchParamsString}` : lastVisualPathnameRef.current,
+        );
       }
     },
     [searchParams, navigate, ymlStatus, toast],
@@ -293,6 +296,7 @@ const Header = () => {
       <BitkitSegmentedControl
         size="sm"
         value={editorView}
+        aria-label="Editor view"
         onValueChange={(details) => handleEditorViewChange(details.value)}
       >
         <BitkitSegmentedControl.Item icon={IconWebUi} value="visual">

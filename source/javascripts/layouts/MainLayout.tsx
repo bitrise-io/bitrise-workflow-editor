@@ -32,6 +32,7 @@ const MainLayout = () => {
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
       <Box display="flex" flex="1" alignItems="stretch" minH={0}>
+        {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
         <Navigation
           borderRight="1px solid"
           borderColor="border/regular"
