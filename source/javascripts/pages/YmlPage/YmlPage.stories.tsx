@@ -27,7 +27,7 @@ export default {
   decorators: [
     (Story) => (
       <Box height="calc(100dvh - 2rem)" display="flex" flexDirection="column">
-        {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar />}
+        {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar justifyContent="flex-start" />}
         <Story />
       </Box>
     ),

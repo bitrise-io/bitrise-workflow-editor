@@ -42,7 +42,14 @@ const MainLayout = () => {
         gridTemplateRows="auto 1fr"
         gridTemplateAreas={isYmlPage ? `"bar" "content"` : `"bar content" "nav content"`}
       >
-        {isWebsiteMode && <ConfigSettingsBar gridArea="bar" />}
+        {isWebsiteMode && (
+          <ConfigSettingsBar
+            gridArea="bar"
+            justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
+            borderRight={isYmlPage ? undefined : '1px solid'}
+            borderRightColor={isYmlPage ? undefined : 'border/regular'}
+          />
+        )}
         {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
         <Navigation
           gridArea="nav"

@@ -18,7 +18,7 @@ export default {
   decorators: [
     (Story) => (
       <>
-        <ConfigSettingsBar />
+        <ConfigSettingsBar borderRight="1px solid" borderRightColor="border/minimal" />
         <Story />
       </>
     ),
