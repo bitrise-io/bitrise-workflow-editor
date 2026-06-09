@@ -127,8 +127,7 @@ function hasStepInside(pipelineId: string, stepId: string, yml: BitriseYml) {
 
 const EXTEND_PIPELINE_STEP_ID = 'extend-pipeline';
 
-// parseStepCVS returns id = full URL/path for git::/path:: sources, so we compare on the last
-// path segment to match extend-pipeline regardless of whether it came from steplib, git, or path.
+// parseStepCVS returns id = full URL/path for git::/path:: sources, so match on the last segment.
 function lastStepIdSegment(parsedId: string): string {
   return (
     parsedId
@@ -145,12 +144,11 @@ function isGeneratorWorkflow(workflowId: string, yml: BitriseYml): boolean {
     return yml.workflows?.[wfId]?.steps?.some((stepObject) => {
       const cvs = Object.keys(stepObject)[0];
       const { library, id } = StepService.parseStepCVS(cvs, defaultLib);
-      // bundle/with references are not steps themselves, and bundles are not expanded.
       if (library === LibraryType.BUNDLE || library === LibraryType.WITH) {
         return false;
       }
       const last = lastStepIdSegment(id);
-      // Bitrise repo convention: step repos are named `steps-<step-id>`, so accept both forms.
+      // Step repos are named `steps-<step-id>`, so accept both forms.
       return last === EXTEND_PIPELINE_STEP_ID || last === `steps-${EXTEND_PIPELINE_STEP_ID}`;
     });
   });
@@ -309,9 +307,6 @@ function updatePipelineField<T extends PK>(id: string, field: T, value: PV<T>) {
 function addWorkflowToPipeline(pipelineId: string, workflowId: string, dependsOn?: string) {
   updateBitriseYmlDocument(({ doc }) => {
     getPipelineOrThrowError(pipelineId, doc);
-    // The workflow may be defined in another module file (cross-file reference);
-    // adding it to a pipeline only writes a reference, so its definition needn't
-    // be in the active document — accept any workflow the entity index knows.
     WorkflowService.assertWorkflowReferenceable(workflowId, doc);
 
     const workflows = YmlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'], true);

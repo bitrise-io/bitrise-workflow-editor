@@ -1,13 +1,10 @@
 import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
-import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useEntityIndex } from '@/hooks/useEntityIndex';
-import { useDefiningFilePath, useIsMergedConfigSelected } from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected } from '@/hooks/useTree';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
@@ -19,29 +16,17 @@ type Props = {
 };
 
 const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
-  // Raw id resolves even for a cross-file workflow; the resolved context title
-  // is undefined there (no local definition), which is fine for display.
   const id = useWorkflowConfigId();
   const title = useWorkflowConfigContext((s) => s?.userValues?.title);
 
   const dependants = useDependantWorkflows({ workflowId: id });
-  const entityIndex = useEntityIndex();
 
-  // The workflow's definition may live in another module file (cross-file
-  // reference). Here we only edit the instance-level config (Configuration tab);
-  // the definition-level tabs (Properties, Triggers) belong to the defining file,
-  // so they're shown but disabled, with a jump-to-definition link offered
-  // instead. In single-file mode the index is empty, so this is always false.
-  const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.workflows?.[id]));
-  const isCrossFile = !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
-
-  // On the merged view every workflow resolves locally, so `isCrossFile` is
-  // false — but the definition still lives in a specific module. Offer a jump to
-  // it (the read-only merged preview isn't where you edit).
+  // Cross-file: definition lives in another module; only instance-level config is editable here, so
+  // definition tabs are disabled and a jump link is offered. In the merged view every workflow
+  // resolves locally (isCrossFile false), but the definition still lives in a module — offer a jump.
+  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', id);
   const isMergedView = useIsMergedConfigSelected();
-  const canJumpToDefinition = isMergedView && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
-  const showDefinitionLink = isCrossFile || canJumpToDefinition;
-  const definingPath = useDefiningFilePath('workflows', id);
+  const showDefinitionLink = isCrossFile || (isMergedView && hasDefinition);
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';

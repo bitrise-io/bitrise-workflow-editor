@@ -13,12 +13,9 @@ import { useFile } from '@/hooks/useFile';
 import { useSelectedNodeId } from '@/hooks/useTree';
 
 /**
- * Editable source view of an editable module file. Uncontrolled (Monaco owns the
- * text via `defaultValue`); edits are routed into the active file's slice by
- * `updateBitriseYmlDocumentByString`. Keyed by `node_id` upstream so switching
- * to a different file remounts with that file's content; within a file the
- * editor keeps its own buffer, so partially-typed / transiently-invalid YAML
- * isn't clobbered by a store round-trip.
+ * Editable source view of a module file. Uncontrolled (Monaco owns the text via
+ * `defaultValue`) so partially-typed / transiently-invalid YAML isn't clobbered by a
+ * store round-trip; keyed by `node_id` upstream so switching files remounts.
  */
 const EditableFileEditor = ({ file }: { file: FileSlice }) => {
   return (
@@ -38,10 +35,8 @@ const EditableFileEditor = ({ file }: { file: FileSlice }) => {
 };
 
 /**
- * Source view of the active tab. An editable module file is editable; the merged
- * config and read-only (cross-ref) files render read-only. The merged config is
- * fetched + kept fresh globally by `useMergedConfigSync` (mounted in MainLayout);
- * this view just renders it.
+ * Source view of the active tab: editable for module files, read-only for the merged
+ * config and cross-ref files. The merged config is kept fresh by `useMergedConfigSync`.
  */
 const ModularYmlEditor = () => {
   const selectedNodeId = useSelectedNodeId();
@@ -51,7 +46,6 @@ const ModularYmlEditor = () => {
   const mergedYml = useStore(bitriseYmlStore, (s) => s.mergedYml);
   const isMergedStale = useStore(bitriseYmlStore, (s) => s.mergedYmlStale);
 
-  // While the merged view is selected but still stale with nothing to show yet.
   if (isMerged && isMergedStale && !mergedYml) {
     return <LoadingState />;
   }
@@ -60,7 +54,6 @@ const ModularYmlEditor = () => {
     return <EditableFileEditor key={file.nodeId} file={file} />;
   }
 
-  // Read-only: the merged config, or a cross-ref (non-editable) file.
   const value = isMerged ? (mergedYml ?? '') : file ? YmlUtils.toYml(file.ymlDocument) : '';
   const path = isMerged ? 'file:///merged_config.yml' : `file:///modular/${file?.path ?? 'unknown.yml'}`;
 

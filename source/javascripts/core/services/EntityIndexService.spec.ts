@@ -5,8 +5,7 @@ const index: EntityIndex = {
   workflows: {
     test: [{ nodeId: 'n_local' }],
     release: [{ nodeId: 'n_pinned' }],
-    // Defined in two layers: root overrides an included module.
-    build: [{ nodeId: 'n_root' }, { nodeId: 'n_module' }],
+    build: [{ nodeId: 'n_root' }, { nodeId: 'n_module' }], // two layers: root overrides an included module
   },
   pipelines: {},
   stepBundles: {
@@ -32,7 +31,6 @@ describe('EntityIndexService', () => {
     it('returns the top-most defining node id for a known entity', () => {
       expect(EntityIndexService.definingNodeId(index, 'workflows', 'test')).toBe('n_local');
       expect(EntityIndexService.definingNodeId(index, 'stepBundles', 'common')).toBe('n_shared');
-      // Top-most of a multi-layer entity.
       expect(EntityIndexService.definingNodeId(index, 'workflows', 'build')).toBe('n_root');
     });
 
@@ -52,10 +50,8 @@ describe('EntityIndexService', () => {
     });
 
     it('is false when one of several layers lives in the current node', () => {
-      // `build` is defined in n_root + n_module; scoped to either is local.
       expect(EntityIndexService.isGhost(index, 'workflows', 'build', 'n_module')).toBe(false);
       expect(EntityIndexService.isGhost(index, 'workflows', 'build', 'n_root')).toBe(false);
-      // …but cross-file from anywhere else.
       expect(EntityIndexService.isGhost(index, 'workflows', 'build', 'n_other')).toBe(true);
     });
 

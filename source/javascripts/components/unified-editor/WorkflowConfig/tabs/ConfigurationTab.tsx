@@ -1,11 +1,8 @@
 import { Box } from '@bitrise/bitkit';
 
-import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useEntityIndex } from '@/hooks/useEntityIndex';
-import { useDefiningFilePath } from '@/hooks/useTree';
+import { useCrossFileEntity } from '@/hooks/useTree';
 
 import CrossFileDefinitionCard from '../components/CrossFileDefinitionCard';
 import EnvVarsCard from '../components/EnvVarsCard';
@@ -19,21 +16,12 @@ type ConfigurationTabProps = {
 };
 
 const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) => {
-  // Raw id (resolves even for a cross-file workflow, unlike the resolved context).
   const id = useWorkflowConfigId();
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(id);
   const isChainedWorkflow = !!parentWorkflowId;
 
-  // The workflow's definition (its envs, stack/machine) lives in another module
-  // file for a cross-file reference. The real cards read/edit a workflow absent
-  // from this file and would throw, so a cross-file reference shows disabled,
-  // grayed-out stand-ins pointing at the defining file instead. Only the
-  // instance-level pipeline conditions remain editable. In single-file mode the
-  // index is empty, so this is always false.
-  const entityIndex = useEntityIndex();
-  const isLocal = useBitriseYmlStore(({ yml }) => Boolean(yml.workflows?.[id]));
-  const isCrossFile = !isLocal && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
-  const definingPath = useDefiningFilePath('workflows', id);
+  // Cross-file: definition (envs, stack/machine) lives in another module, so show disabled stand-ins; only instance-level pipeline conditions stay editable.
+  const { isCrossFile, definingPath } = useCrossFileEntity('workflows', id);
 
   const showStackAndMachine = RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow;
 

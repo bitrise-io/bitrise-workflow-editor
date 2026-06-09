@@ -77,12 +77,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
-  // The workflow may be defined in another module file (a cross-file reference,
-  // e.g. a pipeline referencing a workflow from another file). It isn't in this
-  // document, so we can't render its steps/chains — only the reference itself.
-  // The card stays clickable (opens the config drawer for instance-level props);
-  // the drawer header exposes the jump-to-definition link. In single-file mode
-  // the index is empty, so this is always false and behaviour is unchanged.
+  // Cross-file: workflow defined in another module, so render only the reference (no steps/chains); card stays clickable for instance-level props.
   const entityIndex = useEntityIndex();
   const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', workflowId));
   const definingPath = useDefiningFilePath('workflows', workflowId);
@@ -97,7 +92,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
-      // Subtle tint signalling the workflow is a reference defined in another file.
       ...(isCrossFile ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
@@ -113,8 +107,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
   }
 
-  // For a cross-file reference the stack lives in the other file; show its
-  // provenance instead of an empty/foreign stack name.
   let subtitle = stackName;
   if (uses) {
     subtitle = `Uses ${uses}`;
@@ -125,10 +117,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   return (
     <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
-        {/* The chevron stays visible for cross-file references (visual parity
-            with local cards) but is disabled — the steps/chains are
-            definition-level and live in another file, so there's nothing to
-            expand here. */}
         {isCollapsable && (
           <ControlButton
             size="xs"
@@ -153,9 +141,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
         {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow) && (
           <Box display="none" _groupHover={{ display: 'inline-flex' }}>
-            {/* Chaining writes before_run/after_run into the workflow's
-                definition, which lives in another file for a cross-file
-                reference — so the chain action is hidden there. */}
+            {/* Chaining writes into the definition, which is in another file for a cross-file reference — so hidden there. */}
             {onChainWorkflow && !isCrossFile && (
               <ControlButton
                 size="xs"
@@ -190,9 +176,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           </Box>
         )}
 
-        {/* Jump to the definition (in another file). Rendered last so it stays
-            pinned at the right edge while the hover-only actions appear to its
-            left. Single definition jumps instantly, multiple opens the chooser. */}
+        {/* Rendered last so it stays pinned right while hover-only actions appear to its left. */}
         {isCrossFile && (
           <Box onClick={(e) => e.stopPropagation()} className="nopan">
             <JumpToDefinitionLink
@@ -212,8 +196,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
       </Box>
 
-      {/* Steps and chained workflows are definition-level and live in the other
-          file for a cross-file reference, so the body is omitted there. */}
       {!isCrossFile && (
         <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
           <SortableWorkflowsContext containerRef={containerRef}>

@@ -11,23 +11,15 @@ import {
 import PageProps from '@/core/utils/PageProps';
 
 /**
- * Keeps the Merged-config view fresh, globally. When the Merged tab is active
- * and stale — its first open after a failed bootstrap merge, or after any file
- * edit — this merges the live tree and stores the result; `setMergedConfig`
- * then rebinds the active document so every entity resolves locally (no
- * cross-file ghosts on the merged view).
- *
- * Mounted once in `MainLayout` (above all pages) rather than in the YAML source
- * page, so the merge is available on the entity pages too — that's where the
- * cross-file cards live.
+ * Re-merges the live tree whenever the Merged tab is active and stale. Mounted
+ * once in `MainLayout` so the merge is available on the entity pages too.
  */
 export default function useMergedConfigSync() {
   const selectedNodeId = useStore(bitriseYmlStore, (s) => s.selectedNodeId);
   const isStale = useStore(bitriseYmlStore, (s) => s.mergedYmlStale);
   const isMerged = selectedNodeId === MERGED_CONFIG_NODE_ID;
 
-  // Ref guard (not state) so the fetch doesn't re-enter, and so we don't run a
-  // synchronous setState inside the effect.
+  // Ref (not state) so the fetch doesn't re-enter and we avoid a setState in the effect.
   const isFetchingRef = useRef(false);
 
   useEffect(() => {

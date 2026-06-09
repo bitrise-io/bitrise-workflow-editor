@@ -26,34 +26,18 @@ const FileTreeViewer = () => {
       onOpenChange={(details) => setIsOpen(details.open)}
       positioning={{ placement: 'bottom-end', gutter: 4 }}
     >
-      {/* Position against an explicit `Popover.Anchor` element rather than the
-          trigger's ref. The trigger ref has to thread through BitkitIconButton's
-          `asChild` → IconButton → BitkitLabelTooltip wrapper, and when that chain
-          drops the ref the popper can't find its reference and renders at the
-          window's top-left. The Anchor is a plain wrapper div around the button,
-          so positioning is robust regardless of the inner ref plumbing.
-
-          Inside it we keep BitkitIconButton's `asChild` so `Popover.Trigger`
-          becomes the real button *within* the label tooltip (clicking toggles
-          open). Wrapping the other way (`Popover.Trigger asChild` around
-          BitkitIconButton) would clone the trigger onto the tooltip root and
-          break the tooltip's own anchoring. */}
+      {/* Anchor against an explicit `Popover.Anchor` div, not the trigger ref: that ref
+          threads through BitkitIconButton's tooltip wrapper and gets dropped, popping at
+          the window's top-left. Keep `asChild` inside so the trigger is the real button. */}
       <Popover.Anchor display="inline-flex">
         <BitkitIconButton asChild label="Open module" variant="secondary" size="sm" icon={IconFolder}>
           <Popover.Trigger />
         </BitkitIconButton>
       </Popover.Anchor>
       <Portal>
-        {/* The z-index MUST live on Popover.Content, not the Positioner. Zag
-            (chakra v3's popover engine) hard-codes the positioner's inline
-            style to `z-index: var(--z-index)` and computes `--z-index` from the
-            *content's* computed z-index (see @zag-js/popper get-placement.js) —
-            so a z-index set on the Positioner is overridden by that inline
-            `var(--z-index)` and ignored. Pin a concrete value on Content
-            (bitkit-v2's `defaultBaseConfig` system ships no `zIndices` tokens,
-            so a `"popover"` token wouldn't resolve either); the positioner then
-            inherits it and sits above positioned canvas chrome like the
-            Pipelines toolbar (a transform-rooted stacking context at zIndex 10). */}
+        {/* z-index MUST be on Popover.Content, not Positioner: Zag derives the positioner's
+            inline `z-index: var(--z-index)` from Content's computed z-index, so a value set
+            on Positioner is ignored. Use a concrete number (no `zIndices` tokens in bitkit-v2). */}
         <Popover.Positioner>
           <Popover.Content
             zIndex={1500}
@@ -69,7 +53,6 @@ const FileTreeViewer = () => {
             borderRadius="12px"
             boxShadow="0 2px 24px 0 rgba(0, 0, 0, 0.08)"
           >
-            {/* Fixed header — title + close stay put while the tree below scrolls. */}
             <Box
               display="flex"
               alignItems="center"
@@ -85,10 +68,7 @@ const FileTreeViewer = () => {
               </Text>
               <Box display="flex" alignItems="center" gap="8">
                 <CreateFileButton />
-                {/* Close via the controlled state rather than `Popover.CloseTrigger
-                    asChild` — wrapping BitkitCloseButton's tooltip element with the
-                    trigger breaks the label tooltip's anchoring (it renders at the
-                    window's top-left). Esc / outside-click still close via onOpenChange. */}
+                {/* Close via controlled state, not `Popover.CloseTrigger asChild`: that breaks the tooltip's anchoring. */}
                 <BitkitCloseButton size="sm" aria-label="Close" onClick={() => setIsOpen(false)} />
               </Box>
             </Box>

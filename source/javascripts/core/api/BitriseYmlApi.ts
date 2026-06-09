@@ -101,8 +101,6 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug, con
   });
 }
 
-// --- Modular YAML tree endpoints ---
-
 const CONFIG_TREE_PATH = `/api/app/:projectSlug/config/tree`;
 const CONFIG_MERGE_PATH = `/api/app/:projectSlug/config/merge`;
 const CONFIG_PUSH_PATH = `/api/app/:projectSlug/config/push`;
@@ -235,11 +233,7 @@ type GetConfigOptions = {
   branch?: string;
 };
 
-/**
- * Bootstrap fetch. Always returns the tree-shaped config — a non-modular config
- * comes back as a single root node with no includes, so callers consume one
- * shape regardless of whether the project uses modular YAML.
- */
+/** Bootstrap fetch. A non-modular config comes back as a single root node with no includes, so callers consume one shape. */
 async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetConfigResponse> {
   const path = configTreePath(options);
   const response = await Client.raw(path, { signal, method: 'GET' });
@@ -254,12 +248,7 @@ async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetC
   };
 }
 
-/**
- * Flatten the editor's current (possibly-edited) tree into a single merged
- * config. The full tree is posted with live contents, so the result reflects
- * in-memory edits. `branch` keeps the reconstructed include keys aligned with
- * how the tree was loaded.
- */
+/** Flatten the current (possibly-edited) tree into a merged config. Posts live contents so the result reflects in-memory edits. */
 async function getMergedConfig({
   projectSlug,
   tree,
@@ -280,11 +269,7 @@ async function getMergedConfig({
   return { mergedYml: response?.merged_yml ?? '' };
 }
 
-/**
- * Save the full tree (every node, including read-only ones for staleness
- * detection). On success returns the refreshed tree + index. A 409 conflict is
- * thrown as a `ClientError`; callers read `mapSaveConflict(error.data)`.
- */
+/** Save the full tree (read-only nodes included, for staleness detection). A 409 conflict throws a `ClientError`; read `mapSaveConflict(error.data)`. */
 async function pushConfigTree({
   projectSlug,
   tree,
@@ -317,10 +302,7 @@ async function pushConfigTree({
   };
 }
 
-/**
- * Map a 409 conflict body (carried on `ClientError.data`) to the camelCase
- * conflict shape, or `undefined` if the payload isn't a tree conflict.
- */
+/** Map a 409 conflict body to the camelCase shape, or `undefined` if the payload isn't a tree conflict. */
 function mapSaveConflict(data?: Record<string, unknown>): SaveTreeConflict | undefined {
   if (!data || data.status !== 'conflict' || !Array.isArray(data.conflicts)) {
     return undefined;
@@ -344,6 +326,6 @@ export default {
   getMergedConfig,
   pushConfigTree,
   mapSaveConflict,
-  // Exposed so the push-to-branch flow can serialize a full tree to the wire shape.
+  // Exposed so push-to-branch can serialize a full tree to the wire shape.
   treeNodeToWire,
 };

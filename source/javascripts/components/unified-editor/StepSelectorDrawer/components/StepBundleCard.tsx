@@ -10,13 +10,10 @@ import useContainerReferences from '@/components/unified-editor/ContainersTab/ho
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
-import EntityIndexService from '@/core/services/EntityIndexService';
 import StepBundleService from '@/core/services/StepBundleService';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useStepBundle from '@/hooks/useStepBundle';
-import { useDefiningFilePath } from '@/hooks/useTree';
+import { useCrossFileEntity } from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -48,14 +45,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 
-  // The bundle's definition may live in another module file (cross-file
-  // reference) — a subtle tint signals it. Empty index ⇒ always false (single-file).
-  const entityIndex = useEntityIndex();
+  // Cross-file: bundle definition lives in another module — a subtle tint signals it.
   const bundleId = StepBundleService.cvsToId(cvs);
-  const hasLocalDefinition = useBitriseYmlStore(({ yml }) => Boolean(yml.step_bundles?.[bundleId]));
-  const isCrossFile =
-    !hasLocalDefinition && Boolean(EntityIndexService.definingNodeId(entityIndex, 'stepBundles', bundleId));
-  const definingPath = useDefiningFilePath('stepBundles', bundleId);
+  const { isCrossFile, definingPath } = useCrossFileEntity('stepBundles', bundleId);
   const { isSelected } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -199,10 +191,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               onClick={handleClick}
               role={isButton ? 'button' : 'div'}
             >
-              {/* The chevron stays visible for cross-file references (visual
-                  parity with local cards) but is disabled — the step list is
-                  definition-level and lives in another file, so there's nothing
-                  to expand here. */}
               {isCollapsable && (
                 <ControlButton
                   size="xs"
@@ -226,8 +214,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {/* "used in N workflows" counts the active file only — show
-                        the defining file for a cross-file reference instead. */}
                     {isCrossFile ? `Defined in ${definingPath || 'another file'}` : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
@@ -242,10 +228,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Box>
               </Box>
               {buttonGroup}
-              {/* Jump to the definition (in another file). Rendered after the
-                  step menu so it stays pinned at the right edge. Single
-                  definition → jumps instantly; multiple → opens the chooser. The
-                  wrapper stops the click from selecting the card. */}
+              {/* Rendered after the step menu so it stays pinned right; wrapper stops the click from selecting the card. */}
               {isCrossFile && (
                 <Box onClick={(e) => e.stopPropagation()} className="nopan">
                   <JumpToDefinitionLink
@@ -265,11 +248,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               )}
             </Box>
           </Box>
-          {/* The step list is definition-level: for a cross-file bundle the
-              definition lives in another file, so omit it here (the active doc
-              has no steps to show, and they aren't editable from this reference).
-              On the merged view the bundle is local, so isCrossFile is false and
-              the steps render normally. */}
           {!isCrossFile && (
             <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
               <Box p="8" ref={containerRef}>

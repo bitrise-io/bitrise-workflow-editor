@@ -23,10 +23,9 @@ type UseGetCiConfigTreeOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientEr
 type UseSaveCiConfigTreeOptions = UseMutationOptions<SaveTreeResult, ClientError, UseSaveCiConfigTreeProps>;
 
 /**
- * Tree bootstrap query (mirrors `useGetCiConfig`). The query key includes the
- * branch + force-from-repo so a branch switch refetches. The response is always
- * tree-shaped (a non-modular config is a single-node tree), so the caller seeds
- * the tree store unconditionally.
+ * Tree bootstrap query (mirrors `useGetCiConfig`). The key includes branch +
+ * force-from-repo so a branch switch refetches. A non-modular config is a
+ * single-node tree, so the response is always tree-shaped.
  */
 export function useGetCiConfigTree(
   props: UseGetCiConfigTreeProps,
@@ -46,10 +45,9 @@ export function useGetCiConfigTree(
 }
 
 /**
- * Tree save mutation. The 200 response already carries the refreshed tree +
- * entity index, so there's no separate refetch — callers apply it to the store
- * in `onSuccess` (e.g. `applyModularSaveResult`). A 409 is thrown as a
- * `ClientError`; read `BitriseYmlApi.mapSaveConflict(error.data)` in `onError`.
+ * Tree save mutation. The 200 response carries the refreshed tree + entity index
+ * (no separate refetch); callers apply it in `onSuccess`. A 409 throws a
+ * `ClientError` — read `BitriseYmlApi.mapSaveConflict(error.data)` in `onError`.
  */
 export function useSaveCiConfigTree(options?: UseSaveCiConfigTreeOptions) {
   return useMutation({

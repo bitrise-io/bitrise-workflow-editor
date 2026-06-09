@@ -15,21 +15,14 @@ type Props = {
   id: string;
   /** Default trigger content, rendered inside a purple text Link. */
   children?: ReactNode;
-  /**
-   * Custom trigger element (e.g. an icon button on a cross-file card). For a
-   * single definition it's cloned with an `onClick` that jumps; for multiple it
-   * becomes the chooser-popover trigger. Takes precedence over `children`.
-   */
+  /** Custom trigger element (cloned for a single def, used as popover trigger for multiple). Takes precedence over `children`. */
   trigger?: ReactElement<{ onClick?: () => void }>;
 };
 
 /**
- * The "Edit / Go to definition" link in a cross-file drawer header. An entity can
- * be defined in more than one file (a same-repo override, or the same path from
- * different branches/tags) — the merger deep-merges the layers. When there's a
- * single definition this is a plain link that jumps to it. When there's more than
- * one it opens a chooser (the shared file tree, grouped by repo + folder) so the
- * user picks which layer to open.
+ * The "Edit / Go to definition" link in a cross-file drawer header. A single definition
+ * jumps straight to it; an entity with multiple definitions (override, or same path from
+ * different refs) opens a chooser so the user picks which layer to open.
  */
 const JumpToDefinitionLink = ({ kind, id, children, trigger }: Props) => {
   const tree = useTree();
@@ -37,13 +30,11 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger }: Props) => {
   const jumpToDefinition = useJumpToDefinition();
   const [isOpen, setIsOpen] = useState(false);
 
-  // The node_ids of the contributing files, in merge order (index 0 = top-most).
   const definitionIds = useMemo(
     () => new Set(EntityIndexService.definitionsOf(entityIndex, kind, id).map((def) => def.nodeId)),
     [entityIndex, kind, id],
   );
 
-  // Single (or zero) definition: trigger jumps straight to the top-most layer.
   if (definitionIds.size <= 1) {
     if (trigger) {
       return cloneElement(trigger, { onClick: () => jumpToDefinition(kind, id) });

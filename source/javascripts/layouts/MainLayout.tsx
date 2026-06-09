@@ -34,13 +34,9 @@ const MainLayout = () => {
   const isYmlPage = currentPath.startsWith(paths.yml);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
-  // Modular configs get a global file-tab strip pinned to the top of the editor
-  // area (a continuation of the ConfigSettingsBar "in repository" header), so the
-  // active file is one shared context across every view.
+  // Modular configs get a global file-tab strip atop the editor area.
   const isModular = Boolean(useTree());
 
-  // Fetch + bind the merged config whenever the Merged tab is active (works on
-  // every page, so entity cards on the merged view resolve locally).
   useMergedConfigSync();
 
   return (

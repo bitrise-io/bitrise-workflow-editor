@@ -21,15 +21,9 @@ const KIND_PARAM: Record<EntityKind, string> = {
 };
 
 /**
- * Jump to where a cross-file entity is defined: activate the defining file's tab
- * (which rebinds the whole WFE to that file), then navigate to the entity's page
- * with it selected. Used by the wf/pl/sb cross-file drawer headers. No-ops if the
- * entity isn't in the index.
- *
- * `targetNodeId` selects a specific defining layer; when omitted it defaults to
- * the **top-most** (highest-precedence) definition. An entity can be defined in
- * several layers — the `JumpToDefinitionLink` chooser passes the layer the user
- * picked; everyone else jumps to the top-most.
+ * Jump to where a cross-file entity is defined: activate the defining file's tab,
+ * then navigate to the entity's page. No-ops if the entity isn't in the index.
+ * `targetNodeId` picks a specific defining layer; omitted defaults to the top-most.
  */
 export default function useJumpToDefinition() {
   const entityIndex = useEntityIndex();
@@ -43,8 +37,7 @@ export default function useJumpToDefinition() {
         return;
       }
 
-      // Remember the page the current tab is on before switching away, so
-      // returning to it restores that page rather than this jump's target page.
+      // Record the current tab's page before switching away, so return restores it.
       recordActiveTabLocation(window.parent.location.hash);
 
       openTab(nodeId, { preview: false });

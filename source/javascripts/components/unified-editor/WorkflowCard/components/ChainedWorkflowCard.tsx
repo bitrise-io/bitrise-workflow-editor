@@ -35,11 +35,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
   const entityIndex = useEntityIndex();
-  // A chained workflow defined in another module file (cross-file reference).
-  // There are no instance-level fields on a chain entry, so the card just shows
-  // the reference; its body (the chained workflow's own steps/sub-chains) is
-  // definition-level and lives in the other file, so it's omitted here. The
-  // config drawer exposes the jump-to-definition link.
+  // Cross-file: chained workflow defined in another module; card shows only the reference (its steps/sub-chains are definition-level and omitted).
   const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
   const definingPath = useDefiningFilePath('workflows', id);
   const { isSelected } = useSelection();
@@ -98,7 +94,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
     return {
       ...common,
-      // Subtle tint signalling the workflow is a reference defined in another file.
       ...(isCrossFile ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
@@ -176,9 +171,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               />
             )}
 
-            {/* The chevron stays visible for cross-file references (visual
-                parity) but is disabled — the chained workflow's own steps/chains
-                are definition-level and live in another file. */}
             <ControlButton
               size="xs"
               tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
@@ -199,8 +191,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                 {placement}
                 {' • '}
-                {/* "used by N" counts the active file only — show the defining
-                    file for a cross-file reference instead. */}
                 {isCrossFile
                   ? `Defined in ${definingPath || 'another file'}`
                   : WorkflowService.getUsedByText(dependants)}
@@ -209,9 +199,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
             {buttonGroup}
 
-            {/* Jump to the definition (in another file). Rendered last so it
-                stays pinned at the right edge while the hover-only actions appear
-                to its left. Single definition jumps; multiple opens the chooser. */}
+            {/* Rendered last so it stays pinned right while hover-only actions appear to its left. */}
             {isCrossFile && (
               <Box onClick={(e) => e.stopPropagation()} className="nopan">
                 <JumpToDefinitionLink

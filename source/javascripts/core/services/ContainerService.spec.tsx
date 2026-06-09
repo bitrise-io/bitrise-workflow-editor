@@ -1669,9 +1669,7 @@ describe('ContainerService', () => {
             execution_container: ubuntu
       `);
 
-        // A reference whose definition is absent from this document has no local
-        // container references to resolve — it resolves to undefined rather than
-        // throwing (throwing here would crash the card during render).
+        // Must resolve to undefined, not throw — throwing here crashes the card during render.
         expect(
           ContainerService.getContainerReferencesFromStepBundleDefinition(
             'non_existent',
@@ -1822,9 +1820,7 @@ describe('ContainerService', () => {
               - postgres
       `);
 
-        // A reference whose definition is absent from this document has no local
-        // container references to resolve — it resolves to undefined rather than
-        // throwing (throwing here would crash the card during render).
+        // Must resolve to undefined, not throw — throwing here crashes the card during render.
         expect(
           ContainerService.getContainerReferencesFromStepBundleDefinition(
             'non_existent',

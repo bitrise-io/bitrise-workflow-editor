@@ -1223,9 +1223,6 @@ describe('WorkflowService', () => {
             wf1: {}
         `,
       );
-      // The chained workflow is not in the active document but is known to the
-      // entity index (defined in another module file) — chaining writes only a
-      // reference, so it must be allowed.
       bitriseYmlStore.setState({
         entityIndex: { workflows: { 'cross-file-wf': [{ nodeId: 'n_other' }] }, pipelines: {}, stepBundles: {} },
       });

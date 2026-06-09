@@ -11,12 +11,8 @@ type Props = {
 };
 
 /**
- * One open-file tab, rendered as a `BitkitTabs.Trigger`. Selection is driven by
- * the enclosing `BitkitTabs.Root` (`onValueChange`); the trigger contributes the
- * unsaved-changes dot (`changed`, which becomes a close button on hover) and a
- * read-only lock icon for cross-ref files. The source ref (e.g. branch/tag) is
- * shown in the lock's tooltip rather than inline — the badge text is too long to
- * sit in the tab without making it unwieldy.
+ * One open-file tab (`BitkitTabs.Trigger`): unsaved-changes dot, plus a read-only lock
+ * icon for cross-ref files with the source ref shown in its tooltip (too long for inline).
  */
 const FileTab = ({ nodeId }: Props) => {
   const { closeTab } = useTabs();
@@ -29,8 +25,7 @@ const FileTab = ({ nodeId }: Props) => {
   }
 
   const name = TreeService.fileName(file.path);
-  // Effective source: own ref, or inherited from a cross-ref ancestor (a
-  // path-only include is read-only but carries no source of its own).
+  // Own ref, or inherited from a cross-ref ancestor (path-only includes carry no source).
   const refLabel = TreeService.effectiveSourceLabel(tree, nodeId);
 
   const trigger = (

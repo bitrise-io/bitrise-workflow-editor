@@ -31,10 +31,8 @@ const MergedDiffDialogBody = () => {
 };
 
 /**
- * Read-only diff of the merged configuration: the merge of the saved files
- * (`savedMergedYml`) vs. the merge of the current edited files (`mergedYml`).
- * Opened from the per-tab "Show diff" button while the Merged Config tab is
- * active — it shows the net effect of all unsaved edits on the merged result.
+ * Read-only diff of the merged config: saved files (`savedMergedYml`) vs. current edited
+ * files (`mergedYml`) — the net effect of all unsaved edits on the merged result.
  */
 const MergedDiffDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
   return (

@@ -166,7 +166,6 @@ const Header = () => {
 
   const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
     onSuccess: () => {
-      // The store refresh (single-file or modular tree) is handled inside usePushBranch.
       closePushBranchDialog();
     },
     onMergeConflict: (branch) => {

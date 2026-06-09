@@ -5,14 +5,7 @@ type Props = {
   definingPath?: string;
 };
 
-/**
- * A grayed-out, non-interactive stand-in for a definition-level card (Env Vars,
- * Stack & Machine) when the workflow is a cross-file reference. The real cards
- * read the workflow from the active document and throw when it lives in another
- * file, so we render this disabled shell instead — it shows the card's title and
- * points the user at the defining file (no data is read from that file, per the
- * "only show what's available from the open file" rule).
- */
+/** Disabled stand-in for a definition-level card (Env Vars, Stack & Machine) when the workflow is a cross-file reference; points the user at the defining file. */
 const CrossFileDefinitionCard = ({ title, definingPath }: Props) => (
   <Card variant="outline" opacity={0.6} cursor="not-allowed">
     <Box display="flex" alignItems="center" justifyContent="space-between" padding="16px 24px">

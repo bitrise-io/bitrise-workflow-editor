@@ -24,16 +24,9 @@ import { useTabs } from '@/hooks/useTabs';
 type Mode = 'create' | 'existing';
 
 /**
- * "Add module file" button (next to "Open module") + its dialog. Two modes:
- *
- *   - Create new file — makes an empty editable module file, opens it in a tab,
- *     and adds an `include:` for it to the currently-open file. No source params.
- *   - Add existing file — writes an `include:` directive (with optional
- *     repository/branch/tag/commit) into the currently-open file; the referenced
- *     file is resolved from Git on the next refresh. No file is created here.
- *
- * The included file always goes into the file open in the active tab. The button
- * is disabled on the Merged Config tab (no backing file) and on read-only files.
+ * "Add module file" button + dialog: create a new editable module file, or add an
+ * `include:` to an existing file. The include is always written into the active tab's
+ * file; disabled on the Merged Config tab and on read-only files.
  */
 const CreateFileButton = () => {
   const { activeTab, mergedConfigNodeId } = useTabs();
@@ -49,8 +42,6 @@ const CreateFileButton = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [error, setError] = useState<string>();
 
-  // The active file is the include target. It must be a real, editable file (not
-  // the Merged Config tab, not a read-only cross-ref file).
   const isMerged = activeTab === mergedConfigNodeId;
   const targetNodeId = activeFile?.editable ? activeFile.nodeId : undefined;
   const targetName = activeFile ? TreeService.fileName(activeFile.path) : undefined;
@@ -83,8 +74,7 @@ const CreateFileButton = () => {
     }
 
     if (mode === 'create') {
-      // Attach the new file under its include target so the backend matches it to
-      // the directive instead of fetching it from Git.
+      // Attach under the include target so the backend matches it to the directive instead of fetching from Git.
       const result = createFile(path, targetNodeId);
       if (!result.ok) {
         setError(result.error);
@@ -99,7 +89,6 @@ const CreateFileButton = () => {
       return;
     }
 
-    // mode === 'existing'
     const result = addInclude(targetNodeId, { path, repository, branch, tag, commit });
     if (!result.ok) {
       setError(result.error);

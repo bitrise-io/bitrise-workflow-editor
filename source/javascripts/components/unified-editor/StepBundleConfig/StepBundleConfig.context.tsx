@@ -3,9 +3,7 @@ import { createContext, useContext } from 'react';
 import { StepBundleInstance } from '@/core/models/Step';
 import useStepBundle from '@/hooks/useStepBundle';
 
-// The Provider component lives in StepBundleConfigProvider.tsx so this module
-// exports only non-components, keeping it React Fast Refresh-friendly (a mixed
-// component/hook module forces a full reload instead of refreshing).
+// Provider component lives in StepBundleConfigProvider.tsx so this module exports only non-components, keeping React Fast Refresh happy.
 export type StepBundleConfigContextValue = {
   stepBundleId?: string;
   parentWorkflowId?: string;

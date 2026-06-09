@@ -102,12 +102,8 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useYmlLanguageServices();
   useCloseAIDrawer();
 
-  // Tree bootstrap, gated behind the modular flag. When off, the existing
-  // single-file flow (legacy `GET /config`) is the only path. When on,
-  // `getConfig` always returns a tree — a non-modular config is just a
-  // single-node tree — which seeds the tree store. The modular UI mounts in
-  // later tasks; for a single-node tree it behaves exactly as the single-file
-  // editor (the active file IS the document).
+  // Modular flag: off → legacy single-file `GET /config`; on → tree-based config (a
+  // non-modular config is just a single-node tree).
   const isModularEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
 
   const legacyConfig = useGetCiConfig(
@@ -133,10 +129,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEventListener('unhandledrejection', (e) => {
-    // Monaco cancels in-flight debounced tasks (Delayer) when its editor model is
-    // disposed — e.g. navigating away from a source view while switching tabs —
-    // rejecting with a benign "Canceled" sentinel. It's not a real error, so
-    // don't report it or surface an error toast.
+    // Monaco rejects with a benign "Canceled" sentinel when a model is disposed (e.g. tab switch); not a real error.
     const reason = e.reason as { name?: string; message?: string } | undefined;
     if (reason?.name === 'Canceled' || reason?.message === 'Canceled') {
       return;

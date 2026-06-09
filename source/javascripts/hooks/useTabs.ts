@@ -19,15 +19,10 @@ function currentLocation(): string {
 }
 
 /**
- * Open file tabs + the active tab, plus the tab actions. The "Merged Config"
- * tab is always conceptually first (id `mergedConfigNodeId`) and lives outside
- * `tabs`; `activeTab === mergedConfigNodeId` means it's selected.
- *
- * Switching tabs is per-tab page-aware: before leaving a tab we record its
- * current page, and on re-selecting a tab we restore the page it was last on.
- * Without this the global URL (the WFE's only source of "which page") would
- * bleed across tabs — e.g. jumping to a step-bundle definition would leave the
- * workflow tab stuck on the step-bundle page when switched back to.
+ * Open file tabs + the active tab, plus the tab actions. The Merged Config tab
+ * lives outside `tabs`; `activeTab === mergedConfigNodeId` means it's selected.
+ * Tab switching is per-tab page-aware: each tab's current page is recorded on
+ * leave and restored on re-select, so the global URL doesn't bleed across tabs.
  */
 export function useTabs() {
   const { tabs, activeTab, isMergedStale } = useBitriseYmlStore((s) => ({
@@ -38,13 +33,9 @@ export function useTabs() {
 
   const [, navigate] = useHashLocation();
 
-  // Restore the page the target tab was last on (if any). For a file tab, no
-  // stored location means never-visited — leave the current page as-is (its
-  // entity selectors fall back to that file's first entity). The merged tab
-  // keeps its page in `mergedTabLastLocation` (it isn't an `openTabs` entry);
-  // because the merged config contains *every* entity, the previous tab's
-  // selection would otherwise carry over, so a never-visited merged tab defaults
-  // to a clean Workflows page (→ a default workflow is selected).
+  // Restore the page the target tab was last on. A never-visited file tab keeps
+  // the current page; a never-visited merged tab defaults to Workflows (it holds
+  // every entity, so the previous tab's selection must not carry over).
   const restoreTabLocation = useCallback(
     (nodeId: string) => {
       const state = bitriseYmlStore.getState();
@@ -86,9 +77,8 @@ export function useTabs() {
     restoreTabLocation(MERGED_CONFIG_NODE_ID);
   }, [restoreTabLocation]);
 
-  // Closing the active tab makes the store rebind to a neighbor; restore that
-  // neighbor's last page too. Closing an inactive tab leaves the active tab
-  // unchanged — don't navigate (its stored location may be stale).
+  // Closing the active tab rebinds the store to a neighbor; restore its last
+  // page. Closing an inactive tab leaves the active tab unchanged — don't navigate.
   const closeTabAndRestore = useCallback(
     (nodeId: string) => {
       const before = bitriseYmlStore.getState().selectedNodeId;

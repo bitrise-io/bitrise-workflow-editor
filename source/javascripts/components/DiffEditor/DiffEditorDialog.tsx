@@ -36,8 +36,7 @@ const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   const modifiedText = getYmlString();
   const originalText = getYmlString('savedYmlDocument');
 
-  // A session-created file (editable, not yet on the branch → empty commitSha)
-  // has no saved baseline; show a plain code view instead of a two-sided diff.
+  // New file (empty commitSha) has no saved baseline → plain code view, not a two-sided diff.
   const isNewFile = useBitriseYmlStore((s) => {
     const nodeId = s.selectedNodeId;
     if (!nodeId || nodeId === MERGED_CONFIG_NODE_ID) {

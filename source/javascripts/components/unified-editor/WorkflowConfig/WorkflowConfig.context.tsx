@@ -3,16 +3,10 @@ import { createContext, useContext } from 'react';
 import { Workflow } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-// Component (WorkflowConfigProvider) and hook are kept in separate modules so
-// this file exports only non-components — otherwise React Fast Refresh treats
-// the mixed module as a non-boundary and falls back to a full page reload.
+// Provider component kept in a separate module so this file exports only non-components, keeping React Fast Refresh happy (a mixed module forces a full reload).
 export const WorkflowConfigContext = createContext<string>('');
 
-/**
- * The raw workflow id the drawer was opened for — available even when the
- * workflow isn't defined in the active file (a cross-file reference), unlike
- * `useWorkflowConfigContext` which resolves to `undefined` in that case.
- */
+/** Raw workflow id the drawer was opened for — resolves even for a cross-file reference, unlike `useWorkflowConfigContext`. */
 export function useWorkflowConfigId() {
   return useContext(WorkflowConfigContext);
 }

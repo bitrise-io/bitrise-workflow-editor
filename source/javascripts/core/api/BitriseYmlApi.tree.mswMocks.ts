@@ -2,12 +2,6 @@ import { delay, http, HttpResponse } from 'msw';
 
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
-/**
- * MSW handlers for the modular YAML tree endpoints. Bodies are the snake_case
- * wire shape from `api.md` (the API client maps them to camelCase). Reuses the
- * `*.mswMocks.ts` pattern from `ConfigurationYmlStorage.mswMocks.ts`.
- */
-
 const ROOT_NODE = {
   node_id: 'n_root',
   path: 'bitrise.yml',
@@ -43,8 +37,6 @@ const MODULAR_RESPONSE = {
   branch: 'main',
 };
 
-// A non-modular config is just the degenerate case of the same tree shape: a
-// single root node with no includes.
 const SINGLE_NODE_ROOT = {
   node_id: 'n_root',
   path: 'bitrise.yml',

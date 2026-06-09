@@ -23,8 +23,7 @@ type Props = {
   isNodeDisabled?: (node: TreeNode) => boolean;
 };
 
-// A single collection node — a synthetic group root, a (possibly collapsed)
-// folder, or a file leaf. Folder ids are path strings, file ids are node_ids.
+// One collection node: group root, folder, or file leaf. Folder ids are path strings, file ids are node_ids.
 type RenderNode = {
   id: string;
   label: string;
@@ -112,12 +111,9 @@ const GroupTree = ({
 };
 
 /**
- * The shared file/folder selector used by the "Open module" popover, the global
- * diff file switcher and the jump-to-definition chooser. Files are grouped by the
- * repository they effectively come from (working repo first), and within a group
- * laid out by their on-disk path with single-child directory chains collapsed.
- * Cross-repo groups carry a read-only info tooltip. Pure presentation — all model
- * shaping lives in `FileTreeService`.
+ * Shared file/folder selector (Open module popover, global diff switcher, jump-to-def
+ * chooser). Files grouped by effective repository (working repo first) and laid out by
+ * path with single-child chains collapsed. Pure presentation — shaping lives in `FileTreeService`.
  */
 const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
   const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
@@ -131,10 +127,7 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
     <Box display="flex" flexDirection="column" gap="16">
       {groups.map((group) => (
         <Box key={group.key} display="flex" flexDirection="column">
-          {/* No `px` here so the header left-aligns with the title; the tree's own
-              8px inset (`--tree-padding-inline-start`) gives the file rows their
-              slight indent past the header, matching the design. `py` matches the
-              tree rows' vertical padding so the header sits in the same rhythm. */}
+          {/* No `px`: header left-aligns with the title while the tree's own 8px inset indents file rows. */}
           <Box display="flex" alignItems="center" gap="4" py="6">
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (

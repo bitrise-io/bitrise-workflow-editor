@@ -18,11 +18,6 @@ const StepListItem = (props: StepCardProps) => {
   const isStepBundle = StepService.isStepBundle(cvs, defaultStepLibrary);
 
   if (isStepBundle) {
-    // The bundle may be defined in another module file (a cross-file
-    // reference). StepBundleCard tolerates a missing definition: it renders the
-    // instance-level properties from the active file and simply shows no nested
-    // steps / container references for the (absent) definition. The drawer's
-    // header exposes the jump-to-definition affordance.
     return <StepBundleCard isCollapsable cvs={cvs} {...rest} />;
   }
 

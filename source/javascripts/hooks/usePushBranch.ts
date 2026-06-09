@@ -50,8 +50,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       }
 
       const common = { appSlug, branch, sourceBranch: configBranch, commitSha: configCommitSha, message };
-      // Modular: send the full tree (BE validates the merged config, then pushes
-      // the modified editable files). Single-file: the one bitrise.yml.
+      // Modular sends the full tree (BE validates merged, then pushes edited files); single-file sends bitrise.yml.
       return isModular
         ? BranchesApi.pushBranch({ ...common, root: getModularConfigTree() })
         : BranchesApi.pushBranch({ ...common, bitriseYml: getYmlString() });
@@ -76,12 +75,9 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
           : undefined,
       });
 
-      // Reload the pushed branch so the editor reflects the saved state (edits
-      // are no longer dirty). Modular: refresh the tree in place via
-      // applyModularSaveResult, which **preserves the open tabs + active selection**
-      // (including the Merged-config view) by stable node_id — rather than the
-      // hard reset initializeModularConfig does (which would drop the user back to
-      // a single root tab). Single-file: re-seed the one doc.
+      // Reload the pushed branch so the editor reflects the saved state. Modular
+      // refreshes the tree in place to preserve open tabs + active selection by
+      // stable node_id (a hard reset would drop back to a single root tab).
       if (isModular) {
         const config = await BitriseYmlApi.getConfig({ projectSlug: appSlug, branch });
         applyModularSaveResult({
@@ -90,11 +86,8 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
           branch: config.branch,
           commitSha: config.root.commitSha,
         });
-        // Sync React Query's config-tree cache with the freshly pushed tree.
-        // Without this the cache still holds the pre-push tree (keyed to the
-        // branch first loaded), and any later re-seed of the store from that
-        // stale entry (a dev HMR/StrictMode remount of InitialDataLoader, etc.)
-        // would silently revert the editor to the old module tree.
+        // Sync React Query's cache, else a later re-seed from the stale pre-push
+        // entry (e.g. a dev HMR/StrictMode remount) would revert to the old tree.
         queryClient.setQueriesData({ queryKey: [CI_CONFIG_TREE_QUERY_KEY, appSlug] }, config);
       } else {
         const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });

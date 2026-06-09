@@ -9,12 +9,8 @@ import { useFileIsDirty } from '@/hooks/useFile';
 import { useSelectedNodeId } from '@/hooks/useTree';
 
 /**
- * Per-tab "Show diff" button in the editor tab strip.
- *
- *   - On a file tab: enabled when that tab is dirty; opens the active-document
- *     diff (editable, saved → current, with Apply).
- *   - On the Merged Config tab: enabled when unsaved edits changed the merged
- *     result; opens a read-only diff of the saved vs. current merged config.
+ * Per-tab "Show diff" button: on a file tab, the editable saved → current diff; on the
+ * Merged Config tab, a read-only diff of the saved vs. current merged config.
  */
 const TabDiffButton = () => {
   const selectedNodeId = useSelectedNodeId();

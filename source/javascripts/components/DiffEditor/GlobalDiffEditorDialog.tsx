@@ -32,8 +32,6 @@ import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
 const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
-  // Only the affected (dirty) files are listed, grouped by repo + folder path
-  // (the dirty set is reactive: a per-file Apply can drop one out of it).
   const tree = useBitriseYmlStore((s) => s.tree);
   const dirtyIds = useBitriseYmlStore(
     (s) =>
@@ -46,8 +44,7 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   const dirtyFiles = useBitriseYmlStore((s) =>
     Object.values(s.files)
       .filter((slice) => isFileDirty(slice))
-      // `commitSha` is empty for a session-created file (not on the branch yet) —
-      // such a file has no saved baseline, so it gets a plain code view, not a diff.
+      // No commitSha = session-created file with no saved baseline → plain code view, not a diff.
       .map((slice) => ({ nodeId: slice.nodeId, editable: slice.editable, isNew: slice.editable && !slice.commitSha })),
   );
 
@@ -72,12 +69,8 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
       originalText: slice ? YmlUtils.toYml(slice.savedYmlDocument) : '',
       modifiedText: slice ? YmlUtils.toYml(slice.ymlDocument) : '',
     };
-    // Re-read whenever the selection changes (the dialog is modal; docs only
-    // change underneath via this dialog's own Apply, which closes it).
   }, [effectiveNodeId]);
 
-  // The diff is editable only for editable files; the merged/read-only files
-  // aren't in the dirty set, so in practice every entry here is editable.
   const isReadOnly = !selected?.editable;
   const isApplyChangesDisabled =
     isReadOnly || currentText === undefined || ymlStatus === 'invalid' || currentText === modifiedText;
@@ -120,7 +113,6 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
     { capture: true },
   );
 
-  // Show only the affected files, in their repo + folder layout.
   const isDirty = useMemo(() => (node: { nodeId: string }) => dirtyIds.has(node.nodeId), [dirtyIds]);
 
   return (
@@ -156,9 +148,7 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
           </Notification>
           {effectiveNodeId &&
             (isNewFile ? (
-              // A session-created file has no saved baseline; show a plain code
-              // view (not a diff against the empty stub) so it isn't a confusing
-              // "comment vs null" comparison.
+              // New file has no saved baseline → plain code view, not a diff against an empty stub.
               <Box flex="1" display="flex" minHeight="0">
                 <Editor
                   key={effectiveNodeId}
@@ -203,10 +193,9 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 };
 
 /**
- * The header "Show diff" dialog in modular mode: a global view of all unsaved
- * files. The left file tree (the shared FileTreeView) switches between modified
- * files; the right side shows that file's saved → current diff and stays
- * editable, with "Apply changes" writing back to the selected file.
+ * The header "Show diff" dialog in modular mode: a global view of all unsaved files.
+ * Left tree switches between modified files; right shows the selected file's editable
+ * saved → current diff, with "Apply changes" writing back to it.
  */
 const GlobalDiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
   return (

@@ -54,11 +54,7 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
 
   const entityIndex = useEntityIndex();
 
-  // Render chained workflows that are either defined in the active file or in
-  // another module (cross-file reference, present in the entity index).
-  // ChainedWorkflowCard tolerates the missing definition for the latter, showing
-  // only the reference and a jump-to-definition link in its drawer. Truly
-  // dangling ids (neither local nor indexed) are still skipped.
+  // Keep chained workflows defined in the active file or in another module (cross-file, in the entity index); skip truly dangling ids.
   const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
     const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
     return chainedWorkflowIds.filter(

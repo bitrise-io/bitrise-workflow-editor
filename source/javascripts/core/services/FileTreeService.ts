@@ -1,19 +1,5 @@
 import { TreeNode, TreeNodeSource } from '@/core/models/Tree';
 
-/**
- * Render model for the "Open module" file selector (and the diff / jump-to-def
- * reuses). This is a **file/folder/path** view, NOT the include hierarchy: files
- * are grouped by the source they effectively come from — a distinct
- * `(repository, branch/tag/commit)` is its own group — and within a group laid
- * out by their on-disk path (collapsing single-child directory chains). The
- * working repo at the root's ref is the first group and the only editable one;
- * every other ref/repo group is read-only. File names carry no ref marker — the
- * group header names the ref instead.
- *
- * Pure + framework-free so it can be unit-tested in isolation; `FileTreeView`
- * turns the output into `BitkitTreeView` collections.
- */
-
 /** The effective `(repository, ref)` a node resolves to after include inheritance. */
 type EffectiveRef = {
   repository: string | null;
@@ -23,9 +9,7 @@ type EffectiveRef = {
 };
 
 export type FileTreeFile = {
-  /** `node_id` — selection identity. */
   nodeId: string;
-  /** Basename of the path. */
   fileName: string;
   editable: boolean;
   node: TreeNode;
@@ -41,24 +25,20 @@ export type FileTreeFolder = {
 };
 
 export type FileTreeGroup = {
-  /** Stable group id (the full ref identity). */
   key: string;
   /** Header text: `gitRepoSlug` for the working repo, else `<repo>@<ref>`. */
   header: string;
-  /** Every group other than the working repo's root ref is read-only. */
   isReadOnly: boolean;
-  /** Top-level directory holding the group's root files + folders. */
   root: FileTreeFolder;
 };
 
 type BuildOptions = {
   /** Label for the working-repo group header (the project's `gitRepoSlug`). */
   projectRepoLabel: string;
-  /** When set, only files for which this returns `true` are included. */
   filter?: (node: TreeNode) => boolean;
 };
 
-/** Short ref label, e.g. `@branch-a`, `:v1.4.0`, `:9d1df` — used in group headers. */
+/** Short ref label for group headers, e.g. `@branch-a`, `:v1.4.0`, `:9d1df`. */
 function refMarker(ref: EffectiveRef): string | null {
   if (ref.commit) {
     return `:${ref.commit.slice(0, 7)}`;
@@ -72,17 +52,7 @@ function refMarker(ref: EffectiveRef): string | null {
   return null;
 }
 
-/**
- * Resolve a node's effective `(repository, ref)` given its parent's effective
- * value, mirroring how the backend inherits refs down the include chain:
- * - the root carries no source → the working repo at its current branch;
- * - a `source` that names a `repository` uses its own ref (cross-repo, or an
- *   explicit same-repo include);
- * - a `source` that names a branch/tag/commit but no repository stays in the
- *   parent's repo but overrides the ref (e.g. a same-repo include from another
- *   branch);
- * - a pure path-only `source` inherits the parent's repo *and* ref.
- */
+/** Resolve a node's effective `(repository, ref)`, mirroring how the backend inherits refs down the include chain. */
 function resolveEffectiveRef(source: TreeNodeSource | null, parent: EffectiveRef): EffectiveRef {
   if (!source) {
     return { repository: null, branch: null, tag: null, commit: null };
@@ -111,7 +81,6 @@ function refKey(ref: EffectiveRef): string {
   return `${ref.repository ?? '__project__'}|${ref.branch ?? ''}|${ref.tag ?? ''}|${ref.commit ?? ''}`;
 }
 
-/** The working repo at the root's ref — the one editable group, headed by name only. */
 function isWorkingRepoRef(ref: EffectiveRef): boolean {
   return ref.repository === null && !ref.branch && !ref.tag && !ref.commit;
 }
@@ -122,7 +91,6 @@ type GroupAccumulator = {
   files: TreeNode[];
 };
 
-/** Insert a file into a group's nested folder structure by its path segments. */
 function insertFile(rootFolder: FileTreeFolder, file: FileTreeFile, dirSegments: string[]): void {
   let cursor = rootFolder;
   dirSegments.forEach((segment) => {
@@ -137,11 +105,7 @@ function insertFile(rootFolder: FileTreeFolder, file: FileTreeFile, dirSegments:
   cursor.files.push(file);
 }
 
-/**
- * Collapse single-child directory chains: a folder with exactly one child that
- * is itself a folder (and no files of its own) is merged with that child, so
- * `a → b → c` (only branching at `c`) renders as one `a/b/c` entry.
- */
+/** Collapse single-child directory chains so `a → b → c` renders as one `a/b/c` entry. */
 function collapse(folder: FileTreeFolder): FileTreeFolder {
   let current = folder;
   while (current.files.length === 0 && current.folders.length === 1) {
@@ -159,16 +123,10 @@ function collapse(folder: FileTreeFolder): FileTreeFolder {
   };
 }
 
-// Natural, case-insensitive name compare so ordering is deterministic across
-// loads (the tree's include order is not stable). `numeric` so `file2` sorts
-// before `file10`.
+// Case-insensitive, numeric compare so ordering is deterministic (include order isn't stable) and `file2` sorts before `file10`.
 const byName = (a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true });
 
-/**
- * Deterministically sort a folder's contents (recursively). Files first, then
- * folders — each group sorted by name. Files tie-break on `nodeId` so any two
- * same-named files keep a stable order.
- */
+// Files first, then folders, each by name; files tie-break on nodeId for stability.
 function sortFolder(folder: FileTreeFolder): FileTreeFolder {
   return {
     ...folder,
@@ -177,13 +135,7 @@ function sortFolder(folder: FileTreeFolder): FileTreeFolder {
   };
 }
 
-/**
- * Build the grouped file/folder model. Walks the include tree (pre-order,
- * cycle-guarded) resolving each node's effective repo + ref, buckets files by
- * the full ref identity (working repo first, the rest sorted by header), then
- * lays each group out as a collapsed folder tree with deterministically sorted
- * contents.
- */
+/** Build the grouped file/folder model: bucket files by effective ref (working repo first), each group a collapsed, sorted folder tree. */
 function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileTreeGroup[] {
   if (!root) {
     return [];
@@ -224,8 +176,7 @@ function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileT
       return { group, isWorking, header };
     });
 
-  // The working repo always renders first; every other ref/repo group follows,
-  // sorted by header so the order is stable across loads.
+  // Working repo first; other groups follow, sorted by header for stability.
   descriptors.sort((a, b) => {
     if (a.isWorking !== b.isWorking) {
       return a.isWorking ? -1 : 1;
@@ -246,8 +197,6 @@ function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileT
       key: group.key,
       header,
       isReadOnly: !isWorking,
-      // Collapse single-child chains, then sort deterministically (keeping the
-      // empty-label group root itself).
       root: sortFolder({ ...rootFolder, folders: rootFolder.folders.map(collapse) }),
     };
   });

@@ -24,14 +24,10 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
     );
   });
 
-  // Global candidate set: active-file bundles unioned with bundles defined in
-  // other module files (one row per id; the index keys are deduped to the
-  // top-most definition). Single-file mode → empty index → active file only.
+  // Active-file bundles unioned with bundles from other module files (one row per id).
   const allBundleIds = [...new Set([...Object.keys(stepBundles), ...Object.keys(entityIndex.stepBundles)])];
 
-  // Chains only exist for local bundles; a cross-file bundle has no entry, so
-  // guard the lookup (its own chain isn't visible here — cycle prevention across
-  // files is the backend's job). Without a chain it can't be excluded → keep it.
+  // Chains only exist for local bundles, so guard the lookup; a cross-file bundle has no chain and can't be excluded.
   const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
   const bundleIds = allBundleIds.filter((id) => {
     if (excludedStepBundleId) {

@@ -46,7 +46,6 @@ export default {
   component: OpenFileTabs,
   beforeEach: () => {
     initializeModularConfig({ root: ROOT, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: ROOT.commitSha });
-    // Open a couple of files so the strip shows preview + read-only tabs.
     openTab('n_local');
     openTab('n_repo');
   },

@@ -52,7 +52,6 @@ describe('FileTreeService.buildFileTree', () => {
 
     const [project] = FileTreeService.buildFileTree(root, { projectRepoLabel: 'repo' });
 
-    // bitrise.yml sits at the group root; the deep chain collapses to one entry.
     expect(project.root.files.map((f) => f.fileName)).toEqual(['bitrise.yml']);
     expect(project.root.folders).toHaveLength(1);
 
@@ -65,7 +64,7 @@ describe('FileTreeService.buildFileTree', () => {
 
   it('splits same-repo includes from a different ref into their own (read-only) groups, no markers on names', () => {
     const root = node('n_root', 'bitrise.yml', null, [
-      node('n_plain', 'build.yml', source({ path: 'build.yml' })), // working repo, root ref
+      node('n_plain', 'build.yml', source({ path: 'build.yml' })),
       node('n_b', 'pipelines.yml', source({ path: 'pipelines.yml', branch: 'branch-a' })),
       node('n_t', 'workflows2.yml', source({ path: 'workflows2.yml', tag: 'tag-a' })),
       node(
@@ -78,13 +77,10 @@ describe('FileTreeService.buildFileTree', () => {
     const groups = FileTreeService.buildFileTree(root, { projectRepoLabel: 'repo' });
     const byHeader = Object.fromEntries(groups.map((g) => [g.header, g]));
 
-    // Working repo: only the root-ref files; editable; names have no marker.
     expect(groups[0].header).toBe('repo');
     expect(groups[0].isReadOnly).toBe(false);
     expect(groups[0].root.files.map((f) => f.fileName)).toEqual(['bitrise.yml', 'build.yml']);
 
-    // Each deviating ref is its own read-only group, headed by the ref; the file
-    // name itself carries no marker.
     expect(byHeader['repo@branch-a'].isReadOnly).toBe(true);
     expect(byHeader['repo@branch-a'].root.files.map((f) => f.fileName)).toEqual(['pipelines.yml']);
     expect(byHeader['repo:tag-a'].root.files.map((f) => f.fileName)).toEqual(['workflows2.yml']);
@@ -93,7 +89,6 @@ describe('FileTreeService.buildFileTree', () => {
 
   it('groups a cross-repo include under its own read-only repo group', () => {
     const repoRoot = node('n_repo', 'bitrise.yml', source({ repository: 'other-repo', branch: 'main' }), [
-      // Path-only include under the cross-repo parent → inherits other-repo@main.
       node('n_child', 'workflow_templates/workflows.yml', source({ path: 'workflow_templates/workflows.yml' })),
     ]);
     const root = node('n_root', 'bitrise.yml', null, [repoRoot]);
@@ -119,7 +114,6 @@ describe('FileTreeService.buildFileTree', () => {
 
     const [project] = FileTreeService.buildFileTree(root, { projectRepoLabel: 'repo' });
 
-    // Files first (sorted), then folders (sorted) — stable across any input order.
     expect(project.root.files.map((f) => f.fileName)).toEqual(['alpha.yml', 'bitrise.yml', 'mid.yml', 'zebra.yml']);
     expect(project.root.folders.map((f) => f.label)).toEqual(['alpha-dir', 'beta']);
   });
@@ -130,8 +124,6 @@ describe('FileTreeService.buildFileTree', () => {
     ]);
     const root = node('n_root', 'bitrise.yml', null, [repoRoot]);
 
-    // Filter keeps only the nested child (the repo's entry node is excluded); the
-    // child inherits other-repo@main, so it lands in that group.
     const groups = FileTreeService.buildFileTree(root, {
       projectRepoLabel: 'repo',
       filter: (n) => n.nodeId === 'n_child',

@@ -1,19 +1,11 @@
 import { TreeNode, TreeNodeSource } from '@/core/models/Tree';
 
-/**
- * Live per-file state to splice into a structural tree when serializing it for
- * a save payload. Keyed by `nodeId`. `modified` marks files changed since load.
- * Kept store-agnostic on purpose so this stays a pure function with no
- * `BitriseYmlStore` import.
- */
+// Store-agnostic (no BitriseYmlStore import) so this stays a pure function.
 type LiveContents = Record<string, { contents: string; modified: boolean }>;
 
 type Visitor = (node: TreeNode, parent: TreeNode | undefined, depth: number) => void;
 
-/**
- * Pre-order traversal of the include tree. Defensive against cycles (the merger
- * rejects them before serialization, but a malformed payload shouldn't hang).
- */
+/** Pre-order traversal of the include tree; cycle-guarded so a malformed payload can't hang. */
 function walk(root: TreeNode | undefined, visitor: Visitor): void {
   if (!root) {
     return;
@@ -34,7 +26,6 @@ function walk(root: TreeNode | undefined, visitor: Visitor): void {
   visit(root, undefined, 0);
 }
 
-/** Find a node by its `nodeId`, or `undefined` if it isn't in the tree. */
 function findNode(root: TreeNode | undefined, nodeId: string): TreeNode | undefined {
   let found: TreeNode | undefined;
 
@@ -47,18 +38,13 @@ function findNode(root: TreeNode | undefined, nodeId: string): TreeNode | undefi
   return found;
 }
 
-/** Flatten the tree to a pre-order list of nodes. */
 function flatten(root: TreeNode | undefined): TreeNode[] {
   const nodes: TreeNode[] = [];
   walk(root, (node) => nodes.push(node));
   return nodes;
 }
 
-/**
- * Rebuild the structural tree into a fresh, wire-ready tree, splicing each
- * node's live `contents` + `version` from `live`. Nodes missing from `live`
- * keep their loaded contents (e.g. read-only nodes the user never touched).
- */
+/** Rebuild a fresh wire-ready tree, splicing each node's live contents; nodes missing from `live` keep their loaded contents. */
 function serializeTree(root: TreeNode, live: LiveContents): TreeNode {
   const rebuild = (node: TreeNode): TreeNode => {
     const liveNode = live[node.nodeId];
@@ -74,12 +60,7 @@ function serializeTree(root: TreeNode, live: LiveContents): TreeNode {
   return rebuild(root);
 }
 
-/**
- * Short, human-readable badge for a node's cross-ref `source` — verbatim what
- * the user wrote in the `include:` directive. `null` for the root and for
- * same-repo/same-branch (path-only) includes, which carry no badge. Pinned refs
- * (commit / tag) take precedence over location refs (repository / branch).
- */
+/** Cross-ref badge for a node's `source`; `null` for root and path-only includes. Pinned refs (commit/tag) win over location refs (repo/branch). */
 function sourceLabel(source: TreeNodeSource | null): string | null {
   if (!source) {
     return null;
@@ -99,18 +80,11 @@ function sourceLabel(source: TreeNodeSource | null): string | null {
   return null;
 }
 
-/** Basename of a node's repo-relative path, for display. */
 function fileName(path: string): string {
   return path.split('/').filter(Boolean).pop() ?? path;
 }
 
-/**
- * The **effective** source badge for a node — its own `source`, or, for a
- * path-only include that inherits its parent's cross-ref (so it's read-only but
- * carries no `source` of its own), the nearest ancestor's source. Walking up the
- * include chain mirrors how `editable`/the effective ref tuple is inherited on
- * the backend, so a read-only child names the branch/tag/repo it was pulled from.
- */
+/** Effective source badge for a node: its own `source`, or the nearest ancestor's (a path-only include inherits its parent's cross-ref). */
 function effectiveSourceLabel(root: TreeNode | undefined, nodeId: string): string | null {
   if (!root) {
     return null;

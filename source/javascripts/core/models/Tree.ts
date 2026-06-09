@@ -1,20 +1,4 @@
-/**
- * Modular YAML tree model — camelCase mirror of the wire contract in
- * `modular-yml-editing-support-docs/api.md`. The API client (`BitriseYmlApi`)
- * maps the snake_case wire shape to/from these types at the boundary, so
- * everything above the client speaks camelCase.
- *
- * `node_id` is opaque on the FE — the BE owns its derivation. Use it everywhere
- * a node needs identity (tabs, selection, mutation API, entity-index targets),
- * since `path` alone is not unique (the same file can appear under multiple
- * `source`s).
- */
-
-/**
- * The user's `include:` directive verbatim. Each field is populated iff the
- * user wrote it — the BE does not fill in resolved defaults. `null` on the root
- * file (it isn't loaded via an include).
- */
+/** The user's `include:` directive verbatim; fields populated iff the user wrote them. `null` on the root. */
 export type TreeNodeSource = {
   path: string | null;
   repository: string | null;
@@ -23,56 +7,30 @@ export type TreeNodeSource = {
   commit: string | null;
 };
 
-/** The single recursive node type used across every tree request and response. */
 export type TreeNode = {
-  /** Stable BE-emitted identifier. Opaque on the FE. */
+  /** Opaque on the FE; the BE owns derivation. Identity key (path is not unique). */
   nodeId: string;
-  /** Canonical, repo-relative path. Display-only; not an identity key. */
   path: string;
-  /** Raw YAML string. */
   contents: string;
-  /** Verbatim `include:` directive; `null` for the root. */
   source: TreeNodeSource | null;
-  /**
-   * Full 40-char commit SHA the contents were read from. Deep links / drift, and
-   * the conflict token for saves (the git/repo path compares commit SHAs, not
-   * content hashes).
-   */
+  /** Full 40-char SHA the contents were read from; also the conflict token for saves. */
   commitSha: string;
-  /** Single source of truth for edit gating. The FE never re-derives this. */
+  /** Edit-gating source of truth; the FE never re-derives this. */
   editable: boolean;
-  /**
-   * FE→BE save marker: `true` for files the user changed since load. Set only
-   * when building the save payload (the BE pushes the editable+modified files and
-   * validates the whole tree). Absent on the load response.
-   */
+  /** FE→BE save marker: `true` for files changed since load. Set only when building the save payload. */
   modified?: boolean;
-  /** Recursive children; `[]` for leaves. */
   includes: TreeNode[];
 };
 
-/** A single place an entity is defined. */
 export type EntityDefinition = { nodeId: string };
 
 /**
- * `{ entityId: [{ nodeId }, …] }` per kind. An entity id can be defined in
- * several files (same-repo overrides, or the same path included from different
- * branches/tags) — there is no single "winner": the merger deep-merges the
- * layers into one final entity. The array is in pre-order include/merge order,
- * so index `0` is the **top-most / highest-precedence layer** ("finalish") and
- * later entries are lower layers merged underneath. Use `definingNodeId` (top-
- * most) for selectors + provenance, and `definitionsOf` (full array) to offer a
- * jump-to-definition chooser when there's more than one.
+ * `{ entityId: [{ nodeId }, …] }` per kind, in pre-order merge order: index `0` is the
+ * top-most/highest-precedence layer, later entries are lower layers merged underneath.
  */
 export type EntityIndexEntries = Record<string, EntityDefinition[]>;
 
-/**
- * Map of "which node defines which entity." The BE ships a snapshot alongside
- * the tree, but the FE keeps it **live** — re-derived from the open file
- * documents on every edit (see `EntityIndexService.buildFromFiles` + the store
- * subscription) so unsaved cross-file edits are reflected immediately. The BE
- * snapshot is just the load/save seed.
- */
+/** Which node defines which entity. The FE keeps it live (re-derived from open documents); the BE snapshot is only the seed. */
 export type EntityIndex = {
   workflows: EntityIndexEntries;
   pipelines: EntityIndexEntries;
@@ -82,31 +40,21 @@ export type EntityIndex = {
 
 export type EntityKind = keyof EntityIndex;
 
-/**
- * Bootstrap response (`GET /config/tree`). Always tree-shaped — there is no
- * mode discriminator. A non-modular config (Bitrise-hosted, or no `include:`s)
- * is just the degenerate case: a single root node with `includes: []`.
- */
+/** Bootstrap response (`GET /config/tree`). Always tree-shaped; a non-modular config is a single root node with `includes: []`. */
 export type GetConfigResponse = {
   root: TreeNode;
   entityIndex: EntityIndex;
-  /**
-   * Initial flattened config for the Merged-config tab — the merge of the tree
-   * as loaded. Absent if the BE couldn't merge at bootstrap; the FE then fetches
-   * it lazily via `POST /config/merge`. Re-fetched after any local edit.
-   */
+  /** Merge of the tree as loaded. Absent if the BE couldn't merge at bootstrap; the FE then fetches it via `POST /config/merge`. */
   mergedYml?: string;
   /** From the `X-Config-Branch` response header (the body carries no branch). */
   branch?: string;
 };
 
-/** One per-file conflict entry in a 409 save response. */
 export type TreeConflict = {
   path: string;
   remote: TreeNode;
 };
 
-/** 200 result of a tree save (`POST /config/push` with a tree payload). */
 export type SaveTreeResult = {
   status: 'ok';
   warnings: string[];

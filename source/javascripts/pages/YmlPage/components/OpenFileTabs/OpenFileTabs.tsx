@@ -8,10 +8,8 @@ import FileTab from './FileTab';
 import TabDiffButton from './TabDiffButton';
 
 /**
- * The editor-area tab strip for the modular config, built on `BitkitTabs`. The
- * "Merged Config" tab is always first; open file tabs follow (each with its own
- * unsaved dot + close button via `BitkitTabs.Trigger`). The diff / create /
- * "Open module" buttons sit at the right end.
+ * The editor-area tab strip for the modular config. "Merged Config" tab first, then open
+ * file tabs; the diff / create / "Open module" buttons sit at the right end.
  */
 const OpenFileTabs = () => {
   const { tabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig } = useTabs();
@@ -31,28 +29,16 @@ const OpenFileTabs = () => {
         display="flex"
         alignItems="center"
         flexShrink={0}
-        // 48px total, border-box (the 1px separator is included) — matches the
-        // ConfigSettingsBar so the two bars line up.
+        // 48px border-box (incl. the 1px separator) to line up with the ConfigSettingsBar.
         h="48px"
         backgroundColor="background/primary"
         borderBottomWidth="1px"
         borderBottomColor="border/minimal"
       >
-        {/* Tab geometry, carefully balanced:
-            - A bitkit `line` trigger is 47px tall and uses `position: relative;
-              bottom: -1px` to nudge itself down 1px so its 2px underline overlaps
-              the separator. `align-items: flex-start` stops the List from
-              stretching the trigger (stretch + the nudge = 1px overflow past the
-              bar — the original bug).
-            - The List is a full 48px so the nudged trigger (y=1→48) fits entirely
-              inside it: nothing clips, so the whole 2px underline is visible.
-            - `mb="-1px"` pulls that 48px List back into the outer Box's 47px
-              content area (48px outer − 1px border), so the List's bottom 1px
-              overlaps the divider instead of overflowing it.
-            - overflowY is explicit because `overflow-x: auto` alone makes the
-              computed `overflow-y` resolve to `auto` too (CSS spec); with the
-              trigger now fully contained there's nothing to scroll, so no stray
-              vertical scrollbar. */}
+        {/* Tab geometry gotchas: `flex-start` stops the List stretching the nudged-down
+            trigger (stretch + nudge overflowed the bar). `mb="-1px"` overlaps the 48px
+            List's bottom onto the divider. Explicit `overflowY` because `overflow-x: auto`
+            makes computed `overflow-y` resolve to `auto` too (CSS spec), causing a stray scrollbar. */}
         <BitkitTabs.List
           flex="1"
           h="48px"

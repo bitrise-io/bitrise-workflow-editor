@@ -155,14 +155,7 @@ function getWorkflowOrThrowError(id: string, doc: Document) {
   return workflow;
 }
 
-/**
- * Assert a workflow can be *referenced* (chained, or added to a pipeline). Unlike
- * `getWorkflowOrThrowError`, this accepts a cross-file workflow: its definition
- * may live in another module file (known via the entity index), and writing the
- * reference doesn't need the definition present in the active document. Only a
- * truly-unknown id throws. In single-file mode the index is empty, so this
- * behaves exactly like the local existence check.
- */
+/** Assert a workflow can be referenced (chained / added to a pipeline); accepts a cross-file id known to the entity index. */
 function assertWorkflowReferenceable(id: string, doc: Document) {
   if (YmlUtils.getMapIn(doc, ['workflows', id])) {
     return;
@@ -171,7 +164,7 @@ function assertWorkflowReferenceable(id: string, doc: Document) {
     EntityIndexService.definingNodeId(bitriseYmlStore.getState().entityIndex, 'workflows', id),
   );
   if (!isCrossFile) {
-    getWorkflowOrThrowError(id, doc); // throws the canonical "not found" error
+    getWorkflowOrThrowError(id, doc);
   }
 }
 
@@ -279,8 +272,6 @@ function addChainedWorkflow(prentWorkflowId: string, placement: ChainedWorkflowP
     }
 
     const parentWorkflow = getWorkflowOrThrowError(prentWorkflowId, doc);
-    // The chained workflow may be cross-file (defined in another module); chaining
-    // only writes its id into before_run/after_run, so the definition needn't be local.
     assertWorkflowReferenceable(chainableWorkflowId, doc);
 
     YmlUtils.addIn(parentWorkflow, [placement], chainableWorkflowId);

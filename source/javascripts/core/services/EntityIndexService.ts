@@ -5,16 +5,6 @@ import YmlUtils from '@/core/utils/YmlUtils';
 
 import TreeService from './TreeService';
 
-/**
- * Read helpers over the `entity_index`. The lookups are O(1) — no tree walking,
- * no per-file YAML re-parse. The index is the single source of truth for "which
- * node defines which entity"; the FE never walks files to answer that per-call.
- *
- * The index itself is derived live from the open file documents (`buildFromFiles`)
- * rather than relying solely on the BE snapshot, so unsaved in-memory edits (a
- * workflow just added to a module file) are reflected immediately.
- */
-
 // YAML section key → EntityIndex key. step_bundles is camelCased in the index.
 const KIND_SECTIONS: ReadonlyArray<{ section: string; key: EntityKind }> = [
   { section: 'workflows', key: 'workflows' },
@@ -27,24 +17,12 @@ function definitionsOf(index: EntityIndex, kind: EntityKind, id: string): Entity
   return index[kind]?.[id] ?? [];
 }
 
-/**
- * The `nodeId` of the **top-most** (highest-precedence) node that defines this
- * entity, or `undefined`. This is what selectors and provenance use — the single
- * "finalish" definition. Use `definitionsOf` when every layer matters (the
- * jump-to-definition chooser).
- */
+/** The `nodeId` of the top-most (highest-precedence) node defining this entity; use `definitionsOf` when every layer matters. */
 function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): string | undefined {
   return definitionsOf(index, kind, id)[0]?.nodeId;
 }
 
-/**
- * Build the entity index live from the open file documents — the FE equivalent
- * of the BE `EntityIndexBuilder`. Mirrors it exactly: a pre-order walk (root,
- * then each include subtree in order), collecting **every** definition of an id
- * into an ordered array (`[0]` = top-most/highest-precedence layer). The BE
- * snapshot seeds the index at load, but this keeps it current with unsaved edits
- * so cross-file detection + jump-to-definition stay correct before save.
- */
+/** Build the entity index live from open file documents (mirrors the BE builder) so cross-file detection stays correct before save. */
 function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlDocument: Document }>): EntityIndex {
   const index: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {} };
 
@@ -61,8 +39,7 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
         if (!entityId) {
           return;
         }
-        // Collect every definition in pre-order — no first-writer-wins. The
-        // first appended is the top-most layer; later ones are lower layers.
+        // Pre-order append: first is top-most layer, later ones are lower layers.
         (index[key][entityId] ||= []).push({ nodeId: node.nodeId });
       });
     });
@@ -90,11 +67,7 @@ function equals(a: EntityIndex, b: EntityIndex): boolean {
   });
 }
 
-/**
- * `true` when the entity is defined, but in none of the active node's layers (a
- * cross-file reference). `false` when one of its definitions lives in the current
- * node (it's local — we render the real card), or when the index doesn't know it.
- */
+/** `true` when the entity is defined but in none of the current node's layers (a cross-file reference). */
 function isGhost(index: EntityIndex, kind: EntityKind, id: string, currentNodeId: string): boolean {
   const defs = definitionsOf(index, kind, id);
   return defs.length > 0 && !defs.some((def) => def.nodeId === currentNodeId);

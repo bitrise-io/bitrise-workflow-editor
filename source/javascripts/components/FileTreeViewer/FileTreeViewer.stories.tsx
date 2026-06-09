@@ -33,7 +33,6 @@ const ROOT: TreeNode = {
   commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
   editable: true,
   includes: [
-    // Same repo, collapsed deep folder chain with per-file ref deviations.
     leaf('n_testing', 'e2e/bitrise/testing/testing.yml', src({ path: 'e2e/bitrise/testing/testing.yml' })),
     leaf(
       'n_pipelines',
@@ -55,7 +54,6 @@ const ROOT: TreeNode = {
       'e2e/bitrise/testing/browserstack/workflows/build_app.yml',
       src({ path: 'e2e/bitrise/testing/browserstack/workflows/build_app.yml' }),
     ),
-    // Cross-repo (read-only) group: its own bitrise.yml + a nested module.
     {
       ...leaf('n_other', 'bitrise.yml', src({ repository: 'another-repo-name', branch: 'main' }), false),
       includes: [

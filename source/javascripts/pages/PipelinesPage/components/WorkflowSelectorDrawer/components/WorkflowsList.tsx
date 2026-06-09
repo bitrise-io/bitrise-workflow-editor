@@ -15,11 +15,8 @@ type Props = {
 
 const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const [search, setSearch] = useState('');
-  // Global candidate set: workflows from the active file unioned with every
-  // workflow the entity index knows about (defined in other module files). One
-  // row per id — `entityIndex.workflows` keys are already deduped to the top-most
-  // definition. In single-file mode the index is empty, so this is just the
-  // active file's workflows (unchanged).
+  // Active-file workflows unioned with the entity index (other module files); the index
+  // is empty in single-file mode, so this stays just the active file's workflows.
   const allWorkflowIds = useBitriseYmlStore((s) => [
     ...new Set([...Object.keys(s.yml.workflows || {}), ...Object.keys(s.entityIndex.workflows)]),
   ]);
