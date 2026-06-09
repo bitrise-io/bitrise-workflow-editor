@@ -10,7 +10,7 @@ import {
   IconMoreVertical,
   rem,
 } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -33,7 +33,7 @@ import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/Configurati
 
 import SwitchBranchDialog from '../SwitchBranchDialog/SwitchBranchDialog';
 
-const ConfigSettingsBar = () => {
+const ConfigSettingsBar = (props: BoxProps) => {
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
 
@@ -64,14 +64,14 @@ const ConfigSettingsBar = () => {
       paddingLeft="32"
       paddingRight="12"
       paddingBlock="12"
-      marginBottom="24"
       minHeight={rem(65)}
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
       alignItems="center"
       justifyContent="space-between"
-      gap="8"
+      gap="12"
+      {...props}
     >
       <Box minWidth={0}>
         <BitkitList variant="inline" textColor="body" size="md">

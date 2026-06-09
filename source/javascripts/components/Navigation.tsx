@@ -1,7 +1,6 @@
 import {
   Sidebar,
   SidebarContainer,
-  SidebarDivider,
   SidebarFooter,
   SidebarItem,
   SidebarItemIcon,
@@ -13,7 +12,6 @@ import {
 } from '@bitrise/bitkit';
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
-import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/ConfigSettingsBar';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -120,7 +118,6 @@ const Navigation = (props: Props) => {
 
   return (
     <Sidebar width={['88px', '256px']} flexShrink={0} {...props}>
-      {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar />}
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}
@@ -189,14 +186,6 @@ const Navigation = (props: Props) => {
             Licenses
           </NavigationItem>
         )}
-        <SidebarDivider />
-        <NavigationItem
-          path={withSearchParams(paths.yml)}
-          icon="Code"
-          intercomTarget="Configuration YAML Page Navigation Item"
-        >
-          Configuration YAML
-        </NavigationItem>
       </SidebarContainer>
       <SidebarFooter>
         <SidebarItem
