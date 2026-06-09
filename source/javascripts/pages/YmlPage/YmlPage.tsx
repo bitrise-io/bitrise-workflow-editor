@@ -14,7 +14,15 @@ const YmlPage = () => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
-      <Box flexGrow="1" flexShrink="1" paddingBlock="12" backgroundColor="#1e1e1e" position="relative">
+      <Box
+        flexGrow="1"
+        flexShrink="1"
+        paddingBlock="12"
+        // TODO: Change to color token
+        backgroundColor="#1e1e1e"
+        position="relative"
+        isolation="isolate"
+      >
         {isWebsiteMode && !isModular && <YourCiConfigIsSplitNotification />}
         {isWebsiteMode && !isModular && <OptimizeYouCiConfigBySplittingNotification />}
         {isModular ? <ModularYmlEditor /> : <YmlEditor />}

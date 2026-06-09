@@ -2,6 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { delay, http, HttpResponse } from 'msw';
 
+import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/ConfigSettingsBar';
 import {
   getBranches,
   getBranchesError,
@@ -14,6 +15,14 @@ import Navigation from './Navigation';
 
 export default {
   component: Navigation,
+  decorators: [
+    (Story) => (
+      <>
+        <ConfigSettingsBar borderRight="1px solid" borderRightColor="border/minimal" />
+        <Story />
+      </>
+    ),
+  ],
   beforeEach: () => {
     set(window, 'parent.globalProps.featureFlags.account.enable-branch-switching', true);
   },
@@ -47,7 +56,7 @@ export const SwitchBranchError: Story = {
 export const FailedToLoadBranches: Story = {
   parameters: {
     msw: {
-      handlers: [getBranchesError(), getCiConfig(), getYmlSettings()],
+      handlers: [getBranchesError(), getCiConfig(), getYmlSettings({ uses_repository_yml: true })],
     },
   },
 };
@@ -61,7 +70,7 @@ export const SwitchBranchSingleOption: Story = {
           return HttpResponse.json<GetBranchesResult>({ branches: ['main'] });
         }),
         getCiConfig(),
-        getYmlSettings(),
+        getYmlSettings({ uses_repository_yml: true }),
       ],
     },
   },
