@@ -266,11 +266,18 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           os_id: 'macos',
           is_disabled: true,
           available_in_regions: {
-            'region-us': {
-              name: 'Machine in US',
-              cpu_count: '12 vCPU',
-              ram: '20 GB RAM',
-            },
+            'region-us': [
+              {
+                name: 'Machine 1 in US',
+                cpu_count: '12 vCPU',
+                ram: '20 GB RAM',
+              },
+              {
+                name: 'Machine 2 in US',
+                cpu_count: '12 vCPU',
+                ram: '20 GB RAM',
+              },
+            ],
             'region-eu': {
               name: 'Machine in EU',
               cpu_count: '16 vCPU',

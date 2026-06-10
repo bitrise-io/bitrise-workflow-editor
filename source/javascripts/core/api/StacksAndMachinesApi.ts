@@ -33,7 +33,7 @@ type StackGroupApiItem = {
 };
 
 type MachineApiItem = {
-  available_in_regions: Partial<Record<string, MachineTypeInfoApi>>;
+  available_in_regions: Partial<Record<string, MachineTypeInfoApi | MachineTypeInfoApi[]>>;
   available_on_stacks?: string[];
   credit_per_min?: number;
   id: string;
@@ -103,15 +103,16 @@ const toMachineTypeInfoText = (name: string, cpuCount: string, ram: string) => {
 };
 
 function toMachineType(item: MachineApiItem): MachineType {
-  let availableInRegions: Partial<Record<MachineRegionName, string>> = {};
+  let availableInRegions: Partial<Record<MachineRegionName, string[]>> = {};
 
-  (Object.entries(item.available_in_regions) as [RegionID, MachineTypeInfoApi][]).forEach(([regionId, regionInfo]) => {
-    availableInRegions[regionNames[regionId]] = toMachineTypeInfoText(
-      regionInfo.name,
-      regionInfo.cpu_count,
-      regionInfo.ram,
-    );
-  });
+  (Object.entries(item.available_in_regions) as [RegionID, MachineTypeInfoApi | MachineTypeInfoApi[]][]).forEach(
+    ([regionId, regionInfo]) => {
+      const infoItems = Array.isArray(regionInfo) ? regionInfo : [regionInfo];
+      availableInRegions[regionNames[regionId]] = infoItems.map((info) =>
+        toMachineTypeInfoText(info.name, info.cpu_count, info.ram),
+      );
+    },
+  );
 
   return {
     creditPerMinute: item.credit_per_min,
