@@ -194,7 +194,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-platform/integrations/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html"
                 target="_blank"
-                colorScheme="purple"
+                colorVariant="purple"
                 isExternal
               >
                 Learn more
@@ -213,7 +213,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             <Text textStyle="body/md/regular" color="text/secondary">
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
-                colorScheme="purple"
+                colorVariant="purple"
                 isExternal
               >
                 Follow this guide
