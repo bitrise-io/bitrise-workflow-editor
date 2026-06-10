@@ -50,7 +50,7 @@ export type MachineType = {
   os: MachineOS;
   name: string;
   isDisabled: boolean;
-  availableInRegions: Partial<Record<MachineRegionName, string>>;
+  availableInRegions: Partial<Record<MachineRegionName, string[]>>;
   availableOnStacks?: string[];
 };
 
