@@ -23,6 +23,29 @@ import { useTabs } from '@/hooks/useTabs';
 
 type Mode = 'create' | 'existing';
 
+type FormState = {
+  mode: Mode;
+  path: string;
+  repository: string;
+  branch: string;
+  tag: string;
+  commit: string;
+};
+
+const EMPTY_FORM: FormState = { mode: 'create', path: '', repository: '', branch: '', tag: '', commit: '' };
+
+const SOURCE_FIELDS = [
+  {
+    key: 'repository',
+    label: 'Repository',
+    placeholder: 'other-repo-slug',
+    helperText: 'Leave empty to use the same repository.',
+  },
+  { key: 'branch', label: 'Branch', placeholder: 'main' },
+  { key: 'tag', label: 'Tag', placeholder: 'v1.2.3' },
+  { key: 'commit', label: 'Commit', placeholder: 'full or short SHA' },
+] as const;
+
 /**
  * "Add module file" button + dialog: create a new editable module file, or add an
  * `include:` to an existing file. The include is always written into the active tab's
@@ -33,14 +56,14 @@ const CreateFileButton = () => {
   const activeFile = useFile(activeTab ?? '');
 
   const [isOpen, setIsOpen] = useState(false);
-  const [mode, setMode] = useState<Mode>('create');
-  const [path, setPath] = useState('');
-  const [repository, setRepository] = useState('');
-  const [branch, setBranch] = useState('');
-  const [tag, setTag] = useState('');
-  const [commit, setCommit] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
   const [error, setError] = useState<string>();
+
+  const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    setError(undefined);
+  };
 
   const isMerged = activeTab === mergedConfigNodeId;
   const targetNodeId = activeFile?.editable ? activeFile.nodeId : undefined;
@@ -55,17 +78,10 @@ const CreateFileButton = () => {
 
   const close = () => {
     setIsOpen(false);
-    setMode('create');
-    setPath('');
-    setRepository('');
-    setBranch('');
-    setTag('');
-    setCommit('');
     setShowAdvanced(false);
+    setForm(EMPTY_FORM);
     setError(undefined);
   };
-
-  const clearError = () => setError(undefined);
 
   const submit = () => {
     if (!targetNodeId) {
@@ -73,14 +89,14 @@ const CreateFileButton = () => {
       return;
     }
 
-    if (mode === 'create') {
+    if (form.mode === 'create') {
       // Attach under the include target so the backend matches it to the directive instead of fetching from Git.
-      const result = createFile(path, targetNodeId);
+      const result = createFile(form.path, targetNodeId);
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      const included = addInclude(targetNodeId, { path: path.trim().replace(/^\/+|\/+$/g, '') });
+      const included = addInclude(targetNodeId, { path: form.path });
       if (!included.ok) {
         setError(included.error);
         return;
@@ -89,7 +105,8 @@ const CreateFileButton = () => {
       return;
     }
 
-    const result = addInclude(targetNodeId, { path, repository, branch, tag, commit });
+    const { mode: _mode, ...source } = form;
+    const result = addInclude(targetNodeId, source);
     if (!result.ok) {
       setError(result.error);
       return;
@@ -114,13 +131,7 @@ const CreateFileButton = () => {
       </Tooltip>
       <Dialog isOpen={isOpen} onClose={close} title="Add module file">
         <DialogBody display="flex" flexDir="column" gap="16">
-          <RadioGroup
-            value={mode}
-            onChange={(value) => {
-              setMode(value as Mode);
-              clearError();
-            }}
-          >
+          <RadioGroup value={form.mode} onChange={(value) => setField('mode', value as Mode)}>
             <Radio value="create" helperText="Make a new empty module file and open it.">
               Create new file
             </Radio>
@@ -132,7 +143,7 @@ const CreateFileButton = () => {
           <Input
             isRequired
             autoFocus
-            value={path}
+            value={form.path}
             label="File path"
             errorText={error}
             placeholder="path/to/my/file.yml"
@@ -142,10 +153,7 @@ const CreateFileButton = () => {
                 /
               </Text>
             }
-            onChange={(e) => {
-              setPath(e.target.value);
-              clearError();
-            }}
+            onChange={(e) => setField('path', e.target.value)}
           />
 
           {targetName && (
@@ -162,7 +170,7 @@ const CreateFileButton = () => {
             </Text>
           )}
 
-          {mode === 'existing' && (
+          {form.mode === 'existing' && (
             <>
               <Notification status="warning">
                 Only the{' '}
@@ -180,43 +188,14 @@ const CreateFileButton = () => {
               </Link>
               <Collapse in={showAdvanced} style={{ overflow: 'visible' }}>
                 <Box display="flex" flexDir="column" gap="12">
-                  <Input
-                    label="Repository"
-                    placeholder="other-repo-slug"
-                    value={repository}
-                    helperText="Leave empty to use the same repository."
-                    onChange={(e) => {
-                      setRepository(e.target.value);
-                      clearError();
-                    }}
-                  />
-                  <Input
-                    label="Branch"
-                    placeholder="main"
-                    value={branch}
-                    onChange={(e) => {
-                      setBranch(e.target.value);
-                      clearError();
-                    }}
-                  />
-                  <Input
-                    label="Tag"
-                    placeholder="v1.2.3"
-                    value={tag}
-                    onChange={(e) => {
-                      setTag(e.target.value);
-                      clearError();
-                    }}
-                  />
-                  <Input
-                    label="Commit"
-                    placeholder="full or short SHA"
-                    value={commit}
-                    onChange={(e) => {
-                      setCommit(e.target.value);
-                      clearError();
-                    }}
-                  />
+                  {SOURCE_FIELDS.map(({ key, ...inputProps }) => (
+                    <Input
+                      key={key}
+                      value={form[key]}
+                      onChange={(e) => setField(key, e.target.value)}
+                      {...inputProps}
+                    />
+                  ))}
                 </Box>
               </Collapse>
             </>
@@ -226,8 +205,8 @@ const CreateFileButton = () => {
           <Button variant="secondary" onClick={close}>
             Cancel
           </Button>
-          <Button onClick={submit} isDisabled={!path.trim()}>
-            {mode === 'create' ? 'Create' : 'Add'}
+          <Button onClick={submit} isDisabled={!form.path.trim()}>
+            {form.mode === 'create' ? 'Create' : 'Add'}
           </Button>
         </DialogFooter>
       </Dialog>

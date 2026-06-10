@@ -1,11 +1,11 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
-import { BitkitIconButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef } from 'react';
 
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
@@ -214,7 +214,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {isCrossFile ? `Defined in ${definingPath || 'another file'}` : usedInWorkflowsText}
+                    {isCrossFile ? crossFileProvenanceLabel(definingPath) : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
                     <>
@@ -228,24 +228,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Box>
               </Box>
               {buttonGroup}
-              {/* Rendered after the step menu so it stays pinned right; wrapper stops the click from selecting the card. */}
-              {isCrossFile && (
-                <Box onClick={(e) => e.stopPropagation()} className="nopan">
-                  <JumpToDefinitionLink
-                    kind="stepBundles"
-                    id={bundleId}
-                    trigger={
-                      <BitkitIconButton
-                        size="sm"
-                        variant="tertiary"
-                        color="icon/secondary"
-                        label="Go to definition"
-                        icon={IconArrowNortheast}
-                      />
-                    }
-                  />
-                </Box>
-              )}
+              {isCrossFile && <CrossFileJumpButton kind="stepBundles" id={bundleId} />}
             </Box>
           </Box>
           {!isCrossFile && (

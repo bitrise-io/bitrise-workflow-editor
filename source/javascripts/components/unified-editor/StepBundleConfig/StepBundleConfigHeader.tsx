@@ -1,6 +1,7 @@
 import { Box, Link, Tab, TabList, Text } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
+import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -40,16 +41,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   let subtitle: ReactNode = usedIn;
   if (variant === 'drawer') {
     const middle = isCrossFile ? (
-      <>
-        Defined in{' '}
-        {definingPath ? (
-          <Text as="span" textStyle="body/md/semibold">
-            {definingPath}
-          </Text>
-        ) : (
-          'another file'
-        )}
-      </>
+      <CrossFileProvenanceText definingPath={definingPath} pathTextStyle="body/md/semibold" />
     ) : (
       usedIn
     );

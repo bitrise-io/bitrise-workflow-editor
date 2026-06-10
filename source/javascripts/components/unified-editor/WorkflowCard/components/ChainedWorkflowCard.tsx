@@ -1,17 +1,15 @@
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-import { BitkitIconButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef } from 'react';
 
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
-import EntityIndexService from '@/core/services/EntityIndexService';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useEntityIndex } from '@/hooks/useEntityIndex';
-import { useDefiningFilePath } from '@/hooks/useTree';
+import { useCrossFileEntity } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -34,10 +32,8 @@ type Props = {
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
-  const entityIndex = useEntityIndex();
   // Cross-file: chained workflow defined in another module; card shows only the reference (its steps/sub-chains are definition-level and omitted).
-  const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id));
-  const definingPath = useDefiningFilePath('workflows', id);
+  const { isCrossFile, definingPath } = useCrossFileEntity('workflows', id);
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -191,32 +187,13 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                 {placement}
                 {' • '}
-                {isCrossFile
-                  ? `Defined in ${definingPath || 'another file'}`
-                  : WorkflowService.getUsedByText(dependants)}
+                {isCrossFile ? crossFileProvenanceLabel(definingPath) : WorkflowService.getUsedByText(dependants)}
               </Text>
             </Box>
 
             {buttonGroup}
 
-            {/* Rendered last so it stays pinned right while hover-only actions appear to its left. */}
-            {isCrossFile && (
-              <Box onClick={(e) => e.stopPropagation()} className="nopan">
-                <JumpToDefinitionLink
-                  kind="workflows"
-                  id={id}
-                  trigger={
-                    <BitkitIconButton
-                      size="sm"
-                      variant="tertiary"
-                      color="icon/secondary"
-                      label="Go to definition"
-                      icon={IconArrowNortheast}
-                    />
-                  }
-                />
-              </Box>
-            )}
+            {isCrossFile && <CrossFileJumpButton kind="workflows" id={id} />}
           </Box>
 
           {!isCrossFile && (

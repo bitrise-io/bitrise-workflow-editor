@@ -1,5 +1,6 @@
 import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
+import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
@@ -62,15 +63,8 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
             <Text textStyle="body/sm/regular" color="text/secondary">
               {isCrossFile && (
                 <>
-                  Defined in{' '}
-                  {definingPath ? (
-                    <Text as="span" textStyle="body/sm/semibold">
-                      {definingPath}
-                    </Text>
-                  ) : (
-                    'another file'
-                  )}{' '}
-                  •{' '}
+                  <CrossFileProvenanceText definingPath={definingPath} />
+                  {' • '}
                 </>
               )}
               <JumpToDefinitionLink kind="workflows" id={id}>

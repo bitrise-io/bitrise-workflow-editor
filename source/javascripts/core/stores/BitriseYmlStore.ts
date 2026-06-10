@@ -139,28 +139,17 @@ export function discardBitriseYmlDocument() {
 
   // If the active tab was dropped, fall back to a remaining tab (else merged config).
   const activeDropped = !!state.selectedNodeId && dropIds.has(state.selectedNodeId);
-  let selectionPatch: ReturnType<typeof mergedConfigPatch> | ReturnType<typeof activeFilePatch>;
+  let selectionPatch: ReturnType<typeof mergedConfigPatch>;
   if (activeDropped) {
     const neighborNodeId = openTabs[openTabs.length - 1]?.nodeId;
     const neighbor = neighborNodeId ? files[neighborNodeId] : undefined;
-    selectionPatch = neighbor
-      ? {
-          selectedNodeId: neighbor.nodeId,
-          version: '',
-          ymlDocument: neighbor.savedYmlDocument,
-          savedYmlDocument: neighbor.savedYmlDocument,
-          __invalidYmlString: undefined,
-        }
-      : mergedConfigPatch();
+    selectionPatch = neighbor ? activeDocumentPatch(neighbor.nodeId, neighbor.savedYmlDocument) : mergedConfigPatch();
   } else {
     const activeSlice = state.selectedNodeId ? files[state.selectedNodeId] : undefined;
-    selectionPatch = {
-      selectedNodeId: state.selectedNodeId ?? MERGED_CONFIG_NODE_ID,
-      version: '',
-      ymlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
-      savedYmlDocument: activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
-      __invalidYmlString: undefined,
-    };
+    selectionPatch = activeDocumentPatch(
+      state.selectedNodeId ?? MERGED_CONFIG_NODE_ID,
+      activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
+    );
   }
 
   bitriseYmlStore.setState({
@@ -169,6 +158,34 @@ export function discardBitriseYmlDocument() {
     tree,
     openTabs,
     ...selectionPatch,
+    mergedYmlStale: true,
+  });
+}
+
+/** The active file slice if it's editable, else `undefined` after a dev warning. */
+function editableActiveSlice(caller: string): { nodeId: string; slice: FileSlice } | undefined {
+  const state = bitriseYmlStore.getState();
+  const nodeId = state.selectedNodeId;
+  const slice = nodeId ? state.files[nodeId] : undefined;
+
+  if (!nodeId || !slice) {
+    warnInDev(`${caller}: no editable file is active (selected "${nodeId}"); mutation ignored`);
+    return undefined;
+  }
+  if (!slice.editable) {
+    warnInDev(`${caller}: file "${slice.path}" is read-only; mutation ignored`);
+    return undefined;
+  }
+
+  return { nodeId, slice };
+}
+
+/** Bind `doc` as both the active document and the active file slice's live contents. */
+function commitActiveFileDocument(nodeId: string, slice: FileSlice, doc: Document) {
+  bitriseYmlStore.setState({
+    ymlDocument: doc,
+    __invalidYmlString: undefined,
+    files: { ...bitriseYmlStore.getState().files, [nodeId]: { ...slice, ymlDocument: doc } },
     mergedYmlStale: true,
   });
 }
@@ -186,20 +203,13 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
     return;
   }
 
-  const nodeId = state.selectedNodeId;
-  const slice = nodeId ? state.files[nodeId] : undefined;
-  if (!nodeId || !slice || !slice.editable) {
-    warnInDev(`updateBitriseYmlDocumentByString: active file is read-only or missing; edit ignored`);
+  const active = editableActiveSlice('updateBitriseYmlDocumentByString');
+  if (!active) {
     return;
   }
 
   if (doc.errors.length === 0) {
-    bitriseYmlStore.setState({
-      ymlDocument: doc,
-      __invalidYmlString: undefined,
-      files: { ...state.files, [nodeId]: { ...slice, ymlDocument: doc } },
-      mergedYmlStale: true,
-    });
+    commitActiveFileDocument(active.nodeId, active.slice, doc);
   } else {
     bitriseYmlStore.setState({ __invalidYmlString: ymlString });
   }
@@ -218,25 +228,14 @@ export function initializeBitriseYmlDocument({
 }) {
   const doc = YmlUtils.toDoc(ymlString);
 
-  if (doc.errors.length === 0) {
-    bitriseYmlStore.setState({
-      version,
-      ymlDocument: doc,
-      savedYmlDocument: doc,
-      __invalidYmlString: undefined,
-      __savedInvalidYmlString: undefined,
-      configBranch: branch || undefined,
-      configCommitSha: commitSha || undefined,
-    });
-  } else {
-    bitriseYmlStore.setState({
-      version,
-      __invalidYmlString: ymlString,
-      __savedInvalidYmlString: ymlString,
-      configBranch: branch || undefined,
-      configCommitSha: commitSha || undefined,
-    });
-  }
+  bitriseYmlStore.setState({
+    version,
+    configBranch: branch || undefined,
+    configCommitSha: commitSha || undefined,
+    ...(doc.errors.length === 0
+      ? { ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined, __savedInvalidYmlString: undefined }
+      : { __invalidYmlString: ymlString, __savedInvalidYmlString: ymlString }),
+  });
 }
 
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
@@ -252,25 +251,12 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
 
   // Modular mode: the active tab's file IS the document the whole WFE edits.
   // Read-only (cross-ref) files no-op (defense-in-depth — UI should already gate this).
-  const nodeId = state.selectedNodeId;
-  const slice = nodeId ? state.files[nodeId] : undefined;
-
-  if (!nodeId || !slice) {
-    warnInDev(`updateBitriseYmlDocument: no editable file is active (selected "${nodeId}"); mutation ignored`);
-    return;
-  }
-  if (!slice.editable) {
-    warnInDev(`updateBitriseYmlDocument: file "${slice.path}" is read-only; mutation ignored`);
+  const active = editableActiveSlice('updateBitriseYmlDocument');
+  if (!active) {
     return;
   }
 
-  const nextDoc = mutator({ doc: state.ymlDocument.clone() });
-  bitriseYmlStore.setState({
-    ymlDocument: nextDoc,
-    __invalidYmlString: undefined,
-    files: { ...state.files, [nodeId]: { ...slice, ymlDocument: nextDoc } },
-    mergedYmlStale: true,
-  });
+  commitActiveFileDocument(active.nodeId, active.slice, mutator({ doc: state.ymlDocument.clone() }));
 }
 
 export function isFileDirty(slice?: FileSlice) {
@@ -281,21 +267,26 @@ export function isFileDirty(slice?: FileSlice) {
   return (slice.editable && !slice.commitSha) || !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument);
 }
 
-/** State patch binding a file's slice as the single active `ymlDocument` the whole WFE reads/writes. */
+/** State patch binding a document as the single active `ymlDocument` the whole WFE reads/writes. */
+function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, savedYmlDocument = ymlDocument) {
+  return {
+    selectedNodeId,
+    // `version` is unused in modular mode (conflict detection keys off commit_sha).
+    version: '',
+    ymlDocument,
+    savedYmlDocument,
+    __invalidYmlString: undefined,
+  };
+}
+
+/** State patch binding a file's slice as the active document. */
 function activeFilePatch(nodeId: string) {
   const slice = bitriseYmlStore.getState().files[nodeId];
   if (!slice) {
     warnInDev(`activeFile: no file with node_id "${nodeId}"`);
     return null;
   }
-  return {
-    selectedNodeId: nodeId,
-    // `version` is unused in modular mode (conflict detection keys off commit_sha).
-    version: '',
-    ymlDocument: slice.ymlDocument,
-    savedYmlDocument: slice.savedYmlDocument,
-    __invalidYmlString: undefined,
-  };
+  return activeDocumentPatch(nodeId, slice.ymlDocument, slice.savedYmlDocument);
 }
 
 function buildFileSlices(root: TreeNode): Record<string, FileSlice> {
@@ -353,6 +344,18 @@ function normalizeFilePath(raw: string): string {
     .replace(/\/{2,}/g, '/');
 }
 
+/** Normalize + validate a module file path. Returns the clean path, or an error message. */
+function parseYmlPath(raw: string, emptyError: string): { path: string; error?: never } | { error: string } {
+  const path = normalizeFilePath(raw);
+  if (!path) {
+    return { error: emptyError };
+  }
+  if (!/\.ya?ml$/i.test(path)) {
+    return { error: 'The path must end in .yml or .yaml.' };
+  }
+  return { path };
+}
+
 /** Session-stable opaque `node_id` for an FE-created file (djb2 of its path); the BE re-derives real ids on reload. */
 function localNodeId(path: string): string {
   let h = 5381;
@@ -390,13 +393,11 @@ export function createFile(rawPath: string, parentNodeId?: string): CreateFileRe
     return { ok: false, error: 'No modular configuration is loaded.' };
   }
 
-  const path = normalizeFilePath(rawPath);
-  if (!path) {
-    return { ok: false, error: 'Enter a file path.' };
+  const parsed = parseYmlPath(rawPath, 'Enter a file path.');
+  if (parsed.error !== undefined) {
+    return { ok: false, error: parsed.error };
   }
-  if (!/\.ya?ml$/i.test(path)) {
-    return { ok: false, error: 'The path must end in .yml or .yaml.' };
-  }
+  const { path } = parsed;
   if (Object.values(files).some((file) => file.path === path)) {
     return { ok: false, error: `A file already exists at "${path}".` };
   }
@@ -468,13 +469,11 @@ export function addInclude(targetNodeId: string, source: IncludeSource): AddIncl
     return { ok: false, error: `"${slice.path}" is read-only; you can't add an include to it.` };
   }
 
-  const path = source.path.trim().replace(/^\/+/, '');
-  if (!path) {
-    return { ok: false, error: 'Enter a file path to include.' };
+  const parsed = parseYmlPath(source.path, 'Enter a file path to include.');
+  if (parsed.error !== undefined) {
+    return { ok: false, error: parsed.error };
   }
-  if (!/\.ya?ml$/i.test(path)) {
-    return { ok: false, error: 'The path must end in .yml or .yaml.' };
-  }
+  const { path } = parsed;
 
   const repository = source.repository?.trim() || undefined;
   const branch = source.branch?.trim() || undefined;
@@ -515,6 +514,25 @@ export function updateFileDocumentByString(nodeId: string, ymlString: string) {
   }
 }
 
+/** Shared state patch for (re)binding a whole modular tree with `activeSlice` as the active document. */
+function modularTreePatch(
+  root: TreeNode,
+  files: Record<string, FileSlice>,
+  entityIndex: EntityIndex,
+  activeSlice: FileSlice,
+) {
+  return {
+    tree: root,
+    files,
+    entityIndex,
+    version: '',
+    ymlDocument: activeSlice.ymlDocument,
+    savedYmlDocument: activeSlice.savedYmlDocument,
+    __invalidYmlString: undefined,
+    __savedInvalidYmlString: undefined,
+  };
+}
+
 export function initializeModularConfig({
   root,
   entityIndex,
@@ -529,19 +547,11 @@ export function initializeModularConfig({
   commitSha?: string;
 }) {
   const files = buildFileSlices(root);
-  const rootSlice = files[root.nodeId];
 
   bitriseYmlStore.setState({
-    tree: root,
-    files,
-    entityIndex,
+    ...modularTreePatch(root, files, entityIndex, files[root.nodeId]),
     selectedNodeId: root.nodeId,
     openTabs: [{ nodeId: root.nodeId, isPreview: false }],
-    version: '',
-    ymlDocument: rootSlice.ymlDocument,
-    savedYmlDocument: rootSlice.savedYmlDocument,
-    __invalidYmlString: undefined,
-    __savedInvalidYmlString: undefined,
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
     mergedYml,
     mergedYmlStale: mergedYml === undefined,
@@ -580,16 +590,9 @@ export function applyModularSaveResult({
   const activeSlice = nextSelected && nextSelected !== MERGED_CONFIG_NODE_ID ? files[nextSelected] : files[root.nodeId];
 
   bitriseYmlStore.setState({
-    tree: root,
-    files,
-    entityIndex,
+    ...modularTreePatch(root, files, entityIndex, activeSlice),
     openTabs: nextTabs,
     selectedNodeId: nextSelected,
-    version: '',
-    ymlDocument: activeSlice.ymlDocument,
-    savedYmlDocument: activeSlice.savedYmlDocument,
-    __invalidYmlString: undefined,
-    __savedInvalidYmlString: undefined,
     mergedYml: undefined,
     mergedYmlStale: true,
     ...(branch !== undefined ? { configBranch: branch || undefined } : {}),
@@ -640,13 +643,7 @@ export function selectNode(nodeId: string) {
 function mergedConfigPatch() {
   const { mergedYml } = bitriseYmlStore.getState();
   const doc = mergedYml !== undefined ? YmlUtils.toDoc(mergedYml) : new Document();
-  return {
-    selectedNodeId: MERGED_CONFIG_NODE_ID,
-    version: '',
-    ymlDocument: doc,
-    savedYmlDocument: doc,
-    __invalidYmlString: undefined,
-  };
+  return activeDocumentPatch(MERGED_CONFIG_NODE_ID, doc);
 }
 
 export function selectMergedConfig() {
@@ -727,15 +724,11 @@ export function setMergedConfig(mergedYml: string) {
   const savedMergedYml = hasChanges ? bitriseYmlStore.getState().savedMergedYml : mergedYml;
 
   if (selectedNodeId === MERGED_CONFIG_NODE_ID) {
-    const doc = YmlUtils.toDoc(mergedYml);
     bitriseYmlStore.setState({
       mergedYml,
       mergedYmlStale: false,
       savedMergedYml,
-      version: '',
-      ymlDocument: doc,
-      savedYmlDocument: doc,
-      __invalidYmlString: undefined,
+      ...activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(mergedYml)),
     });
     return;
   }

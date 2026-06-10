@@ -1,12 +1,10 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
-import { BitkitIconButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
 
-import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
-import EntityIndexService from '@/core/services/EntityIndexService';
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
-import { useEntityIndex } from '@/hooks/useEntityIndex';
-import { useDefiningFilePath } from '@/hooks/useTree';
+import { useCrossFileEntity } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -78,9 +76,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const stackName = useWorkflowStackName(workflowId);
 
   // Cross-file: workflow defined in another module, so render only the reference (no steps/chains); card stays clickable for instance-level props.
-  const entityIndex = useEntityIndex();
-  const isCrossFile = !workflow && Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', workflowId));
-  const definingPath = useDefiningFilePath('workflows', workflowId);
+  const { isCrossFile, definingPath } = useCrossFileEntity('workflows', workflowId);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
@@ -111,7 +107,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   if (uses) {
     subtitle = `Uses ${uses}`;
   } else if (isCrossFile) {
-    subtitle = `Defined in ${definingPath || 'another file'}`;
+    subtitle = crossFileProvenanceLabel(definingPath);
   }
 
   return (
@@ -176,24 +172,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           </Box>
         )}
 
-        {/* Rendered last so it stays pinned right while hover-only actions appear to its left. */}
-        {isCrossFile && (
-          <Box onClick={(e) => e.stopPropagation()} className="nopan">
-            <JumpToDefinitionLink
-              kind="workflows"
-              id={workflowId}
-              trigger={
-                <BitkitIconButton
-                  size="sm"
-                  variant="tertiary"
-                  color="icon/secondary"
-                  label="Go to definition"
-                  icon={IconArrowNortheast}
-                />
-              }
-            />
-          </Box>
-        )}
+        {isCrossFile && <CrossFileJumpButton kind="workflows" id={workflowId} />}
       </Box>
 
       {!isCrossFile && (
