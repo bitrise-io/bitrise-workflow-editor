@@ -110,18 +110,20 @@ export const toMachineTypeLabel = (machineType: MachineType) => {
 export const doesHardwareVaryByRegion = (machineType: MachineType) => {
   const machineTypeInfoTexts = Object.values(machineType.availableInRegions);
 
-  return machineTypeInfoTexts.some((text) => text !== machineTypeInfoTexts[0]);
+  return machineTypeInfoTexts.some((texts) => texts?.join() !== machineTypeInfoTexts[0]?.join());
 };
 
 function toMachineTypeDetailedOption(machine: MachineType, region?: MachineRegionName): MachineTypeOption {
   let subtitle = '';
   if (!region && doesHardwareVaryByRegion(machine)) {
     subtitle = Object.entries(machine.availableInRegions)
-      .map(([regionName, machineTypeInfoText]) => `${regionName}: ${machineTypeInfoText}`)
+      .map(([regionName, texts]) => `${regionName}: ${texts?.join(', ')}`)
       .join(`\n`);
   } else {
     subtitle =
-      machine.availableInRegions[region || (Object.keys(machine.availableInRegions)[0] as MachineRegionName)] || '';
+      machine.availableInRegions[region || (Object.keys(machine.availableInRegions)[0] as MachineRegionName)]?.join(
+        ', ',
+      ) || '';
   }
 
   return {

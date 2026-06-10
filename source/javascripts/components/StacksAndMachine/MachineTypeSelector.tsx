@@ -99,13 +99,13 @@ const MachineTypeSelector = ({
       return (
         <Box as="span" display="flex" flexDir="column" gap={8}>
           <Text as="span">Machine types may vary depending on high demand.</Text>
-          {Object.entries(machineType.availableInRegions).map(([regionName, machineTypeInfoText]) => {
+          {Object.entries(machineType.availableInRegions).map(([regionName, texts]) => {
             return (
               <Text as="span" color="input/text/helper" key={regionName} textStyle="body/sm/regular">
                 <Text as="span" fontWeight="bold">
                   {regionName}:
                 </Text>{' '}
-                {machineTypeInfoText}
+                {texts?.join(', ')}
               </Text>
             );
           })}
@@ -117,7 +117,7 @@ const MachineTypeSelector = ({
 
     return (
       <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
-        {machineType.availableInRegions[region]}
+        {machineType.availableInRegions[region]?.join(', ')}
       </Text>
     );
   };
