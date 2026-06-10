@@ -399,6 +399,22 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.mergedTabLastLocation).toBe('#!/workflows?workflow_id=bar');
       expect(state.openTabs.every((t) => t.lastLocation === undefined)).toBe(true);
     });
+
+    it('does not record YAML-page locations — code view is a global mode, not per-tab memory', () => {
+      openTab('child-a', { preview: false });
+      recordActiveTabLocation('#!/workflows?workflow_id=foo');
+
+      recordActiveTabLocation('#!/yml');
+      recordActiveTabLocation('#!/yml?branch=main');
+
+      const tab = bitriseYmlStore.getState().openTabs.find((t) => t.nodeId === 'child-a');
+      expect(tab?.lastLocation).toBe('#!/workflows?workflow_id=foo');
+
+      selectMergedConfig();
+      recordActiveTabLocation('#!/pipelines?pipeline=p1');
+      recordActiveTabLocation('#!/yml');
+      expect(bitriseYmlStore.getState().mergedTabLastLocation).toBe('#!/pipelines?pipeline=p1');
+    });
   });
 
   describe('active-file binding (whole WFE edits the active file)', () => {

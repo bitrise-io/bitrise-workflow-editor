@@ -22,8 +22,10 @@ import { ClientError } from '@/core/api/client';
 import {
   bitriseYmlStore,
   discardBitriseYmlDocument,
+  getTabLastLocation,
   getYmlString,
   initializeBitriseYmlDocument,
+  recordActiveTabLocation,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
@@ -81,6 +83,9 @@ const Header = () => {
   const handleEditorViewChange = useCallback(
     (value: string | null) => {
       if (value === 'yaml') {
+        // Keep the active tab's visual page fresh: tab switches while in YAML
+        // mode don't record locations, so this snapshot is what restores later.
+        recordActiveTabLocation(window.parent.location.hash);
         const searchParamsString = new URLSearchParams(searchParams).toString();
         navigate(searchParamsString ? `${paths.yml}?${searchParamsString}` : paths.yml);
         return;
@@ -95,6 +100,15 @@ const Header = () => {
             duration: null,
             isClosable: true,
           });
+          return;
+        }
+
+        // Modular tabs remember their own visual page — the active tab's memory
+        // wins over the session-global last visual page.
+        const { selectedNodeId } = bitriseYmlStore.getState();
+        const tabLocation = selectedNodeId ? getTabLastLocation(selectedNodeId) : undefined;
+        if (tabLocation) {
+          navigate(tabLocation);
           return;
         }
 

@@ -3,6 +3,8 @@ import { useCallback } from 'react';
 import {
   bitriseYmlStore,
   closeTab,
+  getTabLastLocation,
+  isYmlPageLocation,
   MERGED_CONFIG_NODE_ID,
   openTab,
   recordActiveTabLocation,
@@ -21,8 +23,10 @@ function currentLocation(): string {
 /**
  * Open file tabs + the active tab, plus the tab actions. The Merged Config tab
  * lives outside `tabs`; `activeTab === mergedConfigNodeId` means it's selected.
- * Tab switching is per-tab page-aware: each tab's current page is recorded on
- * leave and restored on re-select, so the global URL doesn't bleed across tabs.
+ * Tab switching is per-tab page-aware in visual mode: each tab's current visual
+ * page is recorded on leave and restored on re-select, so the global URL doesn't
+ * bleed across tabs. YAML mode is global instead — switching tabs while on the
+ * YAML page stays in code view.
  */
 export function useTabs() {
   const { tabs, activeTab, isMergedStale } = useBitriseYmlStore((s) => ({
@@ -33,19 +37,25 @@ export function useTabs() {
 
   const [, navigate] = useHashLocation();
 
-  // Restore the page the target tab was last on. A never-visited file tab keeps
-  // the current page; a never-visited merged tab defaults to Workflows (it holds
-  // every entity, so the previous tab's selection must not carry over).
+  // Restore the visual page the target tab was last on. In YAML mode this is a
+  // no-op: code view is a global mode, so switching tabs must stay on the YAML
+  // page instead of jumping to a visual page. In visual mode, a never-visited
+  // file tab keeps the current page; a never-visited merged tab defaults to
+  // Workflows (it holds every entity, so the previous tab's selection must not
+  // carry over).
   const restoreTabLocation = useCallback(
     (nodeId: string) => {
-      const state = bitriseYmlStore.getState();
-
-      if (nodeId === MERGED_CONFIG_NODE_ID) {
-        navigate(state.mergedTabLastLocation ?? paths.workflows);
+      if (isYmlPageLocation(currentLocation())) {
         return;
       }
 
-      const lastLocation = state.openTabs.find((tab) => tab.nodeId === nodeId)?.lastLocation;
+      const lastLocation = getTabLastLocation(nodeId);
+
+      if (nodeId === MERGED_CONFIG_NODE_ID) {
+        navigate(lastLocation ?? paths.workflows);
+        return;
+      }
+
       if (lastLocation) {
         navigate(lastLocation);
       }

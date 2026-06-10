@@ -650,10 +650,19 @@ export function selectMergedConfig() {
   bitriseYmlStore.setState(mergedConfigPatch());
 }
 
-/** Remember the active tab's router location so it restores that page when re-selected. */
+/** True when a raw hash location points at the YAML page (matches `paths.yml`, which core can't import). */
+export function isYmlPageLocation(location: string) {
+  return /^yml($|[?/])/.test(location.replace(/^#?!?\/?/, ''));
+}
+
+/**
+ * Remember the active tab's visual-mode page so it restores when re-selected.
+ * YAML-page locations are never recorded: code view is a global mode shared by
+ * all tabs, so per-tab memory only holds visual pages.
+ */
 export function recordActiveTabLocation(location: string) {
   const { selectedNodeId, openTabs } = bitriseYmlStore.getState();
-  if (!selectedNodeId) {
+  if (!selectedNodeId || isYmlPageLocation(location)) {
     return;
   }
   if (selectedNodeId === MERGED_CONFIG_NODE_ID) {
@@ -663,6 +672,15 @@ export function recordActiveTabLocation(location: string) {
   bitriseYmlStore.setState({
     openTabs: openTabs.map((tab) => (tab.nodeId === selectedNodeId ? { ...tab, lastLocation: location } : tab)),
   });
+}
+
+/** The visual-mode page remembered for a tab (the merged tab included). */
+export function getTabLastLocation(nodeId: string) {
+  const { openTabs, mergedTabLastLocation } = bitriseYmlStore.getState();
+  if (nodeId === MERGED_CONFIG_NODE_ID) {
+    return mergedTabLastLocation;
+  }
+  return openTabs.find((tab) => tab.nodeId === nodeId)?.lastLocation;
 }
 
 /** Open a file in a tab and select it. Preview tabs replace any existing non-dirty preview tab. */
