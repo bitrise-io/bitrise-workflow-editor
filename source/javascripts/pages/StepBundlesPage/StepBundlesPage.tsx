@@ -4,12 +4,14 @@ import { useEffect } from 'react';
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import Drawers from './components/Drawers';
 import StepBundlesCanvasPanel from './components/StepBundlesCanvasPanel';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from './StepBundlesPage.store';
 
 const StepBundlesPage = () => {
+  const isReadOnlyView = useIsReadOnlyView();
   const stepBundlesIds = useStepBundles((s) => Object.keys(s));
   const { openDialog } = useStepBundlesPageStore();
   const { closeDialog } = useStepBundlesPageStore();
@@ -35,6 +37,7 @@ const StepBundlesPage = () => {
       <Button
         size="md"
         leftIconName="Plus"
+        isDisabled={isReadOnlyView}
         onClick={openDialog({
           type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
         })}

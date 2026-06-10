@@ -7,6 +7,7 @@ import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 export type SortableEnvVar = EnvVar & {
   uniqueId: string;
@@ -29,7 +30,8 @@ const SortableEnvVarItem = ({
   onValueChange,
   onIsExpandChange,
 }: SortableEnvVarItemProps) => {
-  const sortable = useSortable({ id: env.uniqueId, data: env });
+  const isReadOnlyView = useIsReadOnlyView();
+  const sortable = useSortable({ id: env.uniqueId, data: env, disabled: isReadOnlyView });
 
   const [errors, setErrors] = useState({
     key: EnvVarService.validateKey(env.key),
@@ -67,6 +69,7 @@ const SortableEnvVarItem = ({
     >
       <DragHandle
         withGroupHover
+        isDisabled={isReadOnlyView}
         ref={sortable.setActivatorNodeRef}
         visibility={sortable.isDragging ? 'hidden' : 'visible'}
         {...sortable.listeners}
@@ -89,6 +92,7 @@ const SortableEnvVarItem = ({
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
+            isDisabled={isReadOnlyView}
             onChange={(e) => handleKeyChange(e.target.value)}
             errorText={errors.key !== true ? errors.key : undefined}
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
@@ -100,6 +104,7 @@ const SortableEnvVarItem = ({
             value={env.value}
             aria-label="Value"
             placeholder="Enter value"
+            isDisabled={isReadOnlyView}
             formControlProps={{ flex: 1 }}
             onChange={(e) => handleValueChange(e.target.value)}
           />
@@ -109,11 +114,16 @@ const SortableEnvVarItem = ({
             size="md"
             aria-label="Remove"
             iconName="MinusCircle"
+            isDisabled={isReadOnlyView}
             tooltipProps={{ 'aria-label': 'Remove' }}
             onClick={() => onRemove?.()}
           />
         </Box>
-        <Checkbox isChecked={env.isExpand !== false} onChange={(e) => handleIsExpandChange(e.target.checked)}>
+        <Checkbox
+          isChecked={env.isExpand !== false}
+          isDisabled={isReadOnlyView}
+          onChange={(e) => handleIsExpandChange(e.target.checked)}
+        >
           Replace variables in inputs
         </Checkbox>
       </Box>

@@ -39,24 +39,4 @@ describe('EntityIndexService', () => {
       expect(EntityIndexService.definingNodeId(index, 'pipelines', 'anything')).toBeUndefined();
     });
   });
-
-  describe('isGhost', () => {
-    it('is true when the entity is defined only in other nodes', () => {
-      expect(EntityIndexService.isGhost(index, 'workflows', 'release', 'n_local')).toBe(true);
-    });
-
-    it('is false when the entity is defined in the current node', () => {
-      expect(EntityIndexService.isGhost(index, 'workflows', 'test', 'n_local')).toBe(false);
-    });
-
-    it('is false when one of several layers lives in the current node', () => {
-      expect(EntityIndexService.isGhost(index, 'workflows', 'build', 'n_module')).toBe(false);
-      expect(EntityIndexService.isGhost(index, 'workflows', 'build', 'n_root')).toBe(false);
-      expect(EntityIndexService.isGhost(index, 'workflows', 'build', 'n_other')).toBe(true);
-    });
-
-    it('is false when the entity is not in the index', () => {
-      expect(EntityIndexService.isGhost(index, 'workflows', 'missing', 'n_local')).toBe(false);
-    });
-  });
 });

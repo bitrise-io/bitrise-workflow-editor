@@ -34,6 +34,42 @@ export function useDefiningFilePath(kind: EntityKind, id: string): string | unde
   });
 }
 
+export type ReadOnlyViewInfo = {
+  /** True when the active view can't be edited: the merged config preview, or a cross-repo/ref file. */
+  isReadOnly: boolean;
+  isMergedConfig: boolean;
+  /** Effective source ref of the read-only file (e.g. `repo@branch`), when that's the reason. */
+  sourceLabel?: string;
+};
+
+const EDITABLE_VIEW: ReadOnlyViewInfo = { isReadOnly: false, isMergedConfig: false };
+
+/** Whether the active view is read-only ("ghost"), and why: merged preview or cross-repo/ref file. */
+export function useReadOnlyView(): ReadOnlyViewInfo {
+  return useBitriseYmlStore((s) => {
+    if (!s.tree) {
+      return EDITABLE_VIEW;
+    }
+    if (s.selectedNodeId === MERGED_CONFIG_NODE_ID) {
+      return { isReadOnly: true, isMergedConfig: true };
+    }
+    const file = s.selectedNodeId ? s.files[s.selectedNodeId] : undefined;
+    if (file && !file.editable) {
+      return {
+        isReadOnly: true,
+        isMergedConfig: false,
+        sourceLabel: TreeService.effectiveSourceLabel(s.tree, file.nodeId) ?? undefined,
+      };
+    }
+    return EDITABLE_VIEW;
+  });
+}
+
+/** Boolean shorthand for `useReadOnlyView` — true on the merged config tab and on cross-repo/ref files. */
+export function useIsReadOnlyView(): boolean {
+  return useReadOnlyView().isReadOnly;
+}
+
 export type CrossFileEntityInfo = {
   isLocal: boolean;
   /** Defined in some file (local or cross-file) — i.e. present in the entity index. */

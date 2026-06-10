@@ -1,7 +1,7 @@
 import { Link } from '@bitrise/bitkit';
 import { Popover } from '@chakra-ui/react/popover';
 import { Portal } from '@chakra-ui/react/portal';
-import { cloneElement, ReactElement, ReactNode, useMemo, useState } from 'react';
+import { ReactElement, ReactNode, useMemo, useState } from 'react';
 
 import FileTreeView from '@/components/FileTreeViewer/FileTreeView';
 import { EntityKind } from '@/core/models/Tree';
@@ -15,16 +15,18 @@ type Props = {
   id: string;
   /** Default trigger content, rendered inside a purple text Link. */
   children?: ReactNode;
-  /** Custom trigger element (cloned for a single def, used as popover trigger for multiple). Takes precedence over `children`. */
+  /** Custom trigger element used as the popover trigger. Takes precedence over `children`. */
   trigger?: ReactElement<{ onClick?: () => void }>;
+  /** Called when the multi-definition chooser popover opens or closes. */
+  onOpenChange?: (isOpen: boolean) => void;
 };
 
 /**
- * The "Edit / Go to definition" link in a cross-file drawer header. A single definition
- * jumps straight to it; an entity with multiple definitions (override, or same path from
- * different refs) opens a chooser so the user picks which layer to open.
+ * The "Edit / Go to definition" link in a cross-file drawer header. Always opens a
+ * chooser popover — for a single definition the user picks the one file; for multiple
+ * definitions (override, or same path from different refs) they pick which layer to open.
  */
-const JumpToDefinitionLink = ({ kind, id, children, trigger }: Props) => {
+const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Props) => {
   const tree = useTree();
   const entityIndex = useEntityIndex();
   const jumpToDefinition = useJumpToDefinition();
@@ -35,21 +37,13 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger }: Props) => {
     [entityIndex, kind, id],
   );
 
-  if (definitionIds.size <= 1) {
-    if (trigger) {
-      return cloneElement(trigger, { onClick: () => jumpToDefinition(kind, id) });
-    }
-    return (
-      <Link as="button" colorScheme="purple" onClick={() => jumpToDefinition(kind, id)}>
-        {children}
-      </Link>
-    );
-  }
-
   return (
     <Popover.Root
       open={isOpen}
-      onOpenChange={(details) => setIsOpen(details.open)}
+      onOpenChange={(details) => {
+        setIsOpen(details.open);
+        onOpenChange?.(details.open);
+      }}
       positioning={{ placement: 'bottom-start' }}
     >
       <Popover.Trigger asChild>

@@ -1,4 +1,4 @@
-import { BitkitTabs, IconCode } from '@bitrise/bitkit-v2';
+import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
@@ -16,6 +16,7 @@ const OpenFileTabs = () => {
 
   return (
     <BitkitTabs.Root
+      variant="line"
       value={activeTab ?? mergedConfigNodeId}
       onValueChange={({ value }) => {
         if (value === mergedConfigNodeId) {
@@ -48,7 +49,7 @@ const OpenFileTabs = () => {
           overflowY="hidden"
           border="none"
         >
-          <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconCode}>
+          <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup}>
             Merged Config
           </BitkitTabs.Trigger>
           {tabs.map((tab) => (

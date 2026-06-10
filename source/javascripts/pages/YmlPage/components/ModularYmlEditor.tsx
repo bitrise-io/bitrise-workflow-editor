@@ -1,7 +1,9 @@
+import { Box } from '@bitrise/bitkit';
 import Editor from '@monaco-editor/react';
 import { useStore } from 'zustand';
 
 import LoadingState from '@/components/LoadingState';
+import ReadOnlyViewNotification from '@/components/ReadOnlyViewNotification';
 import {
   bitriseYmlStore,
   FileSlice,
@@ -58,13 +60,16 @@ const ModularYmlEditor = () => {
   const path = isMerged ? 'file:///merged_config.yml' : `file:///modular/${file?.path ?? 'unknown.yml'}`;
 
   return (
-    <Editor
-      theme="vs-dark"
-      language="yaml"
-      path={path}
-      value={value}
-      options={{ readOnly: true, minimap: { enabled: false } }}
-    />
+    <Box position="relative" height="100%">
+      <ReadOnlyViewNotification />
+      <Editor
+        theme="vs-dark"
+        language="yaml"
+        path={path}
+        value={value}
+        options={{ readOnly: true, minimap: { enabled: false } }}
+      />
+    </Box>
   );
 };
 

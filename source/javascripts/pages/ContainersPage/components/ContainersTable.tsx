@@ -18,6 +18,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 import DeleteContainerDialog from './DeleteContainerDialog';
@@ -37,6 +38,7 @@ const ContainersTable = ({
   setEditedContainer,
   source,
 }: ContainersTableProps) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
 
   const {
@@ -109,6 +111,7 @@ const ContainersTable = ({
                     aria-label="Edit container"
                     iconName="Pencil"
                     color="icon/primary"
+                    isDisabled={isReadOnlyView}
                     onClick={() => {
                       setEditedContainer(container);
                       openDialog();
@@ -119,6 +122,7 @@ const ContainersTable = ({
                     aria-label="Delete container"
                     iconName="MinusCircle"
                     color="icon/negative"
+                    isDisabled={isReadOnlyView}
                     onClick={() => {
                       setSelectedContainerId(container.id);
                       onDeleteContainerDialogOpen();

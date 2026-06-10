@@ -1,10 +1,10 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
-import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
+import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
 import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
-import { useCrossFileEntity } from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -76,19 +76,26 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const stackName = useWorkflowStackName(workflowId);
 
   // Cross-file: workflow defined in another module, so render only the reference (no steps/chains); card stays clickable for instance-level props.
-  const { isCrossFile, definingPath } = useCrossFileEntity('workflows', workflowId);
+  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', workflowId);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isMergedView = useIsMergedConfigSelected();
+  // In the merged view every workflow resolves locally, but its definition still lives in a module — offer a jump.
+  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
+  const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
+
   const { isSelected } = useSelection();
   const isHighlighted = isSelected({ workflowId: id });
   const cardProps = useMemo(
     () => ({
       ...containerProps,
-      ...(isCrossFile ? { backgroundColor: 'background/secondary' } : {}),
+      // Ghost (read-only) tint: cross-file references, and every card in a read-only view.
+      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -96,7 +103,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted, isCrossFile],
+    [containerProps, isHighlighted, isCrossFile, isReadOnlyView],
   );
 
   if (!workflow && !isCrossFile) {
@@ -135,8 +142,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           </Text>
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow) && (
-          <Box display="none" _groupHover={{ display: 'inline-flex' }}>
+        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
+          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
             {/* Chaining writes into the definition, which is in another file for a cross-file reference — so hidden there. */}
             {onChainWorkflow && !isCrossFile && (
               <ControlButton
@@ -159,6 +166,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 onClick={() => onEditWorkflow(id)}
               />
             )}
+            {showJumpButton && (
+              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+            )}
             {onRemoveWorkflow && (
               <ControlButton
                 isDanger
@@ -171,8 +181,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
             )}
           </Box>
         )}
-
-        {isCrossFile && <CrossFileJumpButton kind="workflows" id={workflowId} />}
       </Box>
 
       {!isCrossFile && (

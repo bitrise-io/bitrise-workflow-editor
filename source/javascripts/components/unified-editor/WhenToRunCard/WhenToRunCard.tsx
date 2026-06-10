@@ -1,6 +1,8 @@
 import { Box, Divider, ExpandableCard, IconButton, Text, Toggle } from '@bitrise/bitkit';
 import { ChangeEventHandler } from 'react';
 
+import { useIsReadOnlyView } from '@/hooks/useTree';
+
 import StepInput from '../StepConfigDrawer/components/StepInput';
 
 type WhenToRunCardProps = {
@@ -15,6 +17,7 @@ type WhenToRunCardProps = {
 };
 
 const WhenToRunCard = (props: WhenToRunCardProps) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const {
     defaultValuesRunIf,
     isAlwaysRun,
@@ -36,17 +39,18 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
             aria-label="Reset to default"
             size="sm"
             variant="tertiary"
+            isDisabled={isReadOnlyView}
             onClick={onIsAlwaysRunReset}
           />
         )}
-        <Toggle defaultChecked={isAlwaysRun} onChange={onIsAlwaysRunChange} />
+        <Toggle defaultChecked={isAlwaysRun} isDisabled={isReadOnlyView} onChange={onIsAlwaysRunChange} />
       </Box>
       <Divider my="24" />
       {!!onIsSkippableChange && (
         <>
           <Box display="flex">
             <Text flex="1">Continue build even if this Step fails</Text>
-            <Toggle defaultChecked={isSkippable} onChange={onIsSkippableChange} />
+            <Toggle defaultChecked={isSkippable} isDisabled={isReadOnlyView} onChange={onIsSkippableChange} />
           </Box>
           <Divider my="24" />
         </>

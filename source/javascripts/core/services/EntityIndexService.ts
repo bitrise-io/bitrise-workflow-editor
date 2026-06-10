@@ -67,16 +67,9 @@ function equals(a: EntityIndex, b: EntityIndex): boolean {
   });
 }
 
-/** `true` when the entity is defined but in none of the current node's layers (a cross-file reference). */
-function isGhost(index: EntityIndex, kind: EntityKind, id: string, currentNodeId: string): boolean {
-  const defs = definitionsOf(index, kind, id);
-  return defs.length > 0 && !defs.some((def) => def.nodeId === currentNodeId);
-}
-
 export default {
   definingNodeId,
   definitionsOf,
-  isGhost,
   buildFromFiles,
   equals,
 };

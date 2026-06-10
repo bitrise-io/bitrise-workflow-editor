@@ -3,6 +3,7 @@ import { FocusEventHandler, useState } from 'react';
 
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import { EnvVarPopover, SecretPopover } from '@/components/VariablePopover';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import SensitiveBadge from './SensitiveBadge';
@@ -40,6 +41,7 @@ const StepInput = forwardRef(
     ref,
   ) => {
     const { stepBundleId, workflowId } = useStepDrawerContext();
+    const isReadOnlyView = useIsReadOnlyView();
     const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
     const [value, setValue] = useState(String(props.value ?? ''));
@@ -72,7 +74,7 @@ const StepInput = forwardRef(
         onBlur={handleBlur}
         fontFamily="monospace"
         isRequired={isRequired}
-        isDisabled={isSensitive || isDisabled}
+        isDisabled={isSensitive || isDisabled || isReadOnlyView}
         badge={isSensitive ? <SensitiveBadge /> : undefined}
         placeholder={defaultValue || (isSensitive ? 'Add secret' : 'Enter value')}
         errorText={validationErrorIfRequired(value, isRequired)}
@@ -83,7 +85,7 @@ const StepInput = forwardRef(
           onChange?.(e.currentTarget.value);
         }}
       >
-        {!isDisabled && (
+        {!isDisabled && !isReadOnlyView && (
           <ButtonGroup size="md" spacing="6">
             {!!value && !isSensitive && (
               <IconButton
