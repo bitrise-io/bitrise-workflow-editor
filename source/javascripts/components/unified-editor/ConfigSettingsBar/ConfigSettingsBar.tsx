@@ -63,9 +63,9 @@ const ConfigSettingsBar = (props: BoxProps) => {
       paddingLeft="32"
       paddingRight="12"
       py="0"
-      mb="24"
-      // 48px to line up with the OpenFileTabs strip; minH (not fixed) so the branch-switching two-row variant can grow.
-      minH="48px"
+      // Fixed 48px border-box so it lines up with the OpenFileTabs strip; the two-row
+      // branch-switching variant fits (20px + 4px gap + 16px = 40px of content).
+      height="48px"
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"

@@ -36,8 +36,16 @@ const MainLayout = () => {
 
   // Modular configs get a global file-tab strip atop the editor area.
   const isModular = Boolean(useTree());
+  // With the bar present, the tab strip shares its 48px top row (so it doesn't jump
+  // between Visual and YAML mode); without it, the strip tops the content area instead.
+  const tabsBesideBar = isModular && isWebsiteMode;
 
   useMergedConfigSync();
+
+  let gridTemplateAreas = tabsBesideBar ? `"bar tabs" "nav content"` : `"bar content" "nav content"`;
+  if (isYmlPage) {
+    gridTemplateAreas = `"bar tabs" "content content"`;
+  }
 
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
@@ -46,17 +54,20 @@ const MainLayout = () => {
         display="grid"
         flex="1"
         minH={0}
-        gridTemplateColumns={isYmlPage ? '1fr' : '256px 1fr'}
+        gridTemplateColumns="256px 1fr"
         gridTemplateRows="auto 1fr"
-        gridTemplateAreas={isYmlPage ? `"bar" "content"` : `"bar content" "nav content"`}
+        gridTemplateAreas={gridTemplateAreas}
       >
         {isWebsiteMode && (
-          <ConfigSettingsBar
-            gridArea="bar"
-            justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
-            borderRight={isYmlPage ? undefined : '1px solid'}
-            borderRightColor={isYmlPage ? undefined : 'border/regular'}
-          />
+          <ConfigSettingsBar gridArea="bar" borderRight="1px solid" borderRightColor="border/regular" />
+        )}
+        {tabsBesideBar ? (
+          <Box gridArea="tabs" minW={0}>
+            <OpenFileTabs />
+          </Box>
+        ) : (
+          // Keeps the bar's bottom divider running across the page on the tab-less YAML page.
+          isYmlPage && isWebsiteMode && <Box gridArea="tabs" borderBottom="1px solid" borderColor="border/minimal" />
         )}
         {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
         <Navigation
@@ -66,7 +77,7 @@ const MainLayout = () => {
           style={{ display: isYmlPage ? 'none' : undefined }}
         />
         <Box gridArea="content" display="flex" flexDirection="column" minW={0} minH={0}>
-          {isModular && <OpenFileTabs />}
+          {isModular && !tabsBesideBar && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">
             <Router hook={useHashLocation} searchHook={useHashSearch}>
               <InvalidYmlRedirect />
