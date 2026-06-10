@@ -26,14 +26,9 @@ const FileTreeViewer = () => {
       onOpenChange={(details) => setIsOpen(details.open)}
       positioning={{ placement: 'bottom-end', gutter: 4 }}
     >
-      {/* Anchor against an explicit `Popover.Anchor` div, not the trigger ref: that ref
-          threads through BitkitIconButton's tooltip wrapper and gets dropped, popping at
-          the window's top-left. Keep `asChild` inside so the trigger is the real button. */}
-      <Popover.Anchor display="inline-flex">
-        <BitkitIconButton asChild label="Open module" variant="secondary" size="sm" icon={IconFolder}>
-          <Popover.Trigger />
-        </BitkitIconButton>
-      </Popover.Anchor>
+      <Popover.Trigger asChild>
+        <BitkitIconButton label="Open module" variant="secondary" size="sm" icon={IconFolder} />
+      </Popover.Trigger>
       <Portal>
         {/* z-index MUST be on Popover.Content, not Positioner: Zag derives the positioner's
             inline `z-index: var(--z-index)` from Content's computed z-index, so a value set
@@ -68,8 +63,9 @@ const FileTreeViewer = () => {
               </Text>
               <Box display="flex" alignItems="center" gap="8">
                 <CreateFileButton />
-                {/* Close via controlled state, not `Popover.CloseTrigger asChild`: that breaks the tooltip's anchoring. */}
-                <BitkitCloseButton size="sm" aria-label="Close" onClick={() => setIsOpen(false)} />
+                <Popover.CloseTrigger asChild>
+                  <BitkitCloseButton size="sm" aria-label="Close" />
+                </Popover.CloseTrigger>
               </Box>
             </Box>
             <Popover.Body px="24" pt="0" pb="24" flex="1" minHeight="0" overflowY="auto">
