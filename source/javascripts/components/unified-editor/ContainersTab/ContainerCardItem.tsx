@@ -4,6 +4,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerReference } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { ContainerReferenceSource } from './ContainersMenu';
 
@@ -21,6 +22,7 @@ type ContainerCardItemProps = {
 
 const ContainerCardItem = (props: ContainerCardItemProps) => {
   const { container, isDisabled, onRecreate, onRemove, reference, source, stepId, stepBundleId, stepVersion } = props;
+  const isReadOnlyView = useIsReadOnlyView();
 
   const handleRemove = () => {
     onRemove(reference.id);
@@ -54,7 +56,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
               isChecked={reference.recreate}
               onChange={(e) => onRecreate(reference.id, e.target.checked)}
               value={reference.id}
-              isDisabled={isDisabled}
+              isDisabled={isDisabled || isReadOnlyView}
             >
               Recreate container
             </Checkbox>
@@ -67,7 +69,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
             aria-label={isDisabled ? 'Edit containers in the Step bundle definition.' : 'Delete container'}
             iconName="MinusCircle"
             color="icon/negative"
-            isDisabled={isDisabled}
+            isDisabled={isDisabled || isReadOnlyView}
             onClick={handleRemove}
           />
         </Box>

@@ -14,7 +14,8 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '../FloatingDrawer/FloatingDrawer';
-import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
+import { useStepDrawerContext } from './StepConfigDrawer.context';
+import StepConfigDrawerProvider from './StepConfigDrawerProvider';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import PropertiesTab from './tabs/PropertiesTab';

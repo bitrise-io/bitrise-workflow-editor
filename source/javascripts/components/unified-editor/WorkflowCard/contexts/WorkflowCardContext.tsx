@@ -6,6 +6,7 @@ import {
   StepActions,
   WorkflowActions,
 } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 type State = {
   selectedStepIndices?: number[];
@@ -68,52 +69,62 @@ function useSelection() {
 
 function useWorkflowActions(): WorkflowActions {
   const methods = useContext(WorkflowCardContext);
+  const isReadOnlyView = useIsReadOnlyView();
 
   if (!methods) {
     throw new Error('useWorkflowActions must be used within a WorkflowCardContextProvider');
   }
 
-  return useMemo(
-    () =>
-      pick(methods, [
-        'onCreateWorkflow',
-        'onEditWorkflow',
-        'onEditChainedWorkflow',
-        'onChainWorkflow',
-        'onChainChainedWorkflow',
-        'onChainedWorkflowsUpdate',
-        'onRemoveWorkflow',
-        'onRemoveChainedWorkflow',
-      ]),
-    [methods],
-  );
+  return useMemo(() => {
+    // Read-only views (merged config, cross-repo/ref files) keep only the inspection actions —
+    // cards render their mutating controls based on callback presence, so stripping them here
+    // removes those controls everywhere at once.
+    if (isReadOnlyView) {
+      return pick(methods, ['onEditWorkflow', 'onEditChainedWorkflow']);
+    }
+
+    return pick(methods, [
+      'onCreateWorkflow',
+      'onEditWorkflow',
+      'onEditChainedWorkflow',
+      'onChainWorkflow',
+      'onChainChainedWorkflow',
+      'onChainedWorkflowsUpdate',
+      'onRemoveWorkflow',
+      'onRemoveChainedWorkflow',
+    ]);
+  }, [methods, isReadOnlyView]);
 }
 
 const useStepActions = (): StepActions => {
   const methods = useContext(WorkflowCardContext);
+  const isReadOnlyView = useIsReadOnlyView();
 
   if (!methods) {
     throw new Error('useStepActions must be used within a WorkflowCardContextProvider');
   }
 
-  return useMemo(
-    () =>
-      pick(methods, [
-        'onAddStep',
-        'onSelectStep',
-        'onMoveStep',
-        'onUpgradeStep',
-        'onCloneStep',
-        'onDeleteStep',
-        'onAddStepToStepBundle',
-        'onCloneStepInStepBundle',
-        'onDeleteStepInStepBundle',
-        'onGroupStepsToStepBundle',
-        'onMoveStepInStepBundle',
-        'onUpgradeStepInStepBundle',
-      ]),
-    [methods],
-  );
+  return useMemo(() => {
+    // Same as useWorkflowActions: selection stays available for inspection, mutations are stripped.
+    if (isReadOnlyView) {
+      return pick(methods, ['onSelectStep']);
+    }
+
+    return pick(methods, [
+      'onAddStep',
+      'onSelectStep',
+      'onMoveStep',
+      'onUpgradeStep',
+      'onCloneStep',
+      'onDeleteStep',
+      'onAddStepToStepBundle',
+      'onCloneStepInStepBundle',
+      'onDeleteStepInStepBundle',
+      'onGroupStepsToStepBundle',
+      'onMoveStepInStepBundle',
+      'onUpgradeStepInStepBundle',
+    ]);
+  }, [methods, isReadOnlyView]);
 };
 
 export { useSelection, useStepActions, useWorkflowActions, WorkflowCardContextProvider };

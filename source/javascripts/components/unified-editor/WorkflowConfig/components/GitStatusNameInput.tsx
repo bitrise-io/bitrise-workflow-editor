@@ -24,10 +24,11 @@ type GitStatusNameInputProps = {
   targetId: string | undefined;
   onChange: (newValue: string, isValid: boolean) => void;
   statusReportName: string;
+  isDisabled?: boolean;
 };
 
 const GitStatusNameInput = (props: GitStatusNameInputProps) => {
-  const { targetId, onChange, statusReportName } = props;
+  const { targetId, onChange, statusReportName, isDisabled } = props;
   const [error, setError] = useState<string>('');
 
   const statusReport = PageProps.settings()?.statusReport;
@@ -57,6 +58,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
     <Box>
       <Input
         size="md"
+        isDisabled={isDisabled}
         label="Git status name"
         helperText={
           <>

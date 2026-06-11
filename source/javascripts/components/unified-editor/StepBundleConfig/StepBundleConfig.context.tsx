@@ -1,30 +1,21 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 import { StepBundleInstance } from '@/core/models/Step';
 import useStepBundle from '@/hooks/useStepBundle';
 
-import StepConfigDrawerProvider from '../StepConfigDrawer/StepConfigDrawer.context';
-
-type Props = PropsWithChildren<{
+// Provider component lives in StepBundleConfigProvider.tsx so this module exports only non-components, keeping React Fast Refresh happy.
+export type StepBundleConfigContextValue = {
   stepBundleId?: string;
   parentWorkflowId?: string;
   parentStepBundleId?: string;
   stepIndex: number;
-}>;
+};
 
-const Context = createContext<Omit<Props, 'children'>>({
+export const StepBundleConfigContext = createContext<StepBundleConfigContextValue>({
   stepIndex: -1,
 });
 
-const StepBundleConfigProvider = ({ children, ...props }: Props) => {
-  return (
-    <StepConfigDrawerProvider stepBundleId={props.stepBundleId} workflowId="" stepIndex={props.stepIndex}>
-      <Context.Provider value={props}>{children}</Context.Provider>
-    </StepConfigDrawerProvider>
-  );
-};
-
-type UseStepBundleConfigContextResult = Omit<Props, 'children'> & {
+type UseStepBundleConfigContextResult = StepBundleConfigContextValue & {
   stepBundle?: StepBundleInstance;
 };
 
@@ -35,9 +26,7 @@ type UseStepBundleConfigContextResult = Omit<Props, 'children'> & {
 export function useStepBundleConfigContext<U = UseStepBundleConfigContextResult>(
   selector?: (state: UseStepBundleConfigContextResult) => U,
 ): U {
-  const context = useContext(Context);
+  const context = useContext(StepBundleConfigContext);
   const result = useStepBundle(context);
   return selector ? selector(result as UseStepBundleConfigContextResult) : (result as U);
 }
-
-export default StepBundleConfigProvider;

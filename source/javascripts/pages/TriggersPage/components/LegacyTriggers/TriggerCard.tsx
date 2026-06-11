@@ -6,6 +6,7 @@ import TriggerConditions from '@/components/unified-editor/Triggers/TriggerCondi
 import { trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TriggerSource } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 interface TriggerCardProps extends CardProps {
   isOverlay?: boolean;
@@ -17,6 +18,7 @@ interface TriggerCardProps extends CardProps {
 
 const TriggerCard = (props: TriggerCardProps) => {
   const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
+  const isReadOnlyView = useIsReadOnlyView();
   const { conditions, source, isDraftPr, isActive } = triggerItem;
   const [target, targetId] = source.split('#') as [TriggerSource, string];
 
@@ -74,15 +76,27 @@ const TriggerCard = (props: TriggerCardProps) => {
         </Box>
       </Box>
       <Box display="flex" alignItems="center">
-        <Checkbox marginRight="16" isChecked={isActive} onChange={() => handleActiveChange()}>
+        <Checkbox
+          marginRight="16"
+          isChecked={isActive}
+          isDisabled={isReadOnlyView}
+          onChange={() => handleActiveChange()}
+        >
           Active
         </Checkbox>
-        <IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+        <IconButton
+          iconName="Pencil"
+          aria-label="Edit trigger"
+          variant="tertiary"
+          isDisabled={isReadOnlyView}
+          onClick={handleEdit}
+        />
         <IconButton
           iconName="MinusCircle"
           aria-label="Remove trigger"
           variant="tertiary"
           isDanger
+          isDisabled={isReadOnlyView}
           onClick={handleRemove}
         />
       </Box>

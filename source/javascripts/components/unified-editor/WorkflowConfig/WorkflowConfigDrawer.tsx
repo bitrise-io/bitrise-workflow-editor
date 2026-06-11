@@ -12,7 +12,7 @@ import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import TriggersTab from './tabs/TriggersTab';
-import WorkflowConfigProvider from './WorkflowConfig.context';
+import WorkflowConfigProvider from './WorkflowConfigProvider';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;

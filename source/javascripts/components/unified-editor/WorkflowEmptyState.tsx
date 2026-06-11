@@ -1,12 +1,14 @@
 import { Button, ButtonGroup, EmptyState, Tooltip } from '@bitrise/bitkit';
 
 import useAIButton from '@/hooks/useAIButton';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 type Props = {
   onCreateWorkflow: () => void;
 };
 
 const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const {
     isVisible: isAIButtonVisible,
     tooltipLabel,
@@ -28,7 +30,7 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
         {isAIButtonVisible && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
             <Button
-              isDisabled={isAIButtonDisabled}
+              isDisabled={isAIButtonDisabled || isReadOnlyView}
               leftIconName="SparkleFilled"
               size="md"
               variant="ai-primary"
@@ -38,7 +40,13 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
             </Button>
           </Tooltip>
         )}
-        <Button leftIconName="Plus" size="md" onClick={onCreateWorkflow} variant="secondary">
+        <Button
+          leftIconName="Plus"
+          size="md"
+          isDisabled={isReadOnlyView}
+          onClick={onCreateWorkflow}
+          variant="secondary"
+        >
           Create Workflow manually
         </Button>
       </ButtonGroup>

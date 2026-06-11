@@ -4,6 +4,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 
 import StepInput from '@/components/unified-editor/StepConfigDrawer/components/StepInput';
 import StepSelectInput from '@/components/unified-editor/StepConfigDrawer/components/StepSelectInput';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { InputListItem } from '../types/StepBundle.types';
 import { expandInput } from '../utils/StepBundle.utils';
@@ -18,6 +19,7 @@ type Props = {
 };
 
 const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, onDelete, onEdit }: Props) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const [, copy] = useCopyToClipboard();
 
   if (items.length === 0) {
@@ -73,11 +75,16 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 <OverflowMenuItem leftIconName="Duplicate" onClick={() => copy(key)}>
                   Copy key
                 </OverflowMenuItem>
-                <OverflowMenuItem leftIconName="Pencil" onClick={() => onEdit(index)}>
+                <OverflowMenuItem leftIconName="Pencil" isDisabled={isReadOnlyView} onClick={() => onEdit(index)}>
                   Edit input
                 </OverflowMenuItem>
                 <Divider />
-                <OverflowMenuItem leftIconName="Trash" isDanger onClick={() => onDelete(index)}>
+                <OverflowMenuItem
+                  leftIconName="Trash"
+                  isDanger
+                  isDisabled={isReadOnlyView}
+                  onClick={() => onDelete(index)}
+                >
                   Delete
                 </OverflowMenuItem>
               </OverflowMenu>
@@ -86,7 +93,13 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
           </Fragment>
         );
       })}
-      <Button leftIconName="Plus" variant="tertiary" size="md" onClick={() => onAdd(category)}>
+      <Button
+        leftIconName="Plus"
+        variant="tertiary"
+        size="md"
+        isDisabled={isReadOnlyView}
+        onClick={() => onAdd(category)}
+      >
         Add input
       </Button>
     </>

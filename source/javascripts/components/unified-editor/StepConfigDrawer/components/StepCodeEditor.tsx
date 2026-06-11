@@ -4,6 +4,7 @@ import type { editor } from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
 
 import MonacoUtils from '@/core/utils/MonacoUtils';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 const EDITOR_OPTIONS = {
   fontSize: 13,
@@ -24,6 +25,7 @@ type Props = {
 };
 
 const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const [editorInstance, setEditor] = useState<editor.IStandaloneCodeEditor>();
 
   const updateEditorHeight = useCallback(() => {
@@ -53,7 +55,7 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
         theme="vs-dark"
         onMount={setEditor}
         defaultLanguage="shell"
-        options={EDITOR_OPTIONS}
+        options={{ ...EDITOR_OPTIONS, readOnly: isReadOnlyView }}
         value={value || defaultValue}
         onChange={(changedValue) => onChange(changedValue || null)}
         beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}
