@@ -3,11 +3,39 @@ import { useEffect } from 'react';
 
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
+import useCloseDialogsOnFileSwitch, { FileSwitchDialogRefs } from '@/hooks/useCloseDialogsOnFileSwitch';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 import Drawers from './components/Drawers/Drawers';
 import WorkflowCanvasPanel from './components/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from './WorkflowsPage.store';
+
+const STEP_INDEX_DIALOGS = [
+  WorkflowsPageDialogType.STEP_CONFIG,
+  WorkflowsPageDialogType.WITH_GROUP,
+  WorkflowsPageDialogType.STEP_BUNDLE,
+];
+
+function fileSwitchDialogRefs(): FileSwitchDialogRefs | null {
+  const { openedDialogType, workflowId, parentWorkflowId, stepBundleId, parentStepBundleId, selectedStepIndices } =
+    useWorkflowsPageStore.getState();
+
+  if (openedDialogType === WorkflowsPageDialogType.NONE) {
+    return null;
+  }
+
+  return {
+    workflowIds: [workflowId, parentWorkflowId],
+    stepBundleIds: [stepBundleId, parentStepBundleId],
+    steps: STEP_INDEX_DIALOGS.includes(openedDialogType)
+      ? {
+          source: stepBundleId ? 'step_bundles' : 'workflows',
+          sourceId: stepBundleId || workflowId,
+          indices: selectedStepIndices,
+        }
+      : undefined,
+  };
+}
 
 const WorkflowsPage = () => {
   const [selectedWorkflowId] = useSelectedWorkflow();
@@ -17,6 +45,12 @@ const WorkflowsPage = () => {
   useEffect(() => {
     closeDialog();
   }, [selectedWorkflowId, closeDialog]);
+
+  useCloseDialogsOnFileSwitch(fileSwitchDialogRefs, () => {
+    const { closeDialog: close, setSelectedStepIndices } = useWorkflowsPageStore.getState();
+    close();
+    setSelectedStepIndices();
+  });
 
   if (!selectedWorkflowId) {
     return (

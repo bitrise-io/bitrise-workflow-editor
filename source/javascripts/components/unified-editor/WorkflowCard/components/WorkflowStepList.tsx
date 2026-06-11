@@ -1,6 +1,7 @@
 import { memo } from 'react';
 
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useShallow } from '@/hooks/useShallow';
 
 import { useStepActions } from '../contexts/WorkflowCardContext';
 import StepList from './StepList';
@@ -10,9 +11,11 @@ type Props = {
 };
 
 const WorkflowStepList = ({ workflowId }: Props) => {
-  const steps = useBitriseYmlStore(({ yml }) => {
-    return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => Object.keys(s)[0]);
-  });
+  const steps = useBitriseYmlStore(
+    useShallow(({ yml }) => {
+      return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => Object.keys(s)[0]);
+    }),
+  );
 
   const { onAddStep, onMoveStep } = useStepActions();
 

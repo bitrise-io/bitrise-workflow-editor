@@ -1,12 +1,11 @@
 import { Box, Text } from '@bitrise/bitkit';
-import { BitkitCloseButton, BitkitIconButton, IconFolder } from '@bitrise/bitkit-v2';
+import { BitkitCloseButton, BitkitIconButton, IconPlus } from '@bitrise/bitkit-v2';
 import { Popover } from '@chakra-ui/react/popover';
 import { Portal } from '@chakra-ui/react/portal';
 import { useState } from 'react';
 
 import { useTabs } from '@/hooks/useTabs';
 import { useSelectedNodeId, useTree } from '@/hooks/useTree';
-import CreateFileButton from '@/pages/YmlPage/components/OpenFileTabs/CreateFileButton';
 
 import FileTreeView from './FileTreeView';
 
@@ -24,10 +23,10 @@ const FileTreeViewer = () => {
     <Popover.Root
       open={isOpen}
       onOpenChange={(details) => setIsOpen(details.open)}
-      positioning={{ placement: 'bottom-end', gutter: 4 }}
+      positioning={{ placement: 'bottom-start', gutter: 4 }}
     >
       <Popover.Trigger asChild>
-        <BitkitIconButton label="Open module" variant="secondary" size="sm" icon={IconFolder} />
+        <BitkitIconButton label="Open module" variant="tertiary" size="sm" icon={IconPlus} color="icon/primary" />
       </Popover.Trigger>
       <Portal>
         {/* z-index MUST be on Popover.Content, not Positioner: Zag derives the positioner's
@@ -61,12 +60,9 @@ const FileTreeViewer = () => {
               <Text textStyle="heading/h3" as="h2">
                 Open module
               </Text>
-              <Box display="flex" alignItems="center" gap="8">
-                <CreateFileButton />
-                <Popover.CloseTrigger asChild>
-                  <BitkitCloseButton size="sm" aria-label="Close" />
-                </Popover.CloseTrigger>
-              </Box>
+              <Popover.CloseTrigger asChild>
+                <BitkitCloseButton size="sm" aria-label="Close" />
+              </Popover.CloseTrigger>
             </Box>
             <Popover.Body px="24" pt="0" pb="24" flex="1" minHeight="0" overflowY="auto">
               <FileTreeView

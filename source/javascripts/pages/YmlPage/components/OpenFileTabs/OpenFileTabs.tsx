@@ -5,11 +5,10 @@ import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
 import { useTabs } from '@/hooks/useTabs';
 
 import FileTab from './FileTab';
-import TabDiffButton from './TabDiffButton';
 
 /**
  * The editor-area tab strip for the modular config. "Merged Config" tab first, then open
- * file tabs; the diff / create / "Open module" buttons sit at the right end.
+ * file tabs, then a frameless "+" to open/create module files.
  */
 const OpenFileTabs = () => {
   const { tabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig } = useTabs();
@@ -48,19 +47,27 @@ const OpenFileTabs = () => {
           overflowX="auto"
           overflowY="hidden"
           border="none"
+          css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
         >
-          <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup}>
+          <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup} flexShrink={0}>
             Merged Config
           </BitkitTabs.Trigger>
           {tabs.map((tab) => (
             <FileTab key={tab.nodeId} nodeId={tab.nodeId} />
           ))}
+          <Box
+            display="flex"
+            padding="4px"
+            alignItems="center"
+            gap="4px"
+            borderRadius="4px"
+            background="#FFF"
+            backgroundBlendMode="multiply"
+            alignSelf="center"
+          >
+            <FileTreeViewer />
+          </Box>
         </BitkitTabs.List>
-
-        <Box flexShrink={0} display="flex" alignItems="center" gap="8" paddingInline="12">
-          <TabDiffButton />
-          <FileTreeViewer />
-        </Box>
       </Box>
     </BitkitTabs.Root>
   );

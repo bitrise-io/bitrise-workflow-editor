@@ -7,6 +7,7 @@ import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
+import { useShallow } from '@/hooks/useShallow';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import { useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -32,7 +33,9 @@ function getSortableItem(placement: Placement, parentWorkflowId: string) {
     return {
       id,
       index,
-      uniqueId: crypto.randomUUID(),
+      // Deterministic id: cards are keyed by it, so a random id would remount every
+      // chained workflow card (visible rebuild) whenever the chain list recomputes.
+      uniqueId: `${parentWorkflowId}/${placement}/${id}/${index}`,
       placement,
       parentWorkflowId,
     };
@@ -45,7 +48,7 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
 
 const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const { droppableContainers } = useDndContext();
-  const workflowIds = useWorkflows((s) => Object.keys(s));
+  const workflowIds = useWorkflows(useShallow((s) => Object.keys(s)));
 
   const { onChainedWorkflowsUpdate } = useWorkflowActions();
   const isAfterRun = placement === 'after_run';
@@ -55,12 +58,14 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const entityIndex = useEntityIndex();
 
   // Keep chained workflows defined in the active file or in another module (cross-file, in the entity index); skip truly dangling ids.
-  const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
-    const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
-    return chainedWorkflowIds.filter(
-      (id) => workflowIds.includes(id) || Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id)),
-    );
-  });
+  const validChainedWorkflowIds = useBitriseYmlStore(
+    useShallow(({ yml }) => {
+      const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+      return chainedWorkflowIds.filter(
+        (id) => workflowIds.includes(id) || Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id)),
+      );
+    }),
+  );
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {
     return validChainedWorkflowIds.map(getSortableItem(placement, parentWorkflowId));

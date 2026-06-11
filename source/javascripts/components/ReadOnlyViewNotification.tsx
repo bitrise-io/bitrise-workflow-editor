@@ -1,33 +1,38 @@
 import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { useState } from 'react';
 
-import { useReadOnlyView } from '@/hooks/useTree';
+import { useReadOnlyView, useSelectedNodeId } from '@/hooks/useTree';
 
 /**
  * Blue info banner floating over the Monaco editor (the parent must be `position: relative`)
  * whenever the active view is read-only: the Merged config preview, or a file included from
- * another repo/ref.
+ * another repo/ref. Dismissible per tab — switching to another read-only tab shows it again.
  */
 const ReadOnlyViewNotification = () => {
-  const { isReadOnly, isMergedConfig, sourceLabel } = useReadOnlyView();
+  const { isReadOnly, isMergedConfig } = useReadOnlyView();
+  const selectedNodeId = useSelectedNodeId();
+  const [dismissedNodeId, setDismissedNodeId] = useState<string>();
 
-  if (!isReadOnly) {
+  if (!isReadOnly || dismissedNodeId === selectedNodeId) {
     return null;
   }
 
   const messageText = isMergedConfig
     ? 'Merged view of the configuration is read-only. You can only edit the module files.'
-    : `This file is included from ${sourceLabel ?? 'another repository or ref'} and is read-only.`;
+    : 'Files included from another repository, branch, tag or commit are read-only.';
 
   return (
     <BitkitAlert
       variant="info"
       messageText={messageText}
+      dismissible
+      onClose={() => setDismissedNodeId(selectedNodeId)}
       position="absolute"
-      insetBlockStart="16"
+      // The YmlPage editor wrapper already has 12px block padding, so flush-top lands 12px below the tab bar.
+      insetBlockStart="0"
       insetInlineStart="50%"
       transform="translateX(-50%)"
-      width="calc(100% - 96px)"
-      maxWidth="640px"
+      width="600px"
       zIndex="100"
       boxShadow="large"
     />

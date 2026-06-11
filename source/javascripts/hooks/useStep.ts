@@ -77,6 +77,8 @@ function useStepFromApi(cvs = ''): ApiStepResult {
       cvs && !StepService.isStepBundle(cvs, defaultStepLibrary) && !StepService.isWithGroup(cvs, defaultStepLibrary),
     ),
     staleTime: Infinity,
+    // Keep evicted-from-view steps cached so switching back (e.g. between file tabs) never re-skeletons.
+    gcTime: Infinity,
     retry: false,
   });
 
