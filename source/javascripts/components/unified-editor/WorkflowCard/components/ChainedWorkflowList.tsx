@@ -30,7 +30,9 @@ function getSortableItem(placement: Placement, parentWorkflowId: string) {
     return {
       id,
       index,
-      uniqueId: crypto.randomUUID(),
+      // Deterministic id: cards are keyed by it, so a random id would remount every
+      // chained workflow card (visible rebuild) whenever the chain list recomputes.
+      uniqueId: `${parentWorkflowId}/${placement}/${id}/${index}`,
       placement,
       parentWorkflowId,
     };

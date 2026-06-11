@@ -162,9 +162,8 @@ const Header = () => {
   });
 
   const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
-    onSuccess: async (newConfig) => {
+    onSuccess: () => {
       closePushBranchDialog();
-      initializeBitriseYmlDocument(newConfig);
     },
     onMergeConflict: (branch) => {
       const configBranch = bitriseYmlStore.getState().configBranch;

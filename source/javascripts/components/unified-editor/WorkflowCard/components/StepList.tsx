@@ -26,19 +26,22 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
   const id = stepBundleId || workflowId || '';
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((cvs, stepIndex) => ({
-      uniqueId: crypto.randomUUID(),
+      // Deterministic id: random ids change on every recompute, re-registering all
+      // sortables and visibly rebuilding the list (e.g. on file tab switches).
+      uniqueId: `${id}/${stepIndex}/${cvs}`,
       stepIndex,
       stepBundleId,
       workflowId,
       cvs,
     }));
-  }, [stepBundleId, steps, workflowId]);
+  }, [id, stepBundleId, steps, workflowId]);
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMove);
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
-  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>([]);
+  // Seeded from props so the first paint already has the items (no empty-frame flash on mount).
+  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
 
   useEffect(() => {
     setSortableItems(initialSortableItems);
