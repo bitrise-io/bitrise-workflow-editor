@@ -7,7 +7,7 @@ const defaultValues = {
   'enable-ci-config-expert-agent': false,
   'enable-branch-switching': false,
   'enable-wfe-tool-versions': false,
-  'enable-wfe-modular-yaml-editing': true, // revert before commit
+  'enable-wfe-modular-yaml-editing': false,
 };
 
 type FeatureFlags = typeof defaultValues;
