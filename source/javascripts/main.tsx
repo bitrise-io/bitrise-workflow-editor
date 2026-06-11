@@ -11,13 +11,16 @@ import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from
 import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
+import ModularYamlDevToggle from '@/components/ModularYamlDevToggle';
 import Client from '@/core/api/client';
-import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { useGetCiConfigTree } from '@/hooks/useCiConfigTree';
 import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import MainLayout from '@/layouts/MainLayout';
@@ -99,11 +102,22 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const { data: ymlSettings } = useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
-  const { data, error, refetch } = useGetCiConfig({
-    projectSlug: PageProps.appSlug(),
-    skipValidation: true,
-    branch: requestedBranch,
-  });
+
+  // Modular flag: off → legacy single-file `GET /config`; on → tree-based config (a
+  // non-modular config is just a single-node tree).
+  const isModularEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
+
+  const legacyConfig = useGetCiConfig(
+    { projectSlug: PageProps.appSlug(), skipValidation: true, branch: requestedBranch },
+    { enabled: !isModularEnabled },
+  );
+  const treeConfig = useGetCiConfigTree(
+    { projectSlug: PageProps.appSlug(), branch: requestedBranch },
+    { enabled: isModularEnabled },
+  );
+
+  const { data, error, refetch } = isModularEnabled ? treeConfig : legacyConfig;
+  const configBranch = isModularEnabled ? treeConfig.data?.branch : legacyConfig.data?.branch;
 
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog
@@ -116,25 +130,44 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEventListener('unhandledrejection', (e) => {
+    // Monaco rejects with a benign "Canceled" sentinel when a model is disposed (e.g. tab switch); not a real error.
+    const reason = e.reason as { name?: string; message?: string } | undefined;
+    if (reason?.name === 'Canceled' || reason?.message === 'Canceled') {
+      return;
+    }
     datadogRum.addError(e.reason);
     toast({ duration: null, status: 'error', isClosable: true, description: e.reason?.message || 'Unknown error' });
   });
 
   useEffect(() => {
     if (data && loadedBranch.current !== requestedBranch) {
-      initializeBitriseYmlDocument(data);
+      if (isModularEnabled) {
+        const config = treeConfig.data;
+        if (config) {
+          initializeModularConfig({
+            root: config.root,
+            entityIndex: config.entityIndex,
+            mergedYml: config.mergedYml,
+            branch: config.branch,
+            commitSha: config.root.commitSha,
+          });
+        }
+      } else if (legacyConfig.data) {
+        initializeBitriseYmlDocument(legacyConfig.data);
+      }
+
       if (requestedBranch) {
-        if (data.branch && data.branch === requestedBranch) {
+        if (configBranch && configBranch === requestedBranch) {
           toast({
             status: 'success',
             isClosable: true,
             description: `Configuration is loaded from ${requestedBranch} branch.`,
           });
-        } else if (data.branch && data.branch !== requestedBranch) {
+        } else if (configBranch && configBranch !== requestedBranch) {
           toast({
             status: 'warning',
             isClosable: true,
-            description: `Config unavailable on ${requestedBranch}. Using ${data.branch} (default branch).`,
+            description: `Config unavailable on ${requestedBranch}. Using ${configBranch} (default branch).`,
           });
         }
       }
@@ -144,14 +177,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         isLoaded.current = true;
       }
     }
-  }, [data, requestedBranch, toast]);
+  }, [data, requestedBranch, toast, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
     if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
       isTracked.current = true;
-      trackConfigBranchLoaded(data.branch);
+      trackConfigBranchLoaded(configBranch);
     }
-  }, [data, ymlSettings?.usesRepositoryYml]);
+  }, [data, ymlSettings?.usesRepositoryYml, configBranch]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
@@ -211,6 +244,7 @@ const App = () => {
                 <InitialDataLoader>
                   <MainLayout />
                 </InitialDataLoader>
+                <ModularYamlDevToggle />
               </BitkitProvider>
             </Provider>
           </ReactFlowProvider>
