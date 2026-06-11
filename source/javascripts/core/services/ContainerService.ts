@@ -259,7 +259,11 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 }
 
 function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: ContainerType, doc: Document) {
-  const yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
+  // A cross-file bundle definition is absent here; return none rather than throwing (throwing crashes the card during render).
+  const yamlMap = YmlUtils.getMapIn(doc, ['step_bundles', sourceId]);
+  if (!yamlMap) {
+    return undefined;
+  }
 
   return getContainerReferences(type, yamlMap);
 }

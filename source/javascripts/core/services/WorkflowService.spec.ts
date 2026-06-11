@@ -1,6 +1,6 @@
 import { Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
-import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
@@ -1214,6 +1214,25 @@ describe('WorkflowService', () => {
       expect(() => {
         WorkflowService.addChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2');
       }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
+    });
+
+    it('chains a cross-file workflow (defined in another module) without throwing', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            wf1: {}
+        `,
+      );
+      bitriseYmlStore.setState({
+        entityIndex: { workflows: { 'cross-file-wf': [{ nodeId: 'n_other' }] }, pipelines: {}, stepBundles: {} },
+      });
+
+      expect(() => {
+        WorkflowService.addChainedWorkflow('wf1', 'after_run', 'cross-file-wf');
+      }).not.toThrow();
+      expect(getYmlString()).toContain('cross-file-wf');
+
+      bitriseYmlStore.setState({ entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} } });
     });
   });
 
