@@ -134,5 +134,63 @@ describe('TreeService', () => {
       TreeService.serializeTree(tree, { root: { contents: 'x', modified: true } });
       expect(tree.contents).toBe('# root\n');
     });
+
+    it('throws on a cyclic tree instead of recursing forever', () => {
+      const root = node('root');
+      const child = node('child', { includes: [root] });
+      root.includes = [child];
+
+      expect(() => TreeService.serializeTree(root, {})).toThrow('Cycle detected in include tree at root.yml');
+    });
+  });
+
+  describe('effectiveSourceLabel', () => {
+    const crossRepoSource: TreeNode['source'] = {
+      path: 'modules/a.yml',
+      repository: 'shared-modules',
+      branch: null,
+      tag: null,
+      commit: null,
+    };
+    const pathOnlySource: TreeNode['source'] = {
+      path: 'modules/b.yml',
+      repository: null,
+      branch: null,
+      tag: null,
+      commit: null,
+    };
+
+    it("returns the node's own label when its source has a cross-ref", () => {
+      const tree = node('root', { includes: [node('child', { source: crossRepoSource })] });
+      expect(TreeService.effectiveSourceLabel(tree, 'child')).toBe('@shared-modules');
+    });
+
+    it('inherits the nearest ancestor cross-ref for a path-only include', () => {
+      const tree = node('root', {
+        includes: [
+          node('child', {
+            source: crossRepoSource,
+            includes: [node('grandchild', { source: pathOnlySource })],
+          }),
+        ],
+      });
+      expect(TreeService.effectiveSourceLabel(tree, 'grandchild')).toBe('@shared-modules');
+    });
+
+    it('returns null for the root, for local-only chains, and for an unknown or missing tree', () => {
+      const tree = node('root', { includes: [node('child', { source: pathOnlySource })] });
+      expect(TreeService.effectiveSourceLabel(tree, 'root')).toBeNull();
+      expect(TreeService.effectiveSourceLabel(tree, 'child')).toBeNull();
+      expect(TreeService.effectiveSourceLabel(tree, 'nope')).toBeNull();
+      expect(TreeService.effectiveSourceLabel(undefined, 'root')).toBeNull();
+    });
+
+    it('returns null instead of recursing forever when the graph contains a cycle', () => {
+      const root = node('root');
+      const child = node('child', { includes: [root] });
+      root.includes = [child];
+
+      expect(TreeService.effectiveSourceLabel(root, 'nope')).toBeNull();
+    });
   });
 });
