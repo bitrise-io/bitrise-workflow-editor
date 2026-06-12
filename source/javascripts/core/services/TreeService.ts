@@ -46,7 +46,17 @@ function flatten(root: TreeNode | undefined): TreeNode[] {
 
 /** Rebuild a fresh wire-ready tree, splicing each node's live contents; nodes missing from `live` keep their loaded contents. */
 function serializeTree(root: TreeNode, live: LiveContents): TreeNode {
+  // Identity-based cycle guard: this feeds the save payload, so a cyclic tree
+  // (an FE bug — wire payloads are JSON and can't contain cycles) must fail
+  // loudly instead of silently dropping nodes or blowing the stack.
+  const seen = new Set<TreeNode>();
+
   const rebuild = (node: TreeNode): TreeNode => {
+    if (seen.has(node)) {
+      throw new Error(`Cycle detected in include tree at ${node.path}`);
+    }
+    seen.add(node);
+
     const liveNode = live[node.nodeId];
 
     return {
@@ -89,7 +99,14 @@ function effectiveSourceLabel(root: TreeNode | undefined, nodeId: string): strin
   if (!root) {
     return null;
   }
+  // Cycle-guarded like `walk`, so a malformed payload can't recurse forever.
+  const seen = new Set<string>();
   const find = (node: TreeNode, chain: TreeNode[]): TreeNode[] | null => {
+    if (seen.has(node.nodeId)) {
+      return null;
+    }
+    seen.add(node.nodeId);
+
     const next = [...chain, node];
     if (node.nodeId === nodeId) {
       return next;
