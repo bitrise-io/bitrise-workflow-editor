@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
 
-import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import BitriseYmlApi, { WireEntityIndex, WireGetConfigResponse, WireTreeNode } from '@/core/api/BitriseYmlApi';
 
 const ROOT_NODE = {
   node_id: 'n_root',
@@ -20,13 +20,13 @@ const ROOT_NODE = {
       includes: [],
     },
   ],
-};
+} satisfies WireTreeNode;
 
 const ENTITY_INDEX = {
   workflows: { build: [{ node_id: 'n_workflows' }] },
   pipelines: {},
   step_bundles: {},
-};
+} satisfies WireEntityIndex;
 
 const MERGED_YML = 'format_version: "13"\nworkflows:\n  build:\n    steps:\n      - script@1: {}\n';
 
@@ -35,7 +35,7 @@ const MODULAR_RESPONSE = {
   entity_index: ENTITY_INDEX,
   merged_yml: MERGED_YML,
   branch: 'main',
-};
+} satisfies WireGetConfigResponse;
 
 const SINGLE_NODE_ROOT = {
   node_id: 'n_root',
@@ -45,14 +45,14 @@ const SINGLE_NODE_ROOT = {
   commit_sha: 'a1b2c3d4e5f6789012345678901234567890abcd',
   editable: true,
   includes: [],
-};
+} satisfies WireTreeNode;
 
 const SINGLE_NODE_RESPONSE = {
   root: SINGLE_NODE_ROOT,
   entity_index: { workflows: { build: [{ node_id: 'n_root' }] }, pipelines: {}, step_bundles: {} },
   merged_yml: SINGLE_NODE_ROOT.contents,
   branch: 'main',
-};
+} satisfies WireGetConfigResponse;
 
 export const getConfigTree = (variant: 'modular' | 'single_node' = 'modular', error?: string) => {
   return http.get(BitriseYmlApi.configTreePath({ projectSlug: ':slug' }), async () => {
@@ -67,7 +67,7 @@ export const getConfigTree = (variant: 'modular' | 'single_node' = 'modular', er
 };
 
 export const postMergeConfig = (error?: string) => {
-  return http.post('/api/app/:slug/config/merge', async () => {
+  return http.post(BitriseYmlApi.mergeConfigPath(':slug'), async () => {
     await delay();
 
     if (error) {
