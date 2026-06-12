@@ -42,6 +42,7 @@ const ConfigSettingsBar = (props: BoxProps) => {
 
   const [searchParams] = useSearchParams();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
+  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
   const defaultBranch = PageProps.app()?.defaultBranch;
   const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
   const branch = configBranch || requestedBranch || defaultBranch;
@@ -63,8 +64,10 @@ const ConfigSettingsBar = (props: BoxProps) => {
     <Box
       paddingLeft="32"
       paddingRight="12"
-      paddingBlock="12"
-      minHeight={rem(65)}
+      // Modular: fixed 48px border-box so it lines up with the OpenFileTabs strip; the
+      // two-row branch-switching variant fits (20px + 4px gap + 16px = 40px of content).
+      // Non-modular keeps the original sizing untouched.
+      {...(isModular ? { paddingBlock: '0', height: '48px' } : { paddingBlock: '12', minHeight: rem(65) })}
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"
