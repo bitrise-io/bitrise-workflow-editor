@@ -6,6 +6,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
 import { EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { listenToEnvVarCreated } from './SortableEnvVars.events';
 
@@ -18,6 +19,9 @@ type UseSortableEnvVarsProps = {
 export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges = false }: UseSortableEnvVarsProps) => {
   const [activeItem, setActiveItem] = useState<SortableEnvVar>();
   const [envs, setEnvs] = useState<SortableEnvVar[]>([]);
+  // In modular YAML mode the same `sourceId` can exist in multiple files, so the active
+  // file is part of the identity of the env var list — re-seed when it changes.
+  const activeFileId = useBitriseYmlStore((s) => s.selectedNodeId);
 
   const updateKeyDebounced = useDebounceCallback(EnvVarService.updateKey, 250, { leading: false });
   const updateValueDebounced = useDebounceCallback(EnvVarService.updateValue, 250, { leading: false });
@@ -29,7 +33,7 @@ export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges 
         uniqueId: crypto.randomUUID(),
       })),
     );
-  }, [source, sourceId]);
+  }, [source, sourceId, activeFileId]);
 
   useEffect(() => {
     if (!listenForExternalChanges) return;

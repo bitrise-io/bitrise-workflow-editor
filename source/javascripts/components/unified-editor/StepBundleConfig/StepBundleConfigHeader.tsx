@@ -1,9 +1,12 @@
 import { Box, Link, Tab, TabList, Text } from '@bitrise/bitkit';
 import { ReactNode } from 'react';
 
+import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
+import { useCrossFileEntity, useIsMergedConfigSelected } from '@/hooks/useTree';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
@@ -21,23 +24,35 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
   const { replace } = useNavigation();
 
+  const isMergedView = useIsMergedConfigSelected();
+  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('stepBundles', stepBundleId);
+  const shouldJumpToDefinition = isCrossFile || (isMergedView && hasDefinition);
+  const editDefinitionLink = shouldJumpToDefinition ? (
+    <JumpToDefinitionLink kind="stepBundles" id={stepBundleId}>
+      Edit definition
+    </JumpToDefinitionLink>
+  ) : (
+    <Link as="button" colorScheme="purple" onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}>
+      Edit definition
+    </Link>
+  );
+
   const usedIn = StepBundleService.getUsedByText(dependants.length);
   let subtitle: ReactNode = usedIn;
   if (variant === 'drawer') {
+    const middle = isCrossFile ? (
+      <CrossFileProvenanceText definingPath={definingPath} pathTextStyle="body/md/semibold" />
+    ) : (
+      usedIn
+    );
+
     subtitle = (
       <>
         Instance of{' '}
         <Text as="span" textStyle="body/md/semibold">
           {stepBundleId}
         </Text>{' '}
-        • {usedIn} •{' '}
-        <Link
-          as="button"
-          colorScheme="purple"
-          onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}
-        >
-          Edit definition
-        </Link>
+        • {middle} • {editDefinitionLink}
       </>
     );
   }

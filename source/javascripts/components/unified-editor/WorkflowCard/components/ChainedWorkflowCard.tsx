@@ -1,12 +1,15 @@
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { memo, useMemo, useRef } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -29,6 +32,12 @@ type Props = {
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
+  // Cross-file: chained workflow defined in another module; card shows only the reference (its steps/sub-chains are definition-level and omitted).
+  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', id);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isMergedView = useIsMergedConfigSelected();
+  // In the merged view every workflow resolves locally, but its definition still lives in a module — offer a jump.
+  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,6 +65,8 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
       },
     ),
   };
+
+  const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
 
   const isHighlighted = isSelected({ workflowId: id });
   const isPlaceholder = sortable.isDragging;
@@ -85,17 +96,22 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
     return {
       ...common,
+      // Ghost (read-only) tint: cross-file references, and every card in a read-only view.
+      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isDragging, isHighlighted, isPlaceholder]);
+  }, [isDragging, isHighlighted, isPlaceholder, isCrossFile, isReadOnlyView]);
 
   const buttonGroup = useMemo(() => {
-    if (isDragging || (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow)) {
+    if (
+      isDragging ||
+      (!onEditChainedWorkflow && !onChainChainedWorkflow && !onRemoveChainedWorkflow && !showJumpButton)
+    ) {
       return null;
     }
 
     return (
-      <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
+      <ButtonGroup spacing="0" display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
         {onChainChainedWorkflow && (
           <ControlButton
             size="xs"
@@ -117,6 +133,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
             onClick={() => onEditChainedWorkflow(id, parentWorkflowId)}
           />
         )}
+        {showJumpButton && <CrossFileJumpButton kind="workflows" id={id} onOpenChange={setIsJumpPopoverOpen} />}
         {onRemoveChainedWorkflow && (
           <ControlButton
             isDanger
@@ -134,6 +151,9 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     index,
     placement,
     isDragging,
+    showJumpButton,
+    isJumpPopoverOpen,
+    setIsJumpPopoverOpen,
     parentWorkflowId,
     onOpen,
     onEditChainedWorkflow,
@@ -141,7 +161,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     onRemoveChainedWorkflow,
   ]);
 
-  if (!workflow) {
+  if (!workflow && !isCrossFile) {
     return null;
   }
 
@@ -166,7 +186,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
               className="nopan"
               onClick={onToggle}
-              isDisabled={isDragging}
+              isDisabled={isDragging || isCrossFile}
               iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
               aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
               tooltipProps={{
@@ -181,24 +201,26 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                 {placement}
                 {' • '}
-                {WorkflowService.getUsedByText(dependants)}
+                {isCrossFile ? crossFileProvenanceLabel(definingPath) : WorkflowService.getUsedByText(dependants)}
               </Text>
             </Box>
 
             {buttonGroup}
           </Box>
 
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-            <SortableWorkflowsContext containerRef={containerRef}>
-              <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-                <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
+          {!isCrossFile && (
+            <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+              <SortableWorkflowsContext containerRef={containerRef}>
+                <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+                  <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-                <WorkflowStepList workflowId={id} />
+                  <WorkflowStepList workflowId={id} />
 
-                <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
-              </Box>
-            </SortableWorkflowsContext>
-          </Collapse>
+                  <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
+                </Box>
+              </SortableWorkflowsContext>
+            </Collapse>
+          )}
         </>
       )}
     </Card>

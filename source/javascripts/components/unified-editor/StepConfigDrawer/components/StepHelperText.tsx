@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import { Box, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
 import { Collapse } from 'chakra-ui-2--react';
 

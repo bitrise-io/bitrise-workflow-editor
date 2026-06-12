@@ -9,6 +9,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 type StepMenuProps = {
   isHighlighted?: boolean;
   isUpgradable?: boolean;
+  forceVisible?: boolean;
   step?: Step;
   stepBundleId?: string;
   stepIndex: number;
@@ -16,7 +17,7 @@ type StepMenuProps = {
 };
 
 const StepMenu = (props: StepMenuProps) => {
-  const { isHighlighted, isUpgradable, step, stepBundleId, stepIndex, workflowId } = props;
+  const { isHighlighted, isUpgradable, forceVisible, step, stepBundleId, stepIndex, workflowId } = props;
   const {
     onCloneStep,
     onCloneStepInStepBundle,
@@ -130,7 +131,7 @@ const StepMenu = (props: StepMenuProps) => {
         onClick: (e) => {
           e.stopPropagation();
         },
-        display: 'none',
+        display: forceVisible ? 'inline-flex' : 'none',
         _groupHover: { display: 'inline-flex' },
         _active: { display: 'inline-flex' },
       }}

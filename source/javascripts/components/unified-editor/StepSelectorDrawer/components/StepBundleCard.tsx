@@ -1,9 +1,11 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { MouseEvent, useMemo, useRef } from 'react';
+import { MouseEvent, useMemo, useRef, useState } from 'react';
 
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
@@ -11,6 +13,7 @@ import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useStepBundle from '@/hooks/useStepBundle';
+import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -41,6 +44,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
+
+  // Cross-file: bundle definition lives in another module — a subtle tint signals it.
+  const bundleId = StepBundleService.cvsToId(cvs);
+  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('stepBundles', bundleId);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isMergedView = useIsMergedConfigSelected();
+  // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
+  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
   const { isSelected } = useSelection();
   const { onDeleteStep, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -99,6 +110,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     cardPadding = '4px 8px';
   }
 
+  const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
+
   const isHighlighted = isSelected({ workflowId, stepBundleId, stepIndex });
   const isPlaceholder = sortable.isDragging;
   const isButton = onSelectStep && (workflowId || stepBundleId);
@@ -136,23 +149,29 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       } satisfies CardProps;
     }
 
-    return { ...common, ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}) };
-  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
+    return {
+      ...common,
+      // Ghost (read-only) tint: cross-file references, and every card in a read-only view.
+      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
+      ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
+    };
+  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isCrossFile, isReadOnlyView]);
 
   const buttonGroup = useMemo(() => {
-    if ((!workflowId && !stepBundleId) || isDragging || (!onDeleteStep && !onSelectStep)) {
+    if ((!workflowId && !stepBundleId) || isDragging || !onDeleteStep) {
       return null;
     }
 
     return (
       <StepMenu
         isHighlighted={isHighlighted}
+        forceVisible={isJumpPopoverOpen}
         stepBundleId={stepBundleId}
         stepIndex={stepIndex}
         workflowId={workflowId}
       />
     );
-  }, [isDragging, isHighlighted, onDeleteStep, onSelectStep, stepBundleId, stepIndex, workflowId]);
+  }, [isDragging, isHighlighted, isJumpPopoverOpen, onDeleteStep, stepBundleId, stepIndex, workflowId]);
 
   const title = stepBundleInstance.stepBundle?.mergedValues?.title || StepBundleService.cvsToId(cvs);
 
@@ -183,6 +202,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               {isCollapsable && (
                 <ControlButton
                   size="xs"
+                  isDisabled={isCrossFile}
                   tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
                   className="nopan"
                   onClick={(e) => {
@@ -202,7 +222,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {usedInWorkflowsText}
+                    {isCrossFile ? crossFileProvenanceLabel(definingPath) : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
                     <>
@@ -215,14 +235,21 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   )}
                 </Box>
               </Box>
+              {showJumpButton && (
+                <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
+                  <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
+                </Box>
+              )}
               {buttonGroup}
             </Box>
           </Box>
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-            <Box p="8" ref={containerRef}>
-              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
-            </Box>
-          </Collapse>
+          {!isCrossFile && (
+            <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+              <Box p="8" ref={containerRef}>
+                <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+              </Box>
+            </Collapse>
+          )}
         </>
       )}
     </Card>
