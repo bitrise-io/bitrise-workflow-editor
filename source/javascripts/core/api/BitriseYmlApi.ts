@@ -1,9 +1,8 @@
 import {
   EntityIndex,
+  EntityIndexEntries,
   GetConfigResponse,
   MergedConfigResult,
-  SaveTreeConflict,
-  SaveTreeResult,
   TreeNode,
   TreeNodeSource,
 } from '@/core/models/Tree';
@@ -103,7 +102,6 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug, con
 
 const CONFIG_TREE_PATH = `/api/app/:projectSlug/config/tree`;
 const CONFIG_MERGE_PATH = `/api/app/:projectSlug/config/merge`;
-const CONFIG_PUSH_PATH = `/api/app/:projectSlug/config/push`;
 
 type WireTreeNodeSource = {
   path: string | null;
@@ -139,18 +137,6 @@ type WireGetConfigResponse = {
   branch?: string;
 };
 
-type WireSaveTreeResponse = {
-  status: 'ok';
-  warnings?: string[];
-  root: WireTreeNode;
-  entity_index: WireEntityIndex;
-};
-
-type WireSaveTreeConflict = {
-  status: 'conflict';
-  conflicts: Array<{ path: string; remote: WireTreeNode }>;
-};
-
 function mapSource(source: WireTreeNodeSource | null): TreeNodeSource | null {
   if (!source) {
     return null;
@@ -177,7 +163,15 @@ function wireToTreeNode(node: WireTreeNode): TreeNode {
   };
 }
 
-function treeNodeToWire(node: TreeNode): WireTreeNode {
+function treeNodeToWire(node: TreeNode, seen: Set<TreeNode> = new Set()): WireTreeNode {
+  // Identity-based cycle guard: this builds the save/merge payload, so a cyclic
+  // tree (an FE bug — wire payloads are JSON and can't contain cycles) must fail
+  // loudly instead of silently dropping nodes or blowing the stack.
+  if (seen.has(node)) {
+    throw new Error(`Cycle detected in include tree at ${node.path}`);
+  }
+  seen.add(node);
+
   return {
     node_id: node.nodeId,
     path: node.path,
@@ -186,11 +180,11 @@ function treeNodeToWire(node: TreeNode): WireTreeNode {
     commit_sha: node.commitSha,
     editable: node.editable,
     modified: node.modified,
-    includes: node.includes.map(treeNodeToWire),
+    includes: node.includes.map((child) => treeNodeToWire(child, seen)),
   };
 }
 
-function mapEntityEntries(entries: WireEntityEntries = {}): EntityIndex['workflows'] {
+function mapEntityEntries(entries: WireEntityEntries = {}): EntityIndexEntries {
   return Object.fromEntries(
     Object.entries(entries).map(([id, defs]) => [id, defs.map(({ node_id }) => ({ nodeId: node_id }))]),
   );
@@ -269,52 +263,6 @@ async function getMergedConfig({
   return { mergedYml: response?.merged_yml ?? '' };
 }
 
-/** Save the full tree (read-only nodes included, for staleness detection). A 409 conflict throws a `ClientError`; read `mapSaveConflict(error.data)`. */
-async function pushConfigTree({
-  projectSlug,
-  tree,
-  tabOpenDuringSave,
-  conversationId,
-}: {
-  projectSlug: string;
-  tree: TreeNode;
-  tabOpenDuringSave?: string;
-  conversationId?: string;
-}): Promise<SaveTreeResult> {
-  const path = CONFIG_PUSH_PATH.replace(':projectSlug', projectSlug);
-  const response = await Client.post<WireSaveTreeResponse>(path, {
-    body: JSON.stringify({
-      root: treeNodeToWire(tree),
-      tab_open_during_save: tabOpenDuringSave,
-      conversation_id: conversationId,
-    }),
-  });
-
-  if (!response) {
-    throw new Error('Empty response from config push');
-  }
-
-  return {
-    status: 'ok',
-    warnings: response.warnings ?? [],
-    root: wireToTreeNode(response.root),
-    entityIndex: wireToEntityIndex(response.entity_index),
-  };
-}
-
-/** Map a 409 conflict body to the camelCase shape, or `undefined` if the payload isn't a tree conflict. */
-function mapSaveConflict(data?: Record<string, unknown>): SaveTreeConflict | undefined {
-  if (!data || data.status !== 'conflict' || !Array.isArray(data.conflicts)) {
-    return undefined;
-  }
-
-  const conflicts = (data as unknown as WireSaveTreeConflict).conflicts;
-  return {
-    status: 'conflict',
-    conflicts: conflicts.map(({ path, remote }) => ({ path, remote: wireToTreeNode(remote) })),
-  };
-}
-
 export type { GetCiConfigResult };
 
 export default {
@@ -324,8 +272,7 @@ export default {
   getConfig,
   configTreePath,
   getMergedConfig,
-  pushConfigTree,
-  mapSaveConflict,
-  // Exposed so push-to-branch can serialize a full tree to the wire shape.
+  // Exposed so push-to-branch (`BranchesApi.pushBranch`, the canonical tree-save
+  // path) can serialize a full tree to the wire shape.
   treeNodeToWire,
 };

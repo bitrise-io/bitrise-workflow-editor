@@ -50,24 +50,6 @@ export type GetConfigResponse = {
   branch?: string;
 };
 
-export type TreeConflict = {
-  path: string;
-  remote: TreeNode;
-};
-
-export type SaveTreeResult = {
-  status: 'ok';
-  warnings: string[];
-  root: TreeNode;
-  entityIndex: EntityIndex;
-};
-
-/** 409 body carried on `ClientError.data` when a save conflicts. */
-export type SaveTreeConflict = {
-  status: 'conflict';
-  conflicts: TreeConflict[];
-};
-
 export type MergedConfigResult = {
   mergedYml: string;
 };
