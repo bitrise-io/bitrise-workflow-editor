@@ -11,7 +11,7 @@ import {
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
-import { getYmlString } from '@/core/stores/BitriseYmlStore';
+import { getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -21,7 +21,8 @@ export type PushBranchPayload = {
 };
 
 type UsePushBranchOptions = {
-  onSuccess?: (response: { ymlString: string; version: string; branch?: string; commitSha?: string }) => void;
+  /** Called after a successful push + store refresh (e.g. to close the dialog). */
+  onSuccess?: () => void;
   onMergeConflict?: (branch: string) => void;
 };
 
@@ -67,11 +68,10 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
             }
           : undefined,
       });
-      const newConfig = await BitriseYmlApi.getCiConfig({
-        projectSlug: PageProps.appSlug(),
-        branch,
-      });
-      onSuccess?.(newConfig);
+      // Reload the pushed branch so the editor reflects the saved state.
+      const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
+      initializeBitriseYmlDocument(newConfig);
+      onSuccess?.();
     },
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
