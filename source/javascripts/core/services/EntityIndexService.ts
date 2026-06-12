@@ -12,6 +12,10 @@ const KIND_SECTIONS: ReadonlyArray<{ section: string; key: EntityKind }> = [
   { section: 'step_bundles', key: 'stepBundles' },
 ];
 
+function emptyEntityIndex(): EntityIndex {
+  return { workflows: {}, pipelines: {}, stepBundles: {} };
+}
+
 /** All places this entity is defined, in merge order (`[0]` = top-most). */
 function definitionsOf(index: EntityIndex, kind: EntityKind, id: string): EntityDefinition[] {
   return index[kind]?.[id] ?? [];
@@ -24,7 +28,7 @@ function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): strin
 
 /** Build the entity index live from open file documents (mirrors the BE builder) so cross-file detection stays correct before save. */
 function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlDocument: Document }>): EntityIndex {
-  const index: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {} };
+  const index = emptyEntityIndex();
 
   TreeService.walk(tree, (node) => {
     const doc = files[node.nodeId]?.ymlDocument;
@@ -68,6 +72,7 @@ function equals(a: EntityIndex, b: EntityIndex): boolean {
 }
 
 export default {
+  emptyEntityIndex,
   definingNodeId,
   definitionsOf,
   buildFromFiles,
