@@ -103,7 +103,8 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug, con
 const CONFIG_TREE_PATH = `/api/app/:projectSlug/config/tree`;
 const CONFIG_MERGE_PATH = `/api/app/:projectSlug/config/merge`;
 
-type WireTreeNodeSource = {
+// Wire types are exported so MSW mock fixtures can `satisfies`-check against them.
+export type WireTreeNodeSource = {
   path: string | null;
   repository: string | null;
   branch: string | null;
@@ -111,7 +112,7 @@ type WireTreeNodeSource = {
   commit: string | null;
 };
 
-type WireTreeNode = {
+export type WireTreeNode = {
   node_id: string;
   path: string;
   contents: string;
@@ -122,22 +123,22 @@ type WireTreeNode = {
   includes: WireTreeNode[];
 };
 
-type WireEntityEntries = Record<string, Array<{ node_id: string }>>;
+export type WireEntityEntries = Record<string, Array<{ node_id: string }>>;
 
-type WireEntityIndex = {
+export type WireEntityIndex = {
   workflows: WireEntityEntries;
   pipelines: WireEntityEntries;
   step_bundles: WireEntityEntries;
 };
 
-type WireGetConfigResponse = {
+export type WireGetConfigResponse = {
   root: WireTreeNode;
   entity_index: WireEntityIndex;
   merged_yml?: string;
   branch?: string;
 };
 
-function mapSource(source: WireTreeNodeSource | null): TreeNodeSource | null {
+function fromWireSource(source: WireTreeNodeSource | null): TreeNodeSource | null {
   if (!source) {
     return null;
   }
@@ -150,20 +151,20 @@ function mapSource(source: WireTreeNodeSource | null): TreeNodeSource | null {
   };
 }
 
-function wireToTreeNode(node: WireTreeNode): TreeNode {
+function fromWireTreeNode(node: WireTreeNode): TreeNode {
   return {
     nodeId: node.node_id,
     path: node.path,
     contents: node.contents,
-    source: mapSource(node.source),
+    source: fromWireSource(node.source),
     commitSha: node.commit_sha,
     editable: node.editable,
     modified: node.modified,
-    includes: (node.includes ?? []).map(wireToTreeNode),
+    includes: (node.includes ?? []).map(fromWireTreeNode),
   };
 }
 
-function treeNodeToWire(node: TreeNode, seen: Set<TreeNode> = new Set()): WireTreeNode {
+function toWireTreeNode(node: TreeNode, seen: Set<TreeNode> = new Set()): WireTreeNode {
   // Identity-based cycle guard: this builds the save/merge payload, so a cyclic
   // tree (an FE bug — wire payloads are JSON and can't contain cycles) must fail
   // loudly instead of silently dropping nodes or blowing the stack.
@@ -180,21 +181,21 @@ function treeNodeToWire(node: TreeNode, seen: Set<TreeNode> = new Set()): WireTr
     commit_sha: node.commitSha,
     editable: node.editable,
     modified: node.modified,
-    includes: node.includes.map((child) => treeNodeToWire(child, seen)),
+    includes: node.includes.map((child) => toWireTreeNode(child, seen)),
   };
 }
 
-function mapEntityEntries(entries: WireEntityEntries = {}): EntityIndexEntries {
+function fromWireEntityEntries(entries: WireEntityEntries = {}): EntityIndexEntries {
   return Object.fromEntries(
     Object.entries(entries).map(([id, defs]) => [id, defs.map(({ node_id }) => ({ nodeId: node_id }))]),
   );
 }
 
-function wireToEntityIndex(index: WireEntityIndex): EntityIndex {
+function fromWireEntityIndex(index: WireEntityIndex): EntityIndex {
   return {
-    workflows: mapEntityEntries(index.workflows),
-    pipelines: mapEntityEntries(index.pipelines),
-    stepBundles: mapEntityEntries(index.step_bundles),
+    workflows: fromWireEntityEntries(index.workflows),
+    pipelines: fromWireEntityEntries(index.pipelines),
+    stepBundles: fromWireEntityEntries(index.step_bundles),
   };
 }
 
@@ -220,6 +221,10 @@ function configTreePath({
   return [basePath, queryParams.toString()].filter(Boolean).join('?');
 }
 
+function mergeConfigPath(projectSlug: string) {
+  return CONFIG_MERGE_PATH.replace(':projectSlug', projectSlug);
+}
+
 type GetConfigOptions = {
   projectSlug: string;
   signal?: AbortSignal;
@@ -235,12 +240,19 @@ async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetC
   const headerBranch = response.headers.get(CI_CONFIG_BRANCH_HEADER) || undefined;
 
   return {
-    root: wireToTreeNode(wire.root),
-    entityIndex: wireToEntityIndex(wire.entity_index),
+    root: fromWireTreeNode(wire.root),
+    entityIndex: fromWireEntityIndex(wire.entity_index),
     mergedYml: wire.merged_yml,
     branch: wire.branch || headerBranch,
   };
 }
+
+type GetMergedConfigOptions = {
+  projectSlug: string;
+  tree: TreeNode;
+  branch?: string;
+  signal?: AbortSignal;
+};
 
 /** Flatten the current (possibly-edited) tree into a merged config. Posts live contents so the result reflects in-memory edits. */
 async function getMergedConfig({
@@ -248,16 +260,10 @@ async function getMergedConfig({
   tree,
   branch,
   signal,
-}: {
-  projectSlug: string;
-  tree: TreeNode;
-  branch?: string;
-  signal?: AbortSignal;
-}): Promise<MergedConfigResult> {
-  const path = CONFIG_MERGE_PATH.replace(':projectSlug', projectSlug);
-  const response = await Client.post<{ merged_yml: string }>(path, {
+}: GetMergedConfigOptions): Promise<MergedConfigResult> {
+  const response = await Client.post<{ merged_yml: string }>(mergeConfigPath(projectSlug), {
     signal,
-    body: JSON.stringify({ root: treeNodeToWire(tree), branch }),
+    body: JSON.stringify({ root: toWireTreeNode(tree), branch }),
   });
 
   return { mergedYml: response?.merged_yml ?? '' };
@@ -271,8 +277,10 @@ export default {
   saveCiConfig,
   getConfig,
   configTreePath,
+  mergeConfigPath,
   getMergedConfig,
   // Exposed so push-to-branch (`BranchesApi.pushBranch`, the canonical tree-save
-  // path) can serialize a full tree to the wire shape.
-  treeNodeToWire,
+  // path) can serialize a full tree to the wire shape. Deliberate cross-client
+  // import: both clients speak the same wire shape, and one owner beats a copy.
+  toWireTreeNode,
 };
