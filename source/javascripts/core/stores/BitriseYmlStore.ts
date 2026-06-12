@@ -4,7 +4,7 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 import { BitriseYml } from '../models/BitriseYml';
-import { emptyEntityIndex, EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
+import { EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
 import EntityIndexService from '../services/EntityIndexService';
 import TreeService from '../services/TreeService';
 import RuntimeUtils from '../utils/RuntimeUtils';
@@ -55,7 +55,7 @@ export const bitriseYmlStore = createStore(
     // `files` is the source of truth for live contents.
     tree: undefined as TreeNode | undefined,
     files: {} as Record<string, FileSlice>,
-    entityIndex: emptyEntityIndex(),
+    entityIndex: EntityIndexService.emptyEntityIndex(),
     selectedNodeId: undefined as string | undefined,
     openTabs: [] as OpenTab[],
     // The merged tab lives outside `openTabs`, so its page memory is held here.

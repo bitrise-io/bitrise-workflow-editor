@@ -50,7 +50,7 @@ async function getBranches({ appSlug, signal, limit, q }: GetBranchesOptions): P
 
 async function pushBranch({ appSlug, branch, sourceBranch, commitSha, bitriseYml, root, message }: PushBranchOptions) {
   const payload = root
-    ? { branch, source_branch: sourceBranch, commit_sha: commitSha, message, root: BitriseYmlApi.treeNodeToWire(root) }
+    ? { branch, source_branch: sourceBranch, commit_sha: commitSha, message, root: BitriseYmlApi.toWireTreeNode(root) }
     : { branch, source_branch: sourceBranch, commit_sha: commitSha, message, bitrise_yml: bitriseYml };
 
   return Client.post<PushBranchResult>(`/api/app/${appSlug}/config/push`, {
