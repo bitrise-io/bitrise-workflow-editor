@@ -17,7 +17,7 @@ const DefaultStackAndMachine = () => {
   return (
     <div>
       <Text as="h4" textStyle="heading/h4" mb="12">
-        Default stack & machine
+        Global stack & machine config
       </Text>
       <StackAndMachine
         stackId={projectStackId}
