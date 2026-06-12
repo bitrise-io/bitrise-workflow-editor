@@ -53,7 +53,3 @@ export type GetConfigResponse = {
 export type MergedConfigResult = {
   mergedYml: string;
 };
-
-export function emptyEntityIndex(): EntityIndex {
-  return { workflows: {}, pipelines: {}, stepBundles: {} };
-}
