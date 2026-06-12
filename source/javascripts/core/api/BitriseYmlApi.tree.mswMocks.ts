@@ -78,34 +78,4 @@ export const postMergeConfig = (error?: string) => {
   });
 };
 
-export const postConfigPush = (result: 'ok' | 'conflict' | 'error' = 'ok') => {
-  return http.post('/api/app/:slug/config/push', async () => {
-    await delay();
-
-    if (result === 'error') {
-      return HttpResponse.json({ error_msg: 'validation_failed' }, { status: 422 });
-    }
-
-    if (result === 'conflict') {
-      return HttpResponse.json(
-        {
-          status: 'conflict',
-          conflicts: [{ path: 'modules/workflows.yml', remote: ROOT_NODE.includes[0] }],
-        },
-        { status: 409 },
-      );
-    }
-
-    return HttpResponse.json(
-      {
-        status: 'ok',
-        warnings: [],
-        root: ROOT_NODE,
-        entity_index: ENTITY_INDEX,
-      },
-      { status: 200 },
-    );
-  });
-};
-
 export const treeMocks = { ROOT_NODE, ENTITY_INDEX, MODULAR_RESPONSE, SINGLE_NODE_RESPONSE };
