@@ -1,5 +1,5 @@
 import { useToast } from '@bitrise/bitkit';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import {
@@ -11,9 +11,15 @@ import {
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
-import { getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import {
+  applyModularSaveResult,
+  getModularConfigTree,
+  getYmlString,
+  initializeBitriseYmlDocument,
+} from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { CI_CONFIG_TREE_QUERY_KEY } from '@/hooks/useCiConfigTree';
 
 export type PushBranchPayload = {
   branch: string;
@@ -28,9 +34,11 @@ type UsePushBranchOptions = {
 
 function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}) {
   const toast = useToast();
+  const queryClient = useQueryClient();
   const appSlug = PageProps.appSlug();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const configCommitSha = useBitriseYmlStore((s) => s.configCommitSha);
+  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
 
   const [pushError, setPushError] = useState<string | undefined>();
   const clearPushError = () => setPushError(undefined);
@@ -40,14 +48,12 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       if (!configBranch || !configCommitSha) {
         throw new Error('Configuration is not loaded. Please reload and try again.');
       }
-      return BranchesApi.pushBranch({
-        appSlug,
-        branch,
-        sourceBranch: configBranch,
-        commitSha: configCommitSha,
-        bitriseYml: getYmlString(),
-        message,
-      });
+
+      const common = { appSlug, branch, sourceBranch: configBranch, commitSha: configCommitSha, message };
+      // Modular sends the full tree (BE validates merged, then pushes edited files); single-file sends bitrise.yml.
+      return isModular
+        ? BranchesApi.pushBranch({ ...common, root: getModularConfigTree() })
+        : BranchesApi.pushBranch({ ...common, bitriseYml: getYmlString() });
     },
     onMutate: ({ branch }: PushBranchPayload) => {
       trackPushConfigChangesAttempted(configBranch, branch);
@@ -68,9 +74,27 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
             }
           : undefined,
       });
-      // Reload the pushed branch so the editor reflects the saved state.
-      const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
-      initializeBitriseYmlDocument(newConfig);
+
+      // Reload the pushed branch so the editor reflects the saved state. Modular
+      // refreshes the tree in place to preserve open tabs + active selection by
+      // stable node_id (a hard reset would drop back to a single root tab).
+      if (isModular) {
+        const config = await BitriseYmlApi.getConfig({ projectSlug: appSlug, branch });
+        applyModularSaveResult({
+          root: config.root,
+          entityIndex: config.entityIndex,
+          branch: config.branch,
+          commitSha: config.root.commitSha,
+        });
+        // Sync React Query's cache, else a later re-seed from the stale pre-push
+        // entry (e.g. a dev HMR/StrictMode remount) would revert to the old tree.
+        // Scope to the pushed branch — a bare [key, appSlug] prefix would fuzzy-match
+        // and clobber every other branch's cached tree with this branch's config.
+        queryClient.setQueriesData({ queryKey: [CI_CONFIG_TREE_QUERY_KEY, appSlug, branch] }, config);
+      } else {
+        const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
+        initializeBitriseYmlDocument(newConfig);
+      }
       onSuccess?.();
     },
     onError: (error, { branch }) => {
