@@ -1,0 +1,55 @@
+/** The user's `include:` directive verbatim; fields populated iff the user wrote them. `null` on the root. */
+export type TreeNodeSource = {
+  path: string | null;
+  repository: string | null;
+  branch: string | null;
+  tag: string | null;
+  commit: string | null;
+};
+
+export type TreeNode = {
+  /** Opaque on the FE; the BE owns derivation. Identity key (path is not unique). */
+  nodeId: string;
+  path: string;
+  contents: string;
+  source: TreeNodeSource | null;
+  /** Full 40-char SHA the contents were read from; also the conflict token for saves. */
+  commitSha: string;
+  /** Edit-gating source of truth; the FE never re-derives this. */
+  editable: boolean;
+  /** FE→BE save marker: `true` for files changed since load. Set only when building the save payload. */
+  modified?: boolean;
+  includes: TreeNode[];
+};
+
+export type EntityDefinition = { nodeId: string };
+
+/**
+ * `{ entityId: [{ nodeId }, …] }` per kind, in pre-order merge order: index `0` is the
+ * top-most/highest-precedence layer, later entries are lower layers merged underneath.
+ */
+export type EntityIndexEntries = Record<string, EntityDefinition[]>;
+
+/** Which node defines which entity. The FE keeps it live (re-derived from open documents); the BE snapshot is only the seed. */
+export type EntityIndex = {
+  workflows: EntityIndexEntries;
+  pipelines: EntityIndexEntries;
+  /** camelCase ← wire `step_bundles`. */
+  stepBundles: EntityIndexEntries;
+};
+
+export type EntityKind = keyof EntityIndex;
+
+/** Bootstrap response (`GET /config/tree`). Always tree-shaped; a non-modular config is a single root node with `includes: []`. */
+export type GetConfigResponse = {
+  root: TreeNode;
+  entityIndex: EntityIndex;
+  /** Merge of the tree as loaded. Absent if the BE couldn't merge at bootstrap; the FE then fetches it via `POST /config/merge`. */
+  mergedYml?: string;
+  /** From the `X-Config-Branch` response header (the body carries no branch). */
+  branch?: string;
+};
+
+export type MergedConfigResult = {
+  mergedYml: string;
+};
