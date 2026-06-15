@@ -1087,6 +1087,11 @@ describe('WorkflowService', () => {
   describe('addChainedWorkflow', () => {
     const placements: ChainedWorkflowPlacement[] = ['after_run', 'before_run'];
 
+    // Reset regardless of assertion failures, so a populated index can't leak into later tests.
+    afterEach(() => {
+      bitriseYmlStore.setState({ entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} } });
+    });
+
     placements.forEach((placement) => {
       describe(`when placement is '${placement}'`, () => {
         it('should create placement with chained workflow', () => {
@@ -1231,8 +1236,6 @@ describe('WorkflowService', () => {
         WorkflowService.addChainedWorkflow('wf1', 'after_run', 'cross-file-wf');
       }).not.toThrow();
       expect(getYmlString()).toContain('cross-file-wf');
-
-      bitriseYmlStore.setState({ entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} } });
     });
   });
 
