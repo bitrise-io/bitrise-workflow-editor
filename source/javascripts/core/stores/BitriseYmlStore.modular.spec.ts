@@ -9,6 +9,7 @@ import {
   createFile,
   discardBitriseYmlDocument,
   getModularConfigTree,
+  initializeBitriseYmlDocument,
   initializeModularConfig,
   isFileDirty,
   MERGED_CONFIG_NODE_ID,
@@ -215,6 +216,26 @@ describe('BitriseYmlStore — modular tree', () => {
       const state = bitriseYmlStore.getState();
       expect(state.mergedYml).toBe('merged: bootstrap');
       expect(state.mergedYmlStale).toBe(false);
+    });
+  });
+
+  describe('initializeBitriseYmlDocument (legacy init clears modular state)', () => {
+    it('drops the tree, files, tabs and entity index when the legacy single-file init runs', () => {
+      // Sanity: modular state is populated by the beforeEach init().
+      expect(bitriseYmlStore.getState().tree).toBeDefined();
+
+      initializeBitriseYmlDocument({ ymlString: 'workflows:\n  legacy: {}\n', version: '14', branch: 'main' });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.tree).toBeUndefined();
+      expect(state.files).toEqual({});
+      expect(state.openTabs).toEqual([]);
+      expect(state.selectedNodeId).toBeUndefined();
+      expect(state.entityIndex).toEqual({ workflows: {}, pipelines: {}, stepBundles: {} });
+      expect(state.mergedYml).toBeUndefined();
+      expect(state.savedMergedYml).toBeUndefined();
+      // The single-file document is now the one the editor reads.
+      expect(YmlUtils.toYml(state.ymlDocument)).toContain('legacy');
     });
   });
 

@@ -215,6 +215,21 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
   }
 }
 
+/** Modular tree state reset to its initial (empty) values — see the store's initial state. */
+function clearedModularState() {
+  return {
+    tree: undefined,
+    files: {},
+    entityIndex: EntityIndexService.emptyEntityIndex(),
+    selectedNodeId: undefined,
+    openTabs: [],
+    mergedTabLastLocation: undefined,
+    mergedYml: undefined,
+    mergedYmlStale: true,
+    savedMergedYml: undefined,
+  };
+}
+
 export function initializeBitriseYmlDocument({
   ymlString,
   version,
@@ -232,6 +247,11 @@ export function initializeBitriseYmlDocument({
     version,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
+    // The legacy (single-file) init owns the whole store, so clear any modular
+    // tree state. A no-op in pure legacy mode (fields are already empty); guards
+    // against a stale tree/files/tabs leaking in if a modular session ever routes
+    // through a legacy path (branch switch, repository-YAML save, manual update).
+    ...clearedModularState(),
     ...(doc.errors.length === 0
       ? { ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined, __savedInvalidYmlString: undefined }
       : { __invalidYmlString: ymlString, __savedInvalidYmlString: ymlString }),
