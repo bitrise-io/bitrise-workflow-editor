@@ -24,30 +24,48 @@ export default function useMergedConfigSync() {
 
   useEffect(() => {
     if (!isMerged || !isStale || isFetchingRef.current) {
-      return undefined;
+      return;
     }
 
-    const tree = getModularConfigTree();
-    if (!tree) {
-      return undefined;
-    }
-
-    const branch = bitriseYmlStore.getState().configBranch;
-
-    let cancelled = false;
     isFetchingRef.current = true;
-    BitriseYmlApi.getMergedConfig({ projectSlug: PageProps.appSlug(), tree, branch })
-      .then((result) => {
-        if (!cancelled) {
-          setMergedConfig(result.mergedYml);
-        }
-      })
-      .finally(() => {
-        isFetchingRef.current = false;
-      });
 
-    return () => {
-      cancelled = true;
+    // Reads live store state each pass (not closed-over deps), so an edit that lands
+    // while a fetch is in flight — which re-sets mergedYmlStale to true without
+    // toggling it, so the effect never re-runs — is still picked up: the in-flight
+    // result is discarded and a fresh merge runs for the post-edit tree. This also
+    // covers the tab-switch race (merged→file→edit→merged before the first fetch
+    // resolves), where the persistent ref would otherwise block any re-trigger.
+    const runMerge = () => {
+      const state = bitriseYmlStore.getState();
+      if (state.selectedNodeId !== MERGED_CONFIG_NODE_ID || !state.mergedYmlStale) {
+        isFetchingRef.current = false;
+        return;
+      }
+
+      const tree = getModularConfigTree();
+      if (!tree) {
+        isFetchingRef.current = false;
+        return;
+      }
+
+      const requestedTree = JSON.stringify(tree);
+      BitriseYmlApi.getMergedConfig({ projectSlug: PageProps.appSlug(), tree, branch: state.configBranch })
+        .then((result) => {
+          // Apply only if the tree we merged is still current; otherwise an edit landed
+          // mid-flight and the result is stale — re-merge the fresh tree instead.
+          if (JSON.stringify(getModularConfigTree()) === requestedTree) {
+            setMergedConfig(result.mergedYml);
+            isFetchingRef.current = false;
+          } else {
+            runMerge();
+          }
+        })
+        .catch(() => {
+          // Leave it stale; a later edit or tab re-activation retries. Don't loop on a failing merge.
+          isFetchingRef.current = false;
+        });
     };
+
+    runMerge();
   }, [isMerged, isStale]);
 }
