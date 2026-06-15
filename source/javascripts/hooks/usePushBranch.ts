@@ -88,7 +88,9 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         });
         // Sync React Query's cache, else a later re-seed from the stale pre-push
         // entry (e.g. a dev HMR/StrictMode remount) would revert to the old tree.
-        queryClient.setQueriesData({ queryKey: [CI_CONFIG_TREE_QUERY_KEY, appSlug] }, config);
+        // Scope to the pushed branch — a bare [key, appSlug] prefix would fuzzy-match
+        // and clobber every other branch's cached tree with this branch's config.
+        queryClient.setQueriesData({ queryKey: [CI_CONFIG_TREE_QUERY_KEY, appSlug, branch] }, config);
       } else {
         const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
         initializeBitriseYmlDocument(newConfig);
