@@ -112,7 +112,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
     return (
       <ButtonGroup spacing="0" display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
-        {onChainChainedWorkflow && (
+        {onChainChainedWorkflow && !isCrossFile && (
           <ControlButton
             size="xs"
             iconName="Link"
@@ -151,6 +151,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     index,
     placement,
     isDragging,
+    isCrossFile,
     showJumpButton,
     isJumpPopoverOpen,
     setIsJumpPopoverOpen,
