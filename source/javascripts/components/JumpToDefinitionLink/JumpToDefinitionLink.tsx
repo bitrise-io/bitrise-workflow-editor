@@ -1,10 +1,10 @@
 import { Link } from '@bitrise/bitkit';
 import { Popover } from '@chakra-ui/react/popover';
 import { Portal } from '@chakra-ui/react/portal';
-import { ReactElement, ReactNode, useMemo, useState } from 'react';
+import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import FileTreeView from '@/components/FileTreeViewer/FileTreeView';
-import { EntityKind } from '@/core/models/Tree';
+import { EntityKind, TreeNode } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
@@ -37,6 +37,17 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
     [entityIndex, kind, id],
   );
 
+  // Stable identities so FileTreeView's memoized collection isn't rebuilt every render
+  // (a rebuild also silently resets the tree's expansion state).
+  const filterToDefinitions = useCallback((node: TreeNode) => definitionIds.has(node.nodeId), [definitionIds]);
+  const handleSelect = useCallback(
+    (nodeId: string) => {
+      jumpToDefinition(kind, id, nodeId);
+      setIsOpen(false);
+    },
+    [jumpToDefinition, kind, id],
+  );
+
   return (
     <Popover.Root
       open={isOpen}
@@ -67,16 +78,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
             boxShadow="large"
           >
             <Popover.Body p="8" maxHeight="50vh" overflowY="auto">
-              {tree && (
-                <FileTreeView
-                  rootNode={tree}
-                  filter={(node) => definitionIds.has(node.nodeId)}
-                  onSelect={(nodeId) => {
-                    jumpToDefinition(kind, id, nodeId);
-                    setIsOpen(false);
-                  }}
-                />
-              )}
+              {tree && <FileTreeView rootNode={tree} filter={filterToDefinitions} onSelect={handleSelect} />}
             </Popover.Body>
           </Popover.Content>
         </Popover.Positioner>

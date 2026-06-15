@@ -44,7 +44,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   defaultValue={instanceValue ? defaultValue : undefined}
                   isSensitive={opts?.is_sensitive}
                   options={opts?.value_options ?? []}
-                  isDisabled={opts?.is_dont_change_value}
+                  isDisabled={opts?.is_dont_change_value || isReadOnlyView}
                   onChange={(changedValue) => onChange(key, changedValue, index)}
                 />
               )}
@@ -57,7 +57,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   defaultValue={defaultValue}
                   isRequired={opts?.is_required}
                   isSensitive={opts?.is_sensitive}
-                  isDisabled={opts?.is_dont_change_value}
+                  isDisabled={opts?.is_dont_change_value || isReadOnlyView}
                   onChange={(changedValue) => onChange(key, changedValue, index)}
                   flex={1}
                   formLabelProps={{

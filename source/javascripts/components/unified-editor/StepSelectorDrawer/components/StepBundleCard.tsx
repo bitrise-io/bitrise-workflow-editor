@@ -53,7 +53,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
   const { isSelected } = useSelection();
-  const { onDeleteStep, onSelectStep } = useStepActions();
+  const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
 
@@ -158,7 +158,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isCrossFile, isReadOnlyView]);
 
   const buttonGroup = useMemo(() => {
-    if ((!workflowId && !stepBundleId) || isDragging || !onDeleteStep) {
+    // The menu's actions come from onDeleteStep OR onDeleteStepInStepBundle (the latter for
+    // step bundles nested inside step bundles, e.g. the StepBundles page) — gate on both so
+    // read-only (which strips them) hides the menu without hiding it for nested bundles.
+    if ((!workflowId && !stepBundleId) || isDragging || (!onDeleteStep && !onDeleteStepInStepBundle)) {
       return null;
     }
 
@@ -171,7 +174,16 @@ const StepBundleCard = (props: StepBundleCardProps) => {
         workflowId={workflowId}
       />
     );
-  }, [isDragging, isHighlighted, isJumpPopoverOpen, onDeleteStep, stepBundleId, stepIndex, workflowId]);
+  }, [
+    isDragging,
+    isHighlighted,
+    isJumpPopoverOpen,
+    onDeleteStep,
+    onDeleteStepInStepBundle,
+    stepBundleId,
+    stepIndex,
+    workflowId,
+  ]);
 
   const title = stepBundleInstance.stepBundle?.mergedValues?.title || StepBundleService.cvsToId(cvs);
 
