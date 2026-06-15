@@ -24,6 +24,7 @@ const TriggerCard = (props: TriggerCardProps) => {
 
   const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
     id: triggerItem.uniqueId,
+    disabled: isReadOnlyView,
   });
 
   const style: CardProps = {
