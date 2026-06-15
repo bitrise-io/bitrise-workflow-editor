@@ -3,8 +3,9 @@ import { Document, isMap, isSeq } from 'yaml';
 
 import { Pipelines, Stages, WorkflowModel, Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
-import { updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
+import EntityIndexService from './EntityIndexService';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -87,7 +88,6 @@ function getWorkflowChain(workflows: Workflows, id: string): string[] {
 
 function getAllWorkflowChains(workflows: Workflows): Record<string, string[]> {
   return Object.keys(workflows || {}).reduce<Record<string, string[]>>((chains, id) => {
-    // eslint-disable-next-line no-param-reassign
     chains[id] = getWorkflowChain(workflows, id);
     return chains;
   }, {});
@@ -153,6 +153,19 @@ function getWorkflowOrThrowError(id: string, doc: Document) {
   }
 
   return workflow;
+}
+
+/** Assert a workflow can be referenced (chained / added to a pipeline); accepts a cross-file id known to the entity index. */
+function assertWorkflowReferenceable(id: string, doc: Document) {
+  if (YmlUtils.getMapIn(doc, ['workflows', id])) {
+    return;
+  }
+  const isCrossFile = Boolean(
+    EntityIndexService.definingNodeId(bitriseYmlStore.getState().entityIndex, 'workflows', id),
+  );
+  if (!isCrossFile) {
+    getWorkflowOrThrowError(id, doc);
+  }
 }
 
 function createWorkflow(id: string, baseId?: string) {
@@ -259,7 +272,7 @@ function addChainedWorkflow(prentWorkflowId: string, placement: ChainedWorkflowP
     }
 
     const parentWorkflow = getWorkflowOrThrowError(prentWorkflowId, doc);
-    getWorkflowOrThrowError(chainableWorkflowId, doc);
+    assertWorkflowReferenceable(chainableWorkflowId, doc);
 
     YmlUtils.addIn(parentWorkflow, [placement], chainableWorkflowId);
 
@@ -337,6 +350,7 @@ export default {
   getDependantWorkflows,
   countInPipelines,
   getWorkflowOrThrowError,
+  assertWorkflowReferenceable,
   createWorkflow,
   renameWorkflow,
   updateWorkflowField,

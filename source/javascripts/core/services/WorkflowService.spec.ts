@@ -1,6 +1,6 @@
 import { Workflows } from '../models/BitriseYml';
 import { ChainedWorkflowPlacement } from '../models/Workflow';
-import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
@@ -1087,6 +1087,11 @@ describe('WorkflowService', () => {
   describe('addChainedWorkflow', () => {
     const placements: ChainedWorkflowPlacement[] = ['after_run', 'before_run'];
 
+    // Reset regardless of assertion failures, so a populated index can't leak into later tests.
+    afterEach(() => {
+      bitriseYmlStore.setState({ entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} } });
+    });
+
     placements.forEach((placement) => {
       describe(`when placement is '${placement}'`, () => {
         it('should create placement with chained workflow', () => {
@@ -1214,6 +1219,23 @@ describe('WorkflowService', () => {
       expect(() => {
         WorkflowService.addChainedWorkflow('wf1', 'invalid_placement' as ChainedWorkflowPlacement, 'wf2');
       }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
+    });
+
+    it('chains a cross-file workflow (defined in another module) without throwing', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            wf1: {}
+        `,
+      );
+      bitriseYmlStore.setState({
+        entityIndex: { workflows: { 'cross-file-wf': [{ nodeId: 'n_other' }] }, pipelines: {}, stepBundles: {} },
+      });
+
+      expect(() => {
+        WorkflowService.addChainedWorkflow('wf1', 'after_run', 'cross-file-wf');
+      }).not.toThrow();
+      expect(getYmlString()).toContain('cross-file-wf');
     });
   });
 

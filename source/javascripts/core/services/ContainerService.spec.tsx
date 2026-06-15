@@ -1662,20 +1662,21 @@ describe('ContainerService', () => {
         expect(result).toBeUndefined();
       });
 
-      it('should throw error when step bundle does not exist', () => {
+      it('returns undefined when the step bundle is defined in another file (cross-file reference)', () => {
         updateBitriseYmlDocumentByString(yaml`
         step_bundles:
           my_bundle:
             execution_container: ubuntu
       `);
 
-        expect(() =>
+        // Must resolve to undefined, not throw — throwing here crashes the card during render.
+        expect(
           ContainerService.getContainerReferencesFromStepBundleDefinition(
             'non_existent',
             ContainerType.Execution,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow("Step bundle 'non_existent' not found");
+        ).toBeUndefined();
       });
     });
 
@@ -1811,7 +1812,7 @@ describe('ContainerService', () => {
         expect(result).toEqual([{ id: 'postgres', recreate: false }]);
       });
 
-      it('should throw error when step bundle does not exist', () => {
+      it('returns undefined when the step bundle is defined in another file (cross-file reference)', () => {
         updateBitriseYmlDocumentByString(yaml`
         step_bundles:
           my_bundle:
@@ -1819,13 +1820,14 @@ describe('ContainerService', () => {
               - postgres
       `);
 
-        expect(() =>
+        // Must resolve to undefined, not throw — throwing here crashes the card during render.
+        expect(
           ContainerService.getContainerReferencesFromStepBundleDefinition(
             'non_existent',
             ContainerType.Service,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow("Step bundle 'non_existent' not found");
+        ).toBeUndefined();
       });
     });
 
