@@ -18,10 +18,16 @@ function fileSwitchDialogRefs(): FileSwitchDialogRefs | null {
     return null;
   }
 
+  // Both the step-config and the nested-step-bundle drawer render at selectedStepIndices[0],
+  // so a file switch must drop either if that step index no longer resolves in the new file.
+  const usesStepIndex =
+    openedDialogType === StepBundlesPageDialogType.STEP_CONFIG ||
+    openedDialogType === StepBundlesPageDialogType.STEP_BUNDLE;
+
   return {
     stepBundleIds: [stepBundleId],
     steps:
-      openedDialogType === StepBundlesPageDialogType.STEP_CONFIG && stepBundleId
+      usesStepIndex && stepBundleId
         ? { source: 'step_bundles', sourceId: stepBundleId, indices: selectedStepIndices }
         : undefined,
   };
