@@ -45,7 +45,7 @@ const FileTreeViewer = () => {
             border="1px solid"
             borderColor="border/regular"
             borderRadius="12px"
-            boxShadow="0 2px 24px 0 rgba(0, 0, 0, 0.08)"
+            boxShadow="elevation/lg"
           >
             <Box
               display="flex"
