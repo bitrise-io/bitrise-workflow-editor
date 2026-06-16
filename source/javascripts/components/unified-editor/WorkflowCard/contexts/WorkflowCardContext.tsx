@@ -76,9 +76,8 @@ function useWorkflowActions(): WorkflowActions {
   }
 
   return useMemo(() => {
-    // Read-only views (merged config, cross-repo/ref files) keep only the inspection actions —
-    // cards render their mutating controls based on callback presence, so stripping them here
-    // removes those controls everywhere at once.
+    // Cards render mutating controls based on callback presence, so dropping the callbacks in a
+    // read-only view removes those controls everywhere; only the inspection actions are kept.
     if (isReadOnlyView) {
       return pick(methods, ['onEditWorkflow', 'onEditChainedWorkflow']);
     }
@@ -105,7 +104,6 @@ const useStepActions = (): StepActions => {
   }
 
   return useMemo(() => {
-    // Same as useWorkflowActions: selection stays available for inspection, mutations are stripped.
     if (isReadOnlyView) {
       return pick(methods, ['onSelectStep']);
     }

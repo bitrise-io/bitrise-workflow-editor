@@ -32,11 +32,9 @@ type Props = {
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
-  // Cross-file: chained workflow defined in another module; card shows only the reference (its steps/sub-chains are definition-level and omitted).
   const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', id);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
-  // In the merged view every workflow resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
@@ -96,7 +94,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
     return {
       ...common,
-      // Ghost (read-only) tint: cross-file references, and every card in a read-only view.
       ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };

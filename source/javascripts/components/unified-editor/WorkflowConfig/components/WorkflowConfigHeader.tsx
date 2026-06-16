@@ -22,9 +22,6 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   const dependants = useDependantWorkflows({ workflowId: id });
 
-  // Cross-file: definition lives in another module; only instance-level config is editable here, so
-  // definition tabs are disabled and a jump link is offered. In the merged view every workflow
-  // resolves locally (isCrossFile false), but the definition still lives in a module — offer a jump.
   const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', id);
   const isMergedView = useIsMergedConfigSelected();
   const showDefinitionLink = isCrossFile || (isMergedView && hasDefinition);

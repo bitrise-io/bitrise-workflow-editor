@@ -3,11 +3,6 @@ import { useState } from 'react';
 
 import { useReadOnlyView, useSelectedNodeId } from '@/hooks/useTree';
 
-/**
- * Blue info banner floating over the Monaco editor (the parent must be `position: relative`)
- * whenever the active view is read-only: the Merged config preview, or a file included from
- * another repo/ref. Dismissible per tab — switching to another read-only tab shows it again.
- */
 const ReadOnlyViewNotification = () => {
   const { isReadOnly, isMergedConfig } = useReadOnlyView();
   const selectedNodeId = useSelectedNodeId();

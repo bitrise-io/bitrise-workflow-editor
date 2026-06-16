@@ -188,7 +188,6 @@ const StepCard = ({
       borderRadius: '4',
       variant: 'outline',
       className: 'group',
-      // Ghost (read-only) tint: every card in a read-only view.
       ...(isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
