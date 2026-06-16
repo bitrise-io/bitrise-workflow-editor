@@ -8,7 +8,7 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { BitkitSegmentedControl, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
+import { BitkitSegmentedControl, BitkitTooltip, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -285,25 +285,25 @@ const Header = () => {
         {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>Workflow Editor</BreadcrumbLink>}
       </Breadcrumb>
 
-      <BitkitSegmentedControl
-        size="sm"
-        value={editorView}
-        aria-label="Editor view"
-        onValueChange={(details) => handleEditorViewChange(details.value)}
+      <BitkitTooltip
+        disabled={ymlStatus !== 'invalid'}
+        placement={isMobile ? 'bottom' : 'bottom-start'}
+        text="YAML is invalid, please fix it before switching to the Visual editor."
       >
-        <Tooltip
-          isDisabled={ymlStatus !== 'invalid'}
-          placement={isMobile ? 'bottom' : 'bottom-start'}
-          label="YAML is invalid, please fix it before switching to the Visual editor."
+        <BitkitSegmentedControl
+          size="sm"
+          value={editorView}
+          aria-label="Editor view"
+          onValueChange={(details) => handleEditorViewChange(details.value)}
         >
           <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={ymlStatus === 'invalid'}>
             Visual
           </BitkitSegmentedControl.Item>
-        </Tooltip>
-        <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
-          YAML
-        </BitkitSegmentedControl.Item>
-      </BitkitSegmentedControl>
+          <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
+            YAML
+          </BitkitSegmentedControl.Item>
+        </BitkitSegmentedControl>
+      </BitkitTooltip>
 
       <Box
         gap="8"
