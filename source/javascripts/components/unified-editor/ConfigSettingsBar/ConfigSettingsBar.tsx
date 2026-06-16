@@ -143,7 +143,7 @@ const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
           </BitkitActionMenu.Item>
         </BitkitActionMenu.Root>
         {showValidationBadge && (
-          <Skeleton loading={isCiConfigLoading}>
+          <Skeleton loading={isCiConfigLoading} width={isCiConfigLoading ? '96' : undefined} flexShrink="0">
             <BitkitBadge colorVariant={validationBadge.colorVariant} icon={validationBadge.icon} flexShrink="0">
               {validationBadge.label}
             </BitkitBadge>
