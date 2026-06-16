@@ -39,9 +39,9 @@ import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/Configurati
 import SwitchBranchDialog from '../SwitchBranchDialog/SwitchBranchDialog';
 
 const VALIDATION_BADGE = {
-  valid: { colorPalette: 'green', icon: IconCheckCircle, label: 'Valid' },
-  warnings: { colorPalette: 'yellow', icon: IconWarning, label: 'Warnings' },
-  invalid: { colorPalette: 'red', icon: IconErrorCircle, label: 'Invalid' },
+  valid: { colorVariant: 'green', icon: IconCheckCircle, label: 'Valid' },
+  warnings: { colorVariant: 'yellow', icon: IconWarning, label: 'Warnings' },
+  invalid: { colorVariant: 'red', icon: IconErrorCircle, label: 'Invalid' },
 } as const;
 
 type Props = BoxProps & {
@@ -141,7 +141,7 @@ const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
           </BitkitActionMenu.Item>
         </BitkitActionMenu.Root>
         {showValidationBadge && (
-          <BitkitBadge colorPalette={validationBadge.colorPalette} icon={validationBadge.icon} flexShrink="0">
+          <BitkitBadge colorVariant={validationBadge.colorVariant} icon={validationBadge.icon} flexShrink="0">
             {validationBadge.label}
           </BitkitBadge>
         )}
