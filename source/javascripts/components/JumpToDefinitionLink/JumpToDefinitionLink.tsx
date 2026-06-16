@@ -35,8 +35,11 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
     (nodeId: string) => {
       jumpToDefinition(kind, id, nodeId);
       setIsOpen(false);
+      // Closing via the controlled prop doesn't fire Popover.onOpenChange, so notify callers
+      // tracking open state (e.g. a card's isJumpPopoverOpen) ourselves.
+      onOpenChange?.(false);
     },
-    [jumpToDefinition, kind, id],
+    [jumpToDefinition, kind, id, onOpenChange],
   );
 
   return (
