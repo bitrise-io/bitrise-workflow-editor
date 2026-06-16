@@ -20,7 +20,7 @@ type Props = {
 
 const NameInput = ({ onRename, isDisabled }: Pick<Props, 'onRename'> & { isDisabled?: boolean }) => {
   const rename = useRenameWorkflow(onRename);
-  const value = useWorkflowConfigContext((s) => s?.id || '');
+  const value = useWorkflowConfigId();
   const otherWorkflows = Object.keys(getBitriseYml().workflows ?? {});
 
   const handleCommit = (newValue: string) => {
