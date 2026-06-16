@@ -13,17 +13,14 @@ import FileTreeService, { FileTreeFolder, FileTreeGroup } from '@/core/services/
 import PageProps from '@/core/utils/PageProps';
 
 type Props = {
-  /** The real tree root; grouping + folder layout are derived from it. */
   rootNode: TreeNode;
-  /** When set, only files matching this predicate are shown (e.g. dirty-only). */
   filter?: (node: TreeNode) => boolean;
   selectedNodeId?: string;
   onSelect: (nodeId: string) => void;
-  /** Optional predicate to disable (non-selectable, greyed) individual files. */
   isNodeDisabled?: (node: TreeNode) => boolean;
 };
 
-// One collection node: group root, folder, or file leaf. Folder ids are path strings, file ids are node_ids.
+// Folder ids are path strings, file ids are node_ids.
 type RenderNode = {
   id: string;
   label: string;
@@ -47,7 +44,6 @@ function toRenderNode(folder: FileTreeFolder): RenderNode[] {
       children: [],
     }),
   );
-  // Files before folders at every level, matching the design.
   return [...files, ...folders];
 }
 
@@ -110,11 +106,6 @@ const GroupTree = ({
   );
 };
 
-/**
- * Shared file/folder selector (Open module popover, global diff switcher, jump-to-def
- * chooser). Files grouped by effective repository (working repo first) and laid out by
- * path with single-child chains collapsed. Pure presentation — shaping lives in `FileTreeService`.
- */
 const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
   const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
 

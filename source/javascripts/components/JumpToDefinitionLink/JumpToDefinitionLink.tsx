@@ -13,19 +13,11 @@ import { useTree } from '@/hooks/useTree';
 type Props = {
   kind: EntityKind;
   id: string;
-  /** Default trigger content, rendered inside a purple text Link. */
   children?: ReactNode;
-  /** Custom trigger element used as the popover trigger. Takes precedence over `children`. */
   trigger?: ReactElement<{ onClick?: () => void }>;
-  /** Called when the multi-definition chooser popover opens or closes. */
   onOpenChange?: (isOpen: boolean) => void;
 };
 
-/**
- * The "Edit / Go to definition" link in a cross-file drawer header. Always opens a
- * chooser popover — for a single definition the user picks the one file; for multiple
- * definitions (override, or same path from different refs) they pick which layer to open.
- */
 const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Props) => {
   const tree = useTree();
   const entityIndex = useEntityIndex();
@@ -37,8 +29,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
     [entityIndex, kind, id],
   );
 
-  // Stable identities so FileTreeView's memoized collection isn't rebuilt every render
-  // (a rebuild also silently resets the tree's expansion state).
+  // Stable identities: a new closure rebuilds FileTreeView's collection and resets its expansion state.
   const filterToDefinitions = useCallback((node: TreeNode) => definitionIds.has(node.nodeId), [definitionIds]);
   const handleSelect = useCallback(
     (nodeId: string) => {

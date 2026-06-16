@@ -5,7 +5,6 @@ type Props = {
   definingPath?: string;
 };
 
-/** Disabled stand-in for a definition-level card (Env Vars, Stack & Machine) when the workflow is a cross-file reference; points the user at the defining file. */
 const CrossFileDefinitionCard = ({ title, definingPath }: Props) => (
   <Card variant="outline" opacity={0.6} cursor="not-allowed">
     <Box display="flex" alignItems="center" justifyContent="space-between" padding="16px 24px">
