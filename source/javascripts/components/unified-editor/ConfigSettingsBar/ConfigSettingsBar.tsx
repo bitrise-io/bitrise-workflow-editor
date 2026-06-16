@@ -29,6 +29,7 @@ import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
@@ -51,6 +52,7 @@ type Props = BoxProps & {
 const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
   const ymlStatus = useYmlValidationStatus();
   const validationBadge = VALIDATION_BADGE[ymlStatus];
+  const { isLoading: isCiConfigLoading } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
 
@@ -141,9 +143,11 @@ const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
           </BitkitActionMenu.Item>
         </BitkitActionMenu.Root>
         {showValidationBadge && (
-          <BitkitBadge colorVariant={validationBadge.colorVariant} icon={validationBadge.icon} flexShrink="0">
-            {validationBadge.label}
-          </BitkitBadge>
+          <Skeleton loading={isCiConfigLoading}>
+            <BitkitBadge colorVariant={validationBadge.colorVariant} icon={validationBadge.icon} flexShrink="0">
+              {validationBadge.label}
+            </BitkitBadge>
+          </Skeleton>
         )}
       </Box>
       <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />

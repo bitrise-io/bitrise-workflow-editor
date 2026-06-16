@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
+import { getCiConfig, getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
 
 import ConfigSettingsBar from './ConfigSettingsBar';
 
@@ -12,7 +12,7 @@ export default {
   },
   parameters: {
     msw: {
-      handlers: [getYmlSettings()],
+      handlers: [getCiConfig(), getYmlSettings()],
     },
   },
 } as Meta<typeof ConfigSettingsBar>;
