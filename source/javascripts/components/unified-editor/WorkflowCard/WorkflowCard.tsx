@@ -75,11 +75,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
-  // Cross-file: workflow defined in another module, so render only the reference (no steps/chains); card stays clickable for instance-level props.
   const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', workflowId);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
-  // In the merged view every workflow resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
@@ -94,7 +92,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
-      // Ghost (read-only) tint: cross-file references, and every card in a read-only view.
       ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
@@ -144,7 +141,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
         {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
           <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
-            {/* Chaining writes into the definition, which is in another file for a cross-file reference — so hidden there. */}
+            {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
             {onChainWorkflow && !isCrossFile && (
               <ControlButton
                 size="xs"

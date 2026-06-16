@@ -20,7 +20,6 @@ const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) 
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(id);
   const isChainedWorkflow = !!parentWorkflowId;
 
-  // Cross-file: definition (envs, stack/machine) lives in another module, so show disabled stand-ins; only instance-level pipeline conditions stay editable.
   const { isCrossFile, definingPath } = useCrossFileEntity('workflows', id);
 
   const showStackAndMachine = RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow;

@@ -151,7 +151,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
     return {
       ...common,
-      // Ghost (read-only) tint: cross-file references, and every card in a read-only view.
       ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };

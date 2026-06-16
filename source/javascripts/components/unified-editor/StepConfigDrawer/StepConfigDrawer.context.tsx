@@ -2,7 +2,6 @@ import { createContext, useContext } from 'react';
 
 import { Step } from '@/core/models/Step';
 
-// Provider component lives in StepConfigDrawerProvider.tsx so this module exports only non-components, keeping React Fast Refresh happy.
 export type StepConfigDrawerContextProps = { workflowId: string; stepIndex: number; stepBundleId?: string };
 export type StepConfigDrawerState = {
   workflowId: string;

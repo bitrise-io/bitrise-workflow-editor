@@ -11,11 +11,6 @@ type Props = {
   onOpenChange?: (isOpen: boolean) => void;
 };
 
-/**
- * The "Go to definition" icon button on a cross-file card. Shown on hover alongside
- * other card controls; the wrapper stops the click from selecting the card (and `nopan`
- * keeps the canvas from panning).
- */
 const CrossFileJumpButton = ({ kind, id, onOpenChange }: Props) => (
   <Box onClick={(e) => e.stopPropagation()} className="nopan">
     <JumpToDefinitionLink
