@@ -3,10 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import { useWorkflowConfigId } from '../WorkflowConfig.context';
 
 const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
-  const selectedWorkflowId = useWorkflowConfigContext((s) => s?.id || '');
+  const selectedWorkflowId = useWorkflowConfigId();
   const workflowIdsInTheStore = useBitriseYmlStore((s) => Object.keys(s.yml.workflows ?? {}));
 
   const [isRenaming, setIsRenaming] = useState(false);
