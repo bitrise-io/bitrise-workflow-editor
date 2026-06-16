@@ -10,7 +10,7 @@ import DeleteWorkflowDialog from '../../DeleteWorkflowDialog/DeleteWorkflowDialo
 import PriorityInput from '../../PriorityInput/PriorityInput';
 import GitStatusNameInput from '../components/GitStatusNameInput';
 import useRenameWorkflow from '../hooks/useRenameWorkflow';
-import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -94,7 +94,10 @@ const GitStatusName = ({ workflowId, isDisabled }: { workflowId: string; isDisab
 };
 
 const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
-  const workflowId = useWorkflowConfigContext((s) => s?.id || '');
+  // Read the id straight from context: it resolves even for a cross-file workflow (not in
+  // local yml), so mutations never target an empty id if the tab is ever rendered via a
+  // stale ?tab=properties URL. (`useWorkflowConfigContext(s => s?.id)` returns '' there.)
+  const workflowId = useWorkflowConfigId();
   const isReadOnlyView = useIsReadOnlyView();
   const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
