@@ -1,13 +1,17 @@
 import {
   BitkitActionMenu,
+  BitkitBadge,
   BitkitControlButton,
   BitkitList,
   BitkitOverflowTooltip,
   BitkitTooltip,
   IconBranch,
+  IconCheckCircle,
   IconDownload,
+  IconErrorCircle,
   IconFolder,
   IconMoreVertical,
+  IconWarning,
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
@@ -29,11 +33,24 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
+import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/ConfigurationYmlStorageDialog';
 
 import SwitchBranchDialog from '../SwitchBranchDialog/SwitchBranchDialog';
 
-const ConfigSettingsBar = (props: BoxProps) => {
+const VALIDATION_BADGE = {
+  valid: { colorPalette: 'green', icon: IconCheckCircle, label: 'Valid' },
+  warnings: { colorPalette: 'yellow', icon: IconWarning, label: 'Warnings' },
+  invalid: { colorPalette: 'red', icon: IconErrorCircle, label: 'Invalid' },
+} as const;
+
+type Props = BoxProps & {
+  showValidationBadge?: boolean;
+};
+
+const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
+  const ymlStatus = useYmlValidationStatus();
+  const validationBadge = VALIDATION_BADGE[ymlStatus];
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
 
@@ -91,34 +108,44 @@ const ConfigSettingsBar = (props: BoxProps) => {
           </Box>
         )}
       </Box>
-      <BitkitActionMenu.Root size="md" trigger={<BitkitControlButton icon={IconMoreVertical} label="More" size="xs" />}>
-        {enableBranchSwitching && data?.usesRepositoryYml && (
-          <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
-            <BitkitActionMenu.Item
-              value="switch-branch"
-              icon={IconBranch}
-              disabled={hasChanges}
-              onClick={() => {
-                setIsSwitchBranchDialogOpen(true);
-                trackBranchSwitchPopupShown();
-              }}
-            >
-              Switch branch...
-            </BitkitActionMenu.Item>
-          </BitkitTooltip>
-        )}
-        <BitkitActionMenu.Item value="download-yml" icon={IconDownload} onClick={handleDownload}>
-          Download YAML file
-        </BitkitActionMenu.Item>
-        <BitkitActionMenu.Item
-          value="change-storage"
-          icon={IconFolder}
-          disabled={isPending}
-          onClick={handleStorageChange}
+      <Box display="flex" alignItems="center" gap="8">
+        <BitkitActionMenu.Root
+          size="md"
+          trigger={<BitkitControlButton icon={IconMoreVertical} label="More" size="xs" />}
         >
-          Change storage...
-        </BitkitActionMenu.Item>
-      </BitkitActionMenu.Root>
+          {enableBranchSwitching && data?.usesRepositoryYml && (
+            <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
+              <BitkitActionMenu.Item
+                value="switch-branch"
+                icon={IconBranch}
+                disabled={hasChanges}
+                onClick={() => {
+                  setIsSwitchBranchDialogOpen(true);
+                  trackBranchSwitchPopupShown();
+                }}
+              >
+                Switch branch...
+              </BitkitActionMenu.Item>
+            </BitkitTooltip>
+          )}
+          <BitkitActionMenu.Item value="download-yml" icon={IconDownload} onClick={handleDownload}>
+            Download YAML file
+          </BitkitActionMenu.Item>
+          <BitkitActionMenu.Item
+            value="change-storage"
+            icon={IconFolder}
+            disabled={isPending}
+            onClick={handleStorageChange}
+          >
+            Change storage...
+          </BitkitActionMenu.Item>
+        </BitkitActionMenu.Root>
+        {showValidationBadge && (
+          <BitkitBadge colorPalette={validationBadge.colorPalette} icon={validationBadge.icon} flexShrink="0">
+            {validationBadge.label}
+          </BitkitBadge>
+        )}
+      </Box>
       <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
       <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={() => setIsStorageDialogOpen(false)} />
     </Box>
