@@ -85,13 +85,6 @@ const Header = () => {
 
       if (value === 'visual') {
         if (ymlStatus === 'invalid') {
-          toast({
-            status: 'error',
-            title: 'Invalid YAML',
-            description: 'Please fix the errors in your YAML configuration before navigating.',
-            duration: null,
-            isClosable: true,
-          });
           return;
         }
 
@@ -101,7 +94,7 @@ const Header = () => {
         );
       }
     },
-    [searchParams, navigate, ymlStatus, toast],
+    [searchParams, navigate, ymlStatus],
   );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -298,9 +291,15 @@ const Header = () => {
         aria-label="Editor view"
         onValueChange={(details) => handleEditorViewChange(details.value)}
       >
-        <BitkitSegmentedControl.Item icon={IconWebUi} value="visual">
-          Visual
-        </BitkitSegmentedControl.Item>
+        <Tooltip
+          isDisabled={ymlStatus !== 'invalid'}
+          placement={isMobile ? 'bottom' : 'bottom-start'}
+          label="YAML is invalid, please fix it before switching to the Visual editor."
+        >
+          <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={ymlStatus === 'invalid'}>
+            Visual
+          </BitkitSegmentedControl.Item>
+        </Tooltip>
         <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
           YAML
         </BitkitSegmentedControl.Item>
