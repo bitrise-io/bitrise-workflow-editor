@@ -79,7 +79,7 @@ const LegacyTriggers = () => {
           Learn more
         </Link>
       </Text>
-      <ConvertLegacyTriggers triggers={triggers} />
+      {!isReadOnlyView && <ConvertLegacyTriggers triggers={triggers} />}
       <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
         <TabList>
           <Tab>Push</Tab>
