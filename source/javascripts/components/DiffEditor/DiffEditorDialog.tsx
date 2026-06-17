@@ -34,11 +34,8 @@ import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
 type ContentProps = {
   onClose: VoidFunction;
-  /** Diff and write back this file slice instead of the active document. */
   nodeId?: string;
-  /** Left-side slot for switching between files (e.g. the global diff's file tree). */
   fileSelector?: ReactNode;
-  /** Force-disable applying changes (e.g. the selected file is not editable). */
   isReadOnly?: boolean;
 };
 
@@ -193,10 +190,10 @@ export const DiffEditorDialogShell = ({ onClose, children, ...rest }: Omit<Dialo
   );
 };
 
-const DiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
+const DiffEditorDialog = ({ onClose, nodeId, ...rest }: Omit<DialogProps, 'title'> & { nodeId?: string }) => {
   return (
     <DiffEditorDialogShell {...rest} onClose={onClose}>
-      <DiffEditorDialogContent onClose={onClose} />
+      <DiffEditorDialogContent onClose={onClose} nodeId={nodeId} />
     </DiffEditorDialogShell>
   );
 };

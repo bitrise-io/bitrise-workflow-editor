@@ -46,11 +46,6 @@ const SOURCE_FIELDS = [
   { key: 'commit', label: 'Commit', placeholder: 'full or short SHA' },
 ] as const;
 
-/**
- * "Add module file" button + dialog: create a new editable module file, or add an
- * `include:` to an existing file. The include is always written into the active tab's
- * file; disabled on the Merged Config tab and on read-only files.
- */
 const CreateFileButton = () => {
   const { activeTab, mergedConfigNodeId } = useTabs();
   const activeFile = useFile(activeTab ?? '');

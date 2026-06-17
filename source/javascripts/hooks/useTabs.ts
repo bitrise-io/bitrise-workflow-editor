@@ -75,7 +75,8 @@ export function useTabs() {
   const openFile = useCallback(
     (nodeId: string) => {
       recordActiveTabLocation(currentLocation());
-      openTab(nodeId);
+      // Explicit "Open module" gesture → pin a permanent tab, not a preview that the next open replaces.
+      openTab(nodeId, { preview: false });
       restoreTabLocation(nodeId);
     },
     [restoreTabLocation],
