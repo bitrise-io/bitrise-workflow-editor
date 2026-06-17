@@ -24,7 +24,7 @@ const EditableFileEditor = ({ file }: { file: FileSlice }) => {
     <Editor
       theme="vs-dark"
       language="yaml"
-      path={`file:///modular/${file.path}`}
+      path={`file:///modular/${file.nodeId}`}
       defaultValue={YmlUtils.toYml(file.ymlDocument)}
       onChange={(value) => {
         if (typeof value === 'string') {
@@ -57,7 +57,7 @@ const ModularYmlEditor = () => {
   }
 
   const value = isMerged ? (mergedYml ?? '') : file ? YmlUtils.toYml(file.ymlDocument) : '';
-  const path = isMerged ? 'file:///merged_config.yml' : `file:///modular/${file?.path ?? 'unknown.yml'}`;
+  const path = isMerged ? 'file:///merged_config.yml' : `file:///modular/${file?.nodeId ?? 'unknown.yml'}`;
 
   return (
     <Box position="relative" height="100%">

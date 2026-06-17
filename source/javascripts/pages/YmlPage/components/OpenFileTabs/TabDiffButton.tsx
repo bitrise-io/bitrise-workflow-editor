@@ -37,7 +37,7 @@ const TabDiffButton = () => {
       {isMerged ? (
         <MergedDiffDialog isOpen={isOpen} onClose={onClose} />
       ) : (
-        <DiffEditorDialog isOpen={isOpen} onClose={onClose} />
+        <DiffEditorDialog isOpen={isOpen} onClose={onClose} nodeId={selectedNodeId ?? undefined} />
       )}
     </>
   );
