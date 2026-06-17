@@ -254,16 +254,22 @@ function onModelMarkerStatusChange(
     else callback('valid');
   };
 
-  // Trailing debounce: collapse the multi-owner marker passes (monaco-yaml schema layer
-  // + Bitrise LS) that fire during load into a single settled value, so the status never
-  // flashes through a transient 'warnings'/'valid' before the real result. The window is
-  // wide enough to bridge the gap between monaco-yaml's fast first pass and the slower
-  // Bitrise LS settling — a shorter window let the badge leave its skeleton on the
-  // premature first pass. The latency is invisible: consumers (the validation badge,
-  // the Visual-tab gate) sit behind a skeleton/`'pending'` state until this first fires.
-  const debouncedUpdate = debounce(updateStatus, 800);
+  // Two debounce windows. The long one applies ONLY to the first settle, at load: the
+  // multi-owner marker passes (monaco-yaml schema layer + the slower Bitrise LS) fire at
+  // different times, so a short window would let a consumer leave its skeleton on the
+  // premature first pass and flash a transient 'warnings'/'valid'. That latency is hidden
+  // behind the `'pending'` skeleton. Once settled, switch to a short window so live edits
+  // (valid↔invalid feedback) stay responsive instead of waiting out the long delay.
+  let hasSettled = false;
+  const emit = () => {
+    updateStatus();
+    hasSettled = true;
+  };
+  const settleInitial = debounce(emit, 800);
+  const updateLive = debounce(emit, 250);
+  const scheduleUpdate = () => (hasSettled ? updateLive() : settleInitial());
 
-  debouncedUpdate();
+  scheduleUpdate();
 
   const subscription = monaco.editor.onDidChangeMarkers((changedUris) => {
     const modelUri = model.uri.toString();
@@ -271,12 +277,13 @@ function onModelMarkerStatusChange(
       return;
     }
 
-    debouncedUpdate();
+    scheduleUpdate();
   });
 
   return {
     dispose: () => {
-      debouncedUpdate.cancel();
+      settleInitial.cancel();
+      updateLive.cancel();
       subscription.dispose();
     },
   };
