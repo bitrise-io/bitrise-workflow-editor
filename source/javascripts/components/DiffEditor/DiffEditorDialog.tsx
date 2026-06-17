@@ -22,7 +22,8 @@ import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
 const DiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
-  const [ymlStatus, subscribeToModel] = useModelValidationStatus(useYmlValidationStatus());
+  const seedStatus = useYmlValidationStatus();
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus(seedStatus === 'pending' ? 'valid' : seedStatus);
   const [currentText, setCurrentText] = useState<string | undefined>();
 
   const modifiedText = getYmlString();

@@ -42,3 +42,11 @@ export const Invalid: Story = {
     },
   },
 };
+
+export const Pending: Story = {
+  parameters: {
+    bitriseYmlStore: {
+      validationStatus: 'pending',
+    },
+  },
+};
