@@ -1,5 +1,6 @@
 import { configureBitriseYaml } from '@bitrise/languageserver/monaco';
 import { type EditorProps, loader } from '@monaco-editor/react';
+import { debounce } from 'es-toolkit';
 import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
@@ -245,34 +246,47 @@ function onModelMarkerStatusChange(
 ): monaco.IDisposable {
   const updateStatus = () => {
     const markers = monaco.editor.getModelMarkers({ resource: model.uri });
-    let hasError = false;
-    let hasWarning = false;
-
-    for (const marker of markers) {
-      if (marker.severity === monaco.MarkerSeverity.Error) {
-        hasError = true;
-      } else if (marker.severity === monaco.MarkerSeverity.Warning) {
-        hasWarning = true;
-      }
-    }
+    const hasError = markers.some((m) => m.severity === monaco.MarkerSeverity.Error);
+    const hasWarning = markers.some((m) => m.severity === monaco.MarkerSeverity.Warning);
 
     if (hasError) callback('invalid');
     else if (hasWarning) callback('warnings');
     else callback('valid');
   };
 
-  // Check existing markers immediately
-  updateStatus();
+  // Two debounce windows. The long one applies ONLY to the first settle, at load: the
+  // multi-owner marker passes (monaco-yaml schema layer + the slower Bitrise LS) fire at
+  // different times, so a short window would let a consumer leave its skeleton on the
+  // premature first pass and flash a transient 'warnings'/'valid'. That latency is hidden
+  // behind the `'pending'` skeleton. Once settled, switch to a short window so live edits
+  // (valid↔invalid feedback) stay responsive instead of waiting out the long delay.
+  let hasSettled = false;
+  const emit = () => {
+    updateStatus();
+    hasSettled = true;
+  };
+  const settleInitial = debounce(emit, 800);
+  const updateLive = debounce(emit, 250);
+  const scheduleUpdate = () => (hasSettled ? updateLive() : settleInitial());
 
-  // Subscribe to future marker changes
-  return monaco.editor.onDidChangeMarkers((changedUris) => {
+  scheduleUpdate();
+
+  const subscription = monaco.editor.onDidChangeMarkers((changedUris) => {
     const modelUri = model.uri.toString();
     if (!changedUris.some((uri) => uri.toString() === modelUri)) {
       return;
     }
 
-    updateStatus();
+    scheduleUpdate();
   });
+
+  return {
+    dispose: () => {
+      settleInitial.cancel();
+      updateLive.cancel();
+      subscription.dispose();
+    },
+  };
 }
 
 export default {

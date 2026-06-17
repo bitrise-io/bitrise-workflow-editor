@@ -8,7 +8,7 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { BitkitSegmentedControl, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
+import { BitkitSegmentedControl, BitkitTooltip, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -22,12 +22,15 @@ import { ClientError } from '@/core/api/client';
 import {
   bitriseYmlStore,
   discardBitriseYmlDocument,
+  getTabLastLocation,
   getYmlString,
   initializeBitriseYmlDocument,
+  recordActiveTabLocation,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
@@ -45,6 +48,7 @@ import { paths } from '@/routes';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import GlobalDiffEditorDialog from './DiffEditor/GlobalDiffEditorDialog';
 import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
@@ -59,6 +63,7 @@ const Header = () => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
+  const isModular = useBitriseYmlStore((s) => !!s.tree);
   const ymlStatus = useYmlValidationStatus();
 
   const [path, navigate] = useHashLocation();
@@ -78,6 +83,9 @@ const Header = () => {
   const handleEditorViewChange = useCallback(
     (value: string | null) => {
       if (value === 'yaml') {
+        // Keep the active tab's visual page fresh: tab switches while in YAML
+        // mode don't record locations, so this snapshot is what restores later.
+        recordActiveTabLocation(window.parent.location.hash);
         const searchParamsString = new URLSearchParams(searchParams).toString();
         navigate(searchParamsString ? `${paths.yml}?${searchParamsString}` : paths.yml);
         return;
@@ -85,13 +93,15 @@ const Header = () => {
 
       if (value === 'visual') {
         if (ymlStatus === 'invalid') {
-          toast({
-            status: 'error',
-            title: 'Invalid YAML',
-            description: 'Please fix the errors in your YAML configuration before navigating.',
-            duration: null,
-            isClosable: true,
-          });
+          return;
+        }
+
+        // Modular tabs remember their own visual page — the active tab's memory
+        // wins over the session-global last visual page.
+        const { selectedNodeId } = bitriseYmlStore.getState();
+        const tabLocation = selectedNodeId ? getTabLastLocation(selectedNodeId) : undefined;
+        if (tabLocation) {
+          navigate(tabLocation);
           return;
         }
 
@@ -101,7 +111,7 @@ const Header = () => {
         );
       }
     },
-    [searchParams, navigate, ymlStatus, toast],
+    [searchParams, navigate, ymlStatus],
   );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -292,19 +302,25 @@ const Header = () => {
         {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>Workflow Editor</BreadcrumbLink>}
       </Breadcrumb>
 
-      <BitkitSegmentedControl
-        size="sm"
-        value={editorView}
-        aria-label="Editor view"
-        onValueChange={(details) => handleEditorViewChange(details.value)}
+      <BitkitTooltip
+        disabled={ymlStatus !== 'invalid'}
+        placement={isMobile ? 'bottom' : 'bottom-start'}
+        text="YAML is invalid, please fix it before switching to the Visual editor."
       >
-        <BitkitSegmentedControl.Item icon={IconWebUi} value="visual">
-          Visual
-        </BitkitSegmentedControl.Item>
-        <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
-          YAML
-        </BitkitSegmentedControl.Item>
-      </BitkitSegmentedControl>
+        <BitkitSegmentedControl
+          size="sm"
+          value={editorView}
+          aria-label="Editor view"
+          onValueChange={(details) => handleEditorViewChange(details.value)}
+        >
+          <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={ymlStatus === 'invalid'}>
+            Visual
+          </BitkitSegmentedControl.Item>
+          <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
+            YAML
+          </BitkitSegmentedControl.Item>
+        </BitkitSegmentedControl>
+      </BitkitTooltip>
 
       <Box
         gap="8"
@@ -349,7 +365,11 @@ const Header = () => {
           </Button>
         </Tooltip>
       </Box>
-      <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      {isModular ? (
+        <GlobalDiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      ) : (
+        <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      )}
       <ConfigMergeDialog
         isOpen={isMergeDialogOpen}
         onClose={closeMergeDialog}
