@@ -16,6 +16,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import { useIsMergedConfigSelected, useTree } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
@@ -32,6 +33,9 @@ const containerProps: CardProps = {
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
+  const tree = useTree();
+  const isMergedConfigSelected = useIsMergedConfigSelected();
+  const isModularFileTab = !!tree && !isMergedConfigSelected;
 
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
@@ -59,12 +63,16 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       return "Utility workflows can't be run";
     }
 
+    if (isModularFileTab) {
+      return 'Only available in the Merged config tab';
+    }
+
     if (hasUnsavedChanges) {
       return 'Save changes before running';
     }
 
     return 'Run Workflow';
-  }, [hasUnsavedChanges, workflowId]);
+  }, [hasUnsavedChanges, isModularFileTab, workflowId]);
 
   const handleSelectStep = useCallback<
     (props: {
@@ -390,7 +398,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
             tooltipProps={{
               'aria-label': runButtonAriaLabel,
             }}
-            isDisabled={WorkflowService.isUtilityWorkflow(workflowId) || hasUnsavedChanges}
+            isDisabled={WorkflowService.isUtilityWorkflow(workflowId) || isModularFileTab || hasUnsavedChanges}
             onClick={() => openRunWorkflowDialog(workflowId)}
           />
         )}

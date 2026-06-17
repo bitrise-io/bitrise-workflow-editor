@@ -79,6 +79,7 @@ const renderOptions = (stacks: StackOption[]) => {
 type Props = Pick<BoxProps, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
+  isDisabled?: boolean;
   isRollbackVersionAvailable: boolean;
   disableRollbackOption?: boolean;
   useRollbackVersion?: boolean;
@@ -90,6 +91,7 @@ type Props = Pick<BoxProps, 'width'> & {
 const StackSelector = ({
   isLoading,
   isInvalid,
+  isDisabled,
   isRollbackVersionAvailable,
   disableRollbackOption,
   useRollbackVersion,
@@ -107,7 +109,7 @@ const StackSelector = ({
         search={false}
         label="Stack"
         dropdownMaxHeight="25rem"
-        disabled={isLoading}
+        disabled={isLoading || isDisabled}
         isError={isInvalid}
         errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
@@ -128,7 +130,7 @@ const StackSelector = ({
       >
         <Box display="inline-block" mt="16">
           <Checkbox
-            isDisabled={isRollbackDisabled}
+            isDisabled={isRollbackDisabled || isDisabled}
             isChecked={!isRollbackDisabled && useRollbackVersion}
             onChange={(e) => onChange(stack.value, e.target.checked)}
           >

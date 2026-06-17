@@ -5,6 +5,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useEffect } from 'react';
 
 import { EnvVarSource } from '@/core/models/EnvVar';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import SortableEnvVarItem from './SortableEnvVarItem';
 import { useSortableEnvVars } from './useSortableEnvVars';
@@ -26,6 +27,7 @@ const SortableEnvVars = ({
   hideAddButton = false,
   onValidationErrorsChange,
 }: SortableEnvVarsProps) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const {
     envs,
     activeItem,
@@ -72,7 +74,7 @@ const SortableEnvVars = ({
 
       {!hideAddButton && (
         <Box px="16" py="12">
-          <Button size="md" variant="tertiary" leftIconName="Plus" onClick={onAdd}>
+          <Button size="md" variant="tertiary" leftIconName="Plus" isDisabled={isReadOnlyView} onClick={onAdd}>
             Add new
           </Button>
         </Box>

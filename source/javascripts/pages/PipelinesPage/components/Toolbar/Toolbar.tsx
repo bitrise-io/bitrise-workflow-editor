@@ -5,6 +5,7 @@ import { useDebounceValue } from 'usehooks-ts';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useAIButton from '@/hooks/useAIButton';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useIsMergedConfigSelected, useIsReadOnlyView, useTree } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
@@ -18,6 +19,10 @@ type Props = BoxProps & {
 
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
+  const tree = useTree();
+  const isMergedConfigSelected = useIsMergedConfigSelected();
+  const isModularFileTab = !!tree && !isMergedConfigSelected;
+  const isReadOnlyView = useIsReadOnlyView();
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
@@ -79,12 +84,16 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   }, [debouncedSearch, keys]);
 
   const runButtonAriaLabel = useMemo(() => {
+    if (isModularFileTab) {
+      return 'Only available in the Merged config tab';
+    }
+
     if (hasUnsavedChanges) {
       return 'Save changes before running';
     }
 
     return 'Run Pipeline';
-  }, [hasUnsavedChanges]);
+  }, [hasUnsavedChanges, isModularFileTab]);
 
   return (
     <Box
@@ -133,6 +142,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             variant="secondary"
             leftIconName="PlusCircle"
             justifyContent="flex-start"
+            isDisabled={isReadOnlyView}
             onClick={onCreatePipeline}
           >
             Create Pipeline
@@ -153,7 +163,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
                   />
                 }
                 justifyContent="flex-start"
-                isDisabled={isAIButtonDisabled}
+                isDisabled={isAIButtonDisabled || isReadOnlyView}
                 _disabled={{
                   backgroundColor: 'background/primary',
                   color: 'button/secondary/fg-disabled',
@@ -172,23 +182,36 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           <Button size="md" variant="secondary" leftIconName="Settings" onClick={onPropertiesClick}>
             Properties
           </Button>
-          <Button size="md" variant="secondary" leftIconName="Plus" onClick={onWorkflowsClick}>
+          {/* Adds workflows to the pipeline, so it's a mutation — Properties stays open for inspection. */}
+          <Button
+            size="md"
+            variant="secondary"
+            leftIconName="Plus"
+            isDisabled={isReadOnlyView}
+            onClick={onWorkflowsClick}
+          >
             Workflows
           </Button>
         </>
       )}
 
       {RuntimeUtils.isWebsiteMode() && (
-        <Button
-          size="md"
-          variant="secondary"
-          leftIconName="Play"
+        <Tooltip
+          label={runButtonAriaLabel}
           aria-label={runButtonAriaLabel}
-          isDisabled={isEmpty || hasUnsavedChanges}
-          onClick={onRunClick}
+          shouldWrapChildren={isEmpty || isModularFileTab || hasUnsavedChanges}
         >
-          Run
-        </Button>
+          <Button
+            size="md"
+            variant="secondary"
+            leftIconName="Play"
+            aria-label={runButtonAriaLabel}
+            isDisabled={isEmpty || isModularFileTab || hasUnsavedChanges}
+            onClick={onRunClick}
+          >
+            Run
+          </Button>
+        </Tooltip>
       )}
     </Box>
   );

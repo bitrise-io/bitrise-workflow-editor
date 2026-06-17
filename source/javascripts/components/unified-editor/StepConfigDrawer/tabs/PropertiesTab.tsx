@@ -15,6 +15,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
@@ -25,6 +26,7 @@ type StepVersionProps = {
 };
 const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVersionProps) => {
   const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
+  const isReadOnlyView = useIsReadOnlyView();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
   const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
@@ -47,7 +49,14 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 
   if (variant === 'select') {
     return (
-      <Select value={value} label="Version" backgroundSize="none" onChange={onStepVersionChange} isRequired>
+      <Select
+        value={value}
+        label="Version"
+        backgroundSize="none"
+        isDisabled={isReadOnlyView}
+        onChange={onStepVersionChange}
+        isRequired
+      >
         {selectableVersions?.map((s) => {
           return (
             <option key={s.value} value={s.value}>
@@ -65,6 +74,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
       label="Version"
       defaultValue={value}
       placeholder="Always latest"
+      isDisabled={isReadOnlyView}
       onChange={onStepVersionChange}
       inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
     />
@@ -72,6 +82,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 };
 
 const PropertiesTab = () => {
+  const isReadOnlyView = useIsReadOnlyView();
   const defaultStepLibrary = useDefaultStepLibrary();
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
@@ -114,6 +125,7 @@ const PropertiesTab = () => {
         label="Title"
         defaultValue={title}
         placeholder="Step title"
+        isDisabled={isReadOnlyView}
         onChange={handleTitleChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
       />
