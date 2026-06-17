@@ -256,8 +256,12 @@ function onModelMarkerStatusChange(
 
   // Trailing debounce: collapse the multi-owner marker passes (monaco-yaml schema layer
   // + Bitrise LS) that fire during load into a single settled value, so the status never
-  // flashes through a transient 'warnings'/'valid' before the real result.
-  const debouncedUpdate = debounce(updateStatus, 250);
+  // flashes through a transient 'warnings'/'valid' before the real result. The window is
+  // wide enough to bridge the gap between monaco-yaml's fast first pass and the slower
+  // Bitrise LS settling — a shorter window let the badge leave its skeleton on the
+  // premature first pass. The latency is invisible: consumers (the validation badge,
+  // the Visual-tab gate) sit behind a skeleton/`'pending'` state until this first fires.
+  const debouncedUpdate = debounce(updateStatus, 800);
 
   debouncedUpdate();
 
