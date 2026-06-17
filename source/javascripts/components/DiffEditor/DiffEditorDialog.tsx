@@ -141,18 +141,16 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
               : 'You can edit the right side of the diff view, and your changes will be saved'}
           </Notification>
           {isNewFile ? (
-            <Box flex="1" display="flex" minHeight="0">
-              <Editor
-                key={nodeId}
-                theme="vs-dark"
-                language="yaml"
-                defaultValue={modifiedText}
-                onChange={(value) => setCurrentText(typeof value === 'string' ? value : undefined)}
-                onMount={handlePlainEditorMount}
-                options={{ minimap: { enabled: false } }}
-                wrapperProps={{ style: { flex: 1, display: 'flex' } }}
-              />
-            </Box>
+            <Editor
+              key={nodeId}
+              theme="vs-dark"
+              language="yaml"
+              defaultValue={modifiedText}
+              onChange={(value) => setCurrentText(typeof value === 'string' ? value : undefined)}
+              onMount={handlePlainEditorMount}
+              options={{ minimap: { enabled: false } }}
+              wrapperProps={{ style: { flex: 1, display: 'flex', minHeight: 0 } }}
+            />
           ) : (
             originalText &&
             modifiedText && (
