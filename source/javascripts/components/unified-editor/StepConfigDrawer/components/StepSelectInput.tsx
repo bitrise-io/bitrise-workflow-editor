@@ -2,6 +2,7 @@ import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitri
 import { useState } from 'react';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
@@ -17,6 +18,7 @@ type Props = Omit<DropdownProps<string | null>, 'onChange'> & {
 const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
     const { stepBundleId, workflowId } = useStepDrawerContext();
+    const isReadOnlyView = useIsReadOnlyView();
     const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
 
     const insertVariable = (key: string) => {
@@ -34,7 +36,7 @@ const StepSelectInput = forwardRef(
           value={value}
           search={false}
           label={label}
-          readOnly={isSensitive || isDisabled}
+          readOnly={isSensitive || isDisabled || isReadOnlyView}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
           onChange={(e) => {
             setValue(e.target.value ?? '');
@@ -53,14 +55,16 @@ const StepSelectInput = forwardRef(
             <DropdownOption value={value}>{value}</DropdownOption>
           )}
         </Dropdown>
-        <Box pt="24">
-          <EnvVarPopover
-            size="md"
-            workflowId={workflowId}
-            stepBundleId={stepBundleId}
-            onSelect={({ key }) => insertVariable(key)}
-          />
-        </Box>
+        {!isReadOnlyView && (
+          <Box pt="24">
+            <EnvVarPopover
+              size="md"
+              workflowId={workflowId}
+              stepBundleId={stepBundleId}
+              onSelect={({ key }) => insertVariable(key)}
+            />
+          </Box>
+        )}
       </Box>
     );
   },

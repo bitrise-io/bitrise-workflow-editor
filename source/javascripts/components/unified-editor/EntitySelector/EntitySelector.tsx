@@ -13,6 +13,7 @@ import {
 import { useMemo, useRef, useState } from 'react';
 
 import useAIButton from '@/hooks/useAIButton';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
   entityIds: string[];
@@ -29,6 +30,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
 
   const dropdownRef = useRef<HTMLButtonElement>(null);
+  const isReadOnlyView = useIsReadOnlyView();
   const [search, setSearch] = useState('');
 
   const { isVisible, tooltipLabel, getAIButtonProps } = useAIButton({
@@ -113,6 +115,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
               leftIconName="Plus"
               variant="tertiary"
               width="100%"
+              isDisabled={isReadOnlyView}
               onClick={handleCreate}
             >
               Create {entityName}
@@ -134,7 +137,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
                 }
                 variant="tertiary"
                 width="100%"
-                isDisabled={isAIButtonDisabled}
+                isDisabled={isAIButtonDisabled || isReadOnlyView}
                 onClick={handleCreateWithAI}
               >
                 Create {entityName} with AI

@@ -1,7 +1,10 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
-import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
+import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
+import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -72,16 +75,24 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
+  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', workflowId);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isMergedView = useIsMergedConfigSelected();
+  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
+
+  const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
 
   const { isSelected } = useSelection();
   const isHighlighted = isSelected({ workflowId: id });
   const cardProps = useMemo(
     () => ({
       ...containerProps,
+      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -89,11 +100,18 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted],
+    [containerProps, isHighlighted, isCrossFile, isReadOnlyView],
   );
 
-  if (!workflow) {
+  if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
+  }
+
+  let subtitle = stackName;
+  if (uses) {
+    subtitle = `Uses ${uses}`;
+  } else if (isCrossFile) {
+    subtitle = crossFileProvenanceLabel(definingPath);
   }
 
   return (
@@ -102,6 +120,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         {isCollapsable && (
           <ControlButton
             size="xs"
+            isDisabled={isCrossFile}
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
             className="nopan"
             onClick={onToggle}
@@ -114,15 +133,16 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <WorkflowName parallel={parallel}>{uses ? id : workflow.title || id}</WorkflowName>
+          <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {uses ? `Uses ${uses}` : stackName}
+            {subtitle}
           </Text>
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow) && (
-          <Box display="none" _groupHover={{ display: 'inline-flex' }}>
-            {onChainWorkflow && (
+        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
+          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
+            {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
+            {onChainWorkflow && !isCrossFile && (
               <ControlButton
                 size="xs"
                 iconName="Link"
@@ -143,6 +163,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 onClick={() => onEditWorkflow(id)}
               />
             )}
+            {showJumpButton && (
+              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+            )}
             {onRemoveWorkflow && (
               <ControlButton
                 isDanger
@@ -157,19 +180,25 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
       </Box>
 
-      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-        <SortableWorkflowsContext containerRef={containerRef}>
-          <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <ChainedWorkflowList
-              key={`${workflowId}->before_run`}
-              placement="before_run"
-              parentWorkflowId={workflowId}
-            />
-            <WorkflowStepList workflowId={workflowId} />
-            <ChainedWorkflowList key={`${workflowId}->after_run`} placement="after_run" parentWorkflowId={workflowId} />
-          </Box>
-        </SortableWorkflowsContext>
-      </Collapse>
+      {!isCrossFile && (
+        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <SortableWorkflowsContext containerRef={containerRef}>
+            <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+              <ChainedWorkflowList
+                key={`${workflowId}->before_run`}
+                placement="before_run"
+                parentWorkflowId={workflowId}
+              />
+              <WorkflowStepList workflowId={workflowId} />
+              <ChainedWorkflowList
+                key={`${workflowId}->after_run`}
+                placement="after_run"
+                parentWorkflowId={workflowId}
+              />
+            </Box>
+          </SortableWorkflowsContext>
+        </Collapse>
+      )}
     </Card>
   );
 });

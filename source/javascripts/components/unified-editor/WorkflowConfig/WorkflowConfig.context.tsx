@@ -1,16 +1,17 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 import { Workflow } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const Context = createContext<string>('');
+export const WorkflowConfigContext = createContext<string>('');
 
-const WorkflowConfigProvider = ({ workflowId, children }: PropsWithChildren<{ workflowId: string }>) => {
-  return <Context.Provider value={workflowId}>{children}</Context.Provider>;
-};
+// Resolves even for a cross-file workflow, unlike useWorkflowConfigContext (which reads local yml).
+export function useWorkflowConfigId() {
+  return useContext(WorkflowConfigContext);
+}
 
 export function useWorkflowConfigContext<U = Workflow | undefined>(selector?: (state: Workflow | undefined) => U) {
-  const id = useContext(Context);
+  const id = useContext(WorkflowConfigContext);
 
   return useBitriseYmlStore(({ yml }) => {
     const userValues = yml.workflows?.[id];
@@ -19,5 +20,3 @@ export function useWorkflowConfigContext<U = Workflow | undefined>(selector?: (s
     return selector ? selector(workflow) : workflow;
   }) as U;
 }
-
-export default WorkflowConfigProvider;

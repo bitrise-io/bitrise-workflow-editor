@@ -1,15 +1,18 @@
 import { Button, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
 
 import { TriggerType } from '@/core/models/Trigger';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 type Props = {
   onAddTrigger: (type: TriggerType) => void;
 };
 
 const AddTriggerButton = ({ onAddTrigger }: Props) => {
+  const isReadOnlyView = useIsReadOnlyView();
+
   return (
     <Menu>
-      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus">
+      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus" isDisabled={isReadOnlyView}>
         Add trigger
       </MenuButton>
       <MenuList>

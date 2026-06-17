@@ -9,6 +9,7 @@ import PageProps from '@/core/utils/PageProps';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useProjectStackAndMachine from '@/hooks/useProjectStackAndMachine';
 import useStacksAndMachines from '@/hooks/useStacksAndMachines';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import DeprecatedMachineNotification from './DeprecatedMachineNotification';
 import MachineTypeSelector from './MachineTypeSelector';
@@ -42,6 +43,7 @@ const StackAndMachine = ({
   workflowId,
 }: Props) => {
   const isToolVersionsEnabled = useFeatureFlag('enable-wfe-tool-versions');
+  const isReadOnlyView = useIsReadOnlyView();
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -119,6 +121,7 @@ const StackAndMachine = ({
         <StackSelector
           stack={selectedStack}
           isLoading={isLoading}
+          isDisabled={isReadOnlyView}
           isInvalid={isInvalidStack && !isLoading}
           optionGroups={stackOptionGroups}
           onChange={(selectedStackValue, useRollbackVersionChecked) =>
@@ -133,7 +136,7 @@ const StackAndMachine = ({
           machineType={selectedMachineType}
           isLoading={isLoading}
           isInvalid={isInvalidMachineType && !isLoading}
-          isDisabled={isMachineTypeSelectionDisabled}
+          isDisabled={isMachineTypeSelectionDisabled || isReadOnlyView}
           optionGroups={machineOptionGroups}
           onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
           selectedRegion={data?.region}

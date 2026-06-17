@@ -22,10 +22,12 @@ import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/T
 import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
 import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import AddTriggerButton from './AddTriggerButton';
 
 const TargetBasedTriggers = () => {
+  const isReadOnlyView = useIsReadOnlyView();
   const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
   const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
@@ -172,6 +174,7 @@ const TargetBasedTriggers = () => {
                           <Checkbox
                             marginRight="16"
                             isChecked={trigger.isActive}
+                            isDisabled={isReadOnlyView}
                             onChange={() => handleActiveChange(trigger)}
                           >
                             Active
@@ -180,6 +183,7 @@ const TargetBasedTriggers = () => {
                             iconName="Pencil"
                             variant="tertiary"
                             aria-label="Edit trigger"
+                            isDisabled={isReadOnlyView}
                             onClick={() => handleOpenDialog(trigger)}
                           />
                           <IconButton
@@ -187,6 +191,7 @@ const TargetBasedTriggers = () => {
                             variant="tertiary"
                             iconName="MinusCircle"
                             aria-label="Delete trigger"
+                            isDisabled={isReadOnlyView}
                             onClick={() => handleDeleteTrigger(trigger)}
                           />
                         </Box>

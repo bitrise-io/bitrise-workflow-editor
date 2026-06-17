@@ -22,12 +22,15 @@ import { ClientError } from '@/core/api/client';
 import {
   bitriseYmlStore,
   discardBitriseYmlDocument,
+  getTabLastLocation,
   getYmlString,
   initializeBitriseYmlDocument,
+  recordActiveTabLocation,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
@@ -45,6 +48,7 @@ import { paths } from '@/routes';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
+import GlobalDiffEditorDialog from './DiffEditor/GlobalDiffEditorDialog';
 import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
@@ -59,6 +63,7 @@ const Header = () => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
+  const isModular = useBitriseYmlStore((s) => !!s.tree);
   const ymlStatus = useYmlValidationStatus();
 
   const [path, navigate] = useHashLocation();
@@ -78,6 +83,9 @@ const Header = () => {
   const handleEditorViewChange = useCallback(
     (value: string | null) => {
       if (value === 'yaml') {
+        // Keep the active tab's visual page fresh: tab switches while in YAML
+        // mode don't record locations, so this snapshot is what restores later.
+        recordActiveTabLocation(window.parent.location.hash);
         const searchParamsString = new URLSearchParams(searchParams).toString();
         navigate(searchParamsString ? `${paths.yml}?${searchParamsString}` : paths.yml);
         return;
@@ -85,6 +93,15 @@ const Header = () => {
 
       if (value === 'visual') {
         if (ymlStatus === 'invalid') {
+          return;
+        }
+
+        // Modular tabs remember their own visual page — the active tab's memory
+        // wins over the session-global last visual page.
+        const { selectedNodeId } = bitriseYmlStore.getState();
+        const tabLocation = selectedNodeId ? getTabLastLocation(selectedNodeId) : undefined;
+        if (tabLocation) {
+          navigate(tabLocation);
           return;
         }
 
@@ -348,7 +365,11 @@ const Header = () => {
           </Button>
         </Tooltip>
       </Box>
-      <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      {isModular ? (
+        <GlobalDiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      ) : (
+        <DiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
+      )}
       <ConfigMergeDialog
         isOpen={isMergeDialogOpen}
         onClose={closeMergeDialog}

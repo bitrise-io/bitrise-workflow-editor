@@ -3,6 +3,7 @@ import { Box, Button, IconButton, Input, Textarea, useDisclosure } from '@bitris
 import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/services/StepBundleService';
 import { useStepBundles } from '@/hooks/useStepBundles';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import DeleteStepBundleDialog from '../../DeleteStepBundleDialog/DeleteStepBundleDialog';
 import useChangeStepBundleId from '../hooks/useChangeStepBundleId';
@@ -15,6 +16,7 @@ type StepBundlePropertiesTabProps = {
 };
 
 const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePropertiesTabProps) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const stepBundleIds = useStepBundles((s) => Object.keys(s));
   const contextData = useStepBundleConfigContext((s) => s);
   const id = contextData.stepBundle?.id || contextData.stepBundleId || '';
@@ -52,6 +54,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
           name="id"
           label="ID"
+          isDisabled={isReadOnlyView}
           value={contextData.stepBundle?.id}
           sanitize={StepBundleService.sanitizeName}
           validate={(v) => StepBundleService.validateName(v, contextData.stepBundle?.id || '', stepBundleIds)}
@@ -64,6 +67,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           helperText="Human-readable name, overridable per instance."
           label="Title"
           size="md"
+          isDisabled={isReadOnlyView}
           onChange={(e) => handleFieldChange('title', e.target.value)}
           value={contextData.stepBundle?.mergedValues.title || ''}
         />
@@ -71,6 +75,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           <IconButton
             aria-label="Reset to default"
             iconName="Refresh"
+            isDisabled={isReadOnlyView}
             marginBlockStart="24"
             onClick={() => handleFieldChange('title', '')}
             size="md"
@@ -82,6 +87,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
         <Input
           flex="1"
           label="Summary"
+          isDisabled={isReadOnlyView}
           value={contextData.stepBundle?.mergedValues.summary || ''}
           onChange={(e) => handleFieldChange('summary', e.target.value)}
         />
@@ -89,6 +95,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           <IconButton
             aria-label="Reset to default"
             iconName="Refresh"
+            isDisabled={isReadOnlyView}
             marginBlockStart="24"
             onClick={() => handleFieldChange('summary', '')}
             size="md"
@@ -100,6 +107,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
         <Textarea
           flex="1"
           label="Description"
+          isDisabled={isReadOnlyView}
           value={contextData.stepBundle?.mergedValues.description || ''}
           onChange={(e) => handleFieldChange('description', e.target.value)}
         />
@@ -107,6 +115,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           <IconButton
             aria-label="Reset to default"
             iconName="Refresh"
+            isDisabled={isReadOnlyView}
             marginBlockStart="24"
             onClick={() => handleFieldChange('description', '')}
             size="md"
@@ -121,6 +130,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
             size="md"
             variant="secondary"
             isDanger
+            isDisabled={isReadOnlyView}
             onClick={openDeleteDialog}
             width="fit-content"
           >

@@ -1,6 +1,7 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
 
 import StepBundleService from '@/core/services/StepBundleService';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useNavigation from '@/hooks/useNavigation';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
@@ -14,6 +15,7 @@ type StepBundleListProps = {
 };
 
 const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListProps) => {
+  const entityIndex = useEntityIndex();
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(
       Object.entries(s).map(([id, stepBundle]) => {
@@ -22,10 +24,16 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
     );
   });
 
+  // Active-file bundles unioned with bundles from other module files (one row per id).
+  const allBundleIds = [...new Set([...Object.keys(stepBundles), ...Object.keys(entityIndex.stepBundles)])];
+
+  // Chains only exist for local bundles, so guard the lookup; a cross-file bundle has no chain and can't be excluded.
   const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
-  const bundleIds = Object.keys(stepBundles).filter((id) => {
+  const bundleIds = allBundleIds.filter((id) => {
     if (excludedStepBundleId) {
-      return !stepBundleChains[id].includes(excludedStepBundleId);
+      // Exclude the bundle itself (direct self-reference — a chain never lists itself, and a
+      // cross-file bundle has no chain at all) and any bundle whose chain already reaches it.
+      return id !== excludedStepBundleId && !stepBundleChains[id]?.includes(excludedStepBundleId);
     }
     return true;
   });
