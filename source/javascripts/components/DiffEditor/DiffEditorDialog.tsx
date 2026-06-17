@@ -133,9 +133,11 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
         {fileSelector}
         <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
           <Notification status="info">
-            {isNewFile
-              ? 'This is a new file — edit it below and your changes will be saved.'
-              : 'You can edit the right side of the diff view, and your changes will be saved'}
+            {isReadOnly
+              ? 'This file is read-only — changes here cannot be saved.'
+              : isNewFile
+                ? 'This is a new file — edit it below and your changes will be saved.'
+                : 'You can edit the right side of the diff view, and your changes will be saved'}
           </Notification>
           {isNewFile ? (
             <Editor
@@ -145,7 +147,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
               defaultValue={modifiedText}
               onChange={(value) => setCurrentText(typeof value === 'string' ? value : undefined)}
               onMount={handlePlainEditorMount}
-              options={{ minimap: { enabled: false } }}
+              options={{ minimap: { enabled: false }, readOnly: isReadOnly }}
               wrapperProps={{ style: { flex: 1, display: 'flex', minHeight: 0 } }}
             />
           ) : (
@@ -157,6 +159,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
                 modifiedText={modifiedText}
                 onChange={setCurrentText}
                 onMount={handleEditorMount}
+                readOnly={isReadOnly}
               />
             )
           )}
