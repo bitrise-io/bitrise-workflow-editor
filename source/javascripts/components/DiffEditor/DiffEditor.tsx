@@ -7,6 +7,7 @@ export type Props = {
   onChange: (changedText: string) => void;
   onMount?: (editor: MonacoDiffEditor) => void;
   language?: string;
+  readOnly?: boolean;
 };
 
 const diffEditorOptions: DiffEditorProps['options'] = {
@@ -17,7 +18,7 @@ const diffEditorOptions: DiffEditorProps['options'] = {
   ignoreTrimWhitespace: false,
 };
 
-const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', onChange, onMount }: Props) => {
+const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', onChange, onMount, readOnly }: Props) => {
   const handleEditorDidMount = (editor: MonacoDiffEditor) => {
     const modifiedEditor = editor.getModifiedEditor();
 
@@ -46,7 +47,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
         language={language}
         original={originalText}
         modified={modifiedText}
-        options={diffEditorOptions}
+        options={readOnly ? { ...diffEditorOptions, readOnly: true } : diffEditorOptions}
         loading={<ProgressBitbot />}
         onMount={handleEditorDidMount}
         keepCurrentModifiedModel
