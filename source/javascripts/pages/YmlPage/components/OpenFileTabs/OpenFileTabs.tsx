@@ -6,10 +6,6 @@ import { useTabs } from '@/hooks/useTabs';
 
 import FileTab from './FileTab';
 
-/**
- * The editor-area tab strip for the modular config. "Merged Config" tab first, then open
- * file tabs, then a frameless "+" to open/create module files.
- */
 const OpenFileTabs = () => {
   const { tabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig } = useTabs();
 
@@ -29,19 +25,14 @@ const OpenFileTabs = () => {
         display="flex"
         alignItems="center"
         flexShrink={0}
-        // 48px border-box (incl. the 1px separator) to line up with the ConfigSettingsBar.
-        h="48px"
+        height="48"
         backgroundColor="background/primary"
         borderBottomWidth="1px"
         borderBottomColor="border/minimal"
       >
-        {/* Tab geometry gotchas: `flex-start` stops the List stretching the nudged-down
-            trigger (stretch + nudge overflowed the bar). `mb="-1px"` overlaps the 48px
-            List's bottom onto the divider. Explicit `overflowY` because `overflow-x: auto`
-            makes computed `overflow-y` resolve to `auto` too (CSS spec), causing a stray scrollbar. */}
         <BitkitTabs.List
           flex="1"
-          h="48px"
+          height="48"
           mb="-1px"
           alignItems="flex-start"
           overflowX="auto"
@@ -57,12 +48,11 @@ const OpenFileTabs = () => {
           ))}
           <Box
             display="flex"
-            padding="4px"
+            padding="4"
             alignItems="center"
-            gap="4px"
-            borderRadius="4px"
-            background="#FFF"
-            backgroundBlendMode="multiply"
+            gap="4"
+            borderRadius="4"
+            background="background/primary"
             alignSelf="center"
           >
             <FileTreeViewer />

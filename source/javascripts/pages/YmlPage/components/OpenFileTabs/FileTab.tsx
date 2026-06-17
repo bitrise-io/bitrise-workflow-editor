@@ -10,10 +10,6 @@ type Props = {
   nodeId: string;
 };
 
-/**
- * One open-file tab (`BitkitTabs.Trigger`): unsaved-changes dot; tooltip for cross-ref
- * files shows the source ref on hover.
- */
 const FileTab = ({ nodeId }: Props) => {
   const { closeTab } = useTabs();
   const file = useFile(nodeId);
