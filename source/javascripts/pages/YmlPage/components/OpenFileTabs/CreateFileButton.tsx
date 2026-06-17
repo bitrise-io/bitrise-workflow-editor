@@ -11,7 +11,6 @@ import {
   Radio,
   RadioGroup,
   Text,
-  Tooltip,
 } from '@bitrise/bitkit';
 import { BitkitIconButton, IconPlus } from '@bitrise/bitkit-v2';
 import { useState } from 'react';
@@ -111,19 +110,14 @@ const CreateFileButton = () => {
 
   return (
     <>
-      <Tooltip label={disabledReason} isDisabled={!disabledReason}>
-        {/* The Box gives the tooltip a hover target even when the button is disabled. */}
-        <Box>
-          <BitkitIconButton
-            label="Add module file"
-            variant="secondary"
-            size="sm"
-            icon={IconPlus}
-            state={disabledReason ? 'disabled' : undefined}
-            onClick={() => setIsOpen(true)}
-          />
-        </Box>
-      </Tooltip>
+      <BitkitIconButton
+        label={disabledReason || 'Add module file'}
+        variant="secondary"
+        size="sm"
+        icon={IconPlus}
+        state={disabledReason ? 'disabled' : undefined}
+        onClick={() => setIsOpen(true)}
+      />
       <Dialog isOpen={isOpen} onClose={close} title="Add module file">
         <DialogBody display="flex" flexDir="column" gap="16">
           <RadioGroup value={form.mode} onChange={(value) => setField('mode', value as Mode)}>
@@ -154,11 +148,11 @@ const CreateFileButton = () => {
           {targetName && (
             <Text textStyle="body/sm/regular" color="text/secondary">
               Will be added as an{' '}
-              <Text as="span" fontWeight="bold">
+              <Text as="span" textStyle="body/sm/semibold">
                 include
               </Text>{' '}
               to{' '}
-              <Text as="span" fontWeight="bold">
+              <Text as="span" textStyle="body/sm/semibold">
                 {targetName}
               </Text>{' '}
               (the open file).
@@ -169,11 +163,11 @@ const CreateFileButton = () => {
             <>
               <Notification status="warning">
                 Only the{' '}
-                <Text as="span" fontWeight="bold">
+                <Text as="span" textStyle="body/md/semibold">
                   include
                 </Text>{' '}
                 directive is added now. The components from this file are picked up and become visible only after you{' '}
-                <Text as="span" fontWeight="bold">
+                <Text as="span" textStyle="body/md/semibold">
                   save
                 </Text>{' '}
                 your changes.
