@@ -1,4 +1,5 @@
 import { Box, DialogProps } from '@bitrise/bitkit';
+import { rem } from '@bitrise/bitkit-v2';
 import { useMemo, useState } from 'react';
 
 import FileTreeView from '@/components/FileTreeViewer/FileTreeView';
@@ -32,7 +33,14 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
       nodeId={effectiveNodeId}
       isReadOnly={!selected?.editable}
       fileSelector={
-        <Box width="280px" flexShrink={0} overflowY="auto" borderRight="1px solid" borderColor="border/minimal" pr="8">
+        <Box
+          width={rem(280)}
+          flexShrink={0}
+          overflowY="auto"
+          borderRight="1px solid"
+          borderColor="border/minimal"
+          pr="8"
+        >
           {tree && (
             <FileTreeView
               rootNode={tree}
@@ -47,11 +55,6 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   );
 };
 
-/**
- * The header "Show diff" dialog in modular mode: a global view of all unsaved files.
- * Left tree switches between modified files; right shows the selected file's editable
- * saved → current diff, with "Apply changes" writing back to it.
- */
 const GlobalDiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
   return (
     <DiffEditorDialogShell {...rest} onClose={onClose}>

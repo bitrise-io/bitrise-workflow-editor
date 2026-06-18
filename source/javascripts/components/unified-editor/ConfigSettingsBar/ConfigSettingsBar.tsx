@@ -85,10 +85,9 @@ const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
     <Box
       paddingLeft="32"
       paddingRight="12"
-      // Modular: fixed 48px border-box so it lines up with the OpenFileTabs strip; the
-      // two-row branch-switching variant fits (20px + 4px gap + 16px = 40px of content).
-      // Non-modular keeps the original sizing untouched.
-      {...(isModular ? { paddingBlock: '0', height: '48px' } : { paddingBlock: '12', minHeight: rem(65) })}
+      paddingBlock={isModular ? '0' : '12'}
+      height={isModular ? '48' : undefined}
+      minHeight={isModular ? undefined : rem(65)}
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"

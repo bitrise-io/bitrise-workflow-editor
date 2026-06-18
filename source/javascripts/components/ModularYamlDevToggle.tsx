@@ -70,8 +70,12 @@ const ModularYamlDevToggle = () => {
       alignItems="center"
       gap="8"
     >
-      <TabDiffButton />
-      <CreateFileButton />
+      {enabled && (
+        <>
+          <TabDiffButton />
+          <CreateFileButton />
+        </>
+      )}
       <Button size="sm" variant={enabled ? 'primary' : 'secondary'} onClick={toggle}>
         Modular YAML: {enabled ? 'ON' : 'OFF'}
       </Button>

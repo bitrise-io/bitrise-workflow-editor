@@ -144,7 +144,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
           </Notification>
           {isNewFile ? (
             <Editor
-              key={nodeId}
+              key={nodeId ?? 'legacy'}
               theme="vs-dark"
               language="yaml"
               defaultValue={modifiedText}
@@ -157,7 +157,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
             originalText &&
             modifiedText && (
               <DiffEditor
-                key={nodeId}
+                key={nodeId ?? 'legacy'}
                 originalText={originalText}
                 modifiedText={modifiedText}
                 onChange={setCurrentText}

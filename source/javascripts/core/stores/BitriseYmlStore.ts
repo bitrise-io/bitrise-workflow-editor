@@ -254,7 +254,14 @@ export function initializeBitriseYmlDocument({
     ...clearedModularState(),
     ...(doc.errors.length === 0
       ? { ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined, __savedInvalidYmlString: undefined }
-      : { __invalidYmlString: ymlString, __savedInvalidYmlString: ymlString }),
+      : {
+          // Invalid YAML: drop any prior parsed doc (incl. a stale modular file's Document)
+          // so the legacy store never carries modular state through the invalid path.
+          ymlDocument: new Document(),
+          savedYmlDocument: new Document(),
+          __invalidYmlString: ymlString,
+          __savedInvalidYmlString: ymlString,
+        }),
   });
 }
 
