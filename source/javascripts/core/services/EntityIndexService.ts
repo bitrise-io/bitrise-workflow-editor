@@ -3,8 +3,6 @@ import { Document } from 'yaml';
 import { EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
 import YmlUtils from '@/core/utils/YmlUtils';
 
-import TreeService from './TreeService';
-
 // YAML section key → EntityIndex key. step_bundles is camelCased in the index.
 const KIND_SECTIONS: ReadonlyArray<{ section: string; key: EntityKind }> = [
   { section: 'workflows', key: 'workflows' },
@@ -30,24 +28,36 @@ function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): strin
 function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlDocument: Document }>): EntityIndex {
   const index = emptyEntityIndex();
 
-  TreeService.walk(tree, (node) => {
-    const doc = files[node.nodeId]?.ymlDocument;
-    if (!doc) {
+  // Highest-precedence-first DFS mirroring the Go merger: a node outranks the files it includes
+  // (visited first), and a later include outranks an earlier sibling (children walked in reverse),
+  // so index 0 is the winning layer. Cycle-guarded so a malformed tree can't recurse forever.
+  const seen = new Set<string>();
+  const visit = (node: TreeNode | undefined) => {
+    if (!node || seen.has(node.nodeId)) {
       return;
     }
+    seen.add(node.nodeId);
 
-    KIND_SECTIONS.forEach(({ section, key }) => {
-      const map = YmlUtils.getMapIn(doc, [section]);
-      map?.items.forEach((pair) => {
-        const entityId = String(pair.key);
-        if (!entityId) {
-          return;
-        }
-        // Pre-order append: first is top-most layer, later ones are lower layers.
-        (index[key][entityId] ||= []).push({ nodeId: node.nodeId });
+    const doc = files[node.nodeId]?.ymlDocument;
+    if (doc) {
+      KIND_SECTIONS.forEach(({ section, key }) => {
+        const map = YmlUtils.getMapIn(doc, [section]);
+        map?.items.forEach((pair) => {
+          const entityId = String(pair.key);
+          if (!entityId) {
+            return;
+          }
+          (index[key][entityId] ||= []).push({ nodeId: node.nodeId });
+        });
       });
-    });
-  });
+    }
+
+    for (let i = node.includes.length - 1; i >= 0; i -= 1) {
+      visit(node.includes[i]);
+    }
+  };
+
+  visit(tree);
 
   return index;
 }

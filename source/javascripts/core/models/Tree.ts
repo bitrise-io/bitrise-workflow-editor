@@ -13,7 +13,7 @@ export type TreeNode = {
   path: string;
   contents: string;
   source: TreeNodeSource | null;
-  /** Full 40-char SHA the contents were read from; also the conflict token for saves. */
+  /** SHA the contents were read from — a full 40-char SHA, or a short 6–8 char hash for short-pinned includes, or empty for FE-created files; also the conflict token for saves. */
   commitSha: string;
   /** Edit-gating source of truth; the FE never re-derives this. */
   editable: boolean;
@@ -25,8 +25,9 @@ export type TreeNode = {
 export type EntityDefinition = { nodeId: string };
 
 /**
- * `{ entityId: [{ nodeId }, …] }` per kind, in pre-order merge order: index `0` is the
- * top-most/highest-precedence layer, later entries are lower layers merged underneath.
+ * `{ entityId: [{ nodeId }, …] }` per kind, ordered highest-precedence-first to match the Go
+ * merger: index `0` is the winning layer (a node outranks the files it includes, and a later
+ * include outranks an earlier sibling), later entries are lower layers merged underneath.
  */
 export type EntityIndexEntries = Record<string, EntityDefinition[]>;
 
