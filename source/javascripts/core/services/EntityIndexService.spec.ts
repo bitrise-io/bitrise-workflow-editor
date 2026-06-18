@@ -58,7 +58,7 @@ describe('EntityIndexService', () => {
       return { ymlDocument: YmlUtils.toDoc(contents) };
     }
 
-    it('accumulates multi-layer definitions in pre-order, so the top-most layer is first', () => {
+    it('orders multi-layer definitions highest-precedence-first: parent over includes, later sibling over earlier', () => {
       const tree = node('n_root', [node('n_module_a'), node('n_module_b')]);
       const files = {
         n_root: file(yaml`
@@ -80,10 +80,11 @@ describe('EntityIndexService', () => {
 
       const result = EntityIndexService.buildFromFiles(tree, files);
 
+      // Parent (n_root) wins over its includes; among siblings the later one (n_module_b) wins over the earlier (n_module_a).
       expect(result.workflows.build).toEqual([
         { nodeId: 'n_root' },
-        { nodeId: 'n_module_a' },
         { nodeId: 'n_module_b' },
+        { nodeId: 'n_module_a' },
       ]);
       expect(result.workflows.deploy).toEqual([{ nodeId: 'n_module_a' }]);
       expect(result.pipelines.release).toEqual([{ nodeId: 'n_module_b' }]);
