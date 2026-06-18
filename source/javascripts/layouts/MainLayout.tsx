@@ -42,11 +42,13 @@ const MainLayout = () => {
 
   useMergedConfigSync();
 
-  // Non-modular keeps the original layout: full-width bar on the YAML page, no tabs row.
-  const gridTemplateColumns = isYmlPage && !isModular ? '1fr' : '256px 1fr';
+  // Key the YAML-page grid on tabsBesideBar (where the tab strip actually renders), not
+  // isModular: without the beside-bar strip the tabs live inside content, so the page is
+  // a single full-width column with no "tabs" area (matches the non-modular layout).
+  const gridTemplateColumns = isYmlPage && !tabsBesideBar ? '1fr' : '256px 1fr';
   let gridTemplateAreas = tabsBesideBar ? `"bar tabs" "nav content"` : `"bar content" "nav content"`;
   if (isYmlPage) {
-    gridTemplateAreas = isModular ? `"bar tabs" "content content"` : `"bar" "content"`;
+    gridTemplateAreas = tabsBesideBar ? `"bar tabs" "content content"` : `"bar" "content"`;
   }
 
   return (
