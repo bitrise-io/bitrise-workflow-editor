@@ -63,6 +63,7 @@ const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
 
   const [searchParams] = useSearchParams();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
+  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
   const defaultBranch = PageProps.app()?.defaultBranch;
   const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
   const branch = configBranch || requestedBranch || defaultBranch;
@@ -84,8 +85,9 @@ const ConfigSettingsBar = ({ showValidationBadge, ...props }: Props) => {
     <Box
       paddingLeft="32"
       paddingRight="12"
-      paddingBlock="12"
-      minHeight={rem(65)}
+      paddingBlock={isModular ? '0' : '12'}
+      height={isModular ? '48' : undefined}
+      minHeight={isModular ? undefined : rem(65)}
       borderBottom="1px solid"
       borderColor="border/minimal"
       display="flex"

@@ -8,7 +8,10 @@ import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/Con
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
+import useMergedConfigSync from '@/hooks/useMergedConfigSync';
+import { useTree } from '@/hooks/useTree';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
 const InvalidYmlRedirect = () => {
@@ -31,6 +34,23 @@ const MainLayout = () => {
   const isYmlPage = currentPath.startsWith(paths.yml);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
+  // Modular configs get a global file-tab strip atop the editor area.
+  const isModular = Boolean(useTree());
+  // With the bar present, the tab strip shares its 48px top row (so it doesn't jump
+  // between Visual and YAML mode); without it, the strip tops the content area instead.
+  const tabsBesideBar = isModular && isWebsiteMode;
+
+  useMergedConfigSync();
+
+  // Key the YAML-page grid on tabsBesideBar (where the tab strip actually renders), not
+  // isModular: without the beside-bar strip the tabs live inside content, so the page is
+  // a single full-width column with no "tabs" area (matches the non-modular layout).
+  const gridTemplateColumns = isYmlPage && !tabsBesideBar ? '1fr' : '256px 1fr';
+  let gridTemplateAreas = tabsBesideBar ? `"bar tabs" "nav content"` : `"bar content" "nav content"`;
+  if (isYmlPage) {
+    gridTemplateAreas = tabsBesideBar ? `"bar tabs" "content content"` : `"bar" "content"`;
+  }
+
   return (
     <Box h="100dvh" display="flex" flexDirection="column">
       <Header />
@@ -38,18 +58,23 @@ const MainLayout = () => {
         display="grid"
         flex="1"
         minH={0}
-        gridTemplateColumns={isYmlPage ? '1fr' : '256px 1fr'}
+        gridTemplateColumns={gridTemplateColumns}
         gridTemplateRows="auto 1fr"
-        gridTemplateAreas={isYmlPage ? `"bar" "content"` : `"bar content" "nav content"`}
+        gridTemplateAreas={gridTemplateAreas}
       >
         {isWebsiteMode && (
           <ConfigSettingsBar
             gridArea="bar"
             showValidationBadge={isYmlPage}
-            justifyContent={isYmlPage ? 'flex-start' : 'space-between'}
-            borderRight={isYmlPage ? undefined : '1px solid'}
-            borderRightColor={isYmlPage ? undefined : 'border/regular'}
+            justifyContent={isYmlPage && !isModular ? 'flex-start' : 'space-between'}
+            borderRight={isYmlPage && !isModular ? undefined : '1px solid'}
+            borderRightColor={isYmlPage && !isModular ? undefined : 'border/regular'}
           />
+        )}
+        {tabsBesideBar && (
+          <Box gridArea="tabs" minW={0}>
+            <OpenFileTabs />
+          </Box>
         )}
         {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
         <Navigation
@@ -58,16 +83,19 @@ const MainLayout = () => {
           borderColor="border/regular"
           style={{ display: isYmlPage ? 'none' : undefined }}
         />
-        <Box gridArea="content" overflowX="hidden" overflowY="auto">
-          <Router hook={useHashLocation} searchHook={useHashSearch}>
-            <InvalidYmlRedirect />
-            <Switch>
-              {routes.map(({ path, component }) => (
-                <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
-              ))}
-              <Redirect to={paths.workflows} replace />
-            </Switch>
-          </Router>
+        <Box gridArea="content" display="flex" flexDirection="column" minW={0} minH={0}>
+          {isModular && !tabsBesideBar && <OpenFileTabs />}
+          <Box flex="1" overflowX="hidden" overflowY="auto">
+            <Router hook={useHashLocation} searchHook={useHashSearch}>
+              <InvalidYmlRedirect />
+              <Switch>
+                {routes.map(({ path, component }) => (
+                  <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
+                ))}
+                <Redirect to={paths.workflows} replace />
+              </Switch>
+            </Router>
+          </Box>
         </Box>
       </Box>
     </Box>

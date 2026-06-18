@@ -14,7 +14,7 @@ const MergedDiffDialogBody = () => {
         The merged configuration as built from your saved files (left) vs. your current unsaved changes (right). This
         view is read-only.
       </Notification>
-      <DiffEditor readOnly originalText={savedMergedYml} modifiedText={mergedYml} onChange={() => {}} />
+      <DiffEditor readOnly originalText={savedMergedYml} modifiedText={mergedYml} />
     </DialogBody>
   );
 };

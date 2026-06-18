@@ -4,7 +4,7 @@ import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/re
 export type Props = {
   originalText: string;
   modifiedText: string;
-  onChange: (changedText: string) => void;
+  onChange?: (changedText: string) => void;
   onMount?: (editor: MonacoDiffEditor) => void;
   language?: string;
   readOnly?: boolean;
@@ -24,7 +24,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
 
     modifiedEditor.onDidChangeModelContent(() => {
       const changedText = modifiedEditor.getValue();
-      onChange(changedText);
+      onChange?.(changedText);
     });
 
     onMount?.(editor);
