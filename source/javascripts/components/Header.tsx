@@ -8,7 +8,7 @@ import {
   useResponsive,
   useToast,
 } from '@bitrise/bitkit';
-import { BitkitSegmentedControl, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
+import { BitkitSegmentedControl, BitkitTooltip, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -93,13 +93,6 @@ const Header = () => {
 
       if (value === 'visual') {
         if (ymlStatus === 'invalid') {
-          toast({
-            status: 'error',
-            title: 'Invalid YAML',
-            description: 'Please fix the errors in your YAML configuration before navigating.',
-            duration: null,
-            isClosable: true,
-          });
           return;
         }
 
@@ -118,7 +111,7 @@ const Header = () => {
         );
       }
     },
-    [searchParams, navigate, ymlStatus, toast],
+    [searchParams, navigate, ymlStatus],
   );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -309,19 +302,25 @@ const Header = () => {
         {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>Workflow Editor</BreadcrumbLink>}
       </Breadcrumb>
 
-      <BitkitSegmentedControl
-        size="sm"
-        value={editorView}
-        aria-label="Editor view"
-        onValueChange={(details) => handleEditorViewChange(details.value)}
+      <BitkitTooltip
+        disabled={ymlStatus !== 'invalid'}
+        placement={isMobile ? 'bottom' : 'bottom-start'}
+        text="YAML is invalid, please fix it before switching to the Visual editor."
       >
-        <BitkitSegmentedControl.Item icon={IconWebUi} value="visual">
-          Visual
-        </BitkitSegmentedControl.Item>
-        <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
-          YAML
-        </BitkitSegmentedControl.Item>
-      </BitkitSegmentedControl>
+        <BitkitSegmentedControl
+          size="sm"
+          value={editorView}
+          aria-label="Editor view"
+          onValueChange={(details) => handleEditorViewChange(details.value)}
+        >
+          <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={ymlStatus === 'invalid'}>
+            Visual
+          </BitkitSegmentedControl.Item>
+          <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
+            YAML
+          </BitkitSegmentedControl.Item>
+        </BitkitSegmentedControl>
+      </BitkitTooltip>
 
       <Box
         gap="8"

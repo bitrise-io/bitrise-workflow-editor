@@ -29,3 +29,11 @@ export const CLI = {
     window.parent.globalProps = undefined;
   },
 };
+
+export const InvalidYml = {
+  parameters: {
+    bitriseYmlStore: {
+      validationStatus: 'invalid',
+    },
+  },
+};

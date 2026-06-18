@@ -40,7 +40,10 @@ type ContentProps = {
 };
 
 export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadOnly }: ContentProps) => {
-  const [ymlStatus, subscribeToModel] = useModelValidationStatus(useYmlValidationStatus());
+  // useModelValidationStatus only accepts 'valid' | 'invalid' | 'warnings'; map the new
+  // 'pending' seed to 'valid' (the diff editor recomputes its own status from markers anyway).
+  const seedStatus = useYmlValidationStatus();
+  const [ymlStatus, subscribeToModel] = useModelValidationStatus(seedStatus === 'pending' ? 'valid' : seedStatus);
   const [currentText, setCurrentText] = useState<string | undefined>();
 
   useEffect(() => {

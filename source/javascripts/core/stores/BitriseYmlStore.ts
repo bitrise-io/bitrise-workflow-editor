@@ -47,7 +47,7 @@ export const bitriseYmlStore = createStore(
     savedYmlDocument: new Document(),
     __invalidYmlString: undefined as string | undefined,
     __savedInvalidYmlString: undefined as string | undefined,
-    validationStatus: 'valid' as 'valid' | 'invalid' | 'warnings',
+    validationStatus: 'pending' as 'valid' | 'invalid' | 'warnings' | 'pending',
     configBranch: undefined as string | undefined,
     configCommitSha: undefined as string | undefined,
 

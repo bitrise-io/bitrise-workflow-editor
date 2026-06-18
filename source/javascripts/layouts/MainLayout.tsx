@@ -63,6 +63,7 @@ const MainLayout = () => {
         {isWebsiteMode && (
           <ConfigSettingsBar
             gridArea="bar"
+            showValidationBadge={isYmlPage}
             justifyContent={isYmlPage && !isModular ? 'flex-start' : 'space-between'}
             borderRight={isYmlPage && !isModular ? undefined : '1px solid'}
             borderRightColor={isYmlPage && !isModular ? undefined : 'border/regular'}
