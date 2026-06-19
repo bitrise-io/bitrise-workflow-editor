@@ -4,7 +4,10 @@ import { EntityKind, TreeNode } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import TreeService from '@/core/services/TreeService';
 import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
+import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+const ROOT_META_STACK_FIELDS = ['stack', 'machine_type_id', 'stack_rollback_version'];
 
 // Map-keyed kinds → their top-level YAML section (for the local-definition check). `appEnvs` is
 // array-shaped (`app.envs`) and handled separately in useCrossFileEntity.
@@ -105,6 +108,41 @@ export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntit
       definingPath: file?.path,
       sourceLabel: TreeService.sourceLabel(file?.source ?? null) ?? undefined,
     };
+  });
+}
+
+export type RootMetaDefinition = { nodeId: string; path: string };
+
+/**
+ * Files defining a root `meta['bitrise.io']` stack field (the default stack/machine), highest-precedence-first
+ * — mirrors the entity-index walk (node before its includes, includes reversed). The default stack is a
+ * singleton (not an id-keyed entity), so it isn't in the entity index; this resolves its source for the
+ * Stacks "Default" tab's jump-to-definition.
+ */
+export function useRootMetaStackDefinitions(): RootMetaDefinition[] {
+  // useBitriseYmlStore applies a deep-equal useShallow internally, so a fresh array is fine.
+  return useBitriseYmlStore((s) => {
+    if (!s.tree) {
+      return [];
+    }
+    const result: RootMetaDefinition[] = [];
+    const seen = new Set<string>();
+    const visit = (node?: TreeNode) => {
+      if (!node || seen.has(node.nodeId)) {
+        return;
+      }
+      seen.add(node.nodeId);
+      const doc = s.files[node.nodeId]?.ymlDocument;
+      const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
+      if (meta && ROOT_META_STACK_FIELDS.some((field) => meta.has(field))) {
+        result.push({ nodeId: node.nodeId, path: s.files[node.nodeId]?.path ?? node.path });
+      }
+      for (let i = node.includes.length - 1; i >= 0; i -= 1) {
+        visit(node.includes[i]);
+      }
+    };
+    visit(s.tree);
+    return result;
   });
 }
 
