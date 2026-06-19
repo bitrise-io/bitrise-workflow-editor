@@ -37,6 +37,16 @@ export type EntityIndex = {
   pipelines: EntityIndexEntries;
   /** camelCase ← wire `step_bundles`. */
   stepBundles: EntityIndexEntries;
+  /**
+   * Execution + service containers share the one top-level `containers` map, keyed by container id.
+   * Optional: older BE snapshots omit it (defaulted to `{}` on parse); the live FE index always has it.
+   */
+  containers?: EntityIndexEntries;
+  /**
+   * Project env vars (`app.envs`), keyed by env var name. camelCase ← wire `app_envs`.
+   * Optional for the same reason as `containers`.
+   */
+  appEnvs?: EntityIndexEntries;
 };
 
 export type EntityKind = keyof EntityIndex;

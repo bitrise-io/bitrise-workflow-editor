@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import {
   bitriseYmlStore,
   closeTab,
+  discardFile,
   getTabLastLocation,
   isYmlPageLocation,
   MERGED_CONFIG_NODE_ID,
@@ -102,6 +103,19 @@ export function useTabs() {
     [restoreTabLocation],
   );
 
+  // Discard the file's unsaved edits and close its tab; rebinds + restores like closeTab.
+  const discardFileAndRestore = useCallback(
+    (nodeId: string) => {
+      const before = bitriseYmlStore.getState().selectedNodeId;
+      discardFile(nodeId);
+      const after = bitriseYmlStore.getState().selectedNodeId;
+      if (after && after !== before) {
+        restoreTabLocation(after);
+      }
+    },
+    [restoreTabLocation],
+  );
+
   return {
     tabs,
     activeTab,
@@ -110,6 +124,7 @@ export function useTabs() {
     selectTab,
     openFile,
     closeTab: closeTabAndRestore,
+    discardFile: discardFileAndRestore,
     selectMergedConfig: selectMerged,
   };
 }
