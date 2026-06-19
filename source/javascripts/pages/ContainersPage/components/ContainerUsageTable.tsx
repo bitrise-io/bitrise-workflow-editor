@@ -1,6 +1,8 @@
 import { ControlButton, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import useNavigation from '@/hooks/useNavigation';
+import { useTree } from '@/hooks/useTree';
 
 type Props = {
   workflows: string[];
@@ -8,6 +10,9 @@ type Props = {
 
 const ContainerUsageTable = ({ workflows }: Props) => {
   const { replace } = useNavigation();
+  // Modular: jump to the workflow's definition (opens its file tab, with a file picker when it's
+  // defined in several files). Non-modular: plain navigation to the Workflows page.
+  const isModular = Boolean(useTree());
 
   return (
     <Table isFixed variant="borderless" mt="24">
@@ -24,11 +29,15 @@ const ContainerUsageTable = ({ workflows }: Props) => {
               <Text textStyle="body/md/regular">{workflowId}</Text>
             </Td>
             <Td>
-              <ControlButton
-                aria-label="Go to Workflow"
-                iconName="ArrowNorthEast"
-                onClick={() => replace('/workflows', { workflow_id: workflowId })}
-              />
+              {isModular ? (
+                <CrossFileJumpButton kind="workflows" id={workflowId} />
+              ) : (
+                <ControlButton
+                  aria-label="Go to Workflow"
+                  iconName="ArrowNorthEast"
+                  onClick={() => replace('/workflows', { workflow_id: workflowId })}
+                />
+              )}
             </Td>
           </Tr>
         ))}

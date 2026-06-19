@@ -9,8 +9,8 @@ import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
-import ContainersTable from './ContainersTable';
 import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
+import GroupedContainersTables from './GroupedContainersTables';
 
 const ExecutionContainersTab = () => {
   const isReadOnlyView = useIsReadOnlyView();
@@ -52,7 +52,7 @@ const ExecutionContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable
+        <GroupedContainersTables
           containers={containers}
           containerUsageLookup={containerUsageLookup}
           openDialog={onDialogOpen}
@@ -72,6 +72,7 @@ const ExecutionContainersTab = () => {
         onClose={onDialogClose}
         onCloseComplete={() => setEditedContainer(null)}
         type="execution"
+        readOnly={isReadOnlyView}
       />
     </>
   );
