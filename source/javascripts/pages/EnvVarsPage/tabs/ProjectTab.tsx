@@ -1,7 +1,7 @@
 import { Text } from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
 
-import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
 import TabContainer from '@/components/tabs/TabContainer';
 import TabHeader from '@/components/tabs/TabHeader';
 import { EnvVarSource } from '@/core/models/EnvVar';
@@ -33,7 +33,7 @@ const ProjectTab = () => {
               source={EnvVarSource.App}
               initialEnvs={group.envs}
               hideAddButton
-              renderJumpButton={(env) => <CrossFileJumpButton kind="appEnvs" id={env.key} />}
+              renderJumpButton={() => <JumpToFileButton nodeId={group.nodeId} />}
             />
           </Fragment>
         ))

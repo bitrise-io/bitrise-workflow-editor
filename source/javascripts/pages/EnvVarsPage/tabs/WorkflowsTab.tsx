@@ -1,52 +1,69 @@
 import { Box, Divider, Text } from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
 
-import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
 import TabContainer from '@/components/tabs/TabContainer';
 import TabHeader from '@/components/tabs/TabHeader';
 import { EnvVarSource } from '@/core/models/EnvVar';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useDefiningFilePath, useIsMergedConfigSelected } from '@/hooks/useTree';
+import { useIsMergedConfigSelected } from '@/hooks/useTree';
 
 import EnvVarsTable from '../components/EnvVarsTable';
 import PrivateInfoNotification from '../components/PrivateInfoNotification';
+import { useWorkflowEnvVarFileGroups } from '../useProjectEnvVarFileGroups';
 
-type SectionProps = {
-  workflowId: string;
-  isMergedView: boolean;
-  showDivider: boolean;
-};
-
-const WorkflowEnvVarsSection = ({ workflowId, isMergedView, showDivider }: SectionProps) => {
-  const definingPath = useDefiningFilePath('workflows', workflowId);
+const MergedWorkflowsTab = () => {
+  // One section per (workflow, source file) that actually has env vars — no empty tables, and the
+  // arrow jumps straight to the file the vars live in.
+  const groups = useWorkflowEnvVarFileGroups();
 
   return (
     <>
-      <Box display="flex" alignItems="flex-start" justifyContent="space-between" gap="8">
-        <Box>
+      {groups.map((group, index) => (
+        <Fragment key={`${group.workflowId}@${group.nodeId}`}>
+          <Box display="flex" alignItems="flex-start" justifyContent="space-between" gap="8">
+            <Box>
+              <Text as="h3" textStyle="heading/h3">
+                {group.workflowId}
+              </Text>
+              <Text textStyle="body/sm/regular" color="text/secondary">
+                Defined in {group.path}
+              </Text>
+            </Box>
+          </Box>
+          <EnvVarsTable
+            source={EnvVarSource.Workflows}
+            sourceId={group.workflowId}
+            initialEnvs={group.envs}
+            hideAddButton
+            renderJumpButton={() => <JumpToFileButton nodeId={group.nodeId} />}
+          />
+          {groups.length - 1 > index && <Divider />}
+        </Fragment>
+      ))}
+    </>
+  );
+};
+
+const EditableWorkflowsTab = () => {
+  const workflowIds = useBitriseYmlStore((state) => Object.keys(state.yml.workflows ?? {}));
+
+  return (
+    <>
+      {workflowIds.map((workflowId, index) => (
+        <Fragment key={workflowId}>
           <Text as="h3" textStyle="heading/h3">
             {workflowId}
           </Text>
-          {isMergedView && definingPath && (
-            <Text textStyle="body/sm/regular" color="text/secondary">
-              Defined in {definingPath}
-            </Text>
-          )}
-        </Box>
-      </Box>
-      <EnvVarsTable
-        source={EnvVarSource.Workflows}
-        sourceId={workflowId}
-        hideAddButton={isMergedView}
-        renderJumpButton={isMergedView ? () => <CrossFileJumpButton kind="workflows" id={workflowId} /> : undefined}
-      />
-      {showDivider && <Divider />}
+          <EnvVarsTable source={EnvVarSource.Workflows} sourceId={workflowId} />
+          {workflowIds.length - 1 > index && <Divider />}
+        </Fragment>
+      ))}
     </>
   );
 };
 
 const WorkflowsTab = () => {
-  const workflowIds = useBitriseYmlStore((state) => Object.keys(state.yml.workflows ?? {}));
   const isMergedView = useIsMergedConfigSelected();
 
   return (
@@ -56,15 +73,7 @@ const WorkflowsTab = () => {
         title="Workflows' environment variables"
         subtitle="Env Vars exclusive to the Steps within the Workflow they are defined in"
       />
-      {workflowIds.map((workflowId, index) => (
-        <Fragment key={workflowId}>
-          <WorkflowEnvVarsSection
-            workflowId={workflowId}
-            isMergedView={isMergedView}
-            showDivider={workflowIds.length - 1 > index}
-          />
-        </Fragment>
-      ))}
+      {isMergedView ? <MergedWorkflowsTab /> : <EditableWorkflowsTab />}
     </TabContainer>
   );
 };
