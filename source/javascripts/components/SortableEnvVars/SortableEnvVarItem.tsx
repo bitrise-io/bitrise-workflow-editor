@@ -1,7 +1,7 @@
 import { Box, Checkbox, ControlButton, Input, Text } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
@@ -20,6 +20,8 @@ export type SortableEnvVarItemProps = {
   onKeyChange?: (key: string) => void;
   onValueChange?: (value: string) => void;
   onIsExpandChange?: (isExpand: boolean) => void;
+  /** Read-only views: a jump-to-definition arrow rendered in place of the remove button. */
+  jumpButton?: ReactNode;
 };
 
 const SortableEnvVarItem = ({
@@ -29,6 +31,7 @@ const SortableEnvVarItem = ({
   onKeyChange,
   onValueChange,
   onIsExpandChange,
+  jumpButton,
 }: SortableEnvVarItemProps) => {
   const isReadOnlyView = useIsReadOnlyView();
   const sortable = useSortable({ id: env.uniqueId, data: env, disabled: isReadOnlyView });
@@ -108,16 +111,20 @@ const SortableEnvVarItem = ({
             formControlProps={{ flex: 1 }}
             onChange={(e) => handleValueChange(e.target.value)}
           />
-          <ControlButton
-            isDanger
-            ml="8"
-            size="md"
-            aria-label="Remove"
-            iconName="MinusCircle"
-            isDisabled={isReadOnlyView}
-            tooltipProps={{ 'aria-label': 'Remove' }}
-            onClick={() => onRemove?.()}
-          />
+          {isReadOnlyView && jumpButton ? (
+            <Box ml="8">{jumpButton}</Box>
+          ) : (
+            <ControlButton
+              isDanger
+              ml="8"
+              size="md"
+              aria-label="Remove"
+              iconName="MinusCircle"
+              isDisabled={isReadOnlyView}
+              tooltipProps={{ 'aria-label': 'Remove' }}
+              onClick={() => onRemove?.()}
+            />
+          )}
         </Box>
         <Checkbox
           isChecked={env.isExpand !== false}

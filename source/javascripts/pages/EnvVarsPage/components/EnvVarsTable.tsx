@@ -1,7 +1,9 @@
 import { Box, Card, Text } from '@bitrise/bitkit';
+import { ReactNode } from 'react';
 
+import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
 import SortableEnvVars from '@/components/SortableEnvVars/SortableEnvVars';
-import { EnvVarSource } from '@/core/models/EnvVar';
+import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 
 const EnvVarsTableHeader = () => {
   return (
@@ -29,14 +31,23 @@ const EnvVarsTableHeader = () => {
 type Props = {
   source: EnvVarSource;
   sourceId?: string;
+  initialEnvs?: EnvVar[];
+  hideAddButton?: boolean;
+  renderJumpButton?: (env: SortableEnvVar) => ReactNode;
 };
 
-const EnvVarsTable = ({ source, sourceId }: Props) => {
+const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, renderJumpButton }: Props) => {
   return (
     <Card as="section" variant="outline">
       <EnvVarsTableHeader />
       <Box>
-        <SortableEnvVars source={source} sourceId={sourceId} />
+        <SortableEnvVars
+          source={source}
+          sourceId={sourceId}
+          initialEnvs={initialEnvs}
+          hideAddButton={hideAddButton}
+          renderJumpButton={renderJumpButton}
+        />
       </Box>
     </Card>
   );
