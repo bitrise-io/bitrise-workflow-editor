@@ -35,16 +35,19 @@ if (override !== undefined) {
 }
 
 /**
- * DEV ONLY — hidden (and the localStorage override inert) in production builds; the
- * `defaultValues` override in `useFeatureFlag` still needs removing before release.
- * Floating button to flip the modular-YAML feature flag for testing.
- * The flag is only read at bootstrap (it selects the legacy vs tree config loading), so
+ * Internal testing panel — per-page diff, module-file creation, and a flag toggle. Always shown in
+ * dev; in production only when the flag is already enabled for the workspace (internal test
+ * workspaces). The whole panel (and the `defaultValues` override in `useFeatureFlag`) is removed before GA.
+ * The localStorage override stays inert in production, so the flag toggle is a no-op there — the real
+ * LD flag wins. The flag is only read at bootstrap (it selects legacy vs tree config loading), so in dev
  * toggling persists a local override and reloads the page instead of re-rendering.
  */
 const ModularYamlDevToggle = () => {
   const enabled = useFeatureFlag(FLAG_KEY);
 
-  if (isProduction()) {
+  // Always available in dev; in production only for workspaces where the flag is already on
+  // (internal test workspaces), so it never leaks a stray toggle to other workspaces.
+  if (isProduction() && !enabled) {
     return null;
   }
 
