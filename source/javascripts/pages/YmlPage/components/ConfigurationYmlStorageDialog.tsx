@@ -486,6 +486,8 @@ const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStora
   return (
     <BitkitDialog
       title="Configuration YAML storage"
+      scrollBehavior="inside"
+      showScrollGradient={false}
       open={isOpen}
       onOpenChange={({ open }) => {
         if (!open) onClose();
