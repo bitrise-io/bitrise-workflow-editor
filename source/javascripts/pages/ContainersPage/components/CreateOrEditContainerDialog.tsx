@@ -48,8 +48,16 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   const { editedContainer, isOpen, onClose, onCloseComplete, type, readOnly = false } = props;
 
   const containerIds = useContainers().all.map((container) => container.id);
-  // In read-only "view details" mode, expand the extra options so everything is visible at a glance.
-  const { isOpen: isShowMore, onToggle } = useDisclosure({ defaultIsOpen: readOnly });
+  const { isOpen: isShowMore, onToggle, onOpen: expandShowMore } = useDisclosure();
+
+  // In read-only "view details" mode, expand the extra options on open so everything is visible at a
+  // glance. Done on each open (not via defaultIsOpen, which only applies on first mount) because the
+  // dialog stays mounted while `readOnly` can flip between editable and merged/cross-file views.
+  useEffect(() => {
+    if (isOpen && readOnly) {
+      expandShowMore();
+    }
+  }, [isOpen, readOnly, expandShowMore]);
 
   const { control, formState, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
