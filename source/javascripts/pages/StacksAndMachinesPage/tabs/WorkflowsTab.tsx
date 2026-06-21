@@ -29,7 +29,7 @@ const WorkflowStackGroup = ({ workflowId, showDefinition }: GroupProps) => {
             </Text>
           )}
         </Box>
-        {showDefinition && <CrossFileJumpButton kind="workflows" id={workflowId} />}
+        {showDefinition && definingPath && <CrossFileJumpButton kind="workflows" id={workflowId} />}
       </Box>
       <WorkflowStackAndMachine workflowId={workflowId} />
     </Box>
