@@ -7,7 +7,7 @@ import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stor
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const ROOT_META_STACK_FIELDS = ['stack', 'machine_type_id', 'stack_rollback_version'];
+export const ROOT_META_STACK_FIELDS = ['stack', 'machine_type_id', 'stack_rollback_version'];
 
 // Map-keyed kinds → their top-level YAML section (for the local-definition check). `appEnvs` is
 // array-shaped (`app.envs`) and handled separately in useCrossFileEntity.

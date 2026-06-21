@@ -27,10 +27,11 @@ const FilePickerPopover = ({ rootNode, nodeIds, onSelect, trigger, onOpenChange 
   const handleSelect = useCallback(
     (nodeId: string) => {
       onSelect(nodeId);
+      // `setIsOpen(false)` triggers Popover's `onOpenChange`, which already forwards to the
+      // `onOpenChange` prop — don't call it again here or consumers get a duplicate close event.
       setIsOpen(false);
-      onOpenChange?.(false);
     },
-    [onSelect, onOpenChange],
+    [onSelect],
   );
 
   return (

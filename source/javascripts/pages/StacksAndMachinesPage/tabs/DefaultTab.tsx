@@ -1,23 +1,33 @@
 import { Box, ControlButton, Text } from '@bitrise/bitkit';
+import { useMemo } from 'react';
 
 import FilePickerPopover from '@/components/JumpToDefinitionLink/FilePickerPopover';
 import DefaultStackAndMachine from '@/components/StacksAndMachine/DefaultStackAndMachine';
 import TabContainer from '@/components/tabs/TabContainer';
 import { openTab } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useIsMergedConfigSelected, useRootMetaStackDefinitions, useTree } from '@/hooks/useTree';
+import {
+  ROOT_META_STACK_FIELDS,
+  useIsMergedConfigSelected,
+  useRootMetaStackDefinitions,
+  useTree,
+} from '@/hooks/useTree';
 
 const DefaultTab = () => {
   const tree = useTree();
   const isModular = Boolean(tree);
   const isMergedView = useIsMergedConfigSelected();
   const metaDefinitions = useRootMetaStackDefinitions();
+  // Memoized so the picker's restricted node set keeps a stable identity across renders
+  // (a fresh array would rebuild FileTreeView's collection and reset its expansion state).
+  const metaNodeIds = useMemo(() => metaDefinitions.map((definition) => definition.nodeId), [metaDefinitions]);
 
   // Whether the active document itself defines a default stack/machine. On a single module-file tab
-  // `yml` is that file; on the merged tab it's the whole config.
+  // `yml` is that file; on the merged tab it's the whole config. Key presence (not truthiness) so a
+  // falsy-but-set value like `stack_rollback_version: 0` still counts — matching useRootMetaStackDefinitions.
   const hasLocalDefault = useBitriseYmlStore((s) => {
     const meta = s.yml.meta?.['bitrise.io'];
-    return Boolean(meta && (meta.stack || meta.machine_type_id || meta.stack_rollback_version));
+    return Boolean(meta && ROOT_META_STACK_FIELDS.some((field) => field in meta));
   });
 
   // Modular single module-file tab that doesn't define the default → nothing to show here.
@@ -40,11 +50,12 @@ const DefaultTab = () => {
         <Box display="flex" alignItems="center" justifyContent="space-between" gap="8" mb="8">
           <Text textStyle="body/sm/regular" color="text/secondary">
             Defined in {metaDefinitions[0].path}
+            {metaDefinitions.length > 1 ? ` (+${metaDefinitions.length - 1} more)` : ''}
           </Text>
           {tree && (
             <FilePickerPopover
               rootNode={tree}
-              nodeIds={metaDefinitions.map((definition) => definition.nodeId)}
+              nodeIds={metaNodeIds}
               onSelect={(nodeId) => openTab(nodeId, { preview: false })}
               trigger={
                 <ControlButton
