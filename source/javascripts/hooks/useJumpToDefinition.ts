@@ -12,9 +12,13 @@ const KIND_PATH: Record<EntityKind, string> = {
   workflows: paths.workflows,
   pipelines: paths.pipelines,
   stepBundles: paths.stepBundles,
+  containers: paths.containers,
+  appEnvs: paths.envVars,
 };
 
-const KIND_PARAM: Record<EntityKind, string> = {
+// Per-entity deep-link param. Container/appEnvs pages have no per-entity route param — opening the
+// defining file's tab (below) lands the user on the right page, so they have no entry here.
+const KIND_PARAM: Partial<Record<EntityKind, string>> = {
   workflows: 'workflow_id',
   pipelines: 'pipeline',
   stepBundles: 'step_bundle_id',
@@ -42,7 +46,11 @@ export default function useJumpToDefinition() {
 
       openTab(nodeId, { preview: false });
 
-      const params: Record<string, string> = { [KIND_PARAM[kind]]: id };
+      const params: Record<string, string> = {};
+      const param = KIND_PARAM[kind];
+      if (param) {
+        params[param] = id;
+      }
       if (searchParams.branch) {
         params.branch = searchParams.branch;
       }

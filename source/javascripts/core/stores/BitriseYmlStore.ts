@@ -763,6 +763,83 @@ export function closeTab(nodeId: string) {
   });
 }
 
+/**
+ * Discard a single file's unsaved changes and close its tab — the per-tab counterpart to
+ * {@link discardBitriseYmlDocument}. A session-created file (editable, no commit_sha ⇒ never on the
+ * branch) is dropped entirely, along with the `include:` directive that referenced it and any nested
+ * session-created includes; an edited existing file is reverted to its saved baseline and kept in
+ * the tree. No-ops for a non-modular doc (no file slice) or an unknown node.
+ */
+export function discardFile(nodeId: string) {
+  const state = bitriseYmlStore.getState();
+  const slice = state.files[nodeId];
+  if (!slice) {
+    return;
+  }
+
+  // Existing file: revert its edits, keep it in the tree, then close the tab.
+  if (!(slice.editable && !slice.commitSha)) {
+    bitriseYmlStore.setState({
+      files: { ...state.files, [nodeId]: { ...slice, ymlDocument: slice.savedYmlDocument } },
+      mergedYmlStale: true,
+    });
+    closeTab(nodeId);
+    return;
+  }
+
+  // Session-created file: remove the parent's `include:` entry that pointed at it (the inverse of the
+  // `addInclude` we ran on create), so discarding the file also discards the directive we added.
+  let parentNodeId: string | undefined;
+  TreeService.walk(state.tree, (node, parent) => {
+    if (node.nodeId === nodeId) {
+      parentNodeId = parent?.nodeId;
+    }
+  });
+  const parentSlice = parentNodeId ? state.files[parentNodeId] : undefined;
+  if (parentNodeId && parentSlice?.editable) {
+    updateFileDocument(parentNodeId, ({ doc }) => {
+      YmlUtils.deleteByPredicate(
+        doc,
+        ['include', '*'],
+        (_node, path) => YmlUtils.getMapIn(doc, path)?.get('path') === slice.path,
+      );
+      return doc;
+    });
+  }
+
+  // Then drop the file and the whole subtree it pulled in (its includes only exist because this
+  // session-created file referenced them) from files + tree, and rebind the active document if one
+  // of the dropped tabs was active.
+  const dropNode = TreeService.findNode(state.tree, nodeId);
+  const dropIds = new Set(dropNode ? TreeService.flatten(dropNode).map((node) => node.nodeId) : [nodeId]);
+
+  // updateFileDocument above may have mutated files/openTabs — re-read before patching.
+  const next = bitriseYmlStore.getState();
+  const files: Record<string, FileSlice> = {};
+  Object.values(next.files).forEach((fileSlice) => {
+    if (!dropIds.has(fileSlice.nodeId)) {
+      files[fileSlice.nodeId] = fileSlice;
+    }
+  });
+  const tree = next.tree ? pruneNodes(next.tree, dropIds) : next.tree;
+  const closedIndex = next.openTabs.findIndex((tab) => dropIds.has(tab.nodeId));
+  const openTabs = next.openTabs.filter((tab) => !dropIds.has(tab.nodeId));
+
+  const activeDropped = !!next.selectedNodeId && dropIds.has(next.selectedNodeId);
+  const neighborNodeId = activeDropped ? (openTabs[closedIndex] ?? openTabs[closedIndex - 1])?.nodeId : undefined;
+  const selectionPatch = activeDropped
+    ? (neighborNodeId && activeFilePatch(neighborNodeId)) || mergedConfigPatch()
+    : {};
+
+  bitriseYmlStore.setState({
+    files,
+    tree,
+    openTabs,
+    ...selectionPatch,
+    mergedYmlStale: true,
+  });
+}
+
 export function setMergedConfig(mergedYml: string) {
   const { selectedNodeId, hasChanges } = bitriseYmlStore.getState();
   // A merge computed while nothing is dirty IS the saved baseline; while edits are pending it stays frozen.

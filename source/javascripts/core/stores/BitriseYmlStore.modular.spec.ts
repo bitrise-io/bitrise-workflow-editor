@@ -8,6 +8,7 @@ import {
   closeTab,
   createFile,
   discardBitriseYmlDocument,
+  discardFile,
   getModularConfigTree,
   initializeBitriseYmlDocument,
   initializeModularConfig,
@@ -161,6 +162,47 @@ describe('BitriseYmlStore — modular tree', () => {
     });
   });
 
+  describe('discardFile', () => {
+    it('drops a session-created file and removes the include directive added for it', () => {
+      const result = createFile('modules/new.yml', 'root');
+      const nodeId = result.ok ? result.nodeId : '';
+      addInclude('root', { path: 'modules/new.yml' });
+      expect(bitriseYmlStore.getState().files[nodeId]).toBeDefined();
+
+      discardFile(nodeId);
+
+      const state = bitriseYmlStore.getState();
+      expect(state.files[nodeId]).toBeUndefined();
+      expect(state.tree?.includes.some((n) => n.nodeId === nodeId)).toBe(false);
+      expect(state.openTabs.some((t) => t.nodeId === nodeId)).toBe(false);
+      const rootIncludes = YmlUtils.getSeqIn(state.files.root!.ymlDocument, ['include'])?.toJSON() ?? [];
+      expect(rootIncludes).not.toContainEqual({ path: 'modules/new.yml' });
+    });
+
+    it('reverts an edited existing file to its saved baseline and closes its tab, keeping it in the tree', () => {
+      openTab('child-a', { preview: false });
+      updateFileDocument('child-a', ({ doc }) => {
+        YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'Edited');
+        return doc;
+      });
+      expect(isFileDirty(bitriseYmlStore.getState().files['child-a'])).toBe(true);
+
+      discardFile('child-a');
+
+      const state = bitriseYmlStore.getState();
+      expect(state.files['child-a']).toBeDefined();
+      expect(isFileDirty(state.files['child-a'])).toBe(false);
+      expect(state.tree?.includes.some((n) => n.nodeId === 'child-a')).toBe(true);
+      expect(state.openTabs.some((t) => t.nodeId === 'child-a')).toBe(false);
+    });
+
+    it('no-ops for an unknown node', () => {
+      const before = bitriseYmlStore.getState();
+      discardFile('does-not-exist');
+      expect(bitriseYmlStore.getState()).toBe(before);
+    });
+  });
+
   describe('initializeModularConfig', () => {
     it('flattens the tree into file slices keyed by node_id', () => {
       const { files } = bitriseYmlStore.getState();
@@ -185,6 +227,8 @@ describe('BitriseYmlStore — modular tree', () => {
         },
         pipelines: {},
         stepBundles: {},
+        containers: {},
+        appEnvs: {},
       });
     });
 
@@ -231,7 +275,7 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.files).toEqual({});
       expect(state.openTabs).toEqual([]);
       expect(state.selectedNodeId).toBeUndefined();
-      expect(state.entityIndex).toEqual({ workflows: {}, pipelines: {}, stepBundles: {} });
+      expect(state.entityIndex).toEqual({ workflows: {}, pipelines: {}, stepBundles: {}, containers: {}, appEnvs: {} });
       expect(state.mergedYml).toBeUndefined();
       expect(state.savedMergedYml).toBeUndefined();
       // The single-file document is now the one the editor reads.

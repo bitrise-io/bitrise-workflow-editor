@@ -104,6 +104,49 @@ describe('EntityIndexService', () => {
       expect(result.stepBundles.common).toEqual([{ nodeId: 'n_root' }]);
     });
 
+    it('indexes execution + service containers from the one containers map, layered highest-precedence-first', () => {
+      const tree = node('n_root', [node('n_module')]);
+      const files = {
+        n_root: file(yaml`
+          containers:
+            node: { type: execution, image: node:18 }
+        `),
+        n_module: file(yaml`
+          containers:
+            node: { type: execution, image: node:20 }
+            db: { type: service, image: postgres:16 }
+        `),
+      };
+
+      const result = EntityIndexService.buildFromFiles(tree, files);
+
+      // Parent (n_root) outranks the module it includes for the shared `node` id.
+      expect(result.containers?.node).toEqual([{ nodeId: 'n_root' }, { nodeId: 'n_module' }]);
+      expect(result.containers?.db).toEqual([{ nodeId: 'n_module' }]);
+    });
+
+    it('indexes project env vars (app.envs) by var name, layered across files', () => {
+      const tree = node('n_root', [node('n_module')]);
+      const files = {
+        n_root: file(yaml`
+          app:
+            envs:
+              - SHARED: from-root
+        `),
+        n_module: file(yaml`
+          app:
+            envs:
+              - SHARED: from-module
+              - MODULE_ONLY: { opts: { is_expand: false } }
+        `),
+      };
+
+      const result = EntityIndexService.buildFromFiles(tree, files);
+
+      expect(result.appEnvs?.SHARED).toEqual([{ nodeId: 'n_root' }, { nodeId: 'n_module' }]);
+      expect(result.appEnvs?.MODULE_ONLY).toEqual([{ nodeId: 'n_module' }]);
+    });
+
     it('skips nodes without a loaded document and tolerates docs without entity sections', () => {
       const tree = node('n_root', [node('n_not_loaded')]);
       const files = {
@@ -116,6 +159,8 @@ describe('EntityIndexService', () => {
         workflows: {},
         pipelines: {},
         stepBundles: {},
+        containers: {},
+        appEnvs: {},
       });
     });
 
@@ -124,6 +169,8 @@ describe('EntityIndexService', () => {
         workflows: {},
         pipelines: {},
         stepBundles: {},
+        containers: {},
+        appEnvs: {},
       });
     });
   });

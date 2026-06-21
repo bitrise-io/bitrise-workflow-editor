@@ -129,6 +129,9 @@ export type WireEntityIndex = {
   workflows: WireEntityEntries;
   pipelines: WireEntityEntries;
   step_bundles: WireEntityEntries;
+  // Optional: absent on older BE responses, defaulted to `{}` on parse.
+  containers?: WireEntityEntries;
+  app_envs?: WireEntityEntries;
 };
 
 export type WireGetConfigResponse = {
@@ -196,6 +199,8 @@ function fromWireEntityIndex(index: WireEntityIndex): EntityIndex {
     workflows: fromWireEntityEntries(index.workflows),
     pipelines: fromWireEntityEntries(index.pipelines),
     stepBundles: fromWireEntityEntries(index.step_bundles),
+    containers: fromWireEntityEntries(index.containers),
+    appEnvs: fromWireEntityEntries(index.app_envs),
   };
 }
 

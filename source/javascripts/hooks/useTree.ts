@@ -6,10 +6,16 @@ import TreeService from '@/core/services/TreeService';
 import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-const SECTION_BY_KIND: Record<EntityKind, 'workflows' | 'pipelines' | 'step_bundles'> = {
+// Map-keyed kinds → their top-level YAML section (for the local-definition check). `appEnvs` is
+// array-shaped (`app.envs`) and handled separately in useCrossFileEntity.
+const SECTION_BY_KIND: Record<
+  Exclude<EntityKind, 'appEnvs'>,
+  'workflows' | 'pipelines' | 'step_bundles' | 'containers'
+> = {
   workflows: 'workflows',
   pipelines: 'pipelines',
   stepBundles: 'step_bundles',
+  containers: 'containers',
 };
 
 /** The tree root, by reference. Walk it via `TreeService`. */
@@ -82,7 +88,10 @@ export type CrossFileEntityInfo = {
 /** Provenance for an entity: whether it's defined locally, in another file, and where. */
 export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntityInfo {
   return useBitriseYmlStore((s) => {
-    const isLocal = Boolean(s.yml[SECTION_BY_KIND[kind]]?.[id]);
+    const isLocal =
+      kind === 'appEnvs'
+        ? Boolean(s.yml.app?.envs?.some((env) => env && id !== 'opts' && id in env))
+        : Boolean(s.yml[SECTION_BY_KIND[kind]]?.[id]);
     const nodeId = EntityIndexService.definingNodeId(s.entityIndex, kind, id);
     const hasDefinition = Boolean(nodeId);
     if (isLocal || !nodeId) {
