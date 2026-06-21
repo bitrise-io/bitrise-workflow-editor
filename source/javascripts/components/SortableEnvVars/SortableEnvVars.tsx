@@ -2,12 +2,12 @@ import { Box, BoxProps, Button } from '@bitrise/bitkit';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 
-import { EnvVarSource } from '@/core/models/EnvVar';
+import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
-import SortableEnvVarItem from './SortableEnvVarItem';
+import SortableEnvVarItem, { SortableEnvVar } from './SortableEnvVarItem';
 import { useSortableEnvVars } from './useSortableEnvVars';
 
 export type SortableEnvVarsProps = {
@@ -17,6 +17,10 @@ export type SortableEnvVarsProps = {
   listenForExternalChanges?: boolean;
   hideAddButton?: boolean;
   onValidationErrorsChange?: (errorCount: number) => void;
+  /** Display these env vars instead of reading from the store (merged read-only per-file grouping). */
+  initialEnvs?: EnvVar[];
+  /** Read-only views: render a jump-to-definition arrow per row in place of the remove button. */
+  renderJumpButton?: (env: SortableEnvVar) => ReactNode;
 };
 
 const SortableEnvVars = ({
@@ -26,6 +30,8 @@ const SortableEnvVars = ({
   listenForExternalChanges = false,
   hideAddButton = false,
   onValidationErrorsChange,
+  initialEnvs,
+  renderJumpButton,
 }: SortableEnvVarsProps) => {
   const isReadOnlyView = useIsReadOnlyView();
   const {
@@ -40,7 +46,7 @@ const SortableEnvVars = ({
     onValueChange,
     onIsExpandChange,
     countValidationErrors,
-  } = useSortableEnvVars({ source, sourceId, listenForExternalChanges });
+  } = useSortableEnvVars({ source, sourceId, listenForExternalChanges, initialEnvs });
 
   useEffect(() => {
     if (onValidationErrorsChange) {
@@ -66,6 +72,7 @@ const SortableEnvVars = ({
               onKeyChange={onKeyChange(index)}
               onValueChange={onValueChange(index)}
               onIsExpandChange={onIsExpandChange(index)}
+              jumpButton={isReadOnlyView ? renderJumpButton?.(env) : undefined}
             />
           ))}
         </SortableContext>
