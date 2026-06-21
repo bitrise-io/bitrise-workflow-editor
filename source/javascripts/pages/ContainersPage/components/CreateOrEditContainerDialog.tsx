@@ -84,6 +84,12 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   });
 
   const onSubmit = (formData: FormData) => {
+    // Read-only "view details" never mutates — guard here so no submit path (Enter key, an
+    // implicit form submit) can reach ContainerService even though the inputs are disabled.
+    if (readOnly) {
+      return;
+    }
+
     const convertedPorts = formData.userValues.ports
       .split(',')
       .map((port) => port.trim())
