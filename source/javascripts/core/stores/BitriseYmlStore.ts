@@ -807,8 +807,9 @@ export function discardFile(nodeId: string) {
     });
   }
 
-  // Then drop the file (and any nested session-created includes) from files + tree, and rebind the
-  // active document if one of the dropped tabs was active.
+  // Then drop the file and the whole subtree it pulled in (its includes only exist because this
+  // session-created file referenced them) from files + tree, and rebind the active document if one
+  // of the dropped tabs was active.
   const dropNode = TreeService.findNode(state.tree, nodeId);
   const dropIds = new Set(dropNode ? TreeService.flatten(dropNode).map((node) => node.nodeId) : [nodeId]);
 

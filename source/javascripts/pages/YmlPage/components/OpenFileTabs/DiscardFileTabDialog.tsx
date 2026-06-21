@@ -26,7 +26,9 @@ const DiscardFileTabDialog = ({ isOpen, fileName, onKeepEditing, onDiscard }: Pr
         <BitkitButton variant="secondary" onClick={onKeepEditing}>
           Keep editing
         </BitkitButton>
-        <BitkitButton onClick={onDiscard}>Discard and close</BitkitButton>
+        <BitkitButton variant="danger-primary" onClick={onDiscard}>
+          Discard and close
+        </BitkitButton>
       </BitkitDialog.Buttons>
     </BitkitDialog.Footer>
   </BitkitDialog>

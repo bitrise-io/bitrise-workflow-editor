@@ -81,11 +81,11 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
 
 /** Shallow structural equality, so the store can skip no-op index updates. Covers every kind (incl. appEnvs). */
 function equals(a: EntityIndex, b: EntityIndex): boolean {
-  const aKeys = Object.keys(a) as EntityKind[];
-  if (aKeys.length !== Object.keys(b).length) {
-    return false;
-  }
-  return aKeys.every((key) => {
+  // Compare the union of keys so an optional kind (containers/appEnvs) missing on one side is
+  // treated as empty — a partial index stays equal to a full one whose extra kinds are empty,
+  // instead of a key-count check forcing a spurious "not equal" (and a redundant store update).
+  const keys = new Set<EntityKind>([...Object.keys(a), ...Object.keys(b)] as EntityKind[]);
+  return [...keys].every((key) => {
     const aEntries = a[key] ?? {};
     const bEntries = b[key] ?? {};
     const aIds = Object.keys(aEntries);
