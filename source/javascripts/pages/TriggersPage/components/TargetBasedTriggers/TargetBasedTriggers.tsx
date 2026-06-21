@@ -115,7 +115,7 @@ const TargetBasedTriggers = () => {
   const renderRow = (trigger: TargetBasedTrigger, useJump: boolean) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     return (
-      <Tr key={JSON.stringify(trigger)}>
+      <Tr key={trigger.uniqueId}>
         <Td>
           <Text>{sourceId}</Text>
           <Text textStyle="body/md/regular" color="text/secondary">
