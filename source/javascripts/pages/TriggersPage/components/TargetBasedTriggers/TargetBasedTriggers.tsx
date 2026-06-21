@@ -16,18 +16,20 @@ import {
 } from '@bitrise/bitkit';
 import { AriaAttributes, useMemo, useState } from 'react';
 
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
 import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
-import { useAllTargetBasedTriggers } from '@/hooks/useTargetBasedTriggers';
-import { useIsReadOnlyView } from '@/hooks/useTree';
+import { useAllTargetBasedTriggers, useTriggersGroupedByFile } from '@/hooks/useTargetBasedTriggers';
+import { useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 
 import AddTriggerButton from './AddTriggerButton';
 
 const TargetBasedTriggers = () => {
   const isReadOnlyView = useIsReadOnlyView();
+  const isMergedView = useIsMergedConfigSelected();
   const [triggerType, setTriggerType] = useState<TriggerType | null>(null);
   const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
@@ -72,6 +74,10 @@ const TargetBasedTriggers = () => {
     });
   }, [filteredTriggers, sortProps]);
 
+  // Merged (read-only) view: group by the source file of each trigger's target.
+  // Only group on the merged tab; elsewhere there's nothing to group, so skip the work entirely.
+  const fileGroups = useTriggersGroupedByFile(isMergedView ? sortedFilteredTriggers : []);
+
   const handleOpenDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);
     setTriggerType(trigger.triggerType);
@@ -106,6 +112,98 @@ const TargetBasedTriggers = () => {
     TriggerService.removeTrigger(trigger);
   };
 
+  const renderRow = (trigger: TargetBasedTrigger, useJump: boolean) => {
+    const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
+    return (
+      <Tr key={trigger.uniqueId}>
+        <Td>
+          <Text>{sourceId}</Text>
+          <Text textStyle="body/md/regular" color="text/secondary">
+            {source === 'workflows' ? 'Workflow' : 'Pipeline'}
+          </Text>
+        </Td>
+        <Td>{TYPE_MAP[trigger.triggerType]}</Td>
+        <Td>
+          <TriggerConditions
+            conditions={trigger.conditions}
+            isDraftPr={trigger.isDraftPr}
+            priority={trigger.priority}
+            triggerType={trigger.triggerType}
+            triggerDisabled={!trigger.isActive || !trigger.isTriggersModelActive}
+          />
+        </Td>
+        <Td display="flex" justifyContent="flex-end" alignItems="center">
+          <Box display="flex" alignItems="center">
+            <Checkbox
+              marginRight="16"
+              isChecked={trigger.isActive}
+              isDisabled={isReadOnlyView}
+              onChange={() => handleActiveChange(trigger)}
+            >
+              Active
+            </Checkbox>
+            {isReadOnlyView && useJump ? (
+              // Merged grouped view: edit + delete collapse to a jump-to-definition arrow to the target.
+              <CrossFileJumpButton kind={source} id={sourceId} />
+            ) : (
+              // Editable, or a read-only view without grouping data (cross-repo/ref file tab, or merged
+              // before the index is built) → keep edit + delete, disabled when read-only.
+              <>
+                <IconButton
+                  iconName="Pencil"
+                  variant="tertiary"
+                  aria-label="Edit trigger"
+                  isDisabled={isReadOnlyView}
+                  onClick={() => handleOpenDialog(trigger)}
+                />
+                <IconButton
+                  isDanger
+                  variant="tertiary"
+                  iconName="MinusCircle"
+                  aria-label="Delete trigger"
+                  isDisabled={isReadOnlyView}
+                  onClick={() => handleDeleteTrigger(trigger)}
+                />
+              </>
+            )}
+          </Box>
+        </Td>
+      </Tr>
+    );
+  };
+
+  const renderTable = (triggers: TargetBasedTrigger[], useJump: boolean) => (
+    <TableContainer marginBlockEnd="32">
+      <Table>
+        <Thead>
+          <Tr>
+            <Th
+              isSortable
+              onSortClick={(sortDirection) => {
+                setSortProps({ direction: sortDirection, condition: 'sourceId' });
+              }}
+              sortedBy={sortProps.condition === 'sourceId' ? sortProps.direction : undefined}
+            >
+              Target
+            </Th>
+            <Th
+              isSortable
+              onSortClick={(sortDirection) => {
+                setSortProps({ direction: sortDirection, condition: 'triggerType' });
+              }}
+              sortedBy={sortProps.condition === 'triggerType' ? sortProps.direction : undefined}
+            >
+              Type
+            </Th>
+            <Th>Conditions</Th>
+            <Th />
+          </Tr>
+        </Thead>
+        <Tbody>{triggers.map((trigger) => renderRow(trigger, useJump))}</Tbody>
+      </Table>
+    </TableContainer>
+  );
+
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
@@ -122,86 +220,16 @@ const TargetBasedTriggers = () => {
             />
             <AddTriggerButton onAddTrigger={setTriggerType} />
           </Box>
-          <TableContainer marginBlockEnd="32">
-            <Table>
-              <Thead>
-                <Tr>
-                  <Th
-                    isSortable
-                    onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'sourceId' });
-                    }}
-                    sortedBy={sortProps.condition === 'sourceId' ? sortProps.direction : undefined}
-                  >
-                    Target
-                  </Th>
-                  <Th
-                    isSortable
-                    onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'triggerType' });
-                    }}
-                    sortedBy={sortProps.condition === 'triggerType' ? sortProps.direction : undefined}
-                  >
-                    Type
-                  </Th>
-                  <Th>Conditions</Th>
-                  <Th />
-                </Tr>
-              </Thead>
-              <Tbody>
-                {sortedFilteredTriggers.map((trigger) => {
-                  const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
-                  return (
-                    <Tr key={trigger.uniqueId}>
-                      <Td>
-                        <Text>{sourceId}</Text>
-                        <Text textStyle="body/md/regular" color="text/secondary">
-                          {source === 'workflows' ? 'Workflow' : 'Pipeline'}
-                        </Text>
-                      </Td>
-                      <Td>{TYPE_MAP[trigger.triggerType]}</Td>
-                      <Td>
-                        <TriggerConditions
-                          conditions={trigger.conditions}
-                          isDraftPr={trigger.isDraftPr}
-                          priority={trigger.priority}
-                          triggerType={trigger.triggerType}
-                          triggerDisabled={!trigger.isActive || !trigger.isTriggersModelActive}
-                        />
-                      </Td>
-                      <Td display="flex" justifyContent="flex-end" alignItems="center">
-                        <Box display="flex" alignItems="center">
-                          <Checkbox
-                            marginRight="16"
-                            isChecked={trigger.isActive}
-                            isDisabled={isReadOnlyView}
-                            onChange={() => handleActiveChange(trigger)}
-                          >
-                            Active
-                          </Checkbox>
-                          <IconButton
-                            iconName="Pencil"
-                            variant="tertiary"
-                            aria-label="Edit trigger"
-                            isDisabled={isReadOnlyView}
-                            onClick={() => handleOpenDialog(trigger)}
-                          />
-                          <IconButton
-                            isDanger
-                            variant="tertiary"
-                            iconName="MinusCircle"
-                            aria-label="Delete trigger"
-                            isDisabled={isReadOnlyView}
-                            onClick={() => handleDeleteTrigger(trigger)}
-                          />
-                        </Box>
-                      </Td>
-                    </Tr>
-                  );
-                })}
-              </Tbody>
-            </Table>
-          </TableContainer>
+          {isMergedView && fileGroups.length > 0
+            ? fileGroups.map((group) => (
+                <Box key={group.nodeId}>
+                  <Text as="h3" textStyle="heading/h4" marginBlockEnd="12">
+                    {group.path}
+                  </Text>
+                  {renderTable(group.triggers, true)}
+                </Box>
+              ))
+            : renderTable(sortedFilteredTriggers, false)}
         </>
       ) : (
         <EmptyState
