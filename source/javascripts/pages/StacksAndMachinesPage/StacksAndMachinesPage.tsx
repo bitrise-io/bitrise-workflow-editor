@@ -18,7 +18,7 @@ const StacksAndMachinesPage = () => {
         Stacks & Machines
       </Text>
       <TabList px="16">
-        <Tab>Default</Tab>
+        <Tab>Global</Tab>
         <Tab>Workflows</Tab>
       </TabList>
       <TabPanels>

@@ -1,4 +1,4 @@
-import { Text } from '@bitrise/bitkit';
+import { Icon, Label } from '@bitrise/bitkit';
 
 import WorkflowStackAndMachine from '@/components/StacksAndMachine/WorkflowStackAndMachine';
 import TabContainer from '@/components/tabs/TabContainer';
@@ -14,9 +14,10 @@ const WorkflowsTab = () => {
     <TabContainer>
       {workflowIds.map((workflowId) => (
         <div key={workflowId}>
-          <Text as="h4" textStyle="heading/h4" mb="12">
+          <Label mb="12">
+            <Icon name="Workflow" size="16" />
             {workflowId}
-          </Text>
+          </Label>
           <WorkflowStackAndMachine workflowId={workflowId} />
         </div>
       ))}
