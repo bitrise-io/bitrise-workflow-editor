@@ -34,6 +34,10 @@ export const useSortableEnvVars = ({
   const updateKeyDebounced = useDebounceCallback(EnvVarService.updateKey, 250, { leading: false });
   const updateValueDebounced = useDebounceCallback(EnvVarService.updateValue, 250, { leading: false });
 
+  // `initialEnvs` is fixed to a specific file, so the active-file change must not re-seed it;
+  // only re-seed on active-file changes when the list is read from the store.
+  const reseedFileId = initialEnvs ? undefined : activeFileId;
+
   useEffect(() => {
     const base = initialEnvs ?? EnvVarService.getAll(source, sourceId || '');
     setEnvs(
@@ -42,7 +46,7 @@ export const useSortableEnvVars = ({
         uniqueId: crypto.randomUUID(),
       })),
     );
-  }, [source, sourceId, activeFileId, initialEnvs]);
+  }, [source, sourceId, reseedFileId, initialEnvs]);
 
   useEffect(() => {
     if (!listenForExternalChanges) return;

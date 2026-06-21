@@ -1,8 +1,11 @@
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import TreeService from '@/core/services/TreeService';
+import { MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+
+type FromYmlEnv = Parameters<typeof EnvVarService.fromYml>[0];
 
 export type ProjectEnvVarFileGroup = { nodeId: string; path: string; envs: EnvVar[] };
 
@@ -15,7 +18,8 @@ export type WorkflowEnvVarFileGroup = { nodeId: string; path: string; workflowId
  */
 export function useProjectEnvVarFileGroups(): ProjectEnvVarFileGroup[] {
   return useBitriseYmlStore((s) => {
-    if (!s.tree) {
+    // Per-file grouping is only shown on the merged-config tab; skip the tree walk + YAML parsing otherwise.
+    if (!s.tree || s.selectedNodeId !== MERGED_CONFIG_NODE_ID) {
       return [];
     }
     const groups: ProjectEnvVarFileGroup[] = [];
@@ -29,7 +33,7 @@ export function useProjectEnvVarFileGroups(): ProjectEnvVarFileGroup[] {
       if (!Array.isArray(rawEnvs) || rawEnvs.length === 0) {
         return;
       }
-      const envs = rawEnvs.map((env) => EnvVarService.fromYml(env as never, 'Project envs'));
+      const envs = rawEnvs.map((env) => EnvVarService.fromYml(env as FromYmlEnv, 'Project envs'));
       groups.push({ nodeId: node.nodeId, path: s.files[node.nodeId]?.path ?? node.path, envs });
     });
     return groups;
@@ -44,7 +48,8 @@ export function useProjectEnvVarFileGroups(): ProjectEnvVarFileGroup[] {
  */
 export function useWorkflowEnvVarFileGroups(): WorkflowEnvVarFileGroup[] {
   return useBitriseYmlStore((s) => {
-    if (!s.tree) {
+    // Per-file grouping is only shown on the merged-config tab; skip the tree walk + YAML parsing otherwise.
+    if (!s.tree || s.selectedNodeId !== MERGED_CONFIG_NODE_ID) {
       return [];
     }
 
@@ -64,7 +69,9 @@ export function useWorkflowEnvVarFileGroups(): WorkflowEnvVarFileGroup[] {
       Object.entries(workflows).forEach(([workflowId, workflow]) => {
         const rawEnvs = workflow?.envs;
         if (Array.isArray(rawEnvs) && rawEnvs.length > 0) {
-          byWorkflow[workflowId] = rawEnvs.map((env) => EnvVarService.fromYml(env as never, `Workflow: ${workflowId}`));
+          byWorkflow[workflowId] = rawEnvs.map((env) =>
+            EnvVarService.fromYml(env as FromYmlEnv, `Workflow: ${workflowId}`),
+          );
         }
       });
       if (Object.keys(byWorkflow).length > 0) {

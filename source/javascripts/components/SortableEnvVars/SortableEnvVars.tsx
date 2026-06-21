@@ -72,7 +72,7 @@ const SortableEnvVars = ({
               onKeyChange={onKeyChange(index)}
               onValueChange={onValueChange(index)}
               onIsExpandChange={onIsExpandChange(index)}
-              jumpButton={renderJumpButton?.(env)}
+              jumpButton={isReadOnlyView ? renderJumpButton?.(env) : undefined}
             />
           ))}
         </SortableContext>
