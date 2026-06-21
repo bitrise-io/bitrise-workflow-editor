@@ -131,7 +131,6 @@ function toTriggerMapItemModel(trigger: LegacyTrigger): TriggerMapItemModel {
     item.workflow = targetId;
   }
 
-  // eslint-disable-next-line no-return-assign
   trigger.conditions.forEach((c) => (item[c.type] = fromLegacyCondition(c)));
 
   if (trigger.triggerType === 'pull_request' && trigger.isDraftPr === false) {
@@ -454,7 +453,7 @@ function toTargetBasedTriggers(
       const isRegex = isObject(value) && 'regex' in value && typeof value.regex === 'string';
       const isPattern = isObject(value) && 'pattern' in value && typeof value.pattern === 'string';
       const isLastCommitOnly = isObject(value) && 'last_commit' in value && value.last_commit;
-      // eslint-disable-next-line no-nested-ternary
+
       const conditionValue = isRegex ? value.regex : isPattern ? value.pattern : String(value);
 
       const condition: TargetBasedCondition = {
@@ -477,7 +476,11 @@ function toTargetBasedTriggers(
         triggerType,
         index,
 
-        uniqueId: crypto.randomUUID(),
+        // Derive a deterministic id so it stays stable across renders (a trigger is uniquely
+        // identified by its source, type and index). Using crypto.randomUUID() here would mint a
+        // new id on every render, remounting list rows and breaking checkExistingTrigger's
+        // editedItem exclusion.
+        uniqueId: `${source}#${sourceId}#${triggerType}#${index}`,
         source: `${source}#${sourceId}`,
         isActive: trigger.enabled !== false,
         isTriggersModelActive: triggersModel?.enabled !== false,
