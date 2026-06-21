@@ -33,6 +33,8 @@ import useContainers from '@/hooks/useContainers';
 type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
   editedContainer: Container | null;
   type: 'execution' | 'service';
+  /** Read-only "view details" mode (merged/cross-file view): every field disabled, no save. */
+  readOnly?: boolean;
 };
 
 type FormData = Omit<Container, 'userValues'> & {
@@ -43,10 +45,19 @@ type FormData = Omit<Container, 'userValues'> & {
 };
 
 const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) => {
-  const { editedContainer, isOpen, onClose, onCloseComplete, type } = props;
+  const { editedContainer, isOpen, onClose, onCloseComplete, type, readOnly = false } = props;
 
   const containerIds = useContainers().all.map((container) => container.id);
-  const { isOpen: isShowMore, onToggle } = useDisclosure();
+  const { isOpen: isShowMore, onToggle, onOpen: expandShowMore } = useDisclosure();
+
+  // In read-only "view details" mode, expand the extra options on open so everything is visible at a
+  // glance. Done on each open (not via defaultIsOpen, which only applies on first mount) because the
+  // dialog stays mounted while `readOnly` can flip between editable and merged/cross-file views.
+  useEffect(() => {
+    if (isOpen && readOnly) {
+      expandShowMore();
+    }
+  }, [isOpen, readOnly, expandShowMore]);
 
   const { control, formState, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
@@ -73,6 +84,12 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   });
 
   const onSubmit = (formData: FormData) => {
+    // Read-only "view details" never mutates — guard here so no submit path (Enter key, an
+    // implicit form submit) can reach ContainerService even though the inputs are disabled.
+    if (readOnly) {
+      return;
+    }
+
     const convertedPorts = formData.userValues.ports
       .split(',')
       .map((port) => port.trim())
@@ -153,7 +170,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
 
   return (
     <Dialog
-      title={editedContainer ? `Edit ${type} container` : `Create ${type} container`}
+      title={
+        readOnly
+          ? `${type === 'execution' ? 'Execution' : 'Service'} container details`
+          : editedContainer
+            ? `Edit ${type} container`
+            : `Create ${type} container`
+      }
       isOpen={isOpen}
       onClose={onClose}
       onCloseComplete={() => {
@@ -178,6 +201,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               placeholder="e.g. node, postgres, redis"
               errorText={formState.errors.id?.message}
               isRequired
+              isDisabled={readOnly}
               data-1p-ignore
               onChange={(e) => {
                 const sanitizedValue = ContainerService.sanitizeName(e.target.value);
@@ -198,6 +222,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
               errorText={formState.errors.userValues?.image?.message}
               isRequired
+              isDisabled={readOnly}
               {...field}
             />
           )}
@@ -223,6 +248,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
               placeholder="e.g. 3000:3000, 5432:5432"
               errorText={formState.errors.userValues?.ports?.message}
+              isDisabled={readOnly}
               {...field}
             />
           )}
@@ -258,6 +284,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   label="Registry server"
                   helperText="Fully qualified registry server URL to be used by docker login command."
                   placeholder="e.g. ghcr.io"
+                  isDisabled={readOnly}
                   {...field}
                 />
               )}
@@ -265,12 +292,16 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             <Controller
               control={control}
               name="userValues.credentials.username"
-              render={({ field }) => <StepInput label="Username" isSensitive size="lg" {...field} />}
+              render={({ field }) => (
+                <StepInput label="Username" isSensitive size="lg" isDisabled={readOnly} {...field} />
+              )}
             />
             <Controller
               control={control}
               name="userValues.credentials.password"
-              render={({ field }) => <StepInput label="Password" isSensitive size="lg" {...field} />}
+              render={({ field }) => (
+                <StepInput label="Password" isSensitive size="lg" isDisabled={readOnly} {...field} />
+              )}
             />
             <Divider mt="8" />
             {fields.map((item, index) => (
@@ -284,6 +315,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                       placeholder="Key"
                       width="100%"
                       value={value || ''}
+                      isDisabled={readOnly}
                       {...fieldProps}
                     />
                   )}
@@ -292,35 +324,39 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   control={control}
                   name={`userValues.envs.${index}.value`}
                   render={({ field: { value, ...fieldProps } }) => (
-                    <Input placeholder="Value" width="100%" value={value || ''} {...fieldProps} />
+                    <Input placeholder="Value" width="100%" value={value || ''} isDisabled={readOnly} {...fieldProps} />
                   )}
                 />
-                <ButtonGroup>
-                  <EnvVarPopover
-                    size="lg"
-                    onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
-                    showCreate={false}
-                  />
-                  <ControlButton
-                    iconName="Trash"
-                    isDanger
-                    isDisabled={fields.length === 1}
-                    size="lg"
-                    aria-label="Remove environment variable"
-                    onClick={() => remove(index)}
-                  />
-                </ButtonGroup>
+                {!readOnly && (
+                  <ButtonGroup>
+                    <EnvVarPopover
+                      size="lg"
+                      onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
+                      showCreate={false}
+                    />
+                    <ControlButton
+                      iconName="Trash"
+                      isDanger
+                      isDisabled={fields.length === 1}
+                      size="lg"
+                      aria-label="Remove environment variable"
+                      onClick={() => remove(index)}
+                    />
+                  </ButtonGroup>
+                )}
               </Box>
             ))}
-            <Button
-              variant="tertiary"
-              leftIconName="Plus"
-              size="md"
-              width="fit-content"
-              onClick={() => append({ key: '', value: '', source: '' })}
-            >
-              Add Env Var
-            </Button>
+            {!readOnly && (
+              <Button
+                variant="tertiary"
+                leftIconName="Plus"
+                size="md"
+                width="fit-content"
+                onClick={() => append({ key: '', value: '', source: '' })}
+              >
+                Add Env Var
+              </Button>
+            )}
             <Divider />
             <Controller
               control={control}
@@ -341,6 +377,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                     </>
                   }
                   placeholder='e.g. --privileged --health-cmd "redis-cli ping" --health-interval 1s --health-timeout 3s --health-retries 2'
+                  isDisabled={readOnly}
                   {...field}
                 />
               )}
@@ -352,12 +389,20 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         </Link>
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="submit" isDisabled={!formState.isValid || !formState.isDirty}>
-          {editedContainer ? 'Save' : 'Create container'}
-        </Button>
+        {readOnly ? (
+          <Button variant="secondary" onClick={onClose}>
+            Close
+          </Button>
+        ) : (
+          <>
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" isDisabled={!formState.isValid || !formState.isDirty}>
+              {editedContainer ? 'Save' : 'Create container'}
+            </Button>
+          </>
+        )}
       </DialogFooter>
     </Dialog>
   );

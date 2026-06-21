@@ -107,33 +107,46 @@ const ContainersTable = ({
                   )}
                 </Td>
                 <Td textAlign="right">
-                  <ControlButton
-                    aria-label="Edit container"
-                    iconName="Pencil"
-                    color="icon/primary"
-                    isDisabled={isReadOnlyView}
-                    onClick={() => {
-                      setEditedContainer(container);
-                      openDialog();
-                    }}
-                    mr={['0', '8']}
-                  />
-                  <ControlButton
-                    aria-label="Delete container"
-                    iconName="MinusCircle"
-                    color="icon/negative"
-                    isDisabled={isReadOnlyView}
-                    onClick={() => {
-                      setSelectedContainerId(container.id);
-                      onDeleteContainerDialogOpen();
-                      segmentTrack('Container Usage Popup Shown', {
-                        app_slug: PageProps.appSlug(),
-                        workspace_slug: GlobalProps.workspaceSlug(),
-                        number_of_containers_in_use: workflowCount,
-                        source: 'container_deletion_dialog',
-                      });
-                    }}
-                  />
+                  {isReadOnlyView ? (
+                    // Merged/cross-file (read-only) view: edit + delete collapse to a single read-only detail view.
+                    <ControlButton
+                      aria-label="View container details"
+                      iconName="Details"
+                      color="icon/primary"
+                      onClick={() => {
+                        setEditedContainer(container);
+                        openDialog();
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <ControlButton
+                        aria-label="Edit container"
+                        iconName="Pencil"
+                        color="icon/primary"
+                        onClick={() => {
+                          setEditedContainer(container);
+                          openDialog();
+                        }}
+                        mr={['0', '8']}
+                      />
+                      <ControlButton
+                        aria-label="Delete container"
+                        iconName="MinusCircle"
+                        color="icon/negative"
+                        onClick={() => {
+                          setSelectedContainerId(container.id);
+                          onDeleteContainerDialogOpen();
+                          segmentTrack('Container Usage Popup Shown', {
+                            app_slug: PageProps.appSlug(),
+                            workspace_slug: GlobalProps.workspaceSlug(),
+                            number_of_containers_in_use: workflowCount,
+                            source: 'container_deletion_dialog',
+                          });
+                        }}
+                      />
+                    </>
+                  )}
                 </Td>
               </Tr>
             );

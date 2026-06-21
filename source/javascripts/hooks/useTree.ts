@@ -111,6 +111,43 @@ export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntit
   });
 }
 
+export type FileEntityGroup = { nodeId: string; path: string; ids: string[] };
+
+/**
+ * Group entity ids by the file that defines them (top-most layer), in tree pre-order — for the merged
+ * view's per-file sections. Ids with no definition in the index are dropped. `ids` order is preserved
+ * within each group.
+ */
+export function useEntitiesGroupedByFile(kind: EntityKind, ids: string[]): FileEntityGroup[] {
+  return useBitriseYmlStore((s) => {
+    if (!s.tree) {
+      return [];
+    }
+    const byNode = new Map<string, string[]>();
+    ids.forEach((id) => {
+      const nodeId = EntityIndexService.definingNodeId(s.entityIndex, kind, id);
+      if (!nodeId) {
+        return;
+      }
+      const bucket = byNode.get(nodeId);
+      if (bucket) {
+        bucket.push(id);
+      } else {
+        byNode.set(nodeId, [id]);
+      }
+    });
+
+    const groups: FileEntityGroup[] = [];
+    TreeService.walk(s.tree, (node) => {
+      const groupIds = byNode.get(node.nodeId);
+      if (groupIds?.length) {
+        groups.push({ nodeId: node.nodeId, path: s.files[node.nodeId]?.path ?? node.path, ids: groupIds });
+      }
+    });
+    return groups;
+  });
+}
+
 export type RootMetaDefinition = { nodeId: string; path: string };
 
 /**
