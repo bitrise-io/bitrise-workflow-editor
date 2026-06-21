@@ -28,8 +28,8 @@ export function useProjectEnvVarFileGroups(): ProjectEnvVarFileGroup[] {
       if (!doc) {
         return;
       }
-      const json = YmlUtils.toJSON(doc) as { app?: { envs?: unknown[] } } | undefined;
-      const rawEnvs = json?.app?.envs;
+      // Read just the `app.envs` subtree, not the whole document.
+      const rawEnvs = YmlUtils.getSeqIn(doc, ['app', 'envs'])?.toJSON() as unknown[] | undefined;
       if (!Array.isArray(rawEnvs) || rawEnvs.length === 0) {
         return;
       }
@@ -60,8 +60,10 @@ export function useWorkflowEnvVarFileGroups(): WorkflowEnvVarFileGroup[] {
       if (!doc) {
         return;
       }
-      const json = YmlUtils.toJSON(doc) as { workflows?: Record<string, { envs?: unknown[] }> } | undefined;
-      const workflows = json?.workflows;
+      // Read just the `workflows` subtree, not the whole document.
+      const workflows = YmlUtils.getMapIn(doc, ['workflows'])?.toJSON() as
+        | Record<string, { envs?: unknown[] }>
+        | undefined;
       if (!workflows) {
         return;
       }

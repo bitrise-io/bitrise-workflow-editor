@@ -33,7 +33,7 @@ const ProjectTab = () => {
               source={EnvVarSource.App}
               initialEnvs={group.envs}
               hideAddButton
-              renderJumpButton={() => <JumpToFileButton nodeId={group.nodeId} />}
+              renderJumpButton={(_env) => <JumpToFileButton nodeId={group.nodeId} />}
             />
           </Fragment>
         ))

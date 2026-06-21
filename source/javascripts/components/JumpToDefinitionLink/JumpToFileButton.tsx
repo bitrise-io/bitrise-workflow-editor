@@ -1,6 +1,6 @@
 import { ControlButton } from '@bitrise/bitkit';
 
-import { openTab } from '@/core/stores/BitriseYmlStore';
+import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import { useTree } from '@/hooks/useTree';
 
 import FilePickerPopover from './FilePickerPopover';
@@ -25,7 +25,12 @@ const JumpToFileButton = ({ nodeId }: Props) => {
     <FilePickerPopover
       rootNode={tree}
       nodeIds={[nodeId]}
-      onSelect={(id) => openTab(id, { preview: false })}
+      onSelect={(id) => {
+        // Record the current tab's page before switching, so returning to it (e.g. the merged tab)
+        // restores the right page — mirrors useJumpToDefinition.
+        recordActiveTabLocation(window.parent.location.hash);
+        openTab(id, { preview: false });
+      }}
       trigger={
         <ControlButton
           size="xs"

@@ -36,7 +36,7 @@ const MergedWorkflowsTab = () => {
             sourceId={group.workflowId}
             initialEnvs={group.envs}
             hideAddButton
-            renderJumpButton={() => <JumpToFileButton nodeId={group.nodeId} />}
+            renderJumpButton={(_env) => <JumpToFileButton nodeId={group.nodeId} />}
           />
           {groups.length - 1 > index && <Divider />}
         </Fragment>
