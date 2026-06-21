@@ -75,7 +75,8 @@ const TargetBasedTriggers = () => {
   }, [filteredTriggers, sortProps]);
 
   // Merged (read-only) view: group by the source file of each trigger's target.
-  const fileGroups = useTriggersGroupedByFile(sortedFilteredTriggers);
+  // Only group on the merged tab; elsewhere there's nothing to group, so skip the work entirely.
+  const fileGroups = useTriggersGroupedByFile(isMergedView ? sortedFilteredTriggers : []);
 
   const handleOpenDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);
@@ -111,7 +112,7 @@ const TargetBasedTriggers = () => {
     TriggerService.removeTrigger(trigger);
   };
 
-  const renderRow = (trigger: TargetBasedTrigger) => {
+  const renderRow = (trigger: TargetBasedTrigger, useJump: boolean) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     return (
       <Tr key={JSON.stringify(trigger)}>
@@ -141,15 +142,18 @@ const TargetBasedTriggers = () => {
             >
               Active
             </Checkbox>
-            {isReadOnlyView ? (
-              // Merged/cross-file view: edit + delete collapse to a jump-to-definition arrow to the target.
+            {isReadOnlyView && useJump ? (
+              // Merged grouped view: edit + delete collapse to a jump-to-definition arrow to the target.
               <CrossFileJumpButton kind={source} id={sourceId} />
             ) : (
+              // Editable, or a read-only view without grouping data (cross-repo/ref file tab, or merged
+              // before the index is built) → keep edit + delete, disabled when read-only.
               <>
                 <IconButton
                   iconName="Pencil"
                   variant="tertiary"
                   aria-label="Edit trigger"
+                  isDisabled={isReadOnlyView}
                   onClick={() => handleOpenDialog(trigger)}
                 />
                 <IconButton
@@ -157,6 +161,7 @@ const TargetBasedTriggers = () => {
                   variant="tertiary"
                   iconName="MinusCircle"
                   aria-label="Delete trigger"
+                  isDisabled={isReadOnlyView}
                   onClick={() => handleDeleteTrigger(trigger)}
                 />
               </>
@@ -167,7 +172,7 @@ const TargetBasedTriggers = () => {
     );
   };
 
-  const renderTable = (triggers: TargetBasedTrigger[]) => (
+  const renderTable = (triggers: TargetBasedTrigger[], useJump: boolean) => (
     <TableContainer marginBlockEnd="32">
       <Table>
         <Thead>
@@ -194,7 +199,7 @@ const TargetBasedTriggers = () => {
             <Th />
           </Tr>
         </Thead>
-        <Tbody>{triggers.map(renderRow)}</Tbody>
+        <Tbody>{triggers.map((trigger) => renderRow(trigger, useJump))}</Tbody>
       </Table>
     </TableContainer>
   );
@@ -221,10 +226,10 @@ const TargetBasedTriggers = () => {
                   <Text as="h3" textStyle="heading/h4" marginBlockEnd="12">
                     {group.path}
                   </Text>
-                  {renderTable(group.triggers)}
+                  {renderTable(group.triggers, true)}
                 </Box>
               ))
-            : renderTable(sortedFilteredTriggers)}
+            : renderTable(sortedFilteredTriggers, false)}
         </>
       ) : (
         <EmptyState

@@ -58,6 +58,11 @@ function useTriggersGroupedByFile(triggers: TargetBasedTrigger[]): TriggerFileGr
       }
     });
 
+    // Nothing groupable (empty input or no indexed targets) → skip the O(tree) walk.
+    if (byNode.size === 0) {
+      return [];
+    }
+
     const groups: TriggerFileGroup[] = [];
     TreeService.walk(s.tree, (node) => {
       const groupTriggers = byNode.get(node.nodeId);
