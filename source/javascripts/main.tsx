@@ -97,23 +97,33 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
-  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const requestedBranch = isWebsiteMode ? searchParams.branch : undefined;
 
-  const { data: ymlSettings } = useCiConfigSettings();
+  const { data: ymlSettings, isPending: isYmlSettingsPending } = useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
 
-  // Modular flag: off → legacy single-file `GET /config`; on → tree-based config (a
-  // non-modular config is just a single-node tree).
-  const isModularEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
+  // Modular editing only makes sense for repo-stored configs (where includes/modules can
+  // exist). A Bitrise-stored config can't have modules, so even with the flag on it must
+  // use the legacy single-file flow — otherwise we'd build a tree (and show file tabs) for
+  // a config that has none. CLI mode has no Bitrise storage, so the flag alone decides there.
+  const isModularFlagEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
+  const canBeModular = !isWebsiteMode || ymlSettings?.usesRepositoryYml === true;
+  const isModularEnabled = isModularFlagEnabled && canBeModular;
+
+  // In website mode with the flag on, the storage type decides which endpoint to hit, so
+  // wait for the settings to resolve before fetching (don't fire the tree query then switch
+  // to legacy once it turns out to be Bitrise-stored). Flag off or CLI → decide immediately.
+  const isStorageKnown = !(isModularFlagEnabled && isWebsiteMode) || !isYmlSettingsPending;
 
   const legacyConfig = useGetCiConfig(
     { projectSlug: PageProps.appSlug(), skipValidation: true, branch: requestedBranch },
-    { enabled: !isModularEnabled },
+    { enabled: isStorageKnown && !isModularEnabled },
   );
   const treeConfig = useGetCiConfigTree(
     { projectSlug: PageProps.appSlug(), branch: requestedBranch },
-    { enabled: isModularEnabled },
+    { enabled: isStorageKnown && isModularEnabled },
   );
 
   const { data, error, refetch } = isModularEnabled ? treeConfig : legacyConfig;
