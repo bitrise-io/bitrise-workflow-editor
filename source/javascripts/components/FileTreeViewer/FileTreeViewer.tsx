@@ -1,19 +1,24 @@
 import { Box, Text } from '@bitrise/bitkit';
-import { BitkitCloseButton, BitkitIconButton, IconPlus } from '@bitrise/bitkit-v2';
+import { BitkitCloseButton } from '@bitrise/bitkit-v2';
 import { Popover } from '@chakra-ui/react/popover';
 import { Portal } from '@chakra-ui/react/portal';
-import { useState } from 'react';
 
-import { useTabs } from '@/hooks/useTabs';
+import { useFileTabs } from '@/hooks/useFileTabs';
 import { useSelectedNodeId, useTree } from '@/hooks/useTree';
 
 import FileTreeView from './FileTreeView';
 
-const FileTreeViewer = () => {
+type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** Anchor for the popover — the tab strip's add button, which can't be a `Popover.Trigger`. */
+  getAnchor: () => HTMLElement | null;
+};
+
+const FileTreeViewer = ({ open, onOpenChange, getAnchor }: Props) => {
   const tree = useTree();
   const selectedNodeId = useSelectedNodeId();
-  const { openFile } = useTabs();
-  const [isOpen, setIsOpen] = useState(false);
+  const { openFile } = useFileTabs();
 
   if (!tree) {
     return null;
@@ -21,13 +26,13 @@ const FileTreeViewer = () => {
 
   return (
     <Popover.Root
-      open={isOpen}
-      onOpenChange={(details) => setIsOpen(details.open)}
-      positioning={{ placement: 'bottom-start', gutter: 4 }}
+      open={open}
+      onOpenChange={(details) => onOpenChange(details.open)}
+      positioning={{ placement: 'bottom-start', gutter: 4, getAnchorElement: getAnchor }}
+      // The add button is the anchor, not a Popover.Trigger, so keep clicks on it from counting as
+      // an outside-dismiss — otherwise it would fight the button's own open/close toggle.
+      persistentElements={[getAnchor]}
     >
-      <Popover.Trigger asChild>
-        <BitkitIconButton label="Open module" variant="tertiary" size="sm" icon={IconPlus} color="icon/primary" />
-      </Popover.Trigger>
       <Portal>
         {/* z-index MUST be on Popover.Content, not Positioner: Zag derives the positioner's
             inline `z-index: var(--z-index)` from Content's computed z-index, so a value set
@@ -70,7 +75,7 @@ const FileTreeViewer = () => {
                 selectedNodeId={selectedNodeId}
                 onSelect={(nodeId) => {
                   openFile(nodeId);
-                  setIsOpen(false);
+                  onOpenChange(false);
                 }}
               />
             </Popover.Body>

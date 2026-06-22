@@ -1,13 +1,28 @@
 import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import { useRef, useState } from 'react';
 
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
-import { useTabs } from '@/hooks/useTabs';
+import { FileTabInfo, useFileTabs } from '@/hooks/useFileTabs';
 
-import FileTab from './FileTab';
+import DiscardFileTabDialog from './DiscardFileTabDialog';
 
 const OpenFileTabs = () => {
-  const { tabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig } = useTabs();
+  const { fileTabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig, closeTab, discardFile } =
+    useFileTabs();
+  const [discardNodeId, setDiscardNodeId] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+
+  const discardTab = fileTabs.find((tab) => tab.nodeId === discardNodeId);
+
+  // Closing a tab with unsaved edits prompts first; a clean tab closes immediately.
+  const handleClose = (tab: FileTabInfo) => {
+    if (tab.isDirty) {
+      setDiscardNodeId(tab.nodeId);
+    } else {
+      closeTab(tab.nodeId);
+    }
+  };
 
   return (
     <BitkitTabs.Root
@@ -21,44 +36,37 @@ const OpenFileTabs = () => {
         }
       }}
     >
-      <Box
-        display="flex"
-        alignItems="center"
-        flexShrink={0}
-        height="48"
-        backgroundColor="background/primary"
-        borderBottomWidth="1px"
-        borderBottomColor="border/minimal"
-      >
-        <BitkitTabs.List
-          flex="1"
-          height="48"
-          mb="-1px"
-          alignItems="flex-start"
-          overflowX="auto"
-          overflowY="hidden"
-          border="none"
-          css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
-        >
-          <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup} flexShrink={0}>
-            Merged Config
-          </BitkitTabs.Trigger>
-          {tabs.map((tab) => (
-            <FileTab key={tab.nodeId} nodeId={tab.nodeId} />
-          ))}
-          <Box
-            display="flex"
-            padding="4"
-            alignItems="center"
-            gap="4"
-            borderRadius="4"
-            background="background/primary"
-            alignSelf="center"
+      <BitkitTabs.List background="background/primary">
+        <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup}>
+          Merged Config
+        </BitkitTabs.Trigger>
+        {fileTabs.map((tab) => (
+          <BitkitTabs.Trigger
+            key={tab.nodeId}
+            value={tab.nodeId}
+            onClose={() => handleClose(tab)}
+            statusColor={tab.isDirty ? 'purple' : undefined}
+            title={tab.editable ? undefined : `Read-only${tab.refLabel ? ` — included from ${tab.refLabel}` : ''}`}
           >
-            <FileTreeViewer />
-          </Box>
-        </BitkitTabs.List>
-      </Box>
+            {tab.name}
+          </BitkitTabs.Trigger>
+        ))}
+        <BitkitTabs.AddButton ref={addButtonRef} label="Open module" onClick={() => setPickerOpen((open) => !open)} />
+      </BitkitTabs.List>
+
+      <FileTreeViewer open={pickerOpen} onOpenChange={setPickerOpen} getAnchor={() => addButtonRef.current} />
+
+      <DiscardFileTabDialog
+        isOpen={Boolean(discardTab)}
+        fileName={discardTab?.name ?? ''}
+        onKeepEditing={() => setDiscardNodeId(null)}
+        onDiscard={() => {
+          if (discardNodeId) {
+            discardFile(discardNodeId);
+          }
+          setDiscardNodeId(null);
+        }}
+      />
     </BitkitTabs.Root>
   );
 };

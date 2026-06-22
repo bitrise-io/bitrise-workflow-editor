@@ -1,10 +1,12 @@
 import { useCallback } from 'react';
 
+import TreeService from '@/core/services/TreeService';
 import {
   bitriseYmlStore,
   closeTab,
   discardFile,
   getTabLastLocation,
+  isFileDirty,
   isYmlPageLocation,
   MERGED_CONFIG_NODE_ID,
   openTab,
@@ -15,6 +17,16 @@ import {
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useHashLocation from '@/hooks/useHashLocation';
 import { paths } from '@/routes';
+
+/** A file tab enriched with everything the tab strip needs to render a trigger. */
+export type FileTabInfo = {
+  nodeId: string;
+  name: string;
+  isDirty: boolean;
+  editable: boolean;
+  /** Source label when the file is included from elsewhere (read-only); null when it's editable/own. */
+  refLabel: string | null;
+};
 
 /** The live router location (raw hash) — read directly, not via the lagging snapshot. */
 function currentLocation(): string {
@@ -29,9 +41,26 @@ function currentLocation(): string {
  * bleed across tabs. YAML mode is global instead — switching tabs while on the
  * YAML page stays in code view.
  */
-export function useTabs() {
-  const { tabs, activeTab, isMergedStale } = useBitriseYmlStore((s) => ({
-    tabs: s.openTabs,
+export function useFileTabs() {
+  // Enrich each open tab with the data the tab strip renders directly (the canvas
+  // BitkitTabs.List only accepts literal Triggers, so we can't fetch this per-tab in a
+  // child component — it's lifted here and mapped to triggers in OpenFileTabs).
+  const { fileTabs, activeTab, isMergedStale } = useBitriseYmlStore((s) => ({
+    fileTabs: s.openTabs.flatMap<FileTabInfo>((tab) => {
+      const file = s.files[tab.nodeId];
+      if (!file) {
+        return [];
+      }
+      return [
+        {
+          nodeId: tab.nodeId,
+          name: TreeService.fileName(file.path),
+          isDirty: isFileDirty(file),
+          editable: file.editable,
+          refLabel: TreeService.effectiveSourceLabel(s.tree, tab.nodeId),
+        },
+      ];
+    }),
     activeTab: s.selectedNodeId,
     isMergedStale: s.mergedYmlStale,
   }));
@@ -117,7 +146,7 @@ export function useTabs() {
   );
 
   return {
-    tabs,
+    fileTabs,
     activeTab,
     isMergedStale,
     mergedConfigNodeId: MERGED_CONFIG_NODE_ID,
