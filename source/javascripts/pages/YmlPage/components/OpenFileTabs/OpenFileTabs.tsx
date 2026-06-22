@@ -11,9 +11,9 @@ const OpenFileTabs = () => {
 
   return (
     <BitkitTabs.Root
-      variant="line"
+      variant="canvas"
       value={activeTab ?? mergedConfigNodeId}
-      onValueChange={({ value }) => {
+      onValueChange={({ value }: { value: string }) => {
         if (value === mergedConfigNodeId) {
           selectMergedConfig();
         } else {
