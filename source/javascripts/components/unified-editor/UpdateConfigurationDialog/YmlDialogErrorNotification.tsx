@@ -3,12 +3,12 @@ import { ReactNode } from 'react';
 
 import { ClientError } from '@/core/api/client';
 
-type Props = {
+type Props = Omit<BitkitAlertProps, 'variant' | 'titleText' | 'messageText' | 'action'> & {
   error: ClientError | undefined;
 };
 
 const YmlDialogErrorNotification = (props: Props) => {
-  const { error } = props;
+  const { error, ...rest } = props;
   const message = error?.getResponseErrorMessage() || error?.message || 'Unknown error occurred';
 
   let action: BitkitAlertProps['action'];
@@ -28,7 +28,7 @@ const YmlDialogErrorNotification = (props: Props) => {
     };
   }
 
-  return <BitkitAlert marginBlockEnd="24" variant="critical" titleText={title} messageText={content} action={action} />;
+  return <BitkitAlert variant="critical" titleText={title} messageText={content} action={action} {...rest} />;
 };
 
 export default YmlDialogErrorNotification;
