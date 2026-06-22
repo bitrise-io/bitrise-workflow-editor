@@ -455,9 +455,9 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
             lastModifiedFormatted={lastModifiedFormatted}
           />
         )}
-        {asyncError && <YmlDialogErrorNotification error={asyncError} />}
       </BitkitDialog.Body>
       <BitkitDialog.Footer>
+        {asyncError && <YmlDialogErrorNotification error={asyncError} />}
         {showYmlRootPathSection && ymlSettings?.ymlRootPath !== null && (
           <BitkitAlert
             variant="warning"
