@@ -100,7 +100,7 @@
     "@types/semver": "^7.7.1",
     "@vitejs/plugin-react-swc": "^4.3.1",
     "chakra-ui-2--cli": "npm:@chakra-ui/cli@2.5.8",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-storybook": "^10.4.6",
