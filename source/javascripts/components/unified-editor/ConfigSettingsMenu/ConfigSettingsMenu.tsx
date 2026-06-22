@@ -62,7 +62,7 @@ const ConfigSettingsMenu = (props: Props) => {
   );
 
   const handleDownload = () => {
-    trackDownloadYmlClicked(data?.usesRepositoryYml ? 'git' : 'bitrise', 'config_settings_bar');
+    trackDownloadYmlClicked(data?.usesRepositoryYml ? 'git' : 'bitrise', 'config_settings_menu');
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
