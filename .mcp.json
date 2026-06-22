@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "bitkit-storybook-mcp": {
+      "type": "http",
+      "url": "https://storybook.services.bitrise.dev/projects/bitkit-v2/production/mcp"
+    },
+    "chakra-ui": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@chakra-ui/react-mcp@2.1.1"],
+      "env": {}
+    }
+  }
+}
