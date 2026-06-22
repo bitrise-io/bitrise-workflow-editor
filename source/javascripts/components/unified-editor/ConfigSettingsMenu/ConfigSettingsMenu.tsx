@@ -91,6 +91,7 @@ const ConfigSettingsMenu = (props: Props) => {
 
       <BitkitActionMenu.Root
         size="md"
+        positioning={{ placement: 'bottom-end' }}
         trigger={<BitkitControlButton icon={IconChevronDown} label="Configuration options" size="xs" />}
       >
         {enableBranchSwitching && usesRepositoryYml && (
