@@ -306,6 +306,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
       : 'You are already storing your configuration on bitrise.io';
 
   const showYmlRootPathSection = selectedStorage === 'git';
+  const showYmlRootPathWarning = showYmlRootPathSection && ymlSettings?.ymlRootPath !== null;
   const isYmlRootPathChanged = (ymlSettings?.ymlRootPath ?? '') !== ymlRootPath;
   const switchBitriseToGit = !ymlSettings?.usesRepositoryYml && selectedStorage === 'git';
   const switchGitToBitrise = ymlSettings?.usesRepositoryYml && selectedStorage === 'bitrise';
@@ -455,10 +456,12 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
             lastModifiedFormatted={lastModifiedFormatted}
           />
         )}
-        {asyncError && <YmlDialogErrorNotification error={asyncError} />}
       </BitkitDialog.Body>
       <BitkitDialog.Footer>
-        {showYmlRootPathSection && ymlSettings?.ymlRootPath !== null && (
+        {asyncError && (
+          <YmlDialogErrorNotification error={asyncError} marginBlockEnd={showYmlRootPathWarning ? '24' : undefined} />
+        )}
+        {showYmlRootPathWarning && (
           <BitkitAlert
             variant="warning"
             messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
