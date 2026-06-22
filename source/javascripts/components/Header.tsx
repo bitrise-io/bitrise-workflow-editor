@@ -49,6 +49,7 @@ import { paths } from '@/routes';
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
 import GlobalDiffEditorDialog from './DiffEditor/GlobalDiffEditorDialog';
+import ConfigSettingsMenu from './unified-editor/ConfigSettingsMenu/ConfigSettingsMenu';
 import PushBranchDialog from './unified-editor/PushBranchDialog/PushBranchDialog';
 import UpdateConfigurationDialog from './unified-editor/UpdateConfigurationDialog/UpdateConfigurationDialog';
 
@@ -296,11 +297,14 @@ const Header = () => {
       borderColor="separator.primary"
       alignItems={['flex-start', 'center']}
     >
-      <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
-        {isWebsiteMode && !isMobile && <BreadcrumbLink href="/dashboard">Bitrise CI</BreadcrumbLink>}
-        {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
-        {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>Workflow Editor</BreadcrumbLink>}
-      </Breadcrumb>
+      <Box display="flex" alignItems="center" gap="8" minWidth={0}>
+        <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
+          {isWebsiteMode && !isMobile && <BreadcrumbLink href="/dashboard">Bitrise CI</BreadcrumbLink>}
+          {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
+          {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>CI configuration</BreadcrumbLink>}
+        </Breadcrumb>
+        {isWebsiteMode && <ConfigSettingsMenu />}
+      </Box>
 
       <BitkitTooltip
         disabled={ymlStatus !== 'invalid'}

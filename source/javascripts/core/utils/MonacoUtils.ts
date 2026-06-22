@@ -254,12 +254,11 @@ function onModelMarkerStatusChange(
     else callback('valid');
   };
 
-  // Two debounce windows. The long one applies ONLY to the first settle, at load: the
-  // multi-owner marker passes (monaco-yaml schema layer + the slower Bitrise LS) fire at
-  // different times, so a short window would let a consumer leave its skeleton on the
-  // premature first pass and flash a transient 'warnings'/'valid'. That latency is hidden
-  // behind the `'pending'` skeleton. Once settled, switch to a short window so live edits
-  // (valid↔invalid feedback) stay responsive instead of waiting out the long delay.
+  // Two debounce windows. At load the marker passes from the two owners (monaco-yaml's
+  // schema layer + the slower Bitrise LS) arrive at different times, so the first settle
+  // uses a long window; a short one would surface a premature status and briefly toggle
+  // the consumers (e.g. the YAML/Visual switcher and Save button). Once settled, a short
+  // window keeps live valid↔invalid feedback responsive.
   let hasSettled = false;
   const emit = () => {
     updateStatus();
