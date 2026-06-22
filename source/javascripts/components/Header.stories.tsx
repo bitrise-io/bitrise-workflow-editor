@@ -1,22 +1,14 @@
+import { getBranches, getCiConfig } from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
+import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
+
 import Header from './Header';
 
 export default {
   component: Header,
-  args: {
-    appName: 'My App',
-    workspacePath: '/workspace',
-    isDiscardDisabled: false,
-    isSaveInProgress: false,
-    isSaveDisabled: false,
-  },
-  argTypes: {
-    appName: { control: 'text' },
-    workspacePath: { control: 'text' },
-    isDiscardDisabled: { control: 'boolean' },
-    onDiscardClick: { type: 'function' },
-    isSaveDisabled: { control: 'boolean' },
-    isSaveInProgress: { control: 'boolean' },
-    onSaveClick: { type: 'function' },
+  parameters: {
+    msw: {
+      handlers: [getBranches(), getCiConfig(), getYmlSettings()],
+    },
   },
 };
 

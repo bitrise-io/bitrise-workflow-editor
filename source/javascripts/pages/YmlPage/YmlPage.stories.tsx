@@ -2,7 +2,7 @@ import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { http, HttpResponse } from 'msw';
 
-import ConfigSettingsBar from '@/components/unified-editor/ConfigSettingsBar/ConfigSettingsBar';
+import ConfigSettingsMenu from '@/components/unified-editor/ConfigSettingsMenu/ConfigSettingsMenu';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import YmlPage from './YmlPage';
@@ -27,7 +27,7 @@ export default {
   decorators: [
     (Story) => (
       <Box height="calc(100dvh - 2rem)" display="flex" flexDirection="column">
-        {RuntimeUtils.isWebsiteMode() && <ConfigSettingsBar justifyContent="flex-start" />}
+        {RuntimeUtils.isWebsiteMode() && <ConfigSettingsMenu />}
         <Story />
       </Box>
     ),
