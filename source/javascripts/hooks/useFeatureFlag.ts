@@ -10,8 +10,9 @@ const defaultValues = {
 
 type FeatureFlags = typeof defaultValues;
 
-// Feature flags are resolved by the parent (monolith) and injected into the top window's
-// `globalProps.featureFlags.account`; a local `ld.local.json` override wins in development.
+// Feature flags are resolved by the parent (monolith) and injected into the parent window's
+// `globalProps.featureFlags.account` (read via WindowUtils.instance() === window.parent); a
+// local `ld.local.json` override wins in development.
 const useFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => {
   const localValue = window.localFeatureFlags?.[key];
 
