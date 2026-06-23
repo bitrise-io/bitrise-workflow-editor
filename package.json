@@ -64,7 +64,6 @@
     "chakra-ui-2--react": "npm:@chakra-ui/react@2.10.9",
     "dequal": "^2.0.3",
     "es-toolkit": "^1.48.1",
-    "launchdarkly-js-client-sdk": "^3.9.3",
     "monaco-editor": "^0.53.0",
     "monaco-yaml": "^5.4.1",
     "node-diff3": "^3.2.1",
