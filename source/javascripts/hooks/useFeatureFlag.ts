@@ -1,5 +1,3 @@
-import { initialize, LDClient } from 'launchdarkly-js-client-sdk';
-
 import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
@@ -12,23 +10,12 @@ const defaultValues = {
 
 type FeatureFlags = typeof defaultValues;
 
-let client: LDClient | undefined;
-
-if (GlobalProps.workspaceSlug() && !client) {
-  client = initialize(
-    window.parent.location.host === 'app.bitrise.io' ? '5e70774c8a726707851d2fff' : '5e70774c8a726707851d2ffe',
-    {
-      kind: 'user',
-      key: `org-${GlobalProps.workspaceSlug()}`,
-    },
-  );
-}
-
+// Feature flags are resolved by the parent (monolith) and injected into the top window's
+// `globalProps.featureFlags.account`; a local `ld.local.json` override wins in development.
 const useFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => {
   const localValue = window.localFeatureFlags?.[key];
-  const defaultValue = GlobalProps.accountFeatureFlags()?.[key] ?? defaultValues[key];
 
-  return (localValue ?? client?.variation(key, defaultValue) ?? defaultValue) as FeatureFlags[K];
+  return (localValue ?? GlobalProps.accountFeatureFlags()?.[key] ?? defaultValues[key]) as FeatureFlags[K];
 };
 
 export default useFeatureFlag;
