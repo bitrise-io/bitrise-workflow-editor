@@ -18,7 +18,7 @@ import { useState } from 'react';
 import TreeService from '@/core/services/TreeService';
 import { addInclude, createFile } from '@/core/stores/BitriseYmlStore';
 import { useFile } from '@/hooks/useFile';
-import { useTabs } from '@/hooks/useTabs';
+import { useFileTabs } from '@/hooks/useFileTabs';
 
 type Mode = 'create' | 'existing';
 
@@ -46,7 +46,7 @@ const SOURCE_FIELDS = [
 ] as const;
 
 const CreateFileButton = () => {
-  const { activeTab, mergedConfigNodeId } = useTabs();
+  const { activeTab, mergedConfigNodeId } = useFileTabs();
   const activeFile = useFile(activeTab ?? '');
 
   const [isOpen, setIsOpen] = useState(false);

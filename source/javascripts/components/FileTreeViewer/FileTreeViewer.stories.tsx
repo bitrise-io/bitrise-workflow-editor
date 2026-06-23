@@ -1,5 +1,7 @@
 import { Box } from '@bitrise/bitkit';
+import { BitkitTabs } from '@bitrise/bitkit-v2';
 import { Meta, StoryObj } from '@storybook/react-vite';
+import { useRef, useState } from 'react';
 
 import { EntityIndex, TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
@@ -86,4 +88,17 @@ export default {
 
 type Story = StoryObj<typeof FileTreeViewer>;
 
-export const Default: Story = {};
+const FileTreeViewerDemo = () => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(true);
+  return (
+    <>
+      <BitkitTabs.AddButton ref={ref} label="Open module" onClick={() => setOpen((isOpen) => !isOpen)} />
+      <FileTreeViewer open={open} onOpenChange={setOpen} getAnchor={() => ref.current} />
+    </>
+  );
+};
+
+export const Default: Story = {
+  render: () => <FileTreeViewerDemo />,
+};

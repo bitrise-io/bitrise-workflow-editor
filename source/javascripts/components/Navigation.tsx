@@ -117,7 +117,7 @@ const Navigation = (props: Props) => {
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
-    <Sidebar width={['88px', '256px']} flexShrink={0} {...props}>
+    <Sidebar width={['88px', '256px']} flexShrink={0} paddingTop="24" {...props}>
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}
