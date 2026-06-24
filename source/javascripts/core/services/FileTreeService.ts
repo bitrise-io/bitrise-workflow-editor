@@ -202,6 +202,31 @@ function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileT
   });
 }
 
+export type FileDescriptor = {
+  fileName: string;
+  /** Group header (`<repo>@<ref>`) when the file lives outside the working repo, else `null`. */
+  repoLabel: string | null;
+};
+
+/**
+ * Flat `nodeId → { fileName, repoLabel }` lookup for a node set, for list/menu views (e.g. the
+ * jump-to-definition menu) that need a file's name and cross-repo origin without the folder tree.
+ * Reuses {@link buildFileTree} so ref inheritance and grouping stay defined in one place.
+ */
+function describeFiles(root: TreeNode | undefined, projectRepoLabel: string): Map<string, FileDescriptor> {
+  const map = new Map<string, FileDescriptor>();
+  buildFileTree(root, { projectRepoLabel }).forEach((group) => {
+    const repoLabel = group.isReadOnly ? group.header : null;
+    const walk = (folder: FileTreeFolder) => {
+      folder.files.forEach((file) => map.set(file.nodeId, { fileName: file.fileName, repoLabel }));
+      folder.folders.forEach(walk);
+    };
+    walk(group.root);
+  });
+  return map;
+}
+
 export default {
   buildFileTree,
+  describeFiles,
 };

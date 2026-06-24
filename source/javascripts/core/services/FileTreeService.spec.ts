@@ -152,3 +152,41 @@ describe('FileTreeService.buildFileTree', () => {
     expect(groups[0].root.files.map((f) => f.fileName)).toEqual(['a.yml']);
   });
 });
+
+describe('FileTreeService.describeFiles', () => {
+  it('returns an empty map for a missing root', () => {
+    expect(FileTreeService.describeFiles(undefined, 'repo').size).toBe(0);
+  });
+
+  it('maps each node to its file name, with no repoLabel for working-repo files', () => {
+    const root = node('n_root', 'bitrise.yml', null, [
+      node('n_w', 'e2e/workflows.yml', source({ path: 'e2e/workflows.yml' })),
+    ]);
+
+    const files = FileTreeService.describeFiles(root, 'repo');
+
+    expect(files.get('n_root')).toEqual({ fileName: 'bitrise.yml', repoLabel: null });
+    expect(files.get('n_w')).toEqual({ fileName: 'workflows.yml', repoLabel: null });
+  });
+
+  it('labels cross-repo files with the group header (repo@ref)', () => {
+    const repoRoot = node('n_repo', 'templates.yml', source({ repository: 'another_repo_name', branch: 'main' }), [
+      node('n_nested', 'nested/extra.yml', source({ path: 'nested/extra.yml' })),
+    ]);
+    const root = node('n_root', 'bitrise.yml', null, [repoRoot]);
+
+    const files = FileTreeService.describeFiles(root, 'repo');
+
+    expect(files.get('n_repo')).toEqual({ fileName: 'templates.yml', repoLabel: 'another_repo_name@main' });
+    expect(files.get('n_nested')).toEqual({ fileName: 'extra.yml', repoLabel: 'another_repo_name@main' });
+  });
+
+  it('omits nodes that are not files (none missing here) and excludes unknown ids', () => {
+    const root = node('n_root', 'bitrise.yml', null, []);
+
+    const files = FileTreeService.describeFiles(root, 'repo');
+
+    expect(files.has('n_root')).toBe(true);
+    expect(files.get('does-not-exist')).toBeUndefined();
+  });
+});

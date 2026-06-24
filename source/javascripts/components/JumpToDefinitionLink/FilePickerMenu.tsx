@@ -1,13 +1,13 @@
-import { Popover } from '@chakra-ui/react/popover';
-import { Portal } from '@chakra-ui/react/portal';
-import { ReactElement, useCallback, useMemo, useState } from 'react';
+import { BitkitActionMenu, IconFileYml } from '@bitrise/bitkit-v2';
+import { ReactElement, useMemo } from 'react';
 
-import FileTreeView from '@/components/FileTreeViewer/FileTreeView';
 import { TreeNode } from '@/core/models/Tree';
+import FileTreeService from '@/core/services/FileTreeService';
+import PageProps from '@/core/utils/PageProps';
 
 type Props = {
   rootNode: TreeNode;
-  /** node_ids the picker is restricted to (the files that define the target). */
+  /** node_ids the menu lists, in display order (e.g. definitions highest-precedence-first). */
   nodeIds: string[];
   onSelect: (nodeId: string) => void;
   trigger: ReactElement<{ onClick?: () => void }>;
@@ -15,57 +15,39 @@ type Props = {
 };
 
 /**
- * A file-tree picker in a popover, restricted to an explicit set of nodes. The index-driven counterpart
- * is {@link JumpToDefinitionLink}; this variant takes the node set + action directly, for targets that
- * aren't in the entity index (e.g. the root `meta` default stack singleton).
+ * A menu listing files (one item per `nodeId`, labelled by file name and cross-repo origin) that
+ * jumps to the picked file. The index-driven counterpart is {@link JumpToDefinitionLink}; this
+ * variant takes the node set + action directly, for targets that aren't in the entity index.
  */
-const FilePickerPopover = ({ rootNode, nodeIds, onSelect, trigger, onOpenChange }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const ids = useMemo(() => new Set(nodeIds), [nodeIds]);
+const FilePickerMenu = ({ rootNode, nodeIds, onSelect, trigger, onOpenChange }: Props) => {
+  const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
 
-  const filter = useCallback((node: TreeNode) => ids.has(node.nodeId), [ids]);
-  const handleSelect = useCallback(
-    (nodeId: string) => {
-      onSelect(nodeId);
-      setIsOpen(false);
-      // Closing via the controlled `open` prop doesn't fire Popover.onOpenChange, so notify
-      // callers tracking open state ourselves (mirrors JumpToDefinitionLink).
-      onOpenChange?.(false);
-    },
-    [onSelect, onOpenChange],
-  );
+  const items = useMemo(() => {
+    const filesByNodeId = FileTreeService.describeFiles(rootNode, projectRepoLabel);
+    return nodeIds.flatMap((nodeId) => {
+      const file = filesByNodeId.get(nodeId);
+      if (!file) {
+        return [];
+      }
+      const label = file.repoLabel ? `${file.fileName} in ${file.repoLabel}` : file.fileName;
+      return [{ nodeId, label }];
+    });
+  }, [rootNode, projectRepoLabel, nodeIds]);
 
   return (
-    <Popover.Root
-      open={isOpen}
-      onOpenChange={(details) => {
-        setIsOpen(details.open);
-        onOpenChange?.(details.open);
-      }}
+    <BitkitActionMenu.Root
+      trigger={trigger}
       positioning={{ placement: 'bottom-start' }}
+      onSelect={({ value }) => onSelect(value)}
+      onOpenChange={onOpenChange ? ({ open }) => onOpenChange(open) : undefined}
     >
-      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
-      <Portal>
-        {/* z-index on Content, not Positioner — see FileTreeViewer for why. */}
-        <Popover.Positioner>
-          <Popover.Content
-            zIndex={1500}
-            width="320px"
-            maxWidth="320px"
-            backgroundColor="background/primary"
-            border="1px solid"
-            borderColor="border/regular"
-            borderRadius="8"
-            boxShadow="large"
-          >
-            <Popover.Body p="8" maxHeight="50vh" overflowY="auto">
-              <FileTreeView rootNode={rootNode} filter={filter} onSelect={handleSelect} />
-            </Popover.Body>
-          </Popover.Content>
-        </Popover.Positioner>
-      </Portal>
-    </Popover.Root>
+      {items.map((item) => (
+        <BitkitActionMenu.Item key={item.nodeId} value={item.nodeId} icon={IconFileYml}>
+          {item.label}
+        </BitkitActionMenu.Item>
+      ))}
+    </BitkitActionMenu.Root>
   );
 };
 
-export default FilePickerPopover;
+export default FilePickerMenu;

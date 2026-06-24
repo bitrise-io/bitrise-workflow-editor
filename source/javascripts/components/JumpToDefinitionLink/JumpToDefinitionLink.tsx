@@ -7,7 +7,7 @@ import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
 import { useTree } from '@/hooks/useTree';
 
-import FilePickerPopover from './FilePickerPopover';
+import FilePickerMenu from './FilePickerMenu';
 
 type Props = {
   kind: EntityKind;
@@ -18,7 +18,7 @@ type Props = {
 };
 
 /**
- * Opens a {@link FilePickerPopover} over the files that define a cross-file entity — the node set is
+ * Opens a {@link FilePickerMenu} over the files that define a cross-file entity — the node set is
  * derived from the entity index, and selecting a layer jumps to that definition. The explicit
  * `nodeId`-driven counterpart is {@link JumpToFileButton}.
  */
@@ -27,7 +27,6 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
   const entityIndex = useEntityIndex();
   const jumpToDefinition = useJumpToDefinition();
 
-  // Stable identity so the picker's restricted node set doesn't rebuild FileTreeView's collection.
   const definitionNodeIds = useMemo(
     () => EntityIndexService.definitionsOf(entityIndex, kind, id).map((def) => def.nodeId),
     [entityIndex, kind, id],
@@ -43,7 +42,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
   }
 
   return (
-    <FilePickerPopover
+    <FilePickerMenu
       rootNode={tree}
       nodeIds={definitionNodeIds}
       onSelect={handleSelect}
