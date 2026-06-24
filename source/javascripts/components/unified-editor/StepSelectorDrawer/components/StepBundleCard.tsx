@@ -52,6 +52,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
+  const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -130,7 +132,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
-      variant: 'outline',
+      variant: isGhost ? 'minElevated' : 'outline',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
       ...(isCollapsable ? { borderRadius: '4' } : { borderRadius: '8' }),
     };
@@ -151,10 +153,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
     return {
       ...common,
-      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isCrossFile, isReadOnlyView]);
+  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isGhost]);
 
   const buttonGroup = useMemo(() => {
     // The menu's actions come from onDeleteStep OR onDeleteStepInStepBundle (the latter for

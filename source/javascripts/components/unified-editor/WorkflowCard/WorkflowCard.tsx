@@ -79,6 +79,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
+  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
+  const isGhost = isCrossFile || isReadOnlyView;
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
@@ -92,7 +95,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
-      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -100,7 +102,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted, isCrossFile, isReadOnlyView],
+    [containerProps, isHighlighted],
   );
 
   if (!workflow && !isCrossFile) {
@@ -115,7 +117,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
+    <Card minW={0} borderRadius="8" variant={isGhost ? 'minElevated' : 'elevated'} {...cardProps}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton

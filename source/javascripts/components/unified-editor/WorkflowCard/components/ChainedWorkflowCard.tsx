@@ -36,6 +36,8 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
+  const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,7 +75,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const cardProps = useMemo(() => {
     const common: CardProps = {
       borderRadius: '4',
-      variant: 'outline',
+      variant: isGhost ? 'minElevated' : 'outline',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
 
@@ -94,10 +96,9 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
     return {
       ...common,
-      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isDragging, isHighlighted, isPlaceholder, isCrossFile, isReadOnlyView]);
+  }, [isDragging, isHighlighted, isPlaceholder, isGhost]);
 
   const buttonGroup = useMemo(() => {
     if (
