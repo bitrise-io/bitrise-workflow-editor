@@ -11,6 +11,7 @@ import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from
 import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
+import LoadingState from '@/components/LoadingState';
 import ModularYamlDevToggle from '@/components/ModularYamlDevToggle';
 import Client from '@/core/api/client';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
@@ -238,6 +239,13 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         </Box>
       </Box>
     );
+  }
+
+  // Keep the loading state up until the config is fully loaded — covering both bootstrap phases:
+  // the "does the repo have a config" settings check (which gates the query) and the subsequent
+  // tree/legacy fetch. Without this the children would render against an empty store mid-load.
+  if (!data) {
+    return <LoadingState />;
   }
 
   return <>{children}</>;
