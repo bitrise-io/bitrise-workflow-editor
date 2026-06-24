@@ -181,18 +181,21 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               />
             )}
 
-            <ControlButton
-              size="xs"
-              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-              className="nopan"
-              onClick={onToggle}
-              isDisabled={isDragging || isCrossFile}
-              iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-              aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
-              tooltipProps={{
-                'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
-              }}
-            />
+            {/* No expand/collapse for cross-file refs — their nested content isn't shown here. */}
+            {!isCrossFile && (
+              <ControlButton
+                size="xs"
+                tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+                className="nopan"
+                onClick={onToggle}
+                isDisabled={isDragging}
+                iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+                aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
+                tooltipProps={{
+                  'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
+                }}
+              />
+            )}
 
             <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
               <Text textStyle="body/md/semibold" hasEllipsis>
