@@ -132,7 +132,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
-      variant: isGhost ? 'minElevated' : 'outline',
+      variant: 'outline',
+      // A step bundle is a step-level item inside a workflow, so the ghost look is just a lighter
+      // border/minimal — no shadow (unlike the node cards, which use minElevated).
+      ...(isGhost ? { borderColor: 'border/minimal' } : {}),
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
       ...(isCollapsable ? { borderRadius: '4' } : { borderRadius: '8' }),
     };
