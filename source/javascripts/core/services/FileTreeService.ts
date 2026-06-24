@@ -202,6 +202,37 @@ function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileT
   });
 }
 
+export type FileDescriptor = {
+  fileName: string;
+  /**
+   * The file-tree group header for any read-only group — a cross-repo include, or the same repo
+   * pinned to a different ref. Formatted like the headers `buildFileTree` produces: `<repo>@<branch>`,
+   * `<repo>:<tag>`, `<repo>:<short-commit>`, or just `<repo>` when there's no ref marker. `null` for
+   * working-repo files.
+   */
+  repoLabel: string | null;
+};
+
+/**
+ * Builds a flat `nodeId → { fileName, repoLabel }` lookup over the whole tree (one entry per
+ * reachable file), for list/menu views (e.g. the jump-to-definition menu) that need a file's name
+ * and cross-repo origin without the folder tree. Callers index into it with their own `nodeId`
+ * subset. Reuses {@link buildFileTree} so ref inheritance and grouping stay defined in one place.
+ */
+function describeFiles(root: TreeNode | undefined, projectRepoLabel: string): Map<string, FileDescriptor> {
+  const map = new Map<string, FileDescriptor>();
+  buildFileTree(root, { projectRepoLabel }).forEach((group) => {
+    const repoLabel = group.isReadOnly ? group.header : null;
+    const walk = (folder: FileTreeFolder) => {
+      folder.files.forEach((file) => map.set(file.nodeId, { fileName: file.fileName, repoLabel }));
+      folder.folders.forEach(walk);
+    };
+    walk(group.root);
+  });
+  return map;
+}
+
 export default {
   buildFileTree,
+  describeFiles,
 };

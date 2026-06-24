@@ -3,16 +3,16 @@ import { ControlButton } from '@bitrise/bitkit';
 import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import { useTree } from '@/hooks/useTree';
 
-import FilePickerPopover from './FilePickerPopover';
+import FilePickerMenu from './FilePickerMenu';
 
 type Props = {
   nodeId: string;
 };
 
 /**
- * Jump to a known file's tab via a confirm popover. Used by per-file grouped views where the target
+ * Jump to a known file's tab via a confirm menu. Used by per-file grouped views where the target
  * file is unambiguous (e.g. env var groups) — unlike {@link JumpToDefinitionLink}'s entity-index
- * picker, this is scoped to the one file, but still opens the popover so the user sees which file
+ * picker, this is scoped to the one file, but still opens the menu so the user sees which file
  * they'll jump to (and can decide) before committing.
  */
 const JumpToFileButton = ({ nodeId }: Props) => {
@@ -22,7 +22,7 @@ const JumpToFileButton = ({ nodeId }: Props) => {
   }
 
   return (
-    <FilePickerPopover
+    <FilePickerMenu
       rootNode={tree}
       nodeIds={[nodeId]}
       onSelect={(id) => {

@@ -1,7 +1,7 @@
 import { Box, ControlButton, Text } from '@bitrise/bitkit';
 import { useMemo } from 'react';
 
-import FilePickerPopover from '@/components/JumpToDefinitionLink/FilePickerPopover';
+import FilePickerMenu from '@/components/JumpToDefinitionLink/FilePickerMenu';
 import DefaultStackAndMachine from '@/components/StacksAndMachine/DefaultStackAndMachine';
 import TabContainer from '@/components/tabs/TabContainer';
 import { openTab } from '@/core/stores/BitriseYmlStore';
@@ -53,7 +53,7 @@ const DefaultTab = () => {
             {metaDefinitions.length > 1 ? ` (+${metaDefinitions.length - 1} more)` : ''}
           </Text>
           {tree && (
-            <FilePickerPopover
+            <FilePickerMenu
               rootNode={tree}
               nodeIds={metaNodeIds}
               onSelect={(nodeId) => openTab(nodeId, { preview: false })}

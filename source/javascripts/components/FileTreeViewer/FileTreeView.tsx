@@ -1,11 +1,5 @@
 import { Box, Text } from '@bitrise/bitkit';
-import {
-  BitkitIconButton,
-  BitkitTreeView,
-  createTreeCollection,
-  IconFileYml,
-  IconInfoCircle,
-} from '@bitrise/bitkit-v2';
+import { BitkitTooltip, BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';
@@ -122,12 +116,17 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
           <Box display="flex" alignItems="center" gap="4" py="6">
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (
-              <BitkitIconButton
-                size="sm"
-                variant="tertiary"
-                label="Modules included from another repository or ref are read-only."
-                icon={IconInfoCircle}
-              />
+              <BitkitTooltip text="Modules included from another repository or ref are read-only.">
+                {/* Focusable + labelled so the read-only explanation is reachable by keyboard and
+                    announced by screen readers, while staying non-actionable (not a button). */}
+                <IconInfoCircle
+                  size="16"
+                  color="icon/tertiary"
+                  tabIndex={0}
+                  role="img"
+                  aria-label="Read-only — included from another repository or ref"
+                />
+              </BitkitTooltip>
             )}
           </Box>
           <GroupTree
