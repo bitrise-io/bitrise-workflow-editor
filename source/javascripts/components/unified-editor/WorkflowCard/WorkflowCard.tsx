@@ -156,6 +156,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 }}
               />
             )}
+            {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
+                matching the design's referenced-WF actions: jump → settings → remove. */}
+            {showJumpButton && (
+              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+            )}
             {onEditWorkflow && (
               <ControlButton
                 size="xs"
@@ -164,9 +169,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 tooltipProps={{ 'aria-label': 'Edit Workflow' }}
                 onClick={() => onEditWorkflow(id)}
               />
-            )}
-            {showJumpButton && (
-              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
             {onRemoveWorkflow && (
               <ControlButton
