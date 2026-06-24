@@ -181,7 +181,7 @@ describe('FileTreeService.describeFiles', () => {
     expect(files.get('n_nested')).toEqual({ fileName: 'extra.yml', repoLabel: 'another_repo_name@main' });
   });
 
-  it('omits nodes that are not files (none missing here) and excludes unknown ids', () => {
+  it('includes every reachable file and returns undefined for unknown node ids', () => {
     const root = node('n_root', 'bitrise.yml', null, []);
 
     const files = FileTreeService.describeFiles(root, 'repo');

@@ -214,9 +214,10 @@ export type FileDescriptor = {
 };
 
 /**
- * Flat `nodeId → { fileName, repoLabel }` lookup for a node set, for list/menu views (e.g. the
- * jump-to-definition menu) that need a file's name and cross-repo origin without the folder tree.
- * Reuses {@link buildFileTree} so ref inheritance and grouping stay defined in one place.
+ * Builds a flat `nodeId → { fileName, repoLabel }` lookup over the whole tree (one entry per
+ * reachable file), for list/menu views (e.g. the jump-to-definition menu) that need a file's name
+ * and cross-repo origin without the folder tree. Callers index into it with their own `nodeId`
+ * subset. Reuses {@link buildFileTree} so ref inheritance and grouping stay defined in one place.
  */
 function describeFiles(root: TreeNode | undefined, projectRepoLabel: string): Map<string, FileDescriptor> {
   const map = new Map<string, FileDescriptor>();
