@@ -188,7 +188,8 @@ const StepCard = ({
       borderRadius: '4',
       variant: 'outline',
       className: 'group',
-      ...(isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
+      // Ghost (read-only) steps: a lighter border/minimal, no shadow — per the design's ghost-step spec.
+      ...(isReadOnlyView ? { borderColor: 'border/minimal' } : {}),
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
 

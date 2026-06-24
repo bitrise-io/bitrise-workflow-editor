@@ -79,6 +79,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
+  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
+  const isGhost = isCrossFile || isReadOnlyView;
 
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
@@ -92,7 +95,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
-      ...(isCrossFile || isReadOnlyView ? { backgroundColor: 'background/secondary' } : {}),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -100,8 +102,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted, isCrossFile, isReadOnlyView],
+    [containerProps, isHighlighted],
   );
+  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
+  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
+  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -115,7 +120,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
+    <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton
@@ -154,6 +159,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 }}
               />
             )}
+            {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
+                matching the design's referenced-WF actions: jump → settings → remove. */}
+            {showJumpButton && (
+              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+            )}
             {onEditWorkflow && (
               <ControlButton
                 size="xs"
@@ -162,9 +172,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 tooltipProps={{ 'aria-label': 'Edit Workflow' }}
                 onClick={() => onEditWorkflow(id)}
               />
-            )}
-            {showJumpButton && (
-              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
             {onRemoveWorkflow && (
               <ControlButton
