@@ -52,7 +52,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
-  // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
+  // Ghosts (cross-file refs or read-only view) get a lighter border/minimal instead of the tint.
   const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();

@@ -104,6 +104,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     }),
     [containerProps, isHighlighted],
   );
+  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
+  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
+  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -117,7 +120,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card minW={0} borderRadius="8" variant={isGhost ? 'minElevated' : 'elevated'} {...cardProps}>
+    <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isCollapsable && (
           <ControlButton
