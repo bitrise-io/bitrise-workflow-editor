@@ -37,6 +37,7 @@ const FilePickerMenu = ({ rootNode, nodeIds, onSelect, trigger, onOpenChange }: 
   return (
     <BitkitActionMenu.Root
       trigger={trigger}
+      size="md"
       positioning={{ placement: 'bottom-start' }}
       onSelect={({ value }) => onSelect(value)}
       onOpenChange={onOpenChange ? ({ open }) => onOpenChange(open) : undefined}
