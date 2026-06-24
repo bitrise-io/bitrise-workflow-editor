@@ -117,7 +117,16 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (
               <BitkitTooltip text="Modules included from another repository or ref are read-only.">
-                <IconInfoCircle size="16" color="icon/tertiary" />
+                {/* Focusable + labelled so the read-only explanation is reachable by keyboard and
+                    announced by screen readers, while staying non-actionable (not a button). */}
+                <Box
+                  as="span"
+                  tabIndex={0}
+                  display="inline-flex"
+                  aria-label="Read-only — included from another repository or ref"
+                >
+                  <IconInfoCircle size="16" color="icon/tertiary" />
+                </Box>
               </BitkitTooltip>
             )}
           </Box>

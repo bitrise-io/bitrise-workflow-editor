@@ -204,7 +204,12 @@ function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileT
 
 export type FileDescriptor = {
   fileName: string;
-  /** Group header (`<repo>@<ref>`) when the file lives outside the working repo, else `null`. */
+  /**
+   * The file-tree group header for any read-only group — a cross-repo include, or the same repo
+   * pinned to a different ref. Formatted like the headers `buildFileTree` produces: `<repo>@<branch>`,
+   * `<repo>:<tag>`, `<repo>:<short-commit>`, or just `<repo>` when there's no ref marker. `null` for
+   * working-repo files.
+   */
   repoLabel: string | null;
 };
 
