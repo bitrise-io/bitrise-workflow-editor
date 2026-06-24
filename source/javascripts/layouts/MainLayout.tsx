@@ -3,6 +3,7 @@ import { Redirect, Router, Switch } from 'wouter';
 
 import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
+import LoadingState from '@/components/LoadingState';
 import Navigation from '@/components/Navigation';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
@@ -10,6 +11,7 @@ import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
 import { useTree } from '@/hooks/useTree';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
@@ -39,6 +41,10 @@ const MainLayout = () => {
   // nav + content row); in CLI mode the tabs live inside the content column instead.
   const tabsUnderHeader = isModular && isWebsiteMode;
 
+  // The header + navigation stay visible during the initial config load; only the content area
+  // shows the loading state (settings check + tree/legacy fetch).
+  const isConfigLoading = useIsConfigLoading();
+
   useMergedConfigSync();
 
   return (
@@ -55,15 +61,19 @@ const MainLayout = () => {
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">
-            <Router hook={useHashLocation} searchHook={useHashSearch}>
-              <InvalidYmlRedirect />
-              <Switch>
-                {routes.map(({ path, component }) => (
-                  <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
-                ))}
-                <Redirect to={paths.workflows} replace />
-              </Switch>
-            </Router>
+            {isConfigLoading ? (
+              <LoadingState />
+            ) : (
+              <Router hook={useHashLocation} searchHook={useHashSearch}>
+                <InvalidYmlRedirect />
+                <Switch>
+                  {routes.map(({ path, component }) => (
+                    <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
+                  ))}
+                  <Redirect to={paths.workflows} replace />
+                </Switch>
+              </Router>
+            )}
           </Box>
         </Box>
       </Box>

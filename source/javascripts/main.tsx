@@ -11,7 +11,6 @@ import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from
 import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
-import LoadingState from '@/components/LoadingState';
 import ModularYamlDevToggle from '@/components/ModularYamlDevToggle';
 import Client from '@/core/api/client';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
@@ -24,6 +23,7 @@ import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
+import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
 import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
@@ -241,14 +241,9 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     );
   }
 
-  // Keep the loading state up until the config is fully loaded — covering both bootstrap phases:
-  // the "does the repo have a config" settings check (which gates the query) and the subsequent
-  // tree/legacy fetch. Without this the children would render against an empty store mid-load.
-  if (!data) {
-    return <LoadingState />;
-  }
-
-  return <>{children}</>;
+  // Expose whether the config is still loading (settings check + tree/legacy fetch) so the layout
+  // can show the loading state in the content area while keeping the header + navigation visible.
+  return <ConfigLoadingProvider value={!data}>{children}</ConfigLoadingProvider>;
 };
 
 const App = () => {
