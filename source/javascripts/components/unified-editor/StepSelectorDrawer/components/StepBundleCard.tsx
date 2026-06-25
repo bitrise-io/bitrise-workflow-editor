@@ -214,10 +214,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               onClick={handleClick}
               role={isButton ? 'button' : 'div'}
             >
-              {isCollapsable && (
+              {/* No expand/collapse for cross-file refs — their nested steps live in another file. */}
+              {isCollapsable && !isCrossFile && (
                 <ControlButton
                   size="xs"
-                  isDisabled={isCrossFile}
                   tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
                   className="nopan"
                   onClick={(e) => {

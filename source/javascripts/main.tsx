@@ -23,6 +23,7 @@ import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
+import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
 import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
@@ -240,7 +241,9 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     );
   }
 
-  return <>{children}</>;
+  // Expose whether the config is still loading (settings check + tree/legacy fetch) so the layout
+  // can show the loading state in the content area while keeping the header + navigation visible.
+  return <ConfigLoadingProvider value={!data}>{children}</ConfigLoadingProvider>;
 };
 
 const App = () => {
