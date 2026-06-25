@@ -230,6 +230,15 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
     throw new Error('Path cannot be empty when setting a value');
   }
 
+  // An empty document has `null` contents. Seed a root collection so a nested `setIn` doesn't throw
+  // "Expected a YAML collection as document contents" — e.g. adding the first workflow to a freshly
+  // created, empty module file. Use `createNode` (not a bare `new YAMLMap()`) so the collection is
+  // schema-bound and auto-creates intermediate nodes. The first path segment decides seq vs map.
+  if (isDocument(root) && root.contents == null) {
+    const firstSegmentAsIndex = Number(path[0]);
+    root.contents = root.createNode(Number.isInteger(firstSegmentAsIndex) && firstSegmentAsIndex >= 0 ? [] : {});
+  }
+
   let parentPath = [...path.slice(0, -1)];
   while (parentPath.length > 0 && isNil(root.getIn(parentPath))) {
     if (root.getIn(parentPath) === null) {

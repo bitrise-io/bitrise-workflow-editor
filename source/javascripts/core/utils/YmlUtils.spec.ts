@@ -511,6 +511,17 @@ describe('YmlUtils', () => {
       `);
     });
 
+    it('seeds a root collection when setting into an empty document', () => {
+      const root = YmlUtils.toDoc('');
+
+      YmlUtils.setIn(root, ['workflows', 'wf1'], {});
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1: {}
+      `);
+    });
+
     it('should set a value in a YMLSeq at the specified path', () => {
       const root = YmlUtils.toDoc(yaml`
         workflows:
