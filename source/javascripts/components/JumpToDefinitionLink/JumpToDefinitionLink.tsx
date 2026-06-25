@@ -1,5 +1,5 @@
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
-import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
+import { ReactElement, useCallback, useMemo } from 'react';
 
 import { EntityKind } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
@@ -12,7 +12,8 @@ import FilePickerMenu from './FilePickerMenu';
 type Props = {
   kind: EntityKind;
   id: string;
-  children?: ReactNode;
+  /** Label for the default link trigger. Ignored when a custom `trigger` is provided. */
+  children?: string;
   trigger?: ReactElement<{ onClick?: () => void }>;
   onOpenChange?: (isOpen: boolean) => void;
 };
@@ -47,7 +48,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
       nodeIds={definitionNodeIds}
       onSelect={handleSelect}
       onOpenChange={onOpenChange}
-      trigger={trigger ?? <BitkitLinkButton>{children as string}</BitkitLinkButton>}
+      trigger={trigger ?? <BitkitLinkButton>{children ?? ''}</BitkitLinkButton>}
     />
   );
 };

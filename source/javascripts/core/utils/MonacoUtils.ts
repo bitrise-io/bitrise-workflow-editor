@@ -297,9 +297,10 @@ function getValidationStatusForUri(uri: string): ValidationStatus {
   return 'valid';
 }
 
-/** Subscribe to any model's marker changes. Returns an IDisposable to unsubscribe. */
-function onMarkersChange(callback: () => void): monaco.IDisposable {
-  return monaco.editor.onDidChangeMarkers(() => callback());
+/** Subscribe to marker changes, forwarding the URIs whose markers changed so callers can filter.
+ * Returns an IDisposable to unsubscribe. */
+function onMarkersChange(callback: (changedUris: readonly monaco.Uri[]) => void): monaco.IDisposable {
+  return monaco.editor.onDidChangeMarkers(callback);
 }
 
 export default {

@@ -18,6 +18,7 @@ export default function useFileTabValidationStatuses(nodeIds: string[]): Record<
 
   useEffect(() => {
     const ids = key ? key.split('\n') : [];
+    const tabUris = new Set(ids.map(fileModelUri));
     const recompute = () =>
       setStatuses(Object.fromEntries(ids.map((id) => [id, MonacoUtils.getValidationStatusForUri(fileModelUri(id))])));
 
@@ -25,7 +26,13 @@ export default function useFileTabValidationStatuses(nodeIds: string[]): Record<
     // Markers settle in two passes (monaco-yaml's schema layer + the slower Bitrise LS); debounce
     // the recompute so the dot doesn't flicker through a premature status.
     const debounced = debounce(recompute, 250);
-    const subscription = MonacoUtils.onMarkersChange(debounced);
+    // Only react to marker changes for the open file tabs — ignore the background/merged models and
+    // any other Monaco instances on the page.
+    const subscription = MonacoUtils.onMarkersChange((changedUris) => {
+      if (changedUris.some((uri) => tabUris.has(uri.toString()))) {
+        debounced();
+      }
+    });
     return () => {
       debounced.cancel();
       subscription.dispose();
