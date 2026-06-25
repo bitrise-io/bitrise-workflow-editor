@@ -522,6 +522,20 @@ describe('YmlUtils', () => {
       `);
     });
 
+    it('seeds a root collection when the document is a null scalar (saved-then-reloaded empty file)', () => {
+      // An empty module file serializes to the literal `null`, which reparses to a null Scalar.
+      const root = YmlUtils.toDoc('# modules/new.yml\n\nnull\n');
+
+      YmlUtils.setIn(root, ['workflows', 'wf1'], {});
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        # modules/new.yml
+
+        workflows:
+          wf1: {}
+      `);
+    });
+
     it('should set a value in a YMLSeq at the specified path', () => {
       const root = YmlUtils.toDoc(yaml`
         workflows:
