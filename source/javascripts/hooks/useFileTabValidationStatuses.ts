@@ -11,8 +11,8 @@ const fileModelUri = (nodeId: string) => `file:///modular/${nodeId}`;
  * model's markers and kept live via `onDidChangeMarkers`. Files without a loaded model (not yet
  * opened in the YAML editor) report `valid` — there are no markers to read.
  */
-export default function useFileTabValidationStatuses(nodeIds: string[]): Record<string, ValidationStatus> {
-  const [statuses, setStatuses] = useState<Record<string, ValidationStatus>>({});
+export default function useFileTabValidationStatuses(nodeIds: string[]): Partial<Record<string, ValidationStatus>> {
+  const [statuses, setStatuses] = useState<Partial<Record<string, ValidationStatus>>>({});
   // Stable primitive dep so the effect only re-subscribes when the set of open tabs changes.
   const key = nodeIds.join('\n');
 
