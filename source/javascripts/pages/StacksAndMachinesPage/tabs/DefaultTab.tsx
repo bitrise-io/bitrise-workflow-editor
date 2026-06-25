@@ -1,4 +1,5 @@
-import { Box, ControlButton, Text } from '@bitrise/bitkit';
+import { Box, Text } from '@bitrise/bitkit';
+import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 
 import FilePickerMenu from '@/components/JumpToDefinitionLink/FilePickerMenu';
@@ -57,14 +58,7 @@ const DefaultTab = () => {
               rootNode={tree}
               nodeIds={metaNodeIds}
               onSelect={(nodeId) => openTab(nodeId, { preview: false })}
-              trigger={
-                <ControlButton
-                  size="xs"
-                  iconName="ArrowNorthEast"
-                  aria-label="Go to definition"
-                  tooltipProps={{ 'aria-label': 'Go to definition' }}
-                />
-              }
+              trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Go to definition" />}
             />
           )}
         </Box>

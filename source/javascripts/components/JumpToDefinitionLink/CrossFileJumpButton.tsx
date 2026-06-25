@@ -1,4 +1,4 @@
-import { ControlButton } from '@bitrise/bitkit';
+import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import { EntityKind } from '@/core/models/Tree';
@@ -17,14 +17,7 @@ const CrossFileJumpButton = ({ kind, id, onOpenChange }: Props) => (
       kind={kind}
       id={id}
       onOpenChange={onOpenChange}
-      trigger={
-        <ControlButton
-          size="xs"
-          iconName="ArrowNorthEast"
-          aria-label="Go to definition"
-          tooltipProps={{ 'aria-label': 'Go to definition' }}
-        />
-      }
+      trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Go to definition" />}
     />
   </Box>
 );
