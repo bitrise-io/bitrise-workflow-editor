@@ -122,10 +122,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   return (
     <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
-        {isCollapsable && (
+        {/* No expand/collapse for cross-file refs — their nested content lives in another file
+            and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
+        {isCollapsable && !isCrossFile && (
           <ControlButton
             size="xs"
-            isDisabled={isCrossFile}
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
             className="nopan"
             onClick={onToggle}

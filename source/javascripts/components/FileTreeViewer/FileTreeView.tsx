@@ -93,7 +93,18 @@ const GroupTree = ({
         nodeState.isBranch ? (
           <BitkitTreeView.Branch label={node.label} />
         ) : (
-          <BitkitTreeView.Leaf label={node.label} icon={IconFileYml} />
+          <BitkitTreeView.Leaf
+            label={node.label}
+            icon={IconFileYml}
+            // Clicking the already-selected file doesn't change the selection, so onSelectionChange
+            // never fires — handle that case here so selecting the active file still runs onSelect
+            // (which closes the picker). Other files are handled by onSelectionChange (single fire).
+            onClick={() => {
+              if (node.id === selectedNodeId) {
+                onSelect(node.id);
+              }
+            }}
+          />
         )
       }
     />
