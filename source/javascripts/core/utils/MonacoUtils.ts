@@ -288,9 +288,25 @@ function onModelMarkerStatusChange(
   };
 }
 
+/** Derive the validation status from the current markers of a model URI. Returns 'valid' when the
+ * model doesn't exist or has no markers (e.g. a file not yet opened in the editor). */
+function getValidationStatusForUri(uri: string): ValidationStatus {
+  const markers = monaco.editor.getModelMarkers({ resource: monaco.Uri.parse(uri) });
+  if (markers.some((m) => m.severity === monaco.MarkerSeverity.Error)) return 'invalid';
+  if (markers.some((m) => m.severity === monaco.MarkerSeverity.Warning)) return 'warnings';
+  return 'valid';
+}
+
+/** Subscribe to any model's marker changes. Returns an IDisposable to unsubscribe. */
+function onMarkersChange(callback: () => void): monaco.IDisposable {
+  return monaco.editor.onDidChangeMarkers(() => callback());
+}
+
 export default {
   configureForYaml,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
   onModelMarkerStatusChange,
+  getValidationStatusForUri,
+  onMarkersChange,
 };
