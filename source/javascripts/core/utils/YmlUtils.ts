@@ -239,8 +239,9 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
   const isEmptyDocument =
     isDocument(root) && (root.contents == null || (isScalar(root.contents) && root.contents.value == null));
   if (isEmptyDocument) {
-    const firstSegmentAsIndex = Number(path[0]);
-    root.contents = root.createNode(Number.isInteger(firstSegmentAsIndex) && firstSegmentAsIndex >= 0 ? [] : {});
+    // A numeric path segment is a seq index; a string key (even a numeric-looking '0') is a map key.
+    const firstSegmentIsIndex = typeof path[0] === 'number' && Number.isInteger(path[0]) && path[0] >= 0;
+    root.contents = root.createNode(firstSegmentIsIndex ? [] : {});
   }
 
   let parentPath = [...path.slice(0, -1)];
