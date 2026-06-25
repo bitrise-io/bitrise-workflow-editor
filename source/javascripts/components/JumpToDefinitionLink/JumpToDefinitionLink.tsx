@@ -1,4 +1,4 @@
-import { Link } from '@bitrise/bitkit';
+import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 
 import { EntityKind } from '@/core/models/Tree';
@@ -47,13 +47,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
       nodeIds={definitionNodeIds}
       onSelect={handleSelect}
       onOpenChange={onOpenChange}
-      trigger={
-        trigger ?? (
-          <Link as="button" colorScheme="purple">
-            {children}
-          </Link>
-        )
-      }
+      trigger={trigger ?? <BitkitLinkButton>{children as string}</BitkitLinkButton>}
     />
   );
 };
