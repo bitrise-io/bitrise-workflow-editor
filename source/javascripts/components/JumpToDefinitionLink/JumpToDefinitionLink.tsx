@@ -48,7 +48,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
       nodeIds={definitionNodeIds}
       onSelect={handleSelect}
       onOpenChange={onOpenChange}
-      trigger={trigger ?? <BitkitLinkButton>{children ?? ''}</BitkitLinkButton>}
+      trigger={trigger ?? <BitkitLinkButton>{children ?? 'Go to definition'}</BitkitLinkButton>}
     />
   );
 };
