@@ -63,16 +63,18 @@ const StepBundlesPage = () => {
       description="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."
       height="100%"
     >
-      <Button
-        size="md"
-        leftIconName="Plus"
-        isDisabled={isReadOnlyView}
-        onClick={openDialog({
-          type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
-        })}
-      >
-        Create Step bundle
-      </Button>
+      {/* Read-only views (merged config, cross-repo/ref files) can't create — show no action. */}
+      {!isReadOnlyView && (
+        <Button
+          size="md"
+          leftIconName="Plus"
+          onClick={openDialog({
+            type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
+          })}
+        >
+          Create Step bundle
+        </Button>
+      )}
     </EmptyState>
   );
   return (

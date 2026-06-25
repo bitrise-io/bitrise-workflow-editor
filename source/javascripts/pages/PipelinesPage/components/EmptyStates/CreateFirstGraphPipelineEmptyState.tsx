@@ -1,6 +1,7 @@
 import { Box, Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
 
 import useAIButton from '@/hooks/useAIButton';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import graphPipelineImage from '../../assets/graph-pipeline.png';
 
@@ -9,6 +10,7 @@ type Props = {
 };
 
 const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const {
     isVisible: isAIButtonVisible,
     tooltipLabel,
@@ -75,18 +77,23 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
             <ListItem>Edit Workflows directly in the Pipeline</ListItem>
           </List>
 
-          <Box display={['none', 'flex']} gap="24" alignItems="center">
-            {actions}
-          </Box>
+          {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
+          {!isReadOnlyView && (
+            <Box display={['none', 'flex']} gap="24" alignItems="center">
+              {actions}
+            </Box>
+          )}
         </Box>
 
         <Box p="8" maxW="436" display="flex" borderRadius="8" bg="background/secondary" alignItems="center">
           <Image src={graphPipelineImage} alt="Graph Pipeline" />
         </Box>
 
-        <Box display={['flex', 'none']} flexDir="column" gap="24" alignItems="center">
-          {actions}
-        </Box>
+        {!isReadOnlyView && (
+          <Box display={['flex', 'none']} flexDir="column" gap="24" alignItems="center">
+            {actions}
+          </Box>
+        )}
       </Card>
     </Box>
   );

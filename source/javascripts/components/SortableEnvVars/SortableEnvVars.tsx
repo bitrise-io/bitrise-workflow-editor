@@ -79,9 +79,10 @@ const SortableEnvVars = ({
         <DragOverlay>{activeItem && <SortableEnvVarItem env={activeItem} isDragging />}</DragOverlay>
       </DndContext>
 
-      {!hideAddButton && (
+      {/* Read-only views (merged config, cross-repo/ref files) can't add — show no action. */}
+      {!hideAddButton && !isReadOnlyView && (
         <Box px="16" py="12">
-          <Button size="md" variant="tertiary" leftIconName="Plus" isDisabled={isReadOnlyView} onClick={onAdd}>
+          <Button size="md" variant="tertiary" leftIconName="Plus" onClick={onAdd}>
             Add new
           </Button>
         </Box>
