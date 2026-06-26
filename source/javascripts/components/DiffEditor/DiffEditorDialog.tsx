@@ -11,7 +11,6 @@ import {
   Tooltip,
 } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
-import { Editor, type EditorProps } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -35,11 +34,11 @@ import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 type ContentProps = {
   onClose: VoidFunction;
   nodeId?: string;
-  fileSelector?: ReactNode;
+  tabs?: ReactNode;
   isReadOnly?: boolean;
 };
 
-export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadOnly }: ContentProps) => {
+export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: ContentProps) => {
   // useModelValidationStatus only accepts 'valid' | 'invalid' | 'warnings'; map the new
   // 'pending' seed to 'valid' (the diff editor recomputes its own status from markers anyway).
   const seedStatus = useYmlValidationStatus();
@@ -50,8 +49,13 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
     setCurrentText(undefined);
   }, [nodeId]);
 
+  // The merged tab diffs the saved vs. current merged config (read-only); file tabs diff that file's slice.
+  const isMerged = nodeId === MERGED_CONFIG_NODE_ID;
+  const mergedOriginalText = useBitriseYmlStore((s) => s.savedMergedYml ?? '');
+  const mergedModifiedText = useBitriseYmlStore((s) => s.mergedYml ?? '');
+
   const fileTexts = useMemo(() => {
-    if (!nodeId) {
+    if (!nodeId || isMerged) {
       return undefined;
     }
     const slice = bitriseYmlStore.getState().files[nodeId];
@@ -59,20 +63,14 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
       originalText: slice ? YmlUtils.toYml(slice.savedYmlDocument) : '',
       modifiedText: slice ? YmlUtils.toYml(slice.ymlDocument) : '',
     };
-  }, [nodeId]);
+  }, [nodeId, isMerged]);
 
-  const modifiedText = fileTexts ? fileTexts.modifiedText : getYmlString();
-  const originalText = fileTexts ? fileTexts.originalText : getYmlString('savedYmlDocument');
-
-  // New file (empty commitSha) has no saved baseline → plain code view, not a two-sided diff.
-  const isNewFile = useBitriseYmlStore((s) => {
-    const effectiveNodeId = nodeId ?? s.selectedNodeId;
-    if (!effectiveNodeId || effectiveNodeId === MERGED_CONFIG_NODE_ID) {
-      return false;
-    }
-    const slice = s.files[effectiveNodeId];
-    return Boolean(slice?.editable && !slice.commitSha);
-  });
+  const modifiedText = isMerged ? mergedModifiedText : fileTexts ? fileTexts.modifiedText : getYmlString();
+  const originalText = isMerged
+    ? mergedOriginalText
+    : fileTexts
+      ? fileTexts.originalText
+      : getYmlString('savedYmlDocument');
 
   const isApplyChangesDisabled =
     Boolean(isReadOnly) || currentText === undefined || ymlStatus === 'invalid' || currentText === modifiedText;
@@ -93,13 +91,6 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
 
   const handleEditorMount: DiffEditorProps['onMount'] = (editor) => {
     const model = editor.getModifiedEditor().getModel();
-    if (model) {
-      subscribeToModel(model);
-    }
-  };
-
-  const handlePlainEditorMount: EditorProps['onMount'] = (editor) => {
-    const model = editor.getModel();
     if (model) {
       subscribeToModel(model);
     }
@@ -132,39 +123,25 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, fileSelector, isReadO
       <ModalCloseButton size="large">
         <Icon name="Cross" />
       </ModalCloseButton>
-      <DialogBody flex="1" display="flex" gap="16" minHeight="0">
-        {fileSelector}
+      <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
+        {tabs}
         <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
           <Notification status="info">
-            {isReadOnly
-              ? 'This file is read-only — changes here cannot be saved.'
-              : isNewFile
-                ? 'This is a new file — edit it below and your changes will be saved.'
+            {isMerged
+              ? 'The merged configuration built from your saved files (left) vs. your current unsaved changes (right). This view is read-only.'
+              : isReadOnly
+                ? 'This file is read-only — changes here cannot be saved.'
                 : 'You can edit the right side of the diff view, and your changes will be saved'}
           </Notification>
-          {isNewFile ? (
-            <Editor
+          {originalText && modifiedText && (
+            <DiffEditor
               key={nodeId ?? 'legacy'}
-              theme="vs-dark"
-              language="yaml"
-              defaultValue={modifiedText}
-              onChange={(value) => setCurrentText(typeof value === 'string' ? value : undefined)}
-              onMount={handlePlainEditorMount}
-              options={{ minimap: { enabled: false }, readOnly: isReadOnly }}
-              wrapperProps={{ style: { flex: 1, display: 'flex', minHeight: 0 } }}
+              originalText={originalText}
+              modifiedText={modifiedText}
+              onChange={setCurrentText}
+              onMount={handleEditorMount}
+              readOnly={isReadOnly}
             />
-          ) : (
-            originalText &&
-            modifiedText && (
-              <DiffEditor
-                key={nodeId ?? 'legacy'}
-                originalText={originalText}
-                modifiedText={modifiedText}
-                onChange={setCurrentText}
-                onMount={handleEditorMount}
-                readOnly={isReadOnly}
-              />
-            )
           )}
         </Box>
       </DialogBody>

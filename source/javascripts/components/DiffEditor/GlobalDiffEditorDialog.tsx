@@ -1,55 +1,49 @@
-import { Box, DialogProps } from '@bitrise/bitkit';
-import { rem } from '@bitrise/bitkit-v2';
-import { useMemo, useState } from 'react';
+import { DialogProps } from '@bitrise/bitkit';
+import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
+import { useState } from 'react';
 
-import FileTreeView from '@/components/FileTreeViewer/FileTreeView';
-import { isFileDirty } from '@/core/stores/BitriseYmlStore';
+import TreeService from '@/core/services/TreeService';
+import { isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { DiffEditorDialogContent, DiffEditorDialogShell } from './DiffEditorDialog';
 
 const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
-  const tree = useBitriseYmlStore((s) => s.tree);
   const dirtyFiles = useBitriseYmlStore((s) =>
     Object.values(s.files)
       .filter((slice) => isFileDirty(slice))
-      .map((slice) => ({ nodeId: slice.nodeId, editable: slice.editable })),
+      .map((slice) => ({ nodeId: slice.nodeId, name: TreeService.fileName(slice.path), editable: slice.editable })),
   );
 
   const activeNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(
-    () => dirtyFiles.find((file) => file.nodeId === activeNodeId)?.nodeId ?? dirtyFiles[0]?.nodeId,
+  // Default to the active file's tab when it has changes, otherwise the merged overview.
+  const [selectedTab, setSelectedTab] = useState<string>(
+    () => dirtyFiles.find((file) => file.nodeId === activeNodeId)?.nodeId ?? MERGED_CONFIG_NODE_ID,
   );
 
-  const selected = dirtyFiles.find((file) => file.nodeId === selectedNodeId) ?? dirtyFiles[0];
-  const effectiveNodeId = selected?.nodeId;
-
-  const dirtyIds = useMemo(() => new Set(dirtyFiles.map((file) => file.nodeId)), [dirtyFiles]);
-  const isDirty = useMemo(() => (node: { nodeId: string }) => dirtyIds.has(node.nodeId), [dirtyIds]);
+  const selectedFile = dirtyFiles.find((file) => file.nodeId === selectedTab);
+  // If the selected file tab vanished (saved/discarded elsewhere), fall back to the merged tab.
+  const effectiveTab = selectedTab === MERGED_CONFIG_NODE_ID || selectedFile ? selectedTab : MERGED_CONFIG_NODE_ID;
+  const isMerged = effectiveTab === MERGED_CONFIG_NODE_ID;
 
   return (
     <DiffEditorDialogContent
       onClose={onClose}
-      nodeId={effectiveNodeId}
-      isReadOnly={!selected?.editable}
-      fileSelector={
-        <Box
-          width={rem(280)}
-          flexShrink={0}
-          overflowY="auto"
-          borderRight="1px solid"
-          borderColor="border/minimal"
-          pr="8"
-        >
-          {tree && (
-            <FileTreeView
-              rootNode={tree}
-              filter={isDirty}
-              selectedNodeId={effectiveNodeId}
-              onSelect={setSelectedNodeId}
-            />
-          )}
-        </Box>
+      nodeId={effectiveTab}
+      isReadOnly={isMerged || !selectedFile?.editable}
+      tabs={
+        <BitkitTabs.Root value={effectiveTab} onValueChange={({ value }) => setSelectedTab(value)}>
+          <BitkitTabs.List>
+            <BitkitTabs.Trigger value={MERGED_CONFIG_NODE_ID} icon={IconGroup}>
+              Merged config
+            </BitkitTabs.Trigger>
+            {dirtyFiles.map((file) => (
+              <BitkitTabs.Trigger key={file.nodeId} value={file.nodeId}>
+                {file.name}
+              </BitkitTabs.Trigger>
+            ))}
+          </BitkitTabs.List>
+        </BitkitTabs.Root>
       }
     />
   );
