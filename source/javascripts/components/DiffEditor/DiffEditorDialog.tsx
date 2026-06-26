@@ -173,6 +173,7 @@ export const DiffEditorDialogShell = ({ onClose, children, ...rest }: Omit<Dialo
   );
 };
 
+// The legacy (non-modular) diff dialog: a single document diff, no file tabs.
 const DiffEditorDialog = ({ onClose, nodeId, ...rest }: Omit<DialogProps, 'title'> & { nodeId?: string }) => {
   return (
     <DiffEditorDialogShell {...rest} onClose={onClose}>
