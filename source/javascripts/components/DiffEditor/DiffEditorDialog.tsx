@@ -133,16 +133,14 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
                 ? 'This file is read-only — changes here cannot be saved.'
                 : 'You can edit the right side of the diff view, and your changes will be saved'}
           </Notification>
-          {originalText && modifiedText && (
-            <DiffEditor
-              key={nodeId ?? 'legacy'}
-              originalText={originalText}
-              modifiedText={modifiedText}
-              onChange={setCurrentText}
-              onMount={handleEditorMount}
-              readOnly={isReadOnly}
-            />
-          )}
+          <DiffEditor
+            key={nodeId ?? 'legacy'}
+            originalText={originalText}
+            modifiedText={modifiedText}
+            onChange={setCurrentText}
+            onMount={handleEditorMount}
+            readOnly={isReadOnly}
+          />
         </Box>
       </DialogBody>
       <DialogFooter>
