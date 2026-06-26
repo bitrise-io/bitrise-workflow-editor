@@ -1,4 +1,5 @@
-import { ControlButton, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import useNavigation from '@/hooks/useNavigation';
@@ -32,9 +33,10 @@ const ContainerUsageTable = ({ workflows }: Props) => {
               {isModular ? (
                 <CrossFileJumpButton kind="workflows" id={workflowId} />
               ) : (
-                <ControlButton
-                  aria-label="Go to Workflow"
-                  iconName="ArrowNorthEast"
+                <BitkitControlButton
+                  size="xs"
+                  icon={IconArrowNortheast}
+                  label="Go to Workflow"
                   onClick={() => replace('/workflows', { workflow_id: workflowId })}
                 />
               )}

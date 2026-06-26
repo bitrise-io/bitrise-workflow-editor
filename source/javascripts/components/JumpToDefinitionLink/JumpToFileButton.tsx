@@ -1,4 +1,4 @@
-import { ControlButton } from '@bitrise/bitkit';
+import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 
 import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import { useTree } from '@/hooks/useTree';
@@ -31,14 +31,7 @@ const JumpToFileButton = ({ nodeId }: Props) => {
         recordActiveTabLocation(window.parent.location.hash);
         openTab(id, { preview: false });
       }}
-      trigger={
-        <ControlButton
-          size="xs"
-          iconName="ArrowNorthEast"
-          aria-label="Go to definition"
-          tooltipProps={{ 'aria-label': 'Go to definition' }}
-        />
-      }
+      trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Go to definition" />}
     />
   );
 };
