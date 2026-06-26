@@ -11,7 +11,6 @@ import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from
 import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
-import ModularYamlDevToggle from '@/components/ModularYamlDevToggle';
 import Client from '@/core/api/client';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
@@ -257,7 +256,6 @@ const App = () => {
                 <InitialDataLoader>
                   <MainLayout />
                 </InitialDataLoader>
-                <ModularYamlDevToggle />
               </BitkitProvider>
             </Provider>
           </ReactFlowProvider>
