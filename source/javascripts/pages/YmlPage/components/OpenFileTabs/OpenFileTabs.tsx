@@ -3,28 +3,21 @@ import { useRef, useState } from 'react';
 
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
 import { FileTabInfo, useFileTabs } from '@/hooks/useFileTabs';
-import useFileTabValidationStatuses from '@/hooks/useFileTabValidationStatuses';
 
 import DiscardFileTabDialog from './DiscardFileTabDialog';
 
 const OpenFileTabs = () => {
   const { fileTabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig, closeTab, discardFile } =
     useFileTabs();
-  const validationStatuses = useFileTabValidationStatuses(fileTabs.map((tab) => tab.nodeId));
   const [discardNodeId, setDiscardNodeId] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const addButtonRef = useRef<HTMLButtonElement>(null);
 
   const discardTab = fileTabs.find((tab) => tab.nodeId === discardNodeId);
 
-  // Validation outranks the unsaved marker: a broken/warning file is more urgent to surface than a
-  // clean-but-unsaved one. Validation colours only apply to files with a loaded Monaco model.
-  const tabStatusColor = (tab: FileTabInfo) => {
-    const status = validationStatuses[tab.nodeId];
-    if (status === 'invalid') return 'red';
-    if (status === 'warnings') return 'yellow';
-    return tab.isDirty ? 'purple' : undefined;
-  };
+  // A purple dot marks an unsaved file; a saved file gets the neutral default dot (which becomes a
+  // close button on hover).
+  const tabStatusColor = (tab: FileTabInfo) => (tab.isDirty ? 'purple' : 'neutral');
 
   // Closing a tab with unsaved edits prompts first; a clean tab closes immediately.
   const handleClose = (tab: FileTabInfo) => {
