@@ -58,7 +58,7 @@ const DefaultTab = () => {
               rootNode={tree}
               nodeIds={metaNodeIds}
               onSelect={(nodeId) => openTab(nodeId, { preview: false })}
-              trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Go to definition" />}
+              trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
             />
           )}
         </Box>

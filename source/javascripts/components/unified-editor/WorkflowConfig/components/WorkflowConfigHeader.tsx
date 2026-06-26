@@ -64,9 +64,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
                   {' • '}
                 </>
               )}
-              <JumpToDefinitionLink kind="workflows" id={id}>
-                {isMergedView ? 'Go to definition' : 'Edit definition'}
-              </JumpToDefinitionLink>
+              <JumpToDefinitionLink kind="workflows" id={id} />
             </Text>
           )}
         </div>

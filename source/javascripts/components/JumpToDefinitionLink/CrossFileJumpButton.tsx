@@ -17,7 +17,7 @@ const CrossFileJumpButton = ({ kind, id, onOpenChange }: Props) => (
       kind={kind}
       id={id}
       onOpenChange={onOpenChange}
-      trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Go to definition" />}
+      trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
     />
   </Box>
 );

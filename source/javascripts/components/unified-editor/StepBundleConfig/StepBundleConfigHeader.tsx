@@ -1,4 +1,5 @@
-import { Box, Link, Tab, TabList, Text } from '@bitrise/bitkit';
+import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
+import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { ReactNode } from 'react';
 
 import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
@@ -28,13 +29,11 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('stepBundles', stepBundleId);
   const shouldJumpToDefinition = isCrossFile || (isMergedView && hasDefinition);
   const editDefinitionLink = shouldJumpToDefinition ? (
-    <JumpToDefinitionLink kind="stepBundles" id={stepBundleId}>
-      Edit definition
-    </JumpToDefinitionLink>
+    <JumpToDefinitionLink kind="stepBundles" id={stepBundleId} />
   ) : (
-    <Link as="button" colorScheme="purple" onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}>
+    <BitkitLinkButton onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}>
       Edit definition
-    </Link>
+    </BitkitLinkButton>
   );
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
