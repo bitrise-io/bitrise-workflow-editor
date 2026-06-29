@@ -29,6 +29,9 @@ export default function useMergedConfigSync({ active }: { active?: boolean } = {
     }
 
     isFetchingRef.current = true;
+    // Set on cleanup (the merged view was left, or staleness resolved) so an in-flight loop stops
+    // instead of re-merging in the background until the tree stabilizes.
+    let aborted = false;
 
     // Reads live store state each pass (not closed-over deps), so an edit that lands while a fetch is
     // in flight — which re-sets mergedYmlStale to true without toggling it, so the effect never
@@ -36,7 +39,7 @@ export default function useMergedConfigSync({ active }: { active?: boolean } = {
     // current one) and a fresh merge runs for the post-edit tree.
     const runMerge = () => {
       const state = bitriseYmlStore.getState();
-      if (!state.mergedYmlStale) {
+      if (aborted || !state.mergedYmlStale) {
         isFetchingRef.current = false;
         return;
       }
@@ -50,6 +53,10 @@ export default function useMergedConfigSync({ active }: { active?: boolean } = {
       const requestedTree = JSON.stringify(tree);
       BitriseYmlApi.getMergedConfig({ projectSlug: PageProps.appSlug(), tree, branch: state.configBranch })
         .then((result) => {
+          if (aborted) {
+            isFetchingRef.current = false;
+            return;
+          }
           // Apply only if the tree we merged is still current; otherwise an edit landed
           // mid-flight and the result is stale — re-merge the fresh tree instead.
           if (JSON.stringify(getModularConfigTree()) === requestedTree) {
@@ -66,5 +73,9 @@ export default function useMergedConfigSync({ active }: { active?: boolean } = {
     };
 
     runMerge();
+
+    return () => {
+      aborted = true;
+    };
   }, [isActive, isStale]);
 }

@@ -105,9 +105,14 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
           )}
 
           <Text textStyle="body/lg/regular" color="text/body">
-            {isModular
-              ? 'You need to re-create the changes in the relevant configuration file on your Git repository.'
-              : `You need to update the content of the configuration YAML in the ${gitRepoSlug} repository's ${defaultBranch} branch.`}
+            {isModular ? (
+              'You need to re-create the changes in the relevant configuration file on your Git repository.'
+            ) : (
+              <>
+                You need to update the content of the configuration YAML in the {gitRepoSlug} repository&apos;s{' '}
+                {defaultBranch} branch.
+              </>
+            )}
           </Text>
 
           <Box display="flex" flexDirection="column" gap="24">
