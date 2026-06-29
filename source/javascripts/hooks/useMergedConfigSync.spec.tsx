@@ -8,6 +8,8 @@ import { TreeNode } from '@/core/models/Tree';
 import {
   bitriseYmlStore,
   initializeModularConfig,
+  MERGED_CONFIG_NODE_ID,
+  openTab,
   selectMergedConfig,
   updateFileDocument,
 } from '@/core/stores/BitriseYmlStore';
@@ -109,5 +111,26 @@ describe('useMergedConfigSync', () => {
     });
     await waitFor(() => expect(bitriseYmlStore.getState().mergedYml).toBe('merged: FRESH'));
     expect(bitriseYmlStore.getState().mergedYmlStale).toBe(false);
+  });
+
+  it('merges when `active` is forced on, even off the merged tab (e.g. the diff dialog)', async () => {
+    const merge = jest.spyOn(BitriseYmlApi, 'getMergedConfig').mockResolvedValue({ mergedYml: 'merged: forced' });
+    openTab('child-a'); // selection is a file tab, not the merged config
+    expect(bitriseYmlStore.getState().selectedNodeId).not.toBe(MERGED_CONFIG_NODE_ID);
+
+    renderHook(() => useMergedConfigSync({ active: true }));
+
+    await waitFor(() => expect(bitriseYmlStore.getState().mergedYml).toBe('merged: forced'));
+    expect(merge).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not merge when `active` is false, even on the merged tab', () => {
+    const merge = jest.spyOn(BitriseYmlApi, 'getMergedConfig').mockResolvedValue({ mergedYml: 'merged: nope' });
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+
+    renderHook(() => useMergedConfigSync({ active: false }));
+
+    expect(merge).not.toHaveBeenCalled();
+    expect(bitriseYmlStore.getState().mergedYml).toBeUndefined();
   });
 });
