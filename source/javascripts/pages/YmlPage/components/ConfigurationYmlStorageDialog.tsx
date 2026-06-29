@@ -268,7 +268,7 @@ const GitToBitriseSection = ({ isDisabled, lastModifiedFormatted, onChange, valu
   );
 };
 
-const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'onClose'>) => {
+const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStorageDialogProps) => {
   const [ymlRootPath, setYmlRootPath] = useState('');
   const [selectedStorage, setSelectedStorage] = useState<CiConfigStorage>('bitrise');
   const [gitToBitriseStorage, setGitToBitriseStorage] = useState<NewCiConfigStorage>('git-ci-config');
@@ -433,41 +433,34 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
   };
 
   return (
-    <>
-      <BitkitDialog.Body>
-        <ConfigStorageGroup value={selectedStorage} isDisabled={isYmlSettingsLoading} onChange={setSelectedStorage} />
-
-        {showYmlRootPathSection && (
-          <GitYmlRootPathSection
-            value={ymlRootPath}
-            isDisabled={isYmlSettingsLoading}
-            defaultValue={ymlSettings?.ymlRootPath}
-            onChange={setYmlRootPath}
-          />
-        )}
-
-        {switchBitriseToGit && <BitriseToGitSection initialYmlRootPath={ymlSettings?.ymlRootPath} />}
-
-        {switchGitToBitrise && (
-          <GitToBitriseSection
-            value={gitToBitriseStorage}
-            isDisabled={isYmlSettingsLoading}
-            onChange={setGitToBitriseStorage}
-            lastModifiedFormatted={lastModifiedFormatted}
-          />
-        )}
-      </BitkitDialog.Body>
-      <BitkitDialog.Footer>
-        {asyncError && (
-          <YmlDialogErrorNotification error={asyncError} marginBlockEnd={showYmlRootPathWarning ? '24' : undefined} />
-        )}
-        {showYmlRootPathWarning && (
-          <BitkitAlert
-            variant="warning"
-            messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
-          />
-        )}
-        <BitkitDialog.Buttons>
+    <BitkitDialog
+      title="Configuration YAML storage"
+      scrollBehavior="inside"
+      showScrollGradient={false}
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+      footerContent={
+        asyncError || showYmlRootPathWarning ? (
+          <>
+            {asyncError && (
+              <YmlDialogErrorNotification
+                error={asyncError}
+                marginBlockEnd={showYmlRootPathWarning ? '24' : undefined}
+              />
+            )}
+            {showYmlRootPathWarning && (
+              <BitkitAlert
+                variant="warning"
+                messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
+              />
+            )}
+          </>
+        ) : undefined
+      }
+      footerButtons={
+        <>
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
@@ -479,24 +472,30 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
               Validate and save
             </BitkitButton>
           </BitkitTooltip>
-        </BitkitDialog.Buttons>
-      </BitkitDialog.Footer>
-    </>
-  );
-};
-
-const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStorageDialogProps) => {
-  return (
-    <BitkitDialog
-      title="Configuration YAML storage"
-      scrollBehavior="inside"
-      showScrollGradient={false}
-      open={isOpen}
-      onOpenChange={({ open }) => {
-        if (!open) onClose();
-      }}
+        </>
+      }
     >
-      <DialogContent onClose={onClose} />
+      <ConfigStorageGroup value={selectedStorage} isDisabled={isYmlSettingsLoading} onChange={setSelectedStorage} />
+
+      {showYmlRootPathSection && (
+        <GitYmlRootPathSection
+          value={ymlRootPath}
+          isDisabled={isYmlSettingsLoading}
+          defaultValue={ymlSettings?.ymlRootPath}
+          onChange={setYmlRootPath}
+        />
+      )}
+
+      {switchBitriseToGit && <BitriseToGitSection initialYmlRootPath={ymlSettings?.ymlRootPath} />}
+
+      {switchGitToBitrise && (
+        <GitToBitriseSection
+          value={gitToBitriseStorage}
+          isDisabled={isYmlSettingsLoading}
+          onChange={setGitToBitriseStorage}
+          lastModifiedFormatted={lastModifiedFormatted}
+        />
+      )}
     </BitkitDialog>
   );
 };
