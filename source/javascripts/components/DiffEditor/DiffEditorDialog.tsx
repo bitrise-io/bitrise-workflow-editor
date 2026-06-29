@@ -124,15 +124,15 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
         <Icon name="Cross" />
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
+        <Notification status="info">
+          {isMerged
+            ? 'The merged configuration built from your saved files (left) vs. your current unsaved changes (right). This view is read-only.'
+            : isReadOnly
+              ? 'This file is read-only — changes here cannot be saved.'
+              : 'You can edit the right side of the diff view, and your changes will be saved'}
+        </Notification>
         {tabs}
         <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
-          <Notification status="info">
-            {isMerged
-              ? 'The merged configuration built from your saved files (left) vs. your current unsaved changes (right). This view is read-only.'
-              : isReadOnly
-                ? 'This file is read-only — changes here cannot be saved.'
-                : 'You can edit the right side of the diff view, and your changes will be saved'}
-          </Notification>
           <DiffEditor
             key={nodeId ?? 'legacy'}
             originalText={originalText}

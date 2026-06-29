@@ -5,6 +5,7 @@ import { useState } from 'react';
 import TreeService from '@/core/services/TreeService';
 import { isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useMergedConfigSync from '@/hooks/useMergedConfigSync';
 
 import { DiffEditorDialogContent, DiffEditorDialogShell } from './DiffEditorDialog';
 
@@ -25,6 +26,10 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   // If the selected file tab vanished (saved/discarded elsewhere), fall back to the merged tab.
   const effectiveTab = selectedTab === MERGED_CONFIG_NODE_ID || selectedFile ? selectedTab : MERGED_CONFIG_NODE_ID;
   const isMerged = effectiveTab === MERGED_CONFIG_NODE_ID;
+
+  // The merge is a backend round-trip; trigger it (like the main Merged tab does) so the dialog's
+  // Merged tab shows the live merged config even before saving.
+  useMergedConfigSync({ active: isMerged });
 
   return (
     <DiffEditorDialogContent

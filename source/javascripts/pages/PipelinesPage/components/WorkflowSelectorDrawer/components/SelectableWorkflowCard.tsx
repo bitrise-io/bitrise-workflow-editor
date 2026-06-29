@@ -49,7 +49,7 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
             {/* A cross-file workflow's pipeline-usage + stack live in its defining
                 module, not this file — show provenance instead of stale counts. */}
             {crossFile.isCrossFile ? (
-              <CrossFileProvenanceText definingPath={crossFile.definingPath} sourceLabel={crossFile.sourceLabel} />
+              <CrossFileProvenanceText definingPaths={crossFile.definingPaths} sourceLabel={crossFile.sourceLabel} />
             ) : (
               <>
                 {usedInPipelinesText}

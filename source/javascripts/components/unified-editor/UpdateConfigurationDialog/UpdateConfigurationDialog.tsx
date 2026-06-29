@@ -1,28 +1,79 @@
-import { BitkitButton, BitkitDialog, createBitkitToast, IconCopy, IconDownload } from '@bitrise/bitkit-v2';
+import {
+  BitkitButton,
+  BitkitControlButton,
+  BitkitDialog,
+  BitkitNoteCard,
+  BitkitSectionHeading,
+  createBitkitToast,
+  IconCopy,
+  IconDownload,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
+import { Table } from '@chakra-ui/react/table';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
-import { getYmlString } from '@/core/stores/BitriseYmlStore';
+import TreeService from '@/core/services/TreeService';
+import { getFileYmlString, getYmlString, isFileDirty } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useShallow } from '@/hooks/useShallow';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
 };
 
+type ChangedFileRow = {
+  key: string;
+  name: string;
+  downloadName: string;
+  getContent: () => string;
+};
+
+const moduleCountLabel = (count: number) => `${count} ${count === 1 ? 'module' : 'modules'} changed`;
+
 const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
-  const [isCopiedOrDownloded, setIsCopiedOrDownloaded] = useState(false);
+  const [isCopiedOrDownloaded, setIsCopiedOrDownloaded] = useState(false);
 
-  const handleCopyToClipboard = () => {
+  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
+  const changedModules = useBitriseYmlStore(
+    useShallow((s) =>
+      !s.tree
+        ? []
+        : Object.values(s.files)
+            .filter((slice) => isFileDirty(slice))
+            .map((slice) => ({ nodeId: slice.nodeId, path: slice.path, name: TreeService.fileName(slice.path) })),
+    ),
+  );
+
+  // Single config → one synthetic "bitrise.yml" row (the whole config); modular → one row per changed module file.
+  const rows: ChangedFileRow[] = isModular
+    ? changedModules.map(({ nodeId, path, name }) => ({
+        key: nodeId,
+        name,
+        // Full path (slashes → dashes) as the download filename so same-named modules in different
+        // folders don't collide; the basename stays the displayed label (full paths are in the note above).
+        downloadName: path.replace(/\//g, '-'),
+        getContent: () => getFileYmlString(nodeId),
+      }))
+    : [{ key: 'bitrise.yml', name: 'bitrise.yml', downloadName: 'bitrise.yml', getContent: getYmlString }];
+
+  const handleDownload = (row: ChangedFileRow) => {
+    trackDownloadYmlClicked('git', 'update_configuration_yml_modal');
+    download(row.getContent(), row.downloadName, 'application/yaml;charset=utf-8');
+    setIsCopiedOrDownloaded(true);
+  };
+
+  const handleCopy = (row: ChangedFileRow) => {
     trackCopyYmlClicked('git', 'update_configuration_yml_modal');
-
-    copyToClipboard(getYmlString()).then((isCopied) => {
+    copyToClipboard(row.getContent()).then((isCopied) => {
       if (isCopied) {
         createBitkitToast({
           titleText: 'Copied to clipboard',
@@ -41,54 +92,57 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
     });
   };
 
-  const handleDownloadClick = () => {
-    trackDownloadYmlClicked('git', 'update_configuration_yml_modal');
-
-    download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
-
-    setIsCopiedOrDownloaded(true);
-  };
-
   return (
     <>
       <BitkitDialog.Body>
-        <Text>
-          If you would like to apply these changes to your configuration, depending on your setup, you need to do the
-          following:
-        </Text>
-        <Box display="flex" flexDirection="column">
-          <Text textStyle="heading/h4" marginBlockEnd="4">
-            Using a single configuration file
+        <Box display="flex" flexDirection="column" gap="24">
+          {isModular && (
+            <BitkitNoteCard
+              status="info"
+              title={moduleCountLabel(changedModules.length)}
+              message={changedModules.map((module) => module.path).join(', ')}
+            />
+          )}
+
+          <Text textStyle="body/lg/regular" color="text/body">
+            {isModular ? (
+              'You need to re-create the changes in the relevant configuration file on your Git repository.'
+            ) : (
+              <>
+                You need to update the content of the configuration YAML in the {gitRepoSlug} repository&apos;s{' '}
+                {defaultBranch} branch.
+              </>
+            )}
           </Text>
-          <Text marginBlockEnd="16">
-            Update the content of the configuration YAML in the {gitRepoSlug} repository&apos;s {defaultBranch} branch.
-          </Text>
-          <Box display="flex" flexDirection="column" gap="8">
-            <BitkitButton
-              size="sm"
-              variant="tertiary"
-              width="fit-content"
-              icon={IconDownload}
-              onClick={handleDownloadClick}
-            >
-              Download changed version
-            </BitkitButton>
-            <BitkitButton
-              size="sm"
-              variant="tertiary"
-              width="fit-content"
-              icon={IconCopy}
-              onClick={handleCopyToClipboard}
-            >
-              Copy changed configuration
-            </BitkitButton>
+
+          <Box display="flex" flexDirection="column" gap="24">
+            <BitkitSectionHeading
+              label={isModular ? moduleCountLabel(changedModules.length) : 'Changed configuration'}
+            />
+            <Card.Root elevation={false} overflow="hidden">
+              <Table.Root variant="borderless" size="md">
+                <Table.Body>
+                  {rows.map((row) => (
+                    <Table.Row key={row.key}>
+                      <Table.Cell>{row.name}</Table.Cell>
+                      <Table.Cell display="flex" alignItems="center" justifyContent="flex-end" gap="8">
+                        <BitkitControlButton
+                          icon={IconDownload}
+                          label="Download changed version"
+                          onClick={() => handleDownload(row)}
+                        />
+                        <BitkitControlButton
+                          icon={IconCopy}
+                          label="Copy changed configuration"
+                          onClick={() => handleCopy(row)}
+                        />
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </Card.Root>
           </Box>
-        </Box>
-        <Box display="flex" flexDirection="column">
-          <Text textStyle="heading/h4" marginBlockEnd="4">
-            Using multiple configuration files
-          </Text>
-          <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
         </Box>
       </BitkitDialog.Body>
       <BitkitDialog.Footer>
@@ -96,7 +150,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
-          <BitkitButton state={!isCopiedOrDownloded ? 'disabled' : undefined} onClick={onClose}>
+          <BitkitButton state={!isCopiedOrDownloaded ? 'disabled' : undefined} onClick={onClose}>
             Done
           </BitkitButton>
         </BitkitDialog.Buttons>

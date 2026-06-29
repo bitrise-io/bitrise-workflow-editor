@@ -75,7 +75,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
-  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', workflowId);
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', workflowId);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
@@ -116,7 +116,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   if (uses) {
     subtitle = `Uses ${uses}`;
   } else if (isCrossFile) {
-    subtitle = crossFileProvenanceLabel(definingPath);
+    subtitle = crossFileProvenanceLabel(definingPaths);
   }
 
   return (
