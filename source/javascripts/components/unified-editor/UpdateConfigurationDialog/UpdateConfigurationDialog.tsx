@@ -9,6 +9,8 @@ import {
   IconDownload,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
+import { Table } from '@chakra-ui/react/table';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
@@ -104,34 +106,31 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
             <BitkitSectionHeading
               label={isModular ? moduleCountLabel(changedModules.length) : 'Changed configuration'}
             />
-            <Box border="1px solid" borderColor="border/regular" borderRadius="8" overflow="hidden">
-              {rows.map((row, index) => (
-                <Box
-                  key={row.key}
-                  display="flex"
-                  alignItems="center"
-                  gap="8"
-                  height="56"
-                  paddingInline="24"
-                  borderBlockEnd={index < rows.length - 1 ? '1px solid' : undefined}
-                  borderColor="border/minimal"
-                >
-                  <Text flex="1" minWidth="0" truncate textStyle="body/md/regular" color="text/body">
-                    {row.name}
-                  </Text>
-                  <BitkitControlButton
-                    icon={IconDownload}
-                    label="Download changed version"
-                    onClick={() => handleDownload(row)}
-                  />
-                  <BitkitControlButton
-                    icon={IconCopy}
-                    label="Copy changed configuration"
-                    onClick={() => handleCopy(row)}
-                  />
-                </Box>
-              ))}
-            </Box>
+            <Card.Root elevation={false} overflow="hidden">
+              <Table.Root variant="borderless">
+                <Table.Body>
+                  {rows.map((row) => (
+                    <Table.Row key={row.key}>
+                      <Table.Cell>{row.name}</Table.Cell>
+                      <Table.Cell>
+                        <Box display="flex" gap="8" justifyContent="flex-end">
+                          <BitkitControlButton
+                            icon={IconDownload}
+                            label="Download changed version"
+                            onClick={() => handleDownload(row)}
+                          />
+                          <BitkitControlButton
+                            icon={IconCopy}
+                            label="Copy changed configuration"
+                            onClick={() => handleCopy(row)}
+                          />
+                        </Box>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </Card.Root>
           </Box>
         </Box>
       </BitkitDialog.Body>
