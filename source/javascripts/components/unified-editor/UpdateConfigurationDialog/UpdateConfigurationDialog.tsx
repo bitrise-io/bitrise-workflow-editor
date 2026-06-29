@@ -31,6 +31,7 @@ type Props = {
 type ChangedFileRow = {
   key: string;
   name: string;
+  downloadName: string;
   getContent: () => string;
 };
 
@@ -54,12 +55,19 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
 
   // Single config → one synthetic "bitrise.yml" row (the whole config); modular → one row per changed module file.
   const rows: ChangedFileRow[] = isModular
-    ? changedModules.map(({ nodeId, name }) => ({ key: nodeId, name, getContent: () => getFileYmlString(nodeId) }))
-    : [{ key: 'bitrise.yml', name: 'bitrise.yml', getContent: getYmlString }];
+    ? changedModules.map(({ nodeId, path, name }) => ({
+        key: nodeId,
+        name,
+        // Full path (slashes → dashes) as the download filename so same-named modules in different
+        // folders don't collide; the basename stays the displayed label (full paths are in the note above).
+        downloadName: path.replace(/\//g, '-'),
+        getContent: () => getFileYmlString(nodeId),
+      }))
+    : [{ key: 'bitrise.yml', name: 'bitrise.yml', downloadName: 'bitrise.yml', getContent: getYmlString }];
 
   const handleDownload = (row: ChangedFileRow) => {
     trackDownloadYmlClicked('git', 'update_configuration_yml_modal');
-    download(row.getContent(), row.name, 'application/yaml;charset=utf-8');
+    download(row.getContent(), row.downloadName, 'application/yaml;charset=utf-8');
     setIsCopiedOrDownloaded(true);
   };
 
