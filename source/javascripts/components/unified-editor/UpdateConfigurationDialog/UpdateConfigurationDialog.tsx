@@ -115,24 +115,22 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
               label={isModular ? moduleCountLabel(changedModules.length) : 'Changed configuration'}
             />
             <Card.Root elevation={false} overflow="hidden">
-              <Table.Root variant="borderless">
+              <Table.Root variant="borderless" size="md">
                 <Table.Body>
                   {rows.map((row) => (
                     <Table.Row key={row.key}>
                       <Table.Cell>{row.name}</Table.Cell>
-                      <Table.Cell>
-                        <Box display="flex" gap="8" justifyContent="flex-end">
-                          <BitkitControlButton
-                            icon={IconDownload}
-                            label="Download changed version"
-                            onClick={() => handleDownload(row)}
-                          />
-                          <BitkitControlButton
-                            icon={IconCopy}
-                            label="Copy changed configuration"
-                            onClick={() => handleCopy(row)}
-                          />
-                        </Box>
+                      <Table.Cell display="flex" alignItems="center" justifyContent="flex-end" gap="8">
+                        <BitkitControlButton
+                          icon={IconDownload}
+                          label="Download changed version"
+                          onClick={() => handleDownload(row)}
+                        />
+                        <BitkitControlButton
+                          icon={IconCopy}
+                          label="Copy changed configuration"
+                          onClick={() => handleCopy(row)}
+                        />
                       </Table.Cell>
                     </Table.Row>
                   ))}
