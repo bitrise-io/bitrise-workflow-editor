@@ -37,7 +37,7 @@ const moduleCountLabel = (count: number) => `${count} ${count === 1 ? 'module' :
 const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
-  const [isCopiedOrDownloded, setIsCopiedOrDownloaded] = useState(false);
+  const [isCopiedOrDownloaded, setIsCopiedOrDownloaded] = useState(false);
 
   const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
   const changedModules = useBitriseYmlStore(
@@ -140,7 +140,7 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
-          <BitkitButton state={!isCopiedOrDownloded ? 'disabled' : undefined} onClick={onClose}>
+          <BitkitButton state={!isCopiedOrDownloaded ? 'disabled' : undefined} onClick={onClose}>
             Done
           </BitkitButton>
         </BitkitDialog.Buttons>

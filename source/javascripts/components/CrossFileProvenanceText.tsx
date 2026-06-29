@@ -1,5 +1,4 @@
 import { Text } from '@bitrise/bitkit';
-import { Fragment } from 'react';
 
 type Props = {
   definingPaths?: string[];
@@ -24,20 +23,16 @@ export const crossFileProvenanceLabel = (definingPaths: string[] = []) => {
 const CrossFileProvenanceText = ({ definingPaths = [], sourceLabel, pathTextStyle = 'body/sm/semibold' }: Props) => {
   const isMultiple = definingPaths.length > 2;
   const paths = isMultiple ? [MULTIPLE_LABEL] : definingPaths.length ? definingPaths : ['another file'];
-  // The cross-repo source badge only makes sense for a single, concrete file.
-  const showSource = sourceLabel && !isMultiple && paths.length === 1;
+  // The cross-repo source badge only makes sense for a single, concrete defining file (not the
+  // "another file" fallback, nor the "multiple modules" summary).
+  const showSource = Boolean(sourceLabel) && definingPaths.length === 1;
 
   return (
     <>
       Defined in{' '}
-      {paths.map((path, index) => (
-        <Fragment key={path}>
-          {index > 0 ? ', ' : ''}
-          <Text as="span" textStyle={pathTextStyle}>
-            {path}
-          </Text>
-        </Fragment>
-      ))}
+      <Text as="span" textStyle={pathTextStyle}>
+        {paths.join(', ')}
+      </Text>
       {showSource ? ` • ${sourceLabel}` : ''}
     </>
   );
