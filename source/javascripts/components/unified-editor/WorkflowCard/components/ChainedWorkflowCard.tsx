@@ -32,7 +32,7 @@ type Props = {
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
-  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', id);
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', id);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
@@ -204,7 +204,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                 {placement}
                 {' • '}
-                {isCrossFile ? crossFileProvenanceLabel(definingPath) : WorkflowService.getUsedByText(dependants)}
+                {isCrossFile ? crossFileProvenanceLabel(definingPaths) : WorkflowService.getUsedByText(dependants)}
               </Text>
             </Box>
 

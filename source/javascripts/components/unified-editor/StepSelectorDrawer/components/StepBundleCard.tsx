@@ -47,7 +47,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   // Cross-file: bundle definition lives in another module — a subtle tint signals it.
   const bundleId = StepBundleService.cvsToId(cvs);
-  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('stepBundles', bundleId);
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('stepBundles', bundleId);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
@@ -237,7 +237,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {isCrossFile ? crossFileProvenanceLabel(definingPath) : usedInWorkflowsText}
+                    {isCrossFile ? crossFileProvenanceLabel(definingPaths) : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
                     <>

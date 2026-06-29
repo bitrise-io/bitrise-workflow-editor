@@ -43,7 +43,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary">
             {crossFile.isCrossFile ? (
-              <CrossFileProvenanceText definingPath={crossFile.definingPath} sourceLabel={crossFile.sourceLabel} />
+              <CrossFileProvenanceText definingPaths={crossFile.definingPaths} sourceLabel={crossFile.sourceLabel} />
             ) : (
               usedInWorkflowsText
             )}

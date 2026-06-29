@@ -22,7 +22,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   const dependants = useDependantWorkflows({ workflowId: id });
 
-  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('workflows', id);
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', id);
   const isMergedView = useIsMergedConfigSelected();
   const showDefinitionLink = isCrossFile || (isMergedView && hasDefinition);
 
@@ -60,7 +60,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
             <Text textStyle="body/sm/regular" color="text/secondary">
               {isCrossFile && (
                 <>
-                  <CrossFileProvenanceText definingPath={definingPath} />
+                  <CrossFileProvenanceText definingPaths={definingPaths} />
                   {' • '}
                 </>
               )}

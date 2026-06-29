@@ -26,7 +26,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const { replace } = useNavigation();
 
   const isMergedView = useIsMergedConfigSelected();
-  const { isCrossFile, hasDefinition, definingPath } = useCrossFileEntity('stepBundles', stepBundleId);
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('stepBundles', stepBundleId);
   const shouldJumpToDefinition = isCrossFile || (isMergedView && hasDefinition);
   const editDefinitionLink = shouldJumpToDefinition ? (
     <JumpToDefinitionLink kind="stepBundles" id={stepBundleId} />
@@ -40,7 +40,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   let subtitle: ReactNode = usedIn;
   if (variant === 'drawer') {
     const middle = isCrossFile ? (
-      <CrossFileProvenanceText definingPath={definingPath} pathTextStyle="body/md/semibold" />
+      <CrossFileProvenanceText definingPaths={definingPaths} pathTextStyle="body/md/semibold" />
     ) : (
       usedIn
     );

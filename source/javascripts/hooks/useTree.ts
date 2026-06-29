@@ -84,7 +84,10 @@ export type CrossFileEntityInfo = {
   /** Defined in some file (local or cross-file) — i.e. present in the entity index. */
   hasDefinition: boolean;
   isCrossFile: boolean;
+  /** Path of the top-most (highest-precedence) defining file. */
   definingPath?: string;
+  /** Paths of every file that defines the entity, in precedence order. */
+  definingPaths?: string[];
   sourceLabel?: string;
 };
 
@@ -95,17 +98,22 @@ export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntit
       kind === 'appEnvs'
         ? Boolean(s.yml.app?.envs?.some((env) => env && id !== 'opts' && id in env))
         : Boolean(s.yml[SECTION_BY_KIND[kind]]?.[id]);
-    const nodeId = EntityIndexService.definingNodeId(s.entityIndex, kind, id);
+    const definitions = EntityIndexService.definitionsOf(s.entityIndex, kind, id);
+    const nodeId = definitions[0]?.nodeId;
     const hasDefinition = Boolean(nodeId);
     if (isLocal || !nodeId) {
       return { isLocal, hasDefinition, isCrossFile: false };
     }
     const file = s.files[nodeId];
+    const definingPaths = definitions
+      .map((definition) => s.files[definition.nodeId]?.path)
+      .filter((path): path is string => Boolean(path));
     return {
       isLocal,
       hasDefinition,
       isCrossFile: true,
       definingPath: file?.path,
+      definingPaths,
       sourceLabel: TreeService.sourceLabel(file?.source ?? null) ?? undefined,
     };
   });
