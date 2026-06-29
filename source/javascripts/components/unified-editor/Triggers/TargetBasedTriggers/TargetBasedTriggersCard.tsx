@@ -1,7 +1,6 @@
 import { Box, Button, ExpandableCard, Icon, Text, TypeIconName } from '@bitrise/bitkit';
 
 import { TargetBasedTrigger, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
-import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import TargetBasedTriggerItem from './TargerBasedTriggerItem';
 
@@ -15,6 +14,7 @@ type Props = {
   triggerType: TriggerType;
   triggers: TargetBasedTrigger[];
   triggersEnabled: boolean;
+  isReadOnly: boolean;
   onAddTrigger: (triggerType: TriggerType) => void;
   onEditTrigger: (trigger: TargetBasedTrigger) => void;
   onDeleteTrigger: (trigger: TargetBasedTrigger) => void;
@@ -25,13 +25,12 @@ const TriggerCard = ({
   triggerType,
   triggers,
   triggersEnabled,
+  isReadOnly,
   onAddTrigger,
   onEditTrigger,
   onDeleteTrigger,
   onUpdateTriggerEnabled,
 }: Props) => {
-  const isReadOnlyView = useIsReadOnlyView();
-
   return (
     <ExpandableCard
       isExpanded
@@ -50,6 +49,7 @@ const TriggerCard = ({
           key={trigger.uniqueId}
           trigger={trigger}
           triggersEnabled={triggersEnabled}
+          isReadOnly={isReadOnly}
           onEditTrigger={onEditTrigger}
           onDeleteTrigger={onDeleteTrigger}
           onUpdateEnabled={onUpdateTriggerEnabled}
@@ -60,7 +60,7 @@ const TriggerCard = ({
         size="md"
         variant="tertiary"
         leftIconName="Plus"
-        isDisabled={isReadOnlyView}
+        isDisabled={isReadOnly}
         onClick={() => onAddTrigger(triggerType)}
       >
         Add trigger

@@ -3,21 +3,20 @@ import { OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { Box } from 'chakra-ui-2--react';
 
 import { TargetBasedTrigger } from '@/core/models/Trigger';
-import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import TriggerConditions from '../TriggerConditions';
 
 type Props = {
   trigger: TargetBasedTrigger;
   triggersEnabled: boolean;
+  isReadOnly: boolean;
   onUpdateEnabled: (trigger: TargetBasedTrigger) => void;
   onEditTrigger: (trigger: TargetBasedTrigger) => void;
   onDeleteTrigger: (trigger: TargetBasedTrigger) => void;
 };
 
 const TargetBasedTriggerItem = (props: Props) => {
-  const { trigger, triggersEnabled, onUpdateEnabled, onEditTrigger, onDeleteTrigger } = props;
-  const isReadOnlyView = useIsReadOnlyView();
+  const { trigger, triggersEnabled, isReadOnly, onUpdateEnabled, onEditTrigger, onDeleteTrigger } = props;
   const triggerDisabled = !trigger.isActive;
   return (
     <Box
@@ -35,8 +34,8 @@ const TargetBasedTriggerItem = (props: Props) => {
         priority={trigger.priority}
         triggerDisabled={!triggersEnabled || triggerDisabled}
       />
-      {/* The menu only holds mutating actions, so it's hidden entirely in read-only views. */}
-      {!isReadOnlyView && (
+      {/* The menu only holds mutating actions, so it's hidden entirely in read-only/ghost views. */}
+      {!isReadOnly && (
         <OverflowMenu>
           <OverflowMenuItem leftIconName="Pencil" onClick={() => onEditTrigger(trigger)}>
             Edit trigger

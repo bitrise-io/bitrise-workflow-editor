@@ -1,4 +1,4 @@
-import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { BitkitLinkButton, IconChevronDown } from '@bitrise/bitkit-v2';
 import { ReactElement, useCallback, useMemo } from 'react';
 
 import { EntityKind } from '@/core/models/Tree';
@@ -12,8 +12,6 @@ import FilePickerMenu from './FilePickerMenu';
 type Props = {
   kind: EntityKind;
   id: string;
-  /** Label for the default link trigger. Ignored when a custom `trigger` is provided. */
-  children?: string;
   trigger?: ReactElement<{ onClick?: () => void }>;
   onOpenChange?: (isOpen: boolean) => void;
 };
@@ -23,7 +21,7 @@ type Props = {
  * derived from the entity index, and selecting a layer jumps to that definition. The explicit
  * `nodeId`-driven counterpart is {@link JumpToFileButton}.
  */
-const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Props) => {
+const JumpToDefinitionLink = ({ kind, id, trigger, onOpenChange }: Props) => {
   const tree = useTree();
   const entityIndex = useEntityIndex();
   const jumpToDefinition = useJumpToDefinition();
@@ -48,7 +46,7 @@ const JumpToDefinitionLink = ({ kind, id, children, trigger, onOpenChange }: Pro
       nodeIds={definitionNodeIds}
       onSelect={handleSelect}
       onOpenChange={onOpenChange}
-      trigger={trigger ?? <BitkitLinkButton>{children ?? 'Go to definition'}</BitkitLinkButton>}
+      trigger={trigger ?? <BitkitLinkButton suffixIcon={IconChevronDown}>Edit definition</BitkitLinkButton>}
     />
   );
 };
