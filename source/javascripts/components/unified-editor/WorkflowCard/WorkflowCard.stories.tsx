@@ -1,5 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
+import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+
 import WorkflowCard from './WorkflowCard';
 
 export default {
@@ -37,5 +40,48 @@ export const Default: Story = {};
 export const Empty: Story = {
   args: {
     id: 'empty',
+  },
+};
+
+// A cross-file ("ghost") workflow: defined in another module, so it can't be edited here. The card
+// renders with the subtler `minElevated` look (border/minimal + small shadow, no background tint)
+// and a jump-to-definition button instead of the editable chrome.
+const GHOST_ROOT: TreeNode = {
+  nodeId: 'n_root',
+  path: 'bitrise.yml',
+  contents: 'format_version: "13"\n',
+  source: null,
+  commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
+  editable: true,
+  includes: [
+    {
+      nodeId: 'n_mod',
+      path: 'modules/workflows.yml',
+      contents: 'workflows:\n  ghost-wf: {}\n',
+      source: { path: 'modules/workflows.yml', repository: null, branch: null, tag: null, commit: null },
+      commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
+      editable: true,
+      includes: [],
+    },
+  ],
+};
+
+const GHOST_ENTITY_INDEX: EntityIndex = {
+  workflows: { 'ghost-wf': [{ nodeId: 'n_mod' }] },
+  pipelines: {},
+  stepBundles: {},
+};
+
+export const Ghost: Story = {
+  args: {
+    id: 'ghost-wf',
+  },
+  beforeEach: () => {
+    initializeModularConfig({
+      root: GHOST_ROOT,
+      entityIndex: GHOST_ENTITY_INDEX,
+      branch: 'main',
+      commitSha: GHOST_ROOT.commitSha,
+    });
   },
 };

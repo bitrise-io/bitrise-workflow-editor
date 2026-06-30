@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { useWorkflows } from '@/hooks/useWorkflows';
 
-import useSearchParams from './useSearchParams';
+import useSearchParams, { getSearchParamsFromLocationHash } from './useSearchParams';
 
 const GENERATED_WORKFLOW_ID_REGEX = /_[\d]+$/g;
 
@@ -32,8 +32,14 @@ type UseSelectedWorkflowResult = [
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   const workflowIds = useWorkflows((s) => Object.keys(s));
-  const [searchParams, setSearchParams] = useSearchParams();
-  const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
+  // Subscribe to hash changes for re-renders, but validate against the LIVE hash
+  // (not the snapshot): during a synchronous jump-to-definition the active file
+  // swaps before `hashchange` fires, so the snapshot lags and would yield a
+  // fallback id — which the effect below then pins into the URL, clobbering the
+  // jump target.
+  const [, setSearchParams] = useSearchParams();
+  const requestedWorkflowId = getSearchParamsFromLocationHash().workflow_id;
+  const selectedWorkflowId = selectValidWorkflowId(workflowIds, requestedWorkflowId);
 
   const setSelectedWorkflow = useCallback(
     (workflowId?: string | null) => {
@@ -49,10 +55,10 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   );
 
   useEffect(() => {
-    if (searchParams.workflow_id !== selectedWorkflowId) {
+    if (requestedWorkflowId !== selectedWorkflowId) {
       setSelectedWorkflow(selectedWorkflowId);
     }
-  }, [searchParams.workflow_id, selectedWorkflowId, setSelectedWorkflow]);
+  }, [requestedWorkflowId, selectedWorkflowId, setSelectedWorkflow]);
 
   return useMemo(() => [selectedWorkflowId, setSelectedWorkflow], [selectedWorkflowId, setSelectedWorkflow]);
 };

@@ -1,8 +1,10 @@
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import { useState } from 'react';
 
+import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useCrossFileEntity } from '@/hooks/useTree';
 
 import { WorkflowCardContextProvider } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleCard from './StepBundleCard';
@@ -18,6 +20,7 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   const [isPreviewMode, setIsPreviewMode] = useState(true);
   const dependants = useDependantWorkflows({ stepBundleCvs: StepBundleService.idToCvs(id) });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
+  const crossFile = useCrossFileEntity('stepBundles', id);
 
   const handleClick = () => {
     onClick(id);
@@ -39,7 +42,11 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
             {title || id}
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary">
-            {usedInWorkflowsText}
+            {crossFile.isCrossFile ? (
+              <CrossFileProvenanceText definingPaths={crossFile.definingPaths} sourceLabel={crossFile.sourceLabel} />
+            ) : (
+              usedInWorkflowsText
+            )}
           </Text>
         </Card>
       </PopoverTrigger>

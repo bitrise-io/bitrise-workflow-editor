@@ -7,6 +7,7 @@ import GitStatusNameInput from '@/components/unified-editor/WorkflowConfig/compo
 import PipelineService from '@/core/services/PipelineService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import useRenamePipeline from '@/pages/PipelinesPage/hooks/useRenamePipeline';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -36,12 +37,15 @@ const NameInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
     [pipelineId, setPipelineId, renamePipeline],
   );
 
+  const isReadOnlyView = useIsReadOnlyView();
+
   return (
     <EditableInput
       isRequired
       name="name"
       label="Name"
       defaultValue={pipelineId}
+      isDisabled={isReadOnlyView}
       sanitize={PipelineService.sanitizeName}
       validate={(name) => PipelineService.validateName(name, pipelineId, keys)}
       onCommit={handleCommit}
@@ -50,6 +54,7 @@ const NameInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
 };
 
 const SummaryInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const defaultValue = getBitriseYml().pipelines?.[pipelineId]?.summary || '';
 
   return (
@@ -57,12 +62,14 @@ const SummaryInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
       name="summary"
       label="Summary"
       defaultValue={defaultValue}
+      isDisabled={isReadOnlyView}
       onChange={(e) => PipelineService.updatePipelineField(pipelineId, 'summary', e.target.value)}
     />
   );
 };
 
 const DescriptionInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const defaultValue = getBitriseYml().pipelines?.[pipelineId]?.description || '';
 
   return (
@@ -70,17 +77,20 @@ const DescriptionInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
       name="description"
       label="Description"
       defaultValue={defaultValue}
+      isDisabled={isReadOnlyView}
       onChange={(e) => PipelineService.updatePipelineField(pipelineId, 'description', e.target.value)}
     />
   );
 };
 
 const Priority = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.priority);
 
   return (
     <PriorityInput
       value={value}
+      isDisabled={isReadOnlyView}
       helperText="Set priority between -100 and +100. Default value is 0. Available on certain plans only."
       onChange={(newValue) => PipelineService.updatePipelineField(pipelineId, 'priority', newValue)}
     />
@@ -88,18 +98,21 @@ const Priority = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
 };
 
 const GitStatusName = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const value = useBitriseYmlStore((s) => s.yml.pipelines?.[pipelineId]?.status_report_name);
 
   return (
     <GitStatusNameInput
       targetId={pipelineId}
       statusReportName={value || ''}
+      isDisabled={isReadOnlyView}
       onChange={(newValue) => PipelineService.updatePipelineField(pipelineId, 'status_report_name', newValue)}
     />
   );
 };
 
 const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const { keys, onSelectPipeline } = usePipelineSelector();
   const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 
@@ -119,7 +132,13 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
         <DescriptionInput pipelineId={pipelineId} />
         <Priority pipelineId={pipelineId} />
         <GitStatusName pipelineId={pipelineId} />
-        <Button leftIconName="Trash" alignSelf="flex-start" variant="danger-secondary" onClick={onOpenDeleteDialog}>
+        <Button
+          leftIconName="Trash"
+          alignSelf="flex-start"
+          variant="danger-secondary"
+          isDisabled={isReadOnlyView}
+          onClick={onOpenDeleteDialog}
+        >
           Delete Pipeline
         </Button>
       </Box>

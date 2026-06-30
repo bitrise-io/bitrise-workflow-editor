@@ -4,7 +4,9 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+import EntityIndexService from '@/core/services/EntityIndexService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useEntityIndex } from '@/hooks/useEntityIndex';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import { useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -30,7 +32,9 @@ function getSortableItem(placement: Placement, parentWorkflowId: string) {
     return {
       id,
       index,
-      uniqueId: crypto.randomUUID(),
+      // Deterministic id: cards are keyed by it, so a random id would remount every
+      // chained workflow card (visible rebuild) whenever the chain list recomputes.
+      uniqueId: `${parentWorkflowId}/${placement}/${id}/${index}`,
       placement,
       parentWorkflowId,
     };
@@ -50,9 +54,14 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
+  const entityIndex = useEntityIndex();
+
+  // Keep chained workflows defined in the active file or in another module (cross-file, in the entity index); skip truly dangling ids.
   const validChainedWorkflowIds = useBitriseYmlStore(({ yml }) => {
     const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
-    return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
+    return chainedWorkflowIds.filter(
+      (id) => workflowIds.includes(id) || Boolean(EntityIndexService.definingNodeId(entityIndex, 'workflows', id)),
+    );
   });
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {

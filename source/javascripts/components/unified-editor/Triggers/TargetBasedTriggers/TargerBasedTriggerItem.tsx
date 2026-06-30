@@ -9,13 +9,14 @@ import TriggerConditions from '../TriggerConditions';
 type Props = {
   trigger: TargetBasedTrigger;
   triggersEnabled: boolean;
+  isReadOnly: boolean;
   onUpdateEnabled: (trigger: TargetBasedTrigger) => void;
   onEditTrigger: (trigger: TargetBasedTrigger) => void;
   onDeleteTrigger: (trigger: TargetBasedTrigger) => void;
 };
 
 const TargetBasedTriggerItem = (props: Props) => {
-  const { trigger, triggersEnabled, onUpdateEnabled, onEditTrigger, onDeleteTrigger } = props;
+  const { trigger, triggersEnabled, isReadOnly, onUpdateEnabled, onEditTrigger, onDeleteTrigger } = props;
   const triggerDisabled = !trigger.isActive;
   return (
     <Box
@@ -33,23 +34,26 @@ const TargetBasedTriggerItem = (props: Props) => {
         priority={trigger.priority}
         triggerDisabled={!triggersEnabled || triggerDisabled}
       />
-      <OverflowMenu>
-        <OverflowMenuItem leftIconName="Pencil" onClick={() => onEditTrigger(trigger)}>
-          Edit trigger
-        </OverflowMenuItem>
-        <OverflowMenuItem
-          leftIconName={triggerDisabled ? 'Play' : 'BlockCircle'}
-          onClick={() => {
-            trigger.isActive = !trigger.isActive;
-            onUpdateEnabled(trigger);
-          }}
-        >
-          {triggerDisabled ? 'Enable trigger' : 'Disable trigger'}
-        </OverflowMenuItem>
-        <OverflowMenuItem isDanger leftIconName="Trash" onClick={() => onDeleteTrigger(trigger)}>
-          Delete trigger
-        </OverflowMenuItem>
-      </OverflowMenu>
+      {/* The menu only holds mutating actions, so it's hidden entirely in read-only/ghost views. */}
+      {!isReadOnly && (
+        <OverflowMenu>
+          <OverflowMenuItem leftIconName="Pencil" onClick={() => onEditTrigger(trigger)}>
+            Edit trigger
+          </OverflowMenuItem>
+          <OverflowMenuItem
+            leftIconName={triggerDisabled ? 'Play' : 'BlockCircle'}
+            onClick={() => {
+              trigger.isActive = !trigger.isActive;
+              onUpdateEnabled(trigger);
+            }}
+          >
+            {triggerDisabled ? 'Enable trigger' : 'Disable trigger'}
+          </OverflowMenuItem>
+          <OverflowMenuItem isDanger leftIconName="Trash" onClick={() => onDeleteTrigger(trigger)}>
+            Delete trigger
+          </OverflowMenuItem>
+        </OverflowMenu>
+      )}
     </Box>
   );
 };

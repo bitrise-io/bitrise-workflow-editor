@@ -194,7 +194,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-platform/integrations/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html"
                 target="_blank"
-                colorScheme="purple"
+                colorVariant="purple"
                 isExternal
               >
                 Learn more
@@ -213,7 +213,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             <Text textStyle="body/md/regular" color="text/secondary">
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
-                colorScheme="purple"
+                colorVariant="purple"
                 isExternal
               >
                 Follow this guide
@@ -306,6 +306,7 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
       : 'You are already storing your configuration on bitrise.io';
 
   const showYmlRootPathSection = selectedStorage === 'git';
+  const showYmlRootPathWarning = showYmlRootPathSection && ymlSettings?.ymlRootPath !== null;
   const isYmlRootPathChanged = (ymlSettings?.ymlRootPath ?? '') !== ymlRootPath;
   const switchBitriseToGit = !ymlSettings?.usesRepositoryYml && selectedStorage === 'git';
   const switchGitToBitrise = ymlSettings?.usesRepositoryYml && selectedStorage === 'bitrise';
@@ -455,10 +456,12 @@ const DialogContent = ({ onClose }: Pick<ConfigurationYmlStorageDialogProps, 'on
             lastModifiedFormatted={lastModifiedFormatted}
           />
         )}
-        {asyncError && <YmlDialogErrorNotification error={asyncError} />}
       </BitkitDialog.Body>
       <BitkitDialog.Footer>
-        {showYmlRootPathSection && ymlSettings?.ymlRootPath !== null && (
+        {asyncError && (
+          <YmlDialogErrorNotification error={asyncError} marginBlockEnd={showYmlRootPathWarning ? '24' : undefined} />
+        )}
+        {showYmlRootPathWarning && (
           <BitkitAlert
             variant="warning"
             messageText="Ensure that Bitrise has access to all repositories where configuration files are stored."
@@ -486,6 +489,8 @@ const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStora
   return (
     <BitkitDialog
       title="Configuration YAML storage"
+      scrollBehavior="inside"
+      showScrollGradient={false}
       open={isOpen}
       onOpenChange={({ open }) => {
         if (!open) onClose();

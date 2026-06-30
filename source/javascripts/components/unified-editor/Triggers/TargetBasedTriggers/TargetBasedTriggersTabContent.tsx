@@ -5,6 +5,7 @@ import { trackTargetBasedTriggersEnabledToggled, trackTriggerEnabledToggled } fr
 import { TargetBasedTrigger, TriggerSource, TriggerType } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
 import useTargetBasedTriggers from '@/hooks/useTargetBasedTriggers';
+import { useCrossFileEntity, useIsReadOnlyView } from '@/hooks/useTree';
 
 import AddOrEditTriggerDialog from './AddOrEditTriggerDialog';
 import TargetBasedTriggerNotification from './TargetBasedTriggerNotification';
@@ -19,6 +20,11 @@ const TargetBasedTriggersTabContent = (props: Props) => {
   const { source, sourceId } = props;
 
   const triggers = useTargetBasedTriggers(source, sourceId);
+  // "Ghost" view: the entity is defined in another file (cross-file) or we're on a read-only tab
+  // (merged config). Editing triggers there wouldn't stick, so the enable toggle is disabled.
+  const { isCrossFile } = useCrossFileEntity(source, sourceId);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isReadOnly = isCrossFile || isReadOnlyView;
   const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTrigger } | undefined>(undefined);
 
@@ -73,6 +79,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
           label="Enable triggers"
           helperText="When disabled and saved, none of the triggers below will execute a build."
           isChecked={triggers.enabled !== false}
+          isDisabled={isReadOnly}
           onChange={handleGlobalTriggerEnabledToggled}
         />
       </Card>
@@ -80,6 +87,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
         triggerType="push"
         triggers={triggers.items.push}
         triggersEnabled={triggers.enabled !== false}
+        isReadOnly={isReadOnly}
         onAddTrigger={handleAddTrigger}
         onEditTrigger={changeToEditMode}
         onDeleteTrigger={handleDeleteTrigger}
@@ -89,6 +97,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
         triggerType="pull_request"
         triggers={triggers.items.pull_request}
         triggersEnabled={triggers.enabled !== false}
+        isReadOnly={isReadOnly}
         onAddTrigger={handleAddTrigger}
         onEditTrigger={changeToEditMode}
         onDeleteTrigger={handleDeleteTrigger}
@@ -98,6 +107,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
         triggerType="tag"
         triggers={triggers.items.tag}
         triggersEnabled={triggers.enabled !== false}
+        isReadOnly={isReadOnly}
         onAddTrigger={handleAddTrigger}
         onEditTrigger={changeToEditMode}
         onDeleteTrigger={handleDeleteTrigger}

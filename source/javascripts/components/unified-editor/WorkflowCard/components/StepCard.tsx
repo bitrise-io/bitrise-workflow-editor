@@ -26,6 +26,7 @@ import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useStep from '@/hooks/useStep';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
@@ -92,6 +93,7 @@ const StepCard = ({
   cvs,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
+  const isReadOnlyView = useIsReadOnlyView();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -186,6 +188,8 @@ const StepCard = ({
       borderRadius: '4',
       variant: 'outline',
       className: 'group',
+      // Ghost (read-only) steps: a lighter border/minimal, no shadow — per the design's ghost-step spec.
+      ...(isReadOnlyView ? { borderColor: 'border/minimal' } : {}),
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
 
@@ -213,7 +217,7 @@ const StepCard = ({
     }
 
     return common;
-  }, [isDragging, isPlaceholder, isButton, isHighlighted]);
+  }, [isDragging, isPlaceholder, isButton, isHighlighted, isReadOnlyView]);
 
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {

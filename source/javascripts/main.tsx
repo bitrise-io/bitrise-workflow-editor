@@ -12,14 +12,17 @@ import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
 import Client from '@/core/api/client';
-import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
+import { useGetCiConfigTree } from '@/hooks/useCiConfigTree';
 import useCloseAIDrawer from '@/hooks/useCloseAIDrawer';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
+import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
 import MainLayout from '@/layouts/MainLayout';
 
 import bitriseLogo from '../images/bitrise-logo.svg';
@@ -94,16 +97,37 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
-  const requestedBranch = RuntimeUtils.isWebsiteMode() ? searchParams.branch : undefined;
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+  const requestedBranch = isWebsiteMode ? searchParams.branch : undefined;
 
-  const { data: ymlSettings } = useCiConfigSettings();
+  const { data: ymlSettings, isPending: isYmlSettingsPending } = useCiConfigSettings();
   useYmlLanguageServices();
   useCloseAIDrawer();
-  const { data, error, refetch } = useGetCiConfig({
-    projectSlug: PageProps.appSlug(),
-    skipValidation: true,
-    branch: requestedBranch,
-  });
+
+  // Modular editing only makes sense for repo-stored configs (where includes/modules can
+  // exist). A Bitrise-stored config can't have modules, so even with the flag on it must
+  // use the legacy single-file flow — otherwise we'd build a tree (and show file tabs) for
+  // a config that has none. CLI mode has no Bitrise storage, so the flag alone decides there.
+  const isModularFlagEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
+  const canBeModular = !isWebsiteMode || ymlSettings?.usesRepositoryYml === true;
+  const isModularEnabled = isModularFlagEnabled && canBeModular;
+
+  // In website mode with the flag on, the storage type decides which endpoint to hit, so
+  // wait for the settings to resolve before fetching (don't fire the tree query then switch
+  // to legacy once it turns out to be Bitrise-stored). Flag off or CLI → decide immediately.
+  const isStorageKnown = !(isModularFlagEnabled && isWebsiteMode) || !isYmlSettingsPending;
+
+  const legacyConfig = useGetCiConfig(
+    { projectSlug: PageProps.appSlug(), skipValidation: true, branch: requestedBranch },
+    { enabled: isStorageKnown && !isModularEnabled },
+  );
+  const treeConfig = useGetCiConfigTree(
+    { projectSlug: PageProps.appSlug(), branch: requestedBranch },
+    { enabled: isStorageKnown && isModularEnabled },
+  );
+
+  const { data, error, refetch } = isModularEnabled ? treeConfig : legacyConfig;
+  const configBranch = isModularEnabled ? treeConfig.data?.branch : legacyConfig.data?.branch;
 
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog
@@ -116,25 +140,44 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEventListener('unhandledrejection', (e) => {
+    // Monaco rejects with a benign "Canceled" sentinel when a model is disposed (e.g. tab switch); not a real error.
+    const reason = e.reason as { name?: string; message?: string } | undefined;
+    if (reason?.name === 'Canceled' || reason?.message === 'Canceled') {
+      return;
+    }
     datadogRum.addError(e.reason);
     toast({ duration: null, status: 'error', isClosable: true, description: e.reason?.message || 'Unknown error' });
   });
 
   useEffect(() => {
     if (data && loadedBranch.current !== requestedBranch) {
-      initializeBitriseYmlDocument(data);
+      if (isModularEnabled) {
+        const config = treeConfig.data;
+        if (config) {
+          initializeModularConfig({
+            root: config.root,
+            entityIndex: config.entityIndex,
+            mergedYml: config.mergedYml,
+            branch: config.branch,
+            commitSha: config.root.commitSha,
+          });
+        }
+      } else if (legacyConfig.data) {
+        initializeBitriseYmlDocument(legacyConfig.data);
+      }
+
       if (requestedBranch) {
-        if (data.branch && data.branch === requestedBranch) {
+        if (configBranch && configBranch === requestedBranch) {
           toast({
             status: 'success',
             isClosable: true,
             description: `Configuration is loaded from ${requestedBranch} branch.`,
           });
-        } else if (data.branch && data.branch !== requestedBranch) {
+        } else if (configBranch && configBranch !== requestedBranch) {
           toast({
             status: 'warning',
             isClosable: true,
-            description: `Config unavailable on ${requestedBranch}. Using ${data.branch} (default branch).`,
+            description: `Config unavailable on ${requestedBranch}. Using ${configBranch} (default branch).`,
           });
         }
       }
@@ -144,14 +187,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         isLoaded.current = true;
       }
     }
-  }, [data, requestedBranch, toast]);
+  }, [data, requestedBranch, toast, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
     if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
       isTracked.current = true;
-      trackConfigBranchLoaded(data.branch);
+      trackConfigBranchLoaded(configBranch);
     }
-  }, [data, ymlSettings?.usesRepositoryYml]);
+  }, [data, ymlSettings?.usesRepositoryYml, configBranch]);
 
   if (error) {
     let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
@@ -197,7 +240,9 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     );
   }
 
-  return <>{children}</>;
+  // Expose whether the config is still loading (settings check + tree/legacy fetch) so the layout
+  // can show the loading state in the content area while keeping the header + navigation visible.
+  return <ConfigLoadingProvider value={!data}>{children}</ConfigLoadingProvider>;
 };
 
 const App = () => {

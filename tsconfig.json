@@ -1,10 +1,15 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "outDir": "./build",
     "typeRoots": [
       "./node_modules/@types",
       "source/javascripts/typings"
+    ],
+    "types": [
+      "jest",
+      "node"
     ],
     "paths": {
       "@/*": [

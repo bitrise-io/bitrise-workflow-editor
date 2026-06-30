@@ -5,6 +5,7 @@ import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useNavigation from '@/hooks/useNavigation';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 export type ContainerReferenceSource = 'step_bundle_definition' | 'step_bundle_instance' | 'step_instance';
 
@@ -21,6 +22,7 @@ type ContainersMenuProps = {
 
 const ContainersMenu = (props: ContainersMenuProps) => {
   const { actionType, containers, onSelectContainer, source, stepBundleId, stepId, stepVersion, type } = props;
+  const isReadOnlyView = useIsReadOnlyView();
   const { replace } = useNavigation();
 
   const handleManageContainers = () => {
@@ -36,7 +38,13 @@ const ContainersMenu = (props: ContainersMenuProps) => {
 
   return (
     <Menu>
-      <MenuButton as={Button} variant="tertiary" leftIconName={actionType === 'Add' ? 'Plus' : 'Replace'} size="sm">
+      <MenuButton
+        as={Button}
+        variant="tertiary"
+        leftIconName={actionType === 'Add' ? 'Plus' : 'Replace'}
+        size="sm"
+        isDisabled={isReadOnlyView}
+      >
         {actionType} container
       </MenuButton>
       <MenuList>

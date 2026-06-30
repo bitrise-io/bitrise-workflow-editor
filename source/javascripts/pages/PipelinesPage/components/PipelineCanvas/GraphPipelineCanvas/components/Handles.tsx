@@ -4,6 +4,8 @@ import { Icon, IconProps } from 'chakra-ui-2--react';
 import { CSSProperties, useRef } from 'react';
 import { useHover } from 'usehooks-ts';
 
+import { useIsReadOnlyView } from '@/hooks/useTree';
+
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanvas.const';
@@ -136,10 +138,13 @@ export const RightHandle = (props: BoxProps) => {
   const ref = useRef(null);
   const edges = useEdges();
   const hover = useHover(ref);
+  const isReadOnly = useIsReadOnlyView();
   const fromHandle = useConnection((s) => s.fromHandle);
 
   const isDragging = fromHandle?.position === Position.Right && fromHandle?.nodeId === id;
-  const isInButtonState = isDragging || (hover && !fromHandle);
+  // Read-only (merged / cross-file) views have no "add workflow" affordance: no + button, and the
+  // plain handle below is non-interactive (pointer-events: none), so no new connections either.
+  const isInButtonState = !isReadOnly && (isDragging || (hover && !fromHandle));
   const isSelected = edges.some(({ source, selected }) => source === id && selected);
   const isHighlighted = edges.some(({ source, data }) => source === id && data?.highlighted);
 

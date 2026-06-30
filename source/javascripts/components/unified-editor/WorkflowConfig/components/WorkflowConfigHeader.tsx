@@ -1,11 +1,14 @@
 import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
+import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
+import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import { useCrossFileEntity, useIsMergedConfigSelected } from '@/hooks/useTree';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
-import { useWorkflowConfigContext } from '../WorkflowConfig.context';
+import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -14,12 +17,14 @@ type Props = {
 };
 
 const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
-  const { id, title } = useWorkflowConfigContext((s) => ({
-    id: s?.id || '',
-    title: s?.userValues?.title,
-  }));
+  const id = useWorkflowConfigId();
+  const title = useWorkflowConfigContext((s) => s?.userValues?.title);
 
   const dependants = useDependantWorkflows({ workflowId: id });
+
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', id);
+  const isMergedView = useIsMergedConfigSelected();
+  const showDefinitionLink = isCrossFile || (isMergedView && hasDefinition);
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
@@ -46,9 +51,20 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           <Text as="h3" textStyle="heading/h3">
             {title || id || 'Workflow'}
           </Text>
-          {showSubTitle && (
+          {showSubTitle && !isCrossFile && (
             <Text textStyle="body/sm/regular" color="text/secondary">
               {WorkflowService.getUsedByText(dependants)}
+            </Text>
+          )}
+          {showDefinitionLink && (
+            <Text textStyle="body/sm/regular" color="text/secondary">
+              {isCrossFile && (
+                <>
+                  <CrossFileProvenanceText definingPaths={definingPaths} />
+                  {' • '}
+                </>
+              )}
+              <JumpToDefinitionLink kind="workflows" id={id} />
             </Text>
           )}
         </div>
@@ -68,8 +84,8 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
       </Box>
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
         <Tab>Configuration</Tab>
-        <Tab>Properties</Tab>
-        {shouldShowTriggersTab && <Tab>Triggers</Tab>}
+        <Tab isDisabled={isCrossFile}>Properties</Tab>
+        {shouldShowTriggersTab && <Tab isDisabled={isCrossFile}>Triggers</Tab>}
       </TabList>
     </>
   );

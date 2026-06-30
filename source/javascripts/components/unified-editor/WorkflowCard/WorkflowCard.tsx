@@ -1,7 +1,10 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
-import { memo, PropsWithChildren, ReactNode, useMemo, useRef } from 'react';
+import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
+import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
+import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -72,10 +75,20 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
+  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', workflowId);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isMergedView = useIsMergedConfigSelected();
+  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
+  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
+  const isGhost = isCrossFile || isReadOnlyView;
+
   const { isOpen, onOpen, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
+
+  const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
 
   const { isSelected } = useSelection();
   const isHighlighted = isSelected({ workflowId: id });
@@ -91,15 +104,27 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     }),
     [containerProps, isHighlighted],
   );
+  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
+  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
+  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
 
-  if (!workflow) {
+  if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
   }
 
+  let subtitle = stackName;
+  if (uses) {
+    subtitle = `Uses ${uses}`;
+  } else if (isCrossFile) {
+    subtitle = crossFileProvenanceLabel(definingPaths);
+  }
+
   return (
-    <Card minW={0} borderRadius="8" variant="elevated" {...cardProps}>
+    <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
-        {isCollapsable && (
+        {/* No expand/collapse for cross-file refs — their nested content lives in another file
+            and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
+        {isCollapsable && !isCrossFile && (
           <ControlButton
             size="xs"
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
@@ -114,15 +139,16 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
-          <WorkflowName parallel={parallel}>{uses ? id : workflow.title || id}</WorkflowName>
+          <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {uses ? `Uses ${uses}` : stackName}
+            {subtitle}
           </Text>
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow) && (
-          <Box display="none" _groupHover={{ display: 'inline-flex' }}>
-            {onChainWorkflow && (
+        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
+          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
+            {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
+            {onChainWorkflow && !isCrossFile && (
               <ControlButton
                 size="xs"
                 iconName="Link"
@@ -133,6 +159,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                   onChainWorkflow(id);
                 }}
               />
+            )}
+            {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
+                matching the design's referenced-WF actions: jump → settings → remove. */}
+            {showJumpButton && (
+              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
             {onEditWorkflow && (
               <ControlButton
@@ -157,19 +188,25 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         )}
       </Box>
 
-      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-        <SortableWorkflowsContext containerRef={containerRef}>
-          <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
-            <ChainedWorkflowList
-              key={`${workflowId}->before_run`}
-              placement="before_run"
-              parentWorkflowId={workflowId}
-            />
-            <WorkflowStepList workflowId={workflowId} />
-            <ChainedWorkflowList key={`${workflowId}->after_run`} placement="after_run" parentWorkflowId={workflowId} />
-          </Box>
-        </SortableWorkflowsContext>
-      </Collapse>
+      {!isCrossFile && (
+        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <SortableWorkflowsContext containerRef={containerRef}>
+            <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+              <ChainedWorkflowList
+                key={`${workflowId}->before_run`}
+                placement="before_run"
+                parentWorkflowId={workflowId}
+              />
+              <WorkflowStepList workflowId={workflowId} />
+              <ChainedWorkflowList
+                key={`${workflowId}->after_run`}
+                placement="after_run"
+                parentWorkflowId={workflowId}
+              />
+            </Box>
+          </SortableWorkflowsContext>
+        </Collapse>
+      )}
     </Card>
   );
 });

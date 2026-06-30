@@ -1,12 +1,9 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext } from 'react';
 
 import { Step } from '@/core/models/Step';
-import useStep from '@/hooks/useStep';
 
-import VersionChangedDialog from '../VersionChangedDialog/VersionChangedDialog';
-
-type Props = { workflowId: string; stepIndex: number; stepBundleId?: string };
-type State = {
+export type StepConfigDrawerContextProps = { workflowId: string; stepIndex: number; stepBundleId?: string };
+export type StepConfigDrawerState = {
   workflowId: string;
   stepIndex: number;
   isLoading: boolean;
@@ -15,7 +12,7 @@ type State = {
   stepBundleId?: string;
 };
 
-const initialState: State = {
+export const initialStepConfigDrawerState: StepConfigDrawerState = {
   error: undefined,
   data: undefined,
   isLoading: true,
@@ -23,42 +20,7 @@ const initialState: State = {
   stepBundleId: '',
   stepIndex: -1,
 };
-const Context = createContext(initialState);
 
-const StepConfigDrawerProvider = ({ children, workflowId, stepBundleId, stepIndex }: PropsWithChildren<Props>) => {
-  const result = useStep({ workflowId: stepBundleId ? undefined : workflowId, stepBundleId, stepIndex });
+export const StepConfigDrawerContext = createContext(initialStepConfigDrawerState);
 
-  const value = useMemo<State>(() => {
-    if (!result) return initialState;
-    return { workflowId, stepBundleId, stepIndex, ...result } as State;
-  }, [result, workflowId, stepBundleId, stepIndex]);
-
-  const [newVersion, setNewVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
-  const [oldVersion, setOldVersion] = useState(value?.data?.resolvedInfo?.resolvedVersion);
-  const shouldMountVersionChangedDialog =
-    !value.isLoading && !result.error && newVersion && oldVersion && newVersion !== oldVersion;
-
-  useEffect(() => {
-    if (newVersion !== value?.data?.resolvedInfo?.resolvedVersion) {
-      setNewVersion(value?.data?.resolvedInfo?.resolvedVersion);
-    }
-  }, [newVersion, value?.data?.resolvedInfo?.resolvedVersion]);
-
-  return (
-    <Context.Provider value={value}>
-      {children}
-      {shouldMountVersionChangedDialog && (
-        <VersionChangedDialog
-          cvs={result?.data?.cvs || ''}
-          oldVersion={oldVersion || ''}
-          newVersion={newVersion || ''}
-          onClose={() => setOldVersion(newVersion)}
-        />
-      )}
-    </Context.Provider>
-  );
-};
-
-export default StepConfigDrawerProvider;
-
-export const useStepDrawerContext = () => useContext(Context);
+export const useStepDrawerContext = () => useContext(StepConfigDrawerContext);

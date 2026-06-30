@@ -7,11 +7,13 @@ import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
-import ContainersTable from './ContainersTable';
 import CreateOrEditContainerDialog from './CreateOrEditContainerDialog';
+import GroupedContainersTables from './GroupedContainersTables';
 
 const ServiceContainersTab = () => {
+  const isReadOnlyView = useIsReadOnlyView();
   const containerUsageLookup = useContainerWorkflowUsage();
   const { [ContainerType.Service]: containers } = useContainers();
 
@@ -36,6 +38,7 @@ const ServiceContainersTab = () => {
           leftIconName="Plus"
           size="md"
           minW={['100%', 'auto']}
+          isDisabled={isReadOnlyView}
           onClick={() => {
             onDialogOpen();
             segmentTrack('Container Definition Creation Started', {
@@ -49,7 +52,7 @@ const ServiceContainersTab = () => {
         </Button>
       </Box>
       {containers.length > 0 ? (
-        <ContainersTable
+        <GroupedContainersTables
           containers={containers}
           containerUsageLookup={containerUsageLookup}
           openDialog={onDialogOpen}
@@ -69,6 +72,7 @@ const ServiceContainersTab = () => {
         onClose={onDialogClose}
         onCloseComplete={() => setEditedContainer(null)}
         type="service"
+        readOnly={isReadOnlyView}
       />
     </>
   );

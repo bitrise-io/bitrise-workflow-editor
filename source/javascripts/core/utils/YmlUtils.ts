@@ -230,6 +230,20 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
     throw new Error('Path cannot be empty when setting a value');
   }
 
+  // An empty document has no usable root collection, so a nested `setIn` throws "Expected a YAML
+  // collection as document contents" — e.g. adding the first workflow to an empty module file. This
+  // covers both shapes of "empty": freshly created (`contents` is `null`) and saved-then-reloaded
+  // (an empty doc serializes to the literal `null`, which reparses to a null-valued Scalar). Seed a
+  // root collection via `createNode` (not a bare `new YAMLMap()`) so it's schema-bound and
+  // auto-creates intermediate nodes. The first path segment decides seq vs map.
+  const isEmptyDocument =
+    isDocument(root) && (root.contents == null || (isScalar(root.contents) && root.contents.value == null));
+  if (isEmptyDocument) {
+    // A numeric path segment is a seq index; a string key (even a numeric-looking '0') is a map key.
+    const firstSegmentIsIndex = typeof path[0] === 'number' && Number.isInteger(path[0]) && path[0] >= 0;
+    root.contents = root.createNode(firstSegmentIsIndex ? [] : {});
+  }
+
   let parentPath = [...path.slice(0, -1)];
   while (parentPath.length > 0 && isNil(root.getIn(parentPath))) {
     if (root.getIn(parentPath) === null) {

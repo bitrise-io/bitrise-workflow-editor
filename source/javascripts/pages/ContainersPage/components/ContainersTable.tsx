@@ -18,6 +18,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import ContainerUsageDialog from './ContainerUsageDialog';
 import DeleteContainerDialog from './DeleteContainerDialog';
@@ -37,6 +38,7 @@ const ContainersTable = ({
   setEditedContainer,
   source,
 }: ContainersTableProps) => {
+  const isReadOnlyView = useIsReadOnlyView();
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
 
   const {
@@ -105,31 +107,46 @@ const ContainersTable = ({
                   )}
                 </Td>
                 <Td textAlign="right">
-                  <ControlButton
-                    aria-label="Edit container"
-                    iconName="Pencil"
-                    color="icon/primary"
-                    onClick={() => {
-                      setEditedContainer(container);
-                      openDialog();
-                    }}
-                    mr={['0', '8']}
-                  />
-                  <ControlButton
-                    aria-label="Delete container"
-                    iconName="MinusCircle"
-                    color="icon/negative"
-                    onClick={() => {
-                      setSelectedContainerId(container.id);
-                      onDeleteContainerDialogOpen();
-                      segmentTrack('Container Usage Popup Shown', {
-                        app_slug: PageProps.appSlug(),
-                        workspace_slug: GlobalProps.workspaceSlug(),
-                        number_of_containers_in_use: workflowCount,
-                        source: 'container_deletion_dialog',
-                      });
-                    }}
-                  />
+                  {isReadOnlyView ? (
+                    // Merged/cross-file (read-only) view: edit + delete collapse to a single read-only detail view.
+                    <ControlButton
+                      aria-label="View container details"
+                      iconName="Details"
+                      color="icon/primary"
+                      onClick={() => {
+                        setEditedContainer(container);
+                        openDialog();
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <ControlButton
+                        aria-label="Edit container"
+                        iconName="Pencil"
+                        color="icon/primary"
+                        onClick={() => {
+                          setEditedContainer(container);
+                          openDialog();
+                        }}
+                        mr={['0', '8']}
+                      />
+                      <ControlButton
+                        aria-label="Delete container"
+                        iconName="MinusCircle"
+                        color="icon/negative"
+                        onClick={() => {
+                          setSelectedContainerId(container.id);
+                          onDeleteContainerDialogOpen();
+                          segmentTrack('Container Usage Popup Shown', {
+                            app_slug: PageProps.appSlug(),
+                            workspace_slug: GlobalProps.workspaceSlug(),
+                            number_of_containers_in_use: workflowCount,
+                            source: 'container_deletion_dialog',
+                          });
+                        }}
+                      />
+                    </>
+                  )}
                 </Td>
               </Tr>
             );

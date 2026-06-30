@@ -6,11 +6,13 @@ import { TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import TriggerService from '@/core/services/TriggerService';
 import useLegacyTriggers from '@/hooks/useLegacyTriggers';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 import SortableTriggerList from '@/pages/TriggersPage/components/LegacyTriggers/SortableTriggerList';
 
 import ConvertLegacyTriggers from './ConvertLegacyTriggers';
 
 const LegacyTriggers = () => {
+  const isReadOnlyView = useIsReadOnlyView();
   const triggers = useLegacyTriggers();
   const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<LegacyTrigger | undefined>();
@@ -77,7 +79,7 @@ const LegacyTriggers = () => {
           Learn more
         </Link>
       </Text>
-      <ConvertLegacyTriggers triggers={triggers} />
+      {!isReadOnlyView && <ConvertLegacyTriggers triggers={triggers} />}
       <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
         <TabList>
           <Tab>Push</Tab>
@@ -86,7 +88,14 @@ const LegacyTriggers = () => {
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+            <Button
+              marginBottom="24"
+              variant="secondary"
+              size="md"
+              isDisabled={isReadOnlyView}
+              onClick={onOpen}
+              leftIconName="Plus"
+            >
               Add push trigger
             </Button>
             <SortableTriggerList
@@ -99,7 +108,14 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+            <Button
+              marginBottom="24"
+              variant="secondary"
+              size="md"
+              isDisabled={isReadOnlyView}
+              onClick={onOpen}
+              leftIconName="Plus"
+            >
               Add pull request trigger
             </Button>
             <SortableTriggerList
@@ -112,7 +128,14 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+            <Button
+              marginBottom="24"
+              variant="secondary"
+              size="md"
+              isDisabled={isReadOnlyView}
+              onClick={onOpen}
+              leftIconName="Plus"
+            >
               Add tag trigger
             </Button>
             <SortableTriggerList

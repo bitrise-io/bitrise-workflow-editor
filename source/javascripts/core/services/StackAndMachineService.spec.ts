@@ -99,8 +99,8 @@ const machines: MachineType[] = [
     name: 'Mac Medium',
     creditPerMinute: 2,
     availableInRegions: {
-      US: 'Mac Medium US 4 CPU 8 GB RAM',
-      EU: 'Mac Medium EU 6 CPU 12 GB RAM',
+      US: ['Mac Medium US 4 CPU 8 GB RAM'],
+      EU: ['Mac Medium EU 6 CPU 12 GB RAM'],
     },
     os: 'macos',
     isDisabled: false,
@@ -111,8 +111,8 @@ const machines: MachineType[] = [
     name: 'Mac Large',
     creditPerMinute: 4,
     availableInRegions: {
-      US: 'Mac Large US 8 CPU 16 GB RAM',
-      EU: 'Mac Large EU 12 CPU 20 GB RAM',
+      US: ['Mac Large US 8 CPU 16 GB RAM'],
+      EU: ['Mac Large EU 12 CPU 20 GB RAM'],
     },
     os: 'macos',
     isDisabled: true,
@@ -123,7 +123,7 @@ const machines: MachineType[] = [
     name: 'Standard',
     creditPerMinute: 1,
     availableInRegions: {
-      US: 'Standard 4 CPU 8 GB RAM',
+      US: ['Standard 4 CPU 8 GB RAM'],
     },
     os: 'linux',
     isDisabled: false,
@@ -134,7 +134,7 @@ const machines: MachineType[] = [
     name: 'Elite',
     creditPerMinute: 1,
     availableInRegions: {
-      US: 'Elite 8 CPU 16 GB RAM',
+      US: ['Elite 8 CPU 16 GB RAM'],
     },
     os: 'linux',
     isDisabled: false,
@@ -145,7 +145,7 @@ const machines: MachineType[] = [
     name: 'M1',
     creditPerMinute: 2,
     availableInRegions: {
-      US: 'M1 8 CPU 16 GB RAM',
+      US: ['M1 8 CPU 16 GB RAM'],
     },
     os: 'macos',
     isDisabled: false,
@@ -156,7 +156,7 @@ const machines: MachineType[] = [
     name: 'M2',
     creditPerMinute: 3,
     availableInRegions: {
-      US: 'M2 12 CPU 24 GB RAM',
+      US: ['M2 12 CPU 24 GB RAM'],
     },
     os: 'macos',
     isDisabled: false,
@@ -167,7 +167,7 @@ const machines: MachineType[] = [
     name: 'M3',
     creditPerMinute: 4,
     availableInRegions: {
-      US: 'M3 16 CPU 32 GB RAM',
+      US: ['M3 16 CPU 32 GB RAM'],
     },
     os: 'macos',
     isDisabled: false,
@@ -178,7 +178,7 @@ const machines: MachineType[] = [
     name: 'M4',
     creditPerMinute: 8,
     availableInRegions: {
-      US: 'M4 24 CPU 64 GB RAM',
+      US: ['M4 24 CPU 64 GB RAM'],
     },
     os: 'macos',
     isDisabled: true,
@@ -189,7 +189,7 @@ const machines: MachineType[] = [
     name: 'XL',
     creditPerMinute: 8,
     availableInRegions: {
-      US: 'XL 32 CPU 64 GB RAM',
+      US: ['XL 32 CPU 64 GB RAM'],
     },
     os: 'linux',
     isDisabled: true,
@@ -200,7 +200,7 @@ const machines: MachineType[] = [
     name: 'Joker',
     creditPerMinute: 16,
     availableInRegions: {
-      US: 'Joker 64 CPU 128 GB RAM',
+      US: ['Joker 64 CPU 128 GB RAM'],
     },
     os: 'unknown',
     isDisabled: true,

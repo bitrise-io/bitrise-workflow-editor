@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import StepBundleService from '@/core/services/StepBundleService';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import useStepBundleInputs from './hooks/useStepBundleInputs';
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
@@ -11,6 +12,7 @@ import StepBundleInputsDialog from './StepBundleInputs/StepBundleInputsDialog';
 import { FormMode } from './types/StepBundle.types';
 
 const StepBundleConfigInputs = () => {
+  const isReadOnlyView = useIsReadOnlyView();
   const [preselectedCategory, setPreselectedCategory] = useState<string>();
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
   const { isOpen: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
@@ -97,7 +99,13 @@ const StepBundleConfigInputs = () => {
           description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
           p="48"
         >
-          <Button leftIconName="Plus" variant="secondary" size="md" onClick={() => handleAddInput()}>
+          <Button
+            leftIconName="Plus"
+            variant="secondary"
+            size="md"
+            isDisabled={isReadOnlyView}
+            onClick={() => handleAddInput()}
+          >
             Add input
           </Button>
         </EmptyState>

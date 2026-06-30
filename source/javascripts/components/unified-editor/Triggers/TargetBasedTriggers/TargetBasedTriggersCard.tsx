@@ -14,6 +14,7 @@ type Props = {
   triggerType: TriggerType;
   triggers: TargetBasedTrigger[];
   triggersEnabled: boolean;
+  isReadOnly: boolean;
   onAddTrigger: (triggerType: TriggerType) => void;
   onEditTrigger: (trigger: TargetBasedTrigger) => void;
   onDeleteTrigger: (trigger: TargetBasedTrigger) => void;
@@ -24,6 +25,7 @@ const TriggerCard = ({
   triggerType,
   triggers,
   triggersEnabled,
+  isReadOnly,
   onAddTrigger,
   onEditTrigger,
   onDeleteTrigger,
@@ -47,12 +49,20 @@ const TriggerCard = ({
           key={trigger.uniqueId}
           trigger={trigger}
           triggersEnabled={triggersEnabled}
+          isReadOnly={isReadOnly}
           onEditTrigger={onEditTrigger}
           onDeleteTrigger={onDeleteTrigger}
           onUpdateEnabled={onUpdateTriggerEnabled}
         />
       ))}
-      <Button margin="12" size="md" variant="tertiary" leftIconName="Plus" onClick={() => onAddTrigger(triggerType)}>
+      <Button
+        margin="12"
+        size="md"
+        variant="tertiary"
+        leftIconName="Plus"
+        isDisabled={isReadOnly}
+        onClick={() => onAddTrigger(triggerType)}
+      >
         Add trigger
       </Button>
     </ExpandableCard>

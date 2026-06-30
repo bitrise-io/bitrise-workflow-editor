@@ -1,16 +1,15 @@
 import {
   BitkitActionMenu,
   BitkitControlButton,
-  BitkitList,
   BitkitOverflowTooltip,
   BitkitTooltip,
   IconBranch,
+  IconChevronDown,
   IconDownload,
   IconFolder,
-  IconMoreVertical,
-  rem,
+  IconGlobe,
 } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -33,7 +32,9 @@ import ConfigurationYmlSourceDialog from '@/pages/YmlPage/components/Configurati
 
 import SwitchBranchDialog from '../SwitchBranchDialog/SwitchBranchDialog';
 
-const ConfigSettingsBar = () => {
+type Props = BoxProps;
+
+const ConfigSettingsMenu = (props: Props) => {
   const [isSwitchBranchDialogOpen, setIsSwitchBranchDialogOpen] = useState(false);
   const [isStorageDialogOpen, setIsStorageDialogOpen] = useState(false);
 
@@ -48,9 +49,20 @@ const ConfigSettingsBar = () => {
   const branchLabel = branch && branch === defaultBranch ? `${branch} (default)` : branch;
 
   const { data, isPending } = useCiConfigSettings();
+  const usesRepositoryYml = Boolean(data?.usesRepositoryYml);
+
+  // Repo storage → show the branch (with a branch icon); Bitrise storage → a globe + a fixed label.
+  const SourceIcon = usesRepositoryYml ? IconBranch : IconGlobe;
+  const sourceLabel = usesRepositoryYml ? (branchLabel ?? '') : 'Stored on Bitrise';
+
+  const labelText = (
+    <Text as="span" display="inline-block" textStyle="body/md/regular" color="text/secondary" maxWidth="240px" truncate>
+      {sourceLabel}
+    </Text>
+  );
 
   const handleDownload = () => {
-    trackDownloadYmlClicked(data?.usesRepositoryYml ? 'git' : 'bitrise', 'config_settings_bar');
+    trackDownloadYmlClicked(data?.usesRepositoryYml ? 'git' : 'bitrise', 'config_settings_menu');
     download(getYmlString(), 'bitrise.yml', 'application/yaml;charset=utf-8');
   };
 
@@ -60,39 +72,29 @@ const ConfigSettingsBar = () => {
   };
 
   return (
-    <Box
-      paddingLeft="32"
-      paddingRight="12"
-      paddingBlock="12"
-      marginBottom="24"
-      minHeight={rem(65)}
-      borderBottom="1px solid"
-      borderColor="border/minimal"
-      display="flex"
-      alignItems="center"
-      justifyContent="space-between"
-      gap="8"
-    >
-      <Box minWidth={0}>
-        <BitkitList variant="inline" textColor="body" size="md">
-          <BitkitList.Item>bitrise.yml</BitkitList.Item>
-          <BitkitList.Item>
-            <Skeleton loading={isPending}>{data?.usesRepositoryYml ? 'in repository' : 'on bitrise.io'}</Skeleton>
-          </BitkitList.Item>
-        </BitkitList>
-        {enableBranchSwitching && data?.usesRepositoryYml && branchLabel && (
-          <Box display="flex" alignItems="center" gap="4" marginTop="4">
-            <IconBranch size="16" color="icon/tertiary" flexShrink="0" />
-            <BitkitOverflowTooltip text={branchLabel}>
-              <Text textStyle="body/sm/regular" color="text/secondary" truncate flex={1} minWidth={0}>
-                {branchLabel}
-              </Text>
-            </BitkitOverflowTooltip>
-          </Box>
-        )}
-      </Box>
-      <BitkitActionMenu.Root size="md" trigger={<BitkitControlButton icon={IconMoreVertical} label="More" size="xs" />}>
-        {enableBranchSwitching && data?.usesRepositoryYml && (
+    <Box display="flex" alignItems="center" gap="8" {...props}>
+      {/* Breadcrumb separator between the "CI configuration" crumb and this selector. */}
+      <Text as="span" textStyle="body/md/regular" color="text/tertiary" flexShrink="0">
+        •
+      </Text>
+
+      <Skeleton loading={isPending} borderRadius="4">
+        <Box display="flex" alignItems="center" gap="4" minWidth={0}>
+          <SourceIcon size="16" color="icon/tertiary" flexShrink="0" />
+          {usesRepositoryYml ? (
+            <BitkitOverflowTooltip text={sourceLabel}>{labelText}</BitkitOverflowTooltip>
+          ) : (
+            labelText
+          )}
+        </Box>
+      </Skeleton>
+
+      <BitkitActionMenu.Root
+        size="md"
+        positioning={{ placement: 'bottom-end' }}
+        trigger={<BitkitControlButton icon={IconChevronDown} label="Configuration options" size="xs" />}
+      >
+        {enableBranchSwitching && usesRepositoryYml && (
           <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
             <BitkitActionMenu.Item
               value="switch-branch"
@@ -119,10 +121,11 @@ const ConfigSettingsBar = () => {
           Change storage...
         </BitkitActionMenu.Item>
       </BitkitActionMenu.Root>
+
       <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
       <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={() => setIsStorageDialogOpen(false)} />
     </Box>
   );
 };
 
-export default ConfigSettingsBar;
+export default ConfigSettingsMenu;

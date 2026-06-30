@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
-import { EnvVarSource } from '@/core/models/EnvVar';
+import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { listenToEnvVarCreated } from './SortableEnvVars.events';
 
@@ -13,23 +14,39 @@ type UseSortableEnvVarsProps = {
   source: EnvVarSource;
   sourceId?: string;
   listenForExternalChanges?: boolean;
+  /** Pre-resolved env vars to display instead of reading from the store — used by the merged read-only
+   * per-file grouping (where the list comes from a specific file, not the active document). */
+  initialEnvs?: EnvVar[];
 };
 
-export const useSortableEnvVars = ({ source, sourceId, listenForExternalChanges = false }: UseSortableEnvVarsProps) => {
+export const useSortableEnvVars = ({
+  source,
+  sourceId,
+  listenForExternalChanges = false,
+  initialEnvs,
+}: UseSortableEnvVarsProps) => {
   const [activeItem, setActiveItem] = useState<SortableEnvVar>();
   const [envs, setEnvs] = useState<SortableEnvVar[]>([]);
+  // In modular YAML mode the same `sourceId` can exist in multiple files, so the active
+  // file is part of the identity of the env var list — re-seed when it changes.
+  const activeFileId = useBitriseYmlStore((s) => s.selectedNodeId);
 
   const updateKeyDebounced = useDebounceCallback(EnvVarService.updateKey, 250, { leading: false });
   const updateValueDebounced = useDebounceCallback(EnvVarService.updateValue, 250, { leading: false });
 
+  // `initialEnvs` is fixed to a specific file, so the active-file change must not re-seed it;
+  // only re-seed on active-file changes when the list is read from the store.
+  const reseedFileId = initialEnvs ? undefined : activeFileId;
+
   useEffect(() => {
+    const base = initialEnvs ?? EnvVarService.getAll(source, sourceId || '');
     setEnvs(
-      EnvVarService.getAll(source, sourceId || '').map((env) => ({
+      base.map((env) => ({
         ...env,
         uniqueId: crypto.randomUUID(),
       })),
     );
-  }, [source, sourceId]);
+  }, [source, sourceId, reseedFileId, initialEnvs]);
 
   useEffect(() => {
     if (!listenForExternalChanges) return;
