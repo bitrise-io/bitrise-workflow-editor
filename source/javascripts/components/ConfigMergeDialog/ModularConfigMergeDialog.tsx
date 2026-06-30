@@ -2,7 +2,7 @@ import { Box, Button, ButtonGroup, DialogBody, DialogFooter, Icon, Notification,
 import { BitkitTabs } from '@bitrise/bitkit-v2';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
-import type { editor } from 'monaco-editor';
+import type { editor, IDisposable } from 'monaco-editor';
 import { useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -35,6 +35,16 @@ type FileMerge = {
   mergedYml: string;
   decorations: editor.IModelDeltaDecoration[];
 };
+
+/** A file's auto-merged result is valid YAML iff parsing it yields no errors. */
+function isMergedYmlValid(mergedYml: string): boolean {
+  return YmlUtils.toDoc(mergedYml).errors.length === 0;
+}
+
+/** Seed per-file validity from the up-front parse so unvisited tabs still gate Apply. */
+function seedValidity(fileMerges: FileMerge[]): Record<string, 'valid' | 'invalid' | 'warnings'> {
+  return Object.fromEntries(fileMerges.map((f) => [f.nodeId, isMergedYmlValid(f.mergedYml) ? 'valid' : 'invalid']));
+}
 
 function buildFileMerges(conflict: PushBranchConflict): FileMerge[] {
   // The BE may list the same file more than once; dedupe by node_id so each
@@ -93,7 +103,7 @@ const ModularConfigMergeDialogBody = ({
     Object.fromEntries(fileMerges.map((f) => [f.nodeId, f.mergedYml])),
   );
   const [validity, setValidity] = useState<Record<string, 'valid' | 'invalid' | 'warnings'>>(() =>
-    Object.fromEntries(fileMerges.map((f) => [f.nodeId, 'valid' as const])),
+    seedValidity(fileMerges),
   );
   // Files the user has edited — skip re-decorating them when their tab remounts.
   const touched = useRef<Set<string>>(new Set());
@@ -103,7 +113,7 @@ const ModularConfigMergeDialogBody = ({
     const merges = buildFileMerges(next);
     setConflict(next);
     setResolved(Object.fromEntries(merges.map((f) => [f.nodeId, f.mergedYml])));
-    setValidity(Object.fromEntries(merges.map((f) => [f.nodeId, 'valid' as const])));
+    setValidity(seedValidity(merges));
     touched.current = new Set();
     setSelectedTab(merges[0]?.nodeId ?? '');
   };
@@ -123,34 +133,49 @@ const ModularConfigMergeDialogBody = ({
   const onResultEditorMount = (mountedNodeId: string, decorations: editor.IModelDeltaDecoration[]) => {
     return (diff: MonacoDiffEditor) => {
       const modified = diff.getModifiedEditor();
+      // Tab switches remount this editor (its key includes the node_id), so every
+      // listener registered here must be disposed on unmount — otherwise the global
+      // marker listener (onModelMarkerStatusChange) leaks one per visit and keeps
+      // firing setValidity for stale models. Collected here, disposed on dispose.
+      const disposables: IDisposable[] = [];
 
-      modified.onDidChangeModelContent((e) => {
-        touched.current.add(mountedNodeId);
-        setResolved((prev) => ({ ...prev, [mountedNodeId]: modified.getValue() }));
+      disposables.push(
+        modified.onDidChangeModelContent((e) => {
+          touched.current.add(mountedNodeId);
+          setResolved((prev) => ({ ...prev, [mountedNodeId]: modified.getValue() }));
 
-        const removable = e.changes.reduce<Set<string>>((acc, c) => {
-          for (let i = c.range.startLineNumber; i <= c.range.endLineNumber; i += 1) {
-            modified.getLineDecorations(i)?.forEach((d) => {
-              if (d.options.blockClassName === 'conflict') {
-                acc.add(d.id);
-              }
-            });
-          }
-          return acc;
-        }, new Set<string>());
-        modified.removeDecorations(Array.from(removable));
-      });
+          const removable = e.changes.reduce<Set<string>>((acc, c) => {
+            for (let i = c.range.startLineNumber; i <= c.range.endLineNumber; i += 1) {
+              modified.getLineDecorations(i)?.forEach((d) => {
+                if (d.options.blockClassName === 'conflict') {
+                  acc.add(d.id);
+                }
+              });
+            }
+            return acc;
+          }, new Set<string>());
+          modified.removeDecorations(Array.from(removable));
+        }),
+      );
 
+      // Conflict markers are positioned for the pristine auto-merge; once the file
+      // is edited those line positions no longer map to the displayed text, so we
+      // only (re)apply them while it is untouched — which also restores them when
+      // an unedited tab is revisited.
       if (!touched.current.has(mountedNodeId)) {
         diff.createDecorationsCollection(decorations);
       }
 
       const model = modified.getModel();
       if (model) {
-        MonacoUtils.onModelMarkerStatusChange(model, (status) =>
-          setValidity((prev) => ({ ...prev, [mountedNodeId]: status })),
+        disposables.push(
+          MonacoUtils.onModelMarkerStatusChange(model, (status) =>
+            setValidity((prev) => ({ ...prev, [mountedNodeId]: status })),
+          ),
         );
       }
+
+      diff.onDidDispose(() => disposables.forEach((d) => d.dispose()));
     };
   };
 

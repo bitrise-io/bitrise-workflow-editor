@@ -25,6 +25,22 @@ describe('mergeYamls', () => {
     expect(decorations[0].options.blockClassName).toBe('conflict');
   });
 
+  it('positions each conflict decoration by merged-output line, not input index', () => {
+    // Two separate overlapping changes with an unchanged line between them, so the
+    // merge emits: conflict(line 1), ok(line 2), conflict(line 3). The second
+    // conflict must be marked at output line 3 — the old bIndex-based code put it
+    // elsewhere.
+    const base = 'a\nKEEP\nd\n';
+    const yours = 'aY\nKEEP\ndY\n';
+    const remote = 'aR\nKEEP\ndR\n';
+
+    const { mergedYml, decorations } = mergeYamls(yours, base, remote);
+
+    expect(mergedYml).toBe('aR\nKEEP\ndR\n');
+    const startLines = decorations.map((d) => d.range.startLineNumber).sort((x, y) => x - y);
+    expect(startLines).toEqual([1, 3]);
+  });
+
   it('returns the input unchanged when nothing differs', () => {
     const yaml = 'a: 1\nb: 2\n';
     const { mergedYml, decorations } = mergeYamls(yaml, yaml, yaml);

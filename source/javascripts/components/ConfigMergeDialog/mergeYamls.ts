@@ -20,40 +20,40 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
   }).forEach((region) => {
     if (region.ok) {
       rows.push(...region.ok);
-    } else if (region.conflict) {
-      rows.push(...region.conflict.b);
+      return;
+    }
 
-      const remoteChangeIsADeletion = region.conflict.b.length === 0;
+    if (!region.conflict) {
+      return;
+    }
 
-      if (remoteChangeIsADeletion) {
-        decorations.push({
-          options: {
-            isWholeLine: false,
-            blockClassName: 'conflict',
-          },
-          range: {
-            startLineNumber: region.conflict.oIndex + 1,
-            startColumn: 1,
-            endLineNumber: region.conflict.oIndex + 1,
-            endColumn: 1,
-          },
-        });
-      }
+    // Decorations must be positioned by the running line count of the MERGED
+    // OUTPUT, not by diff3's `bIndex`/`oIndex` — those are offsets into the
+    // remote/base inputs and don't map onto the concatenated merged result, so
+    // with more than one conflict region they land on the wrong line.
+    const conflictStartLine = rows.length + 1; // 1-based line where conflict.b begins
+    rows.push(...region.conflict.b);
 
-      if (!remoteChangeIsADeletion) {
-        decorations.push({
-          options: {
-            isWholeLine: true,
-            blockClassName: 'conflict',
-          },
-          range: {
-            startLineNumber: region.conflict.bIndex + 1,
-            startColumn: 1,
-            endLineNumber: region.conflict.bIndex + region.conflict.b.length,
-            endColumn: 1,
-          },
-        });
-      }
+    const remoteChangeIsADeletion = region.conflict.b.length === 0;
+
+    if (remoteChangeIsADeletion) {
+      // The remote removed lines you had — there are no output lines to mark, so
+      // flag the boundary (the line now sitting in the gap, clamped to line 1).
+      const boundaryLine = Math.max(conflictStartLine - 1, 1);
+      decorations.push({
+        options: { isWholeLine: false, blockClassName: 'conflict' },
+        range: { startLineNumber: boundaryLine, startColumn: 1, endLineNumber: boundaryLine, endColumn: 1 },
+      });
+    } else {
+      decorations.push({
+        options: { isWholeLine: true, blockClassName: 'conflict' },
+        range: {
+          startLineNumber: conflictStartLine,
+          startColumn: 1,
+          endLineNumber: conflictStartLine + region.conflict.b.length - 1,
+          endColumn: 1,
+        },
+      });
     }
   });
 
