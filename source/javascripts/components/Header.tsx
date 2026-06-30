@@ -18,6 +18,7 @@ import {
   trackSaveButtonClicked,
 } from '@/core/analytics/ConfigManagementAnalytics';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
+import { PushBranchConflict } from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
   bitriseYmlStore,
@@ -47,6 +48,7 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 import { paths } from '@/routes';
 
 import ConfigMergeDialog from './ConfigMergeDialog/ConfigMergeDialog';
+import ModularConfigMergeDialog from './ConfigMergeDialog/ModularConfigMergeDialog';
 import DiffEditorDialog from './DiffEditor/DiffEditorDialog';
 import GlobalDiffEditorDialog from './DiffEditor/GlobalDiffEditorDialog';
 import ConfigSettingsMenu from './unified-editor/ConfigSettingsMenu/ConfigSettingsMenu';
@@ -122,6 +124,14 @@ const Header = () => {
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
 
   const [mergeDialogContext, setMergeDialogContext] = useState({ targetBranch: '', isNewTargetBranch: false });
+  // Modular (per-file) conflict resolution: the parsed 409 plus the branch/message
+  // to re-push with after the user resolves each conflicting file.
+  const [modularConflict, setModularConflict] = useState<{
+    branch: string;
+    message: string;
+    conflict: PushBranchConflict;
+  }>();
+  const lastPushPayload = useRef<PushBranchPayload>();
 
   const {
     isOpen: isDiffViewerOpen,
@@ -139,6 +149,11 @@ const Header = () => {
   });
 
   const { isOpen: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
+  const {
+    isOpen: isModularMergeDialogOpen,
+    onOpen: openModularMergeDialog,
+    onClose: closeModularMergeDialog,
+  } = useDisclosure();
 
   const {
     isOpen: isUpdateConfigDialogOpen,
@@ -176,11 +191,20 @@ const Header = () => {
     onSuccess: () => {
       closePushBranchDialog();
     },
-    onMergeConflict: (branch) => {
+    onMergeConflict: (branch, conflict) => {
       const configBranch = bitriseYmlStore.getState().configBranch;
-      setMergeDialogContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
       trackConfigMergePopupShown(currentPage, branch, branch !== configBranch);
       closePushBranchDialog();
+
+      // Modular push: resolve every conflicting file in the per-file dialog.
+      // Single-file push: fall back to the legacy whole-config merge dialog.
+      if (conflict) {
+        setModularConflict({ branch, message: lastPushPayload.current?.message ?? '', conflict });
+        openModularMergeDialog();
+        return;
+      }
+
+      setMergeDialogContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
       openMergeDialog();
     },
   });
@@ -188,6 +212,8 @@ const Header = () => {
   const handlePush = useCallback(
     (values: PushBranchPayload) => {
       clearPushError();
+      // Remember the message so a modular conflict can re-push with it after resolution.
+      lastPushPayload.current = values;
       pushBranch(values);
     },
     [clearPushError, pushBranch],
@@ -380,6 +406,15 @@ const Header = () => {
         targetBranch={mergeDialogContext.targetBranch}
         isNewTargetBranch={mergeDialogContext.isNewTargetBranch}
       />
+      {modularConflict && (
+        <ModularConfigMergeDialog
+          isOpen={isModularMergeDialogOpen}
+          onClose={closeModularMergeDialog}
+          branch={modularConflict.branch}
+          message={modularConflict.message}
+          conflict={modularConflict.conflict}
+        />
+      )}
       <UpdateConfigurationDialog isOpen={isUpdateConfigDialogOpen} onClose={closeUpdateConfigDialog} />
       <PushBranchDialog
         isOpen={isPushBranchDialogOpen}
