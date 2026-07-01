@@ -1,22 +1,25 @@
-import { BitkitButton, BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import { VersionStrategy } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
-import { useToolsForScope } from '@/hooks/useTools';
+import { useToolCatalog, useToolsForScope } from '@/hooks/useTools';
 
 import ToolRow from './ToolRow';
 
 const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
+  const { data: catalog, isLoading: isCatalogLoading, isError: isCatalogError } = useToolCatalog();
   const [hasPendingRow, setHasPendingRow] = useState(false);
   const [pendingStrategy, setPendingStrategy] = useState<VersionStrategy>('latest-released');
   const [pendingVersion, setPendingVersion] = useState('');
 
   const allowUnset = scope.type === 'workflow';
+  const isCatalogReady = !isCatalogLoading && catalog !== undefined;
+  const existingToolIds = Object.keys(tools);
 
   const handleAddNew = () => {
     setPendingStrategy('latest-released');
@@ -45,8 +48,12 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
               toolId={toolId}
               strategy={parsed.strategy}
               version={versionValue}
-              existingToolIds={Object.keys(tools)}
+              existingToolIds={existingToolIds}
               allowUnset={allowUnset}
+              dropdownOptions={ToolsService.getAvailableToolIdOptions(catalog, toolId, existingToolIds)}
+              isToolIdKnown={ToolsService.isKnownToolId(catalog, toolId)}
+              isCatalogReady={isCatalogReady}
+              isCatalogLoading={isCatalogLoading}
               onIdChange={(newId) => {
                 ToolsService.deleteTool(toolId, scope);
                 ToolsService.setTool(newId, parsed.strategy, versionValue, scope);
@@ -62,9 +69,13 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             toolId=""
             strategy={pendingStrategy}
             version={pendingVersion}
-            existingToolIds={Object.keys(tools)}
+            existingToolIds={existingToolIds}
             allowUnset={allowUnset}
             autoFocus
+            dropdownOptions={ToolsService.getAvailableToolIdOptions(catalog, '', existingToolIds)}
+            isToolIdKnown={ToolsService.isKnownToolId(catalog, '')}
+            isCatalogReady={isCatalogReady}
+            isCatalogLoading={isCatalogLoading}
             onIdChange={(newId) => {
               ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
               setHasPendingRow(false);
@@ -78,6 +89,8 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
           />
         )}
       </Box>
+
+      {isCatalogError && <BitkitAlert variant="warning" messageText="Couldn't load tool suggestions." />}
 
       <BitkitButton
         variant="secondary"

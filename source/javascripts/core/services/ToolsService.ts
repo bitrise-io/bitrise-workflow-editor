@@ -60,6 +60,39 @@ function getScopePath(scope: ToolScope): (string | number)[] {
   return scope.type === 'workflow' ? ['workflows', scope.workflowId] : [];
 }
 
+/** Every tool ID (canonical name or alias) the catalog recognizes. */
+function getKnownToolIds(catalog?: ToolCatalog): string[] {
+  return catalog?.tools.flatMap(({ name, aliases }) => [name, ...(aliases ?? [])]) ?? [];
+}
+
+/** Whether a tool ID matches a catalog entry, by canonical name or alias. */
+function isKnownToolId(catalog: ToolCatalog | undefined, toolId: string): boolean {
+  return getKnownToolIds(catalog).includes(toolId);
+}
+
+/**
+ * Builds the tool-ID dropdown options: one per catalog tool, using its canonical name —
+ * except the tool matching `toolId` (by name or alias), which is shown using that exact ID
+ * so the current selection stays visible without listing the same tool under two IDs.
+ */
+function getToolIdOptions(catalog: ToolCatalog | undefined, toolId: string): { value: string; label: string }[] {
+  return (catalog?.tools ?? []).map(({ name, aliases = [] }) => {
+    const value = toolId === name || aliases.includes(toolId) ? toolId : name;
+    return { value, label: value };
+  });
+}
+
+/**
+ * `getToolIdOptions`, minus tool IDs already used by another row (a row's own ID is always kept).
+ */
+function getAvailableToolIdOptions(
+  catalog: ToolCatalog | undefined,
+  toolId: string,
+  existingToolIds: string[],
+): { value: string; label: string }[] {
+  return getToolIdOptions(catalog, toolId).filter(({ value }) => value === toolId || !existingToolIds.includes(value));
+}
+
 function validateToolId(id: string, initialId: string, existingIds: string[] = []) {
   if (!id.trim()) {
     return 'Tool ID is required';
@@ -140,6 +173,10 @@ export default {
   parseToolVersion,
   setTool,
   deleteTool,
+  getKnownToolIds,
+  isKnownToolId,
+  getToolIdOptions,
+  getAvailableToolIdOptions,
   validateToolId,
   validateToolVersion,
 };
