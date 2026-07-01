@@ -55,16 +55,11 @@ const TriggerCard = ({
           onUpdateEnabled={onUpdateTriggerEnabled}
         />
       ))}
-      <Button
-        margin="12"
-        size="md"
-        variant="tertiary"
-        leftIconName="Plus"
-        isDisabled={isReadOnly}
-        onClick={() => onAddTrigger(triggerType)}
-      >
-        Add trigger
-      </Button>
+      {!isReadOnly && (
+        <Button margin="12" size="md" variant="tertiary" leftIconName="Plus" onClick={() => onAddTrigger(triggerType)}>
+          Add trigger
+        </Button>
+      )}
     </ExpandableCard>
   );
 };
