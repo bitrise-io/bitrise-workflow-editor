@@ -1,8 +1,22 @@
 import ToolsService from '@/core/services/ToolsService';
 
+import ToolCatalogApi from '../api/ToolCatalogApi';
+import { ToolVersions } from '../models/Tools';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
+const CACHE_TTL_MS = 30 * 60 * 1000;
+
+function versionCatalog(toolId: string, versions: string[], isSemver = true): ToolVersions {
+  return { toolId, versions: versions.map((version) => ({ version, isSemver })) };
+}
+
 describe('ToolsService', () => {
+  afterEach(() => {
+    ToolsService.clearCache();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
   describe('parseToolVersion', () => {
     it('parses "latest" as latest-released without prefix', () => {
       expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'latest-released' });
@@ -344,6 +358,121 @@ describe('ToolsService', () => {
 
         expect(() => ToolsService.deleteTool('node', { type: 'workflow', workflowId: 'missing' })).toThrow();
       });
+    });
+  });
+
+  describe('getToolCatalog', () => {
+    it('returns the fetched catalog', async () => {
+      jest.spyOn(ToolCatalogApi, 'getToolCatalog').mockResolvedValue({
+        tools: [
+          { name: 'nodejs', aliases: [] },
+          { name: 'golang', aliases: [] },
+        ],
+      });
+
+      await expect(ToolsService.getToolCatalog()).resolves.toEqual({
+        tools: [
+          { name: 'nodejs', aliases: [] },
+          { name: 'golang', aliases: [] },
+        ],
+      });
+    });
+
+    it('caches the result for the session (single fetch for repeated calls)', async () => {
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolCatalog')
+        .mockResolvedValue({ tools: [{ name: 'nodejs', aliases: [] }] });
+
+      await ToolsService.getToolCatalog();
+      await ToolsService.getToolCatalog();
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('deduplicates concurrent in-flight requests', async () => {
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolCatalog')
+        .mockResolvedValue({ tools: [{ name: 'nodejs', aliases: [] }] });
+
+      await Promise.all([ToolsService.getToolCatalog(), ToolsService.getToolCatalog()]);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not cache failures — the next call retries', async () => {
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolCatalog')
+        .mockRejectedValueOnce(new Error('boom'))
+        .mockResolvedValueOnce({ tools: [{ name: 'nodejs', aliases: [] }] });
+
+      await expect(ToolsService.getToolCatalog()).rejects.toThrow('boom');
+      await expect(ToolsService.getToolCatalog()).resolves.toEqual({ tools: [{ name: 'nodejs', aliases: [] }] });
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
+
+    it('re-fetches once the cache entry expires (30-minute TTL)', async () => {
+      jest.useFakeTimers();
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolCatalog')
+        .mockResolvedValue({ tools: [{ name: 'nodejs', aliases: [] }] });
+
+      await ToolsService.getToolCatalog();
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      jest.advanceTimersByTime(CACHE_TTL_MS - 1);
+      await ToolsService.getToolCatalog();
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      jest.advanceTimersByTime(2);
+      await ToolsService.getToolCatalog();
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
+
+    it('clearCache forces a re-fetch', async () => {
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolCatalog')
+        .mockResolvedValue({ tools: [{ name: 'nodejs', aliases: [] }] });
+
+      await ToolsService.getToolCatalog();
+      ToolsService.clearCache();
+      await ToolsService.getToolCatalog();
+
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('getToolVersions', () => {
+    it('returns the fetched version catalog', async () => {
+      jest.spyOn(ToolCatalogApi, 'getToolVersions').mockResolvedValue(versionCatalog('nodejs', ['26.4.0', '24.16.0']));
+
+      await expect(ToolsService.getToolVersions('nodejs')).resolves.toEqual(
+        versionCatalog('nodejs', ['26.4.0', '24.16.0']),
+      );
+    });
+
+    it('caches each tool independently', async () => {
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolVersions')
+        .mockImplementation((toolId) => Promise.resolve(versionCatalog(toolId, ['1.0.0'])));
+
+      await ToolsService.getToolVersions('nodejs');
+      await ToolsService.getToolVersions('nodejs');
+      await ToolsService.getToolVersions('golang');
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenCalledWith('nodejs');
+      expect(spy).toHaveBeenCalledWith('golang');
+    });
+
+    it('does not cache a failed tool fetch', async () => {
+      const spy = jest
+        .spyOn(ToolCatalogApi, 'getToolVersions')
+        .mockRejectedValueOnce(new Error('boom'))
+        .mockResolvedValueOnce(versionCatalog('nodejs', ['26.4.0']));
+
+      await expect(ToolsService.getToolVersions('nodejs')).rejects.toThrow('boom');
+      await expect(ToolsService.getToolVersions('nodejs')).resolves.toEqual(versionCatalog('nodejs', ['26.4.0']));
+      expect(spy).toHaveBeenCalledTimes(2);
     });
   });
 });

@@ -1,9 +1,96 @@
-import { ParsedToolVersion, VersionStrategy } from '../models/Tools';
+import ToolCatalogApi from '../api/ToolCatalogApi';
+import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
+
+// Keep the catalog and per-tool version lists in memory for the session so the
+// same user does not re-fetch them on every interaction. Entries live for 30
+// minutes; failures are not cached so a transient error retries on next access.
+const CACHE_TTL_MS = 30 * 60 * 1000;
+
+type CacheEntry<T> = {
+  /** The fetch itself, cached as a promise so concurrent callers can share one request. */
+  promise: Promise<T>;
+  /** Epoch milliseconds after which this entry is stale and should be re-fetched. */
+  expiresAt: number;
+};
+
+let toolCatalog: CacheEntry<ToolCatalog> | undefined;
+const versionsPerTool = new Map<string, CacheEntry<ToolVersions>>();
+
+/**
+ * Return the cached value if still fresh, otherwise fetch a new one and cache it.
+ * The in-flight promise is cached too, so concurrent callers share a single
+ * request. A fetch that rejects is evicted so the failure is not cached for the
+ * full TTL — the next caller retries — and the rejection propagates to callers.
+ */
+function memoize<T>(
+  getEntry: () => CacheEntry<T> | undefined,
+  setEntry: (entry: CacheEntry<T> | undefined) => void,
+  fetcher: () => Promise<T>,
+): Promise<T> {
+  const now = Date.now();
+
+  const existing = getEntry();
+  if (existing && existing.expiresAt > now) {
+    return existing.promise;
+  }
+
+  const pendingRequest = fetcher();
+  const entry: CacheEntry<T> = { promise: pendingRequest, expiresAt: now + CACHE_TTL_MS };
+  setEntry(entry);
+
+  // 3. Do not cache failures. If the request rejects, evict this entry so the next
+  //    caller retries instead of getting the cached rejected promise for the whole
+  //    TTL. The `getEntry() === entry` check is a compare-and-delete: only remove
+  //    the entry if it is still the one we just stored. If it was already replaced
+  //    (the TTL lapsed and another call re-fetched, or `clearCache` ran), leave the
+  //    newer entry alone.
+  pendingRequest.catch(() => {
+    if (getEntry() === entry) {
+      setEntry(undefined);
+    }
+  });
+
+  // 4. Return the request itself. Attaching the `.catch` above does not swallow the
+  //    rejection, so callers still receive it.
+  return pendingRequest;
+}
+
+/** Fetch the catalog index, cached for the session. Rejects with a `ToolCatalogError` when unavailable. */
+function getToolCatalog(): Promise<ToolCatalog> {
+  return memoize<ToolCatalog>(
+    () => toolCatalog,
+    (entry) => {
+      toolCatalog = entry;
+    },
+    () => ToolCatalogApi.getToolCatalog(),
+  );
+}
+
+/** Fetch a single tool's version list, cached per tool for the session. Rejects with a `ToolCatalogError` when unavailable. */
+function getToolVersions(toolId: string): Promise<ToolVersions> {
+  return memoize<ToolVersions>(
+    () => versionsPerTool.get(toolId),
+    (entry) => {
+      if (entry) {
+        versionsPerTool.set(toolId, entry);
+      } else {
+        versionsPerTool.delete(toolId);
+      }
+    },
+    () => ToolCatalogApi.getToolVersions(toolId),
+  );
+}
+
+/** Drop all cached catalog and version data. Mainly useful for tests and forced refreshes. */
+function clearCache(): void {
+  toolCatalog = undefined;
+  versionsPerTool.clear();
+}
 
 function parseToolVersion(raw: string): ParsedToolVersion {
   const lower = raw.toLowerCase();
@@ -142,4 +229,7 @@ export default {
   deleteTool,
   validateToolId,
   validateToolVersion,
+  getToolCatalog,
+  getToolVersions,
+  clearCache,
 };
