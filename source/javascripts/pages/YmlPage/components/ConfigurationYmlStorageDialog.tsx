@@ -328,8 +328,8 @@ const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStora
       titleText: 'Storage successfully changed',
       messageText:
         selectedStorage === 'git'
-          ? `From now you can manage your Configuration YAML in the project's Git repository.`
-          : 'From now you can manage your Configuration YAML on bitrise.io.',
+          ? `From now on, you can manage your Configuration YAML in the project's Git repository.`
+          : 'From now on, you can manage your Configuration YAML on bitrise.io.',
     });
     trackStorageSuccessfullyChanged(selectedStorage);
     forceRefreshStates();
