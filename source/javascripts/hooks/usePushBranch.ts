@@ -9,7 +9,7 @@ import {
   trackPushConfigChangesSucceeded,
 } from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
-import BranchesApi from '@/core/api/BranchesApi';
+import BranchesApi, { PushBranchConflict } from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
   applyModularSaveResult,
@@ -24,12 +24,24 @@ import { CI_CONFIG_TREE_QUERY_KEY } from '@/hooks/useCiConfigTree';
 export type PushBranchPayload = {
   branch: string;
   message: string;
+  /**
+   * Override for the conflict-token commit SHA sent to the BE. Used when re-pushing
+   * after a modular conflict was resolved: we reconciled against the new branch HEAD
+   * (returned in the 409), so the re-push must be based on that SHA, not the now-stale
+   * `configCommitSha` the config was originally loaded at. Omitted for normal pushes.
+   */
+  baseCommitSha?: string;
 };
 
 type UsePushBranchOptions = {
   /** Called after a successful push + store refresh (e.g. to close the dialog). */
   onSuccess?: () => void;
-  onMergeConflict?: (branch: string) => void;
+  /**
+   * Called on a 409. For a modular push the parsed per-file `conflict` is provided so
+   * the caller can open the file-aware merge dialog; for a single-file push it is
+   * `undefined` and the caller falls back to the legacy whole-config merge dialog.
+   */
+  onMergeConflict?: (branch: string, conflict?: PushBranchConflict) => void;
 };
 
 function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}) {
@@ -44,12 +56,18 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
   const clearPushError = () => setPushError(undefined);
 
   const { isPending: isPushPending, mutate: pushBranch } = useMutation({
-    mutationFn: ({ branch, message }: PushBranchPayload) => {
+    mutationFn: ({ branch, message, baseCommitSha }: PushBranchPayload) => {
       if (!configBranch || !configCommitSha) {
         throw new Error('Configuration is not loaded. Please reload and try again.');
       }
 
-      const common = { appSlug, branch, sourceBranch: configBranch, commitSha: configCommitSha, message };
+      const common = {
+        appSlug,
+        branch,
+        sourceBranch: configBranch,
+        commitSha: baseCommitSha ?? configCommitSha,
+        message,
+      };
       // Modular sends the full tree (BE validates merged, then pushes edited files); single-file sends bitrise.yml.
       return isModular
         ? BranchesApi.pushBranch({ ...common, root: getModularConfigTree() })
@@ -100,7 +118,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     onError: (error, { branch }) => {
       if (error instanceof ClientError && error.status === 409) {
         trackPushConfigChangesFailed(configBranch, branch, 'merge_conflict');
-        onMergeConflict?.(branch);
+        onMergeConflict?.(branch, BranchesApi.parsePushConflict(error));
         return;
       }
 
