@@ -290,11 +290,13 @@ const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStora
   );
 
   useEffect(() => {
-    if (ymlSettings) {
+    if (isOpen && ymlSettings) {
       setYmlRootPath(ymlSettings.ymlRootPath || '');
       setSelectedStorage(ymlSettings.usesRepositoryYml ? 'git' : 'bitrise');
+      setGitToBitriseStorage('git-ci-config');
+      setAsyncError(null);
     }
-  }, [ymlSettings]);
+  }, [isOpen, ymlSettings]);
 
   useEffect(() => {
     setAsyncError(null);

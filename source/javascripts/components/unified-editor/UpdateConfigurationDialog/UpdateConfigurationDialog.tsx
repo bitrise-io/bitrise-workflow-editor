@@ -12,7 +12,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Card } from '@chakra-ui/react/card';
 import { Table } from '@chakra-ui/react/table';
 import { Text } from '@chakra-ui/react/text';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
@@ -41,6 +41,12 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const [isCopiedOrDownloaded, setIsCopiedOrDownloaded] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsCopiedOrDownloaded(false);
+    }
+  }, [isOpen]);
 
   const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
   const changedModules = useBitriseYmlStore(
