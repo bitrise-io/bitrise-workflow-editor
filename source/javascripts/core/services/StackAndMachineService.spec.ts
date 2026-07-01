@@ -71,14 +71,14 @@ const stacks: Stack[] = [
 
 const groupedStacks: StackGroup[] = [
   {
-    label: 'Edge Stacks',
-    status: 'edge',
-    stacks: stacks.filter((stack) => stack.status === 'edge'),
-  },
-  {
     label: 'Stable Stacks',
     status: 'stable',
     stacks: stacks.filter((stack) => stack.status === 'stable'),
+  },
+  {
+    label: 'Edge Stacks',
+    status: 'edge',
+    stacks: stacks.filter((stack) => stack.status === 'edge'),
   },
   {
     label: 'Uncategorized Stacks',
@@ -254,17 +254,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -366,17 +366,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Default - Xcode 16.0.x', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -485,17 +485,17 @@ describe('StackAndMachineService', () => {
           options: [{ label: 'Default - Xcode 15.0.x', value: '', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -561,17 +561,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Invalid Default Stack - osx-xcode-11', status: 'unknown', os: 'unknown' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -636,17 +636,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -751,17 +751,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -873,17 +873,17 @@ describe('StackAndMachineService', () => {
           ],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -1073,17 +1073,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -1150,17 +1150,17 @@ describe('StackAndMachineService', () => {
           options: [{ value: '', label: 'Default - Xcode 15.0.x', status: 'stable', os: 'macos' }],
         },
         {
-          label: 'Edge Stacks',
-          status: 'edge',
-          options: groupedStacks
-            .filter((stackGroup) => stackGroup.status === 'edge')
-            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-        },
-        {
           label: 'Stable Stacks',
           status: 'stable',
           options: groupedStacks
             .filter((stackGroup) => stackGroup.status === 'stable')
+            .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+        },
+        {
+          label: 'Edge Stacks',
+          status: 'edge',
+          options: groupedStacks
+            .filter((stackGroup) => stackGroup.status === 'edge')
             .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
         },
         {
@@ -1486,17 +1486,17 @@ describe('StackAndMachineService', () => {
         // Stack options
         expect(result.stackOptionGroups).toEqual([
           {
-            label: 'Edge Stacks',
-            status: 'edge',
-            options: groupedStacks
-              .filter((stackGroup) => stackGroup.status === 'edge')
-              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-          },
-          {
             label: 'Stable Stacks',
             status: 'stable',
             options: groupedStacks
               .filter((stackGroup) => stackGroup.status === 'stable')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Edge Stacks',
+            status: 'edge',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'edge')
               .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
           },
           {
@@ -1599,17 +1599,17 @@ describe('StackAndMachineService', () => {
         // Stack options
         expect(result.stackOptionGroups).toEqual([
           {
-            label: 'Edge Stacks',
-            status: 'edge',
-            options: groupedStacks
-              .filter((stackGroup) => stackGroup.status === 'edge')
-              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
-          },
-          {
             label: 'Stable Stacks',
             status: 'stable',
             options: groupedStacks
               .filter((stackGroup) => stackGroup.status === 'stable')
+              .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
+          },
+          {
+            label: 'Edge Stacks',
+            status: 'edge',
+            options: groupedStacks
+              .filter((stackGroup) => stackGroup.status === 'edge')
               .flatMap((stackGroup) => stackGroup.stacks.map(StackAndMachineService.toStackOption)),
           },
           {
