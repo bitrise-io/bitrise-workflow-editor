@@ -138,7 +138,7 @@ const Navigation = (props: Props) => {
           icon="Steps"
           intercomTarget="Step Bundles Page Navigation Item"
         >
-          Step Bundles
+          Step bundles
         </NavigationItem>
         <NavigationItem
           path={withSearchParams(paths.secrets)}
