@@ -12,7 +12,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Card } from '@chakra-ui/react/card';
 import { Table } from '@chakra-ui/react/table';
 import { Text } from '@chakra-ui/react/text';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
@@ -37,10 +37,16 @@ type ChangedFileRow = {
 
 const moduleCountLabel = (count: number) => `${count} ${count === 1 ? 'module' : 'modules'} changed`;
 
-const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
+const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
   const [isCopiedOrDownloaded, setIsCopiedOrDownloaded] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsCopiedOrDownloaded(false);
+    }
+  }, [isOpen]);
 
   const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
   const changedModules = useBitriseYmlStore(
@@ -93,82 +99,70 @@ const DialogContent = ({ onClose }: Pick<Props, 'onClose'>) => {
   };
 
   return (
-    <>
-      <BitkitDialog.Body>
-        <Box display="flex" flexDirection="column" gap="24">
-          {isModular && (
-            <BitkitNoteCard
-              status="info"
-              title={moduleCountLabel(changedModules.length)}
-              message={changedModules.map((module) => module.path).join(', ')}
-            />
-          )}
-
-          <Text textStyle="body/lg/regular" color="text/body">
-            {isModular ? (
-              'You need to re-create the changes in the relevant configuration file on your Git repository.'
-            ) : (
-              <>
-                You need to update the content of the configuration YAML in the {gitRepoSlug} repository&apos;s{' '}
-                {defaultBranch} branch.
-              </>
-            )}
-          </Text>
-
-          <Box display="flex" flexDirection="column" gap="24">
-            <BitkitSectionHeading
-              label={isModular ? moduleCountLabel(changedModules.length) : 'Changed configuration'}
-            />
-            <Card.Root elevation={false} overflow="hidden">
-              <Table.Root variant="borderless" size="md">
-                <Table.Body>
-                  {rows.map((row) => (
-                    <Table.Row key={row.key}>
-                      <Table.Cell>{row.name}</Table.Cell>
-                      <Table.Cell display="flex" alignItems="center" justifyContent="flex-end" gap="8">
-                        <BitkitControlButton
-                          icon={IconDownload}
-                          label="Download changed version"
-                          onClick={() => handleDownload(row)}
-                        />
-                        <BitkitControlButton
-                          icon={IconCopy}
-                          label="Copy changed configuration"
-                          onClick={() => handleCopy(row)}
-                        />
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
-            </Card.Root>
-          </Box>
-        </Box>
-      </BitkitDialog.Body>
-      <BitkitDialog.Footer>
-        <BitkitDialog.Buttons>
-          <BitkitButton variant="secondary" onClick={onClose}>
-            Cancel
-          </BitkitButton>
-          <BitkitButton state={!isCopiedOrDownloaded ? 'disabled' : undefined} onClick={onClose}>
-            Done
-          </BitkitButton>
-        </BitkitDialog.Buttons>
-      </BitkitDialog.Footer>
-    </>
-  );
-};
-
-const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
-  return (
     <BitkitDialog
       title="Update configuration YAML"
       open={isOpen}
       onOpenChange={({ open }) => {
         if (!open) onClose();
       }}
+      footerButtons={
+        <>
+          <BitkitButton variant="secondary" onClick={onClose}>
+            Cancel
+          </BitkitButton>
+          <BitkitButton state={!isCopiedOrDownloaded ? 'disabled' : undefined} onClick={onClose}>
+            Done
+          </BitkitButton>
+        </>
+      }
     >
-      <DialogContent onClose={onClose} />
+      <Box display="flex" flexDirection="column" gap="24">
+        {isModular && (
+          <BitkitNoteCard
+            status="info"
+            title={moduleCountLabel(changedModules.length)}
+            message={changedModules.map((module) => module.path).join(', ')}
+          />
+        )}
+
+        <Text textStyle="body/lg/regular" color="text/body">
+          {isModular ? (
+            'You need to re-create the changes in the relevant configuration file on your Git repository.'
+          ) : (
+            <>
+              You need to update the content of the configuration YAML in the {gitRepoSlug} repository&apos;s{' '}
+              {defaultBranch} branch.
+            </>
+          )}
+        </Text>
+
+        <Box display="flex" flexDirection="column" gap="24">
+          <BitkitSectionHeading label={isModular ? moduleCountLabel(changedModules.length) : 'Changed configuration'} />
+          <Card.Root elevation={false} overflow="hidden">
+            <Table.Root variant="borderless" size="md">
+              <Table.Body>
+                {rows.map((row) => (
+                  <Table.Row key={row.key}>
+                    <Table.Cell>{row.name}</Table.Cell>
+                    <Table.Cell display="flex" alignItems="center" justifyContent="flex-end" gap="8">
+                      <BitkitControlButton
+                        icon={IconDownload}
+                        label="Download changed version"
+                        onClick={() => handleDownload(row)}
+                      />
+                      <BitkitControlButton
+                        icon={IconCopy}
+                        label="Copy changed configuration"
+                        onClick={() => handleCopy(row)}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
+          </Card.Root>
+        </Box>
+      </Box>
     </BitkitDialog>
   );
 };

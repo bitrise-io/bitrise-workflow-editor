@@ -15,22 +15,20 @@ const DiscardFileTabDialog = ({ isOpen, fileName, onKeepEditing, onDiscard }: Pr
     onOpenChange={({ open }) => {
       if (!open) onKeepEditing();
     }}
-  >
-    <BitkitDialog.Body>
-      <Text>
-        Closing this tab discards your edits to <Text as="strong">{fileName}</Text>.
-      </Text>
-    </BitkitDialog.Body>
-    <BitkitDialog.Footer>
-      <BitkitDialog.Buttons>
+    footerButtons={
+      <>
         <BitkitButton variant="secondary" onClick={onKeepEditing}>
           Keep editing
         </BitkitButton>
         <BitkitButton variant="danger-primary" onClick={onDiscard}>
           Discard and close
         </BitkitButton>
-      </BitkitDialog.Buttons>
-    </BitkitDialog.Footer>
+      </>
+    }
+  >
+    <Text>
+      Closing this tab discards your edits to <Text as="strong">{fileName}</Text>.
+    </Text>
   </BitkitDialog>
 );
 
