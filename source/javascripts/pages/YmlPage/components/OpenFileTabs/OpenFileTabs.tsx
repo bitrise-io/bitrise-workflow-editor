@@ -15,9 +15,8 @@ const OpenFileTabs = () => {
 
   const discardTab = fileTabs.find((tab) => tab.nodeId === discardNodeId);
 
-  // A purple dot marks an unsaved file; a saved file gets the neutral default dot (which becomes a
-  // close button on hover).
-  const tabStatusColor = (tab: FileTabInfo) => (tab.isDirty ? 'purple' : 'neutral');
+  // A purple dot marks an unsaved file; a saved (unchanged) file has no dot.
+  const tabStatusColor = (tab: FileTabInfo) => (tab.isDirty ? 'purple' : undefined);
 
   // Closing a tab with unsaved edits prompts first; a clean tab closes immediately.
   const handleClose = (tab: FileTabInfo) => {
