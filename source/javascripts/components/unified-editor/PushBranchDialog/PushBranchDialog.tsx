@@ -13,6 +13,8 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PushBranchPayload } from '@/hooks/usePushBranch';
 
+import ChangedModulesNote from '../ChangedModulesNote/ChangedModulesNote';
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -94,6 +96,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         </>
       }
     >
+      <ChangedModulesNote />
       <BitkitRadioGroup
         aria-label="Target branch"
         layout="horizontal"
