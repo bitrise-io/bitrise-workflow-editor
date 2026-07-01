@@ -14,7 +14,7 @@ type ReturnValue = {
 
 // Merge a modular config's containers post-order (included files first, then the including file) so a
 // node outranks the files it includes — matching modular precedence when the same container id is
-// defined in more than one file. (toJSON is cached per document identity, so this stays cheap.)
+// defined in more than one file.
 function collectContainers(node: TreeNode, files: Record<string, FileSlice>, acc: Containers): void {
   node.includes.forEach((child) => collectContainers(child, files, acc));
   const slice = files[node.nodeId];
