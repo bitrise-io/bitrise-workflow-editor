@@ -52,6 +52,61 @@ const DEFAULT_MACHINES: MachineApiItem[] = [
 function groupedStacks(options?: Options): StackGroupApiItem[] {
   return [
     {
+      label: 'Stable Stacks',
+      status: 'stable' as StackStatus,
+      stacks: [
+        {
+          id: 'osx-xcode-16.0.x',
+          title: 'Xcode 16.0.x',
+          status: 'stable',
+          os: 'macos',
+          description:
+            'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
+          machines:
+            options?.privateCloud === 'no-machines'
+              ? []
+              : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large'],
+        },
+        {
+          id: 'osx-xcode-15.0.x',
+          title: 'Xcode 15.0.x',
+          status: 'stable',
+          os: 'macos',
+          description:
+            'Xcode 15.0 based on macOS 14.1 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
+          machines: options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
+          rollback_version: {
+            'm1.medium': {
+              paying: '2-82-0',
+            },
+            'm1.large': {
+              paying: '2-82-0',
+            },
+            'm2.medium': {
+              free: '2-82-0',
+              paying: '2-82-0',
+            },
+            'm2.large': {
+              free: '2-82-0',
+              paying: '2-82-0',
+            },
+          },
+        },
+        {
+          id: 'ubuntu-jammy-22.04-bitrise-2024',
+          title: 'Ubuntu Jammy - Bitrise 2024 Edition',
+          status: 'stable',
+          os: 'linux',
+          description:
+            'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
+          machines:
+            options?.privateCloud === 'no-machines'
+              ? []
+              : ['standard', 'intel.medium', 'intel.large', 'amd.medium', 'amd.large', 'amd.x-large'],
+        },
+      ],
+    },
+    {
       label: 'Edge Stacks',
       status: 'edge' as StackStatus,
       stacks: [
@@ -120,61 +175,6 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
                   'machine-z1',
                   'machine-z2',
                 ],
-        },
-      ],
-    },
-    {
-      label: 'Stable Stacks',
-      status: 'stable' as StackStatus,
-      stacks: [
-        {
-          id: 'osx-xcode-16.0.x',
-          title: 'Xcode 16.0.x',
-          status: 'stable',
-          os: 'macos',
-          description:
-            'Xcode 16.0 based on macOS 14.5 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-          machines:
-            options?.privateCloud === 'no-machines'
-              ? []
-              : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large', 'm2.x-large'],
-        },
-        {
-          id: 'osx-xcode-15.0.x',
-          title: 'Xcode 15.0.x',
-          status: 'stable',
-          os: 'macos',
-          description:
-            'Xcode 15.0 based on macOS 14.1 Sonoma.\n\nThe Android SDK and other common mobile tools are also installed.',
-          machines: options?.privateCloud === 'no-machines' ? [] : ['m1.medium', 'm1.large', 'm2.medium', 'm2.large'],
-          rollback_version: {
-            'm1.medium': {
-              paying: '2-82-0',
-            },
-            'm1.large': {
-              paying: '2-82-0',
-            },
-            'm2.medium': {
-              free: '2-82-0',
-              paying: '2-82-0',
-            },
-            'm2.large': {
-              free: '2-82-0',
-              paying: '2-82-0',
-            },
-          },
-        },
-        {
-          id: 'ubuntu-jammy-22.04-bitrise-2024',
-          title: 'Ubuntu Jammy - Bitrise 2024 Edition',
-          status: 'stable',
-          os: 'linux',
-          description:
-            'Docker container environment based on Ubuntu 22.04. Preinstalled Android SDK and other common tools.',
-          machines:
-            options?.privateCloud === 'no-machines'
-              ? []
-              : ['standard', 'intel.medium', 'intel.large', 'amd.medium', 'amd.large', 'amd.x-large'],
         },
       ],
     },
