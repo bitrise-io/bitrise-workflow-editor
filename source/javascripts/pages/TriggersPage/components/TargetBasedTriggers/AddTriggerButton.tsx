@@ -10,9 +10,14 @@ type Props = {
 const AddTriggerButton = ({ onAddTrigger }: Props) => {
   const isReadOnlyView = useIsReadOnlyView();
 
+  // Read-only views (merged config, cross-repo/ref files) can't add — show no button at all.
+  if (isReadOnlyView) {
+    return null;
+  }
+
   return (
     <Menu>
-      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus" isDisabled={isReadOnlyView}>
+      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus">
         Add trigger
       </MenuButton>
       <MenuList>

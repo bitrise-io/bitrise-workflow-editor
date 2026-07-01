@@ -96,7 +96,8 @@ const EntitySelector = (props: EntitySelectorProps) => {
           description="Modify your search to get results"
         />
       )}
-      {(!!onCreate || isAIButtonVisible) && (
+      {/* Read-only views (merged config, cross-repo/ref files) can't create — show no footer at all. */}
+      {!isReadOnlyView && (!!onCreate || isAIButtonVisible) && (
         <Box
           paddingY="8"
           position="sticky"
@@ -115,7 +116,6 @@ const EntitySelector = (props: EntitySelectorProps) => {
               leftIconName="Plus"
               variant="tertiary"
               width="100%"
-              isDisabled={isReadOnlyView}
               onClick={handleCreate}
             >
               Create {entityName}
@@ -137,7 +137,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
                 }
                 variant="tertiary"
                 width="100%"
-                isDisabled={isAIButtonDisabled || isReadOnlyView}
+                isDisabled={isAIButtonDisabled}
                 onClick={handleCreateWithAI}
               >
                 Create {entityName} with AI

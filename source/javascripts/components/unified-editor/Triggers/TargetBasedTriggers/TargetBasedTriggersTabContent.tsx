@@ -79,7 +79,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
           label="Enable triggers"
           helperText="When disabled and saved, none of the triggers below will execute a build."
           isChecked={triggers.enabled !== false}
-          isDisabled={isReadOnly}
+          isReadOnly={isReadOnly}
           onChange={handleGlobalTriggerEnabledToggled}
         />
       </Card>

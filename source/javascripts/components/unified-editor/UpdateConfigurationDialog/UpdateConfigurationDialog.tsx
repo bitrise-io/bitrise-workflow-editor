@@ -2,7 +2,6 @@ import {
   BitkitButton,
   BitkitControlButton,
   BitkitDialog,
-  BitkitNoteCard,
   BitkitSectionHeading,
   createBitkitToast,
   IconCopy,
@@ -16,12 +15,13 @@ import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
-import TreeService from '@/core/services/TreeService';
-import { getFileYmlString, getYmlString, isFileDirty } from '@/core/stores/BitriseYmlStore';
+import { getFileYmlString, getYmlString } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useShallow } from '@/hooks/useShallow';
+import useChangedModules, { moduleCountLabel } from '@/hooks/useChangedModules';
+
+import ChangedModulesNote from '../ChangedModulesNote/ChangedModulesNote';
 
 type Props = {
   isOpen: boolean;
@@ -35,8 +35,6 @@ type ChangedFileRow = {
   getContent: () => string;
 };
 
-const moduleCountLabel = (count: number) => `${count} ${count === 1 ? 'module' : 'modules'} changed`;
-
 const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const [, copyToClipboard] = useCopyToClipboard();
   const { defaultBranch, gitRepoSlug } = PageProps.app() ?? {};
@@ -49,23 +47,15 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   }, [isOpen]);
 
   const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
-  const changedModules = useBitriseYmlStore(
-    useShallow((s) =>
-      !s.tree
-        ? []
-        : Object.values(s.files)
-            .filter((slice) => isFileDirty(slice))
-            .map((slice) => ({ nodeId: slice.nodeId, path: slice.path, name: TreeService.fileName(slice.path) })),
-    ),
-  );
+  const changedModules = useChangedModules();
 
   // Single config → one synthetic "bitrise.yml" row (the whole config); modular → one row per changed module file.
   const rows: ChangedFileRow[] = isModular
-    ? changedModules.map(({ nodeId, path, name }) => ({
+    ? changedModules.map(({ nodeId, path }) => ({
         key: nodeId,
-        name,
-        // Full path (slashes → dashes) as the download filename so same-named modules in different
-        // folders don't collide; the basename stays the displayed label (full paths are in the note above).
+        // Show the full module path; download it flattened (slashes → dashes) so same-named modules
+        // in different folders don't collide as downloaded files.
+        name: path,
         downloadName: path.replace(/\//g, '-'),
         getContent: () => getFileYmlString(nodeId),
       }))
@@ -117,13 +107,7 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
       }
     >
       <Box display="flex" flexDirection="column" gap="24">
-        {isModular && (
-          <BitkitNoteCard
-            status="info"
-            title={moduleCountLabel(changedModules.length)}
-            message={changedModules.map((module) => module.path).join(', ')}
-          />
-        )}
+        <ChangedModulesNote />
 
         <Text textStyle="body/lg/regular" color="text/body">
           {isModular ? (

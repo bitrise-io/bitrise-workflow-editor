@@ -13,6 +13,8 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { PushBranchPayload } from '@/hooks/usePushBranch';
 
+import ChangedModulesNote from '../ChangedModulesNote/ChangedModulesNote';
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -34,7 +36,7 @@ function validateBranchName(branch: string): string | true {
     GIT_BRANCH_INVALID_START.test(branch) ||
     GIT_BRANCH_INVALID_END.test(branch)
   ) {
-    return 'Invalid branch name. Must follow git branch naming rules.';
+    return 'Invalid branch name. Must follow Git branch naming rules.';
   }
   return true;
 }
@@ -94,6 +96,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         </>
       }
     >
+      <ChangedModulesNote />
       <BitkitRadioGroup
         aria-label="Target branch"
         layout="horizontal"
@@ -120,7 +123,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
           <BitkitTextInput
             label="Target branch"
             placeholder="new-branch-name"
-            helperText="Must follow git branch naming rules."
+            helperText="Must follow Git branch naming rules."
             state={isCurrentBranch ? 'readOnly' : undefined}
             errorText={fieldState.error?.message}
             inputProps={field}
@@ -135,7 +138,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
           <BitkitTextArea
             label="Commit message"
             placeholder="e.g. Update bitrise.yml via Workflow Editor"
-            helperText="Appears in your git commit history."
+            helperText="Appears in your Git commit history."
             textareaProps={field}
           />
         )}

@@ -80,7 +80,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
       trackPushConfigChangesSucceeded(configBranch, branch);
       toast({
         title: 'Changes pushed successfully',
-        description: 'Continue in your git provider and open a pull request.',
+        description: 'Continue in your Git provider and open a pull request.',
         status: 'success',
         isClosable: true,
         action: data?.pr_url
