@@ -27,10 +27,14 @@ const StepBundleContainersTab = () => {
   }
 
   const handleAdd = (containerId: string) => {
+    // The container may be defined in another module, so its type comes from the aggregated list.
+    const containerType = serviceContainers.some((container) => container.id === containerId)
+      ? ContainerType.Service
+      : ContainerType.Execution;
     if (isDefinition) {
-      ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId);
+      ContainerService.addContainerReference('step_bundles', stepBundleId, -1, containerId, containerType);
     } else {
-      ContainerService.addContainerReference(source, sourceId, stepIndex, containerId);
+      ContainerService.addContainerReference(source, sourceId, stepIndex, containerId, containerType);
     }
   };
 

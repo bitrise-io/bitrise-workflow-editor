@@ -20,7 +20,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
 
         const expectedYml = yaml`
         containers:
@@ -55,7 +55,7 @@ describe('ContainerService', () => {
                   execution_container: other-container
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'my-container', ContainerType.Execution);
 
         const expectedYml = yaml`
         containers:
@@ -76,7 +76,9 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
-      it('should throw an error if container does not exist', () => {
+      it('adds the reference even when the container is defined in another module (not in the active document)', () => {
+        // Modular config: the workflow's file has no `containers` section — the definition lives in a
+        // different module. The reference must still be added (the caller supplies the type).
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -85,9 +87,18 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent')).toThrow(
-          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
-        );
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'from-other-module', ContainerType.Execution);
+
+        const expectedYml = yaml`
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  title: Test
+                  execution_container: from-other-module
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
       });
 
       it('should throw an error if workflow does not exist', () => {
@@ -98,9 +109,15 @@ describe('ContainerService', () => {
             image: ubuntu:20.04
       `);
 
-        expect(() => ContainerService.addContainerReference('workflows', 'non-existent', 0, 'my-container')).toThrow(
-          'workflows.non-existent not found',
-        );
+        expect(() =>
+          ContainerService.addContainerReference(
+            'workflows',
+            'non-existent',
+            0,
+            'my-container',
+            ContainerType.Execution,
+          ),
+        ).toThrow('workflows.non-existent not found');
       });
 
       it('should throw an error if step does not exist', () => {
@@ -116,9 +133,9 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 5, 'my-container')).toThrow(
-          'Step at index 5 not found in workflows.wf1',
-        );
+        expect(() =>
+          ContainerService.addContainerReference('workflows', 'wf1', 5, 'my-container', ContainerType.Execution),
+        ).toThrow('Step at index 5 not found in workflows.wf1');
       });
     });
     describe('service container target', () => {
@@ -135,7 +152,7 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service);
 
         const expectedYml = yaml`
         containers:
@@ -172,7 +189,7 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        ContainerService.addContainerReference('workflows', 'wf1', 0, 'redis');
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'redis', ContainerType.Service);
 
         const expectedYml = yaml`
         containers:
@@ -210,9 +227,9 @@ describe('ContainerService', () => {
                     - postgres
       `);
 
-        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres')).toThrow(
-          "Service container 'postgres' is already added to the step",
-        );
+        expect(() =>
+          ContainerService.addContainerReference('workflows', 'wf1', 0, 'postgres', ContainerType.Service),
+        ).toThrow("Service container 'postgres' is already added to the step");
       });
 
       it('should throw an error if service is already added to a step bundle', () => {
@@ -227,12 +244,14 @@ describe('ContainerService', () => {
               - postgres
       `);
 
-        expect(() => ContainerService.addContainerReference('step_bundles', 'my_bundle', -1, 'postgres')).toThrow(
-          "Service container 'postgres' is already added to step bundle 'my_bundle'",
-        );
+        expect(() =>
+          ContainerService.addContainerReference('step_bundles', 'my_bundle', -1, 'postgres', ContainerType.Service),
+        ).toThrow("Service container 'postgres' is already added to step bundle 'my_bundle'");
       });
 
-      it('should throw an error if service does not exist', () => {
+      it('adds a service reference even when the container is defined in another module', () => {
+        // Modular config: the container definition lives in another module file, so the active
+        // document has no matching `containers` entry — the reference is still added.
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -241,9 +260,19 @@ describe('ContainerService', () => {
                   title: Test
       `);
 
-        expect(() => ContainerService.addContainerReference('workflows', 'wf1', 0, 'non-existent')).toThrow(
-          "Container non-existent not found. Ensure that the container exists in the 'containers' section.",
-        );
+        ContainerService.addContainerReference('workflows', 'wf1', 0, 'from-other-module', ContainerType.Service);
+
+        const expectedYml = yaml`
+        workflows:
+          wf1:
+            steps:
+              - script:
+                  title: Test
+                  service_containers:
+                    - from-other-module
+      `;
+
+        expect(getYmlString()).toEqual(expectedYml);
       });
     });
   });

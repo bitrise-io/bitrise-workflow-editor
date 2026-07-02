@@ -71,11 +71,12 @@ function addContainerReference(
   sourceId: string,
   stepIndex: number,
   containerId: string,
+  containerType: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(containerId, doc);
-    const type = container.get('type') as ContainerType;
-
+    // The container definition may live in a different module file than the step being edited, so we
+    // don't look it up in the active document. The caller passes the type (known from the aggregated
+    // container list); the reference is added to the active file, where the step/step bundle lives.
     let yamlMap;
     if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
@@ -83,11 +84,11 @@ function addContainerReference(
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
     }
 
-    if (type === ContainerType.Execution) {
+    if (containerType === ContainerType.Execution) {
       YmlUtils.setIn(yamlMap, [ContainerReferenceField.Execution], containerId);
     }
 
-    if (type === ContainerType.Service) {
+    if (containerType === ContainerType.Service) {
       if (YmlUtils.isInSeq(yamlMap, [ContainerReferenceField.Service], containerId)) {
         const context = stepIndex === -1 ? `step bundle '${sourceId}'` : 'the step';
         throw new Error(`Service container '${containerId}' is already added to ${context}`);

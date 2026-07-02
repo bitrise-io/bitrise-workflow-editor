@@ -8,12 +8,20 @@ import useContainers from '@/hooks/useContainers';
 const StepContainersTab = () => {
   const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
 
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
+
   const handleAdd = (containerId: string) => {
+    // The container may be defined in another module, so its type comes from the aggregated list.
+    const containerType = serviceContainers.some((container) => container.id === containerId)
+      ? ContainerType.Service
+      : ContainerType.Execution;
     ContainerService.addContainerReference(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
+      containerType,
     );
   };
 
@@ -38,9 +46,6 @@ const StepContainersTab = () => {
 
   const source = stepBundleId ? 'step_bundles' : 'workflows';
   const sourceId = stepBundleId || workflowId;
-
-  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
-    useContainers();
 
   const { instance } = useContainerReferences({
     source,
