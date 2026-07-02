@@ -1,9 +1,20 @@
-import { ParsedToolVersion, VersionStrategy } from '../models/Tools';
+import ToolCatalogApi from '../api/ToolCatalogApi';
+import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
+
+/** Fetch the catalog index. Rejects with a `ToolCatalogError` when unavailable. */
+function getToolCatalog(): Promise<ToolCatalog> {
+  return ToolCatalogApi.getToolCatalog();
+}
+
+/** Fetch a single tool's version list. Rejects with a `ToolCatalogError` when unavailable. */
+function getToolVersions(toolId: string): Promise<ToolVersions> {
+  return ToolCatalogApi.getToolVersions(toolId);
+}
 
 function parseToolVersion(raw: string): ParsedToolVersion {
   const lower = raw.toLowerCase();
@@ -142,4 +153,6 @@ export default {
   deleteTool,
   validateToolId,
   validateToolVersion,
+  getToolCatalog,
+  getToolVersions,
 };

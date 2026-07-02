@@ -1,8 +1,18 @@
 import ToolsService from '@/core/services/ToolsService';
 
+import ToolCatalogApi from '../api/ToolCatalogApi';
+import { ToolVersions } from '../models/Tools';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
+function versionCatalog(toolId: string, versions: string[], isSemver = true): ToolVersions {
+  return { toolId, versions: versions.map((version) => ({ version, isSemver })) };
+}
+
 describe('ToolsService', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('parseToolVersion', () => {
     it('parses "latest" as latest-released without prefix', () => {
       expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'latest-released' });
@@ -344,6 +354,46 @@ describe('ToolsService', () => {
 
         expect(() => ToolsService.deleteTool('node', { type: 'workflow', workflowId: 'missing' })).toThrow();
       });
+    });
+  });
+
+  describe('getToolCatalog', () => {
+    it('returns the fetched catalog', async () => {
+      jest.spyOn(ToolCatalogApi, 'getToolCatalog').mockResolvedValue({
+        tools: [
+          { name: 'nodejs', aliases: [] },
+          { name: 'golang', aliases: [] },
+        ],
+      });
+
+      await expect(ToolsService.getToolCatalog()).resolves.toEqual({
+        tools: [
+          { name: 'nodejs', aliases: [] },
+          { name: 'golang', aliases: [] },
+        ],
+      });
+    });
+
+    it('propagates a rejection from the API', async () => {
+      jest.spyOn(ToolCatalogApi, 'getToolCatalog').mockRejectedValue(new Error('boom'));
+
+      await expect(ToolsService.getToolCatalog()).rejects.toThrow('boom');
+    });
+  });
+
+  describe('getToolVersions', () => {
+    it('returns the fetched version catalog', async () => {
+      jest.spyOn(ToolCatalogApi, 'getToolVersions').mockResolvedValue(versionCatalog('nodejs', ['26.4.0', '24.16.0']));
+
+      await expect(ToolsService.getToolVersions('nodejs')).resolves.toEqual(
+        versionCatalog('nodejs', ['26.4.0', '24.16.0']),
+      );
+    });
+
+    it('propagates a rejection from the API', async () => {
+      jest.spyOn(ToolCatalogApi, 'getToolVersions').mockRejectedValue(new Error('boom'));
+
+      await expect(ToolsService.getToolVersions('nodejs')).rejects.toThrow('boom');
     });
   });
 });
