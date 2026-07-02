@@ -69,9 +69,6 @@ export const CliMode: Story = {
 };
 
 export const WebsiteMode: Story = {
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-wfe-step-bundles-when-to-run', true);
-  },
   parameters: {
     msw: {
       handlers: [
