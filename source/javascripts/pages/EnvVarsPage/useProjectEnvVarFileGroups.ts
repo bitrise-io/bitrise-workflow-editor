@@ -62,8 +62,7 @@ export function useWorkflowEnvVarFileGroups(): WorkflowEnvVarFileGroup[] {
       }
       // Read just the `workflows` subtree, not the whole document.
       const workflows = YmlUtils.getMapIn(doc, ['workflows'])?.toJSON() as
-        | Record<string, { envs?: unknown[] }>
-        | undefined;
+        Record<string, { envs?: unknown[] }> | undefined;
       if (!workflows) {
         return;
       }
