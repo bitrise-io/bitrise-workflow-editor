@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
+
 import { Tools } from '@/core/models/BitriseYml';
-import { ToolScope } from '@/core/services/ToolsService';
+import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 export function useToolsForScope(scope: ToolScope): Tools {
@@ -8,5 +10,24 @@ export function useToolsForScope(scope: ToolScope): Tools {
       return yml.workflows?.[scope.workflowId]?.tools ?? {};
     }
     return yml.tools ?? {};
+  });
+}
+
+export function useToolCatalog() {
+  return useQuery({
+    queryKey: ['tool-catalog'],
+    queryFn: () => ToolsService.getToolCatalog(),
+    staleTime: 30 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
+}
+
+export function useToolVersions(toolId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['tool-versions', toolId],
+    queryFn: () => ToolsService.getToolVersions(toolId),
+    staleTime: 30 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    enabled,
   });
 }
