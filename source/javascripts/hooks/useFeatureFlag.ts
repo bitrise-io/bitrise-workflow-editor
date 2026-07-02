@@ -1,7 +1,6 @@
 import GlobalProps from '@/core/utils/GlobalProps';
 
 const defaultValues = {
-  'enable-wfe-step-bundles-when-to-run': false,
   'enable-ci-config-expert-agent': false,
   'enable-branch-switching': false,
   'enable-wfe-tool-versions': false,
