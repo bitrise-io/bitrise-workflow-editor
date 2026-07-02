@@ -247,8 +247,7 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 
   if (type === ContainerType.Service) {
     const serviceContainers = YmlUtils.getSeqIn(yamlMap, [ContainerReferenceField.Service])?.toJSON() as
-      | ContainerReferenceValue[]
-      | undefined;
+      ContainerReferenceValue[] | undefined;
 
     if (serviceContainers && serviceContainers.length > 0) {
       return serviceContainers.map(parseContainerReference);

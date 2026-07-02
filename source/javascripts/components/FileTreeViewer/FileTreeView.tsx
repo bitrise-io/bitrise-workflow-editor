@@ -26,18 +26,19 @@ type RenderNode = {
 const GROUP_ROOT_ID = '__group_root__';
 
 function toRenderNode(folder: FileTreeFolder): RenderNode[] {
-  const folders = folder.folders.map(
-    (child): RenderNode => ({ id: child.id, label: child.label, isFile: false, children: toRenderNode(child) }),
-  );
-  const files = folder.files.map(
-    (file): RenderNode => ({
-      id: file.nodeId,
-      label: file.fileName,
-      isFile: true,
-      node: file.node,
-      children: [],
-    }),
-  );
+  const folders = folder.folders.map((child): RenderNode => ({
+    id: child.id,
+    label: child.label,
+    isFile: false,
+    children: toRenderNode(child),
+  }));
+  const files = folder.files.map((file): RenderNode => ({
+    id: file.nodeId,
+    label: file.fileName,
+    isFile: true,
+    node: file.node,
+    children: [],
+  }));
   return [...files, ...folders];
 }
 

@@ -119,6 +119,22 @@ export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntit
   });
 }
 
+export type EntityDefinitionPath = { nodeId: string; path: string };
+
+/**
+ * Every file that defines the entity, in precedence order (top-most first), with paths resolved.
+ * Unlike {@link useCrossFileEntity}, this doesn't short-circuit when the entity is also defined
+ * locally — so it can surface the full "defined in module A, module B" set for a multi-module entity.
+ * Empty in single-file mode (the entity index only tracks modular configs).
+ */
+export function useEntityDefinitionPaths(kind: EntityKind, id: string): EntityDefinitionPath[] {
+  return useBitriseYmlStore((s) =>
+    EntityIndexService.definitionsOf(s.entityIndex, kind, id)
+      .map((definition) => ({ nodeId: definition.nodeId, path: s.files[definition.nodeId]?.path }))
+      .filter((definition): definition is EntityDefinitionPath => Boolean(definition.path)),
+  );
+}
+
 export type FileEntityGroup = { nodeId: string; path: string; ids: string[] };
 
 /**
