@@ -5,7 +5,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
-import useContainers from '@/hooks/useContainers';
+import { useModuleContainers } from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
@@ -15,7 +15,7 @@ import GroupedContainersTables from './GroupedContainersTables';
 const ServiceContainersTab = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const containerUsageLookup = useContainerWorkflowUsage();
-  const { [ContainerType.Service]: containers } = useContainers();
+  const { [ContainerType.Service]: containers } = useModuleContainers();
 
   const [editedContainer, setEditedContainer] = useState<Container | null>(null);
   const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
