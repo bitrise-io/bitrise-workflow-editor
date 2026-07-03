@@ -15,23 +15,24 @@ type GroupProps = {
 
 const WorkflowStackGroup = ({ workflowId, showDefinition }: GroupProps) => {
   const definingPath = useDefiningFilePath('workflows', workflowId);
+  const showJump = showDefinition && Boolean(definingPath);
 
   return (
     <Box>
-      <Box display="flex" alignItems="flex-start" justifyContent="space-between" gap="8" mb="12">
-        <Box>
-          <Text as="h4" textStyle="heading/h4">
-            {workflowId}
+      <Box mb="12">
+        <Text as="h4" textStyle="heading/h4">
+          {workflowId}
+        </Text>
+        {showJump && (
+          <Text textStyle="body/sm/regular" color="text/secondary">
+            Defined in {definingPath}
           </Text>
-          {showDefinition && definingPath && (
-            <Text textStyle="body/sm/regular" color="text/secondary">
-              Defined in {definingPath}
-            </Text>
-          )}
-        </Box>
-        {showDefinition && definingPath && <CrossFileJumpButton kind="workflows" id={workflowId} />}
+        )}
       </Box>
-      <WorkflowStackAndMachine workflowId={workflowId} />
+      <WorkflowStackAndMachine
+        workflowId={workflowId}
+        selectsTrailing={showJump ? <CrossFileJumpButton kind="workflows" id={workflowId} /> : undefined}
+      />
     </Box>
   );
 };

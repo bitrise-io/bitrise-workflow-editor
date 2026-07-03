@@ -1,14 +1,15 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
 import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 
 import FilePickerMenu from '@/components/JumpToDefinitionLink/FilePickerMenu';
 import DefaultStackAndMachine from '@/components/StacksAndMachine/DefaultStackAndMachine';
 import TabContainer from '@/components/tabs/TabContainer';
-import { openTab } from '@/core/stores/BitriseYmlStore';
+import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ROOT_META_STACK_FIELDS,
+  useInheritedDefaultStack,
   useIsMergedConfigSelected,
   useRootMetaStackDefinitions,
   useTree,
@@ -22,6 +23,7 @@ const DefaultTab = () => {
   // Memoized so the picker's restricted node set keeps a stable identity across renders
   // (a fresh array would rebuild FileTreeView's collection and reset its expansion state).
   const metaNodeIds = useMemo(() => metaDefinitions.map((definition) => definition.nodeId), [metaDefinitions]);
+  const inheritedDefault = useInheritedDefaultStack();
 
   // Whether the active document itself defines a default stack/machine. On a single module-file tab
   // `yml` is that file; on the merged tab it's the whole config. Key presence (not truthiness) so a
@@ -31,38 +33,63 @@ const DefaultTab = () => {
     return Boolean(meta && ROOT_META_STACK_FIELDS.some((field) => field in meta));
   });
 
-  // Modular single module-file tab that doesn't define the default → nothing to show here.
-  if (isModular && !isMergedView && !hasLocalDefault) {
+  // Jump-to-definition arrow over the file(s) defining the default. Rendered inside the stack card
+  // (trailing the selectors), not in a separate header above it.
+  const jumpButton =
+    tree && metaNodeIds.length > 0 ? (
+      <FilePickerMenu
+        rootNode={tree}
+        nodeIds={metaNodeIds}
+        onSelect={(nodeId) => {
+          recordActiveTabLocation(window.parent.location.hash);
+          openTab(nodeId, { preview: false });
+        }}
+        trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
+      />
+    ) : null;
+
+  // Merged (read-only) view: show where the default is defined + a jump; the values come from the
+  // merged document (StackAndMachine renders read-only on the merged view).
+  if (isModular && isMergedView) {
+    const definingPath = metaDefinitions.length
+      ? `${metaDefinitions[0].path}${metaDefinitions.length > 1 ? ` (+${metaDefinitions.length - 1} more)` : ''}`
+      : undefined;
+
     return (
       <TabContainer>
-        <Text textStyle="body/md/regular" color="text/secondary">
-          No default stack & machine is defined in this file.
-        </Text>
+        <DefaultStackAndMachine definingPath={definingPath} selectsTrailing={jumpButton} />
       </TabContainer>
     );
   }
 
-  // Merged (read-only) view: show where the default is defined + a jump-to-definition arrow.
-  const showDefinition = isMergedView && metaDefinitions.length > 0;
+  // Module tab that doesn't define the default: show the inherited default read-only, sourced from the
+  // defining module, with a jump to where it's actually defined.
+  if (isModular && !hasLocalDefault) {
+    if (!inheritedDefault) {
+      return (
+        <TabContainer>
+          <Text textStyle="body/md/regular" color="text/secondary">
+            No default stack & machine is defined.
+          </Text>
+        </TabContainer>
+      );
+    }
 
+    return (
+      <TabContainer>
+        <DefaultStackAndMachine
+          definingPath={inheritedDefault.definingPath}
+          value={inheritedDefault.value}
+          readOnly
+          selectsTrailing={jumpButton}
+        />
+      </TabContainer>
+    );
+  }
+
+  // Single-file config, or a module that defines its own default: editable, no provenance.
   return (
     <TabContainer>
-      {showDefinition && (
-        <Box display="flex" alignItems="center" justifyContent="space-between" gap="8" mb="8">
-          <Text textStyle="body/sm/regular" color="text/secondary">
-            Defined in {metaDefinitions[0].path}
-            {metaDefinitions.length > 1 ? ` (+${metaDefinitions.length - 1} more)` : ''}
-          </Text>
-          {tree && (
-            <FilePickerMenu
-              rootNode={tree}
-              nodeIds={metaNodeIds}
-              onSelect={(nodeId) => openTab(nodeId, { preview: false })}
-              trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
-            />
-          )}
-        </Box>
-      )}
       <DefaultStackAndMachine />
     </TabContainer>
   );
