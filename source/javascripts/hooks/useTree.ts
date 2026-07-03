@@ -207,38 +207,67 @@ export function useRootMetaStackDefinitions(): RootMetaDefinition[] {
   });
 }
 
+export type DefaultStackValue = { stackId: string; machineTypeId: string; stackRollbackVersion: string };
+
+export type DefaultStackDefinition = {
+  nodeId: string;
+  path: string;
+  value: DefaultStackValue;
+};
+
+/**
+ * Each file that defines a root default stack/machine, highest-precedence-first, with its own values.
+ * Powers the merged Default tab's per-module breakdown (one card per defining file). Empty outside
+ * modular mode or when no file defines a default.
+ */
+export function useDefaultStackDefinitions(): DefaultStackDefinition[] {
+  const definitions = useRootMetaStackDefinitions();
+  return useBitriseYmlStore((s) =>
+    definitions
+      .map((definition) => {
+        const doc = s.files[definition.nodeId]?.ymlDocument;
+        const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
+        if (!meta) {
+          return undefined;
+        }
+        return {
+          nodeId: definition.nodeId,
+          path: definition.path,
+          value: {
+            stackId: String(meta.get('stack') ?? ''),
+            machineTypeId: String(meta.get('machine_type_id') ?? ''),
+            stackRollbackVersion: String(meta.get('stack_rollback_version') ?? ''),
+          },
+        };
+      })
+      .filter((definition): definition is DefaultStackDefinition => Boolean(definition)),
+  );
+}
+
 export type InheritedDefaultStack = {
   /** Path of the top-most file defining the default (for the "Defined in …" subtitle). */
   definingPath: string;
   /** All files defining a default, highest-precedence-first (for the jump-to-definition picker). */
   nodeIds: string[];
-  value: { stackId: string; machineTypeId: string; stackRollbackVersion: string };
+  value: DefaultStackValue;
 };
 
 /**
- * The effective default stack & machine inherited by a module that doesn't define its own — sourced
- * from the top-most (winning) `meta['bitrise.io']` definition, so a module tab can show it read-only.
- * Undefined outside modular mode or when no file defines a default.
+ * The effective default stack & machine inherited by a module that doesn't define its own — the
+ * top-most (winning) definition, so a module tab can show it read-only. Undefined outside modular mode
+ * or when no file defines a default.
  */
 export function useInheritedDefaultStack(): InheritedDefaultStack | undefined {
-  const definitions = useRootMetaStackDefinitions();
-  return useBitriseYmlStore((s) => {
-    const top = definitions[0];
-    const doc = top ? s.files[top.nodeId]?.ymlDocument : undefined;
-    const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
-    if (!top || !meta) {
-      return undefined;
-    }
-    return {
-      definingPath: top.path,
-      nodeIds: definitions.map((definition) => definition.nodeId),
-      value: {
-        stackId: String(meta.get('stack') ?? ''),
-        machineTypeId: String(meta.get('machine_type_id') ?? ''),
-        stackRollbackVersion: String(meta.get('stack_rollback_version') ?? ''),
-      },
-    };
-  });
+  const definitions = useDefaultStackDefinitions();
+  const top = definitions[0];
+  if (!top) {
+    return undefined;
+  }
+  return {
+    definingPath: top.path,
+    nodeIds: definitions.map((definition) => definition.nodeId),
+    value: top.value,
+  };
 }
 
 /** node_ids of files with unsaved edits. */

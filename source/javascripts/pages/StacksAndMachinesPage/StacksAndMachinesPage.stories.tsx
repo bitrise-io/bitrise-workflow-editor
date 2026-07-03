@@ -187,6 +187,25 @@ const ROOT_YML = [
 
 const MODULE_YML = ['workflows:', '  deploy:', '    steps: []', ''].join('\n');
 
+// A module that also defines its own default (for the merged per-module breakdown, BIVS-3714).
+const MODULE_YML_WITH_DEFAULT = [
+  'meta:',
+  '  bitrise.io:',
+  '    stack: ubuntu-jammy-22.04-bitrise-2024',
+  '    machine_type_id: standard',
+  'workflows:',
+  '  deploy:',
+  '    steps: []',
+  '',
+].join('\n');
+
+// Neither file defines a default (hidden/platform default applies).
+const ROOT_YML_NO_DEFAULT = ['workflows:', '  primary:', '    steps: []', ''].join('\n');
+
+const MERGED_YML_NO_DEFAULT = ['workflows:', '  primary:', '    steps: []', '  deploy:', '    steps: []', ''].join(
+  '\n',
+);
+
 const MERGED_YML = [
   'meta:',
   '  bitrise.io:',
@@ -213,10 +232,10 @@ const modularSlice = (nodeId: string, path: string, contents: string): FileSlice
   };
 };
 
-const modularTree = (): TreeNode => ({
+const modularTree = (rootContents: string, moduleContents: string): TreeNode => ({
   nodeId: 'root',
   path: 'bitrise.yml',
-  contents: ROOT_YML,
+  contents: rootContents,
   source: null,
   commitSha: MODULAR_SHA,
   editable: true,
@@ -224,7 +243,7 @@ const modularTree = (): TreeNode => ({
     {
       nodeId: 'n_mod',
       path: 'ci/deploy.yml',
-      contents: MODULE_YML,
+      contents: moduleContents,
       source: { path: 'ci/deploy.yml', repository: null, branch: null, tag: null, commit: null },
       commitSha: MODULAR_SHA,
       editable: true,
@@ -233,27 +252,73 @@ const modularTree = (): TreeNode => ({
   ],
 });
 
-const modularFiles = () => ({
-  root: modularSlice('root', 'bitrise.yml', ROOT_YML),
-  n_mod: modularSlice('n_mod', 'ci/deploy.yml', MODULE_YML),
+const modularFiles = (rootContents: string, moduleContents: string) => ({
+  root: modularSlice('root', 'bitrise.yml', rootContents),
+  n_mod: modularSlice('n_mod', 'ci/deploy.yml', moduleContents),
 });
 
-// Merged (read-only) view: "Defined in …" + the jump arrow now sit on the stack card next to the
-// selectors, and the Workflows tab shows the same per-workflow.
+const modularStore = ({
+  rootContents,
+  moduleContents,
+  selectedNodeId,
+  activeContents,
+  mergedYml = MERGED_YML,
+}: {
+  rootContents: string;
+  moduleContents: string;
+  selectedNodeId: string;
+  activeContents: string;
+  mergedYml?: string;
+}) => {
+  const activeDoc = YmlUtils.toDoc(activeContents);
+  return {
+    tree: modularTree(rootContents, moduleContents),
+    files: modularFiles(rootContents, moduleContents),
+    selectedNodeId,
+    mergedYml,
+    ymlDocument: activeDoc,
+    savedYmlDocument: activeDoc,
+    yml: YmlUtils.toJSON(activeDoc),
+  };
+};
+
+// Merged (read-only) view, default defined only in the root: a single card with "Defined in …" + the
+// jump arrow on the card next to the selectors; the Workflows tab shows the same per-workflow.
 export const ModularMergedView: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const mergedDoc = YmlUtils.toDoc(MERGED_YML);
-      return {
-        tree: modularTree(),
-        files: modularFiles(),
-        selectedNodeId: MERGED_CONFIG_NODE_ID,
-        mergedYml: MERGED_YML,
-        ymlDocument: mergedDoc,
-        savedYmlDocument: mergedDoc,
-        yml: YmlUtils.toJSON(mergedDoc),
-      };
-    })(),
+    bitriseYmlStore: modularStore({
+      rootContents: ROOT_YML,
+      moduleContents: MODULE_YML,
+      selectedNodeId: MERGED_CONFIG_NODE_ID,
+      activeContents: MERGED_YML,
+    }),
+  },
+};
+
+// Merged view with the default defined in multiple modules: one read-only card per defining file
+// (BIVS-3714), each with its own "Defined in …" + jump.
+export const ModularMergedMultipleDefaults: Story = {
+  parameters: {
+    bitriseYmlStore: modularStore({
+      rootContents: ROOT_YML,
+      moduleContents: MODULE_YML_WITH_DEFAULT,
+      selectedNodeId: MERGED_CONFIG_NODE_ID,
+      activeContents: MERGED_YML,
+    }),
+  },
+};
+
+// Merged view where no module defines a default: a single card shows the hidden (platform) default,
+// with no provenance or jump.
+export const ModularMergedHiddenDefault: Story = {
+  parameters: {
+    bitriseYmlStore: modularStore({
+      rootContents: ROOT_YML_NO_DEFAULT,
+      moduleContents: MODULE_YML,
+      selectedNodeId: MERGED_CONFIG_NODE_ID,
+      activeContents: MERGED_YML_NO_DEFAULT,
+      mergedYml: MERGED_YML_NO_DEFAULT,
+    }),
   },
 };
 
@@ -261,18 +326,12 @@ export const ModularMergedView: Story = {
 // (sourced from the root), with a jump to where it's defined.
 export const ModularModuleWithoutDefault: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const moduleDoc = YmlUtils.toDoc(MODULE_YML);
-      return {
-        tree: modularTree(),
-        files: modularFiles(),
-        selectedNodeId: 'n_mod',
-        mergedYml: MERGED_YML,
-        ymlDocument: moduleDoc,
-        savedYmlDocument: moduleDoc,
-        yml: YmlUtils.toJSON(moduleDoc),
-      };
-    })(),
+    bitriseYmlStore: modularStore({
+      rootContents: ROOT_YML,
+      moduleContents: MODULE_YML,
+      selectedNodeId: 'n_mod',
+      activeContents: MODULE_YML,
+    }),
   },
 };
 

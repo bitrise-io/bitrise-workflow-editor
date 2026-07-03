@@ -1,17 +1,14 @@
 import { Text } from '@bitrise/bitkit';
-import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
-import { useMemo } from 'react';
 
-import FilePickerMenu from '@/components/JumpToDefinitionLink/FilePickerMenu';
+import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
 import DefaultStackAndMachine from '@/components/StacksAndMachine/DefaultStackAndMachine';
 import TabContainer from '@/components/tabs/TabContainer';
-import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ROOT_META_STACK_FIELDS,
+  useDefaultStackDefinitions,
   useInheritedDefaultStack,
   useIsMergedConfigSelected,
-  useRootMetaStackDefinitions,
   useTree,
 } from '@/hooks/useTree';
 
@@ -19,10 +16,7 @@ const DefaultTab = () => {
   const tree = useTree();
   const isModular = Boolean(tree);
   const isMergedView = useIsMergedConfigSelected();
-  const metaDefinitions = useRootMetaStackDefinitions();
-  // Memoized so the picker's restricted node set keeps a stable identity across renders
-  // (a fresh array would rebuild FileTreeView's collection and reset its expansion state).
-  const metaNodeIds = useMemo(() => metaDefinitions.map((definition) => definition.nodeId), [metaDefinitions]);
+  const defaultDefinitions = useDefaultStackDefinitions();
   const inheritedDefault = useInheritedDefaultStack();
 
   // Whether the active document itself defines a default stack/machine. On a single module-file tab
@@ -33,31 +27,29 @@ const DefaultTab = () => {
     return Boolean(meta && ROOT_META_STACK_FIELDS.some((field) => field in meta));
   });
 
-  // Jump-to-definition arrow over the file(s) defining the default. Rendered inside the stack card
-  // (trailing the selectors), not in a separate header above it.
-  const jumpButton =
-    tree && metaNodeIds.length > 0 ? (
-      <FilePickerMenu
-        rootNode={tree}
-        nodeIds={metaNodeIds}
-        onSelect={(nodeId) => {
-          recordActiveTabLocation(window.parent.location.hash);
-          openTab(nodeId, { preview: false });
-        }}
-        trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
-      />
-    ) : null;
-
-  // Merged (read-only) view: show where the default is defined + a jump; the values come from the
-  // merged document (StackAndMachine renders read-only on the merged view).
+  // Merged (read-only) view: one card per module that defines a default (BIVS-3714), each with its own
+  // "Defined in …" + a jump to that file. When no module defines one, a single card shows the hidden
+  // (platform) default with no provenance.
   if (isModular && isMergedView) {
-    const definingPath = metaDefinitions.length
-      ? `${metaDefinitions[0].path}${metaDefinitions.length > 1 ? ` (+${metaDefinitions.length - 1} more)` : ''}`
-      : undefined;
+    if (defaultDefinitions.length === 0) {
+      return (
+        <TabContainer>
+          <DefaultStackAndMachine />
+        </TabContainer>
+      );
+    }
 
     return (
       <TabContainer>
-        <DefaultStackAndMachine definingPath={definingPath} selectsTrailing={jumpButton} />
+        {defaultDefinitions.map((definition) => (
+          <DefaultStackAndMachine
+            key={definition.nodeId}
+            definingPath={definition.path}
+            value={definition.value}
+            readOnly
+            selectsTrailing={<JumpToFileButton nodeId={definition.nodeId} />}
+          />
+        ))}
       </TabContainer>
     );
   }
@@ -81,7 +73,7 @@ const DefaultTab = () => {
           definingPath={inheritedDefault.definingPath}
           value={inheritedDefault.value}
           readOnly
-          selectsTrailing={jumpButton}
+          selectsTrailing={<JumpToFileButton nodeId={inheritedDefault.nodeIds[0]} />}
         />
       </TabContainer>
     );
