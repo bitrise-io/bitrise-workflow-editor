@@ -42,10 +42,30 @@ const StepBundleContainersTab = () => {
   };
 
   const handleRecreate = (containerId: string, recreate: boolean) => {
+    // The container may be defined in another module, so resolve it from the aggregated list for its type.
+    const container = [...executionContainers, ...serviceContainers].find((c) => c.id === containerId);
+    if (!container) {
+      return;
+    }
+    const containerType = container.userValues.type as ContainerType;
     if (isDefinition) {
-      ContainerService.updateContainerReferenceRecreate('step_bundles', stepBundleId, -1, containerId, recreate);
+      ContainerService.updateContainerReferenceRecreate(
+        'step_bundles',
+        stepBundleId,
+        -1,
+        containerId,
+        recreate,
+        containerType,
+      );
     } else {
-      ContainerService.updateContainerReferenceRecreate(source, sourceId, stepIndex, containerId, recreate);
+      ContainerService.updateContainerReferenceRecreate(
+        source,
+        sourceId,
+        stepIndex,
+        containerId,
+        recreate,
+        containerType,
+      );
     }
   };
 

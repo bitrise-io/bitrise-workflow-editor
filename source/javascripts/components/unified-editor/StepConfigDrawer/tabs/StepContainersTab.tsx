@@ -28,12 +28,18 @@ const StepContainersTab = () => {
   };
 
   const handleRecreate = (containerId: string, recreate: boolean) => {
+    // The container may be defined in another module, so resolve it from the aggregated list for its type.
+    const container = [...executionContainers, ...serviceContainers].find((c) => c.id === containerId);
+    if (!container) {
+      return;
+    }
     ContainerService.updateContainerReferenceRecreate(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
       recreate,
+      container.userValues.type as ContainerType,
     );
   };
 

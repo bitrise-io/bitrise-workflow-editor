@@ -438,6 +438,7 @@ function updateContainerReferenceRecreate(
   stepIndex: number,
   containerId: string,
   recreate: boolean,
+  containerType: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
@@ -460,10 +461,11 @@ function updateContainerReferenceRecreate(
 
     const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
 
-    const container = getContainerOrThrowError(containerId, doc);
-    const type = container.get('type') as ContainerType;
+    // The container definition may live in another module, so the type comes from the caller (the
+    // aggregated container list) rather than a lookup in the active document — the reference we're
+    // toggling is on the active file's step.
     const field =
-      type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+      containerType === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
 
     if (!yamlMap.has(field)) {
       const location =
