@@ -33,23 +33,24 @@ const ExecutionContainersTab = () => {
         <Text color="text/secondary">
           Use execution containers to create your custom environment to run your Steps in.
         </Text>
-        <Button
-          variant="secondary"
-          leftIconName="Plus"
-          size="md"
-          minW={['100%', 'auto']}
-          isDisabled={isReadOnlyView}
-          onClick={() => {
-            onDialogOpen();
-            segmentTrack('Container Definition Creation Started', {
-              app_slug: PageProps.appSlug(),
-              workspace_slug: GlobalProps.workspaceSlug(),
-              container_type: 'execution',
-            });
-          }}
-        >
-          Add container
-        </Button>
+        {!isReadOnlyView && (
+          <Button
+            variant="secondary"
+            leftIconName="Plus"
+            size="md"
+            minW={['100%', 'auto']}
+            onClick={() => {
+              onDialogOpen();
+              segmentTrack('Container Definition Creation Started', {
+                app_slug: PageProps.appSlug(),
+                workspace_slug: GlobalProps.workspaceSlug(),
+                container_type: 'execution',
+              });
+            }}
+          >
+            Add container
+          </Button>
+        )}
       </Box>
       {containers.length > 0 ? (
         <GroupedContainersTables

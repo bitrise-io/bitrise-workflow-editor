@@ -33,23 +33,24 @@ const ServiceContainersTab = () => {
         <Text color="text/secondary">
           Use service containers to attach custom services you want to use during your Workflows.
         </Text>
-        <Button
-          variant="secondary"
-          leftIconName="Plus"
-          size="md"
-          minW={['100%', 'auto']}
-          isDisabled={isReadOnlyView}
-          onClick={() => {
-            onDialogOpen();
-            segmentTrack('Container Definition Creation Started', {
-              app_slug: PageProps.appSlug(),
-              workspace_slug: GlobalProps.workspaceSlug(),
-              container_type: 'service',
-            });
-          }}
-        >
-          Add container
-        </Button>
+        {!isReadOnlyView && (
+          <Button
+            variant="secondary"
+            leftIconName="Plus"
+            size="md"
+            minW={['100%', 'auto']}
+            onClick={() => {
+              onDialogOpen();
+              segmentTrack('Container Definition Creation Started', {
+                app_slug: PageProps.appSlug(),
+                workspace_slug: GlobalProps.workspaceSlug(),
+                container_type: 'service',
+              });
+            }}
+          >
+            Add container
+          </Button>
+        )}
       </Box>
       {containers.length > 0 ? (
         <GroupedContainersTables
