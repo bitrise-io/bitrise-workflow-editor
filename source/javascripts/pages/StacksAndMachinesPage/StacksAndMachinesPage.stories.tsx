@@ -335,4 +335,25 @@ export const ModularModuleWithoutDefault: Story = {
   },
 };
 
+// A module with no workflows: the Workflows tab shows the "No Workflows created yet" empty state
+// (BIVS-3715). Switch to the Workflows tab to see it.
+const MODULE_YML_NO_WORKFLOWS = [
+  'meta:',
+  '  bitrise.io:',
+  '    stack: ubuntu-jammy-22.04-bitrise-2024',
+  '    machine_type_id: standard',
+  '',
+].join('\n');
+
+export const ModularWorkflowsTabEmpty: Story = {
+  parameters: {
+    bitriseYmlStore: modularStore({
+      rootContents: ROOT_YML,
+      moduleContents: MODULE_YML_NO_WORKFLOWS,
+      selectedNodeId: 'n_mod',
+      activeContents: MODULE_YML_NO_WORKFLOWS,
+    }),
+  },
+};
+
 export default meta;

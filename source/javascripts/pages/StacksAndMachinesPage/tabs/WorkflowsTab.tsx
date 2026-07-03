@@ -1,4 +1,4 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Box, EmptyState, Text } from '@bitrise/bitkit';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import WorkflowStackAndMachine from '@/components/StacksAndMachine/WorkflowStackAndMachine';
@@ -44,6 +44,18 @@ const WorkflowsTab = () => {
     Object.keys(state.yml.workflows ?? {}).filter((workflowId) => !WorkflowService.isUtilityWorkflow(workflowId)),
   );
   const isMergedView = useIsMergedConfigSelected();
+
+  if (workflowIds.length === 0) {
+    return (
+      <TabContainer>
+        <EmptyState
+          iconName="Workflow"
+          title="No Workflows created yet"
+          description="You will see the list of your Workflows with the configured Stack and Machine type"
+        />
+      </TabContainer>
+    );
+  }
 
   return (
     <TabContainer>
