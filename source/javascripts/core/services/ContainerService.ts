@@ -290,6 +290,12 @@ function getContainerReferenceFromInstance(
   if (source === 'step_bundles' && stepIndex === -1) {
     return getContainerReferencesFromStepBundleDefinition(sourceId, type, doc);
   }
+  // A cross-file source (a workflow/step bundle defined in another module) is absent from the active
+  // document; return none rather than throwing (throwing crashes the card during render) — mirrors
+  // getContainerReferencesFromStepBundleDefinition.
+  if (!YmlUtils.getMapIn(doc, [source, sourceId])) {
+    return undefined;
+  }
   const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
   return getContainerReferences(type, yamlMap);
 }

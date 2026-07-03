@@ -1136,6 +1136,27 @@ describe('ContainerService', () => {
   });
 
   describe('getContainerReferenceFromInstance', () => {
+    it('returns undefined (does not throw) when the source is not in the active document', () => {
+      // Modular config: the step's workflow lives in another module, so the active document has no
+      // `workflows.other-wf` — the read must return no references instead of throwing during render.
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          wf1:
+            steps:
+              - script: {}
+      `);
+
+      const result = ContainerService.getContainerReferenceFromInstance(
+        'workflows',
+        'other-wf',
+        0,
+        ContainerType.Execution,
+        bitriseYmlStore.getState().ymlDocument,
+      );
+
+      expect(result).toBeUndefined();
+    });
+
     describe('execution container type', () => {
       it('should return execution container reference as string', () => {
         updateBitriseYmlDocumentByString(yaml`
@@ -1286,7 +1307,7 @@ describe('ContainerService', () => {
         expect(result).toEqual([{ id: 'my-container_v1.0', recreate: false }]);
       });
 
-      it('should throw error when workflow does not exist', () => {
+      it('returns undefined when the workflow does not exist (cross-file, read during render)', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -1294,7 +1315,7 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
+        expect(
           ContainerService.getContainerReferenceFromInstance(
             'workflows',
             'non-existent',
@@ -1302,7 +1323,7 @@ describe('ContainerService', () => {
             ContainerType.Execution,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow('workflows.non-existent not found');
+        ).toBeUndefined();
       });
 
       it('should throw error when step index does not exist', () => {
@@ -1560,7 +1581,7 @@ describe('ContainerService', () => {
         expect(result).toEqual([{ id: 'postgres', recreate: false }]);
       });
 
-      it('should throw error when workflow does not exist', () => {
+      it('returns undefined when the workflow does not exist (cross-file, read during render)', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -1568,7 +1589,7 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
+        expect(
           ContainerService.getContainerReferenceFromInstance(
             'workflows',
             'non-existent',
@@ -1576,7 +1597,7 @@ describe('ContainerService', () => {
             ContainerType.Service,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow('workflows.non-existent not found');
+        ).toBeUndefined();
       });
 
       it('should throw error when step index does not exist', () => {
