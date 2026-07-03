@@ -3,6 +3,7 @@ import { Card, DefinitionTooltip, Link, Table, Tbody, Td, Text, Th, Thead, Tr } 
 import ContainerCardItem from '@/components/unified-editor/ContainersTab/ContainerCardItem';
 import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
 import useNavigation from '@/hooks/useNavigation';
+import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import ContainersMenu, { type ContainerReferenceSource } from './ContainersMenu';
 
@@ -37,6 +38,7 @@ const ContainerCard = (props: ContainerCardProps) => {
     type,
   } = props;
   const { replace } = useNavigation();
+  const isReadOnlyView = useIsReadOnlyView();
 
   const getContainerById = (containerId: string) => {
     return containers.find((c) => c.id === containerId);
@@ -101,35 +103,49 @@ const ContainerCard = (props: ContainerCardProps) => {
                 />
               );
             })}
-          <Tr>
-            {!containers.length ? (
-              <Td colSpan={3}>
-                <Text textStyle="body/md/regular" color="text/secondary" pl="12">
-                  No {type} containers available.{' '}
-                  <Link colorScheme="purple" onClick={() => replace('/containers', { tab: type })}>
-                    Manage {type} containers
-                  </Link>
-                </Text>
-              </Td>
-            ) : (
-              <>
-                <Td>
-                  <ContainersMenu
-                    actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
-                    containers={availableContainers}
-                    onSelectContainer={onAddContainer}
-                    source={source}
-                    stepBundleId={stepBundleId}
-                    stepId={stepId}
-                    stepVersion={stepVersion}
-                    type={type}
-                  />
+          {isReadOnlyView ? (
+            // Read-only (e.g. a cross-file step/step bundle defined in another module): no add menu —
+            // just a note when nothing is assigned. Assigned containers render as read-only rows above.
+            references.length === 0 && (
+              <Tr>
+                <Td colSpan={3}>
+                  <Text textStyle="body/md/regular" color="text/secondary" pl="12">
+                    No {type} containers.
+                  </Text>
                 </Td>
-                <Td />
-                <Td />
-              </>
-            )}
-          </Tr>
+              </Tr>
+            )
+          ) : (
+            <Tr>
+              {!containers.length ? (
+                <Td colSpan={3}>
+                  <Text textStyle="body/md/regular" color="text/secondary" pl="12">
+                    No {type} containers available.{' '}
+                    <Link colorScheme="purple" onClick={() => replace('/containers', { tab: type })}>
+                      Manage {type} containers
+                    </Link>
+                  </Text>
+                </Td>
+              ) : (
+                <>
+                  <Td>
+                    <ContainersMenu
+                      actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
+                      containers={availableContainers}
+                      onSelectContainer={onAddContainer}
+                      source={source}
+                      stepBundleId={stepBundleId}
+                      stepId={stepId}
+                      stepVersion={stepVersion}
+                      type={type}
+                    />
+                  </Td>
+                  <Td />
+                  <Td />
+                </>
+              )}
+            </Tr>
+          )}
         </Tbody>
       </Table>
     </Card>
