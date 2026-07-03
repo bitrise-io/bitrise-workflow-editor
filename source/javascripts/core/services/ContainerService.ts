@@ -5,7 +5,7 @@ import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
-import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
@@ -73,10 +73,22 @@ function addContainerReference(
   containerId: string,
   containerType: ContainerType,
 ) {
+  // The container definition may live in a different module file than the step being edited, so
+  // validate existence against the aggregated entity index (modular) or the active document
+  // (single-file) — not the active file's `containers` — and fail fast on an unknown id rather than
+  // writing a dangling reference. The reference itself is added to the active file (where the step
+  // lives), and the caller supplies the type from the aggregated container list.
+  const state = bitriseYmlStore.getState();
+  const containerExists = state.tree
+    ? Boolean(state.entityIndex.containers?.[containerId])
+    : Boolean(YmlUtils.getMapIn(state.ymlDocument, ['containers', containerId]));
+  if (!containerExists) {
+    throw new Error(
+      `Container ${containerId} not found. Ensure that the container exists in the 'containers' section.`,
+    );
+  }
+
   updateBitriseYmlDocument(({ doc }) => {
-    // The container definition may live in a different module file than the step being edited, so we
-    // don't look it up in the active document. The caller passes the type (known from the aggregated
-    // container list); the reference is added to the active file, where the step/step bundle lives.
     let yamlMap;
     if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);

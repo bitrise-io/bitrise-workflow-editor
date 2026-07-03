@@ -12,16 +12,18 @@ const StepContainersTab = () => {
     useContainers();
 
   const handleAdd = (containerId: string) => {
-    // The container may be defined in another module, so its type comes from the aggregated list.
-    const containerType = serviceContainers.some((container) => container.id === containerId)
-      ? ContainerType.Service
-      : ContainerType.Execution;
+    // The container may be defined in another module, so resolve it from the aggregated list and use
+    // its actual type; no-op if it can't be found rather than writing a wrong/dangling reference.
+    const container = [...executionContainers, ...serviceContainers].find((c) => c.id === containerId);
+    if (!container) {
+      return;
+    }
     ContainerService.addContainerReference(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
-      containerType,
+      container.userValues.type as ContainerType,
     );
   };
 

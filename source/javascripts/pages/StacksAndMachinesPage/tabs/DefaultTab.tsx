@@ -21,7 +21,7 @@ const DefaultTab = () => {
 
   // Whether the active document itself defines a default stack/machine. On a single module-file tab
   // `yml` is that file; on the merged tab it's the whole config. Key presence (not truthiness) so a
-  // falsy-but-set value like `stack_rollback_version: 0` still counts — matching useRootMetaStackDefinitions.
+  // falsy-but-set value like `stack_rollback_version: 0` still counts — matching useDefaultStackDefinitions.
   const hasLocalDefault = useBitriseYmlStore((s) => {
     const meta = s.yml.meta?.['bitrise.io'];
     return Boolean(meta && ROOT_META_STACK_FIELDS.some((field) => field in meta));

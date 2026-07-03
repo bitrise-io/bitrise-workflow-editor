@@ -172,41 +172,6 @@ export function useEntitiesGroupedByFile(kind: EntityKind, ids: string[]): FileE
   });
 }
 
-export type RootMetaDefinition = { nodeId: string; path: string };
-
-/**
- * Files defining a root `meta['bitrise.io']` stack field (the default stack/machine), highest-precedence-first
- * — mirrors the entity-index walk (node before its includes, includes reversed). The default stack is a
- * singleton (not an id-keyed entity), so it isn't in the entity index; this resolves its source for the
- * Stacks "Default" tab's jump-to-definition.
- */
-export function useRootMetaStackDefinitions(): RootMetaDefinition[] {
-  // useBitriseYmlStore applies a deep-equal useShallow internally, so a fresh array is fine.
-  return useBitriseYmlStore((s) => {
-    if (!s.tree) {
-      return [];
-    }
-    const result: RootMetaDefinition[] = [];
-    const seen = new Set<string>();
-    const visit = (node?: TreeNode) => {
-      if (!node || seen.has(node.nodeId)) {
-        return;
-      }
-      seen.add(node.nodeId);
-      const doc = s.files[node.nodeId]?.ymlDocument;
-      const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
-      if (meta && ROOT_META_STACK_FIELDS.some((field) => meta.has(field))) {
-        result.push({ nodeId: node.nodeId, path: s.files[node.nodeId]?.path ?? node.path });
-      }
-      for (let i = node.includes.length - 1; i >= 0; i -= 1) {
-        visit(node.includes[i]);
-      }
-    };
-    visit(s.tree);
-    return result;
-  });
-}
-
 export type DefaultStackValue = { stackId: string; machineTypeId: string; stackRollbackVersion: string };
 
 export type DefaultStackDefinition = {
@@ -216,32 +181,46 @@ export type DefaultStackDefinition = {
 };
 
 /**
- * Each file that defines a root default stack/machine, highest-precedence-first, with its own values.
- * Powers the merged Default tab's per-module breakdown (one card per defining file). Empty outside
- * modular mode or when no file defines a default.
+ * Each file that defines a root `meta['bitrise.io']` default stack/machine, highest-precedence-first
+ * (node before its includes, includes reversed — mirroring the entity-index walk), with its own
+ * values. The default stack is a singleton (not an id-keyed entity), so it isn't in the entity index;
+ * this resolves its per-file sources for the Stacks "Default" tab (jump-to-definition + the merged
+ * per-module breakdown). Empty outside modular mode or when no file defines a default.
  */
 export function useDefaultStackDefinitions(): DefaultStackDefinition[] {
-  const definitions = useRootMetaStackDefinitions();
-  return useBitriseYmlStore((s) =>
-    definitions
-      .map((definition) => {
-        const doc = s.files[definition.nodeId]?.ymlDocument;
-        const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
-        if (!meta) {
-          return undefined;
-        }
-        return {
-          nodeId: definition.nodeId,
-          path: definition.path,
+  // A single pure selector over `state` (nothing closed over from another hook), so store updates
+  // recompute it consistently. useBitriseYmlStore applies a deep-equal useShallow, so a fresh array is fine.
+  return useBitriseYmlStore((s) => {
+    if (!s.tree) {
+      return [];
+    }
+    const result: DefaultStackDefinition[] = [];
+    const seen = new Set<string>();
+    const visit = (node?: TreeNode) => {
+      if (!node || seen.has(node.nodeId)) {
+        return;
+      }
+      seen.add(node.nodeId);
+      const doc = s.files[node.nodeId]?.ymlDocument;
+      const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
+      if (meta && ROOT_META_STACK_FIELDS.some((field) => meta.has(field))) {
+        result.push({
+          nodeId: node.nodeId,
+          path: s.files[node.nodeId]?.path ?? node.path,
           value: {
             stackId: String(meta.get('stack') ?? ''),
             machineTypeId: String(meta.get('machine_type_id') ?? ''),
             stackRollbackVersion: String(meta.get('stack_rollback_version') ?? ''),
           },
-        };
-      })
-      .filter((definition): definition is DefaultStackDefinition => Boolean(definition)),
-  );
+        });
+      }
+      for (let i = node.includes.length - 1; i >= 0; i -= 1) {
+        visit(node.includes[i]);
+      }
+    };
+    visit(s.tree);
+    return result;
+  });
 }
 
 export type InheritedDefaultStack = {

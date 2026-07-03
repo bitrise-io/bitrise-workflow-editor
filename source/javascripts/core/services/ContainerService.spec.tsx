@@ -1,8 +1,43 @@
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { ContainerType } from '@/core/models/Container';
-import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import {
+  bitriseYmlStore,
+  getYmlString,
+  initializeModularConfig,
+  updateBitriseYmlDocumentByString,
+} from '@/core/stores/BitriseYmlStore';
 
 import ContainerService from './ContainerService';
+
+const MODULAR_SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
+const EMPTY_ENTITY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {}, containers: {} };
+
+// A modular config whose active file (root) has a workflow but no containers, while an included module
+// defines `from-other-module` — so the entity index knows the container even though the active file
+// doesn't. The subscriber rebuilds the index from the files on init.
+const initModularConfigWithContainerInModule = (type: 'execution' | 'service') => {
+  const root: TreeNode = {
+    nodeId: 'root',
+    path: 'bitrise.yml',
+    contents: 'workflows:\n  wf1:\n    steps:\n      - script:\n          title: Test\n',
+    source: null,
+    commitSha: MODULAR_SHA,
+    editable: true,
+    includes: [
+      {
+        nodeId: 'n_mod',
+        path: 'ci/containers.yml',
+        contents: `containers:\n  from-other-module:\n    type: ${type}\n    image: ubuntu:22.04\n`,
+        source: { path: 'ci/containers.yml', repository: null, branch: null, tag: null, commit: null },
+        commitSha: MODULAR_SHA,
+        editable: true,
+        includes: [],
+      },
+    ],
+  };
+  initializeModularConfig({ root, entityIndex: EMPTY_ENTITY_INDEX, branch: 'main', commitSha: MODULAR_SHA });
+};
 
 describe('ContainerService', () => {
   describe('addContainerReference', () => {
@@ -76,16 +111,10 @@ describe('ContainerService', () => {
         expect(getYmlString()).toEqual(expectedYml);
       });
 
-      it('adds the reference even when the container is defined in another module (not in the active document)', () => {
-        // Modular config: the workflow's file has no `containers` section — the definition lives in a
-        // different module. The reference must still be added (the caller supplies the type).
-        updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-      `);
+      it('adds the reference to the active file even when the container is defined in another module', () => {
+        // The container lives in an included module, not the active (root) file — the reference is
+        // still added because the entity index knows the container.
+        initModularConfigWithContainerInModule('execution');
 
         ContainerService.addContainerReference('workflows', 'wf1', 0, 'from-other-module', ContainerType.Execution);
 
@@ -249,16 +278,10 @@ describe('ContainerService', () => {
         ).toThrow("Service container 'postgres' is already added to step bundle 'my_bundle'");
       });
 
-      it('adds a service reference even when the container is defined in another module', () => {
-        // Modular config: the container definition lives in another module file, so the active
-        // document has no matching `containers` entry — the reference is still added.
-        updateBitriseYmlDocumentByString(yaml`
-        workflows:
-          wf1:
-            steps:
-              - script:
-                  title: Test
-      `);
+      it('adds a service reference to the active file even when the container is defined in another module', () => {
+        // The container lives in an included module, not the active (root) file — the reference is
+        // still added because the entity index knows the container.
+        initModularConfigWithContainerInModule('service');
 
         ContainerService.addContainerReference('workflows', 'wf1', 0, 'from-other-module', ContainerType.Service);
 
