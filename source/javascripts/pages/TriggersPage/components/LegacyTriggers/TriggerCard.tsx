@@ -85,21 +85,19 @@ const TriggerCard = (props: TriggerCardProps) => {
         >
           Active
         </Checkbox>
-        <IconButton
-          iconName="Pencil"
-          aria-label="Edit trigger"
-          variant="tertiary"
-          isDisabled={isReadOnlyView}
-          onClick={handleEdit}
-        />
-        <IconButton
-          iconName="MinusCircle"
-          aria-label="Remove trigger"
-          variant="tertiary"
-          isDanger
-          isDisabled={isReadOnlyView}
-          onClick={handleRemove}
-        />
+        {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
+        {!isReadOnlyView && (
+          <>
+            <IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+            <IconButton
+              iconName="MinusCircle"
+              aria-label="Remove trigger"
+              variant="tertiary"
+              isDanger
+              onClick={handleRemove}
+            />
+          </>
+        )}
       </Box>
     </DraggableCard>
   );

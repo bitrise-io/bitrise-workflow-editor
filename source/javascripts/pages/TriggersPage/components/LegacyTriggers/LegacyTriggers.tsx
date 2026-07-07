@@ -88,16 +88,11 @@ const LegacyTriggers = () => {
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
-            <Button
-              marginBottom="24"
-              variant="secondary"
-              size="md"
-              isDisabled={isReadOnlyView}
-              onClick={onOpen}
-              leftIconName="Plus"
-            >
-              Add push trigger
-            </Button>
+            {!isReadOnlyView && (
+              <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+                Add push trigger
+              </Button>
+            )}
             <SortableTriggerList
               type="push"
               triggers={triggers.push}
@@ -108,16 +103,11 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button
-              marginBottom="24"
-              variant="secondary"
-              size="md"
-              isDisabled={isReadOnlyView}
-              onClick={onOpen}
-              leftIconName="Plus"
-            >
-              Add pull request trigger
-            </Button>
+            {!isReadOnlyView && (
+              <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+                Add pull request trigger
+              </Button>
+            )}
             <SortableTriggerList
               type="pull_request"
               triggers={triggers.pull_request}
@@ -128,16 +118,11 @@ const LegacyTriggers = () => {
             />
           </TabPanel>
           <TabPanel>
-            <Button
-              marginBottom="24"
-              variant="secondary"
-              size="md"
-              isDisabled={isReadOnlyView}
-              onClick={onOpen}
-              leftIconName="Plus"
-            >
-              Add tag trigger
-            </Button>
+            {!isReadOnlyView && (
+              <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+                Add tag trigger
+              </Button>
+            )}
             <SortableTriggerList
               type="tag"
               triggers={triggers.tag}

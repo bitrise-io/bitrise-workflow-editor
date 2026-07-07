@@ -123,58 +123,60 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             {options[key]}
           </DropdownOption>
         ))}
-        <Box
-          w="100%"
-          mt="8"
-          py="12"
-          mb="-12"
-          bottom="-12"
-          position="sticky"
-          borderTop="1px solid"
-          borderColor="border/regular"
-          backgroundColor="background/primary"
-        >
-          <Button
+        {/* Create actions are hidden (not disabled) on the read-only merged/ghost view (BIVS-3721). */}
+        {!isReadOnlyView && (
+          <Box
             w="100%"
-            border="none"
-            textStyle="body/lg/regular"
-            borderRadius="0"
-            variant="secondary"
-            leftIconName="PlusCircle"
-            justifyContent="flex-start"
-            isDisabled={isReadOnlyView}
-            onClick={onCreatePipeline}
+            mt="8"
+            py="12"
+            mb="-12"
+            bottom="-12"
+            position="sticky"
+            borderTop="1px solid"
+            borderColor="border/regular"
+            backgroundColor="background/primary"
           >
-            Create Pipeline
-          </Button>
-          {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} display="block">
-              <Button
-                w="100%"
-                border="none"
-                textStyle="body/lg/regular"
-                borderRadius="0"
-                variant="secondary"
-                leftIcon={
-                  <Icon
-                    name="SparkleFilled"
-                    size="24"
-                    color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
-                  />
-                }
-                justifyContent="flex-start"
-                isDisabled={isAIButtonDisabled || isReadOnlyView}
-                _disabled={{
-                  backgroundColor: 'background/primary',
-                  color: 'button/secondary/fg-disabled',
-                }}
-                onClick={onCreatePipelineWithAI}
-              >
-                Create Pipeline with AI
-              </Button>
-            </Tooltip>
-          )}
-        </Box>
+            <Button
+              w="100%"
+              border="none"
+              textStyle="body/lg/regular"
+              borderRadius="0"
+              variant="secondary"
+              leftIconName="PlusCircle"
+              justifyContent="flex-start"
+              onClick={onCreatePipeline}
+            >
+              Create Pipeline
+            </Button>
+            {isAIButtonVisible && (
+              <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} display="block">
+                <Button
+                  w="100%"
+                  border="none"
+                  textStyle="body/lg/regular"
+                  borderRadius="0"
+                  variant="secondary"
+                  leftIcon={
+                    <Icon
+                      name="SparkleFilled"
+                      size="24"
+                      color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
+                    />
+                  }
+                  justifyContent="flex-start"
+                  isDisabled={isAIButtonDisabled}
+                  _disabled={{
+                    backgroundColor: 'background/primary',
+                    color: 'button/secondary/fg-disabled',
+                  }}
+                  onClick={onCreatePipelineWithAI}
+                >
+                  Create Pipeline with AI
+                </Button>
+              </Tooltip>
+            )}
+          </Box>
+        )}
       </Dropdown>
 
       {shouldShowGraphPipelineActions && (
@@ -182,16 +184,13 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           <Button size="md" variant="secondary" leftIconName="Settings" onClick={onPropertiesClick}>
             Properties
           </Button>
-          {/* Adds workflows to the pipeline, so it's a mutation — Properties stays open for inspection. */}
-          <Button
-            size="md"
-            variant="secondary"
-            leftIconName="Plus"
-            isDisabled={isReadOnlyView}
-            onClick={onWorkflowsClick}
-          >
-            Workflows
-          </Button>
+          {/* Adds workflows to the pipeline (a mutation) → hidden on the read-only merged/ghost view
+              (BIVS-3721). Properties stays for inspection. */}
+          {!isReadOnlyView && (
+            <Button size="md" variant="secondary" leftIconName="Plus" onClick={onWorkflowsClick}>
+              Workflows
+            </Button>
+          )}
         </>
       )}
 
