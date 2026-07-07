@@ -1,4 +1,4 @@
-import { ParsedToolVersion, VersionStrategy } from '../models/Tools';
+import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
