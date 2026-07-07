@@ -68,13 +68,16 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
         <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4" pr="12">
           {/* Jump to where the container is defined (a file picker when it's defined across modules). */}
           <CrossFileJumpButton kind="containers" id={reference.id} />
-          <ControlButton
-            aria-label={isDisabled ? 'Edit containers in the Step bundle definition.' : 'Delete container'}
-            iconName="MinusCircle"
-            color="icon/negative"
-            isDisabled={isDisabled || isReadOnlyView}
-            onClick={handleRemove}
-          />
+          {/* Read-only (merged/ghost) view has no CTAs — the remove button is hidden, not disabled. */}
+          {!isReadOnlyView && (
+            <ControlButton
+              aria-label={isDisabled ? 'Edit containers in the Step bundle definition.' : 'Delete container'}
+              iconName="MinusCircle"
+              color="icon/negative"
+              isDisabled={isDisabled}
+              onClick={handleRemove}
+            />
+          )}
         </Box>
       </Td>
     </Tr>
