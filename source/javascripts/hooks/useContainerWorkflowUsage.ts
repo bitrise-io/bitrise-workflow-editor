@@ -14,19 +14,23 @@ function useContainerWorkflowUsage(id?: string) {
     // workflow is listed once.
     const documents = state.tree ? Object.values(state.files).map((slice) => slice.ymlDocument) : [state.ymlDocument];
 
-    const workflowsUsing = (containerId: string) =>
-      uniq(documents.flatMap((doc) => ContainerService.getWorkflowsUsingContainer(doc, containerId)));
-
     if (id) {
-      return workflowsUsing(id);
+      return uniq(documents.flatMap((doc) => ContainerService.getWorkflowsUsingContainer(doc, id)));
     }
 
+    // Whole-config usage lookup: scan each module file once for all container ids (a batch call), then
+    // union across files — rather than re-scanning every file per container.
     const containerIds = Object.keys(state.yml.containers ?? {});
+    const usage = new Map<string, string[]>(containerIds.map((containerId) => [containerId, []]));
 
-    return containerIds.reduce((acc, containerId) => {
-      acc.set(containerId, workflowsUsing(containerId));
-      return acc;
-    }, new Map<string, string[]>());
+    documents.forEach((doc) => {
+      ContainerService.getWorkflowsUsingContainers(doc, containerIds).forEach((workflowIds, containerId) => {
+        usage.set(containerId, [...(usage.get(containerId) ?? []), ...workflowIds]);
+      });
+    });
+
+    containerIds.forEach((containerId) => usage.set(containerId, uniq(usage.get(containerId) ?? [])));
+    return usage;
   });
 }
 

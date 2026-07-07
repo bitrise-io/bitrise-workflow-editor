@@ -300,46 +300,79 @@ function getContainerReferenceFromInstance(
   return getContainerReferences(type, yamlMap);
 }
 
-function referencesContainer(node: unknown, containerId: string): boolean {
-  if (YmlUtils.isEqualValues(node, containerId)) {
-    return true;
+// The container id a reference node points at — a bare scalar id, or the first key of a
+// `{ id: {opts} }` map — or undefined if it isn't a container reference. The inverse of the shapes
+// `referencesContainer` matched (a scalar equal to the id, or a map whose first key is the id).
+function referencedContainerId(node: unknown): string | undefined {
+  if (isMap(node)) {
+    return node.items.length > 0 ? String(node.items[0]?.key) : undefined;
   }
-  if (isMap(node) && node.items.length > 0) {
-    return String(node.items[0]?.key) === containerId;
-  }
-  return false;
+  const value = isScalar(node) ? node.value : node;
+  return typeof value === 'string' ? value : undefined;
+}
+
+/**
+ * Workflows using each of `containerIds`, scanning the document once. `getMatchingPaths` and
+ * `doc.toJSON()` depend only on the document, so bucketing the matches by their referenced container
+ * avoids re-running them per container (which is O(containers × files) across a modular config).
+ * Every requested id gets an entry (empty array when unused).
+ */
+function getWorkflowsUsingContainers(doc: Document, containerIds: string[]): Map<string, string[]> {
+  const ids = new Set(containerIds);
+  const yml = doc.toJSON();
+  const workflows = yml?.workflows ?? {};
+  const stepBundles = yml?.step_bundles ?? {};
+
+  const directByContainer = new Map<string, string[]>();
+  const stepBundleIdsByContainer = new Map<string, Set<string>>();
+
+  const bucket = <T>(map: Map<string, T[] | Set<T>>, key: string, value: T, factory: () => T[] | Set<T>) => {
+    const existing = map.get(key) ?? factory();
+    if (Array.isArray(existing)) {
+      existing.push(value);
+    } else {
+      existing.add(value);
+    }
+    map.set(key, existing);
+  };
+
+  // Workflows that directly reference a container in their steps.
+  [
+    ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
+  ].forEach(([path]) => {
+    const containerId = referencedContainerId(doc.getIn(path));
+    if (containerId && ids.has(containerId)) {
+      bucket(directByContainer, containerId, String(path[1]), () => []);
+    }
+  });
+
+  // Step bundles that reference a container (definition-level or step-level).
+  [
+    ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionServiceContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, StepBundleExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, StepBundleServiceContainerWildcardRefPath),
+  ].forEach(([path]) => {
+    const containerId = referencedContainerId(doc.getIn(path));
+    if (containerId && ids.has(containerId)) {
+      bucket(stepBundleIdsByContainer, containerId, String(path[1]), () => new Set<string>());
+    }
+  });
+
+  const result = new Map<string, string[]>();
+  containerIds.forEach((containerId) => {
+    const direct = directByContainer.get(containerId) ?? [];
+    const workflowsFromStepBundles = [...(stepBundleIdsByContainer.get(containerId) ?? [])].flatMap((stepBundleId) =>
+      StepBundleService.getDependantWorkflows(workflows, StepBundleService.idToCvs(stepBundleId), stepBundles),
+    );
+    result.set(containerId, uniq([...direct, ...workflowsFromStepBundles]));
+  });
+  return result;
 }
 
 function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
-  const yml = doc.toJSON();
-
-  // Workflows that directly reference the container in their steps
-  const directWorkflowIds = [
-    ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
-    ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
-  ]
-    .filter(([path]) => referencesContainer(doc.getIn(path), containerId))
-    .map(([path]) => String(path[1]));
-
-  // Step bundles that reference the container (definition-level or step-level)
-  const stepBundleIds = uniq(
-    [
-      ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionExecutionContainerWildcardRefPath),
-      ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionServiceContainerWildcardRefPath),
-      ...YmlUtils.getMatchingPaths(doc, StepBundleExecutionContainerWildcardRefPath),
-      ...YmlUtils.getMatchingPaths(doc, StepBundleServiceContainerWildcardRefPath),
-    ]
-      .filter(([path]) => referencesContainer(doc.getIn(path), containerId))
-      .map(([path]) => String(path[1])),
-  );
-
-  const workflows = yml?.workflows ?? {};
-  const stepBundles = yml?.step_bundles ?? {};
-  const workflowsFromStepBundles = stepBundleIds.flatMap((stepBundleId) =>
-    StepBundleService.getDependantWorkflows(workflows, StepBundleService.idToCvs(stepBundleId), stepBundles),
-  );
-
-  return uniq([...directWorkflowIds, ...workflowsFromStepBundles]);
+  return getWorkflowsUsingContainers(doc, [containerId]).get(containerId) ?? [];
 }
 
 function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
@@ -560,6 +593,7 @@ export default {
   getContainerReferenceFromInstance,
   getContainerReferencesFromStepBundleDefinition,
   getWorkflowsUsingContainer,
+  getWorkflowsUsingContainers,
   sanitizePort,
   removeContainerReference,
   sanitizeName,

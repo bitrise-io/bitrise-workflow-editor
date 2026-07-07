@@ -7,7 +7,6 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import {
   ROOT_META_STACK_FIELDS,
   useDefaultStackDefinitions,
-  useInheritedDefaultStack,
   useIsMergedConfigSelected,
   useTree,
 } from '@/hooks/useTree';
@@ -17,7 +16,16 @@ const DefaultTab = () => {
   const isModular = Boolean(tree);
   const isMergedView = useIsMergedConfigSelected();
   const defaultDefinitions = useDefaultStackDefinitions();
-  const inheritedDefault = useInheritedDefaultStack();
+  // The effective inherited default for a module that doesn't define its own: the top-most (winning)
+  // definition. Derived from defaultDefinitions rather than a second hook, to avoid walking the tree twice.
+  const topDefault = defaultDefinitions[0];
+  const inheritedDefault = topDefault
+    ? {
+        definingPath: topDefault.path,
+        value: topDefault.value,
+        nodeIds: defaultDefinitions.map((definition) => definition.nodeId),
+      }
+    : undefined;
 
   // Whether the active document itself defines a default stack/machine. On a single module-file tab
   // `yml` is that file; on the merged tab it's the whole config. Key presence (not truthiness) so a

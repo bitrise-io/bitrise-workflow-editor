@@ -70,4 +70,38 @@ describe('useContainerWorkflowUsage', () => {
 
     expect(result.current).toEqual(['wf-shared']);
   });
+
+  it('returns per-container usage across modules when called without an id (batch path)', () => {
+    const root: TreeNode = {
+      nodeId: 'root',
+      path: 'bitrise.yml',
+      contents:
+        'containers:\n  ec1:\n    type: execution\n    image: ubuntu:22.04\n' +
+        '  ec2:\n    type: execution\n    image: alpine\n' +
+        '  ec3:\n    type: execution\n    image: debian\n',
+      source: null,
+      commitSha: SHA,
+      editable: true,
+      includes: [
+        leaf(
+          'n_mod',
+          'mod.yml',
+          'workflows:\n' +
+            '  wf-a:\n    steps:\n      - script:\n          execution_container: ec1\n' +
+            '  wf-b:\n    steps:\n      - script:\n          execution_container: ec2\n',
+        ),
+      ],
+    };
+    initializeModularConfig({ root, entityIndex: EMPTY_INDEX, branch: 'main', commitSha: SHA });
+
+    const { result } = renderHook(() => useContainerWorkflowUsage());
+
+    expect(result.current).toEqual(
+      new Map([
+        ['ec1', ['wf-a']],
+        ['ec2', ['wf-b']],
+        ['ec3', []],
+      ]),
+    );
+  });
 });

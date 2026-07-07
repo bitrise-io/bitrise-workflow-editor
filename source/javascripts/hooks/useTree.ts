@@ -262,32 +262,6 @@ export function useDefaultStackDefinitions(): DefaultStackDefinition[] {
   });
 }
 
-export type InheritedDefaultStack = {
-  /** Path of the top-most file defining the default (for the "Defined in …" subtitle). */
-  definingPath: string;
-  /** All files defining a default, highest-precedence-first (for the jump-to-definition picker). */
-  nodeIds: string[];
-  value: DefaultStackValue;
-};
-
-/**
- * The effective default stack & machine inherited by a module that doesn't define its own — the
- * top-most (winning) definition, so a module tab can show it read-only. Undefined outside modular mode
- * or when no file defines a default.
- */
-export function useInheritedDefaultStack(): InheritedDefaultStack | undefined {
-  const definitions = useDefaultStackDefinitions();
-  const top = definitions[0];
-  if (!top) {
-    return undefined;
-  }
-  return {
-    definingPath: top.path,
-    nodeIds: definitions.map((definition) => definition.nodeId),
-    value: top.value,
-  };
-}
-
 /** node_ids of files with unsaved edits. */
 export function useDirtyNodeIds(): string[] {
   return useBitriseYmlStore((s) =>
