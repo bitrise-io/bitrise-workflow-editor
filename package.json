@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "2.5.15926",
+  "version": "2.5.15950",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@bitrise/bitkit": "^13.359.0",
-    "@bitrise/bitkit-v2": "0.3.275",
+    "@bitrise/bitkit-v2": "0.3.278",
     "@bitrise/languageserver": "git+https://github.com/bitrise-io/bitrise-yml-language-server.git#833b15995769404349b63986ea779b60fccce531",
     "@dagrejs/dagre": "^3.0.0",
     "@datadog/browser-rum": "^7.4.0",
