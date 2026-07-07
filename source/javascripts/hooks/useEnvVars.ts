@@ -32,12 +32,12 @@ const useAppLevelEnvVars = () => {
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
 
-    const addEnvs = (rawEnvs: unknown) => {
+    const addEnvs = (rawEnvs: unknown, source: string) => {
       if (!Array.isArray(rawEnvs)) {
         return;
       }
       rawEnvs.forEach((envVarYml) => {
-        const env = EnvVarService.fromYml(envVarYml as FromYmlEnv, 'Project env vars');
+        const env = EnvVarService.fromYml(envVarYml as FromYmlEnv, source);
         envVarMap.set(env.key, env);
       });
     };
@@ -47,15 +47,16 @@ const useAppLevelEnvVars = () => {
       // effective config, so they're globally available — aggregate across every file rather than just
       // the active doc, so cross-module project env vars are offered here too. Post-order (included
       // files first, then the including file) so a node outranks the files it includes on a duplicate
-      // key. Mirrors useContainers.
+      // key. Each is tagged with the module it's defined in, so the selector shows it. Mirrors useContainers.
       const collect = (node: TreeNode) => {
         node.includes.forEach(collect);
-        const doc = s.files[node.nodeId]?.ymlDocument;
-        addEnvs(doc ? YmlUtils.getSeqIn(doc, ['app', 'envs'])?.toJSON() : undefined);
+        const slice = s.files[node.nodeId];
+        const rawEnvs = slice ? YmlUtils.getSeqIn(slice.ymlDocument, ['app', 'envs'])?.toJSON() : undefined;
+        addEnvs(rawEnvs, `Project env vars • defined in ${slice?.path ?? node.path}`);
       };
       collect(s.tree);
     } else {
-      addEnvs(s.yml.app?.envs);
+      addEnvs(s.yml.app?.envs, 'Project env vars');
     }
 
     return Array.from(envVarMap.values());
