@@ -1,11 +1,11 @@
 import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 
-import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
+import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useCrossFileEntity, useIsMergedConfigSelected } from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
@@ -22,9 +22,10 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   const dependants = useDependantWorkflows({ workflowId: id });
 
-  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', id);
+  const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', id);
+  const otherModules = useOtherDefiningModules('workflows', id);
   const isMergedView = useIsMergedConfigSelected();
-  const showDefinitionLink = isCrossFile || (isMergedView && hasDefinition);
+  const showDefinitionLink = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
 
   const showSubTitle = context === 'workflow';
   const shouldShowTriggersTab = !parentWorkflowId && !WorkflowService.isUtilityWorkflow(id) && context === 'workflow';
@@ -58,13 +59,11 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           )}
           {showDefinitionLink && (
             <Text textStyle="body/sm/regular" color="text/secondary">
-              {isCrossFile && (
-                <>
-                  <CrossFileProvenanceText definingPaths={definingPaths} />
-                  {' • '}
-                </>
-              )}
-              <JumpToDefinitionLink kind="workflows" id={id} />
+              <EntityModuleProvenance
+                kind="workflows"
+                id={id}
+                fallback={<JumpToDefinitionLink kind="workflows" id={id} />}
+              />
             </Text>
           )}
         </div>

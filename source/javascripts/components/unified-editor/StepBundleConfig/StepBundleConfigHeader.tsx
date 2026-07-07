@@ -2,12 +2,12 @@ import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { ReactNode } from 'react';
 
-import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
+import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
-import { useCrossFileEntity, useIsMergedConfigSelected } from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
@@ -26,10 +26,15 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const { replace } = useNavigation();
 
   const isMergedView = useIsMergedConfigSelected();
-  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('stepBundles', stepBundleId);
-  const shouldJumpToDefinition = isCrossFile || (isMergedView && hasDefinition);
+  const { hasDefinition } = useCrossFileEntity('stepBundles', stepBundleId);
+  const otherModules = useOtherDefiningModules('stepBundles', stepBundleId);
+  const shouldJumpToDefinition = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
   const editDefinitionLink = shouldJumpToDefinition ? (
-    <JumpToDefinitionLink kind="stepBundles" id={stepBundleId} />
+    <JumpToDefinitionLink
+      kind="stepBundles"
+      id={stepBundleId}
+      nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
+    />
   ) : (
     <BitkitLinkButton onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}>
       Edit definition
@@ -37,21 +42,27 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   );
 
   const usedIn = StepBundleService.getUsedByText(dependants.length);
-  let subtitle: ReactNode = usedIn;
+  // Panel: the provenance line owns its own jump. Drawer: the jump is the trailing editDefinitionLink,
+  // so the inline provenance drops it (withJumpLink={false}) to avoid a duplicate.
+  let subtitle: ReactNode = (
+    <EntityModuleProvenance kind="stepBundles" id={stepBundleId} pathTextStyle="body/md/semibold" fallback={usedIn} />
+  );
   if (variant === 'drawer') {
-    const middle = isCrossFile ? (
-      <CrossFileProvenanceText definingPaths={definingPaths} pathTextStyle="body/md/semibold" />
-    ) : (
-      usedIn
-    );
-
     subtitle = (
       <>
         Instance of{' '}
         <Text as="span" textStyle="body/md/semibold">
           {stepBundleId}
         </Text>{' '}
-        • {middle} • {editDefinitionLink}
+        •{' '}
+        <EntityModuleProvenance
+          kind="stepBundles"
+          id={stepBundleId}
+          pathTextStyle="body/md/semibold"
+          withJumpLink={false}
+          fallback={usedIn}
+        />{' '}
+        • {editDefinitionLink}
       </>
     );
   }

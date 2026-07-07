@@ -3,13 +3,18 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef, useState } from 'react';
 
-import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
+import {
+  useCrossFileEntity,
+  useIsMergedConfigSelected,
+  useIsReadOnlyView,
+  useOtherDefiningModules,
+} from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -32,10 +37,11 @@ type Props = {
 const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDragging, parentWorkflowId }: Props) => {
   const zoom = useReactFlowZoom();
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
-  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', id);
+  const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', id);
+  const otherModules = useOtherDefiningModules('workflows', id);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
-  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
   // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
   const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
@@ -123,7 +129,14 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
           />
         )}
         {/* Jump leads the action group for ghosts (Chain is hidden there): jump → settings → remove. */}
-        {showJumpButton && <CrossFileJumpButton kind="workflows" id={id} onOpenChange={setIsJumpPopoverOpen} />}
+        {showJumpButton && (
+          <CrossFileJumpButton
+            kind="workflows"
+            id={id}
+            nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
+            onOpenChange={setIsJumpPopoverOpen}
+          />
+        )}
         {onEditChainedWorkflow && (
           <ControlButton
             size="xs"
@@ -204,7 +217,9 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
                 {placement}
                 {' • '}
-                {isCrossFile ? crossFileProvenanceLabel(definingPaths) : WorkflowService.getUsedByText(dependants)}
+                {otherModules.nodeIds.length > 0
+                  ? otherModulesLabel(otherModules)
+                  : WorkflowService.getUsedByText(dependants)}
               </Text>
             </Box>
 
