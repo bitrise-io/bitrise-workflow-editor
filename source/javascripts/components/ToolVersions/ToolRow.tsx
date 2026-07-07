@@ -6,6 +6,7 @@ import {
   BitkitTextInput,
   IconMinusCircle,
   IconOpenInNew,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
@@ -104,7 +105,7 @@ const ToolRow = ({
   return (
     <Box display="flex" flexDirection="column" gap="8">
       <Box display="flex" alignItems="flex-start" gap="12">
-        <Box display="flex" flexDirection="column" gap="8" width="160px" flexShrink="0">
+        <Box display="flex" flexDirection="column" gap="8" width={rem(160)} flexShrink="0">
           <BitkitSelect
             size="md"
             placeholder="Select one"
@@ -142,7 +143,7 @@ const ToolRow = ({
           {strategy !== 'unset' && (
             <BitkitTextInput
               size="md"
-              width="160px"
+              width={rem(160)}
               flexShrink="0"
               placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
               inputProps={{
