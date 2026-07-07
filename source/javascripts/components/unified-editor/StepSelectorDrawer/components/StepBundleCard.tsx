@@ -3,8 +3,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
 
-import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
@@ -13,7 +13,12 @@ import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useStepBundle from '@/hooks/useStepBundle';
-import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
+import {
+  useCrossFileEntity,
+  useIsMergedConfigSelected,
+  useIsReadOnlyView,
+  useOtherDefiningModules,
+} from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -47,11 +52,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   // Cross-file: bundle definition lives in another module — a subtle tint signals it.
   const bundleId = StepBundleService.cvsToId(cvs);
-  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('stepBundles', bundleId);
+  const { isCrossFile, hasDefinition } = useCrossFileEntity('stepBundles', bundleId);
+  // Modules other than the one open that define this bundle — drives the "Also defined in …" line and
+  // the jump target. Covers both the pure cross-file case and the intermediate one (also defined here).
+  const otherModules = useOtherDefiningModules('stepBundles', bundleId);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
-  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
   // Ghosts (cross-file refs or read-only view) get a lighter border/minimal instead of the tint.
   const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
@@ -237,7 +245,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
                   <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {isCrossFile ? crossFileProvenanceLabel(definingPaths) : usedInWorkflowsText}
+                    {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
                     <>
@@ -252,7 +260,12 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               </Box>
               {showJumpButton && (
                 <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
-                  <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
+                  <CrossFileJumpButton
+                    kind="stepBundles"
+                    id={bundleId}
+                    nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
+                    onOpenChange={setIsJumpPopoverOpen}
+                  />
                 </Box>
               )}
               {buttonGroup}

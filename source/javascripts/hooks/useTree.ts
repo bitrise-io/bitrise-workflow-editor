@@ -119,6 +119,45 @@ export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntit
   });
 }
 
+export type OtherDefiningModules = {
+  /** Repo-relative paths of the defining files other than the one currently open, precedence order. */
+  paths: string[];
+  /** node_ids of those files (for the jump-to-definition picker). */
+  nodeIds: string[];
+  /** Cross-repo source label, only when exactly one other module defines it and it lives in another repo/ref. */
+  sourceLabel?: string;
+  /** The entity is also defined in the module currently open (⇒ "Also defined in" vs. plain "Defined in"). */
+  definedInCurrent: boolean;
+};
+
+const NO_OTHER_MODULES: OtherDefiningModules = { paths: [], nodeIds: [], definedInCurrent: false };
+
+/**
+ * The modules that define an entity *other than the one currently open* — the data behind the
+ * "Also defined in …" provenance line. Excludes the active module (so it surfaces only where the
+ * entity is *also* defined) and reports whether the active module is among the definers, which
+ * chooses the "Also defined in" vs. plain "Defined in" wording (the latter e.g. on the merged view,
+ * where there is no single current module). Empty in single-file mode. — BIVS-3706
+ */
+export function useOtherDefiningModules(kind: EntityKind, id: string): OtherDefiningModules {
+  return useBitriseYmlStore((s) => {
+    const definitions = EntityIndexService.definitionsOf(s.entityIndex, kind, id)
+      .map((definition) => ({ nodeId: definition.nodeId, file: s.files[definition.nodeId] }))
+      .filter((definition) => Boolean(definition.file?.path));
+    const others = definitions.filter((definition) => definition.nodeId !== s.selectedNodeId);
+    if (others.length === 0) {
+      return NO_OTHER_MODULES;
+    }
+    return {
+      paths: others.map((other) => other.file?.path ?? ''),
+      nodeIds: others.map((other) => other.nodeId),
+      sourceLabel:
+        others.length === 1 ? (TreeService.sourceLabel(others[0].file?.source ?? null) ?? undefined) : undefined,
+      definedInCurrent: others.length < definitions.length,
+    };
+  });
+}
+
 export type EntityDefinitionPath = { nodeId: string; path: string };
 
 /**
