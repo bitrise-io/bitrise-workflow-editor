@@ -63,7 +63,7 @@ const ContainerCard = (props: ContainerCardProps) => {
                 Behavior
               </DefinitionTooltip>
             </Th>
-            <Th width="60px" />
+            <Th width="96px" />
           </Tr>
         </Thead>
         <Tbody>

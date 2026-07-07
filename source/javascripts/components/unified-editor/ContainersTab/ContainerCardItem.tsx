@@ -1,5 +1,6 @@
 import { Box, Checkbox, ControlButton, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
 
+import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerReference } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -63,8 +64,10 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
           </Box>
         </Tooltip>
       </Td>
-      <Td width="60px">
-        <Box display="flex" justifyContent="center" pr="12">
+      <Td width="96px">
+        <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4" pr="12">
+          {/* Jump to where the container is defined (a file picker when it's defined across modules). */}
+          <CrossFileJumpButton kind="containers" id={reference.id} />
           <ControlButton
             aria-label={isDisabled ? 'Edit containers in the Step bundle definition.' : 'Delete container'}
             iconName="MinusCircle"
