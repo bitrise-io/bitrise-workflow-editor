@@ -112,7 +112,10 @@ const SortableEnvVarItem = ({
             onChange={(e) => handleValueChange(e.target.value)}
           />
           {isReadOnlyView && jumpButton ? (
-            <Box ml="8">{jumpButton}</Box>
+            // Center the small (xs) jump arrow against the value input rather than top-aligning it.
+            <Box ml="8" alignSelf="center">
+              {jumpButton}
+            </Box>
           ) : (
             <ControlButton
               isDanger
