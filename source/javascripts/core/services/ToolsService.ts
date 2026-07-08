@@ -70,6 +70,12 @@ function isKnownToolId(catalog: ToolCatalog | undefined, toolId: string): boolea
   return getKnownToolIds(catalog).includes(toolId);
 }
 
+/** Resolves a tool ID (canonical name or alias) to its catalog canonical name, or itself if unknown. */
+function resolveToolName(catalog: ToolCatalog | undefined, id: string): string {
+  const entry = catalog?.tools.find(({ name, aliases }) => name === id || (aliases ?? []).includes(id));
+  return entry?.name ?? id;
+}
+
 /**
  * Builds the tool-ID dropdown options: one per catalog tool, using its canonical name —
  * except the tool matching `toolId` (by name or alias), which is shown using that exact ID
@@ -90,16 +96,25 @@ function getAvailableToolIdOptions(
   toolId: string,
   existingToolIds: string[],
 ): { value: string; label: string }[] {
-  return getToolIdOptions(catalog, toolId).filter(({ value }) => value === toolId || !existingToolIds.includes(value));
+  const usedNames = new Set(existingToolIds.filter((id) => id !== toolId).map((id) => resolveToolName(catalog, id)));
+  return getToolIdOptions(catalog, toolId).filter(
+    ({ value }) => value === toolId || !usedNames.has(resolveToolName(catalog, value)),
+  );
 }
 
-function validateToolId(id: string, initialId: string, existingIds: string[] = []) {
+function validateToolId(id: string, initialId: string, existingIds: string[] = [], catalog?: ToolCatalog) {
   if (!id.trim()) {
     return 'Tool ID is required';
   }
 
-  if (id !== initialId && existingIds.includes(id)) {
-    return 'Tool ID must be unique';
+  if (id !== initialId) {
+    const name = resolveToolName(catalog, id);
+    const isDuplicate = existingIds.some(
+      (existingId) => existingId !== initialId && resolveToolName(catalog, existingId) === name,
+    );
+    if (isDuplicate) {
+      return 'Tool ID must be unique';
+    }
   }
 
   return true;
@@ -175,6 +190,7 @@ export default {
   deleteTool,
   getKnownToolIds,
   isKnownToolId,
+  resolveToolName,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,

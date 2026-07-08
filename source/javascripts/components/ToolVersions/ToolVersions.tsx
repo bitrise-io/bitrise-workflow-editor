@@ -49,6 +49,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
               strategy={parsed.strategy}
               version={versionValue}
               existingToolIds={existingToolIds}
+              catalog={catalog}
               allowUnset={allowUnset}
               dropdownOptions={ToolsService.getAvailableToolIdOptions(catalog, toolId, existingToolIds)}
               isToolIdKnown={ToolsService.isKnownToolId(catalog, toolId)}
@@ -70,6 +71,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             strategy={pendingStrategy}
             version={pendingVersion}
             existingToolIds={existingToolIds}
+            catalog={catalog}
             allowUnset={allowUnset}
             autoFocus
             dropdownOptions={ToolsService.getAvailableToolIdOptions(catalog, '', existingToolIds)}

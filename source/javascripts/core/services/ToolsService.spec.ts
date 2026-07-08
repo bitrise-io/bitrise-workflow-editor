@@ -142,6 +142,20 @@ describe('ToolsService', () => {
     it('returns an empty array when there is no catalog', () => {
       expect(ToolsService.getAvailableToolIdOptions(undefined, 'go', [])).toEqual([]);
     });
+
+    it('excludes the canonical name when an alias is already pinned by another row', () => {
+      expect(ToolsService.getAvailableToolIdOptions(catalog, '', ['go'])).toEqual([
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
+
+    it('excludes an alias when the canonical name is already pinned by another row', () => {
+      expect(ToolsService.getAvailableToolIdOptions(catalog, '', ['golang'])).toEqual([
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
   });
 
   describe('validateToolId', () => {
@@ -160,6 +174,16 @@ describe('ToolsService', () => {
 
     it('accepts re-using the original ID when renaming', () => {
       expect(ToolsService.validateToolId('node', 'node', ['node', 'python'])).toBe(true);
+    });
+
+    it('rejects an alias when the canonical name is already pinned by another row', () => {
+      const catalog = { tools: [{ name: 'golang', aliases: ['go'] }] };
+      expect(ToolsService.validateToolId('go', '', ['golang'], catalog)).toBe('Tool ID must be unique');
+    });
+
+    it('rejects the canonical name when an alias is already pinned by another row', () => {
+      const catalog = { tools: [{ name: 'golang', aliases: ['go'] }] };
+      expect(ToolsService.validateToolId('golang', '', ['go'], catalog)).toBe('Tool ID must be unique');
     });
   });
 

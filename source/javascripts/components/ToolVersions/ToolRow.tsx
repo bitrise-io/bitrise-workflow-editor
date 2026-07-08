@@ -12,7 +12,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { FocusEventHandler, useState } from 'react';
 
-import { VersionStrategy } from '@/core/models/Tools';
+import { ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
@@ -29,6 +29,7 @@ type ToolRowProps = {
   strategy: VersionStrategy;
   version: string;
   existingToolIds: string[];
+  catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
   autoFocus?: boolean;
   dropdownOptions: { value: string; label: string }[];
@@ -46,6 +47,7 @@ const ToolRow = ({
   strategy,
   version,
   existingToolIds,
+  catalog,
   allowUnset,
   autoFocus,
   dropdownOptions,
@@ -84,7 +86,7 @@ const ToolRow = ({
 
   const handleIdBlur: FocusEventHandler<HTMLInputElement> = (e) => {
     const newId = e.target.value.trim();
-    const validation = ToolsService.validateToolId(newId, toolId, existingToolIds);
+    const validation = ToolsService.validateToolId(newId, toolId, existingToolIds, catalog);
     if (validation !== true) {
       setIdError(validation);
       return;
