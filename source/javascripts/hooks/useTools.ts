@@ -20,6 +20,8 @@ export function useToolCatalog() {
     queryFn: ({ signal }) => ToolCatalogApi.getToolCatalog(signal),
     staleTime: 30 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    // As of July 2026, this fetches a static asset, so there is no benefit to retries
+    retry: false,
   });
 }
 
@@ -30,5 +32,7 @@ export function useToolVersions(toolId: string, enabled: boolean) {
     staleTime: 30 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     enabled,
+    // As of July 2026, this fetches a static asset, so there is no benefit to retries
+    retry: false,
   });
 }
