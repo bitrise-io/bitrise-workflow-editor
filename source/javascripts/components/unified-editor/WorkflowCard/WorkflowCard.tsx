@@ -1,10 +1,15 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
-import { crossFileProvenanceLabel } from '@/components/CrossFileProvenanceText';
+import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
-import { useCrossFileEntity, useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
+import {
+  useCrossFileEntity,
+  useIsMergedConfigSelected,
+  useIsReadOnlyView,
+  useOtherDefiningModules,
+} from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -75,10 +80,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const workflow = useWorkflow(workflowId, (s) => (s ? { title: s?.userValues?.title } : undefined));
   const stackName = useWorkflowStackName(workflowId);
 
-  const { isCrossFile, hasDefinition, definingPaths } = useCrossFileEntity('workflows', workflowId);
+  const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', workflowId);
+  const otherModules = useOtherDefiningModules('workflows', workflowId);
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
-  const showJumpButton = isCrossFile || (isMergedView && hasDefinition);
+  const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
   // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
   // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
   const isGhost = isCrossFile || isReadOnlyView;
@@ -113,10 +119,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   let subtitle = stackName;
+  if (otherModules.nodeIds.length > 0) {
+    subtitle = otherModulesLabel(otherModules);
+  }
   if (uses) {
     subtitle = `Uses ${uses}`;
-  } else if (isCrossFile) {
-    subtitle = crossFileProvenanceLabel(definingPaths);
   }
 
   return (
@@ -163,7 +170,12 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
             {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
                 matching the design's referenced-WF actions: jump → settings → remove. */}
             {showJumpButton && (
-              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+              <CrossFileJumpButton
+                kind="workflows"
+                id={workflowId}
+                nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
+                onOpenChange={setIsJumpPopoverOpen}
+              />
             )}
             {onEditWorkflow && (
               <ControlButton

@@ -1,10 +1,9 @@
 import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 import { useState } from 'react';
 
-import CrossFileProvenanceText from '@/components/CrossFileProvenanceText';
+import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { useCrossFileEntity } from '@/hooks/useTree';
 
 import { WorkflowCardContextProvider } from '../../WorkflowCard/contexts/WorkflowCardContext';
 import StepBundleCard from './StepBundleCard';
@@ -20,7 +19,6 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   const [isPreviewMode, setIsPreviewMode] = useState(true);
   const dependants = useDependantWorkflows({ stepBundleCvs: StepBundleService.idToCvs(id) });
   const usedInWorkflowsText = StepBundleService.getUsedByText(dependants.length);
-  const crossFile = useCrossFileEntity('stepBundles', id);
 
   const handleClick = () => {
     onClick(id);
@@ -42,11 +40,15 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
             {title || id}
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary">
-            {crossFile.isCrossFile ? (
-              <CrossFileProvenanceText definingPaths={crossFile.definingPaths} sourceLabel={crossFile.sourceLabel} />
-            ) : (
-              usedInWorkflowsText
-            )}
+            {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
+                the hover preview (StepBundleCard) to avoid a nested interactive control. */}
+            <EntityModuleProvenance
+              kind="stepBundles"
+              id={id}
+              withJumpLink={false}
+              pathTextStyle="body/md/semibold"
+              fallback={usedInWorkflowsText}
+            />
           </Text>
         </Card>
       </PopoverTrigger>

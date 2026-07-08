@@ -119,6 +119,61 @@ export function useCrossFileEntity(kind: EntityKind, id: string): CrossFileEntit
   });
 }
 
+export type OtherDefiningModules = {
+  /** Repo-relative paths of the defining files other than the one currently open, precedence order. */
+  paths: string[];
+  /** node_ids of those files (for the jump-to-definition picker). */
+  nodeIds: string[];
+  /** Cross-repo source label, only when exactly one other module defines it and it lives in another repo/ref. */
+  sourceLabel?: string;
+  /** The entity is also defined in the module currently open (⇒ "Also defined in" vs. plain "Defined in"). */
+  definedInCurrent: boolean;
+};
+
+const NO_OTHER_MODULES: OtherDefiningModules = { paths: [], nodeIds: [], definedInCurrent: false };
+
+/**
+ * The modules that define an entity *other than the one currently open* — the data behind the
+ * "Also defined in …" provenance line. Excludes the active module (so it surfaces only where the
+ * entity is *also* defined) and reports whether the active module is among the definers, which
+ * chooses the "Also defined in" vs. plain "Defined in" wording (the latter e.g. on the merged view,
+ * where there is no single current module). Empty in single-file mode. — BIVS-3706
+ */
+export function useOtherDefiningModules(kind: EntityKind, id: string): OtherDefiningModules {
+  return useBitriseYmlStore((s) => {
+    const definitions = EntityIndexService.definitionsOf(s.entityIndex, kind, id)
+      .map((definition) => ({ nodeId: definition.nodeId, file: s.files[definition.nodeId] }))
+      .filter((definition) => Boolean(definition.file?.path));
+    const others = definitions.filter((definition) => definition.nodeId !== s.selectedNodeId);
+    if (others.length === 0) {
+      return NO_OTHER_MODULES;
+    }
+    return {
+      paths: others.map((other) => other.file?.path ?? ''),
+      nodeIds: others.map((other) => other.nodeId),
+      sourceLabel:
+        others.length === 1 ? (TreeService.sourceLabel(others[0].file?.source ?? null) ?? undefined) : undefined,
+      definedInCurrent: others.length < definitions.length,
+    };
+  });
+}
+
+export type EntityDefinitionPath = { nodeId: string; path: string };
+
+/**
+ * Every file that defines the entity, in precedence order (top-most first), with paths resolved.
+ * Unlike {@link useCrossFileEntity}, this doesn't short-circuit when the entity is also defined
+ * locally — so it can surface the full "defined in module A, module B" set for a multi-module entity.
+ * Empty in single-file mode (the entity index only tracks modular configs).
+ */
+export function useEntityDefinitionPaths(kind: EntityKind, id: string): EntityDefinitionPath[] {
+  return useBitriseYmlStore((s) =>
+    EntityIndexService.definitionsOf(s.entityIndex, kind, id)
+      .map((definition) => ({ nodeId: definition.nodeId, path: s.files[definition.nodeId]?.path }))
+      .filter((definition): definition is EntityDefinitionPath => Boolean(definition.path)),
+  );
+}
+
 export type FileEntityGroup = { nodeId: string; path: string; ids: string[] };
 
 /**
@@ -156,21 +211,29 @@ export function useEntitiesGroupedByFile(kind: EntityKind, ids: string[]): FileE
   });
 }
 
-export type RootMetaDefinition = { nodeId: string; path: string };
+export type DefaultStackValue = { stackId: string; machineTypeId: string; stackRollbackVersion: string };
+
+export type DefaultStackDefinition = {
+  nodeId: string;
+  path: string;
+  value: DefaultStackValue;
+};
 
 /**
- * Files defining a root `meta['bitrise.io']` stack field (the default stack/machine), highest-precedence-first
- * — mirrors the entity-index walk (node before its includes, includes reversed). The default stack is a
- * singleton (not an id-keyed entity), so it isn't in the entity index; this resolves its source for the
- * Stacks "Default" tab's jump-to-definition.
+ * Each file that defines a root `meta['bitrise.io']` default stack/machine, highest-precedence-first
+ * (node before its includes, includes reversed — mirroring the entity-index walk), with its own
+ * values. The default stack is a singleton (not an id-keyed entity), so it isn't in the entity index;
+ * this resolves its per-file sources for the Stacks "Default" tab (jump-to-definition + the merged
+ * per-module breakdown). Empty outside modular mode or when no file defines a default.
  */
-export function useRootMetaStackDefinitions(): RootMetaDefinition[] {
-  // useBitriseYmlStore applies a deep-equal useShallow internally, so a fresh array is fine.
+export function useDefaultStackDefinitions(): DefaultStackDefinition[] {
+  // A single pure selector over `state` (nothing closed over from another hook), so store updates
+  // recompute it consistently. useBitriseYmlStore applies a deep-equal useShallow, so a fresh array is fine.
   return useBitriseYmlStore((s) => {
     if (!s.tree) {
       return [];
     }
-    const result: RootMetaDefinition[] = [];
+    const result: DefaultStackDefinition[] = [];
     const seen = new Set<string>();
     const visit = (node?: TreeNode) => {
       if (!node || seen.has(node.nodeId)) {
@@ -180,7 +243,15 @@ export function useRootMetaStackDefinitions(): RootMetaDefinition[] {
       const doc = s.files[node.nodeId]?.ymlDocument;
       const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
       if (meta && ROOT_META_STACK_FIELDS.some((field) => meta.has(field))) {
-        result.push({ nodeId: node.nodeId, path: s.files[node.nodeId]?.path ?? node.path });
+        result.push({
+          nodeId: node.nodeId,
+          path: s.files[node.nodeId]?.path ?? node.path,
+          value: {
+            stackId: String(meta.get('stack') ?? ''),
+            machineTypeId: String(meta.get('machine_type_id') ?? ''),
+            stackRollbackVersion: String(meta.get('stack_rollback_version') ?? ''),
+          },
+        });
       }
       for (let i = node.includes.length - 1; i >= 0; i -= 1) {
         visit(node.includes[i]);

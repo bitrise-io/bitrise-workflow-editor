@@ -12,23 +12,25 @@ import FilePickerMenu from './FilePickerMenu';
 type Props = {
   kind: EntityKind;
   id: string;
+  /** Restrict the picker to these files; defaults to every file that defines the entity. */
+  nodeIds?: string[];
   trigger?: ReactElement<{ onClick?: () => void }>;
   onOpenChange?: (isOpen: boolean) => void;
 };
 
 /**
  * Opens a {@link FilePickerMenu} over the files that define a cross-file entity — the node set is
- * derived from the entity index, and selecting a layer jumps to that definition. The explicit
- * `nodeId`-driven counterpart is {@link JumpToFileButton}.
+ * derived from the entity index (or the caller-supplied `nodeIds`), and selecting a layer jumps
+ * there. The explicit `nodeId`-driven counterpart is {@link JumpToFileButton}.
  */
-const JumpToDefinitionLink = ({ kind, id, trigger, onOpenChange }: Props) => {
+const JumpToDefinitionLink = ({ kind, id, nodeIds, trigger, onOpenChange }: Props) => {
   const tree = useTree();
   const entityIndex = useEntityIndex();
   const jumpToDefinition = useJumpToDefinition();
 
   const definitionNodeIds = useMemo(
-    () => EntityIndexService.definitionsOf(entityIndex, kind, id).map((def) => def.nodeId),
-    [entityIndex, kind, id],
+    () => nodeIds ?? EntityIndexService.definitionsOf(entityIndex, kind, id).map((def) => def.nodeId),
+    [nodeIds, entityIndex, kind, id],
   );
 
   const handleSelect = useCallback(

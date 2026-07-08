@@ -5,7 +5,7 @@ import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
-import { updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, updateBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 const ExecutionContainerWildcardRefPath = ['workflows', '*', 'steps', '*', '*', ContainerReferenceField.Execution];
@@ -71,11 +71,24 @@ function addContainerReference(
   sourceId: string,
   stepIndex: number,
   containerId: string,
+  containerType: ContainerType,
 ) {
-  updateBitriseYmlDocument(({ doc }) => {
-    const container = getContainerOrThrowError(containerId, doc);
-    const type = container.get('type') as ContainerType;
+  // The container definition may live in a different module file than the step being edited, so
+  // validate existence against the aggregated entity index (modular) or the active document
+  // (single-file) — not the active file's `containers` — and fail fast on an unknown id rather than
+  // writing a dangling reference. The reference itself is added to the active file (where the step
+  // lives), and the caller supplies the type from the aggregated container list.
+  const state = bitriseYmlStore.getState();
+  const containerExists = state.tree
+    ? Boolean(state.entityIndex.containers?.[containerId])
+    : Boolean(YmlUtils.getMapIn(state.ymlDocument, ['containers', containerId]));
+  if (!containerExists) {
+    throw new Error(
+      `Container ${containerId} not found. Ensure that the container exists in the 'containers' section.`,
+    );
+  }
 
+  updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
     if (source === 'step_bundles' && stepIndex === -1) {
       yamlMap = StepBundleService.getStepBundleOrThrowError(doc, sourceId);
@@ -83,11 +96,11 @@ function addContainerReference(
       yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
     }
 
-    if (type === ContainerType.Execution) {
+    if (containerType === ContainerType.Execution) {
       YmlUtils.setIn(yamlMap, [ContainerReferenceField.Execution], containerId);
     }
 
-    if (type === ContainerType.Service) {
+    if (containerType === ContainerType.Service) {
       if (YmlUtils.isInSeq(yamlMap, [ContainerReferenceField.Service], containerId)) {
         const context = stepIndex === -1 ? `step bundle '${sourceId}'` : 'the step';
         throw new Error(`Service container '${containerId}' is already added to ${context}`);
@@ -247,8 +260,7 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 
   if (type === ContainerType.Service) {
     const serviceContainers = YmlUtils.getSeqIn(yamlMap, [ContainerReferenceField.Service])?.toJSON() as
-      | ContainerReferenceValue[]
-      | undefined;
+      ContainerReferenceValue[] | undefined;
 
     if (serviceContainers && serviceContainers.length > 0) {
       return serviceContainers.map(parseContainerReference);
@@ -278,50 +290,89 @@ function getContainerReferenceFromInstance(
   if (source === 'step_bundles' && stepIndex === -1) {
     return getContainerReferencesFromStepBundleDefinition(sourceId, type, doc);
   }
+  // A cross-file source (a workflow/step bundle defined in another module) is absent from the active
+  // document; return none rather than throwing (throwing crashes the card during render) — mirrors
+  // getContainerReferencesFromStepBundleDefinition.
+  if (!YmlUtils.getMapIn(doc, [source, sourceId])) {
+    return undefined;
+  }
   const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
   return getContainerReferences(type, yamlMap);
 }
 
-function referencesContainer(node: unknown, containerId: string): boolean {
-  if (YmlUtils.isEqualValues(node, containerId)) {
-    return true;
+// The container id a reference node points at — a bare scalar id, or the first key of a
+// `{ id: {opts} }` map — or undefined if it isn't a container reference. The inverse of the shapes
+// `referencesContainer` matched (a scalar equal to the id, or a map whose first key is the id).
+function referencedContainerId(node: unknown): string | undefined {
+  if (isMap(node)) {
+    return node.items.length > 0 ? String(node.items[0]?.key) : undefined;
   }
-  if (isMap(node) && node.items.length > 0) {
-    return String(node.items[0]?.key) === containerId;
-  }
-  return false;
+  const value = isScalar(node) ? node.value : node;
+  return typeof value === 'string' ? value : undefined;
+}
+
+/**
+ * Workflows using each of `containerIds`, scanning the document once. `getMatchingPaths` and
+ * `doc.toJSON()` depend only on the document, so bucketing the matches by their referenced container
+ * avoids re-running them per container (which is O(containers × files) across a modular config).
+ * Every requested id gets an entry (empty array when unused).
+ */
+function getWorkflowsUsingContainers(doc: Document, containerIds: string[]): Map<string, string[]> {
+  const ids = new Set(containerIds);
+  const yml = doc.toJSON();
+  const workflows = yml?.workflows ?? {};
+  const stepBundles = yml?.step_bundles ?? {};
+
+  const directByContainer = new Map<string, string[]>();
+  const stepBundleIdsByContainer = new Map<string, Set<string>>();
+
+  const bucket = <T>(map: Map<string, T[] | Set<T>>, key: string, value: T, factory: () => T[] | Set<T>) => {
+    const existing = map.get(key) ?? factory();
+    if (Array.isArray(existing)) {
+      existing.push(value);
+    } else {
+      existing.add(value);
+    }
+    map.set(key, existing);
+  };
+
+  // Workflows that directly reference a container in their steps.
+  [
+    ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
+  ].forEach(([path]) => {
+    const containerId = referencedContainerId(doc.getIn(path));
+    if (containerId && ids.has(containerId)) {
+      bucket(directByContainer, containerId, String(path[1]), () => []);
+    }
+  });
+
+  // Step bundles that reference a container (definition-level or step-level).
+  [
+    ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionServiceContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, StepBundleExecutionContainerWildcardRefPath),
+    ...YmlUtils.getMatchingPaths(doc, StepBundleServiceContainerWildcardRefPath),
+  ].forEach(([path]) => {
+    const containerId = referencedContainerId(doc.getIn(path));
+    if (containerId && ids.has(containerId)) {
+      bucket(stepBundleIdsByContainer, containerId, String(path[1]), () => new Set<string>());
+    }
+  });
+
+  const result = new Map<string, string[]>();
+  containerIds.forEach((containerId) => {
+    const direct = directByContainer.get(containerId) ?? [];
+    const workflowsFromStepBundles = [...(stepBundleIdsByContainer.get(containerId) ?? [])].flatMap((stepBundleId) =>
+      StepBundleService.getDependantWorkflows(workflows, StepBundleService.idToCvs(stepBundleId), stepBundles),
+    );
+    result.set(containerId, uniq([...direct, ...workflowsFromStepBundles]));
+  });
+  return result;
 }
 
 function getWorkflowsUsingContainer(doc: Document, containerId: string): string[] {
-  const yml = doc.toJSON();
-
-  // Workflows that directly reference the container in their steps
-  const directWorkflowIds = [
-    ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
-    ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
-  ]
-    .filter(([path]) => referencesContainer(doc.getIn(path), containerId))
-    .map(([path]) => String(path[1]));
-
-  // Step bundles that reference the container (definition-level or step-level)
-  const stepBundleIds = uniq(
-    [
-      ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionExecutionContainerWildcardRefPath),
-      ...YmlUtils.getMatchingPaths(doc, StepBundleDefinitionServiceContainerWildcardRefPath),
-      ...YmlUtils.getMatchingPaths(doc, StepBundleExecutionContainerWildcardRefPath),
-      ...YmlUtils.getMatchingPaths(doc, StepBundleServiceContainerWildcardRefPath),
-    ]
-      .filter(([path]) => referencesContainer(doc.getIn(path), containerId))
-      .map(([path]) => String(path[1])),
-  );
-
-  const workflows = yml?.workflows ?? {};
-  const stepBundles = yml?.step_bundles ?? {};
-  const workflowsFromStepBundles = stepBundleIds.flatMap((stepBundleId) =>
-    StepBundleService.getDependantWorkflows(workflows, StepBundleService.idToCvs(stepBundleId), stepBundles),
-  );
-
-  return uniq([...directWorkflowIds, ...workflowsFromStepBundles]);
+  return getWorkflowsUsingContainers(doc, [containerId]).get(containerId) ?? [];
 }
 
 function updateCredentials(container: YAMLMap, newCredentials: ContainerModel['credentials']) {
@@ -420,6 +471,7 @@ function updateContainerReferenceRecreate(
   stepIndex: number,
   containerId: string,
   recreate: boolean,
+  containerType: ContainerType,
 ) {
   updateBitriseYmlDocument(({ doc }) => {
     let yamlMap;
@@ -442,10 +494,11 @@ function updateContainerReferenceRecreate(
 
     const newValue = recreate ? { [containerId]: { recreate: true } } : containerId;
 
-    const container = getContainerOrThrowError(containerId, doc);
-    const type = container.get('type') as ContainerType;
+    // The container definition may live in another module, so the type comes from the caller (the
+    // aggregated container list) rather than a lookup in the active document — the reference we're
+    // toggling is on the active file's step.
     const field =
-      type === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
+      containerType === ContainerType.Execution ? ContainerReferenceField.Execution : ContainerReferenceField.Service;
 
     if (!yamlMap.has(field)) {
       const location =
@@ -540,6 +593,7 @@ export default {
   getContainerReferenceFromInstance,
   getContainerReferencesFromStepBundleDefinition,
   getWorkflowsUsingContainer,
+  getWorkflowsUsingContainers,
   sanitizePort,
   removeContainerReference,
   sanitizeName,

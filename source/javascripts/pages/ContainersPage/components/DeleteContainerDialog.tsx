@@ -5,8 +5,8 @@ import { ContainerType } from '@/core/models/Container';
 import ContainerService from '@/core/services/ContainerService';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useContainers from '@/hooks/useContainers';
+import { useModuleContainers } from '@/hooks/useContainers';
+import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
 import ContainerUsageTable from './ContainerUsageTable';
 
@@ -19,12 +19,12 @@ type DeleteContainerDialogProps = Omit<DialogProps, 'title'> & {
 const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
   const { isOpen, onClose, selectedContainerId, source, type } = props;
 
-  const { all: containers } = useContainers();
+  const { all: containers } = useModuleContainers();
   const selectedContainer = containers.find((c) => c.id === selectedContainerId);
 
-  const workflowsUsedByContainer = useBitriseYmlStore((state) =>
-    ContainerService.getWorkflowsUsingContainer(state.ymlDocument, selectedContainerId),
-  );
+  // Usage spans all modules (BIVS-3708) — a container defined here can be used by a workflow in
+  // another module, and the delete dialog must show the full impact.
+  const workflowsUsedByContainer = useContainerWorkflowUsage(selectedContainerId);
 
   const handleDelete = () => {
     ContainerService.deleteContainer(selectedContainerId);

@@ -1,5 +1,5 @@
 import { Box, Link, Notification } from '@bitrise/bitkit';
-import { RefObject, useCallback, useRef } from 'react';
+import { ReactNode, RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
 import ToolVersions from '@/components/ToolVersions/ToolVersions';
@@ -30,6 +30,12 @@ type Props = {
   stackRollbackVersion?: string;
   withoutDefaultOptions?: boolean;
   workflowId?: string;
+  /** Read-only regardless of the active view — e.g. an inherited default shown in a module that
+   * doesn't define it. OR-ed with the merged/cross-repo read-only view. */
+  forceReadOnly?: boolean;
+  /** Rendered at the trailing edge of the stack/machine selector row — e.g. a jump-to-definition
+   * arrow on the modular read-only views. */
+  selectsTrailing?: ReactNode;
 };
 
 const StackAndMachine = ({
@@ -41,9 +47,11 @@ const StackAndMachine = ({
   stackRollbackVersion,
   withoutDefaultOptions,
   workflowId,
+  forceReadOnly,
+  selectsTrailing,
 }: Props) => {
   const isToolVersionsEnabled = useFeatureFlag('enable-wfe-tool-versions');
-  const isReadOnlyView = useIsReadOnlyView();
+  const isReadOnlyView = useIsReadOnlyView() || Boolean(forceReadOnly);
   const ref = useRef<HTMLDivElement>(null);
   const orientation = useOrientation(ref);
   const { data, isLoading } = useStacksAndMachines();
@@ -142,6 +150,12 @@ const StackAndMachine = ({
           selectedRegion={data?.region}
           width={orientation === 'horizontal' ? '50%' : undefined}
         />
+        {selectsTrailing && (
+          // Align with the select inputs (which sit below their labels), not the label row.
+          <Box alignSelf={orientation === 'horizontal' ? 'flex-start' : 'flex-end'} marginBlockStart="24">
+            {selectsTrailing}
+          </Box>
+        )}
       </Box>
       {useRollbackVersion && (
         <Notification flex="0" marginBlockStart="12" status="warning">

@@ -1,13 +1,13 @@
 /**
  * @jest-environment jsdom
  */
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 import { ContainerType } from '@/core/models/Container';
 import { EntityIndex, TreeNode } from '@/core/models/Tree';
-import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument, initializeModularConfig, selectNode } from '@/core/stores/BitriseYmlStore';
 
-import useContainers from './useContainers';
+import useContainers, { useModuleContainers } from './useContainers';
 
 const SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
 
@@ -81,5 +81,69 @@ describe('useContainers', () => {
     expect(result.current.all).toHaveLength(1);
     expect(result.current[ContainerType.Execution].map((c) => c.id)).toEqual(['dup']);
     expect(result.current[ContainerType.Service]).toHaveLength(0);
+  });
+});
+
+describe('useModuleContainers', () => {
+  it('returns every container in single-config mode', () => {
+    initializeBitriseYmlDocument({
+      ymlString: 'containers:\n  local-ctr:\n    type: execution\n    image: ubuntu:22.04\n',
+      version: '1',
+    });
+
+    const { result } = renderHook(() => useModuleContainers());
+
+    expect(result.current.all.map((c) => c.id)).toEqual(['local-ctr']);
+  });
+
+  it('lists only the active module file, not containers aggregated from included modules', () => {
+    const root: TreeNode = {
+      nodeId: 'root',
+      path: 'bitrise.yml',
+      contents: 'containers:\n  exec-root:\n    type: execution\n    image: ubuntu:22.04\n',
+      source: null,
+      commitSha: SHA,
+      editable: true,
+      includes: [
+        leaf(
+          'n_svc',
+          'containers/services.yml',
+          'containers:\n  svc-mod:\n    type: service\n    image: postgres:16\n',
+        ),
+      ],
+    };
+    // initializeModularConfig selects the root file, so the active module is `bitrise.yml`.
+    initializeModularConfig({ root, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+
+    const { result } = renderHook(() => useModuleContainers());
+
+    // Scoped to the active module: only the root's container, NOT the included module's `svc-mod`.
+    expect(result.current.all.map((c) => c.id)).toEqual(['exec-root']);
+    expect(result.current[ContainerType.Service]).toHaveLength(0);
+  });
+
+  it('re-scopes to the newly selected module when switching files', () => {
+    const root: TreeNode = {
+      nodeId: 'root',
+      path: 'bitrise.yml',
+      contents: 'containers:\n  root-ctr:\n    type: execution\n    image: ubuntu:22.04\n',
+      source: null,
+      commitSha: SHA,
+      editable: true,
+      includes: [leaf('n_mod', 'mod.yml', 'containers:\n  mod-ctr:\n    type: execution\n    image: node:20\n')],
+    };
+    initializeModularConfig({ root, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+
+    const { result } = renderHook(() => useModuleContainers());
+
+    // Root file is active on load: only its container.
+    expect(result.current.all.map((c) => c.id)).toEqual(['root-ctr']);
+
+    // Switching to the module's tab re-scopes to that file only — the root's container is gone,
+    // exactly the "click to another module" case the page must handle.
+    act(() => {
+      selectNode('n_mod');
+    });
+    expect(result.current.all.map((c) => c.id)).toEqual(['mod-ctr']);
   });
 });

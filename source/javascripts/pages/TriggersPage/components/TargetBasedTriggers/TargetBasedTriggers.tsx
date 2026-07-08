@@ -142,18 +142,16 @@ const TargetBasedTriggers = () => {
             >
               Active
             </Checkbox>
-            {isReadOnlyView && useJump ? (
-              // Merged grouped view: edit + delete collapse to a jump-to-definition arrow to the target.
-              <CrossFileJumpButton kind={source} id={sourceId} />
+            {isReadOnlyView ? (
+              // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
+              // collapse to a jump-to-definition arrow; otherwise show nothing.
+              useJump && <CrossFileJumpButton kind={source} id={sourceId} />
             ) : (
-              // Editable, or a read-only view without grouping data (cross-repo/ref file tab, or merged
-              // before the index is built) → keep edit + delete, disabled when read-only.
               <>
                 <IconButton
                   iconName="Pencil"
                   variant="tertiary"
                   aria-label="Edit trigger"
-                  isDisabled={isReadOnlyView}
                   onClick={() => handleOpenDialog(trigger)}
                 />
                 <IconButton
@@ -161,7 +159,6 @@ const TargetBasedTriggers = () => {
                   variant="tertiary"
                   iconName="MinusCircle"
                   aria-label="Delete trigger"
-                  isDisabled={isReadOnlyView}
                   onClick={() => handleDeleteTrigger(trigger)}
                 />
               </>

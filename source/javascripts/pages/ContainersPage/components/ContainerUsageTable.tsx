@@ -11,8 +11,9 @@ type Props = {
 
 const ContainerUsageTable = ({ workflows }: Props) => {
   const { replace } = useNavigation();
-  // Modular: jump to the workflow's definition (opens its file tab, with a file picker when it's
-  // defined in several files). Non-modular: plain navigation to the Workflows page.
+  // Modular: usage can span modules, so jump to the using workflow's definition (a file picker when
+  // it's defined in several files) — that's where the container reference lives. Non-modular: plain
+  // navigation to the Workflows page.
   const isModular = Boolean(useTree());
 
   return (
@@ -31,7 +32,7 @@ const ContainerUsageTable = ({ workflows }: Props) => {
             </Td>
             <Td>
               {isModular ? (
-                <CrossFileJumpButton kind="workflows" id={workflowId} />
+                <CrossFileJumpButton kind="workflows" id={workflowId} label="Go to Workflow" />
               ) : (
                 <BitkitControlButton
                   size="xs"

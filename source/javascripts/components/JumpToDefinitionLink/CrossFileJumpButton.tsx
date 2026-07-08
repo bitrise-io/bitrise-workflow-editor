@@ -2,24 +2,39 @@ import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import { EntityKind } from '@/core/models/Tree';
+import { useTree } from '@/hooks/useTree';
 
 import JumpToDefinitionLink from './JumpToDefinitionLink';
 
 type Props = {
   kind: EntityKind;
   id: string;
+  /** Restrict the picker to these files; defaults to every file that defines the entity. */
+  nodeIds?: string[];
+  /** Accessible label / tooltip for the button. Defaults to "Edit definition". */
+  label?: string;
   onOpenChange?: (isOpen: boolean) => void;
 };
 
-const CrossFileJumpButton = ({ kind, id, onOpenChange }: Props) => (
-  <Box onClick={(e) => e.stopPropagation()} className="nopan">
-    <JumpToDefinitionLink
-      kind={kind}
-      id={id}
-      onOpenChange={onOpenChange}
-      trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
-    />
-  </Box>
-);
+const CrossFileJumpButton = ({ kind, id, nodeIds, label = 'Edit definition', onOpenChange }: Props) => {
+  // Single-file mode has no cross-file definitions to jump to; render nothing rather than an empty
+  // wrapper, which would still consume a slot (and `gap`) in flex layouts.
+  const tree = useTree();
+  if (!tree) {
+    return null;
+  }
+
+  return (
+    <Box onClick={(e) => e.stopPropagation()} className="nopan">
+      <JumpToDefinitionLink
+        kind={kind}
+        id={id}
+        nodeIds={nodeIds}
+        onOpenChange={onOpenChange}
+        trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label={label} />}
+      />
+    </Box>
+  );
+};
 
 export default CrossFileJumpButton;

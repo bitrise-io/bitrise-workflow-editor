@@ -33,21 +33,30 @@ type Props = {
   sourceId?: string;
   initialEnvs?: EnvVar[];
   hideAddButton?: boolean;
+  /** Rendered in place of the list when there are no env vars — e.g. the merged view's read-only
+   * per-file sections show "No Environment Variables defined." instead of an empty, addable table. */
+  emptyText?: string;
   renderJumpButton?: (env: SortableEnvVar) => ReactNode;
 };
 
-const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, renderJumpButton }: Props) => {
+const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, emptyText, renderJumpButton }: Props) => {
   return (
-    <Card as="section" variant="outline">
+    <Card as="section" variant="outline" overflow="hidden">
       <EnvVarsTableHeader />
       <Box>
-        <SortableEnvVars
-          source={source}
-          sourceId={sourceId}
-          initialEnvs={initialEnvs}
-          hideAddButton={hideAddButton}
-          renderJumpButton={renderJumpButton}
-        />
+        {emptyText && !initialEnvs?.length ? (
+          <Text paddingInline="32" paddingBlock="16" textStyle="body/md/regular" color="text/secondary">
+            {emptyText}
+          </Text>
+        ) : (
+          <SortableEnvVars
+            source={source}
+            sourceId={sourceId}
+            initialEnvs={initialEnvs}
+            hideAddButton={hideAddButton}
+            renderJumpButton={renderJumpButton}
+          />
+        )}
       </Box>
     </Card>
   );

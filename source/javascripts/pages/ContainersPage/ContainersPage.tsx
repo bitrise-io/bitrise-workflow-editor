@@ -5,7 +5,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
-import useContainers from '@/hooks/useContainers';
+import { useModuleContainers } from '@/hooks/useContainers';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 import useSearchParams from '@/hooks/useSearchParams';
 
@@ -17,7 +17,7 @@ const TAB_IDS = [ContainerType.Execution, ContainerType.Service];
 
 const ContainersPage = () => {
   const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
-    useContainers();
+    useModuleContainers();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });

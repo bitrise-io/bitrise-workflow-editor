@@ -1,4 +1,4 @@
-import { Text } from '@bitrise/bitkit';
+import { EmptyState, Text } from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -14,6 +14,16 @@ import { useProjectEnvVarFileGroups } from '../useProjectEnvVarFileGroups';
 const ProjectTab = () => {
   const isMergedView = useIsMergedConfigSelected();
   const fileGroups = useProjectEnvVarFileGroups();
+  const hasAnyEnvs = fileGroups.some((group) => group.envs.length > 0);
+
+  // Merged view with no project env vars in any module: a single empty state, no per-file breakdown.
+  if (isMergedView && !hasAnyEnvs) {
+    return (
+      <TabContainer>
+        <EmptyState iconName="Dollars" title="No Environment Variables created in any modules." />
+      </TabContainer>
+    );
+  }
 
   return (
     <TabContainer>
@@ -22,8 +32,9 @@ const ProjectTab = () => {
         title="Project Environment Variables"
         subtitle="Variables will also be available in builds triggered by pull requests"
       />
-      {isMergedView && fileGroups.length > 0 ? (
-        // Merged (read-only) view: one table per source file, with per-row jump-to-definition arrows.
+      {isMergedView ? (
+        // Merged (read-only) view: one table per module file — empty files show a placeholder — with
+        // per-row jump-to-definition arrows.
         fileGroups.map((group) => (
           <Fragment key={group.nodeId}>
             <Text as="h3" textStyle="heading/h3">
@@ -33,6 +44,7 @@ const ProjectTab = () => {
               source={EnvVarSource.App}
               initialEnvs={group.envs}
               hideAddButton
+              emptyText="No Environment Variables defined."
               renderJumpButton={(_env) => <JumpToFileButton nodeId={group.nodeId} />}
             />
           </Fragment>

@@ -75,33 +75,29 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 <OverflowMenuItem leftIconName="Duplicate" onClick={() => copy(key)}>
                   Copy key
                 </OverflowMenuItem>
-                <OverflowMenuItem leftIconName="Pencil" isDisabled={isReadOnlyView} onClick={() => onEdit(index)}>
-                  Edit input
-                </OverflowMenuItem>
-                <Divider />
-                <OverflowMenuItem
-                  leftIconName="Trash"
-                  isDanger
-                  isDisabled={isReadOnlyView}
-                  onClick={() => onDelete(index)}
-                >
-                  Delete
-                </OverflowMenuItem>
+                {/* Read-only (merged/ghost): no edit/delete CTAs — hidden, not disabled (BIVS-3721). */}
+                {!isReadOnlyView && (
+                  <>
+                    <OverflowMenuItem leftIconName="Pencil" onClick={() => onEdit(index)}>
+                      Edit input
+                    </OverflowMenuItem>
+                    <Divider />
+                    <OverflowMenuItem leftIconName="Trash" isDanger onClick={() => onDelete(index)}>
+                      Delete
+                    </OverflowMenuItem>
+                  </>
+                )}
               </OverflowMenu>
             </Box>
             <Divider my="16" />
           </Fragment>
         );
       })}
-      <Button
-        leftIconName="Plus"
-        variant="tertiary"
-        size="md"
-        isDisabled={isReadOnlyView}
-        onClick={() => onAdd(category)}
-      >
-        Add input
-      </Button>
+      {!isReadOnlyView && (
+        <Button leftIconName="Plus" variant="tertiary" size="md" onClick={() => onAdd(category)}>
+          Add input
+        </Button>
+      )}
     </>
   );
 

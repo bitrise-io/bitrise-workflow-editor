@@ -20,6 +20,7 @@ import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
+import ContainerDefinitions from './ContainerDefinitions';
 import ContainerUsageDialog from './ContainerUsageDialog';
 import DeleteContainerDialog from './DeleteContainerDialog';
 
@@ -77,6 +78,7 @@ const ContainersTable = ({
               <Tr key={container.id}>
                 <Td>
                   <Text textStyle="body/md/regular">{container.id}</Text>
+                  <ContainerDefinitions id={container.id} />
                 </Td>
                 <Td>
                   <Text textStyle="body/md/regular">{container.userValues.image}</Text>

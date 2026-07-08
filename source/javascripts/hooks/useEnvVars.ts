@@ -4,13 +4,17 @@ import { useMemo } from 'react';
 import EnvVarsApi from '@/core/api/EnvVarsApi';
 import StepApi from '@/core/api/StepApi';
 import { EnvVar } from '@/core/models/EnvVar';
+import { TreeNode } from '@/core/models/Tree';
 import EnvVarService from '@/core/services/EnvVarService';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import PageProps from '@/core/utils/PageProps';
+import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import useDefaultStepLibrary from './useDefaultStepLibrary';
+
+type FromYmlEnv = Parameters<typeof EnvVarService.fromYml>[0];
 
 const useDefaultEnvVars = (enabled: boolean) => {
   const appSlug = PageProps.appSlug();
@@ -28,10 +32,32 @@ const useAppLevelEnvVars = () => {
   return useBitriseYmlStore((s) => {
     const envVarMap = new Map<string, EnvVar>();
 
-    s.yml.app?.envs?.forEach((envVarYml) => {
-      const env = EnvVarService.fromYml(envVarYml, 'Project env vars');
-      envVarMap.set(env.key, env);
-    });
+    const addEnvs = (rawEnvs: unknown, source: string) => {
+      if (!Array.isArray(rawEnvs)) {
+        return;
+      }
+      rawEnvs.forEach((envVarYml) => {
+        const env = EnvVarService.fromYml(envVarYml as FromYmlEnv, source);
+        envVarMap.set(env.key, env);
+      });
+    };
+
+    if (s.tree) {
+      // Modular: project env vars (`app.envs`) can be defined in any module file and all merge into the
+      // effective config, so they're globally available — aggregate across every file rather than just
+      // the active doc, so cross-module project env vars are offered here too. Post-order (included
+      // files first, then the including file) so a node outranks the files it includes on a duplicate
+      // key. Each is tagged with the module it's defined in, so the selector shows it. Mirrors useContainers.
+      const collect = (node: TreeNode) => {
+        node.includes.forEach(collect);
+        const slice = s.files[node.nodeId];
+        const rawEnvs = slice ? YmlUtils.getSeqIn(slice.ymlDocument, ['app', 'envs'])?.toJSON() : undefined;
+        addEnvs(rawEnvs, `Project env vars • defined in ${slice?.path ?? node.path}`);
+      };
+      collect(s.tree);
+    } else {
+      addEnvs(s.yml.app?.envs, 'Project env vars');
+    }
 
     return Array.from(envVarMap.values());
   });
