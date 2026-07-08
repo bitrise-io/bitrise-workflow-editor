@@ -6,7 +6,7 @@ import { renderHook } from '@testing-library/react';
 import { EntityIndex, TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
-import useContainerWorkflowUsage from './useContainerWorkflowUsage';
+import useContainerWorkflowUsage, { useContainerUsageByWorkflow } from './useContainerWorkflowUsage';
 
 const SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
 const EMPTY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {}, containers: {} };
@@ -103,5 +103,30 @@ describe('useContainerWorkflowUsage', () => {
         ['ec3', []],
       ]),
     );
+  });
+});
+
+describe('useContainerUsageByWorkflow', () => {
+  it('maps each using workflow to only the modules where it actually references the container', () => {
+    const root: TreeNode = {
+      nodeId: 'root',
+      path: 'bitrise.yml',
+      contents:
+        'containers:\n  ec1:\n    type: execution\n    image: ubuntu:22.04\n' +
+        // root's wf-x uses ec1.
+        'workflows:\n  wf-x:\n    steps:\n      - script:\n          execution_container: ec1\n',
+      source: null,
+      commitSha: SHA,
+      editable: true,
+      includes: [
+        // A same-named wf-x lives in the module but does NOT use ec1 — must not be listed.
+        leaf('n_mod', 'mod.yml', 'workflows:\n  wf-x:\n    steps:\n      - script: {}\n'),
+      ],
+    };
+    initializeModularConfig({ root, entityIndex: EMPTY_INDEX, branch: 'main', commitSha: SHA });
+
+    const { result } = renderHook(() => useContainerUsageByWorkflow('ec1'));
+
+    expect(result.current).toEqual(new Map([['wf-x', ['root']]]));
   });
 });
