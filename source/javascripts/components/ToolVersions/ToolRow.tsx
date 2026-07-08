@@ -1,7 +1,6 @@
 import {
   BitkitIconButton,
   BitkitLink,
-  BitkitNativeSelect,
   BitkitSelect,
   BitkitTextInput,
   IconMinusCircle,
@@ -129,25 +128,20 @@ const ToolRow = ({
         </Box>
 
         <Box display="flex" flex="1" alignItems="flex-start" gap="8">
-          <BitkitNativeSelect
+          <BitkitSelect
             flex="1"
             size="md"
-            value={strategy}
-            onChange={(e) => handleStrategyChange(e.target.value as VersionStrategy)}
-          >
-            {Object.entries(STRATEGY_LABELS)
+            items={Object.entries(STRATEGY_LABELS)
               .filter(([value]) => allowUnset || value !== 'unset')
-              .map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-          </BitkitNativeSelect>
+              .map(([value, label]) => ({ value, label }))}
+            value={strategy}
+            onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
+          />
 
           {strategy !== 'unset' && (
             <BitkitTextInput
               size="md"
-              width={rem(160)}
+              width={rem(120)}
               flexShrink="0"
               placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
               inputProps={{
