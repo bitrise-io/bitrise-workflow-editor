@@ -1,3 +1,4 @@
+import { TriggersModel } from '@/core/models/BitriseYml';
 import { TargetBasedTrigger, TriggerSource } from '@/core/models/Trigger';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import TreeService from '@/core/services/TreeService';
@@ -74,5 +75,37 @@ function useTriggersGroupedByFile(triggers: TargetBasedTrigger[]): TriggerFileGr
   });
 }
 
-export { useAllTargetBasedTriggers, useTriggersGroupedByFile };
+/**
+ * node_ids of the files that actually define a target-based trigger for each `${source}#${sourceId}`
+ * target. Unlike the entity index (which lists every file *defining* a workflow/pipeline), this only
+ * counts files whose `triggers` block yields at least one push/pull_request/tag trigger — so the
+ * merged view's jump-to-definition can point at the modules that really carry a trigger, not every
+ * module that happens to define the target. Empty in single-file mode.
+ */
+function useTriggerDefiningNodeIds(): Map<string, string[]> {
+  return useBitriseYmlStore((s) => {
+    const result = new Map<string, string[]>();
+    if (!s.tree) {
+      return result;
+    }
+    const sources: TriggerSource[] = ['workflows', 'pipelines'];
+    Object.values(s.files).forEach((slice) => {
+      const yml = slice.ymlDocument.toJSON() as Partial<
+        Record<TriggerSource, Record<string, { triggers?: TriggersModel }>>
+      > | null;
+      sources.forEach((source) => {
+        Object.entries(yml?.[source] ?? {}).forEach(([sourceId, target]) => {
+          const items = TriggerService.toTargetBasedTriggers(source, sourceId, target?.triggers);
+          if (items.push.length || items.pull_request.length || items.tag.length) {
+            const key = `${source}#${sourceId}`;
+            result.set(key, [...(result.get(key) ?? []), slice.nodeId]);
+          }
+        });
+      });
+    });
+    return result;
+  });
+}
+
+export { useAllTargetBasedTriggers, useTriggerDefiningNodeIds, useTriggersGroupedByFile };
 export default useTargetBasedTriggers;
