@@ -62,8 +62,10 @@ const DefaultTab = () => {
     );
   }
 
-  // Module tab that doesn't define the default: show the inherited default read-only, sourced from the
-  // defining module, with a jump to where it's actually defined.
+  // Module tab that doesn't define its own default: pre-fill the inherited value (sourced from the
+  // defining module) and show where it currently comes from + a jump, but keep the selectors editable
+  // so the module can set its own default — editing writes it to this file. (The merged/ghost views
+  // stay read-only via useIsReadOnlyView, independent of this.)
   if (isModular && !hasLocalDefault) {
     if (!inheritedDefault) {
       return (
@@ -80,7 +82,6 @@ const DefaultTab = () => {
         <DefaultStackAndMachine
           definingPath={inheritedDefault.definingPath}
           value={inheritedDefault.value}
-          readOnly
           selectsTrailing={<JumpToFileButton nodeId={inheritedDefault.nodeIds[0]} />}
         />
       </TabContainer>
