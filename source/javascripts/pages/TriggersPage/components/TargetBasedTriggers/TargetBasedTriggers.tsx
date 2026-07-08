@@ -22,7 +22,11 @@ import TriggerConditions from '@/components/unified-editor/Triggers/TriggerCondi
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
-import { useAllTargetBasedTriggers, useTriggersGroupedByFile } from '@/hooks/useTargetBasedTriggers';
+import {
+  useAllTargetBasedTriggers,
+  useTriggerDefiningNodeIds,
+  useTriggersGroupedByFile,
+} from '@/hooks/useTargetBasedTriggers';
 import { useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 
 import AddTriggerButton from './AddTriggerButton';
@@ -77,6 +81,9 @@ const TargetBasedTriggers = () => {
   // Merged (read-only) view: group by the source file of each trigger's target.
   // Only group on the merged tab; elsewhere there's nothing to group, so skip the work entirely.
   const fileGroups = useTriggersGroupedByFile(isMergedView ? sortedFilteredTriggers : []);
+  // The files that actually carry a trigger for each target — so the jump-to-definition lists only
+  // the modules where a trigger really lives, not every module that defines the workflow/pipeline.
+  const triggerNodesBySource = useTriggerDefiningNodeIds();
 
   const handleOpenDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);
@@ -144,8 +151,11 @@ const TargetBasedTriggers = () => {
             </Checkbox>
             {isReadOnlyView ? (
               // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
-              // collapse to a jump-to-definition arrow; otherwise show nothing.
-              useJump && <CrossFileJumpButton kind={source} id={sourceId} />
+              // collapse to a jump-to-definition arrow over the modules that actually carry a trigger;
+              // otherwise show nothing.
+              useJump && (
+                <CrossFileJumpButton kind={source} id={sourceId} nodeIds={triggerNodesBySource.get(trigger.source)} />
+              )
             ) : (
               <>
                 <IconButton
