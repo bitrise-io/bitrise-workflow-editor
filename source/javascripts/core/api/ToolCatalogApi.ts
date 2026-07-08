@@ -1,12 +1,9 @@
 import semver from 'semver';
 
 import { ToolCatalog, ToolCatalogEntry, ToolVersions } from '../models/Tools';
+import Client, { ClientError } from './client';
 
-// The tool version catalog is served as static, public JSON assets — not the
-// Bitrise API — so it is fetched with a plain `fetch` (no CSRF token, no JSON
-// `Content-Type`) to keep the cross-origin request a CORS-simple request and
-// avoid an unnecessary preflight. Failures throw a `ToolCatalogError` so callers
-// can distinguish a network/HTTP/parse failure from a legitimately empty result.
+// The tool version catalog is served as static, public JSON assets
 const TOOL_CATALOG_BASE_URL = 'https://bitrise.io/stacks/tools/v1';
 const REQUEST_TIMEOUT_MS = 30_000;
 
@@ -52,41 +49,31 @@ function getToolCatalogUrl(toolId: string): string {
 }
 
 /**
- * Fetch and parse a JSON document. Throws a `ToolCatalogError` on any failure —
- * network error, non-2xx status, or malformed JSON.
+ * Fetch and parse a JSON document through the shared client, kept CORS-simple so
+ * the cross-origin request avoids a preflight. Throws a
+ * `ToolCatalogError` on any failure — network error, non-2xx status, or
+ * malformed JSON.
  */
 async function fetchJson<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-  const onExternalAbort = () => controller.abort();
-  signal?.addEventListener('abort', onExternalAbort, { once: true });
+  let response: Response;
+  try {
+    response = await Client.raw(url, {
+      method: 'GET',
+      signal,
+      timeout: REQUEST_TIMEOUT_MS,
+      excludeCSRF: true,
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  } catch (error) {
+    const status = error instanceof ClientError ? error.status : undefined;
+    const message = status ? `Request to ${url} failed with status ${status}` : `Failed to fetch ${url}`;
+    throw new ToolCatalogError(message, url, { status, cause: error });
+  }
 
   try {
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-        signal: controller.signal,
-      });
-    } catch (error) {
-      throw new ToolCatalogError(`Failed to fetch ${url}`, url, { cause: error });
-    }
-
-    if (!response.ok) {
-      throw new ToolCatalogError(`Request to ${url} failed with status ${response.status}`, url, {
-        status: response.status,
-      });
-    }
-
-    try {
-      return (await response.json()) as T;
-    } catch (error) {
-      throw new ToolCatalogError(`Malformed JSON from ${url}`, url, { cause: error });
-    }
-  } finally {
-    clearTimeout(timeoutId);
-    signal?.removeEventListener('abort', onExternalAbort);
+    return (await response.json()) as T;
+  } catch (error) {
+    throw new ToolCatalogError(`Malformed JSON from ${url}`, url, { cause: error });
   }
 }
 

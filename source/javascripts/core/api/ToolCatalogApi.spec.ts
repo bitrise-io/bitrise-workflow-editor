@@ -1,24 +1,27 @@
+import Client, { ClientError } from './client';
 import ToolCatalogApi, { ToolCatalogError } from './ToolCatalogApi';
 
 function jsonResponse(body: unknown): Response {
-  return { ok: true, status: 200, json: () => Promise.resolve(body) } as unknown as Response;
+  return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } });
 }
 
-function errorResponse(status: number): Response {
-  return { ok: false, status, json: () => Promise.reject(new Error('no body')) } as unknown as Response;
+function clientError(status: number): ClientError {
+  return new ClientError(new Error('boom'), new Response(null, { status }));
 }
 
-const fetchMock = jest.fn<Promise<Response>, [RequestInfo | URL, RequestInit?]>();
+function networkError(): ClientError {
+  // A transport failure has no `Response`, so `ClientError.status` is undefined.
+  return new ClientError(new TypeError('Failed to fetch'));
+}
 
-beforeEach(() => {
-  fetchMock.mockReset();
-  global.fetch = fetchMock as unknown as typeof fetch;
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe('ToolCatalogApi', () => {
   describe('getToolCatalog', () => {
     it('fetches and parses the catalog index, preserving aliases', async () => {
-      fetchMock.mockResolvedValue(
+      const raw = jest.spyOn(Client, 'raw').mockResolvedValue(
         jsonResponse({
           tools: [
             { name: 'nodejs', aliases: ['node'] },
@@ -36,38 +39,48 @@ describe('ToolCatalogApi', () => {
           { name: 'python', aliases: [] },
         ],
       });
-      expect(fetchMock).toHaveBeenCalledWith(
+      expect(raw).toHaveBeenCalledWith(
         'https://bitrise.io/stacks/tools/v1/catalog.json',
         expect.objectContaining({ method: 'GET' }),
       );
     });
 
-    it('throws a ToolCatalogError on a network error', async () => {
-      const cause = new TypeError('Failed to fetch');
-      fetchMock.mockRejectedValue(cause);
+    // As of July 2026, the tool catalog is available as a set of static json files
+    // rather than a proper server. In order to avoid CSRF preflight request, we provide
+    // these inputs to the client.
+    it('requests it as a CORS-simple GET: CSRF excluded, Content-Type overridden to text/plain', async () => {
+      const raw = jest.spyOn(Client, 'raw').mockResolvedValue(jsonResponse({ tools: [] }));
+
+      await ToolCatalogApi.getToolCatalog();
+
+      expect(raw).toHaveBeenCalledWith(
+        'https://bitrise.io/stacks/tools/v1/catalog.json',
+        expect.objectContaining({ excludeCSRF: true, headers: { 'Content-Type': 'text/plain' } }),
+      );
+    });
+
+    it('throws a ToolCatalogError (wrapping the ClientError) on a network error', async () => {
+      const cause = networkError();
+      jest.spyOn(Client, 'raw').mockRejectedValue(cause);
 
       await expect(ToolCatalogApi.getToolCatalog()).rejects.toThrow(ToolCatalogError);
       await expect(ToolCatalogApi.getToolCatalog()).rejects.toMatchObject({ cause });
     });
 
     it('throws a ToolCatalogError with the status on a non-2xx response', async () => {
-      fetchMock.mockResolvedValue(errorResponse(404));
+      jest.spyOn(Client, 'raw').mockRejectedValue(clientError(404));
 
       await expect(ToolCatalogApi.getToolCatalog()).rejects.toMatchObject({ status: 404 });
     });
 
     it('throws a ToolCatalogError on malformed JSON', async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: () => Promise.reject(new SyntaxError('Unexpected token')),
-      } as unknown as Response);
+      jest.spyOn(Client, 'raw').mockResolvedValue(new Response('<html>not json</html>', { status: 200 }));
 
       await expect(ToolCatalogApi.getToolCatalog()).rejects.toThrow(ToolCatalogError);
     });
 
     it('throws a ToolCatalogError when the payload is missing the tools array', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ timestamp: 'now' }));
+      jest.spyOn(Client, 'raw').mockResolvedValue(jsonResponse({ timestamp: 'now' }));
 
       await expect(ToolCatalogApi.getToolCatalog()).rejects.toThrow(ToolCatalogError);
     });
@@ -75,7 +88,9 @@ describe('ToolCatalogApi', () => {
 
   describe('getToolVersions', () => {
     it('fetches and parses a tool version list, flagging each version as SemVer', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ versions: ['26.4.0', '26.3.1', '24.16.0'], timestamp: 'now' }));
+      const raw = jest
+        .spyOn(Client, 'raw')
+        .mockResolvedValue(jsonResponse({ versions: ['26.4.0', '26.3.1', '24.16.0'], timestamp: 'now' }));
 
       await expect(ToolCatalogApi.getToolVersions('nodejs')).resolves.toEqual({
         toolId: 'nodejs',
@@ -85,14 +100,14 @@ describe('ToolCatalogApi', () => {
           { version: '24.16.0', isSemver: true },
         ],
       });
-      expect(fetchMock).toHaveBeenCalledWith(
+      expect(raw).toHaveBeenCalledWith(
         'https://bitrise.io/stacks/tools/v1/nodejs.json',
         expect.objectContaining({ method: 'GET' }),
       );
     });
 
     it('flags each version independently in a mixed SemVer / non-SemVer list', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ versions: ['6.3.3', '6.3', 'nightly'] }));
+      jest.spyOn(Client, 'raw').mockResolvedValue(jsonResponse({ versions: ['6.3.3', '6.3', 'nightly'] }));
 
       await expect(ToolCatalogApi.getToolVersions('swift')).resolves.toEqual({
         toolId: 'swift',
@@ -105,7 +120,7 @@ describe('ToolCatalogApi', () => {
     });
 
     it('returns an empty version list unchanged', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ versions: [] }));
+      jest.spyOn(Client, 'raw').mockResolvedValue(jsonResponse({ versions: [] }));
 
       await expect(ToolCatalogApi.getToolVersions('nodejs')).resolves.toEqual({
         toolId: 'nodejs',
@@ -114,19 +129,19 @@ describe('ToolCatalogApi', () => {
     });
 
     it('throws a ToolCatalogError on a network error', async () => {
-      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+      jest.spyOn(Client, 'raw').mockRejectedValue(networkError());
 
       await expect(ToolCatalogApi.getToolVersions('nodejs')).rejects.toThrow(ToolCatalogError);
     });
 
     it('throws a ToolCatalogError with the status on a non-2xx response', async () => {
-      fetchMock.mockResolvedValue(errorResponse(500));
+      jest.spyOn(Client, 'raw').mockRejectedValue(clientError(500));
 
       await expect(ToolCatalogApi.getToolVersions('nodejs')).rejects.toMatchObject({ status: 500 });
     });
 
     it('throws a ToolCatalogError when the payload is missing the versions array', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ timestamp: 'now' }));
+      jest.spyOn(Client, 'raw').mockResolvedValue(jsonResponse({ timestamp: 'now' }));
 
       await expect(ToolCatalogApi.getToolVersions('nodejs')).rejects.toThrow(ToolCatalogError);
     });
