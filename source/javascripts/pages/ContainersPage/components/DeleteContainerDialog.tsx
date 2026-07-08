@@ -76,7 +76,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
         </Text>
         {type === 'definition' && workflowsUsedByContainer.length > 0 && (
           <>
-            <ContainerUsageTable workflows={workflowsUsedByContainer} />
+            <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
             <Divider color="border/regular" />
           </>
         )}
