@@ -20,7 +20,7 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
           {selectedContainerId}
         </Text>{' '}
         is used in {workflowsUsedByContainer.length} Workflow{workflowsUsedByContainer.length !== 1 ? 's' : ''}.
-        <ContainerUsageTable workflows={workflowsUsedByContainer} />
+        <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
         <Divider color="border/regular" />
       </DialogBody>
       <DialogFooter />
