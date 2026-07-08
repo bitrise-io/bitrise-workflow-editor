@@ -83,7 +83,8 @@ const TargetBasedTriggers = () => {
   const fileGroups = useTriggersGroupedByFile(isMergedView ? sortedFilteredTriggers : []);
   // The files that actually carry a trigger for each target — so the jump-to-definition lists only
   // the modules where a trigger really lives, not every module that defines the workflow/pipeline.
-  const triggerNodesBySource = useTriggerDefiningNodeIds();
+  // Only the merged view renders the jump, so skip the per-file scan otherwise.
+  const triggerNodesBySource = useTriggerDefiningNodeIds(isMergedView);
 
   const handleOpenDialog = (trigger: TargetBasedTrigger) => {
     setEditedItem(trigger);

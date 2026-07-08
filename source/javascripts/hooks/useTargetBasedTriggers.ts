@@ -80,12 +80,13 @@ function useTriggersGroupedByFile(triggers: TargetBasedTrigger[]): TriggerFileGr
  * target. Unlike the entity index (which lists every file *defining* a workflow/pipeline), this only
  * counts files whose `triggers` block yields at least one push/pull_request/tag trigger — so the
  * merged view's jump-to-definition can point at the modules that really carry a trigger, not every
- * module that happens to define the target. Empty in single-file mode.
+ * module that happens to define the target. Empty in single-file mode. Only the merged view renders
+ * the jump, so callers pass `enabled = isMergedView` to skip the per-file scan everywhere else.
  */
-function useTriggerDefiningNodeIds(): Map<string, string[]> {
+function useTriggerDefiningNodeIds(enabled = true): Map<string, string[]> {
   return useBitriseYmlStore((s) => {
     const result = new Map<string, string[]>();
-    if (!s.tree) {
+    if (!enabled || !s.tree) {
       return result;
     }
     const sources: TriggerSource[] = ['workflows', 'pipelines'];
@@ -98,7 +99,12 @@ function useTriggerDefiningNodeIds(): Map<string, string[]> {
           const items = TriggerService.toTargetBasedTriggers(source, sourceId, target?.triggers);
           if (items.push.length || items.pull_request.length || items.tag.length) {
             const key = `${source}#${sourceId}`;
-            result.set(key, [...(result.get(key) ?? []), slice.nodeId]);
+            const nodeIds = result.get(key);
+            if (nodeIds) {
+              nodeIds.push(slice.nodeId);
+            } else {
+              result.set(key, [slice.nodeId]);
+            }
           }
         });
       });
