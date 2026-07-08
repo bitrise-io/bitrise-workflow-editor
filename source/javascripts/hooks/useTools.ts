@@ -17,7 +17,7 @@ export function useToolsForScope(scope: ToolScope): Tools {
 export function useToolCatalog() {
   return useQuery({
     queryKey: ['tool-catalog'],
-    queryFn: () => ToolCatalogApi.getToolCatalog(),
+    queryFn: ({ signal }) => ToolCatalogApi.getToolCatalog(signal),
     staleTime: 30 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
@@ -26,7 +26,7 @@ export function useToolCatalog() {
 export function useToolVersions(toolId: string, enabled: boolean) {
   return useQuery({
     queryKey: ['tool-versions', toolId],
-    queryFn: () => ToolCatalogApi.getToolVersions(toolId),
+    queryFn: ({ signal }) => ToolCatalogApi.getToolVersions(toolId, signal),
     staleTime: 30 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     enabled,
