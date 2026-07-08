@@ -81,7 +81,9 @@ const ToolRow = ({
     }
     setManualOther(false);
     setIdError(undefined);
-    onIdChange(newValue);
+    if (newValue !== toolId) {
+      onIdChange(newValue);
+    }
   };
 
   const handleIdBlur: FocusEventHandler<HTMLInputElement> = (e) => {
