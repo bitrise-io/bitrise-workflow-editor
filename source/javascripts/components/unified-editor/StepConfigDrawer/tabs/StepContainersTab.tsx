@@ -8,22 +8,38 @@ import useContainers from '@/hooks/useContainers';
 const StepContainersTab = () => {
   const { workflowId, stepBundleId, stepIndex, data } = useStepDrawerContext();
 
+  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
+    useContainers();
+
   const handleAdd = (containerId: string) => {
+    // The container may be defined in another module, so resolve it from the aggregated list and use
+    // its actual type; no-op if it can't be found rather than writing a wrong/dangling reference.
+    const container = [...executionContainers, ...serviceContainers].find((c) => c.id === containerId);
+    if (!container) {
+      return;
+    }
     ContainerService.addContainerReference(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
+      container.userValues.type as ContainerType,
     );
   };
 
   const handleRecreate = (containerId: string, recreate: boolean) => {
+    // The container may be defined in another module, so resolve it from the aggregated list for its type.
+    const container = [...executionContainers, ...serviceContainers].find((c) => c.id === containerId);
+    if (!container) {
+      return;
+    }
     ContainerService.updateContainerReferenceRecreate(
       stepBundleId ? 'step_bundles' : 'workflows',
       stepBundleId || workflowId,
       stepIndex,
       containerId,
       recreate,
+      container.userValues.type as ContainerType,
     );
   };
 
@@ -38,9 +54,6 @@ const StepContainersTab = () => {
 
   const source = stepBundleId ? 'step_bundles' : 'workflows';
   const sourceId = stepBundleId || workflowId;
-
-  const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
-    useContainers();
 
   const { instance } = useContainerReferences({
     source,

@@ -37,9 +37,7 @@ export type TargetBasedPrConditionType = keyof Omit<
 >;
 export type TargetBasedTagConditionType = keyof Omit<IterableElement<TriggersModel['tag']>, 'enabled' | 'priority'>;
 export type TargetBasedConditionType =
-  | TargetBasedPushConditionType
-  | TargetBasedPrConditionType
-  | TargetBasedTagConditionType;
+  TargetBasedPushConditionType | TargetBasedPrConditionType | TargetBasedTagConditionType;
 export type TargetBasedTriggerItemModel = PushTriggerModel & PullrequestTriggerModel & TagTriggerModel;
 export type TargetBasedCondition = Condition<TargetBasedConditionType>;
 export type TargetBasedTrigger = Trigger<TargetBasedConditionType>;

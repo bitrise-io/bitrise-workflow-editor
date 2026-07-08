@@ -154,13 +154,25 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       if (isModularEnabled) {
         const config = treeConfig.data;
         if (config) {
-          initializeModularConfig({
-            root: config.root,
-            entityIndex: config.entityIndex,
-            mergedYml: config.mergedYml,
-            branch: config.branch,
-            commitSha: config.root.commitSha,
-          });
+          if (config.root.includes.length === 0) {
+            // No includes → no modules: even with modular enabled, present it as a plain single-file
+            // config (no tree/tabs/merged view). Saving still works — it's repo-stored, so the push
+            // flow handles the single-file case (`bitriseYml`), and the mode is re-decided per branch.
+            initializeBitriseYmlDocument({
+              ymlString: config.root.contents,
+              version: '',
+              branch: config.branch,
+              commitSha: config.root.commitSha,
+            });
+          } else {
+            initializeModularConfig({
+              root: config.root,
+              entityIndex: config.entityIndex,
+              mergedYml: config.mergedYml,
+              branch: config.branch,
+              commitSha: config.root.commitSha,
+            });
+          }
         }
       } else if (legacyConfig.data) {
         initializeBitriseYmlDocument(legacyConfig.data);

@@ -1,4 +1,4 @@
-import { Box, Divider, Text } from '@bitrise/bitkit';
+import { Box, Divider, EmptyState, Text } from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -10,13 +10,11 @@ import { useIsMergedConfigSelected } from '@/hooks/useTree';
 
 import EnvVarsTable from '../components/EnvVarsTable';
 import PrivateInfoNotification from '../components/PrivateInfoNotification';
-import { useWorkflowEnvVarFileGroups } from '../useProjectEnvVarFileGroups';
+import { useWorkflowEnvVarFileGroups, WorkflowEnvVarFileGroup } from '../useProjectEnvVarFileGroups';
 
-const MergedWorkflowsTab = () => {
-  // One section per (workflow, source file) that actually has env vars — no empty tables, and the
-  // arrow jumps straight to the file the vars live in.
-  const groups = useWorkflowEnvVarFileGroups();
-
+const MergedWorkflowsTab = ({ groups }: { groups: WorkflowEnvVarFileGroup[] }) => {
+  // One section per (workflow, source file) that defines the workflow — empty ones show a
+  // placeholder — with the arrow jumping straight to the file the vars live in.
   return (
     <>
       {groups.map((group, index) => (
@@ -36,6 +34,7 @@ const MergedWorkflowsTab = () => {
             sourceId={group.workflowId}
             initialEnvs={group.envs}
             hideAddButton
+            emptyText="No Environment Variables defined."
             renderJumpButton={(_env) => <JumpToFileButton nodeId={group.nodeId} />}
           />
           {groups.length - 1 > index && <Divider />}
@@ -65,6 +64,17 @@ const EditableWorkflowsTab = () => {
 
 const WorkflowsTab = () => {
   const isMergedView = useIsMergedConfigSelected();
+  const groups = useWorkflowEnvVarFileGroups();
+  const hasAnyEnvs = groups.some((group) => group.envs.length > 0);
+
+  // Merged view with no workflow env vars in any module: a single empty state, no per-file breakdown.
+  if (isMergedView && !hasAnyEnvs) {
+    return (
+      <TabContainer>
+        <EmptyState iconName="Dollars" title="No Environment Variables created in any modules." />
+      </TabContainer>
+    );
+  }
 
   return (
     <TabContainer>
@@ -73,7 +83,7 @@ const WorkflowsTab = () => {
         title="Workflows' environment variables"
         subtitle="Env Vars exclusive to the Steps within the Workflow they are defined in"
       />
-      {isMergedView ? <MergedWorkflowsTab /> : <EditableWorkflowsTab />}
+      {isMergedView ? <MergedWorkflowsTab groups={groups} /> : <EditableWorkflowsTab />}
     </TabContainer>
   );
 };
