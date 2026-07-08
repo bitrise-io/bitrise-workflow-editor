@@ -18,7 +18,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   const [pendingVersion, setPendingVersion] = useState('');
 
   const allowUnset = scope.type === 'workflow';
-  const isCatalogReady = !isCatalogLoading && catalog !== undefined;
+  const isCatalogReady = !!catalog;
   const existingToolIds = Object.keys(tools);
 
   const handleAddNew = () => {
@@ -51,8 +51,6 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
               existingToolIds={existingToolIds}
               catalog={catalog}
               allowUnset={allowUnset}
-              dropdownOptions={ToolsService.getAvailableToolIdOptions(catalog, toolId, existingToolIds)}
-              isToolIdKnown={ToolsService.isKnownToolId(catalog, toolId)}
               isCatalogReady={isCatalogReady}
               isCatalogLoading={isCatalogLoading}
               onIdChange={(newId) => {
@@ -74,8 +72,6 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             catalog={catalog}
             allowUnset={allowUnset}
             autoFocus
-            dropdownOptions={ToolsService.getAvailableToolIdOptions(catalog, '', existingToolIds)}
-            isToolIdKnown={ToolsService.isKnownToolId(catalog, '')}
             isCatalogReady={isCatalogReady}
             isCatalogLoading={isCatalogLoading}
             onIdChange={(newId) => {

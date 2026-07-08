@@ -31,8 +31,6 @@ type ToolRowProps = {
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
   autoFocus?: boolean;
-  dropdownOptions: { value: string; label: string }[];
-  isToolIdKnown: boolean;
   isCatalogReady: boolean;
   isCatalogLoading: boolean;
   onIdChange: (newId: string) => void;
@@ -49,8 +47,6 @@ const ToolRow = ({
   catalog,
   allowUnset,
   autoFocus,
-  dropdownOptions,
-  isToolIdKnown,
   isCatalogReady,
   isCatalogLoading,
   onIdChange,
@@ -61,6 +57,9 @@ const ToolRow = ({
   // Whether the user has explicitly picked "Other" from the dropdown.
   const [manualOther, setManualOther] = useState(false);
   const [idError, setIdError] = useState<string | undefined>();
+
+  const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
+  const dropdownOptions = ToolsService.getAvailableToolIdOptions(catalog, toolId, existingToolIds);
 
   // Only treat a tool as custom once the catalog has actually resolved. While it's
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
@@ -93,8 +92,8 @@ const ToolRow = ({
       return;
     }
     setIdError(undefined);
+    setManualOther(false);
     if (newId !== toolId) {
-      setManualOther(false);
       onIdChange(newId);
     }
   };
@@ -116,6 +115,7 @@ const ToolRow = ({
             items={dropdownItems}
             value={showCustomInput ? OTHER_VALUE : toolId}
             onValueChange={handleDropdownChange}
+            triggerProps={showCustomInput ? undefined : { autoFocus }}
           />
           {showCustomInput && (
             <BitkitTextInput
