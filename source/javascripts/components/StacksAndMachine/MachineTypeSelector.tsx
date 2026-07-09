@@ -105,7 +105,7 @@ const MachineTypeSelector = ({
                 <Text as="span" fontWeight="bold">
                   {regionName}:
                 </Text>{' '}
-                {texts?.join(', ')}
+                {texts?.join(' • ')}
               </Text>
             );
           })}
@@ -117,7 +117,7 @@ const MachineTypeSelector = ({
 
     return (
       <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
-        {machineType.availableInRegions[region]?.join(', ')}
+        {machineType.availableInRegions[region]?.join(' • ')}
       </Text>
     );
   };

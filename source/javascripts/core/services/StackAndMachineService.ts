@@ -117,12 +117,12 @@ function toMachineTypeDetailedOption(machine: MachineType, region?: MachineRegio
   let subtitle = '';
   if (!region && doesHardwareVaryByRegion(machine)) {
     subtitle = Object.entries(machine.availableInRegions)
-      .map(([regionName, texts]) => `${regionName}: ${texts?.join(', ')}`)
+      .map(([regionName, texts]) => `${regionName}: ${texts?.join(' • ')}`)
       .join(`\n`);
   } else {
     subtitle =
       machine.availableInRegions[region || (Object.keys(machine.availableInRegions)[0] as MachineRegionName)]?.join(
-        ', ',
+        ' • ',
       ) || '';
   }
 
