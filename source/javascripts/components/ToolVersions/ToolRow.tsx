@@ -109,7 +109,7 @@ const ToolRow = ({
       <Box display="flex" alignItems="flex-start" gap="12">
         <Box display="flex" flexDirection="column" gap="8" width={rem(160)} flexShrink="0">
           <BitkitSelect
-            size="md"
+            size="lg"
             placeholder="Select one"
             isLoading={isCatalogLoading}
             items={dropdownItems}
@@ -119,7 +119,7 @@ const ToolRow = ({
           />
           {showCustomInput && (
             <BitkitTextInput
-              size="md"
+              size="lg"
               placeholder="Tool ID (e.g. deno)"
               errorText={idError}
               inputProps={{ defaultValue: toolId, autoFocus, onBlur: handleIdBlur }}
@@ -127,30 +127,28 @@ const ToolRow = ({
           )}
         </Box>
 
-        <Box display="flex" flex="1" alignItems="flex-start" gap="8">
-          <BitkitSelect
-            flex="1"
-            size="md"
-            items={Object.entries(STRATEGY_LABELS)
-              .filter(([value]) => allowUnset || value !== 'unset')
-              .map(([value, label]) => ({ value, label }))}
-            value={strategy}
-            onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
-          />
+        <BitkitSelect
+          flex="1"
+          size="lg"
+          items={Object.entries(STRATEGY_LABELS)
+            .filter(([value]) => allowUnset || value !== 'unset')
+            .map(([value, label]) => ({ value, label }))}
+          value={strategy}
+          onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
+        />
 
-          {strategy !== 'unset' && (
-            <BitkitTextInput
-              size="md"
-              width={rem(120)}
-              flexShrink="0"
-              placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
-              inputProps={{
-                value: version,
-                onChange: (e) => onVersionChange(e.target.value),
-              }}
-            />
-          )}
-        </Box>
+        {strategy !== 'unset' && (
+          <BitkitTextInput
+            size="lg"
+            width={rem(130)}
+            flexShrink="0"
+            placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+            inputProps={{
+              value: version,
+              onChange: (e) => onVersionChange(e.target.value),
+            }}
+          />
+        )}
 
         <BitkitIconButton variant="tertiary" icon={IconMinusCircle} label="Remove tool" onClick={onRemove} />
       </Box>

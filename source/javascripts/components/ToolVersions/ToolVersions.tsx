@@ -1,4 +1,4 @@
-import { BitkitAlert, BitkitButton, BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitLink, IconOpenInNew, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -28,12 +28,15 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24" maxWidth={640}>
+    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24" maxWidth={rem(640)}>
       <Box display="flex" flexDirection="column" gap="8">
         <Text textStyle="heading/h3">Tool setup</Text>
         <Text textStyle="body/md/regular" color="text/secondary">
           Configure what tools and versions are required for this workflow to work. Tool setup runs before the first
-          step. <BitkitLink href="#">Learn more</BitkitLink>
+          step.{' '}
+          <BitkitLink href="#" isExternal suffixIcon={IconOpenInNew} colorVariant="purple">
+            Learn more
+          </BitkitLink>
         </Text>
       </Box>
 
