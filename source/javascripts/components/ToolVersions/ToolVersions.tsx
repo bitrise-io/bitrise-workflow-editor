@@ -56,10 +56,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
               allowUnset={allowUnset}
               isCatalogReady={isCatalogReady}
               isCatalogLoading={isCatalogLoading}
-              onIdChange={(newId) => {
-                ToolsService.deleteTool(toolId, scope);
-                ToolsService.setTool(newId, parsed.strategy, versionValue, scope);
-              }}
+              onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
               onStrategyChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
               onVersionChange={(ver) => ToolsService.setTool(toolId, parsed.strategy, ver, scope)}
               onRemove={() => ToolsService.deleteTool(toolId, scope)}

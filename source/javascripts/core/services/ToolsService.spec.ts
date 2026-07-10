@@ -455,4 +455,52 @@ describe('ToolsService', () => {
       });
     });
   });
+
+  describe('renameTool', () => {
+    describe('root-level', () => {
+      it('renames the entry in place, keeping sibling order and values untouched', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            node: 22:latest
+            python: "3.13.4"
+        `);
+
+        ToolsService.renameTool('node', 'ruby', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            ruby: 22:latest
+            python: "3.13.4"
+        `);
+      });
+    });
+
+    describe('workflow-level', () => {
+      it('renames the entry in place, keeping sibling order and values untouched', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            primary:
+              tools:
+                node: 22:latest
+                python: "3.13.4"
+        `);
+
+        ToolsService.renameTool('node', 'ruby', { type: 'workflow', workflowId: 'primary' });
+
+        expect(getYmlString()).toEqual(yaml`
+          workflows:
+            primary:
+              tools:
+                ruby: 22:latest
+                python: "3.13.4"
+        `);
+      });
+
+      it('throws when workflow does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        expect(() => ToolsService.renameTool('node', 'ruby', { type: 'workflow', workflowId: 'missing' })).toThrow();
+      });
+    });
+  });
 });

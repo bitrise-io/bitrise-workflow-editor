@@ -183,11 +183,22 @@ function deleteTool(toolId: string, scope: ToolScope) {
   });
 }
 
+function renameTool(oldId: string, newId: string, scope: ToolScope) {
+  updateBitriseYmlDocument(({ doc }) => {
+    validateScope(scope, doc);
+
+    const scopePath = getScopePath(scope);
+    YmlUtils.updateKeyByPath(doc, [...scopePath, 'tools', oldId], newId);
+    return doc;
+  });
+}
+
 export type { ToolScope };
 export default {
   parseToolVersion,
   setTool,
   deleteTool,
+  renameTool,
   getKnownToolIds,
   isKnownToolId,
   resolveToolName,
