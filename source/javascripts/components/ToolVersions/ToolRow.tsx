@@ -31,7 +31,6 @@ type ToolRowProps = {
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
   autoFocus?: boolean;
-  isCatalogReady: boolean;
   isCatalogLoading: boolean;
   onIdChange: (newId: string) => void;
   onStrategyChange: (strategy: VersionStrategy, version: string) => void;
@@ -47,7 +46,6 @@ const ToolRow = ({
   catalog,
   allowUnset,
   autoFocus,
-  isCatalogReady,
   isCatalogLoading,
   onIdChange,
   onStrategyChange,
@@ -58,6 +56,7 @@ const ToolRow = ({
   const [manualOther, setManualOther] = useState(false);
   const [idError, setIdError] = useState<string | undefined>();
 
+  const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
   const dropdownOptions = ToolsService.getAvailableToolIdOptions(catalog, toolId, existingToolIds);
 
