@@ -1,4 +1,6 @@
 import {
+  BitkitAlert,
+  BitkitCombobox,
   BitkitIconButton,
   BitkitLink,
   BitkitSelect,
@@ -13,6 +15,8 @@ import { FocusEventHandler, useState } from 'react';
 
 import { ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
+import useNavigation from '@/hooks/useNavigation';
+import { useToolVersions } from '@/hooks/useTools';
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-released': 'Latest released version',
@@ -23,6 +27,9 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
 
 const OTHER_VALUE = '__other__';
 
+const TOOL_ID_COLUMN_WIDTH = rem(160);
+const VERSION_COLUMN_WIDTH = rem(240);
+
 type ToolRowProps = {
   toolId: string;
   strategy: VersionStrategy;
@@ -32,6 +39,8 @@ type ToolRowProps = {
   allowUnset?: boolean;
   autoFocus?: boolean;
   isCatalogLoading: boolean;
+  /** Bumped by the parent when the user moves on (adds another row) — reveals this row's incomplete-version error. */
+  versionTouchSignal?: number;
   onIdChange: (newId: string) => void;
   onStrategyChange: (strategy: VersionStrategy, version: string) => void;
   onVersionChange: (version: string) => void;
@@ -47,14 +56,31 @@ const ToolRow = ({
   allowUnset,
   autoFocus,
   isCatalogLoading,
+  versionTouchSignal = 0,
   onIdChange,
   onStrategyChange,
   onVersionChange,
   onRemove,
 }: ToolRowProps) => {
+  const { replace } = useNavigation();
+
   // Whether the user has explicitly picked "Other" from the dropdown.
   const [manualOther, setManualOther] = useState(false);
   const [idError, setIdError] = useState<string | undefined>();
+
+  // Validate eagerly, display lazily: the required-version error only shows once the
+  // user has visited and left the field. A config that is already invalid when the row
+  // mounts (hand-edited YAML) is flagged immediately — no interaction should be needed.
+  const [versionTouched, setVersionTouched] = useState(() => strategy === 'exact' && version === '');
+
+  // Signals seen before this row mounted don't count — only a bump while the row is
+  // alive means the user moved on from it. State is adjusted during render (with the
+  // previous-value guard) instead of in an effect, per React's derived-state guidance.
+  const [seenTouchSignal, setSeenTouchSignal] = useState(versionTouchSignal);
+  if (versionTouchSignal !== seenTouchSignal) {
+    setSeenTouchSignal(versionTouchSignal);
+    setVersionTouched(true);
+  }
 
   const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
@@ -63,6 +89,23 @@ const ToolRow = ({
   // Only treat a tool as custom once the catalog has actually resolved. While it's
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
+
+  const useVersionDropdown = strategy === 'exact' && isToolIdKnown && !showCustomInput;
+  const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
+  const {
+    data: toolVersions,
+    isLoading: isVersionsLoading,
+    isError: isVersionsError,
+  } = useToolVersions(canonicalToolId, useVersionDropdown);
+
+  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
+  const isVersionMissingFromCatalog =
+    !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
+
+  // An exact strategy needs a concrete version; prefix strategies are valid without one
+  // (bare `latest`/`installed`). Only a hint — saving is not blocked.
+  const exactVersionValidation = strategy === 'exact' ? ToolsService.validateToolVersion(version) : true;
+  const versionError = exactVersionValidation === true ? undefined : exactVersionValidation;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -98,15 +141,17 @@ const ToolRow = ({
   };
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
-    const newVersion = isPrefix(strategy) && isPrefix(newStrategy) ? version : '';
+    // The strategy switch empties the field on the user's behalf — give them a chance
+    // to fill it before flagging it.
+    setVersionTouched(false);
+    const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
     onStrategyChange(newStrategy, newVersion);
   };
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
       <Box display="flex" alignItems="flex-start" gap="12">
-        <Box display="flex" flexDirection="column" gap="8" width={rem(160)} flexShrink="0">
+        <Box display="flex" flexDirection="column" gap="8" width={TOOL_ID_COLUMN_WIDTH} flexShrink="0">
           <BitkitSelect
             size="lg"
             placeholder="Select one"
@@ -136,21 +181,60 @@ const ToolRow = ({
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
 
-        {strategy !== 'unset' && (
-          <BitkitTextInput
-            size="lg"
-            width={rem(130)}
-            flexShrink="0"
-            placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
-            inputProps={{
-              value: version,
-              onChange: (e) => onVersionChange(e.target.value),
-            }}
-          />
-        )}
+        {strategy !== 'unset' &&
+          (useVersionDropdown ? (
+            <BitkitCombobox
+              // BitkitCombobox snapshots `items` on mount and ignores later changes, so the
+              // key forces a remount whenever the list actually differs: another tool's
+              // versions, the async load completing, or the injected not-in-catalog option
+              // (getVersionOptions adds the current version (even unavailable version) when
+              // the catalog lacks it, and that entry must drop out once a real catalog version
+              // is picked).
+              key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${isVersionMissingFromCatalog ? version : ''}`}
+              size="lg"
+              width={VERSION_COLUMN_WIDTH}
+              flexShrink="0"
+              placeholder="Select"
+              emptyLabel="No matches"
+              items={versionOptions}
+              isLoading={isVersionsLoading}
+              state={isVersionsError ? 'disabled' : undefined}
+              // Closing the menu without picking counts as visiting and leaving the field.
+              comboboxProps={{ onOpenChange: (details) => !details.open && setVersionTouched(true) }}
+              // The disabled fetch-error state has its own alert; a required-error on an
+              // uneditable field would just add noise.
+              errorText={versionTouched && !isVersionsError ? versionError : undefined}
+              warningText={
+                isVersionMissingFromCatalog ? `${version} isn't in the list of installable versions` : undefined
+              }
+              value={version || undefined}
+              onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
+            />
+          ) : (
+            <BitkitTextInput
+              size="lg"
+              width={VERSION_COLUMN_WIDTH}
+              flexShrink="0"
+              placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+              errorText={versionTouched ? versionError : undefined}
+              inputProps={{
+                value: version,
+                onChange: (e) => onVersionChange(e.target.value),
+                onBlur: () => setVersionTouched(true),
+              }}
+            />
+          ))}
 
         <BitkitIconButton variant="tertiary" icon={IconMinusCircle} label="Remove tool" onClick={onRemove} />
       </Box>
+
+      {useVersionDropdown && isVersionsError && (
+        <BitkitAlert
+          variant="critical"
+          messageText={`Couldn't load the available versions of ${toolId}. You can still set the version manually in the YAML editor.`}
+          action={{ label: 'Open YAML editor', onClick: () => replace('/yml') }}
+        />
+      )}
 
       {showCustomInput && (
         <Text textStyle="body/md/regular">

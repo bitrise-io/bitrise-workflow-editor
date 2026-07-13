@@ -1,4 +1,6 @@
-import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '../models/Tools';
+import semver from 'semver';
+
+import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -74,6 +76,46 @@ function isKnownToolId(catalog: ToolCatalog | undefined, toolId: string): boolea
 function resolveToolName(catalog: ToolCatalog | undefined, id: string): string {
   const entry = catalog?.tools.find(({ name, aliases }) => name === id || (aliases ?? []).includes(id));
   return entry?.name ?? id;
+}
+
+/**
+ * Builds the exact-version dropdown options: semver versions sorted newest first,
+ * then non-semver versions in catalog order. A non-empty `currentVersion` missing
+ * from the catalog is injected at the top so the dropdown always reflects what's
+ * in the YAML instead of showing an empty selection.
+ */
+function getVersionOptions(
+  toolVersions: ToolVersions | undefined,
+  currentVersion: string,
+): { value: string; label: string }[] {
+  const versions = toolVersions?.versions ?? [];
+  const ordered = [
+    ...versions
+      .filter(({ isSemver }) => isSemver)
+      .map(({ version }) => version)
+      .sort(semver.rcompare),
+    ...versions.filter(({ isSemver }) => !isSemver).map(({ version }) => version),
+  ];
+
+  if (currentVersion && !ordered.includes(currentVersion)) {
+    ordered.unshift(currentVersion);
+  }
+
+  return ordered.map((version) => ({ value: version, label: version }));
+}
+
+function isVersionInCatalog(toolVersions: ToolVersions | undefined, version: string): boolean {
+  return (toolVersions?.versions ?? []).some((entry) => entry.version === version);
+}
+
+/**
+ * The version value to keep when the row's strategy changes: a prefix survives
+ * moving between the two prefix strategies; any other change clears the value,
+ * because exact versions and prefixes aren't interchangeable.
+ */
+function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrategy, version: string): string {
+  const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
+  return isPrefix(prev) && isPrefix(next) ? version : '';
 }
 
 /**
@@ -202,6 +244,9 @@ export default {
   getKnownToolIds,
   isKnownToolId,
   resolveToolName,
+  getVersionOptions,
+  isVersionInCatalog,
+  nextVersionOnStrategyChange,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,
