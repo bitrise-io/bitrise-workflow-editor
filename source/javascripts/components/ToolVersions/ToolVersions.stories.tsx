@@ -3,6 +3,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
 
+import ToolCatalogApiMocks from '@/core/api/ToolCatalogApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 import ToolVersions from './ToolVersions';
@@ -16,6 +17,11 @@ const meta: Meta<typeof ToolVersions> = {
       </Box>
     ),
   ],
+  parameters: {
+    msw: {
+      handlers: [ToolCatalogApiMocks.getToolCatalog()],
+    },
+  },
 };
 
 export default meta;
@@ -52,3 +58,44 @@ export const WorkflowScope: Story = {
 };
 
 export const Empty: Story = {};
+
+export const CatalogLoading: Story = {
+  ...RootScope,
+  parameters: {
+    ...RootScope.parameters,
+    msw: {
+      handlers: [ToolCatalogApiMocks.getToolCatalogPending()],
+    },
+  },
+};
+
+export const CatalogError: Story = {
+  ...RootScope,
+  parameters: {
+    ...RootScope.parameters,
+    msw: {
+      handlers: [ToolCatalogApiMocks.getToolCatalogError()],
+    },
+  },
+};
+
+export const RealApi: Story = {
+  ...RootScope,
+  parameters: {
+    ...RootScope.parameters,
+    msw: {
+      handlers: [],
+    },
+  },
+};
+
+export const CustomTool: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+        deno: '2.90.0',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};

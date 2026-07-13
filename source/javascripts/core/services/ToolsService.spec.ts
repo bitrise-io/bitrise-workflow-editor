@@ -59,6 +59,105 @@ describe('ToolsService', () => {
     });
   });
 
+  describe('getKnownToolIds', () => {
+    it('returns an empty array when there is no catalog', () => {
+      expect(ToolsService.getKnownToolIds(undefined)).toEqual([]);
+    });
+
+    it('includes canonical names and aliases', () => {
+      const catalog = {
+        tools: [{ name: 'golang', aliases: ['go'] }, { name: 'nodejs', aliases: ['node'] }, { name: 'ruby' }],
+      };
+
+      expect(ToolsService.getKnownToolIds(catalog)).toEqual(['golang', 'go', 'nodejs', 'node', 'ruby']);
+    });
+  });
+
+  describe('isKnownToolId', () => {
+    const catalog = { tools: [{ name: 'golang', aliases: ['go'] }] };
+
+    it('matches a canonical name', () => {
+      expect(ToolsService.isKnownToolId(catalog, 'golang')).toBe(true);
+    });
+
+    it('matches an alias', () => {
+      expect(ToolsService.isKnownToolId(catalog, 'go')).toBe(true);
+    });
+
+    it('rejects an unknown id', () => {
+      expect(ToolsService.isKnownToolId(catalog, 'rustc')).toBe(false);
+    });
+
+    it('rejects when there is no catalog', () => {
+      expect(ToolsService.isKnownToolId(undefined, 'golang')).toBe(false);
+    });
+  });
+
+  describe('getToolIdOptions', () => {
+    const catalog = {
+      tools: [{ name: 'golang', aliases: ['go'] }, { name: 'nodejs', aliases: ['node'] }, { name: 'ruby' }],
+    };
+
+    it('lists each tool by its canonical name', () => {
+      expect(ToolsService.getToolIdOptions(catalog, '')).toEqual([
+        { value: 'golang', label: 'golang' },
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
+
+    it('shows the current alias instead of the canonical name for the matching tool', () => {
+      expect(ToolsService.getToolIdOptions(catalog, 'go')).toEqual([
+        { value: 'go', label: 'go' },
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
+
+    it('returns an empty array when there is no catalog', () => {
+      expect(ToolsService.getToolIdOptions(undefined, 'go')).toEqual([]);
+    });
+  });
+
+  describe('getAvailableToolIdOptions', () => {
+    const catalog = {
+      tools: [{ name: 'golang', aliases: ['go'] }, { name: 'nodejs', aliases: ['node'] }, { name: 'ruby' }],
+    };
+
+    it('excludes tool IDs already used by another row', () => {
+      expect(ToolsService.getAvailableToolIdOptions(catalog, 'go', ['go', 'ruby'])).toEqual([
+        { value: 'go', label: 'go' },
+        { value: 'nodejs', label: 'nodejs' },
+      ]);
+    });
+
+    it('keeps the current row value even if it is also in existingToolIds', () => {
+      expect(ToolsService.getAvailableToolIdOptions(catalog, 'ruby', ['ruby'])).toEqual([
+        { value: 'golang', label: 'golang' },
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
+
+    it('returns an empty array when there is no catalog', () => {
+      expect(ToolsService.getAvailableToolIdOptions(undefined, 'go', [])).toEqual([]);
+    });
+
+    it('excludes the canonical name when an alias is already pinned by another row', () => {
+      expect(ToolsService.getAvailableToolIdOptions(catalog, '', ['go'])).toEqual([
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
+
+    it('excludes an alias when the canonical name is already pinned by another row', () => {
+      expect(ToolsService.getAvailableToolIdOptions(catalog, '', ['golang'])).toEqual([
+        { value: 'nodejs', label: 'nodejs' },
+        { value: 'ruby', label: 'ruby' },
+      ]);
+    });
+  });
+
   describe('validateToolId', () => {
     it('rejects empty and whitespace-only IDs', () => {
       expect(ToolsService.validateToolId('', '')).toBe('Tool ID is required');
@@ -75,6 +174,16 @@ describe('ToolsService', () => {
 
     it('accepts re-using the original ID when renaming', () => {
       expect(ToolsService.validateToolId('node', 'node', ['node', 'python'])).toBe(true);
+    });
+
+    it('rejects an alias when the canonical name is already pinned by another row', () => {
+      const catalog = { tools: [{ name: 'golang', aliases: ['go'] }] };
+      expect(ToolsService.validateToolId('go', '', ['golang'], catalog)).toBe('Tool ID must be unique');
+    });
+
+    it('rejects the canonical name when an alias is already pinned by another row', () => {
+      const catalog = { tools: [{ name: 'golang', aliases: ['go'] }] };
+      expect(ToolsService.validateToolId('golang', '', ['go'], catalog)).toBe('Tool ID must be unique');
     });
   });
 
@@ -343,6 +452,54 @@ describe('ToolsService', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
         expect(() => ToolsService.deleteTool('node', { type: 'workflow', workflowId: 'missing' })).toThrow();
+      });
+    });
+  });
+
+  describe('renameTool', () => {
+    describe('root-level', () => {
+      it('renames the entry in place, keeping sibling order and values untouched', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            node: 22:latest
+            python: "3.13.4"
+        `);
+
+        ToolsService.renameTool('node', 'ruby', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            ruby: 22:latest
+            python: "3.13.4"
+        `);
+      });
+    });
+
+    describe('workflow-level', () => {
+      it('renames the entry in place, keeping sibling order and values untouched', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            primary:
+              tools:
+                node: 22:latest
+                python: "3.13.4"
+        `);
+
+        ToolsService.renameTool('node', 'ruby', { type: 'workflow', workflowId: 'primary' });
+
+        expect(getYmlString()).toEqual(yaml`
+          workflows:
+            primary:
+              tools:
+                ruby: 22:latest
+                python: "3.13.4"
+        `);
+      });
+
+      it('throws when workflow does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        expect(() => ToolsService.renameTool('node', 'ruby', { type: 'workflow', workflowId: 'missing' })).toThrow();
       });
     });
   });

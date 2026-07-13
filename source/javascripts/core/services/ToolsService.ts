@@ -1,4 +1,4 @@
-import { ParsedToolVersion, VersionStrategy } from '../models/Tools';
+import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -60,13 +60,61 @@ function getScopePath(scope: ToolScope): (string | number)[] {
   return scope.type === 'workflow' ? ['workflows', scope.workflowId] : [];
 }
 
-function validateToolId(id: string, initialId: string, existingIds: string[] = []) {
+/** Every tool ID (canonical name or alias) the catalog recognizes. */
+function getKnownToolIds(catalog?: ToolCatalog): string[] {
+  return catalog?.tools.flatMap(({ name, aliases }) => [name, ...(aliases ?? [])]) ?? [];
+}
+
+/** Whether a tool ID matches a catalog entry, by canonical name or alias. */
+function isKnownToolId(catalog: ToolCatalog | undefined, toolId: string): boolean {
+  return getKnownToolIds(catalog).includes(toolId);
+}
+
+/** Resolves a tool ID (canonical name or alias) to its catalog canonical name, or itself if unknown. */
+function resolveToolName(catalog: ToolCatalog | undefined, id: string): string {
+  const entry = catalog?.tools.find(({ name, aliases }) => name === id || (aliases ?? []).includes(id));
+  return entry?.name ?? id;
+}
+
+/**
+ * Builds the tool-ID dropdown options: one per catalog tool, using its canonical name —
+ * except the tool matching `toolId` (by name or alias), which is shown using that exact ID
+ * so the current selection stays visible without listing the same tool under two IDs.
+ */
+function getToolIdOptions(catalog: ToolCatalog | undefined, toolId: string): { value: string; label: string }[] {
+  return (catalog?.tools ?? []).map(({ name, aliases = [] }) => {
+    const value = toolId === name || aliases.includes(toolId) ? toolId : name;
+    return { value, label: value };
+  });
+}
+
+/**
+ * `getToolIdOptions`, minus tool IDs already used by another row (a row's own ID is always kept).
+ */
+function getAvailableToolIdOptions(
+  catalog: ToolCatalog | undefined,
+  toolId: string,
+  existingToolIds: string[],
+): { value: string; label: string }[] {
+  const usedNames = new Set(existingToolIds.filter((id) => id !== toolId).map((id) => resolveToolName(catalog, id)));
+  return getToolIdOptions(catalog, toolId).filter(
+    ({ value }) => value === toolId || !usedNames.has(resolveToolName(catalog, value)),
+  );
+}
+
+function validateToolId(id: string, initialId: string, existingIds: string[] = [], catalog?: ToolCatalog) {
   if (!id.trim()) {
     return 'Tool ID is required';
   }
 
-  if (id !== initialId && existingIds.includes(id)) {
-    return 'Tool ID must be unique';
+  if (id !== initialId) {
+    const name = resolveToolName(catalog, id);
+    const isDuplicate = existingIds.some(
+      (existingId) => existingId !== initialId && resolveToolName(catalog, existingId) === name,
+    );
+    if (isDuplicate) {
+      return 'Tool ID must be unique';
+    }
   }
 
   return true;
@@ -135,11 +183,27 @@ function deleteTool(toolId: string, scope: ToolScope) {
   });
 }
 
+function renameTool(oldId: string, newId: string, scope: ToolScope) {
+  updateBitriseYmlDocument(({ doc }) => {
+    validateScope(scope, doc);
+
+    const scopePath = getScopePath(scope);
+    YmlUtils.updateKeyByPath(doc, [...scopePath, 'tools', oldId], newId);
+    return doc;
+  });
+}
+
 export type { ToolScope };
 export default {
   parseToolVersion,
   setTool,
   deleteTool,
+  renameTool,
+  getKnownToolIds,
+  isKnownToolId,
+  resolveToolName,
+  getToolIdOptions,
+  getAvailableToolIdOptions,
   validateToolId,
   validateToolVersion,
 };
