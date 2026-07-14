@@ -104,11 +104,13 @@ async function getAllStepsById(id: string) {
 }
 
 async function getStepsByMultipleCvs(cvss: string[], attributesToRetrieve?: string[]) {
-  // NOTE: Using searchSingleIndex instead of browseObjects to cache the results
+  // NOTE: searchSingleIndex is used because it is cached by the client (browse is not, unless
+  // called with { cacheable: true }). hitsPerPage avoids the default 20-hit truncation.
   const response = await client.searchSingleIndex<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
     searchParams: {
       filters: cvss.map((cvs) => `cvs:${cvs}`).join(' OR '),
+      hitsPerPage: 1000,
       analytics: false,
       clickAnalytics: false,
       attributesToRetrieve,
@@ -121,11 +123,14 @@ async function getStepsByMultipleCvs(cvss: string[], attributesToRetrieve?: stri
 async function getAllAvailableVersionsByIds(ids: string[]) {
   const results: Map<string, Set<string>> = new Map();
 
-  // NOTE: Using searchSingleIndex instead of browseObjects to cache the results
+  // NOTE: searchSingleIndex is used because it is cached by the client (browse is not, unless
+  // called with { cacheable: true }). hitsPerPage avoids the default 20-hit truncation — one id
+  // matches every version record, so hits multiply across ids and 20 is easily exceeded.
   const response = await client.searchSingleIndex<AlgoliaStepResponse>({
     indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
     searchParams: {
       filters: ids.map((id) => `id:${id}`).join(' OR '),
+      hitsPerPage: 1000,
       analytics: false,
       clickAnalytics: false,
       attributesToRetrieve: ['id', 'version'],
