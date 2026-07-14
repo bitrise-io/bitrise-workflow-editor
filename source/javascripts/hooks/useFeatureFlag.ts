@@ -5,6 +5,7 @@ const defaultValues = {
   'enable-branch-switching': false,
   'enable-wfe-tool-versions': false,
   'enable-wfe-modular-yaml-editing': false,
+  'enable-wfe-bitrise-lsp-integration': false,
 };
 
 type FeatureFlags = typeof defaultValues;
