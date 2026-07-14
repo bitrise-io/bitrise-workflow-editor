@@ -3,15 +3,23 @@ import { useEffect } from 'react';
 
 import { bitriseYmlStore, getYmlString, setValidationStatus } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 
 export const BACKGROUND_MODEL_URI = monaco.Uri.parse('file:///bitrise.yml');
 
 function useYmlLanguageServices() {
+  const enableBitriseLsp = useFeatureFlag('enable-wfe-bitrise-lsp-integration');
+
   useEffect(() => {
     // Configure Monaco language services (idempotent — safe to call multiple times)
     MonacoUtils.configureForYaml(monaco);
     MonacoUtils.configureEnvVarsCompletionProvider(monaco);
-    MonacoUtils.configureBitriseLanguageServer(monaco);
+    // The Bitrise LSP integration runs a Monaco worker that queries Algolia (steplib_steps)
+    // on every document change for diagnostics/completion/hover. Gate it behind a flag so it
+    // can be disabled without a deploy. When off, editing falls back to plain monaco-yaml.
+    if (enableBitriseLsp) {
+      MonacoUtils.configureBitriseLanguageServer(monaco);
+    }
 
     // Create or reuse the background model
     let model = monaco.editor.getModel(BACKGROUND_MODEL_URI);
@@ -79,7 +87,7 @@ function useYmlLanguageServices() {
       // Disposing it while workers are in-flight causes "Model is disposed" errors.
       // The model lives for the entire app session — monaco.editor.getModel() reuses it.
     };
-  }, []);
+  }, [enableBitriseLsp]);
 }
 
 export default useYmlLanguageServices;
