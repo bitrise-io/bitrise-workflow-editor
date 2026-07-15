@@ -1,4 +1,4 @@
-import { Box, Link, Notification } from '@bitrise/bitkit';
+import { Box, Link, Notification, Tooltip } from '@bitrise/bitkit';
 import { ReactNode, RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -125,38 +125,40 @@ const StackAndMachine = ({
       machineTypeName={selectedMachineType.name}
       stackName={selectedStack.name}
     >
-      <Box ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
-        <StackSelector
-          stack={selectedStack}
-          isLoading={isLoading}
-          isDisabled={isReadOnlyView}
-          isInvalid={isInvalidStack && !isLoading}
-          optionGroups={stackOptionGroups}
-          onChange={(selectedStackValue, useRollbackVersionChecked) =>
-            handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
-          }
-          isRollbackVersionAvailable={!!availableRollbackVersion}
-          disableRollbackOption={disableRollbackOption}
-          useRollbackVersion={useRollbackVersion}
-          width={orientation === 'horizontal' ? '50%' : undefined}
-        />
-        <MachineTypeSelector
-          machineType={selectedMachineType}
-          isLoading={isLoading}
-          isInvalid={isInvalidMachineType && !isLoading}
-          isDisabled={isMachineTypeSelectionDisabled || isReadOnlyView}
-          optionGroups={machineOptionGroups}
-          onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
-          selectedRegion={data?.region}
-          width={orientation === 'horizontal' ? '50%' : undefined}
-        />
-        {selectsTrailing && (
-          // Align with the select inputs (which sit below their labels), not the label row.
-          <Box alignSelf={orientation === 'horizontal' ? 'flex-start' : 'flex-end'} marginBlockStart="24">
-            {selectsTrailing}
-          </Box>
-        )}
-      </Box>
+      <Tooltip label="Read-only here — edit it in the module file that defines it." isDisabled={!isReadOnlyView}>
+        <Box ref={ref} display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
+          <StackSelector
+            stack={selectedStack}
+            isLoading={isLoading}
+            isDisabled={isReadOnlyView}
+            isInvalid={isInvalidStack && !isLoading}
+            optionGroups={stackOptionGroups}
+            onChange={(selectedStackValue, useRollbackVersionChecked) =>
+              handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
+            }
+            isRollbackVersionAvailable={!!availableRollbackVersion}
+            disableRollbackOption={disableRollbackOption}
+            useRollbackVersion={useRollbackVersion}
+            width={orientation === 'horizontal' ? '50%' : undefined}
+          />
+          <MachineTypeSelector
+            machineType={selectedMachineType}
+            isLoading={isLoading}
+            isInvalid={isInvalidMachineType && !isLoading}
+            isDisabled={isMachineTypeSelectionDisabled || isReadOnlyView}
+            optionGroups={machineOptionGroups}
+            onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
+            selectedRegion={data?.region}
+            width={orientation === 'horizontal' ? '50%' : undefined}
+          />
+          {selectsTrailing && (
+            // Align with the select inputs (which sit below their labels), not the label row.
+            <Box alignSelf={orientation === 'horizontal' ? 'flex-start' : 'flex-end'} marginBlockStart="24">
+              {selectsTrailing}
+            </Box>
+          )}
+        </Box>
+      </Tooltip>
       {useRollbackVersion && (
         <Notification flex="0" marginBlockStart="12" status="warning">
           Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in
