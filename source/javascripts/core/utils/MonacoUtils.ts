@@ -227,7 +227,7 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
     return;
   }
 
-  configureBitriseYaml(monacoInstance);
+  configureBitriseYaml(monacoInstance, { stopWhenIdleFor: Infinity });
 
   isConfiguredForBitriseLanguageServer = true;
 };
