@@ -9,6 +9,7 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
+import { useTree } from '@/hooks/useTree';
 
 type OpenCiConfigExpertPayload = {
   action: string;
@@ -56,9 +57,13 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
     setIsAgenticRunInProgress(false);
   });
 
+  // The CI config expert operates on the whole bitrise.yml; modular configs aren't handled yet, so
+  // hide every AI entry point while a modular config is open rather than offer a broken action (BIVS-3735).
+  const isModular = Boolean(useTree());
+
   const ciConfigExpert = PageProps.settings()?.ai.ciConfigExpert;
   const isEnabledByWorkspace = !!ciConfigExpert && ciConfigExpert.disabled !== 'by-workspace';
-  const isVisible = enableCiConfigExpertAgent && isEnabledByWorkspace;
+  const isVisible = enableCiConfigExpertAgent && isEnabledByWorkspace && !isModular;
 
   let tooltipLabel;
   let isDisabled = false;
