@@ -104,35 +104,58 @@ async function getAllStepsById(id: string) {
 }
 
 async function getStepsByMultipleCvs(cvss: string[], attributesToRetrieve?: string[]) {
-  // NOTE: Using searchSingleIndex instead of browseObjects to cache the results
-  const response = await client.searchSingleIndex<AlgoliaStepResponse>({
-    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
-    searchParams: {
-      filters: cvss.map((cvs) => `cvs:${cvs}`).join(' OR '),
-      analytics: false,
-      clickAnalytics: false,
-      attributesToRetrieve,
-    },
-  });
+  // No cvss → skip the query. An empty `filters` string is match-all in Algolia, which would
+  // return unrelated steps instead of nothing.
+  if (cvss.length === 0) {
+    return [];
+  }
 
-  return response.hits;
+  // browseObjects (not searchSingleIndex) to get every matching record: searchSingleIndex returns
+  // a single relevance-ranked page and would silently truncate large configs. { cacheable: true }
+  // opts browse into the client's response cache (browse is not cached by default).
+  const results: AlgoliaStepResponse[] = [];
+  await client.browseObjects<AlgoliaStepResponse>(
+    {
+      indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+      aggregator: ({ hits }) => results.push(...hits),
+      browseParams: {
+        filters: cvss.map((cvs) => `cvs:${cvs}`).join(' OR '),
+        attributesToRetrieve,
+      },
+    },
+    { cacheable: true },
+  );
+
+  return results;
 }
 
 async function getAllAvailableVersionsByIds(ids: string[]) {
   const results: Map<string, Set<string>> = new Map();
 
-  // NOTE: Using searchSingleIndex instead of browseObjects to cache the results
-  const response = await client.searchSingleIndex<AlgoliaStepResponse>({
-    indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
-    searchParams: {
-      filters: ids.map((id) => `id:${id}`).join(' OR '),
-      analytics: false,
-      clickAnalytics: false,
-      attributesToRetrieve: ['id', 'version'],
-    },
-  });
+  // No ids → skip the query. An empty `filters` string is match-all in Algolia, which would
+  // return unrelated steps instead of nothing.
+  if (ids.length === 0) {
+    return results;
+  }
 
-  response.hits.forEach((hit) => {
+  // browseObjects (not searchSingleIndex) to get every version record: one id matches every
+  // version, so a large config easily exceeds a single relevance-ranked page — truncation there
+  // could drop a step's latest version and break version resolution downstream. { cacheable: true }
+  // opts browse into the client's response cache (browse is not cached by default).
+  const hits: AlgoliaStepResponse[] = [];
+  await client.browseObjects<AlgoliaStepResponse>(
+    {
+      indexName: ALGOLIA_STEPLIB_STEPS_INDEX,
+      aggregator: ({ hits: pageHits }) => hits.push(...pageHits),
+      browseParams: {
+        filters: ids.map((id) => `id:${id}`).join(' OR '),
+        attributesToRetrieve: ['id', 'version'],
+      },
+    },
+    { cacheable: true },
+  );
+
+  hits.forEach((hit) => {
     const versions = results.get(hit.id) ?? new Set<string>();
     versions.add(hit.version);
     results.set(hit.id, versions);

@@ -103,7 +103,7 @@ const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
     ids.forEach((workflowId) => {
       WorkflowService.getWorkflowChain(s.yml.workflows ?? {}, workflowId).forEach((id) => {
         s.yml.workflows?.[id]?.steps?.forEach((ymlStepObject) => {
-          const [cvs, step] = Object.entries(ymlStepObject)[0];
+          const [cvs, step] = Object.entries(ymlStepObject)[0] ?? ['', {}];
           // TODO: Handle step bundles and with groups...
           if (StepService.isStep(cvs, defaultStepLibrary, step)) {
             cvsSet.add(cvs);
@@ -120,6 +120,11 @@ const useStepLevelEnvVars = (ids: string[], enabled: boolean) => {
       enabled,
       queryKey: ['steps', { cvs, defaultStepLibrary }],
       queryFn: () => StepApi.getStepByCvs(cvs, defaultStepLibrary),
+      // Same queryKey as useStep — mirror its cache policy so opening the EnvVar popover reuses
+      // already-fetched steps instead of refetching (staleTime is per-observer) and retrying 3×.
+      staleTime: Infinity,
+      gcTime: Infinity,
+      retry: false,
     })),
     combine: (result) => {
       const envVarMap = new Map<string, EnvVar>();
