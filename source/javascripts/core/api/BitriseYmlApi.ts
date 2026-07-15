@@ -1,11 +1,4 @@
-import {
-  EntityIndex,
-  EntityIndexEntries,
-  GetConfigResponse,
-  MergedConfigResult,
-  TreeNode,
-  TreeNodeSource,
-} from '@/core/models/Tree';
+import { GetConfigResponse, MergedConfigResult, TreeNode, TreeNodeSource } from '@/core/models/Tree';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import Client from './client';
@@ -188,22 +181,6 @@ function toWireTreeNode(node: TreeNode, seen: Set<TreeNode> = new Set()): WireTr
   };
 }
 
-function fromWireEntityEntries(entries: WireEntityEntries = {}): EntityIndexEntries {
-  return Object.fromEntries(
-    Object.entries(entries).map(([id, defs]) => [id, defs.map(({ node_id }) => ({ nodeId: node_id }))]),
-  );
-}
-
-function fromWireEntityIndex(index: WireEntityIndex): EntityIndex {
-  return {
-    workflows: fromWireEntityEntries(index.workflows),
-    pipelines: fromWireEntityEntries(index.pipelines),
-    stepBundles: fromWireEntityEntries(index.step_bundles),
-    containers: fromWireEntityEntries(index.containers),
-    appEnvs: fromWireEntityEntries(index.app_envs),
-  };
-}
-
 function configTreePath({
   projectSlug,
   forceToReadFromRepo,
@@ -244,9 +221,11 @@ async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetC
   const wire = (await response.json()) as WireGetConfigResponse;
   const headerBranch = response.headers.get(CI_CONFIG_BRANCH_HEADER) || undefined;
 
+  // The BE still ships `entity_index`, but the WFE ignores it and builds the index itself from the
+  // file documents (single source of truth — see EntityIndexService). Left on the wire until the BE
+  // stops emitting it.
   return {
     root: fromWireTreeNode(wire.root),
-    entityIndex: fromWireEntityIndex(wire.entity_index),
     mergedYml: wire.merged_yml,
     branch: wire.branch || headerBranch,
   };

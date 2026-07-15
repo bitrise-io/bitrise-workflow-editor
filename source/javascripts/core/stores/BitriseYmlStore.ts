@@ -374,18 +374,20 @@ function modularTreePatch(
 
 export function initializeModularConfig({
   root,
-  entityIndex,
+  entityIndex: providedEntityIndex,
   mergedYml,
   branch,
   commitSha,
 }: {
   root: TreeNode;
-  entityIndex: EntityIndex;
+  /** Optional override (stories/tests). Production omits it → the index is built from the files, so the WFE doesn't depend on the BE-served index. */
+  entityIndex?: EntityIndex;
   mergedYml?: string;
   branch?: string;
   commitSha?: string;
 }) {
   const files = buildFileSlices(root);
+  const entityIndex = providedEntityIndex ?? EntityIndexService.buildFromFiles(root, files);
 
   bitriseYmlStore.setState({
     ...modularTreePatch(root, files, entityIndex, files[root.nodeId]),
@@ -407,16 +409,18 @@ export function initializeModularConfig({
  */
 export function applyModularSaveResult({
   root,
-  entityIndex,
+  entityIndex: providedEntityIndex,
   branch,
   commitSha,
 }: {
   root: TreeNode;
-  entityIndex: EntityIndex;
+  /** Optional override (tests). Production omits it → built from the files (see initializeModularConfig). */
+  entityIndex?: EntityIndex;
   branch?: string;
   commitSha?: string;
 }) {
   const files = buildFileSlices(root);
+  const entityIndex = providedEntityIndex ?? EntityIndexService.buildFromFiles(root, files);
   const { openTabs, selectedNodeId } = bitriseYmlStore.getState();
 
   const nextTabs = openTabs.filter((tab) => files[tab.nodeId]);
@@ -639,9 +643,10 @@ bitriseYmlStore.subscribe(
   },
 );
 
-// Keep `entityIndex` live: the BE ships a snapshot at load/save, but unsaved edits to module files
-// must be reflected immediately for cross-file detection + jump-to-definition. Re-derived from the
-// live file documents on every `files` change (at load they equal the BE tree, so the seed is kept).
+// `entityIndex` is derived entirely from the live file documents — the WFE is the single source of
+// truth (the BE-served index is ignored). Built when a tree is bound (initializeModularConfig /
+// applyModularSaveResult) and re-derived here on every `files` change so unsaved edits are reflected
+// immediately for cross-file detection + jump-to-definition.
 bitriseYmlStore.subscribe(
   (s) => s.files,
   (files) => {

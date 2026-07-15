@@ -167,7 +167,6 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
           } else {
             initializeModularConfig({
               root: config.root,
-              entityIndex: config.entityIndex,
               mergedYml: config.mergedYml,
               branch: config.branch,
               commitSha: config.root.commitSha,
