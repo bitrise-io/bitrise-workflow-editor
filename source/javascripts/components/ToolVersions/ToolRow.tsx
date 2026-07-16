@@ -9,10 +9,15 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { FocusEventHandler, useState } from 'react';
+import { useState } from 'react';
+import { useController, useForm } from 'react-hook-form';
 
 import { ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
+
+type ToolRowFormValues = {
+  toolId: string;
+};
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-released': 'Latest released version',
@@ -54,7 +59,17 @@ const ToolRow = ({
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the dropdown.
   const [manualOther, setManualOther] = useState(false);
-  const [idError, setIdError] = useState<string | undefined>();
+
+  const { control } = useForm<ToolRowFormValues>({
+    mode: 'onChange',
+    values: { toolId },
+  });
+
+  const { field: toolIdField, fieldState: toolIdFieldState } = useController({
+    control,
+    name: 'toolId',
+    rules: { validate: (value) => ToolsService.validateToolId(value.trim(), toolId, existingToolIds, catalog) },
+  });
 
   const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
@@ -77,21 +92,18 @@ const ToolRow = ({
       return;
     }
     setManualOther(false);
-    setIdError(undefined);
     if (newValue !== toolId) {
       onIdChange(newValue);
     }
   };
 
-  const handleIdBlur: FocusEventHandler<HTMLInputElement> = (e) => {
-    const newId = e.target.value.trim();
-    const validation = ToolsService.validateToolId(newId, toolId, existingToolIds, catalog);
-    if (validation !== true) {
-      setIdError(validation);
+  const handleIdBlur = () => {
+    toolIdField.onBlur();
+    if (toolIdFieldState.error) {
       return;
     }
-    setIdError(undefined);
     setManualOther(false);
+    const newId = toolIdField.value.trim();
     if (newId !== toolId) {
       onIdChange(newId);
     }
@@ -120,8 +132,12 @@ const ToolRow = ({
             <BitkitTextInput
               size="lg"
               placeholder="Tool ID (e.g. deno)"
-              errorText={idError}
-              inputProps={{ defaultValue: toolId, autoFocus, onBlur: handleIdBlur }}
+              errorText={toolIdFieldState.error?.message}
+              inputProps={{
+                ...toolIdField,
+                autoFocus,
+                onBlur: handleIdBlur,
+              }}
             />
           )}
         </Box>
