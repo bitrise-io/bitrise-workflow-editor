@@ -59,7 +59,7 @@ func TestGetBitriseYMLTreeHandler_nonModular(t *testing.T) {
 	config.BitriseYMLPath = "bitrise.yml"
 
 	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/bitrise-yml/tree", nil)
+	req := httptest.NewRequest("GET", "/api/bitrise-yml/tree", nil)
 	http.HandlerFunc(GetBitriseYMLTreeHandler).ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
@@ -87,7 +87,7 @@ func TestGetBitriseYMLTreeHandler_modular(t *testing.T) {
 	config.BitriseYMLPath = "bitrise.yml"
 
 	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/bitrise-yml/tree", nil)
+	req := httptest.NewRequest("GET", "/api/bitrise-yml/tree", nil)
 	http.HandlerFunc(GetBitriseYMLTreeHandler).ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
@@ -135,10 +135,11 @@ func TestPostBitriseYMLTreeHandler_writesEditableModified(t *testing.T) {
 			}},
 		},
 	}
-	body, _ := json.Marshal(payload)
+	body, err := json.Marshal(payload)
+	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/bitrise-yml/tree", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/api/bitrise-yml/tree", bytes.NewReader(body))
 	http.HandlerFunc(PostBitriseYMLTreeHandler).ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
@@ -159,10 +160,11 @@ func TestPostBitriseYMLTreeMergeHandler(t *testing.T) {
 			}},
 		},
 	}
-	body, _ := json.Marshal(payload)
+	body, err := json.Marshal(payload)
+	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/bitrise-yml/tree/merge", bytes.NewReader(body))
+	req := httptest.NewRequest("POST", "/api/bitrise-yml/tree/merge", bytes.NewReader(body))
 	http.HandlerFunc(PostBitriseYMLTreeMergeHandler).ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())

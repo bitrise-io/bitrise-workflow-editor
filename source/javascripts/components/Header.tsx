@@ -191,11 +191,14 @@ const Header = () => {
   // Local modular save: write changed module files to disk + reload the tree (no branch/PR locally).
   const { isPending: isSavingTree, mutate: saveConfigTree } = useSaveConfigTree({
     onSuccess: (config) => applyModularSaveResult({ root: config.root }),
-    onError: (error: ClientError) => {
+    onError: (error: Error) => {
       segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: currentPage });
       toast({
         title: 'Failed to save changes',
-        description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
+        description:
+          (error instanceof ClientError ? error.getResponseErrorMessage() : undefined) ||
+          error.message ||
+          'Something went wrong',
         status: 'error',
         duration: null,
         isClosable: true,

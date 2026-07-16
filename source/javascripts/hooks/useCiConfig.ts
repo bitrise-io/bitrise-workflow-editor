@@ -26,7 +26,9 @@ type UseSaveCiConfigProps = {
 
 type UseGetCiConfigOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientError>, 'queryKey' | 'queryFn'>;
 type UseSaveCiConfigOptions = UseMutationOptions<GetCiConfigResult, ClientError, UseSaveCiConfigProps>;
-type UseSaveConfigTreeOptions = UseMutationOptions<GetConfigResponse, ClientError, void>;
+// Error (not ClientError): most failures are ClientError from the API, but the guard below can
+// throw a plain Error, so consumers must handle both.
+type UseSaveConfigTreeOptions = UseMutationOptions<GetConfigResponse, Error, void>;
 
 export function useGetCiConfig(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<GetCiConfigResult>) {
   return useQuery({
