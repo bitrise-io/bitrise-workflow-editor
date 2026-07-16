@@ -2,6 +2,7 @@ import {
   BitkitAlert,
   BitkitButton,
   BitkitLink,
+  BitkitLinkButton,
   BitkitTooltip,
   IconFlutter,
   IconNodejs,
@@ -16,13 +17,16 @@ import { useState } from 'react';
 
 import { VersionStrategy } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
+import useNavigation from '@/hooks/useNavigation';
 import { useToolCatalog, useToolsForScope } from '@/hooks/useTools';
+import { paths } from '@/routes';
 
 import ToolRow from './ToolRow';
 
 const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
+  const { replace } = useNavigation();
   const { data: catalog, isLoading: isCatalogLoading, isError: isCatalogError } = useToolCatalog();
   const [hasPendingRow, setHasPendingRow] = useState(false);
   const [pendingStrategy, setPendingStrategy] = useState<VersionStrategy>('latest-released');
@@ -64,6 +68,15 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             CLI and step use
           </BitkitLink>
         </Text>
+        {scope.type === 'workflow' && (
+          <Text textStyle="body/md/regular" color="text/secondary">
+            Looking for global settings which apply to all workflows? Go to the{' '}
+            <BitkitLinkButton onClick={() => replace(paths.stacksAndMachines)}>
+              Stacks &amp; Machines page
+            </BitkitLinkButton>
+            .
+          </Text>
+        )}
       </Stack>
 
       <Stack gap="16">
