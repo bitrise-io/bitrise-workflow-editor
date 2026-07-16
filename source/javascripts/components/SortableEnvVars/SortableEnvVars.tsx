@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, Text } from '@bitrise/bitkit';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -21,6 +21,8 @@ export type SortableEnvVarsProps = {
   initialEnvs?: EnvVar[];
   /** Read-only views: render a jump-to-definition arrow per row in place of the remove button. */
   renderJumpButton?: (env: SortableEnvVar) => ReactNode;
+  /** Placeholder shown on read-only views when there are no env vars (and thus no "Add new" button). */
+  emptyText?: string;
 };
 
 const SortableEnvVars = ({
@@ -32,6 +34,7 @@ const SortableEnvVars = ({
   onValidationErrorsChange,
   initialEnvs,
   renderJumpButton,
+  emptyText,
 }: SortableEnvVarsProps) => {
   const isReadOnlyView = useIsReadOnlyView();
   const {
@@ -78,6 +81,13 @@ const SortableEnvVars = ({
         </SortableContext>
         <DragOverlay>{activeItem && <SortableEnvVarItem env={activeItem} isDragging />}</DragOverlay>
       </DndContext>
+
+      {/* Read-only view with nothing to show (no rows, no "Add new") would leave an empty box. */}
+      {isReadOnlyView && envs.length === 0 && emptyText && (
+        <Text paddingInline="24" paddingBlock="16" textStyle="body/md/regular" color="text/secondary">
+          {emptyText}
+        </Text>
+      )}
 
       {/* Read-only views (merged config, cross-repo/ref files) can't add — show no action. */}
       {!hideAddButton && !isReadOnlyView && (
