@@ -1,7 +1,7 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig, openTab } from '@/core/stores/BitriseYmlStore';
 
 import OpenFileTabs from './OpenFileTabs';
@@ -40,12 +40,10 @@ const ROOT: TreeNode = {
   ],
 };
 
-const ENTITY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {} };
-
 export default {
   component: OpenFileTabs,
   beforeEach: () => {
-    initializeModularConfig({ root: ROOT, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: ROOT.commitSha });
+    initializeModularConfig({ root: ROOT, branch: 'main', commitSha: ROOT.commitSha });
     openTab('n_local');
     openTab('n_repo');
   },

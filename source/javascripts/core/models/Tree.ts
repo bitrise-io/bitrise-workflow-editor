@@ -54,7 +54,6 @@ export type EntityKind = keyof EntityIndex;
 /** Bootstrap response (`GET /config/tree`). Always tree-shaped; a non-modular config is a single root node with `includes: []`. */
 export type GetConfigResponse = {
   root: TreeNode;
-  entityIndex: EntityIndex;
   /** Merge of the tree as loaded. Absent if the BE couldn't merge at bootstrap; the FE then fetches it via `POST /config/merge`. */
   mergedYml?: string;
   /** From the `X-Config-Branch` response header (the body carries no branch). */

@@ -1,11 +1,4 @@
-import {
-  EntityIndex,
-  EntityIndexEntries,
-  GetConfigResponse,
-  MergedConfigResult,
-  TreeNode,
-  TreeNodeSource,
-} from '@/core/models/Tree';
+import { GetConfigResponse, MergedConfigResult, TreeNode, TreeNodeSource } from '@/core/models/Tree';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import Client from './client';
@@ -123,20 +116,8 @@ export type WireTreeNode = {
   includes: WireTreeNode[];
 };
 
-export type WireEntityEntries = Record<string, Array<{ node_id: string }>>;
-
-export type WireEntityIndex = {
-  workflows: WireEntityEntries;
-  pipelines: WireEntityEntries;
-  step_bundles: WireEntityEntries;
-  // Optional: absent on older BE responses, defaulted to `{}` on parse.
-  containers?: WireEntityEntries;
-  app_envs?: WireEntityEntries;
-};
-
 export type WireGetConfigResponse = {
   root: WireTreeNode;
-  entity_index: WireEntityIndex;
   merged_yml?: string;
   branch?: string;
 };
@@ -188,22 +169,6 @@ function toWireTreeNode(node: TreeNode, seen: Set<TreeNode> = new Set()): WireTr
   };
 }
 
-function fromWireEntityEntries(entries: WireEntityEntries = {}): EntityIndexEntries {
-  return Object.fromEntries(
-    Object.entries(entries).map(([id, defs]) => [id, defs.map(({ node_id }) => ({ nodeId: node_id }))]),
-  );
-}
-
-function fromWireEntityIndex(index: WireEntityIndex): EntityIndex {
-  return {
-    workflows: fromWireEntityEntries(index.workflows),
-    pipelines: fromWireEntityEntries(index.pipelines),
-    stepBundles: fromWireEntityEntries(index.step_bundles),
-    containers: fromWireEntityEntries(index.containers),
-    appEnvs: fromWireEntityEntries(index.app_envs),
-  };
-}
-
 function configTreePath({
   projectSlug,
   forceToReadFromRepo,
@@ -246,7 +211,6 @@ async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetC
 
   return {
     root: fromWireTreeNode(wire.root),
-    entityIndex: fromWireEntityIndex(wire.entity_index),
     mergedYml: wire.merged_yml,
     branch: wire.branch || headerBranch,
   };

@@ -4,7 +4,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { ContainerType } from '@/core/models/Container';
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { initializeBitriseYmlDocument, initializeModularConfig, selectNode } from '@/core/stores/BitriseYmlStore';
 
 import useContainers, { useModuleContainers } from './useContainers';
@@ -20,8 +20,6 @@ const leaf = (nodeId: string, path: string, contents: string): TreeNode => ({
   editable: true,
   includes: [],
 });
-
-const ENTITY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {}, containers: {} };
 
 describe('useContainers', () => {
   it('lists containers from the single config document', () => {
@@ -53,7 +51,7 @@ describe('useContainers', () => {
         ),
       ],
     };
-    initializeModularConfig({ root, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useContainers());
 
@@ -73,7 +71,7 @@ describe('useContainers', () => {
       editable: true,
       includes: [leaf('n_mod', 'mod.yml', 'containers:\n  dup:\n    type: service\n    image: postgres:16\n')],
     };
-    initializeModularConfig({ root, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useContainers());
 
@@ -113,7 +111,7 @@ describe('useModuleContainers', () => {
       ],
     };
     // initializeModularConfig selects the root file, so the active module is `bitrise.yml`.
-    initializeModularConfig({ root, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useModuleContainers());
 
@@ -132,7 +130,7 @@ describe('useModuleContainers', () => {
       editable: true,
       includes: [leaf('n_mod', 'mod.yml', 'containers:\n  mod-ctr:\n    type: execution\n    image: node:20\n')],
     };
-    initializeModularConfig({ root, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useModuleContainers());
 

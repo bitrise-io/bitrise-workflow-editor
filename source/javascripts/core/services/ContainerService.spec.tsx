@@ -1,6 +1,6 @@
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { ContainerType } from '@/core/models/Container';
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import {
   bitriseYmlStore,
   getYmlString,
@@ -11,7 +11,6 @@ import {
 import ContainerService from './ContainerService';
 
 const MODULAR_SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
-const EMPTY_ENTITY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {}, containers: {} };
 
 // A modular config whose active file (root) has a workflow but no containers, while an included module
 // defines `from-other-module` — so the entity index knows the container even though the active file
@@ -36,7 +35,7 @@ const initModularConfigWithContainerInModule = (type: 'execution' | 'service') =
       },
     ],
   };
-  initializeModularConfig({ root, entityIndex: EMPTY_ENTITY_INDEX, branch: 'main', commitSha: MODULAR_SHA });
+  initializeModularConfig({ root, branch: 'main', commitSha: MODULAR_SHA });
 };
 
 describe('ContainerService', () => {
