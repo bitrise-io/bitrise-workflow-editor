@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { delay, http, HttpResponse } from 'msw';
 
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, initializeModularConfig, updateFileDocument } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import { getCiConfig } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
@@ -42,8 +42,6 @@ const MODULAR_ROOT: TreeNode = {
   ],
 };
 
-const ENTITY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {} };
-
 export default {
   component: UpdateConfigurationDialog,
   args: {
@@ -82,7 +80,7 @@ export const Failed: Story = {
 
 export const Modular: Story = {
   beforeEach: () => {
-    initializeModularConfig({ root: MODULAR_ROOT, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root: MODULAR_ROOT, branch: 'main', commitSha: SHA });
     // Make both module files dirty so they show up as changed modules.
     updateFileDocument('n_pipelines', ({ doc }) => {
       YmlUtils.setIn(doc, ['pipelines', 'pl-1'], {});

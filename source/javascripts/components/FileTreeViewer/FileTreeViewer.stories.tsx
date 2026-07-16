@@ -3,7 +3,7 @@ import { BitkitTabs } from '@bitrise/bitkit-v2';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { useRef, useState } from 'react';
 
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
 import FileTreeViewer from './FileTreeViewer';
@@ -70,12 +70,10 @@ const ROOT: TreeNode = {
   ],
 };
 
-const ENTITY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {} };
-
 export default {
   component: FileTreeViewer,
   beforeEach: () => {
-    initializeModularConfig({ root: ROOT, entityIndex: ENTITY_INDEX, branch: 'main', commitSha: ROOT.commitSha });
+    initializeModularConfig({ root: ROOT, branch: 'main', commitSha: ROOT.commitSha });
   },
   decorators: [
     (Story) => (

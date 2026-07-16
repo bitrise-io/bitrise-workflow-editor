@@ -100,7 +100,6 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         const config = await BitriseYmlApi.getConfig({ projectSlug: appSlug, branch });
         applyModularSaveResult({
           root: config.root,
-          entityIndex: config.entityIndex,
           branch: config.branch,
           commitSha: config.root.commitSha,
         });

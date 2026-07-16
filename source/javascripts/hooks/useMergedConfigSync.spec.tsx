@@ -50,12 +50,10 @@ function buildRoot(): TreeNode {
   };
 }
 
-const entityIndex = { workflows: { 'wf-a': [{ nodeId: 'child-a' }] }, pipelines: {}, stepBundles: {} };
-
 describe('useMergedConfigSync', () => {
   beforeEach(() => {
     jest.spyOn(PageProps, 'appSlug').mockReturnValue('app-1');
-    initializeModularConfig({ root: buildRoot(), entityIndex, branch: 'main', commitSha: 'abc' });
+    initializeModularConfig({ root: buildRoot(), branch: 'main', commitSha: 'abc' });
     selectMergedConfig();
   });
 

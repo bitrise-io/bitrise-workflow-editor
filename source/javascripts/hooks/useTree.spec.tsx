@@ -3,7 +3,7 @@
  */
 import { renderHook } from '@testing-library/react';
 
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
 import { useEntityDefinitionPaths } from './useTree';
@@ -21,8 +21,6 @@ const leaf = (nodeId: string, path: string, contents: string): TreeNode => ({
   editable: true,
   includes: [],
 });
-
-const EMPTY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {}, containers: {} };
 
 const modularRoot = (rootContents: string, moduleContents: string): TreeNode => ({
   nodeId: 'root',
@@ -48,7 +46,7 @@ describe('useEntityDefinitionPaths', () => {
 
   it('returns a single entry when the container is defined in only one module', () => {
     const root = modularRoot('containers:\n  solo:\n    type: execution\n    image: ubuntu:22.04\n', '');
-    initializeModularConfig({ root, entityIndex: EMPTY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useEntityDefinitionPaths('containers', 'solo'));
 
@@ -60,7 +58,7 @@ describe('useEntityDefinitionPaths', () => {
       'containers:\n  dup:\n    type: execution\n    image: ubuntu:22.04\n',
       'containers:\n  dup:\n    type: service\n    image: postgres:16\n',
     );
-    initializeModularConfig({ root, entityIndex: EMPTY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useEntityDefinitionPaths('containers', 'dup'));
 

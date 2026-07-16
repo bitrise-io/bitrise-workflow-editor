@@ -374,18 +374,17 @@ function modularTreePatch(
 
 export function initializeModularConfig({
   root,
-  entityIndex,
   mergedYml,
   branch,
   commitSha,
 }: {
   root: TreeNode;
-  entityIndex: EntityIndex;
   mergedYml?: string;
   branch?: string;
   commitSha?: string;
 }) {
   const files = buildFileSlices(root);
+  const entityIndex = EntityIndexService.buildFromFiles(root, files);
 
   bitriseYmlStore.setState({
     ...modularTreePatch(root, files, entityIndex, files[root.nodeId]),
@@ -407,16 +406,15 @@ export function initializeModularConfig({
  */
 export function applyModularSaveResult({
   root,
-  entityIndex,
   branch,
   commitSha,
 }: {
   root: TreeNode;
-  entityIndex: EntityIndex;
   branch?: string;
   commitSha?: string;
 }) {
   const files = buildFileSlices(root);
+  const entityIndex = EntityIndexService.buildFromFiles(root, files);
   const { openTabs, selectedNodeId } = bitriseYmlStore.getState();
 
   const nextTabs = openTabs.filter((tab) => files[tab.nodeId]);
@@ -639,9 +637,8 @@ bitriseYmlStore.subscribe(
   },
 );
 
-// Keep `entityIndex` live: the BE ships a snapshot at load/save, but unsaved edits to module files
-// must be reflected immediately for cross-file detection + jump-to-definition. Re-derived from the
-// live file documents on every `files` change (at load they equal the BE tree, so the seed is kept).
+// Re-derive the entity index from the live file documents on every `files` change so unsaved edits
+// are reflected immediately for cross-file detection + jump-to-definition.
 bitriseYmlStore.subscribe(
   (s) => s.files,
   (files) => {

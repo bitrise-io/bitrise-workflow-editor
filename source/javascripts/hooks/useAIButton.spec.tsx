@@ -3,7 +3,7 @@
  */
 import { renderHook } from '@testing-library/react';
 
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
 import useAIButton from './useAIButton';
@@ -22,7 +22,6 @@ jest.mock('@/core/utils/PageProps', () => ({
 }));
 
 const SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
-const EMPTY_INDEX: EntityIndex = { workflows: {}, pipelines: {}, stepBundles: {}, containers: {} };
 const ROOT: TreeNode = {
   nodeId: 'root',
   path: 'bitrise.yml',
@@ -43,7 +42,7 @@ describe('useAIButton', () => {
   });
 
   it('is hidden in a modular config (BIVS-3735)', () => {
-    initializeModularConfig({ root: ROOT, entityIndex: EMPTY_INDEX, branch: 'main', commitSha: SHA });
+    initializeModularConfig({ root: ROOT, branch: 'main', commitSha: SHA });
 
     const { result } = renderHook(() => useAIButton({ action: 'explain_workflow' }));
 

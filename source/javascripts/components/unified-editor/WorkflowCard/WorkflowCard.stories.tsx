@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { EntityIndex, TreeNode } from '@/core/models/Tree';
+import { TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
 import WorkflowCard from './WorkflowCard';
@@ -66,12 +66,6 @@ const GHOST_ROOT: TreeNode = {
   ],
 };
 
-const GHOST_ENTITY_INDEX: EntityIndex = {
-  workflows: { 'ghost-wf': [{ nodeId: 'n_mod' }] },
-  pipelines: {},
-  stepBundles: {},
-};
-
 export const Ghost: Story = {
   args: {
     id: 'ghost-wf',
@@ -79,7 +73,6 @@ export const Ghost: Story = {
   beforeEach: () => {
     initializeModularConfig({
       root: GHOST_ROOT,
-      entityIndex: GHOST_ENTITY_INDEX,
       branch: 'main',
       commitSha: GHOST_ROOT.commitSha,
     });
