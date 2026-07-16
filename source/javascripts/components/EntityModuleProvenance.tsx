@@ -54,7 +54,9 @@ const EntityModuleProvenance = ({
       {withJumpLink && (
         <>
           {' • '}
-          <JumpToDefinitionLink kind={kind} id={id} nodeIds={nodeIds} />
+          {/* The jump picker lists *every* defining module (incl. the current one) so both occurrences
+              are reachable; only the text above excludes the current module. */}
+          <JumpToDefinitionLink kind={kind} id={id} />
         </>
       )}
     </>

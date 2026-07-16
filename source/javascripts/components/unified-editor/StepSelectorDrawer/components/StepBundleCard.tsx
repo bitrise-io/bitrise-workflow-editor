@@ -260,12 +260,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               </Box>
               {showJumpButton && (
                 <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
-                  <CrossFileJumpButton
-                    kind="stepBundles"
-                    id={bundleId}
-                    nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
-                    onOpenChange={setIsJumpPopoverOpen}
-                  />
+                  {/* Lists every defining module (incl. the current one) so both occurrences are reachable. */}
+                  <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
                 </Box>
               )}
               {buttonGroup}
