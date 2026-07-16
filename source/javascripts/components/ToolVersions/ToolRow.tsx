@@ -35,7 +35,6 @@ type ToolRowProps = {
   existingToolIds: string[];
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
-  autoFocus?: boolean;
   isCatalogLoading: boolean;
   onIdChange: (newId: string) => void;
   onStrategyChange: (strategy: VersionStrategy, version: string) => void;
@@ -50,7 +49,6 @@ const ToolRow = ({
   existingToolIds,
   catalog,
   allowUnset,
-  autoFocus,
   isCatalogLoading,
   onIdChange,
   onStrategyChange,
@@ -126,7 +124,6 @@ const ToolRow = ({
             items={dropdownItems}
             value={showCustomInput ? OTHER_VALUE : toolId}
             onValueChange={handleDropdownChange}
-            triggerProps={showCustomInput ? undefined : { autoFocus }}
           />
           {showCustomInput && (
             <BitkitTextInput
@@ -135,7 +132,6 @@ const ToolRow = ({
               errorText={toolIdFieldState.error?.message}
               inputProps={{
                 ...toolIdField,
-                autoFocus,
                 onBlur: handleIdBlur,
               }}
             />
