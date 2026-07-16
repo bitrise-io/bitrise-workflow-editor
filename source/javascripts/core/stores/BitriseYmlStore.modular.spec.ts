@@ -51,14 +51,8 @@ function buildRoot(): TreeNode {
   });
 }
 
-const entityIndex = {
-  workflows: { 'child-a': [{ nodeId: 'child-a' }] },
-  pipelines: {},
-  stepBundles: {},
-};
-
 function init() {
-  initializeModularConfig({ root: buildRoot(), entityIndex, branch: 'main', commitSha: 'abc' });
+  initializeModularConfig({ root: buildRoot(), branch: 'main', commitSha: 'abc' });
 }
 
 describe('BitriseYmlStore — modular tree', () => {
@@ -144,7 +138,6 @@ describe('BitriseYmlStore — modular tree', () => {
     it('seeds the merged config (not stale) when the bootstrap response carries mergedYml', () => {
       initializeModularConfig({
         root: buildRoot(),
-        entityIndex,
         mergedYml: 'merged: bootstrap',
         branch: 'main',
         commitSha: 'abc',
@@ -325,7 +318,7 @@ describe('BitriseYmlStore — modular tree', () => {
     it('binds the active document to the merged config when the last tab is closed', () => {
       // Otherwise the views keep rendering the just-closed file, where other files' entities look like ghosts.
       const merged = 'format_version: "13"\nworkflows:\n  child-a: {}\n  defined-elsewhere: {}\n';
-      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: merged, branch: 'main' });
+      initializeModularConfig({ root: buildRoot(), mergedYml: merged, branch: 'main' });
 
       closeTab('root');
 
@@ -522,7 +515,7 @@ describe('BitriseYmlStore — modular tree', () => {
     const MERGED = 'format_version: "13"\nworkflows:\n  child-a: {}\n  defined-elsewhere: {}\n';
 
     it('binds the active document to the merged config so every entity resolves locally', () => {
-      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: MERGED, branch: 'main' });
+      initializeModularConfig({ root: buildRoot(), mergedYml: MERGED, branch: 'main' });
 
       selectMergedConfig();
 
@@ -532,7 +525,7 @@ describe('BitriseYmlStore — modular tree', () => {
     });
 
     it('is read-only on the merged tab (no file slice backs it → mutations no-op)', () => {
-      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: MERGED, branch: 'main' });
+      initializeModularConfig({ root: buildRoot(), mergedYml: MERGED, branch: 'main' });
       selectMergedConfig();
       const before = bitriseYmlStore.getState().ymlDocument;
 
@@ -545,7 +538,7 @@ describe('BitriseYmlStore — modular tree', () => {
     });
 
     it('rebinds the active document when a fresh merge arrives while the merged tab is active', () => {
-      initializeModularConfig({ root: buildRoot(), entityIndex, mergedYml: MERGED, branch: 'main' });
+      initializeModularConfig({ root: buildRoot(), mergedYml: MERGED, branch: 'main' });
       selectMergedConfig();
 
       setMergedConfig('format_version: "13"\nworkflows:\n  only-after-refresh: {}\n');
@@ -594,7 +587,6 @@ describe('BitriseYmlStore — modular tree', () => {
 
       applyModularSaveResult({
         root: refreshed,
-        entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} },
       });
 
       const state = bitriseYmlStore.getState();
@@ -609,7 +601,6 @@ describe('BitriseYmlStore — modular tree', () => {
 
       applyModularSaveResult({
         root: node('root', { path: 'bitrise.yml', includes: [] }),
-        entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} },
       });
 
       const state = bitriseYmlStore.getState();
@@ -623,7 +614,6 @@ describe('BitriseYmlStore — modular tree', () => {
 
       applyModularSaveResult({
         root: buildRoot(),
-        entityIndex: { workflows: {}, pipelines: {}, stepBundles: {} },
         branch: 'feature-x',
         commitSha: 'pushed-sha',
       });

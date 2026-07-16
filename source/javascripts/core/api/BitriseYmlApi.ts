@@ -221,9 +221,6 @@ async function getConfig({ signal, ...options }: GetConfigOptions): Promise<GetC
   const wire = (await response.json()) as WireGetConfigResponse;
   const headerBranch = response.headers.get(CI_CONFIG_BRANCH_HEADER) || undefined;
 
-  // The BE still ships `entity_index`, but the WFE ignores it and builds the index itself from the
-  // file documents (single source of truth — see EntityIndexService). Left on the wire until the BE
-  // stops emitting it.
   return {
     root: fromWireTreeNode(wire.root),
     mergedYml: wire.merged_yml,
