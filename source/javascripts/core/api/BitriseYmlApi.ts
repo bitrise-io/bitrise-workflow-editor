@@ -116,20 +116,8 @@ export type WireTreeNode = {
   includes: WireTreeNode[];
 };
 
-export type WireEntityEntries = Record<string, Array<{ node_id: string }>>;
-
-export type WireEntityIndex = {
-  workflows: WireEntityEntries;
-  pipelines: WireEntityEntries;
-  step_bundles: WireEntityEntries;
-  // Optional: absent on older BE responses, defaulted to `{}` on parse.
-  containers?: WireEntityEntries;
-  app_envs?: WireEntityEntries;
-};
-
 export type WireGetConfigResponse = {
   root: WireTreeNode;
-  entity_index: WireEntityIndex;
   merged_yml?: string;
   branch?: string;
 };
