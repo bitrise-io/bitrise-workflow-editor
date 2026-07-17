@@ -2,6 +2,8 @@ import { UndefinedInitialDataOptions, useMutation, UseMutationOptions, useQuery 
 
 import BitriseYmlApi, { GetCiConfigResult } from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
+import { GetConfigResponse } from '@/core/models/Tree';
+import { getModularConfigTree } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import { getSearchParamsFromLocationHash, setSearchParamsInLocationHash } from '@/hooks/useSearchParams';
 
@@ -24,6 +26,9 @@ type UseSaveCiConfigProps = {
 
 type UseGetCiConfigOptions<T> = Omit<UndefinedInitialDataOptions<T, ClientError>, 'queryKey' | 'queryFn'>;
 type UseSaveCiConfigOptions = UseMutationOptions<GetCiConfigResult, ClientError, UseSaveCiConfigProps>;
+// Error (not ClientError): most failures are ClientError from the API, but the guard below can
+// throw a plain Error, so consumers must handle both.
+type UseSaveConfigTreeOptions = UseMutationOptions<GetConfigResponse, Error, void>;
 
 export function useGetCiConfig(props: UseGetCiConfigProps, options?: UseGetCiConfigOptions<GetCiConfigResult>) {
   return useQuery({
@@ -65,6 +70,26 @@ export function useSaveCiConfig(options?: UseSaveCiConfigOptions) {
       return BitriseYmlApi.getCiConfig({
         projectSlug: PageProps.appSlug(),
       });
+    },
+    ...options,
+  });
+}
+
+/**
+ * Local (CLI) modular save: writes every changed module file to disk via the apiserver, then
+ * reloads the tree so the merged view + per-file baselines refresh. Cloud saves via push-to-branch
+ * instead (`usePushBranch`). The reloaded tree is returned; the caller rebinds it via
+ * `applyModularSaveResult` in `onSuccess`.
+ */
+export function useSaveConfigTree(options?: UseSaveConfigTreeOptions) {
+  return useMutation({
+    mutationFn: async () => {
+      const tree = getModularConfigTree();
+      if (!tree) {
+        throw new Error('No modular config tree to save');
+      }
+      await BitriseYmlApi.saveConfigTree({ tree });
+      return BitriseYmlApi.getConfig({ projectSlug: PageProps.appSlug() });
     },
     ...options,
   });

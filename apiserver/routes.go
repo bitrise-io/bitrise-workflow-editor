@@ -27,6 +27,12 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 	r.HandleFunc("/api/bitrise-yml.json", wrapHandlerFunc(service.GetBitriseYMLAsJSONHandler)).Methods("GET")
 	r.HandleFunc("/api/bitrise-yml.json", wrapHandlerFunc(service.PostBitriseYMLFromJSONHandler)).Methods("POST")
 
+	// Modular config (include tree): resolve the tree from disk, save changed module files, and
+	// merge the live tree. The FE drives these in local mode exactly like the hosted /config/tree.
+	r.HandleFunc("/api/bitrise-yml/tree", wrapHandlerFunc(service.GetBitriseYMLTreeHandler)).Methods("GET")
+	r.HandleFunc("/api/bitrise-yml/tree", wrapHandlerFunc(service.PostBitriseYMLTreeHandler)).Methods("POST")
+	r.HandleFunc("/api/bitrise-yml/tree/merge", wrapHandlerFunc(service.PostBitriseYMLTreeMergeHandler)).Methods("POST")
+
 	r.HandleFunc("/api/secrets", wrapHandlerFunc(service.GetSecretsAsJSONHandler)).Methods("GET")
 	r.HandleFunc("/api/secrets", wrapHandlerFunc(service.PostSecretsYMLFromJSONHandler)).Methods("POST")
 
