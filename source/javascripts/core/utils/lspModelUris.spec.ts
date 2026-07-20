@@ -2,14 +2,10 @@ import { TreeNode, TreeNodeSource } from '@/core/models/Tree';
 
 import { buildNodeUris } from './lspModelUris';
 
-// Stub the codec: we assert this file's tree-walk + identity-inheritance logic, not the exact
-// bitrise:// string format (that's covered by the language-server package's own tests). The stub
-// renders identity so inheritance is visible in assertions.
-jest.mock('@bitrise/languageserver-core', () => ({
-  composeBitriseUri: ({ repo, path, ref }: { repo: string; path: string; ref?: { type: string; value: string } }) =>
-    `bitrise://${repo}/${path}${ref ? `?${ref.type}=${ref.value}` : ''}`,
-}));
-
+// Runs against the REAL codec (jest maps @bitrise/languageserver-core to the package's bitriseUri.ts),
+// so these assertions include its actual encoding — a cross-repo `org/shared` authority as `org%2Fshared`
+// and the ref query as `tag%3D1.2.0`. That's exactly the string core matches include edges against, so
+// asserting the real form is the point.
 const emptySource: TreeNodeSource = { path: null, repository: null, branch: null, tag: null, commit: null };
 
 const node = (nodeId: string, path: string, source: TreeNodeSource | null, includes: TreeNode[] = []): TreeNode => ({
@@ -37,7 +33,7 @@ describe('buildNodeUris', () => {
   it('gives a cross-repo include its own repository and ref', () => {
     const shared = node('n_shared', 'shared.yml', { ...emptySource, repository: 'org/shared', tag: '1.2.0' });
     const uris = buildNodeUris(node('root', 'bitrise.yml', null, [shared]));
-    expect(uris.get('n_shared')).toBe('bitrise://org/shared/shared.yml?tag=1.2.0');
+    expect(uris.get('n_shared')).toBe('bitrise://org%2Fshared/shared.yml?tag%3D1.2.0');
   });
 
   it('makes a local include nested under a cross-repo include inherit the cross-repo repo + ref', () => {
@@ -46,7 +42,7 @@ describe('buildNodeUris', () => {
       nestedLocal,
     ]);
     const uris = buildNodeUris(node('root', 'bitrise.yml', null, [shared]));
-    expect(uris.get('n_nested')).toBe('bitrise://org/shared/inner.yml?branch=main');
+    expect(uris.get('n_nested')).toBe('bitrise://org%2Fshared/inner.yml?branch%3Dmain');
   });
 
   it('prefers commit over tag over branch for the ref', () => {
@@ -58,6 +54,6 @@ describe('buildNodeUris', () => {
       commit: 'deadbeef',
     });
     const uris = buildNodeUris(node('root', 'bitrise.yml', null, [pinned]));
-    expect(uris.get('n')).toBe('bitrise://org/r/x.yml?commit=deadbeef');
+    expect(uris.get('n')).toBe('bitrise://org%2Fr/x.yml?commit%3Ddeadbeef');
   });
 });

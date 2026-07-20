@@ -1,4 +1,4 @@
-import { composeBitriseUri, GitRef } from '@bitrise/languageserver-core';
+import { composeBitriseUri, type GitRef } from '@bitrise/languageserver-core';
 
 import { TreeNode, TreeNodeSource } from '@/core/models/Tree';
 import TreeService from '@/core/services/TreeService';
