@@ -11,6 +11,9 @@ module.exports = {
     // In the jsdom environment the `yaml` package resolves to its untransformed ESM
     // browser build; pin it to the CJS dist used in the node environment.
     '^yaml$': '<rootDir>/node_modules/yaml/dist/index.js',
+    // `@bitrise/languageserver-core` is a Vite/tsconfig alias into raw-TS git package sources jest
+    // can't transform; use a pure-codec stand-in (see the mock's header).
+    '^@bitrise/languageserver-core$': '<rootDir>/spec/__mocks__/bitriseLanguageserverCore.ts',
     '@/(.*)': '<rootDir>/source/javascripts/$1',
   },
   setupFiles: ['<rootDir>/spec/set-node-env.ts'],

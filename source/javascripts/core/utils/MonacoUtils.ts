@@ -12,6 +12,7 @@ import { BITRISE_STEP_LIBRARY_URL } from '../models/Step';
 import BitriseYmlService from '../services/BitriseYmlService';
 import StepService from '../services/StepService';
 import { getBitriseYml } from '../stores/BitriseYmlStore';
+import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
 
@@ -227,7 +228,12 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
     return;
   }
 
+  // Main workspace: the whole bitrise:// include tree, resolved cross-file.
   configureBitriseYaml(monacoInstance, { stopWhenIdleFor: Infinity });
+  // Isolated second instance for the read-only merged preview — its own worker over the
+  // bitrise-merged:// scheme (a single self-contained file), so it gets in-file definition/
+  // references/hover without its union of symbols leaking into the tree above. See MERGED_MODEL_URI.
+  configureBitriseYaml(monacoInstance, { stopWhenIdleFor: Infinity, scheme: MERGED_MODEL_SCHEME });
 
   isConfiguredForBitriseLanguageServer = true;
 };
@@ -235,17 +241,19 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
 export type ValidationStatus = 'valid' | 'invalid' | 'warnings';
 
 /**
- * Subscribes to marker changes on a Monaco model and calls the callback
- * with the derived validation status whenever markers change.
+ * Subscribes to marker changes across a live set of Monaco models and calls the callback with the
+ * aggregate validation status whenever any of their markers change. `getModels` is a thunk so the
+ * watched set can grow/shrink as include-tree files are registered or disposed (multi-file config);
+ * a single-file config just returns one model.
  *
  * Returns an IDisposable to unsubscribe.
  */
-function onModelMarkerStatusChange(
-  model: monaco.editor.ITextModel,
+function onWorkspaceMarkerStatusChange(
+  getModels: () => monaco.editor.ITextModel[],
   callback: (status: ValidationStatus) => void,
 ): monaco.IDisposable {
   const updateStatus = () => {
-    const markers = monaco.editor.getModelMarkers({ resource: model.uri });
+    const markers = getModels().flatMap((model) => monaco.editor.getModelMarkers({ resource: model.uri }));
     const hasError = markers.some((m) => m.severity === monaco.MarkerSeverity.Error);
     const hasWarning = markers.some((m) => m.severity === monaco.MarkerSeverity.Warning);
 
@@ -271,8 +279,8 @@ function onModelMarkerStatusChange(
   scheduleUpdate();
 
   const subscription = monaco.editor.onDidChangeMarkers((changedUris) => {
-    const modelUri = model.uri.toString();
-    if (!changedUris.some((uri) => uri.toString() === modelUri)) {
+    const watched = new Set(getModels().map((model) => model.uri.toString()));
+    if (!changedUris.some((uri) => watched.has(uri.toString()))) {
       return;
     }
 
@@ -288,9 +296,18 @@ function onModelMarkerStatusChange(
   };
 }
 
+/** Single-model form of {@link onWorkspaceMarkerStatusChange}. */
+function onModelMarkerStatusChange(
+  model: monaco.editor.ITextModel,
+  callback: (status: ValidationStatus) => void,
+): monaco.IDisposable {
+  return onWorkspaceMarkerStatusChange(() => [model], callback);
+}
+
 export default {
   configureForYaml,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
   onModelMarkerStatusChange,
+  onWorkspaceMarkerStatusChange,
 };

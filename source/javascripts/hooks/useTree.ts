@@ -4,6 +4,7 @@ import { EntityKind, TreeNode } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import TreeService from '@/core/services/TreeService';
 import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
+import { buildNodeUris } from '@/core/utils/lspModelUris';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -28,6 +29,17 @@ export function useTree(): TreeNode | undefined {
 
 export function useSelectedNodeId(): string | undefined {
   return useStore(bitriseYmlStore, (s) => s.selectedNodeId);
+}
+
+/**
+ * The bitrise:// model URI for a tree node — the shared identity between the editor and the language
+ * service. `undefined` for the merged tab or an unknown node (both are outside the LS workspace).
+ */
+export function useNodeModelUri(nodeId: string | undefined): string | undefined {
+  return useBitriseYmlStore((s) => {
+    if (!s.tree || !nodeId || nodeId === MERGED_CONFIG_NODE_ID) return undefined;
+    return buildNodeUris(s.tree).get(nodeId);
+  });
 }
 
 /** True when the Merged-config tab is the active tab. */
