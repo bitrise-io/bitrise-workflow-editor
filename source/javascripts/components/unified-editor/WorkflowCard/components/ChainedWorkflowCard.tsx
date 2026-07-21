@@ -130,12 +130,8 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
         )}
         {/* Jump leads the action group for ghosts (Chain is hidden there): jump → settings → remove. */}
         {showJumpButton && (
-          <CrossFileJumpButton
-            kind="workflows"
-            id={id}
-            nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
-            onOpenChange={setIsJumpPopoverOpen}
-          />
+          // Lists every defining module (incl. the current one) so both occurrences are reachable.
+          <CrossFileJumpButton kind="workflows" id={id} onOpenChange={setIsJumpPopoverOpen} />
         )}
         {onEditChainedWorkflow && (
           <ControlButton

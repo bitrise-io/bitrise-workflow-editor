@@ -170,12 +170,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
             {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
                 matching the design's referenced-WF actions: jump → settings → remove. */}
             {showJumpButton && (
-              <CrossFileJumpButton
-                kind="workflows"
-                id={workflowId}
-                nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
-                onOpenChange={setIsJumpPopoverOpen}
-              />
+              // The picker lists every defining module (incl. the current one) so both occurrences of
+              // a workflow defined here and elsewhere are reachable.
+              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
             {onEditWorkflow && (
               <ControlButton
