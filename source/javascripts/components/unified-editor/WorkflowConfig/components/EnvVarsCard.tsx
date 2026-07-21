@@ -35,6 +35,7 @@ const EnvVarsCard = () => {
           sourceId={sourceId}
           listenForExternalChanges
           onValidationErrorsChange={setErrorCount}
+          emptyText="No Env Vars defined."
         />
       </Box>
     </ExpandableCard>

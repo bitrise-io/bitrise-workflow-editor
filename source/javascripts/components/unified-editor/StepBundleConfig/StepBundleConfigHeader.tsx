@@ -30,11 +30,8 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   const otherModules = useOtherDefiningModules('stepBundles', stepBundleId);
   const shouldJumpToDefinition = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
   const editDefinitionLink = shouldJumpToDefinition ? (
-    <JumpToDefinitionLink
-      kind="stepBundles"
-      id={stepBundleId}
-      nodeIds={otherModules.nodeIds.length > 0 ? otherModules.nodeIds : undefined}
-    />
+    // Lists every defining module (incl. the current one) so both occurrences are reachable.
+    <JumpToDefinitionLink kind="stepBundles" id={stepBundleId} />
   ) : (
     <BitkitLinkButton onClick={() => replace('/step_bundles', { step_bundle_id: stepBundleId })}>
       Edit definition
