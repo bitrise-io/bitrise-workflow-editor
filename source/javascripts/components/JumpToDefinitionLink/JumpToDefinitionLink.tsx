@@ -48,7 +48,14 @@ const JumpToDefinitionLink = ({ kind, id, nodeIds, trigger, onOpenChange }: Prop
       nodeIds={definitionNodeIds}
       onSelect={handleSelect}
       onOpenChange={onOpenChange}
-      trigger={trigger ?? <BitkitLinkButton suffixIcon={IconChevronDown}>Edit definition</BitkitLinkButton>}
+      trigger={
+        // size="sm" to match the body/sm provenance subtitle it sits in (default is md → too big).
+        trigger ?? (
+          <BitkitLinkButton size="sm" suffixIcon={IconChevronDown}>
+            Edit definition
+          </BitkitLinkButton>
+        )
+      }
     />
   );
 };
