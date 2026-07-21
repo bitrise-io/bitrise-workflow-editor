@@ -56,4 +56,10 @@ describe('buildNodeUris', () => {
     const uris = buildNodeUris(node('root', 'bitrise.yml', null, [pinned]));
     expect(uris.get('n')).toBe('bitrise://org%2Fr/x.yml?commit%3Ddeadbeef');
   });
+
+  it('memoizes by tree identity: same root ⇒ same map, different root ⇒ fresh map', () => {
+    const root = node('root', 'bitrise.yml', null);
+    expect(buildNodeUris(root)).toBe(buildNodeUris(root));
+    expect(buildNodeUris(node('root', 'bitrise.yml', null))).not.toBe(buildNodeUris(root));
+  });
 });

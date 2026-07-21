@@ -28,6 +28,12 @@ function refFromSource(source: TreeNodeSource): GitRef | undefined {
   return undefined;
 }
 
+// Keyed by tree identity: the store swaps `tree` only when the structure changes (a keystroke
+// clones `files`, never `tree` — see commitActiveFileDocument), so callers on the hot path
+// (useNodeModelUri runs per store update) reuse the same map instead of re-walking every time.
+// WeakMap ⇒ no invalidation; the entry is collected with its tree.
+const uriMapByTree = new WeakMap<TreeNode, Map<string, string>>();
+
 /**
  * The `bitrise://` model URI for every tree node, keyed by `nodeId`. Each string is byte-identical to
  * what core composes when resolving `include:` edges, so symbols and include links resolve across
@@ -38,6 +44,9 @@ function refFromSource(source: TreeNodeSource): GitRef | undefined {
  *  - cross-repo include → its own `repository` + ref (branch/tag/commit)
  */
 export function buildNodeUris(root: TreeNode): Map<string, string> {
+  const cached = uriMapByTree.get(root);
+  if (cached) return cached;
+
   const identityByNode = new Map<string, { repo: string; ref?: GitRef }>();
   const uriByNode = new Map<string, string>();
 
@@ -57,5 +66,6 @@ export function buildNodeUris(root: TreeNode): Map<string, string> {
     uriByNode.set(node.nodeId, composeBitriseUri({ ...identity, path: node.path }));
   });
 
+  uriMapByTree.set(root, uriByNode);
   return uriByNode;
 }

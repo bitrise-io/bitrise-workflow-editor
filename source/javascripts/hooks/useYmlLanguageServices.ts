@@ -1,5 +1,6 @@
 import * as monaco from 'monaco-editor';
 import { useEffect } from 'react';
+import { Document } from 'yaml';
 
 import { bitriseYmlStore, getYmlString, openTab, setValidationStatus } from '@/core/stores/BitriseYmlStore';
 import { buildNodeUris, ROOT_MODEL_URI } from '@/core/utils/lspModelUris';
@@ -13,6 +14,20 @@ export const BACKGROUND_MODEL_URI = monaco.Uri.parse(ROOT_MODEL_URI);
 /** One entry per file the language service should see, keyed by its bitrise:// URI. */
 type DesiredModel = { uri: string; content: string };
 
+// Serialized YAML keyed by document identity. The store clones the document on every mutation
+// (only the edited file gets a fresh Document), so on each keystroke exactly one file misses this
+// cache and re-serializes; the untouched include files return their cached string. WeakMap ⇒ the
+// entry is collected with the document, no invalidation needed.
+const ymlStringByDocument = new WeakMap<Document, string>();
+function toYmlCached(doc: Document): string {
+  let content = ymlStringByDocument.get(doc);
+  if (content === undefined) {
+    content = YmlUtils.toYml(doc);
+    ymlStringByDocument.set(doc, content);
+  }
+  return content;
+}
+
 /**
  * The files the language service should see as one workspace: every include-tree file (modular
  * config), or the single root document (non-modular). URIs are bitrise:// so include links and
@@ -24,13 +39,21 @@ function desiredModels(state = bitriseYmlStore.getState()): DesiredModel[] {
     return [{ uri: ROOT_MODEL_URI, content: getYmlString() }];
   }
 
-  // ponytail: re-serializes (toYml) every file on each store change. Fine at editor scale (a handful
-  // of include files); if trees ever get large, diff against a cached per-node serialization first.
   const uriByNode = buildNodeUris(tree);
   return Object.values(files).flatMap((file) => {
     const uri = uriByNode.get(file.nodeId);
-    return uri ? [{ uri, content: YmlUtils.toYml(file.ymlDocument) }] : [];
+    return uri ? [{ uri, content: toYmlCached(file.ymlDocument) }] : [];
   });
+}
+
+/**
+ * The bitrise:// URI of the root config model — the whole-config document. In modular mode the root
+ * node inherits the working repo; without a tree it's the single non-modular document.
+ */
+function rootModelUri(state = bitriseYmlStore.getState()): string {
+  const { tree } = state;
+  if (!tree) return ROOT_MODEL_URI;
+  return buildNodeUris(tree).get(tree.nodeId) ?? ROOT_MODEL_URI;
 }
 
 /** The tree node whose bitrise:// model URI equals `uri`, or undefined (merged/unknown/non-modular). */
@@ -63,13 +86,16 @@ function revealInEditor(editor: monaco.editor.ICodeEditor, range: monaco.IRange)
 }
 
 // After a tab switch the target file's editor mounts asynchronously (React re-render + model swap),
-// so poll a few frames for the editor now showing that model, then reveal. Bounded so a target that
-// never mounts (e.g. tab open was blocked) can't spin forever.
+// so poll frames for the editor now showing that model, then reveal. Bounded so a target that never
+// mounts (e.g. tab open was blocked) can't spin forever — but generous (~1s of frames) so a slow or
+// large file that just takes a while to mount still gets its range revealed instead of silently
+// landing the user at line 1.
+const REVEAL_MAX_ATTEMPTS = 60;
 function revealWhenReady(uri: string, range: monaco.IRange, attempts = 0) {
   const editor = monaco.editor.getEditors().find((e) => e.getModel()?.uri.toString() === uri);
   if (editor) {
     revealInEditor(editor, range);
-  } else if (attempts < 20) {
+  } else if (attempts < REVEAL_MAX_ATTEMPTS) {
     requestAnimationFrame(() => revealWhenReady(uri, range, attempts + 1));
   }
 }
@@ -138,20 +164,26 @@ function useYmlLanguageServices() {
 
     reconcile(true);
 
-    // Aggregate validation status across every owned model — in modular mode a single file's markers
-    // don't tell the whole story (a cross-file reference can be unresolved in another file).
-    const markerDisposable = MonacoUtils.onWorkspaceMarkerStatusChange(
-      () =>
-        [...ownedUris]
-          .map((uri) => monaco.editor.getModel(monaco.Uri.parse(uri)))
-          .filter((model): model is monaco.editor.ITextModel => model !== null),
-      setValidationStatus,
-    );
+    // Global validation status (drives InvalidYmlRedirect + Save gating) tracks the ROOT config model
+    // only. Aggregating markers across every include model would trap the user: an include fragment
+    // (e.g. a workflows-only module) has no format_version/include, so monaco-yaml's whole-config
+    // schema — registered with fileMatch ['*'], so it hits every bitrise:// model — reports an
+    // anyOf error on it. That would flip the config to `invalid` and bounce the user off the visual
+    // editor even though the merged config is valid. The root model resolves cross-file references
+    // (the LS treats the tree as one workspace), so genuine cross-file breakage still surfaces here;
+    // per-file syntax errors remain visible in each file's own editor.
+    const markerDisposable = MonacoUtils.onWorkspaceMarkerStatusChange(() => {
+      const model = monaco.editor.getModel(monaco.Uri.parse(rootModelUri()));
+      return model ? [model] : [];
+    }, setValidationStatus);
 
     // Cross-file navigation for the code editor: Go-to-Definition and include-link clicks hand Monaco
     // a target model URI, but a standalone editor can't switch files on its own. Map the bitrise://
     // target back to its tree node, open that file's tab, and reveal the range once its editor mounts.
     // (In-file navigation — including the isolated merged preview — is the same-model branch.)
+    // Not gated behind enableBitriseLsp: the cross-file targets it acts on are produced by the LS's
+    // definition/reference/link providers, which only exist when the flag is on. With the flag off no
+    // such target is ever handed to the opener, so registering it unconditionally is inert.
     const openerDisposable = monaco.editor.registerEditorOpener({
       openCodeEditor(source, resource, selectionOrPosition) {
         const uri = resource.toString();
