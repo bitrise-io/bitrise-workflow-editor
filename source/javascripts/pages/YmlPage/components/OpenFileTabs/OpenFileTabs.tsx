@@ -41,7 +41,7 @@ const OpenFileTabs = () => {
     >
       <BitkitTabs.List background="background/primary">
         <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup}>
-          Merged Config
+          Merged config
         </BitkitTabs.Trigger>
         {fileTabs.map((tab) => (
           <BitkitTabs.Trigger

@@ -95,6 +95,9 @@ async function saveCiConfig({ data, version, tabOpenDuringSave, projectSlug, con
 
 const CONFIG_TREE_PATH = `/api/app/:projectSlug/config/tree`;
 const CONFIG_MERGE_PATH = `/api/app/:projectSlug/config/merge`;
+// Local (CLI apiserver) has no app slug; the same wire shape is served off the working repo.
+const LOCAL_CONFIG_TREE_PATH = `/api/bitrise-yml/tree`;
+const LOCAL_CONFIG_MERGE_PATH = `/api/bitrise-yml/tree/merge`;
 
 // Wire types are exported so MSW mock fixtures can `satisfies`-check against them.
 export type WireTreeNodeSource = {
@@ -178,7 +181,9 @@ function configTreePath({
   forceToReadFromRepo?: boolean;
   branch?: string;
 }) {
-  const basePath = CONFIG_TREE_PATH.replace(':projectSlug', projectSlug);
+  const basePath = RuntimeUtils.isWebsiteMode()
+    ? CONFIG_TREE_PATH.replace(':projectSlug', projectSlug)
+    : LOCAL_CONFIG_TREE_PATH;
 
   const queryParams = new URLSearchParams();
   if (forceToReadFromRepo) {
@@ -192,7 +197,9 @@ function configTreePath({
 }
 
 function mergeConfigPath(projectSlug: string) {
-  return CONFIG_MERGE_PATH.replace(':projectSlug', projectSlug);
+  return RuntimeUtils.isWebsiteMode()
+    ? CONFIG_MERGE_PATH.replace(':projectSlug', projectSlug)
+    : LOCAL_CONFIG_MERGE_PATH;
 }
 
 type GetConfigOptions = {
@@ -238,6 +245,17 @@ async function getMergedConfig({
   return { mergedYml: response?.merged_yml ?? '' };
 }
 
+/**
+ * Local (CLI) tree save: posts the full tree; the apiserver validates the merged config and writes
+ * each editable+modified module file to disk. There's no branch/PR locally — cloud saves via
+ * push-to-branch instead.
+ */
+async function saveConfigTree({ tree }: { tree: TreeNode }) {
+  return Client.post(LOCAL_CONFIG_TREE_PATH, {
+    body: JSON.stringify({ root: toWireTreeNode(tree) }),
+  });
+}
+
 export type { GetCiConfigResult };
 
 export default {
@@ -248,6 +266,7 @@ export default {
   configTreePath,
   mergeConfigPath,
   getMergedConfig,
+  saveConfigTree,
   // Exposed so push-to-branch (`BranchesApi.pushBranch`, the canonical tree-save
   // path) can serialize a full tree to the wire shape. Deliberate cross-client
   // import: both clients speak the same wire shape, and one owner beats a copy.

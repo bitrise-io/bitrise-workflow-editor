@@ -21,6 +21,7 @@ import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { PushBranchConflict } from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
+  applyModularSaveResult,
   bitriseYmlStore,
   discardBitriseYmlDocument,
   getTabLastLocation,
@@ -32,7 +33,7 @@ import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useSaveCiConfig } from '@/hooks/useCiConfig';
+import { useSaveCiConfig, useSaveConfigTree } from '@/hooks/useCiConfig';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -187,6 +188,26 @@ const Header = () => {
     onSuccess: initializeBitriseYmlDocument,
   });
 
+  // Local modular save: write changed module files to disk + reload the tree (no branch/PR locally).
+  const { isPending: isSavingTree, mutate: saveConfigTree } = useSaveConfigTree({
+    onSuccess: (config) => applyModularSaveResult({ root: config.root }),
+    onError: (error: Error) => {
+      segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: currentPage });
+      toast({
+        title: 'Failed to save changes',
+        description:
+          (error instanceof ClientError ? error.getResponseErrorMessage() : undefined) ||
+          error.message ||
+          'Something went wrong',
+        status: 'error',
+        duration: null,
+        isClosable: true,
+      });
+    },
+  });
+
+  const isSavingConfig = isSaving || isSavingTree;
+
   const { isPushPending, pushBranch, pushError, clearPushError } = usePushBranch({
     onSuccess: () => {
       closePushBranchDialog();
@@ -222,6 +243,12 @@ const Header = () => {
   const saveCIConfig = useCallback(
     (source: 'save_changes_button' | 'save_changes_keyboard_shortcut_pressed') => {
       trackSaveButtonClicked(source, currentPage, bitriseYmlStore.getState().configBranch, conversationId, turnCount);
+
+      // Local modular config: save straight to disk (there's no branch/PR locally).
+      if (isModular && !isWebsiteMode) {
+        saveConfigTree();
+        return;
+      }
 
       if (ciConfigSettings?.usesRepositoryYml) {
         if (enableBranchSwitching) {
@@ -267,6 +294,9 @@ const Header = () => {
       turnCount,
       ciConfigSettings?.usesRepositoryYml,
       save,
+      isModular,
+      isWebsiteMode,
+      saveConfigTree,
       appSlug,
       enableBranchSwitching,
       openPushBranchDialog,
@@ -292,7 +322,7 @@ const Header = () => {
   };
 
   useEventListener('keydown', (e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's' && hasChanges && !isSaving) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && hasChanges && !isSavingConfig) {
       e.preventDefault();
 
       if (ymlStatus === 'invalid') {
@@ -364,7 +394,7 @@ const Header = () => {
           className="diff"
           variant="secondary"
           onClick={openDiffViewer}
-          isDisabled={!hasChanges || isSaving}
+          isDisabled={!hasChanges || isSavingConfig}
         >
           Show diff
         </Button>
@@ -374,7 +404,7 @@ const Header = () => {
           className="discard"
           variant="secondary"
           onClick={onDiscard}
-          isDisabled={!hasChanges || isSaving}
+          isDisabled={!hasChanges || isSavingConfig}
         >
           Discard
         </Button>
@@ -387,7 +417,7 @@ const Header = () => {
             size="sm"
             className="save"
             variant="primary"
-            isLoading={isSaving}
+            isLoading={isSavingConfig}
             isDisabled={!hasChanges || ymlStatus === 'invalid'}
             onClick={() => saveCIConfig('save_changes_button')}
           >

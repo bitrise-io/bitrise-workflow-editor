@@ -104,13 +104,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useYmlLanguageServices();
   useCloseAIDrawer();
 
-  // Modular editing only makes sense for repo-stored configs (where includes/modules can
-  // exist). A Bitrise-stored config can't have modules, so even with the flag on it must
-  // use the legacy single-file flow — otherwise we'd build a tree (and show file tabs) for
-  // a config that has none. CLI mode has no Bitrise storage, so the flag alone decides there.
+  // Modular editing only makes sense for repo-stored configs (where includes/modules can exist);
+  // a Bitrise-stored config can't have modules, so it stays on the legacy single-file flow even
+  // with the flag on. In website mode it's ramped behind the LD flag. CLI mode has no LaunchDarkly
+  // (and no Bitrise storage), so it's simply on — a non-modular config resolves to a single-node
+  // tree, which the editor drives exactly like the single-file flow.
   const isModularFlagEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
   const canBeModular = !isWebsiteMode || ymlSettings?.usesRepositoryYml === true;
-  const isModularEnabled = isModularFlagEnabled && canBeModular;
+  const isModularEnabled = canBeModular && (isWebsiteMode ? isModularFlagEnabled : true);
 
   // In website mode with the flag on, the storage type decides which endpoint to hit, so
   // wait for the settings to resolve before fetching (don't fire the tree query then switch
