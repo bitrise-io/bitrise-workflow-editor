@@ -1,0 +1,35 @@
+# Local module included by test_bitrise.yml. Adds pipelines/workflows that reference root entities,
+# so cross-file navigation works on workflows AND stages AND pipeline graph deps. Things to try:
+#   - Go-to-Definition on `wf1`/`wf2` in the pipeline → jumps to test_bitrise.yml
+#   - Go-to-Definition on `st1`/`st2` → jumps to the root's `stages:`
+#   - Find All References on `wf1` → also lists module1-checks (in module1.yml) and the root pipeline
+#   - Completion: start typing a workflow id under `workflows:` → root-defined ids are suggested cross-file
+workflows:
+  module2-deploy:
+    summary: Defined in module2.yml
+    before_run:
+      - wf1 # cross-file: workflow defined in the root
+    after_run:
+      - wf6 # LAYERED: Go-to-Definition here lists BOTH wf6 definitions (root + module1.yml)
+    steps:
+      - script@1:
+          inputs:
+            - content: echo "deploy from module2"
+
+pipelines:
+  # Graph pipeline wiring together root workflows and this module's workflow across files.
+  module2-pipeline:
+    workflows:
+      wf1: {} # cross-file: root workflow
+      wf2:
+        depends_on:
+          - wf1 # cross-file dep on a root workflow
+      module2-deploy:
+        depends_on:
+          - wf2 # cross-file dep on a root workflow
+
+  # Staged pipeline referencing stages defined in the root.
+  module2-staged:
+    stages:
+      - st1: {} # cross-file: stage defined in the root
+      - st2: {} # cross-file: stage defined in the root

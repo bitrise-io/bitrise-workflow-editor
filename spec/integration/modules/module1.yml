@@ -1,0 +1,30 @@
+# Local module included by test_bitrise.yml. Every reference below points at an entity DEFINED in the
+# root config, so it exercises cross-file navigation from module → root. Things to try in the editor:
+#   - Go-to-Definition on any of `wf1`, `wf3`, `install_deps`, `golang`, `redis` → jumps to test_bitrise.yml
+#   - Hover any of them → shows the definition pulled from the root file
+#   - Find All References on `wf6` → lists the root definition + the layer below + root usages (stage st3)
+workflows:
+  # Deep-merge LAYER over the root's `wf6` (same name, different file). Go-to-Definition on `wf6`
+  # lists BOTH files; it is layering, NOT flagged as a duplicate (only same-name twice in ONE file is).
+  wf6:
+    steps:
+      - script@1:
+          title: Added by module1
+          inputs:
+            - content: echo "hello from module1"
+
+  # New workflow that reuses several root entities across files.
+  module1-checks:
+    summary: Cross-file references into test_bitrise.yml
+    before_run:
+      - wf1 # cross-file: workflow defined in the root
+    after_run:
+      - wf3 # cross-file: workflow defined in the root
+    steps:
+      - bundle::install_deps: {} # cross-file: step_bundle defined in the root
+      - script@1:
+          execution_container: golang # cross-file: container defined in the root
+          service_containers:
+            - redis # cross-file: container defined in the root
+          inputs:
+            - content: echo "module1 checks"
