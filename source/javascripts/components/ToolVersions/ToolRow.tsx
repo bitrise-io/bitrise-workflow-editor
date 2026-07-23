@@ -119,9 +119,19 @@ const ToolRow = ({
   // (bare `latest`/`installed`). Only a hint — saving is not blocked.
   const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
-  const displayedVersionWarning = isVersionMissingFromCatalog
+  // Shown next to a value the combobox is displaying as already set, where it may be a
+  // stale or mistaken leftover. Typed values get a different, less alarming message below.
+  const catalogMismatchWarning = isVersionMissingFromCatalog
     ? `${version} isn't in the list of installable versions`
     : undefined;
+  // Shown wherever the user is actually typing a version by hand (via "Other", or because
+  // no suggestions exist at all), where it is an expected, deliberate choice rather than
+  // a possible mistake. Skipped for a custom tool, whose own explanatory paragraph below
+  // already covers this.
+  const customVersionWarning =
+    !showCustomInput && isVersionMissingFromCatalog
+      ? `${version} is a custom version and might not work properly`
+      : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -220,7 +230,7 @@ const ToolRow = ({
                   onOpenChange: (details) => !details.open && !manualVersion && setVersionTouched(true),
                 }}
                 errorText={manualVersion ? undefined : displayedVersionError}
-                warningText={manualVersion ? undefined : displayedVersionWarning}
+                warningText={manualVersion ? undefined : catalogMismatchWarning}
                 value={manualVersion ? OTHER_VERSION_VALUE : version || undefined}
                 onValueChange={(newVersion) => {
                   if (newVersion === OTHER_VERSION_VALUE) {
@@ -236,7 +246,7 @@ const ToolRow = ({
                 size="lg"
                 placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                 errorText={displayedVersionError}
-                warningText={displayedVersionWarning}
+                warningText={customVersionWarning}
                 inputProps={{
                   value: version,
                   onChange: (e) => onVersionChange(e.target.value),
@@ -249,7 +259,7 @@ const ToolRow = ({
                 size="lg"
                 placeholder="e.g. 24.7.0"
                 errorText={displayedVersionError}
-                warningText={displayedVersionWarning}
+                warningText={customVersionWarning}
                 inputProps={{
                   value: version,
                   autoFocus: true,
