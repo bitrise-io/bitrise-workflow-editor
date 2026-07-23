@@ -1,6 +1,11 @@
 format_version: "11"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
+include:
+  # Local includes: paths are repo-root-relative (the merger opens them against the process CWD,
+  # which is the repo root under `npm run start`). Makes the dev config modular.
+  - path: spec/integration/modules/module1.yml
+  - path: spec/integration/modules/module2.yml
 containers:
   golang:
     type: execution
