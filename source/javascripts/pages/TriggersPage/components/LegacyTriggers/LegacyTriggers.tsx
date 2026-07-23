@@ -5,6 +5,7 @@ import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetB
 import { TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import TriggerService from '@/core/services/TriggerService';
+import WindowUtils from '@/core/utils/WindowUtils';
 import useLegacyTriggers from '@/hooks/useLegacyTriggers';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 import SortableTriggerList from '@/pages/TriggersPage/components/LegacyTriggers/SortableTriggerList';
@@ -52,6 +53,8 @@ const LegacyTriggers = () => {
       TriggerService.addLegacyTrigger(trigger);
     }
     onCloseDialog();
+    // Lets the parent (bitrise-website) mark the first-build onboarding "Automate your builds" step.
+    WindowUtils.postMessageToParent('TRIGGERS_SAVED');
   };
 
   const handleTabChange = (index: number) => {

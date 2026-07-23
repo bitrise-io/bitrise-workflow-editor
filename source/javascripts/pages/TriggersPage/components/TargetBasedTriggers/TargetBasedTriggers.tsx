@@ -22,6 +22,7 @@ import TriggerConditions from '@/components/unified-editor/Triggers/TriggerCondi
 import { trackEditTrigger, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
 import { TargetBasedTrigger, TriggerSource, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 import TriggerService from '@/core/services/TriggerService';
+import WindowUtils from '@/core/utils/WindowUtils';
 import {
   useAllTargetBasedTriggers,
   useTriggerDefiningNodeIds,
@@ -114,6 +115,8 @@ const TargetBasedTriggers = () => {
       TriggerService.addTrigger(trigger);
     }
     setTriggerType(null);
+    // Lets the parent (bitrise-website) mark the first-build onboarding "Automate your builds" step.
+    WindowUtils.postMessageToParent('TRIGGERS_SAVED');
   };
 
   const handleDeleteTrigger = (trigger: TargetBasedTrigger) => {
