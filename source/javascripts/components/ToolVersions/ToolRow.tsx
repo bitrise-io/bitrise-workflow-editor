@@ -100,7 +100,10 @@ const ToolRow = ({
     isError: isVersionsError,
   } = useToolVersions(canonicalToolId, isExactKnownTool);
 
-  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
+  // While the user is entering a custom version via "Other", the current value is left
+  // unpinned: otherwise it would also appear as a separate, seemingly catalog backed
+  // entry, and reselecting it would count as picking a real option and exit "Other".
+  const versionOptions = ToolsService.getVersionOptions(toolVersions, manualVersion ? '' : version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
   const isVersionMissingFromCatalog =
