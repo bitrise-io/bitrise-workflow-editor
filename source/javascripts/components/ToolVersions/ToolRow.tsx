@@ -15,9 +15,7 @@ import { FocusEventHandler, useState } from 'react';
 
 import { ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
-import useNavigation from '@/hooks/useNavigation';
 import { useToolVersions } from '@/hooks/useTools';
-import { paths } from '@/routes';
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-released': 'Latest released version',
@@ -63,8 +61,6 @@ const ToolRow = ({
   onVersionChange,
   onRemove,
 }: ToolRowProps) => {
-  const { replace } = useNavigation();
-
   // Whether the user has explicitly picked "Other" from the dropdown.
   const [manualOther, setManualOther] = useState(false);
   const [idError, setIdError] = useState<string | undefined>();
@@ -100,7 +96,10 @@ const ToolRow = ({
   } = useToolVersions(canonicalToolId, useVersionDropdown);
 
   const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
-  const isVersionMissingFromCatalog = version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
+  // toolVersions is undefined both while loading and after a failed fetch, so comparing
+  // against it before real data arrives would flash a false "missing" warning.
+  const isVersionMissingFromCatalog =
+    !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
 
   // An exact strategy needs a concrete version; prefix strategies are valid without one
   // (bare `latest`/`installed`). Only a hint — saving is not blocked.
@@ -183,26 +182,27 @@ const ToolRow = ({
         {strategy !== 'unset' &&
           (useVersionDropdown ? (
             <BitkitCombobox
-              // BitkitCombobox snapshots `items` on mount and ignores later changes, so the
-              // key forces a remount whenever the list actually differs: another tool's
-              // versions, the async load completing, or the injected not-in-catalog option
-              // (getVersionOptions adds the current version (even unavailable version) when
-              // the catalog lacks it, and that entry must drop out once a real catalog version
-              // is picked).
-              key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${isVersionMissingFromCatalog ? version : ''}`}
+              // BitkitCombobox snapshots `items` on mount and never resets its own filtered
+              // list. Picking an item narrows that list, and it stays narrowed even after
+              // the popover closes and reopens. The key forces a fresh mount whenever the
+              // list should actually change: another tool's versions, the async load
+              // completing, or the version itself changing (without `version` here, the
+              // dropdown would reopen showing only the previously picked item).
+              key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${version}`}
               size="lg"
               width={VERSION_COLUMN_WIDTH}
               flexShrink="0"
-              placeholder="Select"
-              emptyLabel="No matches"
+              placeholder="Select or type a version"
+              emptyLabel={isVersionsError ? "Couldn't load suggestions" : 'No matches'}
               items={versionOptions}
               isLoading={isVersionsLoading}
-              state={isVersionsError ? 'disabled' : undefined}
-              // Closing the menu without picking counts as visiting and leaving the field.
-              comboboxProps={{ onOpenChange: (details) => !details.open && setVersionTouched(true) }}
-              // The disabled fetch-error state has its own alert; a required-error on an
-              // uneditable field would just add noise.
-              errorText={versionTouched && !isVersionsError ? versionError : undefined}
+              // Suggestions may be missing (fetch failed) or simply empty (no catalog entries yet).
+              // Either way the user can type the version by hand instead of picking from the list.
+              comboboxProps={{
+                allowCustomValue: true,
+                onOpenChange: (details) => !details.open && setVersionTouched(true),
+              }}
+              errorText={versionTouched ? versionError : undefined}
               warningText={
                 isVersionMissingFromCatalog ? `${version} isn't in the list of installable versions` : undefined
               }
@@ -230,8 +230,7 @@ const ToolRow = ({
       {useVersionDropdown && isVersionsError && (
         <BitkitAlert
           variant="critical"
-          messageText={`Couldn't load the available versions of ${toolId}. You can still set the version manually in the YAML editor.`}
-          action={{ label: 'Open YAML editor', onClick: () => replace(paths.yml) }}
+          messageText={`Couldn't load the available versions of ${toolId}. You can still type the version by hand.`}
         />
       )}
 
