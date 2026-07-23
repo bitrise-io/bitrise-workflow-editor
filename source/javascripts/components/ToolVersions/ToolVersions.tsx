@@ -69,7 +69,6 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             existingToolIds={existingToolIds}
             catalog={catalog}
             allowUnset={allowUnset}
-            autoFocus
             isCatalogLoading={isCatalogLoading}
             onIdChange={(newId) => {
               ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
