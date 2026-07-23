@@ -16,6 +16,9 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   const [hasPendingRow, setHasPendingRow] = useState(false);
   const [pendingStrategy, setPendingStrategy] = useState<VersionStrategy>('latest-released');
   const [pendingVersion, setPendingVersion] = useState('');
+  // Bumped when a new row is added: moving on to another row counts as leaving the
+  // existing ones, so their incomplete-version errors become visible.
+  const [versionTouchSignal, setVersionTouchSignal] = useState(0);
 
   const allowUnset = scope.type === 'workflow';
   const existingToolIds = Object.keys(tools);
@@ -24,10 +27,11 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
     setPendingStrategy('latest-released');
     setPendingVersion('');
     setHasPendingRow(true);
+    setVersionTouchSignal((signal) => signal + 1);
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24" maxWidth={rem(640)}>
+    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24" maxWidth={rem(800)}>
       <Box display="flex" flexDirection="column" gap="8">
         <Text textStyle="heading/h3">Tool setup</Text>
         <Text textStyle="body/md/regular" color="text/secondary">
@@ -54,6 +58,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
               catalog={catalog}
               allowUnset={allowUnset}
               isCatalogLoading={isCatalogLoading}
+              versionTouchSignal={versionTouchSignal}
               onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
               onStrategyChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
               onVersionChange={(ver) => ToolsService.setTool(toolId, parsed.strategy, ver, scope)}

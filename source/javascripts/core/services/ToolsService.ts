@@ -1,4 +1,6 @@
-import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '../models/Tools';
+import semver from 'semver';
+
+import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -77,6 +79,46 @@ function resolveToolName(catalog: ToolCatalog | undefined, id: string): string {
 }
 
 /**
+ * Builds the exact-version dropdown options: semver versions sorted newest first,
+ * then non-semver versions in catalog order. A non-empty `currentVersion` missing
+ * from the catalog is injected at the top so the dropdown always reflects what's
+ * in the YAML instead of showing an empty selection.
+ */
+function getVersionOptions(
+  toolVersions: ToolVersions | undefined,
+  currentVersion: string,
+): { value: string; label: string }[] {
+  const versions = toolVersions?.versions ?? [];
+  const ordered = [
+    ...versions
+      .filter(({ isSemver }) => isSemver)
+      .map(({ version }) => version)
+      .sort(semver.rcompare),
+    ...versions.filter(({ isSemver }) => !isSemver).map(({ version }) => version),
+  ];
+
+  if (currentVersion && !ordered.includes(currentVersion)) {
+    ordered.unshift(currentVersion);
+  }
+
+  return ordered.map((version) => ({ value: version, label: version }));
+}
+
+function isVersionInCatalog(toolVersions: ToolVersions | undefined, version: string): boolean {
+  return (toolVersions?.versions ?? []).some((entry) => entry.version === version);
+}
+
+/**
+ * The version value to keep when the row's strategy changes: a prefix survives
+ * moving between the two prefix strategies; any other change clears the value,
+ * because exact versions and prefixes aren't interchangeable.
+ */
+function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrategy, version: string): string {
+  const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
+  return isPrefix(prev) && isPrefix(next) ? version : '';
+}
+
+/**
  * Builds the tool-ID dropdown options: one per catalog tool, using its canonical name —
  * except the tool matching `toolId` (by name or alias), which is shown using that exact ID
  * so the current selection stays visible without listing the same tool under two IDs.
@@ -120,32 +162,6 @@ function validateToolId(id: string, initialId: string, existingIds: string[] = [
   return true;
 }
 
-function validateToolVersion(raw: string) {
-  if (!raw.trim()) {
-    return 'Tool version is required';
-  }
-
-  const colonIndex = raw.indexOf(':');
-  if (colonIndex >= 0) {
-    const prefix = raw.slice(0, colonIndex);
-    const suffix = raw.slice(colonIndex + 1);
-
-    if (!prefix) {
-      return 'Tool version must not start with ":"';
-    }
-
-    if (!suffix) {
-      return 'Tool version must specify "latest" or "installed" after ":"';
-    }
-
-    if (suffix.toLowerCase() !== 'latest' && suffix.toLowerCase() !== 'installed') {
-      return 'Tool version suffix must be "latest" or "installed"';
-    }
-  }
-
-  return true;
-}
-
 function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, scope: ToolScope) {
   if (strategy === 'unset' && scope.type === 'root') {
     throw new Error('Cannot use "unset" strategy at root scope');
@@ -183,12 +199,34 @@ function deleteTool(toolId: string, scope: ToolScope) {
   });
 }
 
+/**
+ * The value to keep when a tool entry is renamed to a different tool: the strategy
+ * carries over, but any exact version or prefix is dropped, because it belonged to the
+ * previous tool and is very unlikely to be valid for the new one.
+ */
+function clearVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion {
+  switch (parsed.strategy) {
+    case 'exact':
+      return { strategy: 'exact', version: '' };
+    case 'unset':
+      return parsed;
+    default:
+      return { strategy: parsed.strategy };
+  }
+}
+
 function renameTool(oldId: string, newId: string, scope: ToolScope) {
   updateBitriseYmlDocument(({ doc }) => {
     validateScope(scope, doc);
 
     const scopePath = getScopePath(scope);
-    YmlUtils.updateKeyByPath(doc, [...scopePath, 'tools', oldId], newId);
+    const toolsPath = [...scopePath, 'tools'];
+    const tools = YmlUtils.getMapIn(doc, toolsPath, true);
+    const parsed = parseToolVersion(tools.get(oldId) as string);
+
+    YmlUtils.updateKeyByPath(doc, [...toolsPath, oldId], newId);
+    YmlUtils.setIn(tools, [newId], serializeToolVersion(clearVersionOnRename(parsed)), false);
+
     return doc;
   });
 }
@@ -202,8 +240,10 @@ export default {
   getKnownToolIds,
   isKnownToolId,
   resolveToolName,
+  getVersionOptions,
+  isVersionInCatalog,
+  nextVersionOnStrategyChange,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,
-  validateToolVersion,
 };
