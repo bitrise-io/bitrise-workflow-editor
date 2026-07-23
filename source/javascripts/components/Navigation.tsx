@@ -13,7 +13,7 @@ import {
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -112,6 +112,7 @@ const Navigation = (props: Props) => {
       tab_name: currentPage,
       is_default_tab: isDefaultTabRef.current,
       yml_source: data?.usesRepositoryYml ? 'git' : 'bitrise',
+      is_modular_config: Boolean(bitriseYmlStore.getState().tree),
     });
     isDefaultTabRef.current = false;
   }, [currentPage, data?.usesRepositoryYml]);

@@ -2,6 +2,7 @@ import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
 import { useRef, useState } from 'react';
 
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
+import { trackWorkflowEditorFileExplorerOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { FileTabInfo, useFileTabs } from '@/hooks/useFileTabs';
 
 import DiscardFileTabDialog from './DiscardFileTabDialog';
@@ -54,7 +55,19 @@ const OpenFileTabs = () => {
             {tab.name}
           </BitkitTabs.Trigger>
         ))}
-        <BitkitTabs.AddButton ref={addButtonRef} label="Open module" onClick={() => setPickerOpen((open) => !open)} />
+        <BitkitTabs.AddButton
+          ref={addButtonRef}
+          label="Open module"
+          onClick={() =>
+            setPickerOpen((open) => {
+              const next = !open;
+              if (next) {
+                trackWorkflowEditorFileExplorerOpened();
+              }
+              return next;
+            })
+          }
+        />
       </BitkitTabs.List>
 
       <FileTreeViewer open={pickerOpen} onOpenChange={setPickerOpen} getAnchor={() => addButtonRef.current} />

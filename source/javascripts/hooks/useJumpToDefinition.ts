@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
 
+import { trackWorkflowEditorYmlModuleOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { EntityKind } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
-import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useNavigation from '@/hooks/useNavigation';
 import useSearchParams from '@/hooks/useSearchParams';
@@ -43,6 +44,18 @@ export default function useJumpToDefinition() {
 
       // Record the current tab's page before switching away, so return restores it.
       recordActiveTabLocation(window.parent.location.hash);
+
+      // Opening the defining file's tab counts as opening a YAML module (edit_definition source);
+      // only a not-yet-open tab is a new open. number_of_definitions is the count that decided
+      // whether a picker was shown (1 = jumped directly, >1 = selection list).
+      const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
+      if (!alreadyOpen) {
+        trackWorkflowEditorYmlModuleOpened({
+          openMethod: 'edit_definition',
+          entityKind: kind,
+          numberOfDefinitions: EntityIndexService.definitionsOf(entityIndex, kind, id).length,
+        });
+      }
 
       openTab(nodeId, { preview: false });
 
