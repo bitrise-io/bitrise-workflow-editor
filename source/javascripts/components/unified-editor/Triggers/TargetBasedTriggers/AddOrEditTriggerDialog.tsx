@@ -11,6 +11,7 @@ import {
   TriggerVariant,
 } from '@/core/models/Trigger';
 import { LEGACY_OPTIONS_MAP, LegacyConditionType, LegacyTrigger } from '@/core/models/Trigger.legacy';
+import WindowUtils from '@/core/utils/WindowUtils';
 
 import TriggerFormBody from './TriggerFormBody';
 import TriggerFormFooter from './TriggerFormFooter';
@@ -95,6 +96,14 @@ const AddOrEditTriggerDialog = (props: Props) => {
   const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
   const { handleSubmit, reset } = formMethods;
 
+  const handleFormSubmit = (values: TargetBasedTrigger | LegacyTrigger) => {
+    onSubmit(values);
+    if (variant !== 'legacy') {
+      // Lets the parent (bitrise-website) mark the first-build onboarding "Automate your builds" step.
+      WindowUtils.postMessageToParent('TRIGGERS_SAVED');
+    }
+  };
+
   useEffect(() => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen]);
@@ -111,7 +120,7 @@ const AddOrEditTriggerDialog = (props: Props) => {
         isOpen={isOpen}
         onClose={onCancel}
         title={title}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(handleFormSubmit)}
       >
         <DialogBody>
           <TriggerFormBody source={source} triggerType={triggerType} showTarget={showTarget} variant={variant} />
