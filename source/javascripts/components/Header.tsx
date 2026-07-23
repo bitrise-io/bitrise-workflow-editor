@@ -39,6 +39,7 @@ import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useHashLocation from '@/hooks/useHashLocation';
+import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import usePushBranch, { PushBranchPayload } from '@/hooks/usePushBranch';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
@@ -68,7 +69,12 @@ const Header = () => {
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
   const isModular = useBitriseYmlStore((s) => !!s.tree);
+  // `ymlStatus` gates saving + the validation badge (any schema/marker error blocks a save).
+  // `isParseError` is narrower — it gates only the view switch, since the visual editor renders
+  // any config that parses, even one with schema errors. Conflating the two forced users onto the
+  // YAML view on every schema-invalid load (SSW-3087).
   const ymlStatus = useYmlValidationStatus();
+  const isParseError = useIsYmlParseError();
 
   const [path, navigate] = useHashLocation();
   const [searchParams] = useSearchParams();
@@ -96,7 +102,7 @@ const Header = () => {
       }
 
       if (value === 'visual') {
-        if (ymlStatus === 'invalid') {
+        if (isParseError) {
           return;
         }
 
@@ -115,7 +121,7 @@ const Header = () => {
         );
       }
     },
-    [searchParams, navigate, ymlStatus],
+    [searchParams, navigate, isParseError],
   );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -363,9 +369,9 @@ const Header = () => {
       </Box>
 
       <BitkitTooltip
-        disabled={ymlStatus !== 'invalid'}
+        disabled={!isParseError}
         placement={isMobile ? 'bottom' : 'bottom-start'}
-        text="YAML is invalid, please fix it before switching to the Visual editor."
+        text="YAML can't be parsed, please fix it before switching to the Visual editor."
       >
         <BitkitSegmentedControl
           size="sm"
@@ -373,7 +379,7 @@ const Header = () => {
           aria-label="Editor view"
           onValueChange={(details) => handleEditorViewChange(details.value)}
         >
-          <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={ymlStatus === 'invalid'}>
+          <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={isParseError}>
             Visual
           </BitkitSegmentedControl.Item>
           <BitkitSegmentedControl.Item icon={IconCode} value="yaml">

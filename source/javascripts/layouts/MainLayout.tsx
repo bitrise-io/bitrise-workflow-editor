@@ -10,25 +10,10 @@ import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
 import { useTree } from '@/hooks/useTree';
-import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
+import InvalidYmlRedirect from '@/layouts/InvalidYmlRedirect';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
-
-const InvalidYmlRedirect = () => {
-  const ymlStatus = useYmlValidationStatus();
-  const [currentPath] = useHashLocation();
-
-  if (ymlStatus !== 'invalid' || currentPath.startsWith(paths.yml)) {
-    return null;
-  }
-
-  const redirectTo = currentPath.includes('?')
-    ? `${paths.yml}${currentPath.substring(currentPath.indexOf('?'))}`
-    : paths.yml;
-
-  return <Redirect to={redirectTo} replace />;
-};
 
 const MainLayout = () => {
   const [currentPath] = useHashLocation();
