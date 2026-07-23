@@ -1,8 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-// eslint-disable-next-line no-unused-vars -- classic JSX runtime needs React in scope for the JSX below
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 import { bitriseYmlStore, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';

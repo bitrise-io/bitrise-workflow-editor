@@ -71,7 +71,7 @@ const Header = () => {
   const isModular = useBitriseYmlStore((s) => !!s.tree);
   // `ymlStatus` gates saving + the validation badge (any schema/marker error blocks a save).
   // `isParseError` is narrower — it gates only the view switch, since the visual editor renders
-  // any config that parses, even one with schema errors. Conflating the two forced users onto the
+  // any config that parses, even one with schema errors. Conflating the two forces users onto the
   // YAML view on every schema-invalid load (SSW-3087).
   const ymlStatus = useYmlValidationStatus();
   const isParseError = useIsYmlParseError();
