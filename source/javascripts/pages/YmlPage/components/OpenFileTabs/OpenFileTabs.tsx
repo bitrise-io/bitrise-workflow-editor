@@ -58,15 +58,14 @@ const OpenFileTabs = () => {
         <BitkitTabs.AddButton
           ref={addButtonRef}
           label="Open module"
-          onClick={() =>
-            setPickerOpen((open) => {
-              const next = !open;
-              if (next) {
-                trackWorkflowEditorFileExplorerOpened();
-              }
-              return next;
-            })
-          }
+          onClick={() => {
+            // Keep the analytics side effect out of the state updater (React may call updaters more
+            // than once, e.g. in StrictMode) — fire once here, only when opening.
+            if (!pickerOpen) {
+              trackWorkflowEditorFileExplorerOpened();
+            }
+            setPickerOpen((open) => !open);
+          }}
         />
       </BitkitTabs.List>
 
