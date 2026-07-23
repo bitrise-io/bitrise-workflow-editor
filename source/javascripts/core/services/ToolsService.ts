@@ -199,12 +199,34 @@ function deleteTool(toolId: string, scope: ToolScope) {
   });
 }
 
+/**
+ * The value to keep when a tool entry is renamed to a different tool: the strategy
+ * carries over, but any exact version or prefix is dropped, because it belonged to the
+ * previous tool and is very unlikely to be valid for the new one.
+ */
+function clearVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion {
+  switch (parsed.strategy) {
+    case 'exact':
+      return { strategy: 'exact', version: '' };
+    case 'unset':
+      return parsed;
+    default:
+      return { strategy: parsed.strategy };
+  }
+}
+
 function renameTool(oldId: string, newId: string, scope: ToolScope) {
   updateBitriseYmlDocument(({ doc }) => {
     validateScope(scope, doc);
 
     const scopePath = getScopePath(scope);
-    YmlUtils.updateKeyByPath(doc, [...scopePath, 'tools', oldId], newId);
+    const toolsPath = [...scopePath, 'tools'];
+    const tools = YmlUtils.getMapIn(doc, toolsPath, true);
+    const parsed = parseToolVersion(tools.get(oldId) as string);
+
+    YmlUtils.updateKeyByPath(doc, [...toolsPath, oldId], newId);
+    YmlUtils.setIn(tools, [newId], serializeToolVersion(clearVersionOnRename(parsed)), false);
+
     return doc;
   });
 }

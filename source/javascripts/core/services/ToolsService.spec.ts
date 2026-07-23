@@ -531,7 +531,7 @@ describe('ToolsService', () => {
 
   describe('renameTool', () => {
     describe('root-level', () => {
-      it('renames the entry in place, keeping sibling order and values untouched', () => {
+      it('renames the entry in place, keeping sibling order and dropping the stale prefix', () => {
         updateBitriseYmlDocumentByString(yaml`
           tools:
             node: 22:latest
@@ -542,14 +542,42 @@ describe('ToolsService', () => {
 
         expect(getYmlString()).toEqual(yaml`
           tools:
-            ruby: 22:latest
+            ruby: latest
             python: "3.13.4"
+        `);
+      });
+
+      it('clears an exact version, keeping the exact strategy', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            python: "3.13.4"
+        `);
+
+        ToolsService.renameTool('python', 'ruby', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            ruby: ""
+        `);
+      });
+
+      it('leaves the unset strategy untouched', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            node: unset
+        `);
+
+        ToolsService.renameTool('node', 'ruby', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            ruby: unset
         `);
       });
     });
 
     describe('workflow-level', () => {
-      it('renames the entry in place, keeping sibling order and values untouched', () => {
+      it('renames the entry in place, keeping sibling order and dropping the stale prefix', () => {
         updateBitriseYmlDocumentByString(yaml`
           workflows:
             primary:
@@ -564,7 +592,7 @@ describe('ToolsService', () => {
           workflows:
             primary:
               tools:
-                ruby: 22:latest
+                ruby: latest
                 python: "3.13.4"
         `);
       });
