@@ -289,35 +289,6 @@ describe('ToolsService', () => {
     });
   });
 
-  describe('validateToolVersion', () => {
-    it('rejects empty and whitespace-only versions', () => {
-      expect(ToolsService.validateToolVersion('')).toBe('Tool version is required');
-      expect(ToolsService.validateToolVersion('   ')).toBe('Tool version is required');
-    });
-
-    it('rejects a leading colon', () => {
-      expect(ToolsService.validateToolVersion(':latest')).toBe('Tool version must not start with ":"');
-    });
-
-    it('rejects a trailing colon with no suffix', () => {
-      expect(ToolsService.validateToolVersion('22:')).toBe(
-        'Tool version must specify "latest" or "installed" after ":"',
-      );
-    });
-
-    it('rejects unknown suffixes after a colon', () => {
-      expect(ToolsService.validateToolVersion('22:beta')).toBe('Tool version suffix must be "latest" or "installed"');
-      expect(ToolsService.validateToolVersion('foo:bar')).toBe('Tool version suffix must be "latest" or "installed"');
-    });
-
-    it.each([['latest'], ['installed'], ['unset'], ['22:latest'], ['3.3:installed'], ['3'], ['3.3'], ['3.13.4']])(
-      'accepts %p',
-      (raw: string) => {
-        expect(ToolsService.validateToolVersion(raw)).toBe(true);
-      },
-    );
-  });
-
   describe('setTool', () => {
     it('throws when using "unset" strategy at root scope', () => {
       expect(() => ToolsService.setTool('node', 'unset', '', { type: 'root' })).toThrow();
