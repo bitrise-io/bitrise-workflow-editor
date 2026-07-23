@@ -162,32 +162,6 @@ function validateToolId(id: string, initialId: string, existingIds: string[] = [
   return true;
 }
 
-function validateToolVersion(raw: string) {
-  if (!raw.trim()) {
-    return 'Tool version is required';
-  }
-
-  const colonIndex = raw.indexOf(':');
-  if (colonIndex >= 0) {
-    const prefix = raw.slice(0, colonIndex);
-    const suffix = raw.slice(colonIndex + 1);
-
-    if (!prefix) {
-      return 'Tool version must not start with ":"';
-    }
-
-    if (!suffix) {
-      return 'Tool version must specify "latest" or "installed" after ":"';
-    }
-
-    if (suffix.toLowerCase() !== 'latest' && suffix.toLowerCase() !== 'installed') {
-      return 'Tool version suffix must be "latest" or "installed"';
-    }
-  }
-
-  return true;
-}
-
 function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, scope: ToolScope) {
   if (strategy === 'unset' && scope.type === 'root') {
     throw new Error('Cannot use "unset" strategy at root scope');
@@ -250,5 +224,4 @@ export default {
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,
-  validateToolVersion,
 };

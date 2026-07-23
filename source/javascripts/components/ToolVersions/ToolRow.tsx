@@ -17,6 +17,7 @@ import { ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
 import useNavigation from '@/hooks/useNavigation';
 import { useToolVersions } from '@/hooks/useTools';
+import { paths } from '@/routes';
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-released': 'Latest released version',
@@ -99,13 +100,11 @@ const ToolRow = ({
   } = useToolVersions(canonicalToolId, useVersionDropdown);
 
   const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
-  const isVersionMissingFromCatalog =
-    !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
+  const isVersionMissingFromCatalog = version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
 
   // An exact strategy needs a concrete version; prefix strategies are valid without one
   // (bare `latest`/`installed`). Only a hint — saving is not blocked.
-  const exactVersionValidation = strategy === 'exact' ? ToolsService.validateToolVersion(version) : true;
-  const versionError = exactVersionValidation === true ? undefined : exactVersionValidation;
+  const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -232,7 +231,7 @@ const ToolRow = ({
         <BitkitAlert
           variant="critical"
           messageText={`Couldn't load the available versions of ${toolId}. You can still set the version manually in the YAML editor.`}
-          action={{ label: 'Open YAML editor', onClick: () => replace('/yml') }}
+          action={{ label: 'Open YAML editor', onClick: () => replace(paths.yml) }}
         />
       )}
 
