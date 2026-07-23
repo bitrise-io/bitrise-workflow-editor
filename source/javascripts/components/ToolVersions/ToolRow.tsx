@@ -25,6 +25,7 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
 };
 
 const OTHER_VALUE = '__other__';
+const OTHER_VERSION_VALUE = '__other_version__';
 
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
@@ -61,9 +62,13 @@ const ToolRow = ({
   onVersionChange,
   onRemove,
 }: ToolRowProps) => {
-  // Whether the user has explicitly picked "Other" from the dropdown.
+  // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
   const [idError, setIdError] = useState<string | undefined>();
+
+  // Whether the user has explicitly picked "Other" from the version dropdown, to enter a
+  // version that is not in the catalog even though real options exist.
+  const [manualVersion, setManualVersion] = useState(false);
 
   // Validate eagerly, display lazily: the required-version error only shows once the
   // user has visited and left the field. A config that is already invalid when the row
@@ -87,13 +92,13 @@ const ToolRow = ({
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
-  const useVersionDropdown = strategy === 'exact' && isToolIdKnown && !showCustomInput;
+  const isExactKnownTool = strategy === 'exact' && isToolIdKnown && !showCustomInput;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-  } = useToolVersions(canonicalToolId, useVersionDropdown);
+  } = useToolVersions(canonicalToolId, isExactKnownTool);
 
   const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
@@ -101,9 +106,19 @@ const ToolRow = ({
   const isVersionMissingFromCatalog =
     !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
 
+  // BitkitCombobox has no built in way to commit a typed value that does not match a real
+  // item, so it only makes sense while there is at least one real option to pick (loading
+  // counts, it will resolve into one or the other shortly). With nothing to pick, a plain
+  // text input lets the user actually type and save a version.
+  const useVersionDropdown = isExactKnownTool && (isVersionsLoading || versionOptions.length > 0);
+
   // An exact strategy needs a concrete version; prefix strategies are valid without one
   // (bare `latest`/`installed`). Only a hint — saving is not blocked.
   const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
+  const displayedVersionError = versionTouched ? versionError : undefined;
+  const displayedVersionWarning = isVersionMissingFromCatalog
+    ? `${version} isn't in the list of installable versions`
+    : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -142,6 +157,7 @@ const ToolRow = ({
     // The strategy switch empties the field on the user's behalf — give them a chance
     // to fill it before flagging it.
     setVersionTouched(false);
+    setManualVersion(false);
     const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
     onStrategyChange(newStrategy, newVersion);
   };
@@ -179,55 +195,73 @@ const ToolRow = ({
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
 
-        {strategy !== 'unset' &&
-          (useVersionDropdown ? (
-            <BitkitCombobox
-              // BitkitCombobox snapshots `items` on mount and never resets its own filtered
-              // list. Picking an item narrows that list, and it stays narrowed even after
-              // the popover closes and reopens. The key forces a fresh mount whenever the
-              // list should actually change: another tool's versions, the async load
-              // completing, or the version itself changing (without `version` here, the
-              // dropdown would reopen showing only the previously picked item).
-              key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${version}`}
-              size="lg"
-              width={VERSION_COLUMN_WIDTH}
-              flexShrink="0"
-              placeholder="Select or type a version"
-              emptyLabel={isVersionsError ? "Couldn't load suggestions" : 'No matches'}
-              items={versionOptions}
-              isLoading={isVersionsLoading}
-              // Suggestions may be missing (fetch failed) or simply empty (no catalog entries yet).
-              // Either way the user can type the version by hand instead of picking from the list.
-              comboboxProps={{
-                allowCustomValue: true,
-                onOpenChange: (details) => !details.open && setVersionTouched(true),
-              }}
-              errorText={versionTouched ? versionError : undefined}
-              warningText={
-                isVersionMissingFromCatalog ? `${version} isn't in the list of installable versions` : undefined
-              }
-              value={version || undefined}
-              onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
-            />
-          ) : (
-            <BitkitTextInput
-              size="lg"
-              width={VERSION_COLUMN_WIDTH}
-              flexShrink="0"
-              placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
-              errorText={versionTouched ? versionError : undefined}
-              inputProps={{
-                value: version,
-                onChange: (e) => onVersionChange(e.target.value),
-                onBlur: () => setVersionTouched(true),
-              }}
-            />
-          ))}
+        {strategy !== 'unset' && (
+          <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
+            {useVersionDropdown ? (
+              <BitkitCombobox
+                // BitkitCombobox snapshots `items` on mount and never resets its own filtered
+                // list. Picking an item narrows that list, and it stays narrowed even after
+                // the popover closes and reopens. The key forces a fresh mount whenever the
+                // list should actually change: another tool's versions, the async load
+                // completing, the version itself changing, or switching in or out of manual
+                // entry (without these, the dropdown would reopen showing only the
+                // previously picked item).
+                key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${version}:${manualVersion}`}
+                size="lg"
+                placeholder="Select"
+                emptyLabel="No matches"
+                items={[...versionOptions, { value: OTHER_VERSION_VALUE, label: 'Other' }]}
+                isLoading={isVersionsLoading}
+                // Closing the menu without picking counts as visiting and leaving the field.
+                comboboxProps={{
+                  onOpenChange: (details) => !details.open && !manualVersion && setVersionTouched(true),
+                }}
+                errorText={manualVersion ? undefined : displayedVersionError}
+                warningText={manualVersion ? undefined : displayedVersionWarning}
+                value={manualVersion ? OTHER_VERSION_VALUE : version || undefined}
+                onValueChange={(newVersion) => {
+                  if (newVersion === OTHER_VERSION_VALUE) {
+                    setManualVersion(true);
+                    return;
+                  }
+                  setManualVersion(false);
+                  onVersionChange(newVersion ?? '');
+                }}
+              />
+            ) : (
+              <BitkitTextInput
+                size="lg"
+                placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+                errorText={displayedVersionError}
+                warningText={displayedVersionWarning}
+                inputProps={{
+                  value: version,
+                  onChange: (e) => onVersionChange(e.target.value),
+                  onBlur: () => setVersionTouched(true),
+                }}
+              />
+            )}
+            {useVersionDropdown && manualVersion && (
+              <BitkitTextInput
+                size="lg"
+                placeholder="e.g. 24.7.0"
+                errorText={displayedVersionError}
+                warningText={displayedVersionWarning}
+                inputProps={{
+                  value: version,
+                  autoFocus: true,
+                  onChange: (e) => onVersionChange(e.target.value),
+                  onBlur: () => setVersionTouched(true),
+                }}
+              />
+            )}
+          </Box>
+        )}
 
         <BitkitIconButton variant="tertiary" icon={IconMinusCircle} label="Remove tool" onClick={onRemove} />
       </Box>
 
-      {useVersionDropdown && isVersionsError && (
+      {isExactKnownTool && isVersionsError && (
         <BitkitAlert
           variant="critical"
           messageText={`Couldn't load the available versions of ${toolId}. You can still type the version by hand.`}
