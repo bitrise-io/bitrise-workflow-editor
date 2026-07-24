@@ -11,6 +11,7 @@ import {
   IconRuby,
   rem,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -122,28 +123,29 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             onRemove={() => setHasPendingRow(false)}
           />
         )}
+        {existingToolIds.length === 0 && !hasPendingRow && (
+          <Box display="flex" alignItems="center" minHeight="48">
+            <Text textStyle="body/md/regular" color="text/primary">
+              Set up the first tool. Supports{' '}
+              <BitkitTooltip text="Ruby">
+                <IconRuby size="16" aria-label="Ruby" />
+              </BitkitTooltip>{' '}
+              <BitkitTooltip text="Flutter">
+                <IconFlutter size="16" aria-label="Flutter" />
+              </BitkitTooltip>{' '}
+              <BitkitTooltip text="Node.js">
+                <IconNodejs size="16" aria-label="Node.js" />
+              </BitkitTooltip>{' '}
+              <BitkitTooltip text="Python">
+                <IconPython size="16" aria-label="Python" />
+              </BitkitTooltip>{' '}
+              and many more.
+            </Text>
+          </Box>
+        )}
       </Stack>
 
       {isCatalogError && <BitkitAlert variant="warning" messageText="Couldn't load tool suggestions." />}
-
-      {existingToolIds.length === 0 && !hasPendingRow && (
-        <Text textStyle="body/md/regular" color="text/primary">
-          Set up the first tool. Supports{' '}
-          <BitkitTooltip text="Ruby">
-            <IconRuby size="16" aria-label="Ruby" />
-          </BitkitTooltip>{' '}
-          <BitkitTooltip text="Flutter">
-            <IconFlutter size="16" aria-label="Flutter" />
-          </BitkitTooltip>{' '}
-          <BitkitTooltip text="Node.js">
-            <IconNodejs size="16" aria-label="Node.js" />
-          </BitkitTooltip>{' '}
-          <BitkitTooltip text="Python">
-            <IconPython size="16" aria-label="Python" />
-          </BitkitTooltip>{' '}
-          and many more.
-        </Text>
-      )}
 
       <BitkitButton
         variant="secondary"
