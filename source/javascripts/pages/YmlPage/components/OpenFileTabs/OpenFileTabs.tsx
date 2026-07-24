@@ -2,6 +2,7 @@ import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
 import { useRef, useState } from 'react';
 
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
+import { trackWorkflowEditorFileExplorerOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { FileTabInfo, useFileTabs } from '@/hooks/useFileTabs';
 
 import DiscardFileTabDialog from './DiscardFileTabDialog';
@@ -54,7 +55,18 @@ const OpenFileTabs = () => {
             {tab.name}
           </BitkitTabs.Trigger>
         ))}
-        <BitkitTabs.AddButton ref={addButtonRef} label="Open module" onClick={() => setPickerOpen((open) => !open)} />
+        <BitkitTabs.AddButton
+          ref={addButtonRef}
+          label="Open module"
+          onClick={() => {
+            // Keep the analytics side effect out of the state updater (React may call updaters more
+            // than once, e.g. in StrictMode) — fire once here, only when opening.
+            if (!pickerOpen) {
+              trackWorkflowEditorFileExplorerOpened();
+            }
+            setPickerOpen((open) => !open);
+          }}
+        />
       </BitkitTabs.List>
 
       <FileTreeViewer open={pickerOpen} onOpenChange={setPickerOpen} getAnchor={() => addButtonRef.current} />
