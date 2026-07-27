@@ -3,7 +3,11 @@ module.exports = {
   roots: ['./source'],
   testEnvironment: 'node',
   transform: {
-    '^.+\\.(t|j)sx?$': '@swc/jest',
+    // Use the automatic JSX runtime so component `.tsx` files (which never import React —
+    // the app builds with Vite's `jsx: react-jsx`) can be mounted in tests. With the classic
+    // runtime swc emits bare `React.createElement`, and rendering any real component in jest
+    // then throws `React is not defined`.
+    '^.+\\.(t|j)sx?$': ['@swc/jest', { jsc: { transform: { react: { runtime: 'automatic' } } } }],
   },
   moduleNameMapper: {
     '\\.(css|less|svg)$': 'identity-obj-proxy',

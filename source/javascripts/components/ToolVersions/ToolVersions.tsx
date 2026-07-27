@@ -1,17 +1,33 @@
-import { BitkitAlert, BitkitButton, BitkitLink, IconOpenInNew, rem } from '@bitrise/bitkit-v2';
+import {
+  BitkitAlert,
+  BitkitButton,
+  BitkitLink,
+  BitkitLinkButton,
+  BitkitTooltip,
+  IconFlutter,
+  IconNodejs,
+  IconOpenInNew,
+  IconPython,
+  IconRuby,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import { VersionStrategy } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
+import useNavigation from '@/hooks/useNavigation';
 import { useToolCatalog, useToolsForScope } from '@/hooks/useTools';
+import { paths } from '@/routes';
 
 import ToolRow from './ToolRow';
 
 const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
+  const { replace } = useNavigation();
   const { data: catalog, isLoading: isCatalogLoading, isError: isCatalogError } = useToolCatalog();
   const [hasPendingRow, setHasPendingRow] = useState(false);
   const [pendingStrategy, setPendingStrategy] = useState<VersionStrategy>('latest-released');
@@ -27,19 +43,44 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap="24" marginBlockStart="24" maxWidth={rem(640)}>
-      <Box display="flex" flexDirection="column" gap="8">
+    <Stack gap="24" marginBlockStart="24" maxWidth={rem(640)}>
+      <Stack gap="4">
         <Text textStyle="heading/h3">Tool setup</Text>
         <Text textStyle="body/md/regular" color="text/secondary">
-          Configure what tools and versions are required for this workflow to work. Tool setup runs before the first
-          step.{' '}
-          <BitkitLink href="#" isExternal suffixIcon={IconOpenInNew} colorVariant="purple">
+          Customize tools and versions required in {scope.type === 'workflow' ? 'this workflow' : 'workflows'}. Tool
+          setup runs before the first step.{' '}
+          <BitkitLink
+            href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions"
+            isExternal
+            suffixIcon={IconOpenInNew}
+            colorVariant="purple"
+          >
             Learn more
           </BitkitLink>
         </Text>
-      </Box>
+        <Text textStyle="body/md/regular" color="text/secondary">
+          Need more flexibility or want to use an existing version file? Check out{' '}
+          <BitkitLink
+            href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions#tool-setup-during-workflow-execution"
+            isExternal
+            suffixIcon={IconOpenInNew}
+            colorVariant="purple"
+          >
+            CLI and step use
+          </BitkitLink>
+        </Text>
+        {scope.type === 'workflow' && (
+          <Text textStyle="body/md/regular" color="text/secondary">
+            Looking for global settings which apply to all workflows? Go to the{' '}
+            <BitkitLinkButton onClick={() => replace(paths.stacksAndMachines)}>
+              Stacks &amp; Machines page
+            </BitkitLinkButton>
+            .
+          </Text>
+        )}
+      </Stack>
 
-      <Box display="flex" flexDirection="column" gap="16">
+      <Stack gap="16">
         {Object.entries(tools).map(([toolId, versionString]) => {
           const parsed = ToolsService.parseToolVersion(versionString);
           const versionValue =
@@ -82,7 +123,27 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
             onRemove={() => setHasPendingRow(false)}
           />
         )}
-      </Box>
+        {existingToolIds.length === 0 && !hasPendingRow && (
+          <Box display="flex" alignItems="center" minHeight="48">
+            <Text textStyle="body/md/regular" color="text/primary">
+              Set up the first tool. Supports{' '}
+              <BitkitTooltip text="Ruby">
+                <IconRuby size="16" aria-label="Ruby" />
+              </BitkitTooltip>{' '}
+              <BitkitTooltip text="Flutter">
+                <IconFlutter size="16" aria-label="Flutter" />
+              </BitkitTooltip>{' '}
+              <BitkitTooltip text="Node.js">
+                <IconNodejs size="16" aria-label="Node.js" />
+              </BitkitTooltip>{' '}
+              <BitkitTooltip text="Python">
+                <IconPython size="16" aria-label="Python" />
+              </BitkitTooltip>{' '}
+              and many more.
+            </Text>
+          </Box>
+        )}
+      </Stack>
 
       {isCatalogError && <BitkitAlert variant="warning" messageText="Couldn't load tool suggestions." />}
 
@@ -95,7 +156,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
       >
         Add new
       </BitkitButton>
-    </Box>
+    </Stack>
   );
 };
 

@@ -5,6 +5,7 @@ import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnaly
 import { TargetBasedTrigger } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import TriggerService from '@/core/services/TriggerService';
+import WindowUtils from '@/core/utils/WindowUtils';
 
 type Props = {
   editedItem?: TargetBasedTrigger | LegacyTrigger;
@@ -28,12 +29,14 @@ const TriggerFormFooter = (props: Props) => {
     onCancel();
   };
 
-  const handleSegmentTrack = () => {
+  const handleSubmit = () => {
     if (editedItem) {
       trackEditTrigger(formValues);
     } else {
       trackAddTrigger(formValues);
     }
+
+    WindowUtils.postMessageToParent('TRIGGERS_EDITED');
   };
 
   return (
@@ -49,11 +52,7 @@ const TriggerFormFooter = (props: Props) => {
             : 'Please fill all conditions.'
         }
       >
-        <Button
-          type="submit"
-          onClick={handleSegmentTrack}
-          isDisabled={isSameTriggerExist || hasEmptyCondition || !source}
-        >
+        <Button type="submit" onClick={handleSubmit} isDisabled={isSameTriggerExist || hasEmptyCondition || !source}>
           {editedItem ? 'Apply changes' : 'Add trigger'}
         </Button>
       </Tooltip>
