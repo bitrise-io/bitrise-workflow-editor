@@ -21,9 +21,9 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
+import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
-import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { paths } from '@/routes';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -50,10 +50,13 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   const { isMobile } = useResponsive();
   const [hashPath, navigate] = useHashLocation();
   const isSelected = hashPath.startsWith(path);
-  const ymlStatus = useYmlValidationStatus();
+  // Only a genuine parse failure blocks navigation: the visual pages render any config that parses,
+  // even one with schema/marker errors. Blocking on the broader validation status trapped users on
+  // the current page whenever the YAML was merely schema-invalid (SSW-3087).
+  const isParseError = useIsYmlParseError();
 
   const handleNavigation = useCallback(() => {
-    if (ymlStatus === 'invalid' && !path.startsWith(paths.yml)) {
+    if (isParseError && !path.startsWith(paths.yml)) {
       toast({
         status: 'error',
         title: 'Invalid YAML',
@@ -65,7 +68,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
     }
 
     navigate(path);
-  }, [ymlStatus, navigate, path, toast]);
+  }, [isParseError, navigate, path, toast]);
 
   return (
     <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation} data-intercom-target={intercomTarget}>
