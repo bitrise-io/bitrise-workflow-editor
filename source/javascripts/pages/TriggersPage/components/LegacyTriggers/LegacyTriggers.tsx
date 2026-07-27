@@ -66,10 +66,10 @@ const LegacyTriggers = () => {
 
   return (
     <>
-      <Text as="h3" textStyle="heading/h3" marginBottom="4">
+      <Text as="h3" textStyle="heading/h3" marginBottom="4" data-clarity-unmask="true">
         Legacy triggers
       </Text>
-      <Text color="text/secondary">
+      <Text color="text/secondary" data-clarity-unmask="true">
         A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
         <Link
           colorScheme="purple"
@@ -81,7 +81,7 @@ const LegacyTriggers = () => {
       </Text>
       {!isReadOnlyView && <ConvertLegacyTriggers triggers={triggers} />}
       <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
-        <TabList>
+        <TabList data-clarity-unmask="true">
           <Tab>Push</Tab>
           <Tab>Pull request</Tab>
           <Tab>Tag</Tab>

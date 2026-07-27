@@ -21,7 +21,7 @@ const ContainerUsageTable = ({ containerId, workflows }: Props) => {
 
   return (
     <Table isFixed variant="borderless" mt="24">
-      <Thead>
+      <Thead data-clarity-unmask="true">
         <Tr>
           <Th textStyle="heading/h5">Workflow name</Th>
           <Th width="60px" textAlign="right" />

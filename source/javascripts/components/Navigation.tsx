@@ -121,7 +121,8 @@ const Navigation = (props: Props) => {
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
-    <Sidebar width={['88px', '256px']} flexShrink={0} paddingTop="24" {...props}>
+    // Every label, icon and link in the sidebar is the same for every user and account.
+    <Sidebar width={['88px', '256px']} flexShrink={0} paddingTop="24" data-clarity-unmask="true" {...props}>
       <SidebarContainer>
         <NavigationItem
           path={withSearchParams(paths.workflows)}

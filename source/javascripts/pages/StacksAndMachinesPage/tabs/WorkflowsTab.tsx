@@ -49,6 +49,7 @@ const WorkflowsTab = () => {
     return (
       <TabContainer>
         <EmptyState
+          data-clarity-unmask="true"
           iconName="Workflow"
           title="No Workflows created yet"
           description="You will see the list of your Workflows with the configured Stack and Machine type"

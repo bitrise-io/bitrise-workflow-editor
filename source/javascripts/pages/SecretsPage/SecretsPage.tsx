@@ -112,6 +112,7 @@ const SecretsPage = () => {
           <EmptyState
             title="Your shared secrets will appear here"
             iconName="Lock"
+            data-clarity-unmask="true"
             description={
               <Text as="span" textStyle="body/md/regular" textColor="text/secondary">
                 Shared resources are managed at Workspace settings
@@ -143,31 +144,31 @@ const SecretsPage = () => {
 
   return (
     <Box p="32">
-      <Text as="h2" textStyle="heading/h2" marginBottom="12">
+      <Text as="h2" textStyle="heading/h2" marginBottom="12" data-clarity-unmask="true">
         Secret Environment Variables
       </Text>
-      <Text>
+      <Text data-clarity-unmask="true">
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
         <Link href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446">
           Learn more
         </Link>
       </Text>
-      <Notification status="info" marginY="24">
+      <Notification status="info" marginY="24" data-clarity-unmask="true">
         <b>We advise not to expose Secrets in pull requests</b> <br />
         Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request.
       </Notification>
 
-      <Text as="h4" textStyle="heading/h4" paddingBottom="8">
+      <Text as="h4" textStyle="heading/h4" paddingBottom="8" data-clarity-unmask="true">
         Shared Secrets
       </Text>
-      <Text textColor="text/secondary" size="2">
+      <Text textColor="text/secondary" size="2" data-clarity-unmask="true">
         All projects have access to shared Secrets. If the same Secret is configured at a project level here, it will
         overwrite the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
       </Text>
       {sharedSecretsBlock()}
 
-      <Text as="h4" textStyle="heading/h4">
+      <Text as="h4" textStyle="heading/h4" data-clarity-unmask="true">
         Project level Secrets
       </Text>
       <Box marginTop="16" marginBottom="24">
@@ -189,11 +190,25 @@ const SecretsPage = () => {
           />
         ))}
       </Box>
-      <Button variant="secondary" leftIconName="PlusCircle" size="md" marginBottom="24" onClick={onAddClick}>
+      <Button
+        variant="secondary"
+        leftIconName="PlusCircle"
+        size="md"
+        marginBottom="24"
+        onClick={onAddClick}
+        data-clarity-unmask="true"
+      >
         Add new
       </Button>
 
-      <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
+      {/* The whole dialog is fixed copy — it never names the secret being deleted. */}
+      <Dialog
+        title="Delete Secret?"
+        maxWidth="480"
+        isOpen={Boolean(deleteId)}
+        onClose={() => {}}
+        data-clarity-unmask="true"
+      >
         <DialogBody>
           {deleteError && <Notification status="error">Error while deleting secret!</Notification>}
           <Text>

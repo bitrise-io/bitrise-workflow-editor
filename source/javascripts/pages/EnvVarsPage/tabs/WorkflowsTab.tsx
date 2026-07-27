@@ -71,7 +71,11 @@ const WorkflowsTab = () => {
   if (isMergedView && !hasAnyEnvs) {
     return (
       <TabContainer>
-        <EmptyState iconName="Dollars" title="No Environment Variables created in any modules." />
+        <EmptyState
+          data-clarity-unmask="true"
+          iconName="Dollars"
+          title="No Environment Variables created in any modules."
+        />
       </TabContainer>
     );
   }
