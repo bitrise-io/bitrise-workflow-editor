@@ -51,14 +51,37 @@ type Callback = (node: Node, path: Path) => void;
 
 const PLACEHOLDER_DOC = new Document('', { stringKeys: true, keepSourceTokens: true });
 
+// yaml's `Document.toString()` (and therefore `stringify()` and our `toYml`) throws
+// "Document with errors cannot be stringified" once a document has parse errors, and node
+// `.toString()` in `isEquals` throws the same way. A malformed module would then crash every
+// serialization/equality path that touches it (e.g. the multi-file language service serializing
+// every include file on load). Documents can only be parse-invalid at load time — edits route
+// invalid YAML to `__invalidYmlString`, never into a stored document — so the raw source stashed
+// here at parse time is a lossless, throw-free fallback for that exact document.
+const rawSourceByErrorDoc = new WeakMap<Document, string>();
+
+/** The raw source for a parse-error document (stashed in `toDoc`), or undefined for a valid one. */
+function rawErrorSource(root: Root): string | undefined {
+  return isDocument(root) && root.errors.length > 0 ? rawSourceByErrorDoc.get(root) : undefined;
+}
+
 function toDoc(raw: string) {
-  return parseDocument(raw, {
+  const doc = parseDocument(raw, {
     stringKeys: true,
     keepSourceTokens: true,
   });
+  if (doc.errors.length > 0) {
+    rawSourceByErrorDoc.set(doc, raw);
+  }
+  return doc;
 }
 
 function toYml(root: Root) {
+  const rawError = rawErrorSource(root);
+  if (rawError !== undefined) {
+    return rawError;
+  }
+
   let indents = 0;
   let paddings = 0;
 
@@ -391,7 +414,10 @@ function isEquals(a: Root, b: Root) {
 
   // NOTE: Using toString() for equality check instead of toYml() as it's faster
   // and sufficient for our use case since it preserves all node structure and formatting.
-  aCache.set(b, a.toString() === b.toString());
+  // A parse-error document can't be stringified (yaml throws), so fall back to its raw source.
+  const aStr = rawErrorSource(a) ?? a.toString();
+  const bStr = rawErrorSource(b) ?? b.toString();
+  aCache.set(b, aStr === bStr);
 
   return aCache.get(b)!;
 }
