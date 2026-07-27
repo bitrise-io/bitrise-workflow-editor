@@ -110,7 +110,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         }}
       >
         <BitkitRadio value="current" labelText="Push to current branch" />
-        <BitkitRadio value="new" labelText="Create new branch" />
+        <BitkitRadio value="new" labelText="Create a new branch" />
       </BitkitRadioGroup>
       <Controller
         control={control}
