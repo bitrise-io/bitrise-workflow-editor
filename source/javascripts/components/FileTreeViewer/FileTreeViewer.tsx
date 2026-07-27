@@ -1,5 +1,7 @@
 import { BitkitPopover } from '@bitrise/bitkit-v2';
 
+import { trackWorkflowEditorYmlModuleOpened } from '@/core/analytics/ConfigManagementAnalytics';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import { useFileTabs } from '@/hooks/useFileTabs';
 import { useSelectedNodeId, useTree } from '@/hooks/useTree';
 
@@ -35,6 +37,11 @@ const FileTreeViewer = ({ open, onOpenChange, getAnchor }: Props) => {
         rootNode={tree}
         selectedNodeId={selectedNodeId}
         onSelect={(nodeId) => {
+          // Only a not-yet-open tab counts as opening a module (re-selecting an open tab doesn't).
+          const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
+          if (!alreadyOpen) {
+            trackWorkflowEditorYmlModuleOpened({ openMethod: 'file_explorer' });
+          }
           openFile(nodeId);
           onOpenChange(false);
         }}
