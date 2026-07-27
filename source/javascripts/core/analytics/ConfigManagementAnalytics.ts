@@ -32,7 +32,13 @@ function modularConfigProps() {
 
   let includes = 0;
   let crossRepoIncludes = 0;
+  // Cycle-guarded (same as EntityIndexService) so a malformed include graph can't recurse forever.
+  const seen = new Set<string>();
   const walk = (node: TreeNode) => {
+    if (seen.has(node.nodeId)) {
+      return;
+    }
+    seen.add(node.nodeId);
     node.includes.forEach((child) => {
       includes += 1;
       if (child.source?.repository) {
