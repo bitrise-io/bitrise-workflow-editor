@@ -53,7 +53,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
               )}
             </Box>
             <Box mx="-24" mt="16">
-              <TabList px="8">
+              <TabList px="8" data-clarity-unmask="true">
                 <Tab>Properties</Tab>
                 <Tab>Triggers</Tab>
               </TabList>

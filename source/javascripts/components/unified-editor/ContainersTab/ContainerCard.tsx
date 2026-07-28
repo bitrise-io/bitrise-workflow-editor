@@ -51,7 +51,7 @@ const ContainerCard = (props: ContainerCardProps) => {
   return (
     <Card variant="outline" overflow="hidden">
       <Table variant="borderless" disableRowHover isFixed>
-        <Thead>
+        <Thead data-clarity-unmask="true">
           <Tr>
             <Th>
               <Text px="12" color="text/primary">

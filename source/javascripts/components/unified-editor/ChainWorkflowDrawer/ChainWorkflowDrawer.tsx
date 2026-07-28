@@ -45,11 +45,11 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
                 Chain Workflows to '{workflowId}'
               </Text>
-              <Text size="3">
+              <Text size="3" data-clarity-unmask="true">
                 Add Workflows before or after the Steps of the selected Workflow. Each linked Workflow executes on the
                 same VM, ensuring a cohesive build process.
               </Text>
-              <Notification status="info" flexShrink="0">
+              <Notification status="info" flexShrink="0" data-clarity-unmask="true">
                 Changes to a chained Workflow affect all other Workflows using it.
               </Notification>
               <Controller<FormValues>

@@ -181,13 +181,25 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
       {shouldShowGraphPipelineActions && (
         <>
-          <Button size="md" variant="secondary" leftIconName="Settings" onClick={onPropertiesClick}>
+          <Button
+            size="md"
+            variant="secondary"
+            leftIconName="Settings"
+            onClick={onPropertiesClick}
+            data-clarity-unmask="true"
+          >
             Properties
           </Button>
           {/* Adds workflows to the pipeline (a mutation) → hidden on the read-only merged/ghost view
               (BIVS-3721). Properties stays for inspection. */}
           {!isReadOnlyView && (
-            <Button size="md" variant="secondary" leftIconName="Plus" onClick={onWorkflowsClick}>
+            <Button
+              size="md"
+              variant="secondary"
+              leftIconName="Plus"
+              onClick={onWorkflowsClick}
+              data-clarity-unmask="true"
+            >
               Workflows
             </Button>
           )}
@@ -207,6 +219,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
             aria-label={runButtonAriaLabel}
             isDisabled={isEmpty || isModularFileTab || hasUnsavedChanges}
             onClick={onRunClick}
+            data-clarity-unmask="true"
           >
             Run
           </Button>

@@ -53,7 +53,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
   return (
     <Card variant="outline" overflow="hidden">
       <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
-        <Thead backgroundColor="background/primary">
+        <Thead backgroundColor="background/primary" data-clarity-unmask="true">
           <Tr>
             <Th width="35%">Condition</Th>
             <Th>Value</Th>

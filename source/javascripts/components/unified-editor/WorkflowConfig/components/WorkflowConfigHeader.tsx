@@ -82,7 +82,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           </Tooltip>
         )}
       </Box>
-      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
+      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">
         <Tab>Configuration</Tab>
         <Tab isDisabled={isCrossFile}>Properties</Tab>
         {shouldShowTriggersTab && <Tab isDisabled={isCrossFile}>Triggers</Tab>}
