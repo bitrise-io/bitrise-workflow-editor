@@ -201,22 +201,21 @@ const SecretsPage = () => {
         Add new
       </Button>
 
-      {/* The whole dialog is fixed copy — it never names the secret being deleted. */}
-      <Dialog
-        title="Delete Secret?"
-        maxWidth="480"
-        isOpen={Boolean(deleteId)}
-        onClose={() => {}}
-        data-clarity-unmask="true"
-      >
+      {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
+          step bundle dialogs: a future body addition then stays masked until reviewed. */}
+      <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
         <DialogBody>
-          {deleteError && <Notification status="error">Error while deleting secret!</Notification>}
-          <Text>
+          {deleteError && (
+            <Notification status="error" data-clarity-unmask="true">
+              Error while deleting secret!
+            </Notification>
+          )}
+          <Text data-clarity-unmask="true">
             Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
             This action cannot be undone.
           </Text>
         </DialogBody>
-        <DialogFooter>
+        <DialogFooter data-clarity-unmask="true">
           <Button variant="secondary" onClick={() => setDeleteId(null)}>
             Cancel
           </Button>
