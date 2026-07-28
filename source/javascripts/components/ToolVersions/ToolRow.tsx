@@ -43,8 +43,6 @@ type ToolRowProps = {
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
   isCatalogLoading: boolean;
-  /** Bumped by the parent when the user moves on (adds another row) — reveals this row's incomplete-version error. */
-  versionTouchSignal?: number;
   onIdChange: (newId: string) => void;
   onStrategyChange: (strategy: VersionStrategy, version: string) => void;
   onVersionChange: (version: string) => void;
@@ -59,7 +57,6 @@ const ToolRow = ({
   catalog,
   allowUnset,
   isCatalogLoading,
-  versionTouchSignal = 0,
   onIdChange,
   onStrategyChange,
   onVersionChange,
@@ -87,15 +84,6 @@ const ToolRow = ({
   // user has visited and left the field. A config that is already invalid when the row
   // mounts (hand-edited YAML) is flagged immediately — no interaction should be needed.
   const [versionTouched, setVersionTouched] = useState(() => strategy === 'exact' && version === '');
-
-  // Signals seen before this row mounted don't count — only a bump while the row is
-  // alive means the user moved on from it. State is adjusted during render (with the
-  // previous-value guard) instead of in an effect, per React's derived-state guidance.
-  const [seenTouchSignal, setSeenTouchSignal] = useState(versionTouchSignal);
-  if (versionTouchSignal !== seenTouchSignal) {
-    setSeenTouchSignal(versionTouchSignal);
-    setVersionTouched(true);
-  }
 
   const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
@@ -135,7 +123,7 @@ const ToolRow = ({
   // Shown next to a value the combobox is displaying as already set, where it may be a
   // stale or mistaken leftover. Typed values get a different, less alarming message below.
   const catalogMismatchWarning = isVersionMissingFromCatalog
-    ? `${version} isn't in the list of installable versions`
+    ? `${version} is not a known version, use at your own risk`
     : undefined;
   // Shown wherever the user is actually typing a version by hand (via "Other", or because
   // no suggestions exist at all), where it is an expected, deliberate choice rather than
