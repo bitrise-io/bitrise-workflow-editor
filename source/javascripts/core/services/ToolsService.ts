@@ -104,8 +104,8 @@ function getVersionOptions(
   return ordered.map((version) => ({ value: version, label: version }));
 }
 
-function isVersionInCatalog(toolVersions: ToolVersions | undefined, version: string): boolean {
-  return (toolVersions?.versions ?? []).some((entry) => entry.version === version);
+function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
+  return toolVersions.versions.some((entry) => entry.version === version);
 }
 
 /**
@@ -204,7 +204,7 @@ function deleteTool(toolId: string, scope: ToolScope) {
  * carries over, but any exact version or prefix is dropped, because it belonged to the
  * previous tool and is very unlikely to be valid for the new one.
  */
-function clearVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion {
+function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion {
   switch (parsed.strategy) {
     case 'exact':
       return { strategy: 'exact', version: '' };
@@ -222,10 +222,14 @@ function renameTool(oldId: string, newId: string, scope: ToolScope) {
     const scopePath = getScopePath(scope);
     const toolsPath = [...scopePath, 'tools'];
     const tools = YmlUtils.getMapIn(doc, toolsPath, true);
+    // Read the old entry's version before the key is renamed out from under it.
     const parsed = parseToolVersion(tools.get(oldId) as string);
 
+    // Move the entry to its new key...
     YmlUtils.updateKeyByPath(doc, [...toolsPath, oldId], newId);
-    YmlUtils.setIn(tools, [newId], serializeToolVersion(clearVersionOnRename(parsed)), false);
+    // ...then overwrite its value: an exact version or prefix picked for the old tool is
+    // very unlikely to be valid for the new one, so only the strategy carries over.
+    YmlUtils.setIn(tools, [newId], serializeToolVersion(nextParsedVersionOnRename(parsed)), false);
 
     return doc;
   });

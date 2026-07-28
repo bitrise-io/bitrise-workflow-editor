@@ -169,10 +169,6 @@ describe('ToolsService', () => {
     it('rejects a version missing from the catalog', () => {
       expect(ToolsService.isVersionInCatalog(catalog, '18.9.9')).toBe(false);
     });
-
-    it('rejects when the catalog is undefined', () => {
-      expect(ToolsService.isVersionInCatalog(undefined, '24.0.0')).toBe(false);
-    });
   });
 
   describe('nextVersionOnStrategyChange', () => {
