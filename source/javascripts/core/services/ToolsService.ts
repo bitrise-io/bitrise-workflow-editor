@@ -221,14 +221,16 @@ function renameTool(oldId: string, newId: string, scope: ToolScope) {
 
     const scopePath = getScopePath(scope);
     const toolsPath = [...scopePath, 'tools'];
-    const tools = YmlUtils.getMapIn(doc, toolsPath, true);
-    // Read the old entry's version before the key is renamed out from under it.
-    const parsed = parseToolVersion(tools.get(oldId) as string);
 
-    // Move the entry to its new key...
+    // Move the entry to its new key first. This throws if there is no such entry, before
+    // anything else touches it.
     YmlUtils.updateKeyByPath(doc, [...toolsPath, oldId], newId);
-    // ...then overwrite its value: an exact version or prefix picked for the old tool is
-    // very unlikely to be valid for the new one, so only the strategy carries over.
+
+    const tools = YmlUtils.getMapIn(doc, toolsPath, true);
+    // A hand-edited YAML value may be a number (`python: 3.13`) or empty rather than a string.
+    const parsed = parseToolVersion(String(tools.get(newId) ?? ''));
+    // Then overwrite its value: an exact version or prefix picked for the old tool is very
+    // unlikely to be valid for the new one, so only the strategy carries over.
     YmlUtils.setIn(tools, [newId], serializeToolVersion(nextParsedVersionOnRename(parsed)), false);
 
     return doc;

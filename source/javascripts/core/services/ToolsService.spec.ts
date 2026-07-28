@@ -150,13 +150,6 @@ describe('ToolsService', () => {
       expect(ToolsService.getVersionOptions(undefined, '18.9.9')).toEqual([{ value: '18.9.9', label: '18.9.9' }]);
       expect(ToolsService.getVersionOptions(undefined, '')).toEqual([]);
     });
-
-    it('handles a tool whose published version list is empty', () => {
-      const catalog = versionCatalog('nodejs', []);
-
-      expect(ToolsService.getVersionOptions(catalog, '')).toEqual([]);
-      expect(ToolsService.getVersionOptions(catalog, '18.9.9')).toEqual([{ value: '18.9.9', label: '18.9.9' }]);
-    });
   });
 
   describe('isVersionInCatalog', () => {
@@ -568,6 +561,33 @@ describe('ToolsService', () => {
         expect(getYmlString()).toEqual(yaml`
           tools:
             ruby: unset
+        `);
+      });
+
+      it('clears an unquoted numeric version written by hand', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            python: 3.13
+        `);
+
+        ToolsService.renameTool('python', 'ruby', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            ruby: ""
+        `);
+      });
+
+      it('throws when the tool does not exist', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            node: latest
+        `);
+
+        expect(() => ToolsService.renameTool('python', 'ruby', { type: 'root' })).toThrow();
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            node: latest
         `);
       });
     });

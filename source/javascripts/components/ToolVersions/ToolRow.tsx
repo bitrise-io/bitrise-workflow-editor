@@ -78,7 +78,7 @@ const ToolRow = ({
   // Validate eagerly, display lazily: the required-version error only shows once the
   // user has visited and left the field. A config that is already invalid when the row
   // mounts (hand-edited YAML) is flagged immediately — no interaction should be needed.
-  const [versionTouched, setVersionTouched] = useState(() => strategy === 'exact' && version === '');
+  const [versionTouched, setVersionTouched] = useState(() => strategy === 'exact' && version.trim() === '');
 
   const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
@@ -143,10 +143,12 @@ const ToolRow = ({
   };
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    // The strategy switch empties the field on the user's behalf -> give them a chance
-    // to fill it before flagging it.
-    setVersionTouched(false);
     const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
+    // The strategy switch empties the field on the user's behalf -> give them a chance to fill
+    // it before flagging it.
+    if (newVersion !== version) {
+      setVersionTouched(false);
+    }
     onStrategyChange(newStrategy, newVersion);
   };
 
@@ -203,9 +205,14 @@ const ToolRow = ({
                 emptyLabel="No matches"
                 items={versionOptions}
                 isLoading={isVersionsLoading}
+                // With no version list there is nothing to pick from. Read-only rather than
+                // disabled, so the configured version stays legible and reachable by keyboard
+                // and screen readers; the alert below points to the YAML editor instead.
+                state={isVersionsError ? 'readOnly' : undefined}
                 // Closing the menu without picking counts as visiting and leaving the field.
                 comboboxProps={{
                   onOpenChange: (details) => !details.open && setVersionTouched(true),
+                  onBlur: () => setVersionTouched(true),
                 }}
                 errorText={displayedVersionError}
                 warningText={catalogMismatchWarning}
