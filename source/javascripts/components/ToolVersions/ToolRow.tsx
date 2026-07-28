@@ -102,28 +102,15 @@ const ToolRow = ({
   const isVersionMissingFromCatalog =
     !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
 
-  // BitkitCombobox has no built in way to commit a typed value that does not match a real
-  // item, so it only makes sense while there is at least one real option to pick (loading
-  // counts, it will resolve into one or the other shortly). With nothing to pick, a plain
-  // text input lets the user actually type and save a version.
-  const useVersionDropdown = isExactKnownTool && (isVersionsLoading || versionOptions.length > 0);
-
   // An exact strategy needs a concrete version; prefix strategies are valid without one
-  // (bare `latest`/`installed`). Only a hint — saving is not blocked.
+  // (bare `latest`/`installed`).
   const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
-  // Shown next to a value the combobox is displaying as already set, where it may be a
-  // stale or mistaken leftover. Typed values get a different, less alarming message below.
+  // The version the combobox is displaying as already set isn't among the catalog's
+  // options — likely a stale or mistaken leftover (e.g. from hand-edited YAML).
   const catalogMismatchWarning = isVersionMissingFromCatalog
     ? `${version} is not a known version, use at your own risk`
     : undefined;
-  // Shown wherever the user is typing a version by hand because no suggestions exist,
-  // where it is an expected, deliberate choice rather than a possible mistake. Skipped
-  // for a custom tool, whose own explanatory paragraph below already covers this.
-  const customVersionWarning =
-    !showCustomInput && isVersionMissingFromCatalog
-      ? `${version} is a custom version and might not work properly`
-      : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -156,7 +143,7 @@ const ToolRow = ({
   };
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    // The strategy switch empties the field on the user's behalf — give them a chance
+    // The strategy switch empties the field on the user's behalf -> give them a chance
     // to fill it before flagging it.
     setVersionTouched(false);
     const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
@@ -200,7 +187,9 @@ const ToolRow = ({
 
         {strategy !== 'unset' && (
           <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
-            {useVersionDropdown ? (
+            {/* A catalog-known tool always has at least one version to offer, so the dropdown
+                applies whenever one is possible at all. */}
+            {isExactKnownTool ? (
               <BitkitCombobox
                 // BitkitCombobox snapshots `items` on mount and never resets its own filtered
                 // list. Picking an item narrows that list, and it stays narrowed even after
@@ -228,7 +217,6 @@ const ToolRow = ({
                 size="lg"
                 placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                 errorText={displayedVersionError}
-                warningText={customVersionWarning}
                 inputProps={{
                   value: version,
                   onChange: (e) => onVersionChange(e.target.value),
@@ -245,7 +233,7 @@ const ToolRow = ({
       {isExactKnownTool && isVersionsError && (
         <BitkitAlert
           variant="critical"
-          messageText={`Couldn't load the available versions of ${toolId}. You can still type the version by hand.`}
+          messageText={`Couldn't load the available versions of ${toolId}. Try reloading, or set the version directly in the YAML editor.`}
         />
       )}
 
