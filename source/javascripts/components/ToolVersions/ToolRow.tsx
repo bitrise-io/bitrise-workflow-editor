@@ -30,7 +30,6 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
 };
 
 const OTHER_VALUE = '__other__';
-const OTHER_VERSION_VALUE = '__other_version__';
 
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
@@ -76,10 +75,6 @@ const ToolRow = ({
     rules: { validate: (value) => ToolsService.validateToolId(value.trim(), toolId, existingToolIds, catalog) },
   });
 
-  // Whether the user has explicitly picked "Other" from the version dropdown, to enter a
-  // version that is not in the catalog even though real options exist.
-  const [manualVersion, setManualVersion] = useState(false);
-
   // Validate eagerly, display lazily: the required-version error only shows once the
   // user has visited and left the field. A config that is already invalid when the row
   // mounts (hand-edited YAML) is flagged immediately — no interaction should be needed.
@@ -101,10 +96,7 @@ const ToolRow = ({
     isError: isVersionsError,
   } = useToolVersions(canonicalToolId, isExactKnownTool);
 
-  // While the user is entering a custom version via "Other", the current value is left
-  // unpinned: otherwise it would also appear as a separate, seemingly catalog backed
-  // entry, and reselecting it would count as picking a real option and exit "Other".
-  const versionOptions = ToolsService.getVersionOptions(toolVersions, manualVersion ? '' : version);
+  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
   const isVersionMissingFromCatalog =
@@ -125,10 +117,9 @@ const ToolRow = ({
   const catalogMismatchWarning = isVersionMissingFromCatalog
     ? `${version} is not a known version, use at your own risk`
     : undefined;
-  // Shown wherever the user is actually typing a version by hand (via "Other", or because
-  // no suggestions exist at all), where it is an expected, deliberate choice rather than
-  // a possible mistake. Skipped for a custom tool, whose own explanatory paragraph below
-  // already covers this.
+  // Shown wherever the user is typing a version by hand because no suggestions exist,
+  // where it is an expected, deliberate choice rather than a possible mistake. Skipped
+  // for a custom tool, whose own explanatory paragraph below already covers this.
   const customVersionWarning =
     !showCustomInput && isVersionMissingFromCatalog
       ? `${version} is a custom version and might not work properly`
@@ -168,7 +159,6 @@ const ToolRow = ({
     // The strategy switch empties the field on the user's behalf — give them a chance
     // to fill it before flagging it.
     setVersionTouched(false);
-    setManualVersion(false);
     const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
     onStrategyChange(newStrategy, newVersion);
   };
@@ -216,30 +206,22 @@ const ToolRow = ({
                 // list. Picking an item narrows that list, and it stays narrowed even after
                 // the popover closes and reopens. The key forces a fresh mount whenever the
                 // list should actually change: another tool's versions, the async load
-                // completing, the version itself changing, or switching in or out of manual
-                // entry (without these, the dropdown would reopen showing only the
-                // previously picked item).
-                key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${version}:${manualVersion}`}
+                // completing, or the version itself changing (without these, the dropdown
+                // would reopen showing only the previously picked item).
+                key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${version}`}
                 size="lg"
                 placeholder="Select"
                 emptyLabel="No matches"
-                items={[...versionOptions, { value: OTHER_VERSION_VALUE, label: 'Other' }]}
+                items={versionOptions}
                 isLoading={isVersionsLoading}
                 // Closing the menu without picking counts as visiting and leaving the field.
                 comboboxProps={{
-                  onOpenChange: (details) => !details.open && !manualVersion && setVersionTouched(true),
+                  onOpenChange: (details) => !details.open && setVersionTouched(true),
                 }}
-                errorText={manualVersion ? undefined : displayedVersionError}
-                warningText={manualVersion ? undefined : catalogMismatchWarning}
-                value={manualVersion ? OTHER_VERSION_VALUE : version || undefined}
-                onValueChange={(newVersion) => {
-                  if (newVersion === OTHER_VERSION_VALUE) {
-                    setManualVersion(true);
-                    return;
-                  }
-                  setManualVersion(false);
-                  onVersionChange(newVersion ?? '');
-                }}
+                errorText={displayedVersionError}
+                warningText={catalogMismatchWarning}
+                value={version || undefined}
+                onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
               />
             ) : (
               <BitkitTextInput
@@ -249,20 +231,6 @@ const ToolRow = ({
                 warningText={customVersionWarning}
                 inputProps={{
                   value: version,
-                  onChange: (e) => onVersionChange(e.target.value),
-                  onBlur: () => setVersionTouched(true),
-                }}
-              />
-            )}
-            {useVersionDropdown && manualVersion && (
-              <BitkitTextInput
-                size="lg"
-                placeholder="e.g. 24.7.0"
-                errorText={displayedVersionError}
-                warningText={customVersionWarning}
-                inputProps={{
-                  value: version,
-                  autoFocus: true,
                   onChange: (e) => onVersionChange(e.target.value),
                   onBlur: () => setVersionTouched(true),
                 }}
