@@ -7,6 +7,7 @@ type Props = {
 const AlgoliaStepListErrorState = ({ onRetryButtonClick }: Props) => {
   return (
     <Notification
+      data-clarity-unmask="true"
       status="error"
       action={
         onRetryButtonClick && {

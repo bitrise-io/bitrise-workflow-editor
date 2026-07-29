@@ -24,8 +24,11 @@ module.exports = {
     '@/(.*)': '<rootDir>/source/javascripts/$1',
   },
   // node_modules is transform-ignored by default; allow @bitrise/languageserver so the real codec
-  // (raw TS shipped by the git dependency) gets compiled.
-  transformIgnorePatterns: ['/node_modules/(?!@bitrise/languageserver/)', '\\.pnp\\.[^\\/]+$'],
+  // (raw TS shipped by the git dependency) gets compiled, and the two bitkit packages so component
+  // tests can render real bitkit components — bitkit v1 ships raw TS from `src/`, bitkit-v2 ships an
+  // ESM dist. Both barrels re-export a markdown component; a test that renders them should
+  // `jest.mock('react-markdown', ...)` rather than pull in that ESM dependency tree.
+  transformIgnorePatterns: ['/node_modules/(?!@bitrise/(languageserver|bitkit(-v2)?)/)', '\\.pnp\\.[^\\/]+$'],
   setupFiles: ['<rootDir>/spec/set-node-env.ts'],
   setupFilesAfterEnv: ['<rootDir>/spec/setup-jest.ts'],
   moduleDirectories: ['node_modules', '<rootDir>/spec/__mocks__'],

@@ -7,6 +7,7 @@ const AlgoliaStepListEmptyState = () => {
 
   return (
     <EmptyState
+      data-clarity-unmask="true"
       padding="48"
       iconName="Magnifier"
       title="No Steps are matching your filter"

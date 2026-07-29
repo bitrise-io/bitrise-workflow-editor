@@ -21,7 +21,7 @@ const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialog
         <Text>
           Are you sure you want to delete <strong>{workflowId}</strong>?
         </Text>
-        <List variant="unstyled" spacing="6">
+        <List variant="unstyled" spacing="6" data-clarity-unmask="true">
           <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
             All settings, Steps and EnvVars specific to this Workflow will be deleted.
           </ListItem>
@@ -32,9 +32,11 @@ const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialog
             Historical build logs will remain accessible.
           </ListItem>
         </List>
-        <Text textStyle="body/lg/semibold">This action cannot be undone after the YML is saved.</Text>
+        <Text textStyle="body/lg/semibold" data-clarity-unmask="true">
+          This action cannot be undone after the YML is saved.
+        </Text>
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter data-clarity-unmask="true">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

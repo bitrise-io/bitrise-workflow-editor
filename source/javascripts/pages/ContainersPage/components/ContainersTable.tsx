@@ -58,7 +58,7 @@ const ContainersTable = ({
   return (
     <Box overflowX="auto">
       <Table isFixed={!isMobile}>
-        <Thead>
+        <Thead data-clarity-unmask="true">
           <Tr>
             <Th textStyle="heading/h5" width="160px">
               Unique ID

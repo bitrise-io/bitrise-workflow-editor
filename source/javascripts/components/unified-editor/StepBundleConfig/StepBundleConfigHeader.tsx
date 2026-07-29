@@ -74,7 +74,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
           {subtitle}
         </Text>
       </Box>
-      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
+      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">
         <Tab>Configuration</Tab>
         <Tab>Properties</Tab>
         <Tab>Containers</Tab>

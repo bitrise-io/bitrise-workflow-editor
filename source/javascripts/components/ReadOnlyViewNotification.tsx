@@ -19,6 +19,7 @@ const ReadOnlyViewNotification = () => {
     <BitkitAlert
       variant="info"
       messageText={messageText}
+      data-clarity-unmask="true"
       position="absolute"
       // The YmlPage editor wrapper already has 12px block padding, so flush-top lands 12px below the tab bar.
       insetBlockStart="0"

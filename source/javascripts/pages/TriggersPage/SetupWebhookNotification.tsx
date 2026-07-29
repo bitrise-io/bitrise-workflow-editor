@@ -23,6 +23,7 @@ const SetupWebhookNotification = () => {
   return (
     <Notification
       status="info"
+      data-clarity-unmask="true"
       onClose={() => updateMetaData('true')}
       action={{ href: integrationsUrl, label: 'Set up webhooks' }}
       marginY="32"

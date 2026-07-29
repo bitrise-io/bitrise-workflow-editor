@@ -14,10 +14,10 @@ const useTabs = create(
 const StacksAndMachinesPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <Text as="h2" textStyle="heading/h2" p="32">
+      <Text as="h2" textStyle="heading/h2" p="32" data-clarity-unmask="true">
         Stacks & Machines
       </Text>
-      <TabList px="16">
+      <TabList px="16" data-clarity-unmask="true">
         <Tab>Default</Tab>
         <Tab>Workflows</Tab>
       </TabList>
