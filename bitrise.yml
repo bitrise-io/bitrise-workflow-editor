@@ -1,168 +1,845 @@
-format_version: 1.3.1
+---
+format_version: '8'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-
+project_type: other
+meta:
+  bitrise.io:
+    machine_type_id: g2.linux.large
+    stack: linux-docker-android-22.04
 app:
   envs:
-    - BIN_NAME: workflow-editor
-    - BIN_ARCH: x86_64
-    - BIN_ARCH_ARM64: arm64
-    - BIN_OS_DARWIN: Darwin
-    - BIN_OS_LINUX: Linux
-    - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
-    - BIN_PATH_DARWIN_ARM64: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH_ARM64
-    - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
-
-    - PORT: "1234"
-    - DEV_SERVER_PORT: "4567"
-    - MODE: "CLI"
-
+  - opts:
+      is_expand: false
+    STORYBOOK_GCP_DEPLOY_BUCKET: bitrise-storybook-dev
+  - opts:
+      is_expand: false
+    CYPRESS_CACHE_FOLDER: node_modules/.cache/cypress
+  - opts:
+      is_expand: false
+    BIN_PATH_DARWIN: _bin/workflow-editor-Darwin-x86_64
+  - opts:
+      is_expand: false
+    BIN_PATH_DARWIN_ARM64: _bin/workflow-editor-Darwin-arm64
+  - opts:
+      is_expand: false
+    BIN_PATH_LINUX: _bin/workflow-editor-Linux-x86_64
+  - opts:
+      is_expand: false
+    NODE_ENV: production
+  - BITRISE_NO_OUTPUT_TIMEOUT: 300
+    opts:
+      is_expand: false
+  - opts:
+      is_expand: false
+    NODE_BUILD_CURL_OPTS: "--retry 5"
+  - WFE_VERSION: 2.5.$BITRISE_BUILD_NUMBER
+pipelines:
+  ci-pipeline:
+    workflows:
+      run-ci-checks: {}
+      run-deploy-storybook: {}
+    triggers:
+      pull_request:
+      - source_branch: "*"
+  release-pipeline:
+    workflows:
+      run-bump-version-numbers: {}
+      release-plugin:
+        depends_on:
+        - run-bump-version-numbers
+      release-website:
+        depends_on:
+        - run-bump-version-numbers
+      run-deploy-storybook:
+        depends_on:
+        - run-bump-version-numbers
+    triggers:
+      push:
+      - branch: master
+  experiment-pipeline:
+    workflows:
+      release-website-experiment: {}
 workflows:
-  install-client-deps:
-    title: Install the client dependencies
+  release-plugin:
     envs:
-      - NODE_ENV: "production"
+    - opts:
+        is_expand: false
+      NODE_ENV: production
+    - opts:
+        is_expand: false
+      DISCUSS_USERNAME: ninja
+    - opts:
+        is_expand: false
+      BIN_PATH_DARWIN: _bin/workflow-editor-Darwin-x86_64
+    - opts:
+        is_expand: false
+      BIN_PATH_LINUX: _bin/workflow-editor-Linux-x86_64
+    - opts:
+        is_expand: false
+      BIN_PATH_DARWIN_ARM64: _bin/workflow-editor-Darwin-arm64
     steps:
-      - script@1.2.1:
-          title: asdf install nodejs
-          inputs:
-            - content: |-
-                #!/usr/bin/env bash
-                set -ex
+    - bundle::clone-repo: {}
+    - bundle::install-go-packages: {}
+    - bundle::install-npm-packages: {}
+    - get-npm-package-version@1:
+        title: Get editor version
+    - script@1:
+        title: Apply ASDF env
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
 
-                if ! [ -d ~/.asdf ]; then
-                  git clone https://github.com/asdf-vm/asdf.git ~/.asdf
-                  source ~/.asdf/asdf.sh
-                fi
+            source ~/.asdf/asdf.sh
+            envman add --key PATH --value $PATH
+    - script:
+        title: Build plugin
+        inputs:
+        - script_file_path:
+        - content: npm run build:plugin
+    - deploy-to-bitrise-io:
+        title: Deploy to Bitrise.io - Plugin
+        is_always_run: false
+    - generate-changelog@0:
+        inputs:
+        - new_version: "$NPM_PACKAGE_VERSION"
+    - github-release@0.11:
+        inputs:
+        - api_token: "$GITHUB_API_TOKEN"
+        - username: "$GITHUB_USERNAME"
+        - repository_url: https://github.com/bitrise-io/bitrise-workflow-editor.git
+        - draft: 'no'
+        - name: v$NPM_PACKAGE_VERSION
+        - body: |-
+            $BITRISE_CHANGELOG
 
-                envman add --key PATH --value $PATH
+            ### Install or upgrade
 
-                asdf plugin add nodejs ||:
-                asdf install nodejs
-      - script:
-          title: npm ci
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
+            To install this version, run the following commands (in a bash shell):
 
-                npm ci
-  build-client:
-    title: Build the client
+            ```
+            bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version $NPM_PACKAGE_VERSION
+            ```
+
+            To update the already installed plugin to the latest version:
+
+            ```
+            bitrise plugin update workflow-editor
+            ```
+
+            That's all, you're ready to go!
+
+            To run the workflow editor plugin call:
+
+            ```
+            bitrise :workflow-editor
+            ```
+        - tag: "$NPM_PACKAGE_VERSION"
+        - files_to_upload: |-
+            $BIN_PATH_DARWIN
+            $BIN_PATH_LINUX
+            $BIN_PATH_DARWIN_ARM64
+    - script@1:
+        is_skippable: true
+        title: Create Discuss topic
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            # generate release content...
+            go install github.com/cbroglie/mustache/cmd/mustache@latest
+            asdf reshim
+
+            DATA="---
+            VERSION: $NPM_PACKAGE_VERSION
+            CHANGELOG: |
+              ${BITRISE_CHANGELOG//$'\n'/$'\n  '}
+            "
+
+            DISCUSS_RELEASE_CONTENT=$(echo "$DATA" | mustache release/discuss_release.mustache)
+            DISCUSS_CHANGELOG_CATEGORY_ID=6
+
+            curl -X POST "https://discuss.bitrise.io/posts" \
+                   -H "Content-Type: multipart/form-data;" \
+                   -F "api_key=$DISCUSS_API_KEY" \
+                   -F "api_username=$DISCUSS_USERNAME" \
+                   -F "category=$DISCUSS_CHANGELOG_CATEGORY_ID" \
+                   -F "title=Workflow Editor v$NPM_PACKAGE_VERSION released" \
+                   -F "raw=$DISCUSS_RELEASE_CONTENT"
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: g2.linux.large
+  release-website:
     envs:
-      - NODE_ENV: "production"
+    - NODE_ENV: production
+      opts:
+        is_expand: false
+    - PUBLIC_URL_ROOT: "/workflow_editor"
+      opts:
+        is_expand: false
+    - opts:
+        is_expand: false
+      FRONTEND_ASSET_BUCKET: workflow-editor-cdn.bitrise.io
+    - INTERCOM_APP_ID: e2rdidtm
+      opts:
+        is_expand: false
     steps:
-      - script:
-          title: npm run build
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
+    - bundle::clone-repo: {}
+    - bundle::install-npm-packages: {}
+    - script@1:
+        title: Apply ASDF env
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
 
-                npm run build
-  install-api-server-deps:
-    title: Install the API server dependencies
+            source ~/.asdf/asdf.sh
+            envman add --key PATH --value $PATH
+    - get-npm-package-version@1:
+        title: Get editor version
+    - script:
+        title: Build website
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -exo pipefail
+
+            npm run build:website
+        - script_file_path:
+        - command: run build:website
+    - script@1:
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
+            KEY_FILE_PATH=$(mktemp -d)/keyfile.json
+            echo "${GCS_SERVICE_ACCOUNT_CREDENTIALS_B64}" | base64 --decode > ${KEY_FILE_PATH}
+            gcloud auth activate-service-account --key-file=${KEY_FILE_PATH}
+            gsutil -m rsync -r -x ".*\.map$" ./build gs://$FRONTEND_ASSET_BUCKET/workflow_editor/$NPM_PACKAGE_VERSION
+            rm $KEY_FILE_PATH
+        title: Deploy to GCS
+    - bundle::upload-source-maps: {}
+    - bundle::run-smoke-test: {}
+    - bundle::update-launchdarkly: {}
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: g2.linux.large
+  release-website-experiment:
+    envs:
+    - opts:
+        is_expand: false
+      NODE_ENV: production
+    - opts:
+        is_expand: false
+      PUBLIC_URL_ROOT: "/workflow_editor"
+    - opts:
+        is_expand: false
+      FRONTEND_ASSET_BUCKET: workflow-editor-cdn.bitrise.io
+    - WFE_VERSION: 3.0.$BITRISE_BUILD_NUMBER-beta
     steps:
-      - script:
-          title: asdf install golang
-          inputs:
-            - content: |-
-                #!/usr/bin/env bash
-                set -ex
+    - bundle::clone-repo: {}
+    - bundle::install-go-packages: {}
+    - bundle::install-npm-packages: {}
+    - script:
+        title: Apply ASDF env
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
 
-                if ! [ -d ~/.asdf ]; then
-                  git clone https://github.com/asdf-vm/asdf.git ~/.asdf
-                  source ~/.asdf/asdf.sh
-                fi
+            source ~/.asdf/asdf.sh
+            envman add --key PATH --value $PATH
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
 
-                envman add --key PATH --value $PATH
+            npm version --no-git-tag-version "${WFE_VERSION}"
+            next_version="${WFE_VERSION}" ./_scripts/set_version.sh version/version.go bitrise-plugin.yml
+        title: Set experimental version
+    - script:
+        title: Build website
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -exo pipefail
 
-                asdf plugin add golang ||:
-                asdf install golang
-      - script:
-          title: go install
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
+            npm run build:website
+    - script:
+        title: Deploy to GCS
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
+            KEY_FILE_PATH=$(mktemp -d)/keyfile.json
+            echo "${GCS_SERVICE_ACCOUNT_CREDENTIALS_B64}" | base64 --decode > ${KEY_FILE_PATH}
+            gcloud auth activate-service-account --key-file=${KEY_FILE_PATH}
+            gsutil -m rsync -r -x ".*\.map$" ./build gs://$FRONTEND_ASSET_BUCKET/workflow_editor/$WFE_VERSION
+            rm $KEY_FILE_PATH
+    - script@1:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            echo 'Uploading sourcemap to DataDog...'
+            export DATADOG_API_KEY=$DATADOG_API_KEY_FOR_SOURCEMAPS
+            npx --yes @datadog/datadog-ci sourcemaps upload build/assets --service=wfe --release-version="$WFE_VERSION" --minified-path-prefix=/workflow_editor/$WFE_VERSION/assets --disable-git
+        title: Upload sourcemaps to DataDog
+  run_production_smoke_test:
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-npm-packages: {}
+    - bundle::run-smoke-test: {}
+    envs:
+    - NPM_PACKAGE_VERSION: 1.3.651
+      opts:
+        is_expand: false
+    - USE_NPM_INSTALL: 1
+      opts:
+        is_expand: false
+    summary: This is not triggered automatically but is here to be able to try out
+      running the smoke test workflow without releasing stuff. The app version
+      is fed manually as an env var.
+  run-api-server-unit-tests:
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-go-packages: {}
+    - bundle::run-go-server-checks: {}
+  run-bump-version-numbers:
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: g2.linux.medium
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-go: {}
+    - bundle::install-node: {}
+    - bundle::bump-version-number: {}
+    - share-pipeline-variable@1:
+        inputs:
+        - variables: BITRISE_GIT_COMMIT
+  run-ci-checks:
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-go-packages: {}
+    - bundle::run-go-server-checks: {}
+    - bundle::install-npm-packages: {}
+    - bundle::run-client-checks: {}
+    - deploy-to-bitrise-io@2: {}
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: g2.linux.medium
+  run-client-checks:
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-npm-packages: {}
+    - bundle::run-client-checks: {}
+  run-deploy-storybook:
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: g2.linux.medium
+    envs:
+    - USE_NPM_INSTALL: 1
+      opts:
+        is_expand: false
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-npm-packages: {}
+    - bundle::deploy-storybook: {}
+  jest-with-allure:
+    title: Run Jest with allure reporter
+    steps:
+    - bundle::clone-repo: {}
+    - script:
+        title: Run Jest with allure reporter
+        inputs:
+        - content: |-
+            brew install allure
+            npm run test:jest
+            allure generate --clean
+            cp -r allure-report $BITRISE_HTML_REPORT_DIR
+    - deploy-to-bitrise-io: {}
+  update-launchdarkly-manual:
+    envs:
+    - LD_PROJECT_KEY: website
+      opts:
+        is_expand: false
+    - LD_FLAG_KEY: api-testing
+      opts:
+        is_expand: false
+    summary: Update Worflow Editor Versions in Launch Darkly.
+    steps:
+    - set-env-var@0:
+        inputs:
+        - value: "$BITRISE_GIT_BRANCH"
+        - destination_keys: NPM_PACKAGE_VERSION
+        title: Set Git Branch as $NPM_PACKAGE_VERSION
+    - bundle::update-launchdarkly: {}
+    meta:
+      bitrise.io:
+        stack: linux-docker-android-22.04
+        machine_type_id: g2.linux.large
+  update-algolia:
+    steps:
+    - script@1:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -exo pipefail
 
-                go install golang.org/x/lint/golint@latest
-                go install github.com/kisielk/errcheck@v1.7.0
-                go install github.com/GeertJohan/go.rice/rice@latest
-                asdf reshim golang
-  build-api-server:
+            # mock envvars, spec.json
+            curl http://bitrise-steplib-collection.s3.amazonaws.com/spec.json -o /tmp/spec.json
+            export SPEC_JSON_PATH=/tmp/spec.json
+            # export DRY_RUN=true
+
+            # actual step content
+            git clone https://github.com/bitrise-io/steplib-search.git
+
+            export BITRISE_SOURCE_DIR="$BITRISE_SOURCE_DIR/steplib-search"
+            cd steplib-search
+
+            bitrise run update-algolia
+        asset_urls:
+          icon.svg: https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg
+    - slack:
+        inputs:
+        - channel: "#bitrise-steplib"
+        - text: New version!
+        - emoji: ":bell:"
+        - webhook_url: "$SLACK_WEBHOOK_URL"
+  deploy-wfe-proxy:
+    steps:
+    - bundle::clone-repo: {}
+    - bundle::install-node: {}
+    - bundle::install-npm-packages: {}
+    - script@1:
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -e
+            # make pipelines' return status equal the last command to exit with a non-zero status, or zero if all commands exit successfully
+            set -o pipefail
+            # debug log
+            set -x
+
+            export CLOUDFLARE_ACCOUNT_ID="$CF_ACCOUNT_ID"
+            export CLOUDFLARE_API_TOKEN="$CF_WORKER_DEPLOY_API_KEY"
+            npx wrangler deploy -c ./source/javascripts/proxy-worker.jsonc
+        title: Deploy worker with Wrangler
+    envs:
+    - CF_ACCOUNT_ID: a484c7653eeba8c8c00a4bf3967860a3
+      opts:
+        is_expand: false
+    triggers:
+      push:
+      - branch: master
+        changed_files: source/javascripts/proxy-worker.*
+step_bundles:
+  clone-repo:
+    title: Clone the repository
+    steps:
+    - change-workdir@1:
+        inputs:
+        - path: "$GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor"
+    - git-clone@8:
+        inputs:
+        - update_submodules: 'no'
+  install-go:
+    title: Install Go
+    steps:
+    - script@1:
+        title: asdf install golang
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            asdf install golang
+            asdf reshim golang
+    - script@1.2.1:
+        title: Set env vars for Go caching
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            envman add --key GO_BUILD_CACHE_PATH --value $(go env GOCACHE)
+            envman add --key GO_MOD_CACHE_PATH --value $(go env GOMODCACHE)
+    - restore-cache@2:
+        inputs:
+        - key: |-
+            go-cache-{{ .OS }}-{{ .Arch }}-{{ checksum "go.mod" }}
+            go-cache-{{ .OS }}-{{ .Arch }}
+        title: Restore Go cache
+  install-go-packages:
+    title: Install Go packages
+    steps:
+    - bundle::install-go: {}
+    - script:
+        title: go install
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/bin/bash
+            set -exo pipefail
+
+            # go install github.com/mgechev/revive@latest
+            go install golang.org/x/lint/golint@latest
+            go install github.com/kisielk/errcheck@v1.9.0
+            go install github.com/GeertJohan/go.rice/rice@latest
+            asdf reshim golang
+  install-node:
+    title: Install Node.js
+    steps:
+    - script@1:
+        title: asdf install nodejs
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            asdf install nodejs
+            asdf reshim nodejs
+  install-npm-packages:
+    title: Install npm packages
+    steps:
+    - bundle::install-node: {}
+    - script@1:
+        title: Create package-lock-for-npm-cache.json without version field
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            jq 'del(.version, .packages[""].version)' package-lock.json > package-lock-for-npm-cache.json
+    - restore-cache@2:
+        title: Restore NPM cache (.npm)
+        inputs:
+        - key: |-
+            {{ .OS }}-{{ .Arch }}-npm-cache-v2-{{ checksum "package-lock-for-npm-cache.json" }}
+            {{ .OS }}-{{ .Arch }}-npm-cache-v2
+    - script@1:
+        title: npm ci or install
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            npm config set fetch-timeout 600000
+            npm config set fetch-retries 5
+            npm config set fetch-retry-mintimeout 20000
+            npm config set fetch-retry-maxtimeout 120000
+
+            if [ -n "$USE_NPM_INSTALL" ]; then
+              echo "USE_NPM_INSTALL is set. Running npm install..."
+              npm install --include=dev
+            else
+              echo "USE_NPM_INSTALL is not set. Running npm ci..."
+              npm ci --include=dev
+            fi
+    - script@1:
+        title: Create package-lock-for-npm-cache.json without version field
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            jq 'del(.version, .packages[""].version)' package-lock.json > package-lock-for-npm-cache.json
+    - save-cache@1:
+        title: Save NPM cache (.npm)
+        inputs:
+        - paths: |-
+            /root/.npm
+            node_modules
+        - key: '{{ .OS }}-{{ .Arch }}-npm-cache-v2-{{ checksum
+            "package-lock-for-npm-cache.json" }}'
+        - is_key_unique: 'true'
+  bump-version-number:
+    title: Bump the WFE version number
+    steps:
+    - script@1:
+        title: Bump editor version
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            # Ensure WFE_VERSION is set
+            if [[ -z "$WFE_VERSION" ]]; then
+                echo "Error: WFE_VERSION environment variable must be set."
+                exit 1
+            fi
+
+            # Set the new version
+            next_version="$WFE_VERSION"
+
+            # Export the next_version so it can be accessed in set_version.sh
+            export next_version
+
+            # List of files to update
+            FILES=(version/version.go bitrise-plugin.yml package.json package-lock.json)
+
+            # Update package.json and package-lock.json
+            npm version "$next_version" --no-git-tag-version
+
+            # Update version using the set_version.sh script
+            ./_scripts/set_version.sh "${FILES[0]}" "${FILES[1]}"
+
+            # push changes
+            git add "${FILES[@]}"
+            git commit -m "[skip ci] - $next_version"
+            git push origin HEAD:master
+
+            envman add --key BITRISE_GIT_COMMIT --value $(git rev-parse HEAD)
+  build-go-server:
     title: Build the Go API server binaries
-    description: |
-      Creates Linux and Darwin binaries with embedded assets
+    summary: Creates Linux and Darwin binaries with embedded assets
     steps:
-      - script:
-          title: Compile Api server
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
+    - script@1:
+        title: compile_api.sh
+        inputs:
+        - script_file_path:
+        - content: |-
+            #!/usr/bin/env bash
+            set -exo pipefail
 
-                ./_scripts/compile_api.sh
-
-  setup:
-    before_run:
-      - install-client-deps
-      - install-api-server-deps
-      - build-client
-      - build-api-server
-
-  ci:
-    title: Run the CI checks
-    envs:
-      - NODE_ENV: "production"
+            if [[ ! -f $BIN_PATH_LINUX ]]; then
+              ./_scripts/compile_api.sh
+            fi
+    - save-cache@1:
+        inputs:
+        - key: go-cache-{{ .OS }}-{{ .Arch }}-{{ checksum "go.mod" }}
+        - paths: |-
+            $GO_BUILD_CACHE_PATH
+            $GO_MOD_CACHE_PATH
+        - is_key_unique: 'true'
+        title: Save Go cache
+  run-go-server-checks:
+    title: Run linting and unit tests
     steps:
-      - bitrise-run@0:
-          title: Run API server tests
-          inputs:
-            - workflow_id: test-api
-      - bitrise-run@0:
-          title: Run client unit & E2E tests
-          inputs:
-            - workflow_id: test-client
-  test-api:
-    title: Run the API server tests
-    before_run:
-      - install-api-server-deps
+    - script:
+        title: go vet & revive & errcheck
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go vet -printf=false ./...
+            # revive -config=.revive.toml ./...
+            golint ./...
+            errcheck -asserts=true -blank=true ./...
+    - script:
+        title: go test
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go test ./...
+  run-client-checks:
+    title: Run linting and unit tests
     steps:
-      - script:
-          title: Go Lint & Vet & Check for unhandled errors
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-
-                go vet ./...
-                golint ./...
-                errcheck -asserts=true -blank=true ./...
-      - script:
-          title: Go Test
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-
-                go test ./...
-
-  test-client:
-    title: Run the client unit & E2E tests
-    envs:
-      - NODE_ENV: "production"
-    before_run:
-      - install-client-deps
-      - build-client
-      - build-api-server
+    - script:
+        title: npm run lint
+        inputs:
+        - content: npm run lint
+    - script@1:
+        title: npx tsc --noEmit
+        inputs:
+        - content: npx tsc --noEmit
+    - script:
+        title: npm run test:jest
+        inputs:
+        - content: npm run test:jest
+    - custom-test-results-export@1:
+        inputs:
+        - test_name: run-ci-checks
+        - search_pattern: "*junit.xml"
+  run-smoke-test:
+    title: Run Playwright E2E production smoke test
     steps:
-      - script:
-          title: Run linter
-          inputs:
-            - content: |-
-                npm run lint
-      - script:
-          title: Run unit tests
-          inputs:
-            - content: |-
-                npm run test
+    - script@1:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -euxo pipefail
+
+            export SMOKE_TEST_APP_ID=$SMOKE_TEST_APP_ID
+            export SMOKE_TEST_USER_NAME=$SMOKE_TEST_USER_NAME
+            export SMOKE_TEST_USER_PASSWORD=$SMOKE_TEST_USER_PASSWORD
+
+            npx playwright install chromium firefox webkit --with-deps
+            npm run test:smoke -- --workers 3
+        title: npm run test:smoke
+  deploy-storybook:
+    title: Build and deploy storybook
+    steps:
+    - script@1:
+        title: npm run build-storybook
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            npm run build-storybook
+    - script@1:
+        is_skippable: true
+        title: run deploy-storybook
+        run_if: (or .IsPR (enveq "BITRISE_GIT_BRANCH" "master"))
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            node ./.storybook/deploy-storybook.js
+  export-test-results:
+    title: Export test results as Bitrise artifacts
+    steps:
+    - script@1:
+        title: Export test results
+        is_skippable: true
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -exo pipefail
+
+            # Creating a sub-directory for the test run within the BITRISE_TEST_RESULT_DIR:
+
+            echo "the current directory"
+            pwd
+
+            test_run_dir="$BITRISE_TEST_RESULT_DIR/result_dir_1"
+            mkdir "$test_run_dir"
+
+
+            DIR=spec/integration/cypress/results/
+            if [ -d "$DIR" ];
+            then
+                cp -r spec/integration/cypress/results/test-report.xml "$test_run_dir/test-report.xml"
+            fi
+
+            DIR=spec/integration/cypress/screenshots/
+            if [ -d "$DIR" ];
+            then
+                find spec/integration/cypress/screenshots -mindepth 2 -type f -exec mv -i '{}' "$test_run_dir" ';'
+            fi
+
+            DIR=spec/integration/cypress/videos/
+            if [ -d "$DIR" ];
+            then
+                find spec/integration/cypress/videos -mindepth 2 -type f -exec mv -i '{}' "$test_run_dir" ';'
+            fi
+
+            touch "$test_run_dir/test-info.json"
+            echo "{ \"test-name\":\"Cypress tests\" }" > "$test_run_dir/test-info.json"
+        is_always_run: true
+    - deploy-to-bitrise-io@2: {}
+  upload-source-maps:
+    title: Upload sourcemaps to DataDog
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+
+            echo 'Uploading sourcemap to DataDog...'
+            export DATADOG_API_KEY=$DATADOG_API_KEY_FOR_SOURCEMAPS
+            npx --yes @datadog/datadog-ci sourcemaps upload build/assets --service=wfe --release-version="$WFE_VERSION" --minified-path-prefix=/workflow_editor/$WFE_VERSION/assets --disable-git
+        title: Upload sourcemaps to DataDog
+  update-launchdarkly:
+    title: Update the WFE version numbers in Launchdarkly
+    steps:
+    - nvm@1:
+        inputs:
+        - node_version: '20'
+    - script@1:
+        inputs:
+        - script_file_path:
+        - runner_bin: node
+        - content: |-
+            const [newValue, fallbackValue] = process.env.NPM_PACKAGE_VERSION.split(':');
+
+            if (!newValue.match(/^\d+\.\d+\.\d+$/)) throw new Error(`Invalid WFE Current version: ${newValue}`);
+
+            if (fallbackValue && !fallbackValue.match(/^\d+\.\d+\.\d+$/)) throw new Error(`Invalid WFE Fallback version: ${newValue}`);
+
+            const API_TOKEN = process.env.LD_VERSION_UPDATE_API_TOKEN;
+            const PROJECT_KEY = process.env.LD_PROJECT_KEY;
+            const FLAG_KEY = process.env.LD_FLAG_KEY;
+            const API_URL = `https://app.launchdarkly.com/api/v2/flags/${PROJECT_KEY}/${FLAG_KEY}`;
+
+            (async () => {
+
+              const response = await fetch(API_URL, {
+                headers: {
+                  'Authorization': API_TOKEN,
+                  'Content-Type': 'application/json',
+                }
+              });
+
+              const data = await response.json();
+
+              console.log(response.status, data.variations);
+
+              const currentVariation = data.variations.find(variation => variation.name === 'Current');
+              const fallbackVariation = data.variations.find(variation => variation.name === 'Fallback');
+
+              const patchInstructions = [
+                {
+                  kind: "updateVariation",
+                  variationId: fallbackVariation._id,
+                  value: "temp",
+                },
+                {
+                  kind: "updateVariation",
+                  variationId: currentVariation._id,
+                  value: newValue,
+                },
+                {
+                  kind: "updateVariation",
+                  variationId: fallbackVariation._id,
+                  value: fallbackValue || currentVariation.value,
+                }
+              ];
+
+              console.log(patchInstructions);
+
+              const patchResponse = await fetch(API_URL, {
+                method: 'PATCH',
+                headers: {
+                  'Authorization': API_TOKEN,
+                  'Content-Type': 'application/json; domain-model=launchdarkly.semanticpatch',
+                },
+                body: JSON.stringify({
+                  instructions: patchInstructions
+                }),
+              });
+
+              const updatedData = await patchResponse.json();
+
+              console.log(patchResponse.status, updatedData.variations);
+
+              if (!patchResponse.ok) throw new Error(patchResponse.statusText);
+
+            })();
+        title: WFE Version Update
+    inputs:
+    - LD_PROJECT_KEY: website
+      opts:
+        is_expand: false
+    - LD_FLAG_KEY: workflow-editor-version
+      opts:
+        is_expand: false
