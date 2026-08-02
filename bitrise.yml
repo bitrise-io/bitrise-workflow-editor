@@ -186,6 +186,9 @@ workflows:
     - INTERCOM_APP_ID: e2rdidtm
       opts:
         is_expand: false
+    - DD_FLAG_KEY: workflow-editor-version
+      opts:
+        is_expand: false
     steps:
     - bundle::clone-repo: {}
     - bundle::install-npm-packages: {}
@@ -776,12 +779,11 @@ step_bundles:
 
             if (fallbackValue && !fallbackValue.match(/^\d+\.\d+\.\d+$/)) throw new Error(`Invalid WFE Fallback version: ${newValue}`);
 
-            const API_TOKEN = process.env.LD_VERSION_UPDATE_API_TOKEN;
-            const PROJECT_KEY = process.env.LD_PROJECT_KEY;
-            const FLAG_KEY = process.env.LD_FLAG_KEY;
-            const API_URL = `https://app.launchdarkly.com/api/v2/flags/${PROJECT_KEY}/${FLAG_KEY}`;
-
-            (async () => {
+            async function updateLaunchDarkly() {
+              const API_TOKEN = process.env.LD_VERSION_UPDATE_API_TOKEN;
+              const PROJECT_KEY = process.env.LD_PROJECT_KEY;
+              const FLAG_KEY = process.env.LD_FLAG_KEY;
+              const API_URL = `https://app.launchdarkly.com/api/v2/flags/${PROJECT_KEY}/${FLAG_KEY}`;
 
               const response = await fetch(API_URL, {
                 headers: {
@@ -833,7 +835,79 @@ step_bundles:
               console.log(patchResponse.status, updatedData.variations);
 
               if (!patchResponse.ok) throw new Error(patchResponse.statusText);
+            }
 
+            // Mirrors the LD update above so Datadog's copy of this flag (migrated from LD)
+            // doesn't drift while both systems are maintained in parallel. Opt-in via
+            // DD_FLAG_KEY (blank = skip) so other callers of this bundle, e.g.
+            // update-launchdarkly-manual against the throwaway 'api-testing' LD flag,
+            // are unaffected. Failures here are logged loudly but never fail the build:
+            // LD remains the source of truth for this flag today, so a Datadog hiccup
+            // should not block a Workflow Editor release.
+            async function updateDatadog() {
+              const DD_FLAG_KEY = process.env.DD_FLAG_KEY;
+              if (!DD_FLAG_KEY) {
+                console.log('DD_FLAG_KEY not set; skipping Datadog variant sync.');
+                return;
+              }
+
+              const DD_SITE = process.env.DD_SITE || 'datadoghq.com';
+              const headers = {
+                'DD-API-KEY': process.env.DD_API_KEY,
+                'DD-APPLICATION-KEY': process.env.DD_APP_KEY,
+                'Content-Type': 'application/json',
+              };
+
+              const searchUrl = `https://api.${DD_SITE}/api/v2/feature-flags?key=${encodeURIComponent(DD_FLAG_KEY)}&limit=100`;
+              const searchRes = await fetch(searchUrl, { headers });
+              const searchData = await searchRes.json();
+              if (!searchRes.ok) throw new Error(`Datadog flag search failed (${searchRes.status}): ${JSON.stringify(searchData)}`);
+
+              const flag = (searchData.data || []).find(f => f.attributes.key === DD_FLAG_KEY);
+              if (!flag) throw new Error(`No Datadog flag found with key '${DD_FLAG_KEY}'`);
+
+              const variants = flag.attributes.variants || [];
+              // Matched by name first, same as the LD lookup above -- the LD -> Datadog
+              // migration carried each LD variation's `name` over verbatim, so
+              // 'Current'/'Fallback' should exist there too; the key fallback covers a
+              // flag whose variant names weren't migrated for some reason.
+              const currentVariant = variants.find(v => v.name === 'Current') || variants.find(v => v.key === 'current');
+              const fallbackVariant = variants.find(v => v.name === 'Fallback') || variants.find(v => v.key === 'fallback');
+              if (!currentVariant || !fallbackVariant) {
+                throw new Error(`Could not find Current/Fallback variants on Datadog flag '${DD_FLAG_KEY}' (found: ${variants.map(v => v.name || v.key).join(', ')})`);
+              }
+
+              const oldCurrentValue = currentVariant.value;
+
+              async function updateVariant(variant, value) {
+                const url = `https://api.${DD_SITE}/api/v2/feature-flags/${flag.id}/variants/${variant.id}`;
+                const res = await fetch(url, {
+                  method: 'PUT',
+                  headers,
+                  body: JSON.stringify({ data: { type: 'variants', attributes: { value } } }),
+                });
+                const body = await res.json();
+                if (res.status === 201) {
+                  console.warn(`Datadog variant '${variant.name || variant.key}' update queued as a pending approval suggestion (id=${body.data && body.data.id}); not applied immediately.`);
+                } else if (!res.ok) {
+                  throw new Error(`Datadog variant update failed (${res.status}) for '${variant.name || variant.key}': ${JSON.stringify(body)}`);
+                } else {
+                  console.log(`Datadog variant '${variant.name || variant.key}' updated to '${value}'.`);
+                }
+              }
+
+              await updateVariant(currentVariant, newValue);
+              await updateVariant(fallbackVariant, fallbackValue || oldCurrentValue);
+            }
+
+            (async () => {
+              await updateLaunchDarkly();
+
+              try {
+                await updateDatadog();
+              } catch (err) {
+                console.error('Datadog variant sync failed (non-fatal -- LaunchDarkly remains the source of truth for this flag):', err.message);
+              }
             })();
         title: WFE Version Update
     inputs:
@@ -841,5 +915,11 @@ step_bundles:
       opts:
         is_expand: false
     - LD_FLAG_KEY: workflow-editor-version
+      opts:
+        is_expand: false
+    - DD_FLAG_KEY: ""
+      opts:
+        is_expand: false
+    - DD_SITE: datadoghq.com
       opts:
         is_expand: false
