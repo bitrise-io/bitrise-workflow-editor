@@ -196,6 +196,11 @@ function toJSON(root: Root) {
  * Collections are forced to flow style so the result stays on one line: a value written unquoted as
  * `{devs,qa}` parses to a map and comes back as `{devs: null, qa: null}` rather than as a block
  * mapping (or as `[object Object]`, which is what bare `String()` would give).
+ *
+ * Serializes on the same YAML 1.1 schema as {@link toYml}, so what's shown matches what a save would
+ * write. The schemas disagree about plain scalars: `on`, `off`, `yes`, `no`, `y` and `n` are booleans
+ * in 1.1, so a key like `{on,off}` has to be quoted to stay a string — under the library's 1.2
+ * default it wouldn't be, and the field would show a form the rest of the app never produces.
  */
 function toInlineYml(value: unknown): string {
   if (isNil(value)) {
@@ -207,7 +212,12 @@ function toInlineYml(value: unknown): string {
   }
 
   const node = PLACEHOLDER_DOC.createNode(value, { flow: true, aliasDuplicateObjects: false });
-  return stringify(node, { flowCollectionPadding: false }).trim();
+  return stringify(node, {
+    version: '1.1',
+    schema: 'yaml-1.1',
+    aliasDuplicateObjects: false,
+    flowCollectionPadding: false,
+  }).trim();
 }
 
 function toTypedValue(value: unknown) {

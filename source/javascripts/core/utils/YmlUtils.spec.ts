@@ -2152,6 +2152,33 @@ describe('YmlUtils', () => {
       expect(YmlUtils.toInlineYml({ a: { b: 1 } })).toBe('{a: {b: 1}}');
     });
 
+    it.each([['on'], ['off'], ['yes'], ['no'], ['y'], ['n']])(
+      'quotes %s, which is a boolean in the YAML 1.1 schema the app serializes with',
+      (key) => {
+        expect(YmlUtils.toInlineYml({ [key]: null })).toBe(`{"${key}": null}`);
+      },
+    );
+
+    it('quotes a numeric-looking key so it stays a string', () => {
+      expect(YmlUtils.toInlineYml({ 2022: null })).toBe('{"2022": null}');
+    });
+
+    it('quotes keys the same way a save through toYml would write them', () => {
+      // Both paths must agree on quoting, otherwise the field shows a form the app never writes.
+      // Flow padding is the one deliberate difference — `toYml` preserves the source's spacing while
+      // an inline field is always rendered compact — so it's normalised away here.
+      const value = { on: null, devs: null };
+      const inline = YmlUtils.toInlineYml(value);
+      const saved = YmlUtils.toYml(YmlUtils.toDoc(`a: ${inline}`))
+        .replace(/^a:\s*/, '')
+        .trim();
+      const ignoringPadding = (yml: string) => yml.replace(/\s+/g, '');
+
+      expect(inline).toBe('{"on": null, devs: null}');
+      expect(ignoringPadding(saved)).toBe(ignoringPadding(inline));
+      expect(YmlUtils.toJSON(YmlUtils.toDoc(`a: ${saved}`))).toEqual({ a: value });
+    });
+
     it.each([
       ['a string', 'reports/{devs,qa}', 'reports/{devs,qa}'],
       ['a number', 42, '42'],
