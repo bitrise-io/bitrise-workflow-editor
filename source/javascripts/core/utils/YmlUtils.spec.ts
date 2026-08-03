@@ -2014,4 +2014,152 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+
+  describe('unquoted values containing curly braces', () => {
+    // Legacy configs carry unquoted step input values with braces in them. The YAML spec makes some
+    // of those flow collections rather than strings, and others outright ambiguous. These cases pin
+    // the behaviour to the raw/CLI parser (gopkg.in/yaml.v2, as used by the apiserver): every value
+    // that parser accepts must parse here too, and vice versa — the visual editor must not be
+    // stricter than the parser that runs the user's builds.
+    const withInputValue = (value: string) =>
+      [
+        'workflows:',
+        '  primary:',
+        '    steps:',
+        '    - deploy-to-bitrise-io@2:',
+        '        inputs:',
+        `        - notify_user_groups: ${value}`,
+      ].join('\n');
+
+    it.each([
+      ['a brace group mid-scalar', 'reports/{devs,qa}', 'reports/{devs,qa}'],
+      ['a brace group at the end of a scalar', './out/{devs,qa}', './out/{devs,qa}'],
+      ['an escaped shell variable', '${FOO}', '${FOO}'],
+      ['a quoted brace group', "'{devs,qa}'", '{devs,qa}'],
+    ])('parses %s as a plain string', (_, value, expected) => {
+      const doc = YmlUtils.toDoc(withInputValue(value));
+
+      expect(doc.errors).toHaveLength(0);
+      expect(YmlUtils.toJSON(doc)).toMatchObject({
+        workflows: {
+          primary: { steps: [{ 'deploy-to-bitrise-io@2': { inputs: [{ notify_user_groups: expected }] } }] },
+        },
+      });
+    });
+
+    it('parses a leading brace group as a flow map, without erroring', () => {
+      // `{devs,qa}` is a well-formed flow mapping per the spec, so this is not a parse failure —
+      // the raw/CLI parser accepts it too. It reaches the UI as a map, which is what `toInlineYml`
+      // (and through it `StepVariableService.getValue`) has to render legibly.
+      const doc = YmlUtils.toDoc(withInputValue('{devs,qa}'));
+
+      expect(doc.errors).toHaveLength(0);
+      expect(YmlUtils.toJSON(doc)).toMatchObject({
+        workflows: {
+          primary: {
+            steps: [{ 'deploy-to-bitrise-io@2': { inputs: [{ notify_user_groups: { devs: null, qa: null } }] } }],
+          },
+        },
+      });
+    });
+
+    it.each([
+      ['a brace group followed by more scalar', '{devs,qa}/reports'],
+      ['an unterminated brace group', '{devs,qa'],
+      ['a doubled brace template', '{{ .Values.x }}'],
+    ])('reports %s as a parse error rather than failing silently', (_, value) => {
+      // These are genuinely ambiguous and the raw/CLI parser rejects them too, so the visual editor
+      // must surface a located error instead of pretending the config loaded.
+      const doc = YmlUtils.toDoc(withInputValue(value));
+      const error = YmlUtils.parseErrorOf(doc);
+
+      expect(doc.errors.length).toBeGreaterThan(0);
+      expect(error?.message).toBeTruthy();
+      expect(error?.line).toBe(6);
+      expect(error?.column).toBeGreaterThan(0);
+    });
+  });
+
+  describe('parseErrorOf', () => {
+    it('returns undefined for a document that parsed cleanly', () => {
+      expect(YmlUtils.parseErrorOf(YmlUtils.toDoc(yaml`workflows: {}`))).toBeUndefined();
+    });
+
+    it('reports the message, code and 1-based position of the first error', () => {
+      const doc = YmlUtils.toDoc('format_version: "13"\nworkflows: {devs,qa}/reports\n');
+
+      expect(YmlUtils.parseErrorOf(doc)).toEqual({
+        message: 'Unexpected scalar at node end',
+        code: 'UNEXPECTED_TOKEN',
+        line: 2,
+        column: 21,
+        path: undefined,
+      });
+    });
+
+    it('strips the code frame and the redundant position suffix from the library message', () => {
+      const error = YmlUtils.parseErrorOf(YmlUtils.toDoc('a: {devs,qa}/reports'));
+
+      expect(error?.message).not.toContain('\n');
+      expect(error?.message).not.toMatch(/at line \d+/);
+    });
+
+    it('records the file the error came from when one is given', () => {
+      const error = YmlUtils.parseErrorOf(YmlUtils.toDoc('a: {devs,qa}/reports'), 'ci/deploy.yml');
+
+      expect(error?.path).toBe('ci/deploy.yml');
+    });
+  });
+
+  describe('formatParseError', () => {
+    it('renders line and column alongside the message', () => {
+      expect(YmlUtils.formatParseError({ message: 'Unexpected scalar at node end', line: 7, column: 31 })).toBe(
+        'Line 7, column 31: Unexpected scalar at node end',
+      );
+    });
+
+    it('names the file first when the error came from a known module', () => {
+      expect(
+        YmlUtils.formatParseError({ message: 'Unexpected scalar at node end', line: 7, column: 31, path: 'ci/a.yml' }),
+      ).toBe('ci/a.yml (line 7, column 31): Unexpected scalar at node end');
+    });
+
+    it('names the file alone when no position is known', () => {
+      expect(YmlUtils.formatParseError({ message: 'Something went wrong', path: 'ci/a.yml' })).toBe(
+        'ci/a.yml: Something went wrong',
+      );
+    });
+
+    it('falls back to the bare message when no position is known', () => {
+      expect(YmlUtils.formatParseError({ message: 'Something went wrong' })).toBe('Something went wrong');
+    });
+
+    it('returns an empty string when there is no error', () => {
+      expect(YmlUtils.formatParseError(undefined)).toBe('');
+    });
+  });
+
+  describe('toInlineYml', () => {
+    it('renders a flow map from an unquoted brace value on a single line', () => {
+      expect(YmlUtils.toInlineYml({ devs: null, qa: null })).toBe('{devs: null, qa: null}');
+    });
+
+    it('renders a sequence on a single line', () => {
+      expect(YmlUtils.toInlineYml(['a', 'b'])).toBe('[a, b]');
+    });
+
+    it('renders nested collections without wrapping', () => {
+      expect(YmlUtils.toInlineYml({ a: { b: 1 } })).toBe('{a: {b: 1}}');
+    });
+
+    it.each([
+      ['a string', 'reports/{devs,qa}', 'reports/{devs,qa}'],
+      ['a number', 42, '42'],
+      ['a boolean', false, 'false'],
+      ['null', null, ''],
+      ['undefined', undefined, ''],
+    ])('renders %s unchanged', (_, value, expected) => {
+      expect(YmlUtils.toInlineYml(value)).toBe(expected);
+    });
+  });
 });

@@ -8,7 +8,7 @@ import { EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
 import EntityIndexService from '../services/EntityIndexService';
 import TreeService from '../services/TreeService';
 import RuntimeUtils from '../utils/RuntimeUtils';
-import YmlUtils from '../utils/YmlUtils';
+import YmlUtils, { YmlParseError } from '../utils/YmlUtils';
 
 export type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 export type BitriseYmlStoreState = ExtractState<typeof bitriseYmlStore>;
@@ -47,6 +47,12 @@ export const bitriseYmlStore = createStore(
     savedYmlDocument: new Document(),
     __invalidYmlString: undefined as string | undefined,
     __savedInvalidYmlString: undefined as string | undefined,
+    // Details of the failure behind `__invalidYmlString`, kept so the UI can name the line/column
+    // (and file, in modular mode) instead of just reporting that something, somewhere, is invalid.
+    // Always set and cleared in lockstep with `__invalidYmlString`.
+    __invalidYmlError: undefined as YmlParseError | undefined,
+    /** Saved-state counterpart of `__invalidYmlError`, so a discard restores the detail too. */
+    __savedInvalidYmlError: undefined as YmlParseError | undefined,
     validationStatus: 'pending' as 'valid' | 'invalid' | 'warnings' | 'pending',
     configBranch: undefined as string | undefined,
     configCommitSha: undefined as string | undefined,
@@ -114,6 +120,7 @@ export function discardBitriseYmlDocument() {
       discardKey: Date.now(),
       ymlDocument: state.savedYmlDocument.clone(),
       __invalidYmlString: state.__savedInvalidYmlString,
+      __invalidYmlError: state.__savedInvalidYmlError,
     });
     return;
   }
@@ -163,6 +170,7 @@ function commitActiveFileDocument(nodeId: string, slice: FileSlice, doc: Documen
   bitriseYmlStore.setState({
     ymlDocument: doc,
     __invalidYmlString: undefined,
+    __invalidYmlError: undefined,
     files: { ...bitriseYmlStore.getState().files, [nodeId]: { ...slice, ymlDocument: doc } },
     mergedYmlStale: true,
   });
@@ -174,9 +182,9 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
 
   if (!state.tree) {
     if (doc.errors.length === 0) {
-      bitriseYmlStore.setState({ ymlDocument: doc, __invalidYmlString: undefined });
+      bitriseYmlStore.setState({ ymlDocument: doc, __invalidYmlString: undefined, __invalidYmlError: undefined });
     } else {
-      bitriseYmlStore.setState({ __invalidYmlString: ymlString });
+      bitriseYmlStore.setState({ __invalidYmlString: ymlString, __invalidYmlError: YmlUtils.parseErrorOf(doc) });
     }
     return;
   }
@@ -189,7 +197,10 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
   if (doc.errors.length === 0) {
     commitActiveFileDocument(active.nodeId, active.slice, doc);
   } else {
-    bitriseYmlStore.setState({ __invalidYmlString: ymlString });
+    bitriseYmlStore.setState({
+      __invalidYmlString: ymlString,
+      __invalidYmlError: YmlUtils.parseErrorOf(doc, active.slice.path),
+    });
   }
 }
 
@@ -231,7 +242,14 @@ export function initializeBitriseYmlDocument({
     // through a legacy path (branch switch, repository-YAML save, manual update).
     ...clearedModularState(),
     ...(doc.errors.length === 0
-      ? { ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined, __savedInvalidYmlString: undefined }
+      ? {
+          ymlDocument: doc,
+          savedYmlDocument: doc,
+          __invalidYmlString: undefined,
+          __savedInvalidYmlString: undefined,
+          __invalidYmlError: undefined,
+          __savedInvalidYmlError: undefined,
+        }
       : {
           // Invalid YAML: drop any prior parsed doc (incl. a stale modular file's Document)
           // so the legacy store never carries modular state through the invalid path.
@@ -239,6 +257,8 @@ export function initializeBitriseYmlDocument({
           savedYmlDocument: new Document(),
           __invalidYmlString: ymlString,
           __savedInvalidYmlString: ymlString,
+          __invalidYmlError: YmlUtils.parseErrorOf(doc),
+          __savedInvalidYmlError: YmlUtils.parseErrorOf(doc),
         }),
   });
 }
@@ -250,6 +270,7 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
     bitriseYmlStore.setState({
       ymlDocument: mutator({ doc: state.ymlDocument.clone() }),
       __invalidYmlString: undefined,
+      __invalidYmlError: undefined,
     });
     return;
   }
@@ -280,6 +301,7 @@ function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, save
     ymlDocument,
     savedYmlDocument,
     __invalidYmlString: undefined,
+    __invalidYmlError: undefined,
   };
 }
 
@@ -369,6 +391,8 @@ function modularTreePatch(
     savedYmlDocument: activeSlice.savedYmlDocument,
     __invalidYmlString: undefined,
     __savedInvalidYmlString: undefined,
+    __invalidYmlError: undefined,
+    __savedInvalidYmlError: undefined,
   };
 }
 
