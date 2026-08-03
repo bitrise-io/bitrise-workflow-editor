@@ -193,13 +193,6 @@ const ToolRow = ({
                 applies whenever one is possible at all. */}
             {isExactKnownTool ? (
               <BitkitCombobox
-                // BitkitCombobox snapshots `items` on mount and never resets its own filtered
-                // list. Picking an item narrows that list, and it stays narrowed even after
-                // the popover closes and reopens. The key forces a fresh mount whenever the
-                // list should actually change: another tool's versions, the async load
-                // completing, or the version itself changing (without these, the dropdown
-                // would reopen showing only the previously picked item).
-                key={`${canonicalToolId}:${toolVersions ? 'loaded' : 'pending'}:${version}`}
                 size="lg"
                 placeholder="Select"
                 emptyLabel="No matches"
