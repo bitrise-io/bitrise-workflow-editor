@@ -18,14 +18,13 @@ import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
-import YmlUtils from '@/core/utils/YmlUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
-import useYmlParseError from '@/hooks/useYmlParseError';
+import useYmlParseErrorMessage from '@/hooks/useYmlParseErrorMessage';
 import { paths } from '@/routes';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -56,17 +55,17 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   // even one with schema/marker errors. Blocking on the broader validation status trapped users on
   // the current page whenever the YAML was merely schema-invalid (SSW-3087).
   const isParseError = useIsYmlParseError();
-  const parseError = useYmlParseError();
+  const navigationErrorMessage = useYmlParseErrorMessage(
+    'Please fix the errors in your YAML configuration before navigating.',
+    'navigating',
+  );
 
   const handleNavigation = useCallback(() => {
     if (isParseError && !path.startsWith(paths.yml)) {
-      const location = YmlUtils.formatParseError(parseError);
       toast({
         status: 'error',
         title: 'Invalid YAML',
-        description: location
-          ? `${location}. Fix this in your YAML configuration before navigating.`
-          : 'Please fix the errors in your YAML configuration before navigating.',
+        description: navigationErrorMessage,
         duration: null,
         isClosable: true,
       });
@@ -74,7 +73,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
     }
 
     navigate(path);
-  }, [isParseError, navigate, parseError, path, toast]);
+  }, [isParseError, navigate, navigationErrorMessage, path, toast]);
 
   return (
     <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation} data-intercom-target={intercomTarget}>
