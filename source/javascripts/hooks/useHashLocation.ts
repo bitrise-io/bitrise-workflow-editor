@@ -22,6 +22,15 @@ const useHashLocation: BaseLocationHook = () => {
   useEffect(() => {
     const listener = () => {
       setPath(`/${window.parent.location.hash.replace(/^#?!?\/?/, '')}`);
+
+      // Intercom boots inside this iframe's own document and hooks pushState/replaceState on ITS
+      // window to detect SPA page views. Hash changes on window.parent — whether from our own
+      // navigate() below, an Intercom tour step's own button, or anything else touching the
+      // parent's location — never call this window's History API, so Intercom can't see them and
+      // its "Current page URL contains…" targeting rules are evaluated once, at first load, and
+      // never again. hashchange on window.parent is the one thing every kind of navigation here
+      // has in common, so nudge Intercom from there rather than from navigate() alone.
+      window.Intercom?.('update');
     };
 
     window.parent.addEventListener('hashchange', listener);

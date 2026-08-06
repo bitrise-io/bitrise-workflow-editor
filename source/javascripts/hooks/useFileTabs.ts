@@ -16,6 +16,7 @@ import {
 } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useHashLocation from '@/hooks/useHashLocation';
+import { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
 import { paths } from '@/routes';
 
 /** A file tab enriched with everything the tab strip needs to render a trigger. */
@@ -31,6 +32,16 @@ export type FileTabInfo = {
 /** The live router location (raw hash) — read directly, not via the lagging snapshot. */
 function currentLocation(): string {
   return window.parent.location.hash;
+}
+
+/**
+ * Append the current hash query (notably `?branch=` in website mode) to a bare path. The active
+ * branch lives in the URL search params and drives which branch's config is loaded, so navigating
+ * to a paramless path would drop it and snap the editor back to the default branch.
+ */
+function withCurrentSearchParams(path: string): string {
+  const search = new URLSearchParams(getSearchParamsFromLocationHash()).toString();
+  return search ? `${path}?${search}` : path;
 }
 
 /**
@@ -82,7 +93,9 @@ export function useFileTabs() {
       const lastLocation = getTabLastLocation(nodeId);
 
       if (nodeId === MERGED_CONFIG_NODE_ID) {
-        navigate(lastLocation ?? paths.workflows);
+        // A recorded lastLocation already carries the branch param; the default landing page doesn't,
+        // so add it explicitly — otherwise a first switch to the merged tab drops the selected branch.
+        navigate(lastLocation ?? withCurrentSearchParams(paths.workflows));
         return;
       }
 
