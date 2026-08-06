@@ -29,8 +29,7 @@ const useHashLocation: BaseLocationHook = () => {
       // parent's location — never call this window's History API, so Intercom can't see them and
       // its "Current page URL contains…" targeting rules are evaluated once, at first load, and
       // never again. hashchange on window.parent is the one thing every kind of navigation here
-      // has in common, so nudge Intercom from there rather than from navigate() alone. See:
-      // https://bitrise.atlassian.net/wiki/spaces/~7120205fa5090eaf5746519410986d2d5633fd/pages/5140512927
+      // has in common, so nudge Intercom from there rather than from navigate() alone.
       window.Intercom?.('update');
     };
 
