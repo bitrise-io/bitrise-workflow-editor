@@ -109,12 +109,18 @@ const ToolRow = ({
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
   const isExactKnownTool = effectiveStrategy === 'exact' && isToolIdKnown && !showCustomInput;
+  // The absolute-latest strategy has no version field to fill, so the version it resolves to
+  // right now is surfaced as a hint instead. There is no catalog of preinstalled versions, so
+  // the installed variant gets no such hint.
+  const isAbsoluteLatestReleased = effectiveStrategy === 'absolute-latest-released';
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
+  // The exact-version dropdown and the absolute-latest hint read the same version list.
+  const needsVersionList = isExactKnownTool || (isAbsoluteLatestReleased && isToolIdKnown && !showCustomInput);
   const {
     data: toolVersions,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-  } = useToolVersions(canonicalToolId, isExactKnownTool);
+  } = useToolVersions(canonicalToolId, needsVersionList);
 
   const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
@@ -131,6 +137,8 @@ const ToolRow = ({
   const catalogMismatchWarning = isVersionMissingFromCatalog
     ? `${version} is not a known version, use at your own risk`
     : undefined;
+
+  const latestVersion = ToolsService.getLatestVersion(toolVersions);
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -209,6 +217,7 @@ const ToolRow = ({
             .filter(([value]) => allowUnset || value !== 'unset')
             .map(([value, label]) => ({ value, label }))}
           value={effectiveStrategy}
+          helperText={isAbsoluteLatestReleased && latestVersion ? `Currently resolves to ${latestVersion}` : undefined}
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
 
