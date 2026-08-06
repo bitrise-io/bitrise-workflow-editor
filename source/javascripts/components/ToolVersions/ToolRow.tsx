@@ -148,6 +148,10 @@ const ToolRow = ({
     // it before flagging it.
     if (newVersion !== version) {
       setVersionTouched(false);
+    } else if (newStrategy === 'exact' && newVersion.trim() === '') {
+      // The field was already empty, so it won't hit the branch above -> flag it immediately
+      // since it's already invalid.
+      setVersionTouched(true);
     }
     onStrategyChange(newStrategy, newVersion);
   };
