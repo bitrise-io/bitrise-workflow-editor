@@ -9,8 +9,12 @@ function versionCatalog(toolId: string, versions: string[], isSemver = true): To
 
 describe('ToolsService', () => {
   describe('parseToolVersion', () => {
-    it('parses "latest" as latest-released without prefix', () => {
-      expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'latest-released' });
+    it('parses bare "latest" as absolute-latest-released', () => {
+      expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'absolute-latest-released' });
+    });
+
+    it('parses bare "installed" as absolute-latest-installed', () => {
+      expect(ToolsService.parseToolVersion('installed')).toEqual({ strategy: 'absolute-latest-installed' });
     });
 
     it('parses "<prefix>:latest" as latest-released with prefix', () => {
@@ -20,10 +24,6 @@ describe('ToolsService', () => {
 
     it('parses "<prefix>:installed" as latest-installed', () => {
       expect(ToolsService.parseToolVersion('3.3:installed')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
-    });
-
-    it('parses bare "installed" as latest-installed without prefix', () => {
-      expect(ToolsService.parseToolVersion('installed')).toEqual({ strategy: 'latest-installed' });
     });
 
     it('parses bare partial versions as exact', () => {
@@ -53,14 +53,77 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'exact', version: ':latest' });
     });
 
+    it('tolerates non-string values from hand-edited YAML', () => {
+      expect(ToolsService.parseToolVersion(3.13 as unknown as string)).toEqual({ strategy: 'exact', version: '3.13' });
+      expect(ToolsService.parseToolVersion(null as unknown as string)).toEqual({ strategy: 'exact', version: '' });
+      expect(ToolsService.parseToolVersion(undefined as unknown as string)).toEqual({ strategy: 'exact', version: '' });
+    });
+
     it('parses keywords case-insensitively', () => {
-      expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'latest-released' });
-      expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'latest-released' });
-      expect(ToolsService.parseToolVersion('Installed')).toEqual({ strategy: 'latest-installed' });
-      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({ strategy: 'latest-installed' });
+      expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('Installed')).toEqual({ strategy: 'absolute-latest-installed' });
+      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({ strategy: 'absolute-latest-installed' });
       expect(ToolsService.parseToolVersion('Unset')).toEqual({ strategy: 'unset' });
       expect(ToolsService.parseToolVersion('22:Latest')).toEqual({ strategy: 'latest-released', prefix: '22' });
       expect(ToolsService.parseToolVersion('3.3:INSTALLED')).toEqual({ strategy: 'latest-installed', prefix: '3.3' });
+    });
+  });
+
+  describe('getVersionInputValue', () => {
+    it('returns the version for exact', () => {
+      expect(ToolsService.getVersionInputValue({ strategy: 'exact', version: '3.13.4' })).toBe('3.13.4');
+    });
+
+    it('returns the prefix for the prefix strategies', () => {
+      expect(ToolsService.getVersionInputValue({ strategy: 'latest-released', prefix: '22' })).toBe('22');
+      expect(ToolsService.getVersionInputValue({ strategy: 'latest-installed', prefix: '3.3' })).toBe('3.3');
+    });
+
+    it('returns an empty string for a prefix strategy without a prefix', () => {
+      expect(ToolsService.getVersionInputValue({ strategy: 'latest-released' })).toBe('');
+    });
+
+    it('returns an empty string for the strategies that take no input', () => {
+      expect(ToolsService.getVersionInputValue({ strategy: 'absolute-latest-released' })).toBe('');
+      expect(ToolsService.getVersionInputValue({ strategy: 'absolute-latest-installed' })).toBe('');
+      expect(ToolsService.getVersionInputValue({ strategy: 'unset' })).toBe('');
+    });
+  });
+
+  describe('getLatestVersion', () => {
+    const toVersions = (versions: string[]) => ({
+      toolId: 'nodejs',
+      versions: versions.map((version) => ({ version, isSemver: /^\d+\.\d+\.\d+$/.test(version) })),
+    });
+
+    const nodeVersions = toVersions(['22.4.1', '24.2.0', '22.12.0', '220.1.0', '20.9.0', 'lts-iron']);
+
+    it('returns the highest semver version regardless of catalog order', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions)).toBe('220.1.0');
+    });
+
+    it('falls back to the first listed version when none are semver', () => {
+      expect(ToolsService.getLatestVersion(toVersions(['lts-iron', 'nightly']))).toBe('lts-iron');
+    });
+
+    it('returns undefined without a version list', () => {
+      expect(ToolsService.getLatestVersion(undefined)).toBeUndefined();
+      expect(ToolsService.getLatestVersion(toVersions([]))).toBeUndefined();
+    });
+
+    it('narrows to the newest release matching a prefix', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '22')).toBe('22.12.0');
+      expect(ToolsService.getLatestVersion(nodeVersions, '22.4.1')).toBe('22.4.1');
+    });
+
+    it('reads a prefix as a semver range, not as a string prefix', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '2')).toBeUndefined();
+    });
+
+    it('returns undefined for a prefix that matches nothing or cannot be parsed', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '29')).toBeUndefined();
+      expect(ToolsService.getLatestVersion(nodeVersions, 'lts')).toBeUndefined();
     });
   });
 
@@ -350,6 +413,33 @@ describe('ToolsService', () => {
             ruby: installed
         `);
       });
+
+      it('round-trips a prefix strategy with no prefix as the absolute variant', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        ToolsService.setTool('node', 'latest-released', '', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          format_version: '13'
+          tools:
+            node: latest
+        `);
+        expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'absolute-latest-released' });
+      });
+
+      it('sets the absolute strategies, ignoring any input value', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        ToolsService.setTool('node', 'absolute-latest-released', '22', { type: 'root' });
+        ToolsService.setTool('ruby', 'absolute-latest-installed', '3.3', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          format_version: '13'
+          tools:
+            node: latest
+            ruby: installed
+        `);
+      });
     });
 
     describe('workflow-level', () => {
@@ -387,6 +477,26 @@ describe('ToolsService', () => {
               tools:
                 node: 22:latest
                 python: "3.13.4"
+        `);
+      });
+
+      it('sets the absolute strategies', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            primary:
+              tools:
+                node: 22:latest
+        `);
+
+        ToolsService.setTool('node', 'absolute-latest-released', '', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool('ruby', 'absolute-latest-installed', '', { type: 'workflow', workflowId: 'primary' });
+
+        expect(getYmlString()).toEqual(yaml`
+          workflows:
+            primary:
+              tools:
+                node: latest
+                ruby: installed
         `);
       });
 

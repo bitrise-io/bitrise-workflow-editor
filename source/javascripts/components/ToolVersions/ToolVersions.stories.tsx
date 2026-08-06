@@ -10,6 +10,9 @@ import ToolVersions from './ToolVersions';
 
 const meta: Meta<typeof ToolVersions> = {
   component: ToolVersions,
+  args: {
+    stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-16.0.x#languages-and-runtimes',
+  },
   decorators: [
     (Story) => (
       <Box padding="24">
@@ -51,6 +54,20 @@ export const WorkflowScope: Story = {
       const yml = set({ ...TEST_BITRISE_YML }, 'workflows.generator.tools', {
         node: '22:latest',
         python: '3.13.4',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const AbsoluteStrategies: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+        node: 'latest',
+        ruby: 'installed',
+        go: '1.23:latest',
+        deno: 'latest',
       });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),

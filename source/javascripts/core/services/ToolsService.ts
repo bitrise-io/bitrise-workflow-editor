@@ -7,7 +7,9 @@ import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
-function parseToolVersion(raw: string): ParsedToolVersion {
+function parseToolVersion(rawValue: string): ParsedToolVersion {
+  // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
+  const raw = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
   const lower = raw.toLowerCase();
 
   if (lower === 'unset') {
@@ -15,11 +17,11 @@ function parseToolVersion(raw: string): ParsedToolVersion {
   }
 
   if (lower === 'latest') {
-    return { strategy: 'latest-released' };
+    return { strategy: 'absolute-latest-released' };
   }
 
   if (lower === 'installed') {
-    return { strategy: 'latest-installed' };
+    return { strategy: 'absolute-latest-installed' };
   }
 
   const colonIndex = raw.indexOf(':');
@@ -43,12 +45,29 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return 'unset';
+    case 'absolute-latest-released':
+      return 'latest';
+    case 'absolute-latest-installed':
+      return 'installed';
     case 'latest-released':
       return parsed.prefix ? `${parsed.prefix}:latest` : 'latest';
     case 'latest-installed':
       return parsed.prefix ? `${parsed.prefix}:installed` : 'installed';
     case 'exact':
       return parsed.version;
+  }
+}
+
+/** The value a tool row's version field should show for a parsed entry. */
+function getVersionInputValue(parsed: ParsedToolVersion): string {
+  switch (parsed.strategy) {
+    case 'exact':
+      return parsed.version;
+    case 'latest-released':
+    case 'latest-installed':
+      return parsed.prefix ?? '';
+    default:
+      return '';
   }
 }
 
@@ -119,6 +138,20 @@ function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrateg
 }
 
 /**
+ * The version a released strategy resolves to, narrowed to `prefix` when there is one. Semver reads
+ * a partial version as a range, so `22` covers 22.x.y without also matching 220.x.y.
+ */
+function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): string | undefined {
+  const versions = getVersionOptions(toolVersions, '').map(({ value }) => value);
+  if (!prefix) {
+    return versions[0];
+  }
+
+  const range = semver.validRange(prefix);
+  return range ? versions.find((version) => semver.valid(version) && semver.satisfies(version, range)) : undefined;
+}
+
+/**
  * Builds the tool-ID dropdown options: one per catalog tool, using its canonical name —
  * except the tool matching `toolId` (by name or alias), which is shown using that exact ID
  * so the current selection stays visible without listing the same tool under two IDs.
@@ -173,6 +206,8 @@ function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, 
       parsed = { strategy, version: inputValue };
       break;
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       parsed = { strategy };
       break;
     default:
@@ -246,7 +281,9 @@ export default {
   getKnownToolIds,
   isKnownToolId,
   resolveToolName,
+  getVersionInputValue,
   getVersionOptions,
+  getLatestVersion,
   isVersionInCatalog,
   nextVersionOnStrategyChange,
   getToolIdOptions,
