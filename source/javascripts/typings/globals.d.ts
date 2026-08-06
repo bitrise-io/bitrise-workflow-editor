@@ -18,6 +18,8 @@ declare global {
 
   interface Window {
     DD_RUM: typeof import('@datadog/browser-rum').datadogRum | undefined;
+    // source/javascripts/lib/intrcm.js — the Intercom widget bootstrap snippet.
+    Intercom?: (...args: unknown[]) => void;
     // webpack.config.js
     localFeatureFlags: Partial<{
       [s: string]: string | number | boolean;
