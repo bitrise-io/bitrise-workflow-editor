@@ -85,6 +85,30 @@ describe('ToolsService', () => {
     });
   });
 
+  describe('getLatestVersion', () => {
+    const toVersions = (versions: string[]) => ({
+      toolId: 'nodejs',
+      versions: versions.map((version) => ({ version, isSemver: /^\d+\.\d+\.\d+$/.test(version) })),
+    });
+
+    it('returns the highest semver version regardless of catalog order', () => {
+      expect(ToolsService.getLatestVersion(toVersions(['22.4.1', '24.2.0', '20.9.0']))).toBe('24.2.0');
+    });
+
+    it('ignores non-semver versions when there is at least one semver version', () => {
+      expect(ToolsService.getLatestVersion(toVersions(['lts-iron', '22.4.1', '24.2.0']))).toBe('24.2.0');
+    });
+
+    it('falls back to the first listed version when none are semver', () => {
+      expect(ToolsService.getLatestVersion(toVersions(['lts-iron', 'nightly']))).toBe('lts-iron');
+    });
+
+    it('returns undefined without a version list', () => {
+      expect(ToolsService.getLatestVersion(undefined)).toBeUndefined();
+      expect(ToolsService.getLatestVersion(toVersions([]))).toBeUndefined();
+    });
+  });
+
   describe('getKnownToolIds', () => {
     it('returns an empty array when there is no catalog', () => {
       expect(ToolsService.getKnownToolIds(undefined)).toEqual([]);

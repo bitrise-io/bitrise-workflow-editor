@@ -136,6 +136,14 @@ function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrateg
 }
 
 /**
+ * The version the `absolute-latest-released` strategy resolves to right now. Shares the
+ * exact-version dropdown's ordering, so the two never disagree on what "newest" means.
+ */
+function getLatestVersion(toolVersions: ToolVersions | undefined): string | undefined {
+  return getVersionOptions(toolVersions, '')[0]?.value;
+}
+
+/**
  * Builds the tool-ID dropdown options: one per catalog tool, using its canonical name —
  * except the tool matching `toolId` (by name or alias), which is shown using that exact ID
  * so the current selection stays visible without listing the same tool under two IDs.
@@ -267,6 +275,7 @@ export default {
   resolveToolName,
   getVersionInputValue,
   getVersionOptions,
+  getLatestVersion,
   isVersionInCatalog,
   nextVersionOnStrategyChange,
   getToolIdOptions,
