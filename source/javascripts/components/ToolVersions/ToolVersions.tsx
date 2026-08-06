@@ -43,7 +43,7 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
   };
 
   return (
-    <Stack gap="24" marginBlockStart="24" maxWidth={rem(640)}>
+    <Stack gap="24" marginBlockStart="24" maxWidth={rem(800)}>
       <Stack gap="4">
         <Text textStyle="heading/h3">Tool setup</Text>
         <Text textStyle="body/md/regular" color="text/secondary">

@@ -103,7 +103,9 @@ describe('ToolCatalogApi', () => {
       });
     });
 
-    it('returns an empty version list unchanged', async () => {
+    // The catalog never publishes a tool without versions, but an empty array is still a
+    // well-formed payload: it must pass through rather than throw like a missing `versions` key.
+    it('keeps a well-formed but empty version array instead of throwing', async () => {
       jest.spyOn(Client, 'get').mockResolvedValue({ versions: [] });
 
       await expect(ToolCatalogApi.getToolVersions('nodejs')).resolves.toEqual({
