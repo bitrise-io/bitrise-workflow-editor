@@ -83,21 +83,18 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
       <Stack gap="16">
         {Object.entries(tools).map(([toolId, versionString]) => {
           const parsed = ToolsService.parseToolVersion(versionString);
-          const versionValue =
-            parsed.strategy === 'exact' ? parsed.version : parsed.strategy === 'unset' ? '' : (parsed.prefix ?? '');
           return (
             <ToolRow
               key={toolId}
               toolId={toolId}
               strategy={parsed.strategy}
-              version={versionValue}
+              version={ToolsService.getVersionInputValue(parsed)}
               existingToolIds={existingToolIds}
               catalog={catalog}
               allowUnset={allowUnset}
               isCatalogLoading={isCatalogLoading}
               onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
-              onStrategyChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
-              onVersionChange={(ver) => ToolsService.setTool(toolId, parsed.strategy, ver, scope)}
+              onChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
               onRemove={() => ToolsService.deleteTool(toolId, scope)}
             />
           );
@@ -115,11 +112,10 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
               ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
               setHasPendingRow(false);
             }}
-            onStrategyChange={(strategy, ver) => {
+            onChange={(strategy, ver) => {
               setPendingStrategy(strategy);
               setPendingVersion(ver);
             }}
-            onVersionChange={(ver) => setPendingVersion(ver)}
             onRemove={() => setHasPendingRow(false)}
           />
         )}

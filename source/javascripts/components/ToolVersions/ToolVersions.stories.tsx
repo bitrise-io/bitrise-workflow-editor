@@ -57,6 +57,20 @@ export const WorkflowScope: Story = {
   },
 };
 
+export const AbsoluteStrategies: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+        node: 'latest',
+        ruby: 'installed',
+        go: '1.23:latest',
+        deno: 'latest',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 export const Empty: Story = {};
 
 export const CatalogLoading: Story = {

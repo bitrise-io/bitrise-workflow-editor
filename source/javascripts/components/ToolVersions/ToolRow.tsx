@@ -25,14 +25,30 @@ type ToolRowFormValues = {
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-released': 'Latest released version',
   'latest-installed': 'Latest preinstalled version',
+  'absolute-latest-released': 'Absolute latest released',
+  'absolute-latest-installed': 'Absolute latest installed',
   exact: 'Exact version',
   unset: 'Do nothing (unset global setting)',
 };
+
+/** The strategies whose YAML value is built from a user-entered version or prefix. */
+const STRATEGIES_WITH_VERSION_INPUT: VersionStrategy[] = ['exact', 'latest-released', 'latest-installed'];
 
 const OTHER_VALUE = '__other__';
 
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
+
+/**
+ * Whether `parsed` is what `picked` collapses to once its prefix is empty: `latest-released`
+ * without a prefix serializes to bare `latest`, which parses back as `absolute-latest-released`.
+ */
+function isCollapsedPrefixOf(picked: VersionStrategy, parsed: VersionStrategy): boolean {
+  return (
+    (picked === 'latest-released' && parsed === 'absolute-latest-released') ||
+    (picked === 'latest-installed' && parsed === 'absolute-latest-installed')
+  );
+}
 
 type ToolRowProps = {
   toolId: string;
@@ -43,8 +59,7 @@ type ToolRowProps = {
   allowUnset?: boolean;
   isCatalogLoading: boolean;
   onIdChange: (newId: string) => void;
-  onStrategyChange: (strategy: VersionStrategy, version: string) => void;
-  onVersionChange: (version: string) => void;
+  onChange: (strategy: VersionStrategy, version: string) => void;
   onRemove: () => void;
 };
 
@@ -57,12 +72,17 @@ const ToolRow = ({
   allowUnset,
   isCatalogLoading,
   onIdChange,
-  onStrategyChange,
-  onVersionChange,
+  onChange,
   onRemove,
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
+  // The strategy the user last picked, remembered so the dropdown doesn't jump to the absolute
+  // variant while the prefix field is still empty. Only honoured in that one ambiguous case, so
+  // any other change to the YAML still wins.
+  const [pickedStrategy, setPickedStrategy] = useState<VersionStrategy>();
+
+  const effectiveStrategy = pickedStrategy && isCollapsedPrefixOf(pickedStrategy, strategy) ? pickedStrategy : strategy;
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -78,7 +98,7 @@ const ToolRow = ({
   // Validate eagerly, display lazily: the required-version error only shows once the
   // user has visited and left the field. A config that is already invalid when the row
   // mounts (hand-edited YAML) is flagged immediately — no interaction should be needed.
-  const [versionTouched, setVersionTouched] = useState(() => strategy === 'exact' && version.trim() === '');
+  const [versionTouched, setVersionTouched] = useState(() => effectiveStrategy === 'exact' && version.trim() === '');
 
   const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
@@ -88,7 +108,7 @@ const ToolRow = ({
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
-  const isExactKnownTool = strategy === 'exact' && isToolIdKnown && !showCustomInput;
+  const isExactKnownTool = effectiveStrategy === 'exact' && isToolIdKnown && !showCustomInput;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
@@ -104,7 +124,7 @@ const ToolRow = ({
 
   // An exact strategy needs a concrete version; prefix strategies are valid without one
   // (bare `latest`/`installed`).
-  const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
+  const versionError = effectiveStrategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
   // The version the combobox is displaying as already set isn't among the catalog's
   // options — likely a stale or mistaken leftover (e.g. from hand-edited YAML).
@@ -143,7 +163,7 @@ const ToolRow = ({
   };
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
+    const newVersion = ToolsService.nextVersionOnStrategyChange(effectiveStrategy, newStrategy, version);
     // The strategy switch empties the field on the user's behalf -> give them a chance to fill
     // it before flagging it.
     if (newVersion !== version) {
@@ -153,7 +173,8 @@ const ToolRow = ({
       // since it's already invalid.
       setVersionTouched(true);
     }
-    onStrategyChange(newStrategy, newVersion);
+    setPickedStrategy(newStrategy);
+    onChange(newStrategy, newVersion);
   };
 
   return (
@@ -187,11 +208,11 @@ const ToolRow = ({
           items={Object.entries(STRATEGY_LABELS)
             .filter(([value]) => allowUnset || value !== 'unset')
             .map(([value, label]) => ({ value, label }))}
-          value={strategy}
+          value={effectiveStrategy}
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
 
-        {strategy !== 'unset' && (
+        {STRATEGIES_WITH_VERSION_INPUT.includes(effectiveStrategy) && (
           <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
             {/* A catalog-known tool always has at least one version to offer, so the dropdown
                 applies whenever one is possible at all. */}
@@ -214,16 +235,16 @@ const ToolRow = ({
                 errorText={displayedVersionError}
                 warningText={catalogMismatchWarning}
                 value={version || undefined}
-                onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
+                onValueChange={(newVersion) => onChange(effectiveStrategy, newVersion ?? '')}
               />
             ) : (
               <BitkitTextInput
                 size="lg"
-                placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+                placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                 errorText={displayedVersionError}
                 inputProps={{
                   value: version,
-                  onChange: (e) => onVersionChange(e.target.value),
+                  onChange: (e) => onChange(effectiveStrategy, e.target.value),
                   onBlur: () => setVersionTouched(true),
                 }}
               />

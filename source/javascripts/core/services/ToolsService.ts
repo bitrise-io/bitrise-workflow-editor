@@ -15,11 +15,11 @@ function parseToolVersion(raw: string): ParsedToolVersion {
   }
 
   if (lower === 'latest') {
-    return { strategy: 'latest-released' };
+    return { strategy: 'absolute-latest-released' };
   }
 
   if (lower === 'installed') {
-    return { strategy: 'latest-installed' };
+    return { strategy: 'absolute-latest-installed' };
   }
 
   const colonIndex = raw.indexOf(':');
@@ -43,12 +43,29 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return 'unset';
+    case 'absolute-latest-released':
+      return 'latest';
+    case 'absolute-latest-installed':
+      return 'installed';
     case 'latest-released':
       return parsed.prefix ? `${parsed.prefix}:latest` : 'latest';
     case 'latest-installed':
       return parsed.prefix ? `${parsed.prefix}:installed` : 'installed';
     case 'exact':
       return parsed.version;
+  }
+}
+
+/** The value a tool row's version field should show for a parsed entry. */
+function getVersionInputValue(parsed: ParsedToolVersion): string {
+  switch (parsed.strategy) {
+    case 'exact':
+      return parsed.version;
+    case 'latest-released':
+    case 'latest-installed':
+      return parsed.prefix ?? '';
+    default:
+      return '';
   }
 }
 
@@ -173,6 +190,8 @@ function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, 
       parsed = { strategy, version: inputValue };
       break;
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       parsed = { strategy };
       break;
     default:
@@ -246,6 +265,7 @@ export default {
   getKnownToolIds,
   isKnownToolId,
   resolveToolName,
+  getVersionInputValue,
   getVersionOptions,
   isVersionInCatalog,
   nextVersionOnStrategyChange,
