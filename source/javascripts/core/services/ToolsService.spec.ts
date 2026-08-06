@@ -53,6 +53,12 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'exact', version: ':latest' });
     });
 
+    it('tolerates non-string values from hand-edited YAML', () => {
+      expect(ToolsService.parseToolVersion(3.13 as unknown as string)).toEqual({ strategy: 'exact', version: '3.13' });
+      expect(ToolsService.parseToolVersion(null as unknown as string)).toEqual({ strategy: 'exact', version: '' });
+      expect(ToolsService.parseToolVersion(undefined as unknown as string)).toEqual({ strategy: 'exact', version: '' });
+    });
+
     it('parses keywords case-insensitively', () => {
       expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'absolute-latest-released' });
       expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'absolute-latest-released' });
@@ -394,6 +400,19 @@ describe('ToolsService', () => {
           tools:
             ruby: installed
         `);
+      });
+
+      it('round-trips a prefix strategy with no prefix as the absolute variant', () => {
+        updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
+
+        ToolsService.setTool('node', 'latest-released', '', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          format_version: '13'
+          tools:
+            node: latest
+        `);
+        expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'absolute-latest-released' });
       });
 
       it('sets the absolute strategies, ignoring any input value', () => {

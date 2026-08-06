@@ -187,6 +187,7 @@ const StackAndMachine = ({
       {isToolVersionsEnabled && (
         <ToolVersions
           workflowId={workflowId}
+          isReadOnly={isReadOnlyView}
           stackReportUrl={StackAndMachineService.getStackReportUrl(selectedStack, isInvalidStack)}
         />
       )}

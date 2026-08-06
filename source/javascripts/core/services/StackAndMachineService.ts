@@ -63,14 +63,7 @@ function isSelfHostedStack(stack: Stack) {
 
 const STACKS_URL = 'https://bitrise.io/stacks/';
 
-/**
- * Where to send someone who wants the list of tools preinstalled on their stack. A stack report
- * is addressed by the stack ID verbatim, so the deep link points straight at the tool list.
- *
- * Falls back to the stack index when there is no report to link to: an unresolvable stack ID, a
- * self-hosted pool (Bitrise publishes no report for those), or stacks not loaded yet. An unknown
- * ID renders an empty placeholder page rather than a 404, so guessing is worse than the index.
- */
+/** Falls back to the stack index when no report exists, since an unknown ID renders a blank page. */
 function getStackReportUrl(stack: Stack, isInvalidStack: boolean): string {
   if (isInvalidStack || !stack.id || isSelfHostedStack(stack)) {
     return STACKS_URL;

@@ -31,7 +31,6 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   unset: 'Do nothing (unset global setting)',
 };
 
-/** The strategies whose YAML value is built from a user-entered version or prefix. */
 const STRATEGIES_WITH_VERSION_INPUT: VersionStrategy[] = ['exact', 'latest-released', 'latest-installed'];
 
 const OTHER_VALUE = '__other__';
@@ -39,10 +38,7 @@ const OTHER_VALUE = '__other__';
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
 
-/**
- * Whether `parsed` is what `picked` collapses to once its prefix is empty: `latest-released`
- * without a prefix serializes to bare `latest`, which parses back as `absolute-latest-released`.
- */
+/** A prefix strategy with no prefix serializes to the bare keyword, which parses back as absolute. */
 function isCollapsedPrefixOf(picked: VersionStrategy, parsed: VersionStrategy): boolean {
   return (
     (picked === 'latest-released' && parsed === 'absolute-latest-released') ||
@@ -58,6 +54,7 @@ type ToolRowProps = {
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
   isCatalogLoading: boolean;
+  isReadOnly?: boolean;
   onIdChange: (newId: string) => void;
   onChange: (strategy: VersionStrategy, version: string) => void;
   onRemove: () => void;
@@ -71,15 +68,15 @@ const ToolRow = ({
   catalog,
   allowUnset,
   isCatalogLoading,
+  isReadOnly,
   onIdChange,
   onChange,
   onRemove,
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
-  // The strategy the user last picked, remembered so the dropdown doesn't jump to the absolute
-  // variant while the prefix field is still empty. Only honoured in that one ambiguous case, so
-  // any other change to the YAML still wins.
+  // Keeps the dropdown on the user's pick while the prefix field is still empty. Honoured only in
+  // that one ambiguous case, so any other change to the YAML still wins.
   const [pickedStrategy, setPickedStrategy] = useState<VersionStrategy>();
 
   const effectiveStrategy = pickedStrategy && isCollapsedPrefixOf(pickedStrategy, strategy) ? pickedStrategy : strategy;
@@ -109,12 +106,11 @@ const ToolRow = ({
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
   const isExactKnownTool = effectiveStrategy === 'exact' && isToolIdKnown && !showCustomInput;
-  // The absolute-latest strategy has no version field to fill, so the version it resolves to
-  // right now is surfaced as a hint instead. There is no catalog of preinstalled versions, so
-  // the installed variant gets no such hint.
+  // This strategy has no version field, so the version it resolves to is shown as a hint instead.
+  // Its installed counterpart gets none, because no catalog of preinstalled versions exists.
   const isAbsoluteLatestReleased = effectiveStrategy === 'absolute-latest-released';
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
-  // The exact-version dropdown and the absolute-latest hint read the same version list.
+  // The exact version dropdown and the hint read the same list.
   const needsVersionList = isExactKnownTool || (isAbsoluteLatestReleased && isToolIdKnown && !showCustomInput);
   const {
     data: toolVersions,
@@ -194,6 +190,7 @@ const ToolRow = ({
             placeholder="Select one"
             isLoading={isCatalogLoading}
             items={dropdownItems}
+            state={isReadOnly ? 'readOnly' : undefined}
             value={showCustomInput ? OTHER_VALUE : toolId}
             onValueChange={handleDropdownChange}
           />
@@ -202,6 +199,7 @@ const ToolRow = ({
               size="lg"
               placeholder="Tool ID (e.g. deno)"
               errorText={toolIdFieldState.error?.message}
+              state={isReadOnly ? 'readOnly' : undefined}
               inputProps={{
                 ...toolIdField,
                 onBlur: handleIdBlur,
@@ -217,6 +215,7 @@ const ToolRow = ({
             .filter(([value]) => allowUnset || value !== 'unset')
             .map(([value, label]) => ({ value, label }))}
           value={effectiveStrategy}
+          state={isReadOnly ? 'readOnly' : undefined}
           helperText={isAbsoluteLatestReleased && latestVersion ? `Currently resolves to ${latestVersion}` : undefined}
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
@@ -235,7 +234,7 @@ const ToolRow = ({
                 // With no version list there is nothing to pick from. Read-only rather than
                 // disabled, so the configured version stays legible and reachable by keyboard
                 // and screen readers; the alert below points to the YAML editor instead.
-                state={isVersionsError ? 'readOnly' : undefined}
+                state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                 // Closing the menu without picking counts as visiting and leaving the field.
                 comboboxProps={{
                   onOpenChange: (details) => !details.open && setVersionTouched(true),
@@ -251,6 +250,7 @@ const ToolRow = ({
                 size="lg"
                 placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                 errorText={displayedVersionError}
+                state={isReadOnly ? 'readOnly' : undefined}
                 inputProps={{
                   value: version,
                   onChange: (e) => onChange(effectiveStrategy, e.target.value),
@@ -261,7 +261,13 @@ const ToolRow = ({
           </Box>
         )}
 
-        <BitkitIconButton variant="tertiary" icon={IconMinusCircle} label="Remove tool" onClick={onRemove} />
+        <BitkitIconButton
+          variant="tertiary"
+          icon={IconMinusCircle}
+          label="Remove tool"
+          state={isReadOnly ? 'disabled' : undefined}
+          onClick={onRemove}
+        />
       </Box>
 
       {isExactKnownTool && isVersionsError && (

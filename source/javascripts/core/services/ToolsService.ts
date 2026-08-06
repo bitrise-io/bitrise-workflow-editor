@@ -7,7 +7,9 @@ import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
-function parseToolVersion(raw: string): ParsedToolVersion {
+function parseToolVersion(rawValue: string): ParsedToolVersion {
+  // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
+  const raw = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
   const lower = raw.toLowerCase();
 
   if (lower === 'unset') {
@@ -135,10 +137,7 @@ function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrateg
   return isPrefix(prev) && isPrefix(next) ? version : '';
 }
 
-/**
- * The version the `absolute-latest-released` strategy resolves to right now. Shares the
- * exact-version dropdown's ordering, so the two never disagree on what "newest" means.
- */
+/** The version `absolute-latest-released` resolves to, ordered like the exact version dropdown. */
 function getLatestVersion(toolVersions: ToolVersions | undefined): string | undefined {
   return getVersionOptions(toolVersions, '')[0]?.value;
 }
