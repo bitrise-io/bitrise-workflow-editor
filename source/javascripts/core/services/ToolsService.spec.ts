@@ -97,12 +97,10 @@ describe('ToolsService', () => {
       versions: versions.map((version) => ({ version, isSemver: /^\d+\.\d+\.\d+$/.test(version) })),
     });
 
-    it('returns the highest semver version regardless of catalog order', () => {
-      expect(ToolsService.getLatestVersion(toVersions(['22.4.1', '24.2.0', '20.9.0']))).toBe('24.2.0');
-    });
+    const nodeVersions = toVersions(['22.4.1', '24.2.0', '22.12.0', '220.1.0', '20.9.0', 'lts-iron']);
 
-    it('ignores non-semver versions when there is at least one semver version', () => {
-      expect(ToolsService.getLatestVersion(toVersions(['lts-iron', '22.4.1', '24.2.0']))).toBe('24.2.0');
+    it('returns the highest semver version regardless of catalog order', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions)).toBe('220.1.0');
     });
 
     it('falls back to the first listed version when none are semver', () => {
@@ -112,6 +110,20 @@ describe('ToolsService', () => {
     it('returns undefined without a version list', () => {
       expect(ToolsService.getLatestVersion(undefined)).toBeUndefined();
       expect(ToolsService.getLatestVersion(toVersions([]))).toBeUndefined();
+    });
+
+    it('narrows to the newest release matching a prefix', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '22')).toBe('22.12.0');
+      expect(ToolsService.getLatestVersion(nodeVersions, '22.4.1')).toBe('22.4.1');
+    });
+
+    it('reads a prefix as a semver range, not as a string prefix', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '2')).toBeUndefined();
+    });
+
+    it('returns undefined for a prefix that matches nothing or cannot be parsed', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '29')).toBeUndefined();
+      expect(ToolsService.getLatestVersion(nodeVersions, 'lts')).toBeUndefined();
     });
   });
 

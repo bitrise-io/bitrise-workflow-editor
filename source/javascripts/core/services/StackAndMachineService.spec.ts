@@ -1688,14 +1688,7 @@ describe('StackAndMachineService', () => {
   });
 
   describe('getStackReportUrl', () => {
-    const stackWithId = (id: string): Stack => ({
-      id,
-      name: id,
-      status: 'stable',
-      description: '',
-      machineTypes: [],
-      os: 'macos',
-    });
+    const stackWithId = (id: string): Stack => ({ ...stacks[0], id });
 
     it('deep-links to the stack report, anchored at the tool list', () => {
       expect(StackAndMachineService.getStackReportUrl(stackWithId('osx-xcode-16.0.x'), false)).toBe(

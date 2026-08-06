@@ -23,15 +23,22 @@ type ToolRowFormValues = {
 };
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
-  'latest-released': 'Latest released version',
-  'latest-installed': 'Latest preinstalled version',
+  'latest-released': 'Latest released version of…',
+  'latest-installed': 'Latest preinstalled version of…',
   'absolute-latest-released': 'Absolute latest released',
   'absolute-latest-installed': 'Absolute latest installed',
   exact: 'Exact version',
   unset: 'Do nothing (unset global setting)',
 };
 
+/** These read a value from the version field, and none of them are valid without one. */
 const STRATEGIES_WITH_VERSION_INPUT: VersionStrategy[] = ['exact', 'latest-released', 'latest-installed'];
+
+const REQUIRED_VERSION_ERRORS: Partial<Record<VersionStrategy, string>> = {
+  exact: 'Tool version is required',
+  'latest-released': 'A major or minor version is required',
+  'latest-installed': 'A major or minor version is required',
+};
 
 const OTHER_VALUE = '__other__';
 
@@ -95,7 +102,9 @@ const ToolRow = ({
   // Validate eagerly, display lazily: the required-version error only shows once the
   // user has visited and left the field. A config that is already invalid when the row
   // mounts (hand-edited YAML) is flagged immediately — no interaction should be needed.
-  const [versionTouched, setVersionTouched] = useState(() => effectiveStrategy === 'exact' && version.trim() === '');
+  const [versionTouched, setVersionTouched] = useState(
+    () => STRATEGIES_WITH_VERSION_INPUT.includes(effectiveStrategy) && version.trim() === '',
+  );
 
   const isCatalogReady = !!catalog;
   const isToolIdKnown = ToolsService.isKnownToolId(catalog, toolId);
@@ -105,13 +114,14 @@ const ToolRow = ({
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
-  const isExactKnownTool = effectiveStrategy === 'exact' && isToolIdKnown && !showCustomInput;
-  // This strategy has no version field, so the version it resolves to is shown as a hint instead.
-  // Its installed counterpart gets none, because no catalog of preinstalled versions exists.
-  const isAbsoluteLatestReleased = effectiveStrategy === 'absolute-latest-released';
+  const isKnownToolSelected = isToolIdKnown && !showCustomInput;
+  const isExactKnownTool = effectiveStrategy === 'exact' && isKnownToolSelected;
+  // Only released strategies can be resolved. No catalog of preinstalled versions exists.
+  const resolvesFromCatalog =
+    effectiveStrategy === 'absolute-latest-released' || effectiveStrategy === 'latest-released';
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
-  // The exact version dropdown and the hint read the same list.
-  const needsVersionList = isExactKnownTool || (isAbsoluteLatestReleased && isToolIdKnown && !showCustomInput);
+  // The exact version dropdown and the resolved hint read the same list.
+  const needsVersionList = isKnownToolSelected && (effectiveStrategy === 'exact' || resolvesFromCatalog);
   const {
     data: toolVersions,
     isLoading: isVersionsLoading,
@@ -124,9 +134,11 @@ const ToolRow = ({
   const isVersionMissingFromCatalog =
     !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
 
-  // An exact strategy needs a concrete version; prefix strategies are valid without one
-  // (bare `latest`/`installed`).
-  const versionError = effectiveStrategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
+  // The absolute strategies cover what leaving this empty used to mean, so a value is required now.
+  const versionError =
+    STRATEGIES_WITH_VERSION_INPUT.includes(effectiveStrategy) && version.trim() === ''
+      ? REQUIRED_VERSION_ERRORS[effectiveStrategy]
+      : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
   // The version the combobox is displaying as already set isn't among the catalog's
   // options — likely a stale or mistaken leftover (e.g. from hand-edited YAML).
@@ -134,7 +146,14 @@ const ToolRow = ({
     ? `${version} is not a known version, use at your own risk`
     : undefined;
 
-  const latestVersion = ToolsService.getLatestVersion(toolVersions);
+  const resolvedVersion = resolvesFromCatalog
+    ? ToolsService.getLatestVersion(toolVersions, effectiveStrategy === 'latest-released' ? version : '')
+    : undefined;
+  // A prefix nothing can match is almost certainly a typo, but the list has to have arrived first.
+  const unmatchedPrefixWarning =
+    effectiveStrategy === 'latest-released' && !!toolVersions && version !== '' && !resolvedVersion
+      ? `No released version matches ${version}`
+      : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -172,13 +191,19 @@ const ToolRow = ({
     // it before flagging it.
     if (newVersion !== version) {
       setVersionTouched(false);
-    } else if (newStrategy === 'exact' && newVersion.trim() === '') {
+    } else if (STRATEGIES_WITH_VERSION_INPUT.includes(newStrategy) && newVersion.trim() === '') {
       // The field was already empty, so it won't hit the branch above -> flag it immediately
       // since it's already invalid.
       setVersionTouched(true);
     }
     setPickedStrategy(newStrategy);
     onChange(newStrategy, newVersion);
+  };
+
+  const handleVersionChange = (newVersion: string) => {
+    // Arm the sticky pick, so emptying the field shows the error instead of flipping the dropdown.
+    setPickedStrategy(effectiveStrategy);
+    onChange(effectiveStrategy, newVersion);
   };
 
   return (
@@ -216,7 +241,7 @@ const ToolRow = ({
             .map(([value, label]) => ({ value, label }))}
           value={effectiveStrategy}
           state={isReadOnly ? 'readOnly' : undefined}
-          helperText={isAbsoluteLatestReleased && latestVersion ? `Currently resolves to ${latestVersion}` : undefined}
+          helperText={resolvedVersion ? `Currently resolves to ${resolvedVersion}` : undefined}
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
 
@@ -243,17 +268,18 @@ const ToolRow = ({
                 errorText={displayedVersionError}
                 warningText={catalogMismatchWarning}
                 value={version || undefined}
-                onValueChange={(newVersion) => onChange(effectiveStrategy, newVersion ?? '')}
+                onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
               />
             ) : (
               <BitkitTextInput
                 size="lg"
-                placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+                placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'major or minor, e.g. 22'}
                 errorText={displayedVersionError}
+                warningText={unmatchedPrefixWarning}
                 state={isReadOnly ? 'readOnly' : undefined}
                 inputProps={{
                   value: version,
-                  onChange: (e) => onChange(effectiveStrategy, e.target.value),
+                  onChange: (e) => handleVersionChange(e.target.value),
                   onBlur: () => setVersionTouched(true),
                 }}
               />

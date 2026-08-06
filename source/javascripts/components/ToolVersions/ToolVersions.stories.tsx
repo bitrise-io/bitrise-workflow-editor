@@ -74,11 +74,6 @@ export const AbsoluteStrategies: Story = {
   },
 };
 
-export const ReadOnly: Story = {
-  ...RootScope,
-  args: { isReadOnly: true },
-};
-
 export const Empty: Story = {};
 
 export const CatalogLoading: Story = {

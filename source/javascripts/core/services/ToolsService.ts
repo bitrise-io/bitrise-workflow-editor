@@ -137,9 +137,18 @@ function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrateg
   return isPrefix(prev) && isPrefix(next) ? version : '';
 }
 
-/** The version `absolute-latest-released` resolves to, ordered like the exact version dropdown. */
-function getLatestVersion(toolVersions: ToolVersions | undefined): string | undefined {
-  return getVersionOptions(toolVersions, '')[0]?.value;
+/**
+ * The version a released strategy resolves to, narrowed to `prefix` when there is one. Semver reads
+ * a partial version as a range, so `22` covers 22.x.y without also matching 220.x.y.
+ */
+function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): string | undefined {
+  const versions = getVersionOptions(toolVersions, '').map(({ value }) => value);
+  if (!prefix) {
+    return versions[0];
+  }
+
+  const range = semver.validRange(prefix);
+  return range ? versions.find((version) => semver.valid(version) && semver.satisfies(version, range)) : undefined;
 }
 
 /**
