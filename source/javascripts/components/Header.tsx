@@ -43,6 +43,7 @@ import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import usePushBranch, { PushBranchPayload } from '@/hooks/usePushBranch';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
+import useYmlParseErrorMessage from '@/hooks/useYmlParseErrorMessage';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
@@ -75,6 +76,19 @@ const Header = () => {
   // YAML view on every schema-invalid load (SSW-3087).
   const ymlStatus = useYmlValidationStatus();
   const isParseError = useIsYmlParseError();
+
+  // Each of these points at the offending line when the config genuinely failed to parse, and falls
+  // back to the generic wording otherwise — `ymlStatus` also covers schema errors that have no
+  // location to name.
+  const switchToVisualErrorMessage = useYmlParseErrorMessage(
+    "YAML can't be parsed, please fix it before switching to the Visual editor.",
+    'switching to the Visual editor',
+  );
+  const saveErrorMessage = useYmlParseErrorMessage(
+    'Please fix the errors in your YAML configuration before saving.',
+    'saving',
+  );
+  const saveButtonErrorMessage = useYmlParseErrorMessage('YAML is invalid, please fix it before saving.', 'saving');
 
   const [path, navigate] = useHashLocation();
   const [searchParams] = useSearchParams();
@@ -334,7 +348,7 @@ const Header = () => {
       if (ymlStatus === 'invalid') {
         toast({
           title: 'YAML is invalid',
-          description: 'Please fix the errors in your YAML configuration before saving.',
+          description: saveErrorMessage,
           status: 'error',
           duration: null,
           isClosable: true,
@@ -381,7 +395,7 @@ const Header = () => {
       <BitkitTooltip
         disabled={!isParseError}
         placement={isMobile ? 'bottom' : 'bottom-start'}
-        text="YAML can't be parsed, please fix it before switching to the Visual editor."
+        text={switchToVisualErrorMessage}
       >
         <BitkitSegmentedControl
           size="sm"
@@ -429,7 +443,7 @@ const Header = () => {
         <Tooltip
           isDisabled={ymlStatus !== 'invalid'}
           placement={isMobile ? 'bottom' : 'bottom-start'}
-          label="YAML is invalid, please fix it before saving."
+          label={saveButtonErrorMessage}
         >
           <Button
             size="sm"

@@ -76,6 +76,70 @@ function toDoc(raw: string) {
   return doc;
 }
 
+/**
+ * A parse failure, reduced to the bits worth showing a user. `line`/`column` are 1-based and point at
+ * the start of the offending token.
+ */
+type YmlParseError = {
+  message: string;
+  line?: number;
+  column?: number;
+  code?: string;
+  /** Path of the file the error came from — only set in modular mode, where "which file" is ambiguous. */
+  path?: string;
+};
+
+/** Strips the trailing "at line L, column C" the yaml library appends, since we surface those separately. */
+const LINE_COL_SUFFIX = /,?\s*at line \d+, column \d+:?\s*$/;
+
+/**
+ * The first parse error of `doc`, or undefined if it parsed cleanly.
+ *
+ * The yaml library's `message` is a multi-line code frame (summary, blank line, source excerpt, caret
+ * underline). Only the first line is human-readable prose, so that's what's kept — callers that want
+ * the excerpt still have the raw source and the line/column.
+ */
+function parseErrorOf(doc: Document, path?: string): YmlParseError | undefined {
+  const error = doc.errors[0];
+
+  if (!error) {
+    return undefined;
+  }
+
+  const [start] = error.linePos ?? [];
+
+  return {
+    message: error.message.split('\n')[0].replace(LINE_COL_SUFFIX, '').trim(),
+    line: start?.line,
+    column: start?.col,
+    code: error.code,
+    path,
+  };
+}
+
+/**
+ * One-line rendering of {@link parseErrorOf} — "Line 7, column 31: Unexpected scalar at node end",
+ * or "ci/deploy.yml (line 7, column 31): ..." once a file is known.
+ */
+function formatParseError(error?: YmlParseError): string {
+  if (!error) {
+    return '';
+  }
+
+  const position = [
+    error.line !== undefined && `line ${error.line}`,
+    error.column !== undefined && `column ${error.column}`,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  if (error.path) {
+    return `${error.path}${position ? ` (${position})` : ''}: ${error.message}`;
+  }
+
+  return position ? `${position.charAt(0).toUpperCase()}${position.slice(1)}: ${error.message}` : error.message;
+}
+
 function toYml(root: Root) {
   const rawError = rawErrorSource(root);
   if (rawError !== undefined) {
@@ -124,6 +188,36 @@ function toYml(root: Root) {
 
 function toJSON(root: Root) {
   return (root.toJSON() ?? {}) as BitriseYml;
+}
+
+/**
+ * A plain JS value rendered as single-line YAML, for display in a text field.
+ *
+ * Collections are forced to flow style so the result stays on one line: a value written unquoted as
+ * `{devs,qa}` parses to a map and comes back as `{devs: null, qa: null}` rather than as a block
+ * mapping (or as `[object Object]`, which is what bare `String()` would give).
+ *
+ * Serializes on the same YAML 1.1 schema as {@link toYml}, so what's shown matches what a save would
+ * write. The schemas disagree about plain scalars: `on`, `off`, `yes`, `no`, `y` and `n` are booleans
+ * in 1.1, so a key like `{on,off}` has to be quoted to stay a string — under the library's 1.2
+ * default it wouldn't be, and the field would show a form the rest of the app never produces.
+ */
+function toInlineYml(value: unknown): string {
+  if (isNil(value)) {
+    return '';
+  }
+
+  if (isPrimitive(value)) {
+    return String(value);
+  }
+
+  const node = PLACEHOLDER_DOC.createNode(value, { flow: true, aliasDuplicateObjects: false });
+  return stringify(node, {
+    version: '1.1',
+    schema: 'yaml-1.1',
+    aliasDuplicateObjects: false,
+    flowCollectionPadding: false,
+  }).trim();
 }
 
 function toTypedValue(value: unknown) {
@@ -659,10 +753,15 @@ function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, n
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
 
+export type { YmlParseError };
+
 export default {
   toDoc,
+  parseErrorOf,
+  formatParseError,
   toYml,
   toJSON,
+  toInlineYml,
   toScalar,
   isEquals,
   isEqualValues,
