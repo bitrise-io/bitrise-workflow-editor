@@ -1,17 +1,5 @@
-import {
-  Box,
-  ControlButton,
-  Link,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useDisclosure,
-  useResponsive,
-} from '@bitrise/bitkit';
+import { Box, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useResponsive } from '@bitrise/bitkit';
+import { BitkitControlButton, IconDetails, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
 import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -111,10 +99,9 @@ const ContainersTable = ({
                 <Td textAlign="right">
                   {isReadOnlyView ? (
                     // Merged/cross-file (read-only) view: edit + delete collapse to a single read-only detail view.
-                    <ControlButton
-                      aria-label="View container details"
-                      iconName="Details"
-                      color="icon/primary"
+                    <BitkitControlButton
+                      label="View container details"
+                      icon={IconDetails}
                       onClick={() => {
                         setEditedContainer(container);
                         openDialog();
@@ -122,20 +109,19 @@ const ContainersTable = ({
                     />
                   ) : (
                     <>
-                      <ControlButton
-                        aria-label="Edit container"
-                        iconName="Pencil"
-                        color="icon/primary"
+                      <BitkitControlButton
+                        label="Edit container"
+                        icon={IconPencil}
                         onClick={() => {
                           setEditedContainer(container);
                           openDialog();
                         }}
-                        mr={['0', '8']}
+                        marginInlineEnd={['0', '8']}
                       />
-                      <ControlButton
-                        aria-label="Delete container"
-                        iconName="MinusCircle"
-                        color="icon/negative"
+                      <BitkitControlButton
+                        label="Delete container"
+                        icon={IconMinusCircle}
+                        isDanger
                         onClick={() => {
                           setSelectedContainerId(container.id);
                           onDeleteContainerDialogOpen();
