@@ -47,7 +47,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
   const defaultValues: PushBranchPayload = useMemo(
     () => ({
       branch: configBranch ?? '',
-      message: 'Update bitrise.yml via Workflow Editor',
+      message: 'Update Bitrise configuration via Workflow Editor',
     }),
     [configBranch],
   );
@@ -98,7 +98,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
     >
       <ChangedModulesNote />
       <BitkitRadioGroup
-        aria-label="Target branch"
+        groupLabel="Target"
         layout="horizontal"
         value={isCurrentBranch ? 'current' : 'new'}
         onValueChange={({ value }) => {
@@ -121,7 +121,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         }}
         render={({ field, fieldState }) => (
           <BitkitTextInput
-            label="Target branch"
+            label="Branch name"
             placeholder="new-branch-name"
             helperText="Must follow Git branch naming rules."
             state={isCurrentBranch ? 'readOnly' : undefined}
@@ -137,7 +137,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         render={({ field }) => (
           <BitkitTextArea
             label="Commit message"
-            placeholder="e.g. Update bitrise.yml via Workflow Editor"
+            placeholder="e.g. Update Bitrise configuration via Workflow Editor"
             helperText="Appears in your Git commit history."
             textareaProps={field}
           />
