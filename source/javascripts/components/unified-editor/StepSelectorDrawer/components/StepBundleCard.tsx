@@ -115,7 +115,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   let cardPadding;
   if (isCollapsable) {
     if (!isPreviewMode) {
-      cardPadding = '6px 8px 6px 2px';
+      cardPadding = '6px 8px 6px 4px';
     }
   } else {
     cardPadding = '4px 8px';
