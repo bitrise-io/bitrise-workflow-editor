@@ -1,5 +1,6 @@
 import {
   BitkitAlert,
+  BitkitCheckbox,
   BitkitCombobox,
   BitkitIconButton,
   BitkitLink,
@@ -24,8 +25,7 @@ type ToolRowFormValues = {
 };
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
-  'latest-released': 'Latest released version',
-  'latest-installed': 'Latest preinstalled version',
+  'latest-of': 'Latest version of',
   exact: 'Exact version',
   unset: 'Do nothing (unset global setting)',
 };
@@ -41,6 +41,8 @@ type ToolRowProps = {
   toolId: string;
   strategy: VersionStrategy;
   version: string;
+  /** Only meaningful for `latest-of`: resolve against preinstalled versions where possible. */
+  installed?: boolean;
   existingToolIds: string[];
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
@@ -55,6 +57,7 @@ const ToolRow = ({
   toolId,
   strategy,
   version,
+  installed,
   existingToolIds,
   catalog,
   allowUnset,
@@ -146,21 +149,25 @@ const ToolRow = ({
   };
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    const newVersion = ToolsService.nextVersionOnStrategyChange(strategy, newStrategy, version);
-    // The strategy switch empties the field on the user's behalf -> give them a chance to fill
-    // it before flagging it.
-    if (newVersion !== version) {
+    // Every switch empties the version field, because an exact version and a prefix are not
+    // interchangeable and the remaining strategies have no version at all.
+    if (version !== '') {
+      // The switch emptied the field for the user, so let them fill it before it is flagged.
       setVersionTouched(false);
-    } else if (newStrategy === 'exact' && newVersion.trim() === '') {
+    } else if (newStrategy === 'exact') {
       // The field was already empty, so it won't hit the branch above -> flag it immediately
       // since it's already invalid.
       setVersionTouched(true);
     }
-    onChange(ToolsService.toParsedToolVersion(newStrategy, newVersion));
+    onChange(ToolsService.toParsedToolVersion(newStrategy, '', installed));
   };
 
   const handleVersionChange = (newVersion: string) => {
-    onChange(ToolsService.toParsedToolVersion(strategy, newVersion));
+    onChange(ToolsService.toParsedToolVersion(strategy, newVersion, installed));
+  };
+
+  const handleInstalledChange = (newInstalled: boolean) => {
+    onChange(ToolsService.toParsedToolVersion(strategy, version, newInstalled));
   };
 
   return (
@@ -192,18 +199,27 @@ const ToolRow = ({
           </Box>
         </BitkitTooltip>
 
-        <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
-          <BitkitSelect
-            flex="1"
-            size="lg"
-            items={Object.entries(STRATEGY_LABELS)
-              .filter(([value]) => allowUnset || value !== 'unset')
-              .map(([value, label]) => ({ value, label }))}
-            value={strategy}
-            state={isReadOnly ? 'readOnly' : undefined}
-            onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
-          />
-        </BitkitTooltip>
+        <Box display="flex" flexDirection="column" gap="8" flex="1">
+          <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+            <BitkitSelect
+                  size="lg"
+                items={Object.entries(STRATEGY_LABELS)
+                  .filter(([value]) => allowUnset || value !== 'unset')
+                  .map(([value, label]) => ({ value, label }))}
+                value={strategy}
+                state={isReadOnly ? 'readOnly' : undefined}
+                onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
+              />
+            {strategy === 'latest-of' && (
+              <BitkitCheckbox
+                labelText="Use installed versions if possible"
+                checked={!!installed}
+                state={isReadOnly ? 'readOnly' : undefined}
+                onChange={(e) => handleInstalledChange((e.target as unknown as HTMLInputElement).checked)}
+              />
+            )}
+          </BitkitTooltip>
+        </Box>
 
         {strategy !== 'unset' && (
           <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>

@@ -16,12 +16,8 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     return { strategy: 'unset' };
   }
 
-  if (lower === 'latest') {
-    return { strategy: 'latest-released' };
-  }
-
-  if (lower === 'installed') {
-    return { strategy: 'latest-installed' };
+  if (lower === 'latest' || lower === 'installed') {
+    return { strategy: 'latest-of', prefix: '', installed: lower === 'installed' };
   }
 
   const colonIndex = raw.indexOf(':');
@@ -29,12 +25,8 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     const prefix = raw.slice(0, colonIndex);
     const suffix = raw.slice(colonIndex + 1).toLowerCase();
 
-    if (suffix === 'latest') {
-      return { strategy: 'latest-released', prefix };
-    }
-
-    if (suffix === 'installed') {
-      return { strategy: 'latest-installed', prefix };
+    if (suffix === 'latest' || suffix === 'installed') {
+      return { strategy: 'latest-of', prefix, installed: suffix === 'installed' };
     }
   }
 
@@ -45,24 +37,24 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return 'unset';
-    case 'latest-released':
-      return parsed.prefix ? `${parsed.prefix}:latest` : 'latest';
-    case 'latest-installed':
-      return parsed.prefix ? `${parsed.prefix}:installed` : 'installed';
+    case 'latest-of': {
+      const keyword = parsed.installed ? 'installed' : 'latest';
+      return parsed.prefix ? `${parsed.prefix}:${keyword}` : keyword;
+    }
     case 'exact':
       return parsed.version;
   }
 }
 
 /** Builds a parsed version from the row's controls, the strategy deciding what the fields mean. */
-function toParsedToolVersion(strategy: VersionStrategy, inputValue: string): ParsedToolVersion {
+function toParsedToolVersion(strategy: VersionStrategy, inputValue: string, installed = false): ParsedToolVersion {
   switch (strategy) {
     case 'exact':
       return { strategy, version: inputValue };
     case 'unset':
       return { strategy };
-    default:
-      return { strategy, prefix: inputValue };
+    case 'latest-of':
+      return { strategy, prefix: inputValue, installed };
   }
 }
 
@@ -73,8 +65,8 @@ function getVersionInputValue(parsed: ParsedToolVersion): string {
       return parsed.version;
     case 'unset':
       return '';
-    default:
-      return parsed.prefix ?? '';
+    case 'latest-of':
+      return parsed.prefix;
   }
 }
 
@@ -132,16 +124,6 @@ function getVersionOptions(
 
 function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
   return toolVersions.versions.some((entry) => entry.version === version);
-}
-
-/**
- * The version value to keep when the row's strategy changes: a prefix survives
- * moving between the two prefix strategies; any other change clears the value,
- * because exact versions and prefixes aren't interchangeable.
- */
-function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrategy, version: string): string {
-  const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
-  return isPrefix(prev) && isPrefix(next) ? version : '';
 }
 
 /**
@@ -225,8 +207,10 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
       return { strategy: 'exact', version: '' };
     case 'unset':
       return parsed;
-    default:
-      return { strategy: parsed.strategy };
+    case 'latest-of':
+      // The installed choice is about how a version is resolved, not about which tool, so it
+      // survives the rename even though the prefix does not.
+      return { strategy: 'latest-of', prefix: '', installed: parsed.installed };
   }
 }
 
@@ -254,6 +238,7 @@ function renameTool(oldId: string, newId: string, scope: ToolScope) {
 export type { ToolScope };
 export default {
   parseToolVersion,
+  serializeToolVersion,
   toParsedToolVersion,
   getVersionInputValue,
   setTool,
@@ -264,7 +249,6 @@ export default {
   resolveToolName,
   getVersionOptions,
   isVersionInCatalog,
-  nextVersionOnStrategyChange,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,
