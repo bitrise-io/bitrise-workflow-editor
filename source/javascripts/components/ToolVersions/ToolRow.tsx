@@ -15,7 +15,7 @@ import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 
-import { ToolCatalog, VersionStrategy } from '@/core/models/Tools';
+import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
 import { useToolVersions } from '@/hooks/useTools';
 
@@ -47,8 +47,7 @@ type ToolRowProps = {
   isCatalogLoading: boolean;
   isReadOnly?: boolean;
   onIdChange: (newId: string) => void;
-  onStrategyChange: (strategy: VersionStrategy, version: string) => void;
-  onVersionChange: (version: string) => void;
+  onChange: (parsed: ParsedToolVersion) => void;
   onRemove: () => void;
 };
 
@@ -62,8 +61,7 @@ const ToolRow = ({
   isCatalogLoading,
   isReadOnly,
   onIdChange,
-  onStrategyChange,
-  onVersionChange,
+  onChange,
   onRemove,
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
@@ -158,7 +156,11 @@ const ToolRow = ({
       // since it's already invalid.
       setVersionTouched(true);
     }
-    onStrategyChange(newStrategy, newVersion);
+    onChange(ToolsService.toParsedToolVersion(newStrategy, newVersion));
+  };
+
+  const handleVersionChange = (newVersion: string) => {
+    onChange(ToolsService.toParsedToolVersion(strategy, newVersion));
   };
 
   return (
@@ -227,7 +229,7 @@ const ToolRow = ({
                   errorText={displayedVersionError}
                   warningText={catalogMismatchWarning}
                   value={version || undefined}
-                  onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
+                  onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
                 />
               ) : (
                 <BitkitTextInput
@@ -237,7 +239,7 @@ const ToolRow = ({
                   state={isReadOnly ? 'readOnly' : undefined}
                   inputProps={{
                     value: version,
-                    onChange: (e) => onVersionChange(e.target.value),
+                    onChange: (e) => handleVersionChange(e.target.value),
                     onBlur: () => setVersionTouched(true),
                   }}
                 />

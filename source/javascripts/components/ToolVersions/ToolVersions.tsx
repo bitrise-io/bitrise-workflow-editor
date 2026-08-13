@@ -16,7 +16,7 @@ import { Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
-import { VersionStrategy } from '@/core/models/Tools';
+import { ParsedToolVersion } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import useNavigation from '@/hooks/useNavigation';
 import { useToolCatalog, useToolsForScope } from '@/hooks/useTools';
@@ -27,6 +27,8 @@ import ToolRow from './ToolRow';
 const DOCS_URL =
   'https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions';
 const CLI_DOCS_URL = `${DOCS_URL}#tool-setup-during-workflow-execution`;
+
+const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'latest-released' };
 
 const HeaderLinkSeparator = () => (
   <Text as="span" color="text/tertiary" aria-hidden="true">
@@ -48,15 +50,13 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
   const { replace } = useNavigation();
   const { data: catalog, isLoading: isCatalogLoading, isError: isCatalogError } = useToolCatalog();
   const [hasPendingRow, setHasPendingRow] = useState(false);
-  const [pendingStrategy, setPendingStrategy] = useState<VersionStrategy>('latest-released');
-  const [pendingVersion, setPendingVersion] = useState('');
+  const [pendingVersion, setPendingVersion] = useState<ParsedToolVersion>(NEW_ROW_VERSION);
 
   const allowUnset = scope.type === 'workflow';
   const existingToolIds = Object.keys(tools);
 
   const handleAddNew = () => {
-    setPendingStrategy('latest-released');
-    setPendingVersion('');
+    setPendingVersion(NEW_ROW_VERSION);
     setHasPendingRow(true);
   };
 
@@ -94,22 +94,19 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
       <Stack gap="16">
         {Object.entries(tools).map(([toolId, versionString]) => {
           const parsed = ToolsService.parseToolVersion(versionString);
-          const versionValue =
-            parsed.strategy === 'exact' ? parsed.version : parsed.strategy === 'unset' ? '' : (parsed.prefix ?? '');
           return (
             <ToolRow
               key={toolId}
               toolId={toolId}
               strategy={parsed.strategy}
-              version={versionValue}
+              version={ToolsService.getVersionInputValue(parsed)}
               existingToolIds={existingToolIds}
               catalog={catalog}
               allowUnset={allowUnset}
               isCatalogLoading={isCatalogLoading}
               isReadOnly={isReadOnly}
               onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
-              onStrategyChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
-              onVersionChange={(ver) => ToolsService.setTool(toolId, parsed.strategy, ver, scope)}
+              onChange={(newParsed) => ToolsService.setTool(toolId, newParsed, scope)}
               onRemove={() => ToolsService.deleteTool(toolId, scope)}
             />
           );
@@ -117,22 +114,18 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
         {hasPendingRow && (
           <ToolRow
             toolId=""
-            strategy={pendingStrategy}
-            version={pendingVersion}
+            strategy={pendingVersion.strategy}
+            version={ToolsService.getVersionInputValue(pendingVersion)}
             existingToolIds={existingToolIds}
             catalog={catalog}
             allowUnset={allowUnset}
             isCatalogLoading={isCatalogLoading}
             isReadOnly={isReadOnly}
             onIdChange={(newId) => {
-              ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
+              ToolsService.setTool(newId, pendingVersion, scope);
               setHasPendingRow(false);
             }}
-            onStrategyChange={(strategy, ver) => {
-              setPendingStrategy(strategy);
-              setPendingVersion(ver);
-            }}
-            onVersionChange={(ver) => setPendingVersion(ver)}
+            onChange={setPendingVersion}
             onRemove={() => setHasPendingRow(false)}
           />
         )}

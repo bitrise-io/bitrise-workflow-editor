@@ -286,14 +286,14 @@ describe('ToolsService', () => {
 
   describe('setTool', () => {
     it('throws when using "unset" strategy at root scope', () => {
-      expect(() => ToolsService.setTool('node', 'unset', '', { type: 'root' })).toThrow();
+      expect(() => ToolsService.setTool('node', { strategy: 'unset' }, { type: 'root' })).toThrow();
     });
 
     describe('root-level', () => {
       it('creates the tools block when absent', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('node', 'latest-released', '22', { type: 'root' });
+        ToolsService.setTool('node', { strategy: 'latest-released', prefix: '22' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -308,7 +308,7 @@ describe('ToolsService', () => {
             node: 22:latest
         `);
 
-        ToolsService.setTool('python', 'exact', '3.13.4', { type: 'root' });
+        ToolsService.setTool('python', { strategy: 'exact', version: '3.13.4' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -324,7 +324,7 @@ describe('ToolsService', () => {
             python: "3.13.4"
         `);
 
-        ToolsService.setTool('node', 'latest-released', '', { type: 'root' });
+        ToolsService.setTool('node', { strategy: 'latest-released', prefix: '' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -336,7 +336,7 @@ describe('ToolsService', () => {
       it('sets latest-installed with prefix', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('ruby', 'latest-installed', '3.3', { type: 'root' });
+        ToolsService.setTool('ruby', { strategy: 'latest-installed', prefix: '3.3' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -348,7 +348,7 @@ describe('ToolsService', () => {
       it('sets latest-installed without prefix', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('ruby', 'latest-installed', '', { type: 'root' });
+        ToolsService.setTool('ruby', { strategy: 'latest-installed', prefix: '' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -366,7 +366,11 @@ describe('ToolsService', () => {
               steps: []
         `);
 
-        ToolsService.setTool('node', 'latest-released', '22', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool(
+          'node',
+          { strategy: 'latest-released', prefix: '22' },
+          { type: 'workflow', workflowId: 'primary' },
+        );
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -385,7 +389,11 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.setTool('python', 'exact', '3.13.4', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool(
+          'python',
+          { strategy: 'exact', version: '3.13.4' },
+          { type: 'workflow', workflowId: 'primary' },
+        );
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -404,7 +412,7 @@ describe('ToolsService', () => {
                 node: 22:latest
         `);
 
-        ToolsService.setTool('node', 'unset', '', { type: 'workflow', workflowId: 'primary' });
+        ToolsService.setTool('node', { strategy: 'unset' }, { type: 'workflow', workflowId: 'primary' });
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -424,7 +432,11 @@ describe('ToolsService', () => {
               steps: []
         `);
 
-        ToolsService.setTool('python', 'exact', '3.13.4', { type: 'workflow', workflowId: 'secondary' });
+        ToolsService.setTool(
+          'python',
+          { strategy: 'exact', version: '3.13.4' },
+          { type: 'workflow', workflowId: 'secondary' },
+        );
 
         expect(getYmlString()).toEqual(yaml`
           workflows:
@@ -442,7 +454,11 @@ describe('ToolsService', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
         expect(() =>
-          ToolsService.setTool('node', 'latest-released', '', { type: 'workflow', workflowId: 'missing' }),
+          ToolsService.setTool(
+            'node',
+            { strategy: 'latest-released', prefix: '' },
+            { type: 'workflow', workflowId: 'missing' },
+          ),
         ).toThrow();
       });
     });
