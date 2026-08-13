@@ -7,7 +7,9 @@ import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
-function parseToolVersion(raw: string): ParsedToolVersion {
+function parseToolVersion(rawValue: string): ParsedToolVersion {
+  // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
+  const raw = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
   const lower = raw.toLowerCase();
 
   if (lower === 'unset') {
