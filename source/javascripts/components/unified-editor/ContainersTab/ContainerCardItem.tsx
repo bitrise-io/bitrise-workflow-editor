@@ -1,4 +1,5 @@
-import { Box, Checkbox, ControlButton, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
+import { Box, Checkbox, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
+import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -70,11 +71,11 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
           <CrossFileJumpButton kind="containers" id={reference.id} />
           {/* Read-only (merged/ghost) view has no CTAs — the remove button is hidden, not disabled. */}
           {!isReadOnlyView && (
-            <ControlButton
-              aria-label={isDisabled ? 'Edit containers in the Step bundle definition.' : 'Delete container'}
-              iconName="MinusCircle"
-              color="icon/negative"
-              isDisabled={isDisabled}
+            <BitkitControlButton
+              label={isDisabled ? 'Edit containers in the Step bundle definition.' : 'Delete container'}
+              icon={IconMinusCircle}
+              isDanger
+              state={isDisabled ? 'disabled' : undefined}
               onClick={handleRemove}
             />
           )}
