@@ -78,10 +78,11 @@ const StackAndMachine = ({
     withoutDefaultOptions,
   });
 
-  const availableRollbackVersion =
-    selectedStack.rollbackVersion?.[selectedMachineType.id as keyof typeof selectedStack.rollbackVersion]?.[
-      rollbackType
-    ] || '';
+  const availableRollbackVersion = StackAndMachineService.getAvailableRollbackVersion({
+    stack: selectedStack,
+    machineType: selectedMachineType,
+    tier: rollbackType,
+  });
 
   const handleChange = useCallback(
     // eslint-disable-next-line react-hooks/preserve-manual-memoization

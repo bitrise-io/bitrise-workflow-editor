@@ -1914,6 +1914,218 @@ describe('StackAndMachineService', () => {
     });
   });
 
+  describe('getAvailableRollbackVersion', () => {
+    const createStack = (override: Partial<Stack>): Stack => ({
+      id: 'osx-xcode-16.0.x',
+      name: 'Xcode 16.0.x',
+      status: 'stable',
+      description: '',
+      machineTypes: ['g2.mac.medium', 'm2.medium'],
+      os: 'macos',
+      ...override,
+    });
+
+    const createMachineType = (override: Partial<MachineType>): MachineType => ({
+      id: 'm2.medium',
+      name: 'M2 Medium',
+      os: 'macos',
+      isDisabled: false,
+      availableInRegions: {},
+      ...override,
+    });
+
+    describe('when an exact machine type is selected', () => {
+      it('returns the rollback version of the machine type', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: { 'm2.medium': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' } },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'paying',
+          }),
+        ).toBe('2-82-0');
+      });
+
+      it('returns the rollback version of the selected tier only', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            free: { 'm2.medium': { latestVersion: '2-83-0' } },
+            paying: { 'm2.medium': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' } },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'free',
+          }),
+        ).toBe('');
+      });
+
+      it('returns an empty string when the machine type has no rollback version', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: { 'm2.medium': { latestVersion: '2-83-0' } },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
+
+      it('falls back to the rollback version map when the stack versions are missing', () => {
+        const stack = createStack({
+          rollbackVersion: { 'm2.medium': { paying: '2-82-0' } },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'paying',
+          }),
+        ).toBe('2-82-0');
+      });
+
+      it('returns an empty string when the stack has no rollback option at all', () => {
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack: createStack({}),
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
+    });
+
+    describe('when a machine resource class is selected', () => {
+      const machineResourceClass = createMachineType({
+        id: 'g2.mac.medium',
+        name: 'Mac Medium',
+        exactMachineTypeIds: ['g2.mac.m2pro.4c-6g', 'g2.mac.m4.5c-6g'],
+      });
+
+      it('returns the rollback version when all exact machine types support it', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('2-82-0');
+      });
+
+      it('returns the rollback version when the exact machine types are on different latest versions', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-82-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('2-82-0');
+      });
+
+      it('returns an empty string when an exact machine type has no rollback version', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
+
+      it('returns an empty string when the stack is not available on an exact machine type', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
+
+      it('returns an empty string when the exact machine types have different rollback versions', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-81-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
+
+      it('returns an empty string when the stack versions are missing', () => {
+        const stack = createStack({
+          rollbackVersion: { 'g2.mac.medium': { paying: '2-82-0' } },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
+    });
+  });
+
   describe('updateStackAndMachine', () => {
     describe('root-level', () => {
       it('updates stack ID at meta.[bitrise.io]', () => {

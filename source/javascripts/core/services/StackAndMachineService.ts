@@ -12,6 +12,7 @@ import {
   Stack,
   StackOption,
   StackOptionGroup,
+  StackVersionTier,
 } from '../models/StackAndMachine';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
@@ -82,6 +83,50 @@ function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType
   }
 
   return machines.filter((m) => stack.machineTypes.includes(m.id));
+}
+
+/**
+ * Returns the previous version of the stack the selected machine can run, or an empty string if there
+ * is none.
+ *
+ * A machine resource class can schedule a build onto any of the exact machine types it stands for, so
+ * a rollback is only offered when the very same version is published for all of them — otherwise the
+ * build could land on a machine where that stack version doesn't exist.
+ */
+function getAvailableRollbackVersion({
+  stack,
+  machineType,
+  tier,
+}: {
+  stack: Stack;
+  machineType: MachineType;
+  tier: StackVersionTier;
+}): string {
+  const stackVersionsOfMachines = stack.availableOnMachines?.[tier];
+  const exactMachineTypeIds = machineType.exactMachineTypeIds ?? [];
+
+  if (exactMachineTypeIds.length === 0) {
+    // An exact machine type only has to answer for itself. The rollback version map is the fallback
+    // for API responses that don't include the per-machine stack versions yet.
+    return (
+      stackVersionsOfMachines?.[machineType.id]?.rollbackVersion ||
+      stack.rollbackVersion?.[machineType.id]?.[tier] ||
+      ''
+    );
+  }
+
+  const stackVersions = exactMachineTypeIds.map((id) => stackVersionsOfMachines?.[id]);
+  // A missing latest version means the stack isn't available on that exact machine type at all.
+  const isRollbackAvailableOnAll = stackVersions.every(
+    (versions) => versions?.latestVersion && versions.rollbackVersion,
+  );
+  const rollbackVersions = new Set(stackVersions.map((versions) => versions?.rollbackVersion));
+
+  if (!isRollbackAvailableOnAll || rollbackVersions.size > 1) {
+    return '';
+  }
+
+  return stackVersions[0]?.rollbackVersion ?? '';
 }
 
 function toStackOption(stack: Stack): StackOption {
@@ -498,6 +543,7 @@ function updateLicensePoolId(licensePoolId: string, source: StackAndMachineSourc
 export { MachineTypeWithValue, StackAndMachineSource, StackWithValue };
 export default {
   changeStackAndMachine,
+  getAvailableRollbackVersion,
   prepareStackAndMachineSelectionData,
   toStackOption,
   toMachineTypeDetailedOption,

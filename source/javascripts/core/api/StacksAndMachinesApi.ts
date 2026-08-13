@@ -1,4 +1,14 @@
-import { MachineRegionName, MachineType, Stack, StackOS, StackStatus } from '../models/StackAndMachine';
+import { mapValues } from 'es-toolkit';
+
+import {
+  MachineRegionName,
+  MachineType,
+  Stack,
+  StackOS,
+  StackStatus,
+  StackVersions,
+  StackVersionTier,
+} from '../models/StackAndMachine';
 import Client from './client';
 
 enum RegionID {
@@ -9,6 +19,11 @@ enum RegionID {
 const regionNames: Record<string, MachineRegionName> = {
   [RegionID.US]: MachineRegionName.US,
   [RegionID.EU]: MachineRegionName.EU,
+};
+
+type StackVersionsApiItem = {
+  latest_version?: string;
+  rollback_version?: string;
 };
 
 type StackApiItem = {
@@ -24,6 +39,7 @@ type StackApiItem = {
   rollback_version?: {
     [machineTypeId: string]: { free?: string; paying?: string };
   };
+  available_on_machines?: Partial<Record<StackVersionTier, { [machineTypeId: string]: StackVersionsApiItem }>>;
 };
 
 type StackGroupApiItem = {
@@ -36,6 +52,7 @@ type MachineApiItem = {
   available_in_regions: Partial<Record<string, MachineTypeInfoApi | MachineTypeInfoApi[]>>;
   available_on_stacks?: string[];
   credit_per_min?: number;
+  exact_machine_type_ids?: string[];
   id: string;
   is_disabled: boolean;
   name: string;
@@ -84,6 +101,21 @@ function mapStackStatus(status: string): StackStatus {
   return 'unknown';
 }
 
+function toStackVersions(item: StackVersionsApiItem): StackVersions {
+  return {
+    latestVersion: item.latest_version,
+    rollbackVersion: item.rollback_version,
+  };
+}
+
+function toAvailableOnMachines(item: StackApiItem): Stack['availableOnMachines'] {
+  if (!item.available_on_machines) {
+    return undefined;
+  }
+
+  return mapValues(item.available_on_machines, (machines) => mapValues(machines ?? {}, toStackVersions));
+}
+
 function toStack(item: StackApiItem): Stack {
   return {
     id: item.id,
@@ -93,6 +125,7 @@ function toStack(item: StackApiItem): Stack {
       item['description-link-gen2-applesilicon'] || item['description-link-gen2'] || item['description-link'],
     machineTypes: item.machines ?? [],
     rollbackVersion: item.rollback_version,
+    availableOnMachines: toAvailableOnMachines(item),
     os: mapOSValues(item.os ?? ''),
     status: mapStackStatus(item.status),
   };
@@ -122,6 +155,7 @@ function toMachineType(item: MachineApiItem): MachineType {
     isDisabled: item.is_disabled,
     availableInRegions,
     availableOnStacks: item.available_on_stacks ?? [],
+    exactMachineTypeIds: item.exact_machine_type_ids ?? [],
   };
 }
 

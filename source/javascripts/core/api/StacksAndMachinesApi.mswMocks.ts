@@ -91,6 +91,20 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
               paying: '2-82-0',
             },
           },
+          available_on_machines: {
+            free: {
+              'm1.medium': { latest_version: '2-83-0' },
+              'm1.large': { latest_version: '2-83-0' },
+              'm2.medium': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'm2.large': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+            },
+            paying: {
+              'm1.medium': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'm1.large': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'm2.medium': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'm2.large': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+            },
+          },
         },
         {
           id: 'ubuntu-jammy-22.04-bitrise-2024',
@@ -153,6 +167,22 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
                   'machine-y1',
                   'machine-y2',
                 ],
+          // The machine resource classes are rollbackable through their exact machine types: all of
+          // `g2.mac.medium`'s support the rollback version, but only one of `g2.mac.large`'s does.
+          available_on_machines: {
+            free: {
+              'g2.mac.m2pro.4c-6g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m2pro.6c-14g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m4.5c-14g': { latest_version: '2-83-0' },
+            },
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m2pro.6c-14g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m4.5c-14g': { latest_version: '2-83-0' },
+            },
+          },
         },
         {
           id: 'ubuntu-noble-24.04-bitrise-2025',
@@ -237,6 +267,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           name: 'Mac Medium',
           os_id: 'macos',
           is_disabled: false,
+          exact_machine_type_ids: ['g2.mac.m2pro.4c-6g', 'g2.mac.m4.5c-6g'],
           available_in_regions: {
             'region-us': {
               name: 'Machine in US',
@@ -265,6 +296,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           name: 'Mac Large',
           os_id: 'macos',
           is_disabled: true,
+          exact_machine_type_ids: ['g2.mac.m2pro.6c-14g', 'g2.mac.m4.5c-14g'],
           available_in_regions: {
             'region-us': [
               {
