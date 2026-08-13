@@ -11,7 +11,7 @@ import ToolVersions from './ToolVersions';
 const meta: Meta<typeof ToolVersions> = {
   component: ToolVersions,
   args: {
-    stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-16.0.x#languages-and-runtimes',
+    stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-26.6.x#languages-and-runtimes',
   },
   decorators: [
     (Story) => (

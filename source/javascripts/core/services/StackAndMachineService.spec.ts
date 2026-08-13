@@ -1691,14 +1691,16 @@ describe('StackAndMachineService', () => {
     const stackWithId = (id: string): Stack => ({ ...stacks[0], id });
 
     it('deep-links to the stack report, anchored at the tool list', () => {
-      expect(StackAndMachineService.getStackReportUrl(stackWithId('osx-xcode-16.0.x'), false)).toBe(
-        'https://bitrise.io/stacks/stack_reports/osx-xcode-16.0.x#languages-and-runtimes',
+      expect(StackAndMachineService.getStackReportUrl(stackWithId('osx-xcode-26.6.x'), false)).toBe(
+        'https://bitrise.io/stacks/stack_reports/osx-xcode-26.6.x#languages-and-runtimes',
       );
     });
 
     it('uses the stack ID verbatim for linux stacks too', () => {
-      expect(StackAndMachineService.getStackReportUrl(stackWithId('linux-docker-android-22.04'), false)).toBe(
-        'https://bitrise.io/stacks/stack_reports/linux-docker-android-22.04#languages-and-runtimes',
+      expect(
+        StackAndMachineService.getStackReportUrl(stackWithId('ubuntu-resolute-26.04-bitrise-2026-android'), false),
+      ).toBe(
+        'https://bitrise.io/stacks/stack_reports/ubuntu-resolute-26.04-bitrise-2026-android#languages-and-runtimes',
       );
     });
 
