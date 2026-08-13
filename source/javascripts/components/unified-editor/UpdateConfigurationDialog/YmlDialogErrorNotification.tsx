@@ -17,7 +17,7 @@ const YmlDialogErrorNotification = (props: Props) => {
 
   if (error?.status === 404) {
     content =
-      "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.";
+      "Couldn't find the bitrise.yml file in the repository. Please make sure that the file exists on the default branch and that the connection to the repository's provider is configured properly with at least read rights.";
   } else if (message && message.includes('Split configuration requires an Enterprise plan')) {
     title = 'Split configuration requires an Enterprise plan';
     content = "Contact our customer support if you'd like to try it out.";
