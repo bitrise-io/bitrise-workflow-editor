@@ -42,6 +42,7 @@ type ToolRowProps = {
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
   isCatalogLoading: boolean;
+  isReadOnly?: boolean;
   onIdChange: (newId: string) => void;
   onStrategyChange: (strategy: VersionStrategy, version: string) => void;
   onVersionChange: (version: string) => void;
@@ -56,6 +57,7 @@ const ToolRow = ({
   catalog,
   allowUnset,
   isCatalogLoading,
+  isReadOnly,
   onIdChange,
   onStrategyChange,
   onVersionChange,
@@ -165,6 +167,7 @@ const ToolRow = ({
             placeholder="Select one"
             isLoading={isCatalogLoading}
             items={dropdownItems}
+            state={isReadOnly ? 'readOnly' : undefined}
             value={showCustomInput ? OTHER_VALUE : toolId}
             onValueChange={handleDropdownChange}
           />
@@ -173,6 +176,7 @@ const ToolRow = ({
               size="lg"
               placeholder="Tool ID (e.g. deno)"
               errorText={toolIdFieldState.error?.message}
+              state={isReadOnly ? 'readOnly' : undefined}
               inputProps={{
                 ...toolIdField,
                 onBlur: handleIdBlur,
@@ -188,6 +192,7 @@ const ToolRow = ({
             .filter(([value]) => allowUnset || value !== 'unset')
             .map(([value, label]) => ({ value, label }))}
           value={strategy}
+          state={isReadOnly ? 'readOnly' : undefined}
           onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
         />
 
@@ -205,7 +210,7 @@ const ToolRow = ({
                 // With no version list there is nothing to pick from. Read-only rather than
                 // disabled, so the configured version stays legible and reachable by keyboard
                 // and screen readers; the alert below points to the YAML editor instead.
-                state={isVersionsError ? 'readOnly' : undefined}
+                state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                 // Closing the menu without picking counts as visiting and leaving the field.
                 comboboxProps={{
                   onOpenChange: (details) => !details.open && setVersionTouched(true),
@@ -221,6 +226,7 @@ const ToolRow = ({
                 size="lg"
                 placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                 errorText={displayedVersionError}
+                state={isReadOnly ? 'readOnly' : undefined}
                 inputProps={{
                   value: version,
                   onChange: (e) => onVersionChange(e.target.value),
@@ -231,7 +237,13 @@ const ToolRow = ({
           </Box>
         )}
 
-        <BitkitIconButton variant="tertiary" icon={IconMinusCircle} label="Remove tool" onClick={onRemove} />
+        <BitkitIconButton
+          variant="tertiary"
+          icon={IconMinusCircle}
+          label="Remove tool"
+          state={isReadOnly ? 'disabled' : undefined}
+          onClick={onRemove}
+        />
       </Box>
 
       {isExactKnownTool && isVersionsError && (

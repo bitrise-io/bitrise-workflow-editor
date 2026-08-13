@@ -24,7 +24,13 @@ import { paths } from '@/routes';
 
 import ToolRow from './ToolRow';
 
-const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
+type Props = {
+  workflowId?: string;
+  /** The store drops mutations here, so the rows must not pretend to accept edits. */
+  isReadOnly?: boolean;
+};
+
+const ToolVersions = ({ workflowId, isReadOnly }: Props) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
   const { replace } = useNavigation();
@@ -80,82 +86,93 @@ const ToolVersions = ({ workflowId }: { workflowId?: string }) => {
         )}
       </Stack>
 
-      <Stack gap="16">
-        {Object.entries(tools).map(([toolId, versionString]) => {
-          const parsed = ToolsService.parseToolVersion(versionString);
-          const versionValue =
-            parsed.strategy === 'exact' ? parsed.version : parsed.strategy === 'unset' ? '' : (parsed.prefix ?? '');
-          return (
+      <BitkitTooltip text="Read-only here — edit it in the module file that defines it." disabled={!isReadOnly}>
+        <Stack gap="16">
+          {Object.entries(tools).map(([toolId, versionString]) => {
+            const parsed = ToolsService.parseToolVersion(versionString);
+            const versionValue =
+              parsed.strategy === 'exact' ? parsed.version : parsed.strategy === 'unset' ? '' : (parsed.prefix ?? '');
+            return (
+              <ToolRow
+                key={toolId}
+                toolId={toolId}
+                strategy={parsed.strategy}
+                version={versionValue}
+                existingToolIds={existingToolIds}
+                catalog={catalog}
+                allowUnset={allowUnset}
+                isCatalogLoading={isCatalogLoading}
+                isReadOnly={isReadOnly}
+                onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
+                onStrategyChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
+                onVersionChange={(ver) => ToolsService.setTool(toolId, parsed.strategy, ver, scope)}
+                onRemove={() => ToolsService.deleteTool(toolId, scope)}
+              />
+            );
+          })}
+          {hasPendingRow && (
             <ToolRow
-              key={toolId}
-              toolId={toolId}
-              strategy={parsed.strategy}
-              version={versionValue}
+              toolId=""
+              strategy={pendingStrategy}
+              version={pendingVersion}
               existingToolIds={existingToolIds}
               catalog={catalog}
               allowUnset={allowUnset}
               isCatalogLoading={isCatalogLoading}
-              onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
-              onStrategyChange={(strategy, ver) => ToolsService.setTool(toolId, strategy, ver, scope)}
-              onVersionChange={(ver) => ToolsService.setTool(toolId, parsed.strategy, ver, scope)}
-              onRemove={() => ToolsService.deleteTool(toolId, scope)}
+              onIdChange={(newId) => {
+                ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
+                setHasPendingRow(false);
+              }}
+              onStrategyChange={(strategy, ver) => {
+                setPendingStrategy(strategy);
+                setPendingVersion(ver);
+              }}
+              onVersionChange={(ver) => setPendingVersion(ver)}
+              onRemove={() => setHasPendingRow(false)}
             />
-          );
-        })}
-        {hasPendingRow && (
-          <ToolRow
-            toolId=""
-            strategy={pendingStrategy}
-            version={pendingVersion}
-            existingToolIds={existingToolIds}
-            catalog={catalog}
-            allowUnset={allowUnset}
-            isCatalogLoading={isCatalogLoading}
-            onIdChange={(newId) => {
-              ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
-              setHasPendingRow(false);
-            }}
-            onStrategyChange={(strategy, ver) => {
-              setPendingStrategy(strategy);
-              setPendingVersion(ver);
-            }}
-            onVersionChange={(ver) => setPendingVersion(ver)}
-            onRemove={() => setHasPendingRow(false)}
-          />
-        )}
-        {existingToolIds.length === 0 && !hasPendingRow && (
-          <Box display="flex" alignItems="center" minHeight="48">
-            <Text textStyle="body/md/regular" color="text/primary">
-              Set up the first tool. Supports{' '}
-              <BitkitTooltip text="Ruby">
-                <IconRuby size="16" aria-label="Ruby" />
-              </BitkitTooltip>{' '}
-              <BitkitTooltip text="Flutter">
-                <IconFlutter size="16" aria-label="Flutter" />
-              </BitkitTooltip>{' '}
-              <BitkitTooltip text="Node.js">
-                <IconNodejs size="16" aria-label="Node.js" />
-              </BitkitTooltip>{' '}
-              <BitkitTooltip text="Python">
-                <IconPython size="16" aria-label="Python" />
-              </BitkitTooltip>{' '}
-              and many more.
-            </Text>
-          </Box>
-        )}
-      </Stack>
+          )}
+          {existingToolIds.length === 0 && !hasPendingRow && (
+            <Box display="flex" alignItems="center" minHeight="48">
+              <Text textStyle="body/md/regular" color="text/primary">
+                {isReadOnly ? (
+                  'No tools are set up here.'
+                ) : (
+                  <>
+                    Set up the first tool. Supports{' '}
+                    <BitkitTooltip text="Ruby">
+                      <IconRuby size="16" aria-label="Ruby" />
+                    </BitkitTooltip>{' '}
+                    <BitkitTooltip text="Flutter">
+                      <IconFlutter size="16" aria-label="Flutter" />
+                    </BitkitTooltip>{' '}
+                    <BitkitTooltip text="Node.js">
+                      <IconNodejs size="16" aria-label="Node.js" />
+                    </BitkitTooltip>{' '}
+                    <BitkitTooltip text="Python">
+                      <IconPython size="16" aria-label="Python" />
+                    </BitkitTooltip>{' '}
+                    and many more.
+                  </>
+                )}
+              </Text>
+            </Box>
+          )}
+        </Stack>
+      </BitkitTooltip>
 
       {isCatalogError && <BitkitAlert variant="warning" messageText="Couldn't load tool suggestions." />}
 
-      <BitkitButton
-        variant="secondary"
-        size="md"
-        alignSelf="flex-start"
-        state={hasPendingRow ? 'disabled' : undefined}
-        onClick={handleAddNew}
-      >
-        Add new
-      </BitkitButton>
+      {!isReadOnly && (
+        <BitkitButton
+          variant="secondary"
+          size="md"
+          alignSelf="flex-start"
+          state={hasPendingRow ? 'disabled' : undefined}
+          onClick={handleAddNew}
+        >
+          Add new
+        </BitkitButton>
+      )}
     </Stack>
   );
 };

@@ -184,7 +184,7 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
-      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} />}
+      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} isReadOnly={isReadOnlyView} />}
     </StackAndMachineWrapper>
   );
 };
