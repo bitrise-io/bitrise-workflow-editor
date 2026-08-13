@@ -76,6 +76,16 @@ export const LatestOfStrategies: Story = {
   },
 };
 
+/** A prefix the catalog cannot resolve. Still valid YAML, so it warns rather than errors. */
+export const UnknownPrefix: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { nodejs: '18.99:latest' });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 export const Empty: Story = {};
 
 export const CatalogLoading: Story = {

@@ -31,6 +31,8 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
 };
 
 const OTHER_VALUE = '__other__';
+/** No prefix, i.e. the newest version overall. A sentinel, because '' means "nothing selected". */
+const ANY_PREFIX_VALUE = '__any__';
 
 const READ_ONLY_TOOLTIP_TEXT = 'To edit, switch to the module file that defines it.';
 
@@ -94,28 +96,37 @@ const ToolRow = ({
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
-  const isExactKnownTool = strategy === 'exact' && isToolIdKnown && !showCustomInput;
+  // A tool the catalog knows has a version list, so both controls can be picked rather than typed.
+  const isKnownCatalogTool = isToolIdKnown && !showCustomInput;
+  const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
+  const hasPrefixDropdown = strategy === 'latest-of' && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-  } = useToolVersions(canonicalToolId, isExactKnownTool);
+  } = useToolVersions(canonicalToolId, isExactKnownTool || hasPrefixDropdown);
 
   const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
+  const prefixOptions = ToolsService.getPrefixOptions(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
   const isVersionMissingFromCatalog =
     !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
+  const isPrefixMissingFromCatalog =
+    !!toolVersions && version !== '' && !ToolsService.isPrefixInCatalog(toolVersions, version);
 
-  // An exact strategy needs a concrete version; prefix strategies are valid without one
-  // (bare `latest`/`installed`).
+  // An exact strategy needs a concrete version. An empty prefix is valid and means the newest
+  // version overall, which serializes to bare `latest` or `installed`.
   const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
-  // The version the combobox is displaying as already set isn't among the catalog's
-  // options — likely a stale or mistaken leftover (e.g. from hand-edited YAML).
+  // The configured value is not in the catalog, likely a leftover from hand written YAML. It is
+  // still valid and may resolve at build time, so both cases warn rather than error.
   const catalogMismatchWarning = isVersionMissingFromCatalog
     ? `${version} is not a known version, use at your own risk`
+    : undefined;
+  const unmatchedPrefixWarning = isPrefixMissingFromCatalog
+    ? `No known version of ${toolId} starts with ${version}, use at your own risk`
     : undefined;
 
   const dropdownItems = [
@@ -247,6 +258,17 @@ const ToolRow = ({
                   value={version || undefined}
                   onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
                 />
+            ) : hasPrefixDropdown ? (
+              <BitkitSelect
+                size="lg"
+                placeholder="Select"
+                items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...prefixOptions]}
+                isLoading={isVersionsLoading}
+                state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                warningText={unmatchedPrefixWarning}
+                value={version || ANY_PREFIX_VALUE}
+                onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
+              />
               ) : (
                 <BitkitTextInput
                   size="lg"
