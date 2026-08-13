@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@bitrise/bitkit": "^13.359.0",
-    "@bitrise/bitkit-v2": "0.3.324",
+    "@bitrise/bitkit-v2": "^0.3.324",
     "@bitrise/languageserver": "github:bitrise-io/bitrise-yml-language-server#d28eca30c83c37e69ad4093681e0152160a8fbb0",
     "@dagrejs/dagre": "^3.0.0",
     "@datadog/browser-rum": "^7.4.0",
