@@ -1,14 +1,6 @@
 import { mapValues } from 'es-toolkit';
 
-import {
-  MachineRegionName,
-  MachineType,
-  Stack,
-  StackOS,
-  StackStatus,
-  StackVersions,
-  StackVersionTier,
-} from '../models/StackAndMachine';
+import { MachineRegionName, MachineType, Stack, StackOS, StackStatus, StackVersions } from '../models/StackAndMachine';
 import Client from './client';
 
 enum RegionID {
@@ -24,6 +16,7 @@ const regionNames: Record<string, MachineRegionName> = {
 type StackVersionsApiItem = {
   latest_version?: string;
   rollback_version?: string;
+  datacenters?: string[];
 };
 
 type StackApiItem = {
@@ -39,7 +32,9 @@ type StackApiItem = {
   rollback_version?: {
     [machineTypeId: string]: { free?: string; paying?: string };
   };
-  available_on_machines?: Partial<Record<StackVersionTier, { [machineTypeId: string]: StackVersionsApiItem }>>;
+  available_on_machines?: {
+    [availabilityGroup: string]: { [machineTypeId: string]: StackVersionsApiItem };
+  };
 };
 
 type StackGroupApiItem = {
@@ -52,9 +47,10 @@ type MachineApiItem = {
   available_in_regions: Partial<Record<string, MachineTypeInfoApi | MachineTypeInfoApi[]>>;
   available_on_stacks?: string[];
   credit_per_min?: number;
-  exact_machine_type_ids?: string[];
   id: string;
   is_disabled: boolean;
+  /** The exact machine types of a machine resource class. Absent for exact machine types. */
+  machine_types?: string[];
   name: string;
   os_id?: string;
 };
@@ -101,6 +97,7 @@ function mapStackStatus(status: string): StackStatus {
   return 'unknown';
 }
 
+// The datacenters of a machine type are deliberately dropped, the editor has no use for them.
 function toStackVersions(item: StackVersionsApiItem): StackVersions {
   return {
     latestVersion: item.latest_version,
@@ -155,7 +152,7 @@ function toMachineType(item: MachineApiItem): MachineType {
     isDisabled: item.is_disabled,
     availableInRegions,
     availableOnStacks: item.available_on_stacks ?? [],
-    exactMachineTypeIds: item.exact_machine_type_ids ?? [],
+    exactMachineTypeIds: item.machine_types ?? [],
   };
 }
 

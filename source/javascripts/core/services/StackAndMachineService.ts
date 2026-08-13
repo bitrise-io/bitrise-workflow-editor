@@ -92,6 +92,9 @@ function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType
  * A machine resource class can schedule a build onto any of the exact machine types it stands for, so
  * a rollback is only offered when the very same version is published for all of them — otherwise the
  * build could land on a machine where that stack version doesn't exist.
+ *
+ * Only the pricing tier group of the machine availability is consulted; workspace-specific groups are
+ * left alone, the same way the rollback version map has always been read.
  */
 function getAvailableRollbackVersion({
   stack,

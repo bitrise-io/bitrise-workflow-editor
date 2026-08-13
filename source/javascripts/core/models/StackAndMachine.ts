@@ -12,6 +12,9 @@ export type StackVersions = {
   rollbackVersion?: string;
 };
 
+/** Stack versions keyed by exact machine type ID. */
+export type StackVersionsByMachineType = Partial<Record<string, StackVersions>>;
+
 export type Stack = {
   id: string;
   os: StackOS;
@@ -21,8 +24,11 @@ export type Stack = {
   descriptionUrl?: string;
   machineTypes: string[];
   rollbackVersion?: Record<string, { free?: string; paying?: string }>;
-  /** Stack versions per pricing tier, keyed by exact machine type ID. */
-  availableOnMachines?: Partial<Record<StackVersionTier, Record<string, StackVersions>>>;
+  /**
+   * Machine availability keyed by group: the `free` and `paying` pricing tiers, plus a group of the
+   * requesting workspace where the stack has workspace-specific availability.
+   */
+  availableOnMachines?: Partial<Record<string, StackVersionsByMachineType>>;
 };
 
 export type StackGroup = {

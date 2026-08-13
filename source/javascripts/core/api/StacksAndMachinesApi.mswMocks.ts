@@ -267,7 +267,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           name: 'Mac Medium',
           os_id: 'macos',
           is_disabled: false,
-          exact_machine_type_ids: ['g2.mac.m2pro.4c-6g', 'g2.mac.m4.5c-6g'],
+          machine_types: ['g2.mac.m2pro.4c-6g', 'g2.mac.m4.5c-6g'],
           available_in_regions: {
             'region-us': {
               name: 'Machine in US',
@@ -296,7 +296,7 @@ function groupedMachines(options?: Options): MachineGroupApiItem[] {
           name: 'Mac Large',
           os_id: 'macos',
           is_disabled: true,
-          exact_machine_type_ids: ['g2.mac.m2pro.6c-14g', 'g2.mac.m4.5c-14g'],
+          machine_types: ['g2.mac.m2pro.6c-14g', 'g2.mac.m4.5c-14g'],
           available_in_regions: {
             'region-us': [
               {

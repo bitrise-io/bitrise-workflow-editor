@@ -2123,6 +2123,25 @@ describe('StackAndMachineService', () => {
           }),
         ).toBe('');
       });
+
+      it('ignores workspace-specific machine availability', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            'workspace-slug': {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+          }),
+        ).toBe('');
+      });
     });
   });
 
