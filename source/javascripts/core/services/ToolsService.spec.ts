@@ -53,6 +53,12 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'exact', version: ':latest' });
     });
 
+    it('tolerates non-string values from hand-edited YAML', () => {
+      expect(ToolsService.parseToolVersion(3.13 as unknown as string)).toEqual({ strategy: 'exact', version: '3.13' });
+      expect(ToolsService.parseToolVersion(null as unknown as string)).toEqual({ strategy: 'exact', version: '' });
+      expect(ToolsService.parseToolVersion(undefined as unknown as string)).toEqual({ strategy: 'exact', version: '' });
+    });
+
     it('parses keywords case-insensitively', () => {
       expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'latest-released' });
       expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'latest-released' });
