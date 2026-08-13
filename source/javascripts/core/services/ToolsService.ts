@@ -54,6 +54,30 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   }
 }
 
+/** Builds a parsed version from the row's controls, the strategy deciding what the fields mean. */
+function toParsedToolVersion(strategy: VersionStrategy, inputValue: string): ParsedToolVersion {
+  switch (strategy) {
+    case 'exact':
+      return { strategy, version: inputValue };
+    case 'unset':
+      return { strategy };
+    default:
+      return { strategy, prefix: inputValue };
+  }
+}
+
+/** The inverse of `toParsedToolVersion`: what the row's version field shows. */
+function getVersionInputValue(parsed: ParsedToolVersion): string {
+  switch (parsed.strategy) {
+    case 'exact':
+      return parsed.version;
+    case 'unset':
+      return '';
+    default:
+      return parsed.prefix ?? '';
+  }
+}
+
 function validateScope(scope: ToolScope, doc = bitriseYmlStore.getState().ymlDocument) {
   if (scope.type === 'workflow') {
     WorkflowService.getWorkflowOrThrowError(scope.workflowId, doc);
@@ -164,22 +188,11 @@ function validateToolId(id: string, initialId: string, existingIds: string[] = [
   return true;
 }
 
-function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, scope: ToolScope) {
-  if (strategy === 'unset' && scope.type === 'root') {
+function setTool(toolId: string, parsed: ParsedToolVersion, scope: ToolScope) {
+  if (parsed.strategy === 'unset' && scope.type === 'root') {
     throw new Error('Cannot use "unset" strategy at root scope');
   }
 
-  let parsed: ParsedToolVersion;
-  switch (strategy) {
-    case 'exact':
-      parsed = { strategy, version: inputValue };
-      break;
-    case 'unset':
-      parsed = { strategy };
-      break;
-    default:
-      parsed = { strategy, prefix: inputValue };
-  }
   const versionString = serializeToolVersion(parsed);
 
   updateBitriseYmlDocument(({ doc }) => {
@@ -241,6 +254,8 @@ function renameTool(oldId: string, newId: string, scope: ToolScope) {
 export type { ToolScope };
 export default {
   parseToolVersion,
+  toParsedToolVersion,
+  getVersionInputValue,
   setTool,
   deleteTool,
   renameTool,
