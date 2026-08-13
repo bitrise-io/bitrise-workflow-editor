@@ -122,6 +122,57 @@ function getVersionOptions(
   return ordered.map((version) => ({ value: version, label: version }));
 }
 
+function byMinorDesc(a: string, b: string): number {
+  return Number(b.split('.')[1]) - Number(a.split('.')[1]);
+}
+
+/**
+ * Builds the prefix dropdown options: every major, each followed by its own `major.minor` pairs,
+ * newest first. A catalog holding 24.2.0, 22.11.0 and 22.4.1 offers 24, 24.2, 22, 22.11, 22.4.
+ *
+ * Entries that are not semver cannot be range matched, so they are left out, unless the catalog
+ * holds no semver entries at all and its values are offered verbatim instead. A `currentPrefix`
+ * the catalog does not cover is injected at the top, so the dropdown reflects the YAML.
+ */
+function getPrefixOptions(
+  toolVersions: ToolVersions | undefined,
+  currentPrefix: string,
+): { value: string; label: string }[] {
+  const versions = toolVersions?.versions ?? [];
+  const semverVersions = versions.filter(({ isSemver }) => isSemver);
+
+  let prefixes: string[];
+  if (semverVersions.length === 0) {
+    prefixes = versions.map(({ version }) => version);
+  } else {
+    const minorsByMajor = new Map<number, Set<string>>();
+    semverVersions.forEach(({ version }) => {
+      const parsed = semver.parse(version);
+      if (!parsed) {
+        return;
+      }
+      const minors = minorsByMajor.get(parsed.major) ?? new Set<string>();
+      minors.add(`${parsed.major}.${parsed.minor}`);
+      minorsByMajor.set(parsed.major, minors);
+    });
+
+    prefixes = [...minorsByMajor.entries()]
+      .sort(([a], [b]) => b - a)
+      .flatMap(([major, minors]) => [String(major), ...[...minors].sort(byMinorDesc)]);
+  }
+
+  if (currentPrefix && !prefixes.includes(currentPrefix)) {
+    prefixes.unshift(currentPrefix);
+  }
+
+  return prefixes.map((prefix) => ({ value: prefix, label: prefix }));
+}
+
+/** Whether any catalog version falls under `prefix`. */
+function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
+  return getPrefixOptions(toolVersions, '').some(({ value }) => value === prefix);
+}
+
 function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
   return toolVersions.versions.some((entry) => entry.version === version);
 }
@@ -248,7 +299,9 @@ export default {
   isKnownToolId,
   resolveToolName,
   getVersionOptions,
+  getPrefixOptions,
   isVersionInCatalog,
+  isPrefixInCatalog,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,

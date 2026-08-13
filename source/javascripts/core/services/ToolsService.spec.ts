@@ -201,6 +201,77 @@ describe('ToolsService', () => {
     });
   });
 
+  describe('getPrefixOptions', () => {
+    const values = (toolVersions: ToolVersions | undefined, currentPrefix = '') =>
+      ToolsService.getPrefixOptions(toolVersions, currentPrefix).map(({ value }) => value);
+
+    it('offers each major followed by its own minors, newest first', () => {
+      expect(values(versionCatalog('nodejs', ['22.4.1', '24.2.0', '22.11.0', '24.0.3']))).toEqual([
+        '24',
+        '24.2',
+        '24.0',
+        '22',
+        '22.11',
+        '22.4',
+      ]);
+    });
+
+    it('sorts minors numerically, not as strings', () => {
+      expect(values(versionCatalog('nodejs', ['22.4.1', '22.11.0']))).toEqual(['22', '22.11', '22.4']);
+    });
+
+    it('deduplicates majors and minors across patch releases', () => {
+      expect(values(versionCatalog('nodejs', ['22.4.1', '22.4.2', '22.4.3']))).toEqual(['22', '22.4']);
+    });
+
+    it('leaves non-semver entries out of the derivation', () => {
+      const catalog: ToolVersions = {
+        toolId: 'nodejs',
+        versions: [
+          { version: 'lts-iron', isSemver: false },
+          { version: '22.4.1', isSemver: true },
+        ],
+      };
+
+      expect(values(catalog)).toEqual(['22', '22.4']);
+    });
+
+    it('offers non-semver values verbatim when the catalog has no semver entries at all', () => {
+      expect(values(versionCatalog('elixir', ['lts-iron', 'nightly'], false))).toEqual(['lts-iron', 'nightly']);
+    });
+
+    it('injects a configured prefix missing from the catalog at the top', () => {
+      expect(values(versionCatalog('nodejs', ['24.2.0']), '18')).toEqual(['18', '24', '24.2']);
+    });
+
+    it('does not duplicate a configured prefix the catalog already offers', () => {
+      expect(values(versionCatalog('nodejs', ['24.2.0']), '24.2')).toEqual(['24', '24.2']);
+    });
+
+    it('returns nothing when the version list is missing', () => {
+      expect(values(undefined)).toEqual([]);
+    });
+  });
+
+  describe('isPrefixInCatalog', () => {
+    const catalog = versionCatalog('nodejs', ['22.4.1', '24.2.0']);
+
+    it('accepts a major and a major.minor the catalog covers', () => {
+      expect(ToolsService.isPrefixInCatalog(catalog, '22')).toBe(true);
+      expect(ToolsService.isPrefixInCatalog(catalog, '22.4')).toBe(true);
+    });
+
+    it('rejects a prefix no catalog version falls under', () => {
+      expect(ToolsService.isPrefixInCatalog(catalog, '18')).toBe(false);
+      expect(ToolsService.isPrefixInCatalog(catalog, '22.9')).toBe(false);
+    });
+
+    it('rejects a prefix that only matches as a string', () => {
+      // `2` passes a startsWith check against 22.x and 24.x, but no one can resolve it as a major.
+      expect(ToolsService.isPrefixInCatalog(catalog, '2')).toBe(false);
+    });
+  });
+
   describe('isVersionInCatalog', () => {
     const catalog = versionCatalog('nodejs', ['24.0.0', '22.4.1']);
 
