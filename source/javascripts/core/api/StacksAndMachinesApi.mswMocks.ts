@@ -145,6 +145,14 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
                   'machine-y1',
                   'machine-y2',
                 ],
+          // A workspace running builds on machines of its own: the versions of `account-1` are the
+          // only ones that describe them, so they decide the rollback option on this stack.
+          available_on_machines: {
+            'account-1': {
+              'g2.mac.m2pro.4c-6g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latest_version: '2-83-0', rollback_version: '2-82-0' },
+            },
+          },
         },
         {
           id: 'osx-xcode-16.0.x-edge',

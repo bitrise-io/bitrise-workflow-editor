@@ -82,6 +82,7 @@ const StackAndMachine = ({
     stack: selectedStack,
     machineType: selectedMachineType,
     tier: rollbackType,
+    workspaceSlug: GlobalProps.workspaceSlug(),
   });
 
   const handleChange = useCallback(

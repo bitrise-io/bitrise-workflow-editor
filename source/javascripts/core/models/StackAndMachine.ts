@@ -1,7 +1,10 @@
 export type StackStatus = 'edge' | 'stable' | 'frozen' | 'unknown';
 export type StackOS = 'macos' | 'linux' | 'unknown';
 
-/** The workspace's pricing tier, which the available stack versions depend on. */
+/**
+ * The pricing tier of a workspace, one of the availability groups a stack publishes its versions
+ * under. A workspace running builds on machines of its own has a group of its own, keyed by its slug.
+ */
 export type StackVersionTier = 'free' | 'paying';
 
 /** The versions of a stack published for a single exact machine type. */
@@ -23,10 +26,11 @@ export type Stack = {
   description: string;
   descriptionUrl?: string;
   machineTypes: string[];
-  rollbackVersion?: Record<string, { free?: string; paying?: string }>;
+  /** Rollback versions per availability group, keyed by exact machine type ID. */
+  rollbackVersion?: Record<string, Partial<Record<string, string>>>;
   /**
    * Machine availability keyed by group: the `free` and `paying` pricing tiers, plus a group of the
-   * requesting workspace where the stack has workspace-specific availability.
+   * requesting workspace where it runs builds on machines of its own.
    */
   availableOnMachines?: Partial<Record<string, StackVersionsByMachineType>>;
 };

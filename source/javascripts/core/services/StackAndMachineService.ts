@@ -86,34 +86,54 @@ function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType
 }
 
 /**
+ * A workspace running builds on machines of its own — a dedicated fleet, or an availability override —
+ * has an availability group of its own, and that group is the only one describing those machines. The
+ * versions of the pricing tier belong to the public machines, and may not exist on the workspace's
+ * ones, so they are not mixed into it.
+ */
+function getAvailabilityGroup(stack: Stack, tier: StackVersionTier, workspaceSlug?: string): string {
+  if (workspaceSlug && stack.availableOnMachines?.[workspaceSlug]) {
+    return workspaceSlug;
+  }
+
+  return tier;
+}
+
+/**
  * Returns the previous version of the stack the selected machine can run, or an empty string if there
  * is none.
  *
  * A machine resource class can schedule a build onto any of the exact machine types it stands for, so
  * a rollback is only offered when the very same version is published for all of them — otherwise the
  * build could land on a machine where that stack version doesn't exist.
- *
- * Only the pricing tier group of the machine availability is consulted; workspace-specific groups are
- * left alone, the same way the rollback version map has always been read.
  */
 function getAvailableRollbackVersion({
   stack,
   machineType,
   tier,
+  workspaceSlug,
 }: {
   stack: Stack;
   machineType: MachineType;
   tier: StackVersionTier;
+  workspaceSlug?: string;
 }): string {
-  const stackVersionsOfMachines = stack.availableOnMachines?.[tier];
+  const group = getAvailabilityGroup(stack, tier, workspaceSlug);
+  const stackVersionsOfMachines = stack.availableOnMachines?.[group];
   const exactMachineTypeIds = machineType.exactMachineTypeIds ?? [];
 
   if (exactMachineTypeIds.length === 0) {
     // An exact machine type only has to answer for itself. The rollback version map is the fallback
-    // for API responses that don't include the per-machine stack versions yet.
+    // for API responses that don't include the per-machine stack versions yet. There a workspace
+    // version is an override of its pricing tier's for that one machine type, not an availability
+    // map of its own, so the tier remains the fallback of it.
+    const rollbackVersionsOfMachine = stack.rollbackVersion?.[machineType.id];
+    const workspaceRollbackVersion = workspaceSlug ? rollbackVersionsOfMachine?.[workspaceSlug] : undefined;
+
     return (
       stackVersionsOfMachines?.[machineType.id]?.rollbackVersion ||
-      stack.rollbackVersion?.[machineType.id]?.[tier] ||
+      workspaceRollbackVersion ||
+      rollbackVersionsOfMachine?.[tier] ||
       ''
     );
   }

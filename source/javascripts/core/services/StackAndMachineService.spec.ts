@@ -2007,6 +2007,39 @@ describe('StackAndMachineService', () => {
           }),
         ).toBe('');
       });
+
+      it('returns the rollback version of the workspace machine availability', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            'workspace-slug': { 'm2.medium': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' } },
+            paying: { 'm2.medium': { latestVersion: '2-83-0' } },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'paying',
+            workspaceSlug: 'workspace-slug',
+          }),
+        ).toBe('2-82-0');
+      });
+
+      it('prefers the workspace rollback version over the one of the pricing tier', () => {
+        const stack = createStack({
+          rollbackVersion: { 'm2.medium': { paying: '2-82-0', 'workspace-slug': '2-81-0' } },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: createMachineType({ id: 'm2.medium' }),
+            tier: 'paying',
+            workspaceSlug: 'workspace-slug',
+          }),
+        ).toBe('2-81-0');
+      });
     });
 
     describe('when a machine resource class is selected', () => {
@@ -2124,7 +2157,7 @@ describe('StackAndMachineService', () => {
         ).toBe('');
       });
 
-      it('ignores workspace-specific machine availability', () => {
+      it('returns the rollback version of the workspace machine availability', () => {
         const stack = createStack({
           availableOnMachines: {
             'workspace-slug': {
@@ -2139,8 +2172,53 @@ describe('StackAndMachineService', () => {
             stack,
             machineType: machineResourceClass,
             tier: 'paying',
+            workspaceSlug: 'workspace-slug',
+          }),
+        ).toBe('2-82-0');
+      });
+
+      it('returns an empty string when an exact machine type of the workspace has no rollback version', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            'workspace-slug': {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0' },
+            },
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+            workspaceSlug: 'workspace-slug',
           }),
         ).toBe('');
+      });
+
+      it('returns the rollback version of the pricing tier when the workspace has no availability of its own', () => {
+        const stack = createStack({
+          availableOnMachines: {
+            paying: {
+              'g2.mac.m2pro.4c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+              'g2.mac.m4.5c-6g': { latestVersion: '2-83-0', rollbackVersion: '2-82-0' },
+            },
+          },
+        });
+
+        expect(
+          StackAndMachineService.getAvailableRollbackVersion({
+            stack,
+            machineType: machineResourceClass,
+            tier: 'paying',
+            workspaceSlug: 'workspace-slug',
+          }),
+        ).toBe('2-82-0');
       });
     });
   });
