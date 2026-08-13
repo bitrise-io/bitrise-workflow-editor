@@ -184,7 +184,13 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
-      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} isReadOnly={isReadOnlyView} />}
+      {isToolVersionsEnabled && (
+        <ToolVersions
+          workflowId={workflowId}
+          isReadOnly={isReadOnlyView}
+          stackReportUrl={StackAndMachineService.getStackReportUrl(selectedStack, isInvalidStack)}
+        />
+      )}
     </StackAndMachineWrapper>
   );
 };

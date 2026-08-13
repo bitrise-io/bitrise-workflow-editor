@@ -26,11 +26,13 @@ import ToolRow from './ToolRow';
 
 type Props = {
   workflowId?: string;
+  /** Where "See the list of installed tools" points — the selected stack's report when there is one. */
+  stackReportUrl?: string;
   /** The store drops mutations here, so the rows must not pretend to accept edits. */
   isReadOnly?: boolean;
 };
 
-const ToolVersions = ({ workflowId, isReadOnly }: Props) => {
+const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
   const { replace } = useNavigation();
@@ -75,6 +77,15 @@ const ToolVersions = ({ workflowId, isReadOnly }: Props) => {
             CLI and step use
           </BitkitLink>
         </Text>
+        {stackReportUrl && (
+          <Text textStyle="body/md/regular" color="text/secondary">
+            Not sure what a version keyword resolves to?{' '}
+            <BitkitLink href={stackReportUrl} isExternal suffixIcon={IconOpenInNew} colorVariant="purple">
+              See the list of installed tools
+            </BitkitLink>{' '}
+            on the selected stack.
+          </Text>
+        )}
         {scope.type === 'workflow' && (
           <Text textStyle="body/md/regular" color="text/secondary">
             Looking for global settings which apply to all workflows? Go to the{' '}

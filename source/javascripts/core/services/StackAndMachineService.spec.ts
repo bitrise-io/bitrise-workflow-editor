@@ -1687,6 +1687,38 @@ describe('StackAndMachineService', () => {
     });
   });
 
+  describe('getStackReportUrl', () => {
+    const stackWithId = (id: string): Stack => ({ ...stacks[0], id });
+
+    it('deep-links to the stack report, anchored at the tool list', () => {
+      expect(StackAndMachineService.getStackReportUrl(stackWithId('osx-xcode-16.0.x'), false)).toBe(
+        'https://bitrise.io/stacks/stack_reports/osx-xcode-16.0.x#languages-and-runtimes',
+      );
+    });
+
+    it('uses the stack ID verbatim for linux stacks too', () => {
+      expect(StackAndMachineService.getStackReportUrl(stackWithId('linux-docker-android-22.04'), false)).toBe(
+        'https://bitrise.io/stacks/stack_reports/linux-docker-android-22.04#languages-and-runtimes',
+      );
+    });
+
+    it('falls back to the stack index for an invalid stack', () => {
+      expect(StackAndMachineService.getStackReportUrl(stackWithId('osx-xcode-11'), true)).toBe(
+        'https://bitrise.io/stacks/',
+      );
+    });
+
+    it('falls back to the stack index for a self-hosted pool', () => {
+      expect(StackAndMachineService.getStackReportUrl(stackWithId('agent-pool-stack'), false)).toBe(
+        'https://bitrise.io/stacks/',
+      );
+    });
+
+    it('falls back to the stack index when no stack is resolved yet', () => {
+      expect(StackAndMachineService.getStackReportUrl(stackWithId(''), false)).toBe('https://bitrise.io/stacks/');
+    });
+  });
+
   describe('changeStackAndMachine', () => {
     describe('stack OS remains the same', () => {
       it('keeps the default stack and machine type', () => {
