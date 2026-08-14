@@ -40,7 +40,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
 
   const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
   if (bare) {
-    return { strategy: 'latest-of', prefix: '', preferInstalled: bare.preferInstalled };
+    return { strategy: bare.preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
   }
 
   // Mirrors the CLI's greedy, end anchored `(.*):latest$`, so `a:b:latest` has prefix `a:b`.
@@ -63,6 +63,10 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return UNSET_KEYWORD;
+    case 'absolute-latest-released':
+      return LATEST_KEYWORD;
+    case 'absolute-latest-installed':
+      return INSTALLED_KEYWORD;
     case 'latest-of': {
       const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
 
@@ -83,6 +87,8 @@ function toParsedToolVersion(
     case 'exact':
       return { strategy, version: inputValue };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return { strategy };
     case 'latest-of':
       return { strategy, prefix: inputValue, preferInstalled };
@@ -95,6 +101,8 @@ function getVersionInputValue(parsed: ParsedToolVersion): string {
     case 'exact':
       return parsed.version;
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return '';
     case 'latest-of':
       return parsed.prefix;
@@ -333,11 +341,13 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
     case 'exact':
       return { strategy: 'exact', version: '' };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return parsed;
     case 'latest-of':
-      // The installed preference is about how a version is resolved, not about which tool, so it
-      // survives the rename even though the prefix does not.
-      return { strategy: 'latest-of', prefix: '', preferInstalled: parsed.preferInstalled };
+      // A prefix belongs to the old tool, and the new one has no candidates yet, so the row falls
+      // back to the equivalent absolute strategy rather than to an empty prefix.
+      return { strategy: parsed.preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
   }
 }
 
