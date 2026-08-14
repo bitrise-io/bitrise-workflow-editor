@@ -155,15 +155,18 @@ const ToolRow = ({
 
     return undefined;
   }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
-  // Only the prefix dropdown resolves, and the catalog has no preinstalled versions to offer.
+  // Both strategies that resolve against released versions get the hint: `latest-of` narrowed by
+  // its prefix, the absolute one from the whole list. Their installed counterparts get none,
+  // because the catalog lists released versions only.
   const resolvedVersionHint = useMemo(() => {
-    if (!hasPrefixDropdown || preferInstalled) {
+    const resolvesReleased = strategy === 'absolute-latest-released' || (isLatestOf && !preferInstalled);
+    if (!resolvesReleased) {
       return undefined;
     }
 
     const latestVersion = ToolsService.getLatestVersion(toolVersions, trimmedVersion);
     return latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
-  }, [hasPrefixDropdown, preferInstalled, toolVersions, trimmedVersion]);
+  }, [strategy, isLatestOf, preferInstalled, toolVersions, trimmedVersion]);
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -266,6 +269,7 @@ const ToolRow = ({
                 .map(([value, label]) => ({ value, label }))}
               value={strategy}
               state={isReadOnly ? 'readOnly' : undefined}
+              helperText={resolvedVersionHint}
               onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
             />
             {isLatestOf && (
