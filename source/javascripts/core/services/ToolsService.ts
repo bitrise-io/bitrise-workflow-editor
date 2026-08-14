@@ -252,6 +252,19 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): 
   return getVersionOptions(toolVersions).find(({ value }) => matchesPrefix(value, prefix))?.value;
 }
 
+/**
+ * The prefix to select when a row switches onto `latest-of`. Prefers the broadest prefix of the
+ * version it is switching away from, so a row reading 22.12.0 offers 22 rather than silently
+ * upgrading to the newest major. Falls back to the newest suggestion, then to a prefix of the
+ * current version, which is all a tool outside the catalog has to offer.
+ */
+function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
+  const options = getPrefixOptions(toolVersions).map(({ value }) => value);
+  const ownPrefixes = currentValue ? toPrefixes(currentValue) : [];
+
+  return ownPrefixes.find((prefix) => options.includes(prefix)) ?? options[0] ?? ownPrefixes[0] ?? '';
+}
+
 /** Whether the catalog has any version in `prefix`'s line. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
   return toolVersions.versions.some(({ version }) => matchesPrefix(version, prefix));
@@ -387,6 +400,7 @@ export default {
   getVersionOptions,
   getPrefixOptions,
   withConfiguredValue,
+  getSeedPrefix,
   getLatestVersion,
   isVersionInCatalog,
   isPrefixInCatalog,
