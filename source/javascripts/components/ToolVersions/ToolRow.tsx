@@ -153,8 +153,11 @@ const ToolRow = ({
   const unmatchedPrefixWarning = isPrefixMissingFromCatalog
     ? `No known version of ${toolId} starts with ${version}, use at your own risk`
     : undefined;
-  const latestVersion =
-    hasPrefixDropdown && !preferInstalled ? ToolsService.getLatestVersion(toolVersions, version) : undefined;
+  // Both strategies that resolve against released versions get the hint: `latest-of` narrowed by
+  // its prefix, the absolute one from the whole list. Their installed counterparts get none,
+  // because the catalog lists released versions only.
+  const resolvesReleased = strategy === 'absolute-latest-released' || (isLatestOf && !preferInstalled);
+  const latestVersion = resolvesReleased ? ToolsService.getLatestVersion(toolVersions, version) : undefined;
   const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
 
   const dropdownItems = [
@@ -258,6 +261,7 @@ const ToolRow = ({
                   .map(([value, label]) => ({ value, label }))}
                 value={strategy}
                 state={isReadOnly ? 'readOnly' : undefined}
+            helperText={resolvedVersionHint}
                 onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
               />
             {isLatestOf && (
