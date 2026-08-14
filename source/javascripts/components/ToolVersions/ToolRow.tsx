@@ -103,7 +103,12 @@ const ToolRow = ({
 
   // A tool the catalog knows has a version list, so both controls can be picked rather than typed.
   const isKnownCatalogTool = isToolIdKnown && !showCustomInput;
-  const isLatestOf = strategy === 'latest-of';
+  // A prefix being composed counts as `latest-of` already: with no candidates to seed from there is
+  // nothing to write yet, and an empty prefix would serialize to the bare keyword.
+  const isLatestOf = strategy === 'latest-of' || prefixDraft !== null;
+  // What the row is set to, which is `latest-of` from the moment a prefix starts being composed,
+  // before anything is written.
+  const effectiveStrategy: VersionStrategy = isLatestOf ? 'latest-of' : strategy;
   const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
@@ -131,8 +136,6 @@ const ToolRow = ({
     [catalogOptions, version],
   );
   const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
-  // Offered only where a prefix can be seeded, because an empty prefix is the absolute strategy.
-  const offersLatestOf = isLatestOf || seedPrefix !== '';
 
   const shownVersion = prefixDraft ?? version;
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
@@ -200,14 +203,21 @@ const ToolRow = ({
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
     if (newStrategy === 'latest-of') {
+      const installedNext = strategy === 'absolute-latest-installed';
+      if (seedPrefix === '') {
+        // Nothing to seed from, so the row waits for a typed prefix instead of writing a bare
+        // keyword that would read back as the absolute strategy.
+        setPrefixDraft('');
+        setVersionTouched(false);
+        return;
+      }
       // Strategy and prefix in one write: the bare keyword alone reads back as absolute.
-      onChange({
-        strategy: 'latest-of',
-        prefix: seedPrefix,
-        preferInstalled: strategy === 'absolute-latest-installed',
-      });
+      setPrefixDraft(null);
+      onChange({ strategy: 'latest-of', prefix: seedPrefix, preferInstalled: installedNext });
       return;
     }
+
+    setPrefixDraft(null);
 
     // Every other switch empties the version field, because an exact version and a prefix are not
     // interchangeable and the remaining strategies have no version at all.
@@ -223,7 +233,7 @@ const ToolRow = ({
   };
 
   const handleVersionChange = (newVersion: string) => {
-    onChange(ToolsService.toParsedToolVersion(strategy, newVersion, preferInstalled));
+    onChange(ToolsService.toParsedToolVersion(effectiveStrategy, newVersion, preferInstalled));
   };
 
   const handlePrefixDraftChange = (newPrefix: string) => {
@@ -271,14 +281,14 @@ const ToolRow = ({
             <BitkitSelect
               size="lg"
               items={Object.entries(STRATEGY_LABELS)
-                .filter(([value]) => (value === 'unset' ? allowUnset : value !== 'latest-of' || offersLatestOf))
+                .filter(([value]) => allowUnset || value !== 'unset')
                 .map(([value, label]) => ({ value, label }))}
-              value={strategy}
+              value={effectiveStrategy}
               state={isReadOnly ? 'readOnly' : undefined}
               helperText={strategyHint}
               onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
             />
-            {isLatestOf && (
+            {strategy === 'latest-of' && (
               <BitkitCheckbox
                 labelText={
                   <>
@@ -343,7 +353,7 @@ const ToolRow = ({
               ) : (
                 <BitkitTextInput
                   size="lg"
-                  placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+                  placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                   errorText={displayedVersionError}
                   helperText={versionHint}
                   warningText={displayedVersionError ? undefined : catalogWarning}
