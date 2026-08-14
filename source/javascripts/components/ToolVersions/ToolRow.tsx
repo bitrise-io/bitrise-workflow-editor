@@ -101,8 +101,9 @@ const ToolRow = ({
 
   // A tool the catalog knows has a version list, so both controls can be picked rather than typed.
   const isKnownCatalogTool = isToolIdKnown && !showCustomInput;
+  const isLatestOf = strategy === 'latest-of';
   const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
-  const hasPrefixDropdown = strategy === 'latest-of' && isKnownCatalogTool;
+  const hasPrefixDropdown = isLatestOf && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
@@ -124,6 +125,12 @@ const ToolRow = ({
     () => ToolsService.withConfiguredValue(catalogOptions, version),
     [catalogOptions, version],
   );
+
+  const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
+  // `latest-of` is offered wherever a prefix can be seeded. An empty one would serialize to the
+  // bare keyword and read back as the absolute strategy, so a row that cannot be seeded is not
+  // offered the strategy at all.
+  const offersLatestOf = isLatestOf || seedPrefix !== '';
 
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
   const trimmedVersion = version.trim();
@@ -189,8 +196,8 @@ const ToolRow = ({
       // second would serialize to `latest`, which reads back as the absolute strategy.
       onChange({
         strategy: 'latest-of',
-        prefix: ToolsService.getSeedPrefix(toolVersions, version),
-        installed: strategy === 'absolute-latest-installed',
+        prefix: seedPrefix,
+        preferInstalled: strategy === 'absolute-latest-installed',
       });
       return;
     }
@@ -250,13 +257,13 @@ const ToolRow = ({
             <BitkitSelect
               size="lg"
               items={Object.entries(STRATEGY_LABELS)
-                .filter(([value]) => allowUnset || value !== 'unset')
+                .filter(([value]) => (value === 'unset' ? allowUnset : value !== 'latest-of' || offersLatestOf))
                 .map(([value, label]) => ({ value, label }))}
               value={strategy}
               state={isReadOnly ? 'readOnly' : undefined}
               onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
             />
-            {strategy === 'latest-of' && (
+            {isLatestOf && (
               <BitkitCheckbox
                 labelText={
                   <>
@@ -280,7 +287,7 @@ const ToolRow = ({
           </Box>
         </BitkitTooltip>
 
-        {(strategy === 'exact' || strategy === 'latest-of') && (
+        {(strategy === 'exact' || isLatestOf) && (
           <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
             <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
               {/* A catalog-known tool always has at least one version to offer, so the dropdown
