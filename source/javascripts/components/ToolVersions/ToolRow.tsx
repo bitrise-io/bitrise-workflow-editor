@@ -26,14 +26,14 @@ type ToolRowFormValues = {
 };
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
-  'latest-of': 'Latest version of',
   exact: 'Exact version',
+  'latest-of': 'Latest version of',
+  'absolute-latest-released': 'Latest released version',
+  'absolute-latest-installed': 'Latest preinstalled version',
   unset: 'Do nothing (unset global setting)',
 };
 
 const OTHER_VALUE = '__other__';
-/** No prefix, i.e. the newest version overall. A sentinel, because '' means "nothing selected". */
-const ANY_PREFIX_VALUE = '__any__';
 
 const READ_ONLY_TOOLTIP_TEXT = 'To edit, switch to the module file that defines it.';
 const PREFER_INSTALLED_TOOLTIP_TEXT =
@@ -264,7 +264,7 @@ const ToolRow = ({
           </Box>
         </BitkitTooltip>
 
-        {strategy !== 'unset' && (
+        {(strategy === 'exact' || strategy === 'latest-of') && (
           <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
             <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
               {/* A catalog-known tool always has at least one version to offer, so the dropdown
@@ -294,13 +294,13 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...prefixOptions]}
+                  items={prefixOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                   helperText={resolvedVersionHint}
                   warningText={unmatchedPrefixWarning}
-                  value={version || ANY_PREFIX_VALUE}
-                  onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
+                  value={version || undefined}
+                  onValueChange={handleVersionChange}
                 />
               ) : (
                 <BitkitTextInput
