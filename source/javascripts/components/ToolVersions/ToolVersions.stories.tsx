@@ -60,17 +60,33 @@ export const WorkflowScope: Story = {
   },
 };
 
-/** Every latest-of combination at once: both keywords, with and without a prefix. */
-export const LatestOfStrategies: Story = {
+/** All five strategies at once, so each control combination is visible side by side. */
+export const AllStrategies: Story = {
+  args: { workflowId: 'generator' },
   parameters: {
     bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+      const yml = set({ ...TEST_BITRISE_YML }, 'workflows.generator.tools', {
         node: '22:latest',
         ruby: '3.3:installed',
         golang: 'latest',
         python: 'installed',
-        deno: '2.90:latest',
+        flutter: '3.32.0',
+        deno: 'latest',
+        elixir: 'unset',
       });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+/**
+ * A prefixed value on a tool the catalog does not know. `latest-of` has no candidates to offer
+ * here, so it stays available on free text only because the YAML already holds it.
+ */
+export const CatalogFreePrefix: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { deno: '2.90:latest' });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },
