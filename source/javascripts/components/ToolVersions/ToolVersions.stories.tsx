@@ -102,6 +102,16 @@ export const NonSemverTool: Story = {
   },
 };
 
+/** A catalog with no version numbers: the prefix is typed, since suggestions would be useless. */
+export const ChannelNamesOnly: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { elixir: 'night:latest' });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 /** A prefix the catalog cannot resolve. Still valid YAML, so it warns rather than errors. */
 export const UnknownPrefix: Story = {
   parameters: {

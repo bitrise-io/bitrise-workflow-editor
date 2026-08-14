@@ -15,6 +15,7 @@ const CATALOG: ToolCatalogEntry[] = [
   { name: 'python', aliases: [] },
   { name: 'flutter', aliases: [] },
   { name: 'java', aliases: [] },
+  { name: 'elixir', aliases: [] },
 ];
 
 // A tool is only listed in the catalog once it has at least one published version, so every
@@ -31,6 +32,8 @@ const VERSIONS: Record<string, string[]> = {
   flutter: ['3.35.1', '3.32.0', '3.29.3'],
   // Mostly not semver, like the real catalog: exercises string-derived prefixes.
   java: ['26.0.2', 'zulu-musl-8.96.0.19', 'zulu-musl-8.94.0.17', '18.0.1.1'],
+  // No version numbers at all, so a prefix has to be typed.
+  elixir: ['nightly', 'stable', 'edge'],
 };
 
 /**
