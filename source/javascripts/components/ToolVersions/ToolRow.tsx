@@ -26,10 +26,10 @@ type ToolRowFormValues = {
 };
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
-  exact: 'Exact version',
   'latest-of': 'Latest version of',
   'absolute-latest-released': 'Latest released version',
   'absolute-latest-installed': 'Latest preinstalled version',
+  exact: 'Exact version',
   unset: 'Do nothing (unset global setting)',
 };
 
@@ -74,8 +74,7 @@ const ToolRow = ({
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
-  // The prefix being typed, or null while it is being picked from the dropdown. Only a string, so
-  // it never has to be reconciled with the strategy the YAML holds.
+  // The prefix being typed, or null while it is picked from the dropdown.
   const [prefixDraft, setPrefixDraft] = useState<string | null>(null);
 
   const { control } = useForm<ToolRowFormValues>({
@@ -111,12 +110,12 @@ const ToolRow = ({
     data: toolVersions,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-    // Fetched for any catalog-known tool, not just the strategies that display a version: picking
-    // `latest-of` has to seed a prefix in the same write, so the candidates must already be here.
+    // Fetched for every catalog-known tool: picking `latest-of` seeds a prefix from the candidates.
   } = useToolVersions(canonicalToolId, isKnownCatalogTool);
 
-  // Suggestions are only worth a dropdown when the catalog publishes version numbers. A catalog of
-  // channel names, or a tool the catalog does not know at all, gets the field instead.
+  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
+  const prefixOptions = ToolsService.getPrefixOptions(toolVersions, version);
+  // A dropdown is only worth it when the catalog publishes version numbers.
   const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
   const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && hasVersionNumbers;
   const hasPrefixInput = isLatestOf && !hasPrefixDropdown;
@@ -131,9 +130,7 @@ const ToolRow = ({
     [hasPrefixDropdown, toolVersions, version],
   );
   const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
-  // `latest-of` is offered wherever a prefix can be seeded. An empty one would serialize to the
-  // bare keyword and read back as the absolute strategy, so a row that cannot be seeded is not
-  // offered the strategy at all.
+  // Offered only where a prefix can be seeded, because an empty prefix is the absolute strategy.
   const offersLatestOf = isLatestOf || seedPrefix !== '';
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
@@ -149,8 +146,7 @@ const ToolRow = ({
   );
 
   const shownVersion = prefixDraft ?? version;
-  // Both fields need a value. An empty prefix would serialize to the bare keyword and read back as
-  // the absolute strategy, so it is held in the field rather than written.
+  // Both fields need a value, so an empty prefix is held in the field rather than written.
   const versionError =
     (strategy === 'exact' || hasPrefixInput) && shownVersion.trim() === ''
       ? `Tool version ${hasPrefixInput ? 'prefix ' : ''}is required`
@@ -164,14 +160,11 @@ const ToolRow = ({
   const unmatchedPrefixWarning = isPrefixMissingFromCatalog
     ? `No known version of ${toolId} starts with ${version}, use at your own risk`
     : undefined;
-  // Both strategies that resolve against released versions get the hint: `latest-of` narrowed by
-  // its prefix, the absolute one from the whole list. Their installed counterparts get none,
-  // because the catalog lists released versions only.
+  // The installed variants get no hint, because the catalog lists released versions only.
   const resolvesReleased = strategy === 'absolute-latest-released' || (isLatestOf && !preferInstalled);
   const latestVersion = resolvesReleased ? ToolsService.getLatestVersion(toolVersions, version) : undefined;
   const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
-  // The hint belongs under whichever control decides it: the prefix for `latest-of`, the strategy
-  // itself for the absolute one, which has no version control of its own.
+  // `latest-of` explains itself under its prefix, the absolute strategy under the picker.
   const strategyHint = isLatestOf ? undefined : resolvedVersionHint;
   const versionHint = isLatestOf ? resolvedVersionHint : undefined;
 
@@ -207,8 +200,7 @@ const ToolRow = ({
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
     if (newStrategy === 'latest-of') {
-      // Seeded in the same write as the strategy. Writing the bare keyword first and the prefix
-      // second would serialize to `latest`, which reads back as the absolute strategy.
+      // Strategy and prefix in one write: the bare keyword alone reads back as absolute.
       onChange({
         strategy: 'latest-of',
         prefix: seedPrefix,

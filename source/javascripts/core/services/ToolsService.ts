@@ -188,10 +188,9 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): 
 }
 
 /**
- * The prefix to select when a row switches onto `latest-of`. Prefers the broadest prefix of the
- * version it is switching away from, so a row reading 22.12.0 offers 22 rather than silently
- * upgrading to the newest major. Falls back to the newest suggestion, then to a prefix of the
- * current version, which is all a tool outside the catalog has to offer.
+ * The prefix to select when a row switches onto `latest-of`. Prefers a suggested prefix of the
+ * version it is switching away from, so a row reading 22.12.0 offers 22 rather than upgrading to
+ * the newest major. Falls back to the newest suggestion, then to the current version's own prefix.
  */
 function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
   const options = getPrefixOptions(toolVersions, '').map(({ value }) => value);
@@ -293,8 +292,7 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
     case 'absolute-latest-installed':
       return parsed;
     case 'latest-of':
-      // A prefix belongs to the old tool, and the new one has no candidates yet, so the row falls
-      // back to the equivalent absolute strategy rather than to an empty prefix.
+      // The prefix belonged to the old tool, and the new one has no candidates yet.
       return { strategy: parsed.preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
   }
 }
