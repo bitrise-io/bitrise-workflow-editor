@@ -122,55 +122,49 @@ function getVersionOptions(
   return ordered.map((version) => ({ value: version, label: version }));
 }
 
-function byMinorDesc(a: string, b: string): number {
-  return Number(b.split('.')[1]) - Number(a.split('.')[1]);
+/**
+ * Every proper prefix of `version` cut at a separator: `zulu-musl-8.96.0` yields `zulu`,
+ * `zulu-musl`, `zulu-musl-8` and `zulu-musl-8.96`. A value with no separator has no proper prefix,
+ * so it stands in for itself.
+ */
+function toPrefixes(version: string): string[] {
+  const cuts = [...version].flatMap((char, index) => (/[.\-_+]/.test(char) ? [version.slice(0, index)] : []));
+  return cuts.length > 0 ? cuts : [version];
 }
 
 /**
- * Builds the prefix dropdown options: every major, each followed by its own `major.minor` pairs,
- * newest first. A catalog holding 24.2.0, 22.11.0 and 22.4.1 offers 24, 24.2, 22, 22.11, 22.4.
- *
- * Entries that are not semver cannot be range matched, so they are left out, unless the catalog
- * holds no semver entries at all and its values are offered verbatim instead. A `currentPrefix`
- * the catalog does not cover is injected at the top, so the dropdown reflects the YAML.
+ * Prefix suggestions taken from the version list, keeping its order so the newest come first.
+ * Derived by cutting each value at its separators rather than by parsing semver, because a prefix
+ * is matched as a string and most catalogs are not semver: java publishes `zulu-musl-8.96.0.19`,
+ * python `3.15.0rc1`. A `currentPrefix` the list does not suggest is added at the top, so the
+ * control always reflects the YAML.
  */
 function getPrefixOptions(
   toolVersions: ToolVersions | undefined,
   currentPrefix: string,
 ): { value: string; label: string }[] {
-  const versions = toolVersions?.versions ?? [];
-  const semverVersions = versions.filter(({ isSemver }) => isSemver);
+  const prefixes: string[] = [];
+  const seen = new Set<string>();
 
-  let prefixes: string[];
-  if (semverVersions.length === 0) {
-    prefixes = versions.map(({ version }) => version);
-  } else {
-    const minorsByMajor = new Map<number, Set<string>>();
-    semverVersions.forEach(({ version }) => {
-      const parsed = semver.parse(version);
-      if (!parsed) {
-        return;
+  (toolVersions?.versions ?? []).forEach(({ version }) => {
+    toPrefixes(version).forEach((prefix) => {
+      if (prefix && !seen.has(prefix)) {
+        seen.add(prefix);
+        prefixes.push(prefix);
       }
-      const minors = minorsByMajor.get(parsed.major) ?? new Set<string>();
-      minors.add(`${parsed.major}.${parsed.minor}`);
-      minorsByMajor.set(parsed.major, minors);
     });
+  });
 
-    prefixes = [...minorsByMajor.entries()]
-      .sort(([a], [b]) => b - a)
-      .flatMap(([major, minors]) => [String(major), ...[...minors].sort(byMinorDesc)]);
-  }
-
-  if (currentPrefix && !prefixes.includes(currentPrefix)) {
+  if (currentPrefix && !seen.has(currentPrefix)) {
     prefixes.unshift(currentPrefix);
   }
 
   return prefixes.map((prefix) => ({ value: prefix, label: prefix }));
 }
 
-/** Whether any catalog version falls under `prefix`. */
+/** Whether any catalog version starts with `prefix`, which is how a prefix is matched. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
-  return getPrefixOptions(toolVersions, '').some(({ value }) => value === prefix);
+  return toolVersions.versions.some(({ version }) => version.startsWith(prefix));
 }
 
 function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
