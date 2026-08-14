@@ -1,7 +1,6 @@
 import {
   BitkitAlert,
   BitkitCheckbox,
-  BitkitCombobox,
   BitkitIconButton,
   BitkitLink,
   BitkitSelect,
@@ -76,6 +75,8 @@ const ToolRow = ({
   const [manualOther, setManualOther] = useState(false);
   // The prefix being typed, or null while it is picked from the dropdown.
   const [prefixDraft, setPrefixDraft] = useState<string | null>(null);
+  // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
+  const [versionSearch, setVersionSearch] = useState('');
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -118,6 +119,11 @@ const ToolRow = ({
     // Fetched for every catalog-known tool: picking `latest-of` seeds a prefix from the candidates.
   } = useToolVersions(canonicalToolId, isKnownCatalogTool);
 
+  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
+  const searchedVersionOptions = versionSearch
+    ? versionOptions.filter(({ label }) => label.toLowerCase().includes(versionSearch.toLowerCase()))
+    : versionOptions;
+  const prefixOptions = ToolsService.getPrefixOptions(toolVersions, version);
   // A dropdown is only worth it when the catalog publishes version numbers.
   const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
   const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && hasVersionNumbers;
@@ -316,25 +322,24 @@ const ToolRow = ({
               {/* A catalog-known tool always has at least one version to offer, so the dropdown
                   applies whenever one is possible at all. */}
               {isExactKnownTool ? (
-                <BitkitCombobox
+                <BitkitSelect
                   size="lg"
                   placeholder="Select"
                   emptyLabel="No matches"
-                  items={versionOptions}
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   // With no version list there is nothing to pick from. Read-only rather than
                   // disabled, so the configured version stays legible and reachable by keyboard
                   // and screen readers; the alert below points to the YAML editor instead.
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                   // Closing the menu without picking counts as visiting and leaving the field.
-                  comboboxProps={{
-                    onOpenChange: (details) => !details.open && setVersionTouched(true),
-                    onBlur: () => setVersionTouched(true),
-                  }}
+                  selectProps={{ onOpenChange: (details) => !details.open && setVersionTouched(true) }}
                   errorText={displayedVersionError}
                   warningText={catalogMismatchWarning}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
                   value={version || undefined}
-                  onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
+                  onValueChange={handleVersionChange}
                 />
               ) : hasPrefixDropdown ? (
                 <BitkitSelect
