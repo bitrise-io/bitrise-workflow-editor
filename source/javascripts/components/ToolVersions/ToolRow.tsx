@@ -74,6 +74,9 @@ const ToolRow = ({
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
+  // The prefix being typed, or null while it is being picked from the dropdown. Only a string, so
+  // it never has to be reconciled with the strategy the YAML holds.
+  const [prefixDraft, setPrefixDraft] = useState<string | null>(null);
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -103,7 +106,6 @@ const ToolRow = ({
   const isKnownCatalogTool = isToolIdKnown && !showCustomInput;
   const isLatestOf = strategy === 'latest-of';
   const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
-  const hasPrefixDropdown = isLatestOf && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
@@ -112,6 +114,12 @@ const ToolRow = ({
     // Fetched for any catalog-known tool, not just the strategies that display a version: picking
     // `latest-of` has to seed a prefix in the same write, so the candidates must already be here.
   } = useToolVersions(canonicalToolId, isKnownCatalogTool);
+
+  // Suggestions are only worth a dropdown when the catalog publishes version numbers. A catalog of
+  // channel names, or a tool the catalog does not know at all, gets the field instead.
+  const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
+  const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && hasVersionNumbers;
+  const hasPrefixInput = isLatestOf && !hasPrefixDropdown;
 
   // Catalogs can list thousands of versions, so only compute the one the active branch needs.
   const versionOptions = useMemo(
@@ -122,7 +130,6 @@ const ToolRow = ({
     () => (hasPrefixDropdown ? ToolsService.getPrefixOptions(toolVersions, version) : []),
     [hasPrefixDropdown, toolVersions, version],
   );
-
   const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
   // `latest-of` is offered wherever a prefix can be seeded. An empty one would serialize to the
   // bare keyword and read back as the absolute strategy, so a row that cannot be seeded is not
@@ -141,9 +148,13 @@ const ToolRow = ({
     [hasPrefixDropdown, toolVersions, version],
   );
 
-  // An exact strategy needs a concrete version. An empty prefix is valid and means the newest
-  // version overall, which serializes to bare `latest` or `installed`.
-  const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
+  const shownVersion = prefixDraft ?? version;
+  // Both fields need a value. An empty prefix would serialize to the bare keyword and read back as
+  // the absolute strategy, so it is held in the field rather than written.
+  const versionError =
+    (strategy === 'exact' || hasPrefixInput) && shownVersion.trim() === ''
+      ? `Tool version ${hasPrefixInput ? 'prefix ' : ''}is required`
+      : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
   // The configured value is not in the catalog, likely a leftover from hand written YAML. It is
   // still valid and may resolve at build time, so both cases warn rather than error.
@@ -217,6 +228,13 @@ const ToolRow = ({
 
   const handleVersionChange = (newVersion: string) => {
     onChange(ToolsService.toParsedToolVersion(strategy, newVersion, preferInstalled));
+  };
+
+  const handlePrefixDraftChange = (newPrefix: string) => {
+    setPrefixDraft(newPrefix);
+    if (newPrefix !== '') {
+      handleVersionChange(newPrefix);
+    }
   };
 
   const handlePreferInstalledChange = (newPreferInstalled: boolean) => {
@@ -331,10 +349,11 @@ const ToolRow = ({
                   size="lg"
                   placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                   errorText={displayedVersionError}
-                  state={isReadOnly ? 'readOnly' : undefined}
+                  warningText={displayedVersionError ? undefined : unmatchedPrefixWarning}
+                state={isReadOnly ? 'readOnly' : undefined}
                   inputProps={{
-                    value: version,
-                    onChange: (e) => handleVersionChange(e.target.value),
+                    value: shownVersion,
+                    onChange: (e) => (isLatestOf ? handlePrefixDraftChange : handleVersionChange)(e.target.value),
                     onBlur: () => setVersionTouched(true),
                   }}
                 />

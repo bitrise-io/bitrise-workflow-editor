@@ -92,6 +92,16 @@ export const CatalogFreePrefix: Story = {
   },
 };
 
+/** A catalog that is mostly not semver: prefixes come from cutting the values at separators. */
+export const NonSemverTool: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { java: 'zulu-musl-8:latest' });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 /** A prefix the catalog cannot resolve. Still valid YAML, so it warns rather than errors. */
 export const UnknownPrefix: Story = {
   parameters: {
