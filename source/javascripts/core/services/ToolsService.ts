@@ -239,6 +239,11 @@ function getPrefixOptions(toolVersions: ToolVersions | undefined): VersionOption
   ].map((prefix) => ({ value: prefix, label: prefix }));
 }
 
+/** What `prefix` resolves to: the newest catalog version in its line, or the newest overall. */
+function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): string | undefined {
+  return getVersionOptions(toolVersions).find(({ value }) => matchesPrefix(value, prefix))?.value;
+}
+
 /** Whether the catalog has any version in `prefix`'s line. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
   return toolVersions.versions.some(({ version }) => matchesPrefix(version, prefix));
@@ -372,6 +377,7 @@ export default {
   getVersionOptions,
   getPrefixOptions,
   withConfiguredValue,
+  getLatestVersion,
   isVersionInCatalog,
   isPrefixInCatalog,
   getToolIdOptions,
