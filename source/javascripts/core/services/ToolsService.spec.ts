@@ -278,6 +278,31 @@ describe('ToolsService', () => {
     });
   });
 
+  describe('getSeedPrefix', () => {
+    // Newest first, as the catalog API publishes it.
+    const catalog = versionCatalog('nodejs', ['24.2.0', '22.12.0', '22.4.1']);
+
+    it('keeps the broadest suggested prefix of the version being switched away from', () => {
+      expect(ToolsService.getSeedPrefix(catalog, '22.12.0')).toBe('22');
+      expect(ToolsService.getSeedPrefix(catalog, '22')).toBe('22');
+    });
+
+    it('falls back to the newest suggestion when the current value shares no prefix', () => {
+      expect(ToolsService.getSeedPrefix(catalog, '')).toBe('24');
+      expect(ToolsService.getSeedPrefix(catalog, 'lts-iron')).toBe('24');
+      expect(ToolsService.getSeedPrefix(catalog, '18.9.9')).toBe('24');
+    });
+
+    it('falls back to the current version own prefix when there are no suggestions', () => {
+      expect(ToolsService.getSeedPrefix(undefined, '2.90.0')).toBe('2');
+      expect(ToolsService.getSeedPrefix(undefined, 'nightly')).toBe('nightly');
+    });
+
+    it('returns an empty prefix with neither suggestions nor a current version', () => {
+      expect(ToolsService.getSeedPrefix(undefined, '')).toBe('');
+    });
+  });
+
   describe('isPrefixInCatalog', () => {
     const catalog = versionCatalog('nodejs', ['22.4.1', '24.2.0']);
 
