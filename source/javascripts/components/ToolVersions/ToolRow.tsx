@@ -223,16 +223,17 @@ const ToolRow = ({
 
     setPrefixDraft(null);
 
-    // Every other switch empties the version field, because an exact version and a prefix are not
-    // interchangeable and the remaining strategies have no version at all.
-    if (version !== '') {
-      // The switch emptied the field for the user, so let them fill it before it is flagged.
-      setVersionTouched(false);
-    } else if (newStrategy === 'exact') {
-      // The field was already empty, so it won't hit the branch above -> flag it immediately
-      // since it's already invalid.
-      setVersionTouched(true);
+    if (newStrategy === 'exact') {
+      // Seeded like `latest-of`, so the switch lands on a version rather than on a required field.
+      // A tool outside the catalog has nothing to seed from, so it is flagged straight away.
+      const newest = ToolsService.getLatestVersion(toolVersions) ?? '';
+      setVersionTouched(newest === '');
+      onChange({ strategy: 'exact', version: newest });
+      return;
     }
+
+    // The remaining strategies have no version at all, so the field goes with them.
+    setVersionTouched(false);
     onChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 
