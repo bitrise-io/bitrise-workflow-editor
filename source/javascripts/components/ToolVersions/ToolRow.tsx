@@ -108,7 +108,9 @@ const ToolRow = ({
     data: toolVersions,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-  } = useToolVersions(canonicalToolId, isExactKnownTool || hasPrefixDropdown);
+    // Fetched for any catalog-known tool, not just the strategies that display a version: picking
+    // `latest-of` has to seed a prefix in the same write, so the candidates must already be here.
+  } = useToolVersions(canonicalToolId, isKnownCatalogTool);
 
   // Only one branch renders, so build one list, and keep the catalog half out of the pick memo.
   const catalogOptions = useMemo(() => {
@@ -182,7 +184,18 @@ const ToolRow = ({
   };
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    // Every switch empties the version field, because an exact version and a prefix are not
+    if (newStrategy === 'latest-of') {
+      // Seeded in the same write as the strategy. Writing the bare keyword first and the prefix
+      // second would serialize to `latest`, which reads back as the absolute strategy.
+      onChange({
+        strategy: 'latest-of',
+        prefix: ToolsService.getSeedPrefix(toolVersions, version),
+        installed: strategy === 'absolute-latest-installed',
+      });
+      return;
+    }
+
+    // Every other switch empties the version field, because an exact version and a prefix are not
     // interchangeable and the remaining strategies have no version at all.
     if (version !== '') {
       // The switch emptied the field for the user, so let them fill it before it is flagged.
@@ -192,7 +205,7 @@ const ToolRow = ({
       // since it's already invalid.
       setVersionTouched(true);
     }
-    onChange(ToolsService.toParsedToolVersion(newStrategy, '', preferInstalled));
+    onChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 
   const handleVersionChange = (newVersion: string) => {
