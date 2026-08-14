@@ -79,10 +79,7 @@ export const AllStrategies: Story = {
   },
 };
 
-/**
- * A prefixed value on a tool the catalog does not know. `latest-of` has no candidates to offer
- * here, so it stays available on free text only because the YAML already holds it.
- */
+/** A prefixed value on a tool the catalog does not know: no candidates, so the prefix is typed. */
 export const CatalogFreePrefix: Story = {
   parameters: {
     bitriseYmlStore: (() => {
