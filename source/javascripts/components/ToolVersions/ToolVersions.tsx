@@ -28,8 +28,7 @@ const DOCS_URL =
   'https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions';
 const CLI_DOCS_URL = `${DOCS_URL}#tool-setup-during-workflow-execution`;
 
-// A new row has no tool yet, so it has no prefix candidates either. The absolute strategy is the
-// one that needs none.
+// A new row has no tool yet, so no prefix candidates either.
 const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'absolute-latest-released' };
 
 const HeaderLinkSeparator = () => (
