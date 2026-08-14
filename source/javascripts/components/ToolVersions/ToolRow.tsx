@@ -178,6 +178,10 @@ const ToolRow = ({
     const latestVersion = ToolsService.getLatestVersion(toolVersions, trimmedVersion);
     return latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
   }, [strategy, isLatestOf, preferInstalled, toolVersions, trimmedVersion]);
+  // The hint belongs under whichever control decides it: the prefix for `latest-of`, the strategy
+  // itself for the absolute one, which has no version control of its own.
+  const strategyHint = isLatestOf ? undefined : resolvedVersionHint;
+  const versionHint = isLatestOf ? resolvedVersionHint : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -287,7 +291,7 @@ const ToolRow = ({
                 .map(([value, label]) => ({ value, label }))}
               value={strategy}
               state={isReadOnly ? 'readOnly' : undefined}
-              helperText={resolvedVersionHint}
+              helperText={strategyHint}
               onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
             />
             {isLatestOf && (
@@ -346,7 +350,7 @@ const ToolRow = ({
                   items={versionOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  helperText={resolvedVersionHint}
+                  helperText={versionHint}
                   warningText={catalogWarning}
                   value={version || undefined}
                   onValueChange={handleVersionChange}
@@ -356,7 +360,8 @@ const ToolRow = ({
                   size="lg"
                   placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                   errorText={displayedVersionError}
-                  warningText={displayedVersionError ? undefined : unmatchedPrefixWarning}
+                  helperText={versionHint}
+                  warningText={displayedVersionError ? undefined : catalogWarning}
                   state={isReadOnly ? 'readOnly' : undefined}
                   inputProps={{
                     value: shownVersion,
