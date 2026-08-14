@@ -2,9 +2,8 @@ export type VersionStrategy = 'latest-of' | 'exact' | 'unset';
 
 export type ParsedToolVersion =
   /**
-   * The newest version matching `prefix`, as in `22:latest`. `installed` selects the preinstalled
-   * variant (`22:installed`), which prefers a preinstalled match over downloading one. An empty
-   * prefix serializes to the bare keyword.
+   * The newest version matching `prefix`, e.g. `22:latest`. `installed` picks the `:installed`
+   * variant, an empty prefix the bare keyword.
    */
   | { strategy: 'latest-of'; prefix: string; installed: boolean }
   | { strategy: 'exact'; version: string }
