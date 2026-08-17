@@ -9,13 +9,19 @@ import { CiConfigExpertAvailability } from '@/typings/globals';
 
 import useAIButton from './useAIButton';
 
-let availability: CiConfigExpertAvailability | undefined = 'enabled';
+type Settings = { ai: { ciConfigExpert: { availability: CiConfigExpertAvailability } } } | undefined;
+
+const withAvailability = (availability: CiConfigExpertAvailability): Settings => ({
+  ai: { ciConfigExpert: { availability } },
+});
+
+let settings: Settings;
 
 jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ __esModule: true, segmentTrack: jest.fn() }));
 jest.mock('@/core/utils/PageProps', () => ({
   __esModule: true,
   default: {
-    settings: () => ({ ai: { ciConfigExpert: { availability } } }),
+    settings: () => settings,
     appSlug: () => 'app-slug',
     app: () => ({}),
   },
@@ -36,7 +42,7 @@ const renderAIButton = () => renderHook(() => useAIButton({ action: 'explain_wor
 
 describe('useAIButton', () => {
   beforeEach(() => {
-    availability = 'enabled';
+    settings = withAvailability('enabled');
     bitriseYmlStore.setState({ tree: undefined });
   });
 
@@ -52,19 +58,19 @@ describe('useAIButton', () => {
 
   describe('availability', () => {
     it('hides every entry point when the agent is not available for the workspace', () => {
-      availability = 'unavailable';
+      settings = withAvailability('unavailable');
 
       expect(renderAIButton().isVisible).toBe(false);
     });
 
     it('hides every entry point when AI is switched off for the workspace', () => {
-      availability = 'disabled-by-workspace';
+      settings = withAvailability('disabled-by-workspace');
 
       expect(renderAIButton().isVisible).toBe(false);
     });
 
     it('points at the project settings when the project has not opted in', () => {
-      availability = 'disabled-by-project';
+      settings = withAvailability('disabled-by-project');
 
       const { isVisible, tooltipLabel, getAIButtonProps } = renderAIButton();
 
@@ -82,7 +88,7 @@ describe('useAIButton', () => {
     });
 
     it('hides every entry point when the parent has no settings at all (CLI mode)', () => {
-      availability = undefined;
+      settings = undefined;
 
       expect(renderAIButton().isVisible).toBe(false);
     });
