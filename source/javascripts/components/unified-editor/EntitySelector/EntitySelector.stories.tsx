@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
+import { aiButtonEnabled } from '@/storyutils/getAISettings.utils';
 
 import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 
@@ -56,16 +56,6 @@ export const WithSecondaryList: StoryObj<EntitySelectorProps> = {
 export const WithCreateWithAIButton: StoryObj<EntitySelectorProps> = {
   beforeEach: () => {
     window.parent.pageProps = aiButtonEnabled();
-  },
-  args: {
-    entityName: 'Workflow',
-  },
-  render: StoryComponent,
-};
-
-export const WithCreateWithAIButtonDisabled: StoryObj<EntitySelectorProps> = {
-  beforeEach: () => {
-    window.parent.pageProps = aiButtonDisabled();
   },
   args: {
     entityName: 'Workflow',

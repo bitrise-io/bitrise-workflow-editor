@@ -14,12 +14,7 @@ import {
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
-import {
-  aiButtonDisabled,
-  aiButtonEnabled,
-  aiButtonHidden,
-  aiButtonUnavailable,
-} from '@/storyutils/getAISettings.utils';
+import { aiButtonEnabled, aiButtonUnavailable } from '@/storyutils/getAISettings.utils';
 
 import WorkflowsPage from './WorkflowsPage';
 
@@ -165,33 +160,7 @@ export const EmptyCreateWithAI: Story = {
   },
 };
 
-export const EmptyCreateWithAIDisabled: Story = {
-  beforeEach: () => {
-    window.parent.pageProps = aiButtonDisabled();
-  },
-  parameters: {
-    bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'workflows', {});
-      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
-    })(),
-  },
-};
-
 export const EmptyWithoutCreateWithAI: Story = {
-  beforeEach: () => {
-    window.parent.pageProps = aiButtonHidden();
-  },
-  parameters: {
-    bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'workflows', {});
-      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
-    })(),
-  },
-};
-
-// Renders the same as EmptyWithoutCreateWithAI today; the two diverge once opted-out workspaces get
-// the button plus the opt-in modal, and only this one stays button-less.
-export const EmptyWithAIUnavailable: Story = {
   beforeEach: () => {
     window.parent.pageProps = aiButtonUnavailable();
   },

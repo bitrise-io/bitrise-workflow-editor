@@ -63,29 +63,20 @@ describe('useAIButton', () => {
       expect(renderAIButton().isVisible).toBe(false);
     });
 
-    it('hides every entry point when AI is switched off for the workspace', () => {
-      settings = withAvailability('disabled-by-workspace');
+    // An opted-out project or workspace is indistinguishable from an opted-in one here: the parent
+    // owns the difference and answers the click with the opt-in modal instead of the drawer.
+    it.each(['enabled', 'disabled-by-project', 'disabled-by-workspace'] as const)(
+      'offers a working entry point when the agent is available (%s)',
+      (availability) => {
+        settings = withAvailability(availability);
 
-      expect(renderAIButton().isVisible).toBe(false);
-    });
+        const { isVisible, tooltipLabel, getAIButtonProps } = renderAIButton();
 
-    it('points at the project settings when the project has not opted in', () => {
-      settings = withAvailability('disabled-by-project');
-
-      const { isVisible, tooltipLabel, getAIButtonProps } = renderAIButton();
-
-      expect(isVisible).toBe(true);
-      expect(getAIButtonProps().isDisabled).toBe(true);
-      expect(tooltipLabel).toBe('AI functions are disabled. Go to Project settings to turn them on.');
-    });
-
-    it('is enabled when the project has opted in', () => {
-      const { isVisible, tooltipLabel, getAIButtonProps } = renderAIButton();
-
-      expect(isVisible).toBe(true);
-      expect(getAIButtonProps().isDisabled).toBe(false);
-      expect(tooltipLabel).toBeUndefined();
-    });
+        expect(isVisible).toBe(true);
+        expect(getAIButtonProps().isDisabled).toBe(false);
+        expect(tooltipLabel).toBeUndefined();
+      },
+    );
 
     it('hides every entry point when the parent has no settings at all (CLI mode)', () => {
       settings = undefined;

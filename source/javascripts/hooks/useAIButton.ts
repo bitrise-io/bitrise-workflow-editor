@@ -60,10 +60,11 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   const isModular = Boolean(useTree());
 
   // The monolith folds the plan entitlement and the workspace- and project-level opt-in into this
-  // one value, so every AI entry point on both sides of the iframe reads the same verdict.
+  // one value, so every AI entry point on both sides of the iframe reads the same verdict. Only a
+  // workspace the assistant isn't available to at all hides them: an opted-out project still gets
+  // working buttons, and the parent answers the click with the opt-in modal instead of the drawer.
   const availability = PageProps.settings()?.ai?.ciConfigExpert?.availability;
-  const isVisible =
-    !!availability && availability !== 'unavailable' && availability !== 'disabled-by-workspace' && !isModular;
+  const isVisible = !!availability && availability !== 'unavailable' && !isModular;
 
   let tooltipLabel;
   let isDisabled = false;
@@ -74,9 +75,6 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
       tooltipLabel = 'AI functions are not available while an agentic run is in progress.';
     } else if (isAIDrawerOpen) {
       isDisabled = true;
-    } else if (availability === 'disabled-by-project') {
-      isDisabled = true;
-      tooltipLabel = 'AI functions are disabled. Go to Project settings to turn them on.';
     }
   }
 

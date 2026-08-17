@@ -19,8 +19,4 @@ const withCiConfigExpert = (availability: CiConfigExpertAvailability) => ({
 
 export const aiButtonEnabled = () => withCiConfigExpert('enabled');
 
-export const aiButtonDisabled = () => withCiConfigExpert('disabled-by-project');
-
-export const aiButtonHidden = () => withCiConfigExpert('disabled-by-workspace');
-
 export const aiButtonUnavailable = () => withCiConfigExpert('unavailable');

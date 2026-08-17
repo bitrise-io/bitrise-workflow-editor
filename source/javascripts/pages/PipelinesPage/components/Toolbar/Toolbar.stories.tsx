@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
-import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
+import { aiButtonEnabled } from '@/storyutils/getAISettings.utils';
 
 import Toolbar from './Toolbar';
 
@@ -21,12 +21,6 @@ export const Default: Story = {};
 export const WithCreateWithAIButton: StoryObj = {
   beforeEach: () => {
     window.parent.pageProps = aiButtonEnabled();
-  },
-};
-
-export const WithCreateWithAIButtonDisabled: StoryObj = {
-  beforeEach: () => {
-    window.parent.pageProps = aiButtonDisabled();
   },
 };
 
