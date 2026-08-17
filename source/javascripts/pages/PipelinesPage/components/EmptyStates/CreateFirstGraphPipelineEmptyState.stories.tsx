@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
-import { set } from 'es-toolkit/compat';
 
 import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
 
@@ -7,9 +6,6 @@ import CreateFirstGraphPipelineEmptyState from './CreateFirstGraphPipelineEmptyS
 
 export default {
   component: CreateFirstGraphPipelineEmptyState,
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
-  },
 } as Meta<typeof CreateFirstGraphPipelineEmptyState>;
 
 export const CreateFirstGraphPipelineWithoutCreateWithAI: StoryObj<typeof CreateFirstGraphPipelineEmptyState> = {};

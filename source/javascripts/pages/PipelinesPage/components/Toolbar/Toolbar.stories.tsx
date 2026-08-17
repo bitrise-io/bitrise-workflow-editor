@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
-import { set } from 'es-toolkit/compat';
 
 import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
 
@@ -9,9 +8,6 @@ type Story = StoryObj<typeof Toolbar>;
 
 const meta: Meta<typeof Toolbar> = {
   component: Toolbar,
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
-  },
   argTypes: {
     onCreatePipelineClick: { type: 'function' },
     onRunClick: { type: 'function' },

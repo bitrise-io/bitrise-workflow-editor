@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
-import { set } from 'es-toolkit/compat';
 import { useState } from 'react';
 
 import { aiButtonDisabled, aiButtonEnabled } from '@/storyutils/getAISettings.utils';
@@ -8,9 +7,6 @@ import EntitySelector, { EntitySelectorProps } from './EntitySelector';
 
 const meta: Meta<EntitySelectorProps> = {
   component: EntitySelector,
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
-  },
   args: {
     entityIds: [
       'Spongebob',

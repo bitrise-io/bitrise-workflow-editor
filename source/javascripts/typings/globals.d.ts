@@ -3,6 +3,10 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 
 export {};
 
+// The monolith's composed verdict on the CI config expert: the plan entitlement plus the
+// workspace- and project-level opt-in, resolved server-side (bitrise-website BIVS-3794).
+export type CiConfigExpertAvailability = 'unavailable' | 'enabled' | 'disabled-by-project' | 'disabled-by-workspace';
+
 export type AISettings<T> =
   | {
       disabled: 'by-project' | 'by-workspace' | 'unsupported';
@@ -70,7 +74,7 @@ declare global {
       };
       settings?: {
         ai: {
-          ciConfigExpert: AISettings<{ wfeIntegration: boolean }>;
+          ciConfigExpert: AISettings<{ wfeIntegration: boolean }> & { availability: CiConfigExpertAvailability };
           failedBuilds: AISettings<any>;
           fixer: AISettings<any>;
         };

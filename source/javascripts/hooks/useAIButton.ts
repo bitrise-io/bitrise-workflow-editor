@@ -7,7 +7,6 @@ import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import { useTree } from '@/hooks/useTree';
 
@@ -39,7 +38,6 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   const { action, source, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const isAIDrawerOpen = useCiConfigExpertStore((s) => s.isAIDrawerOpen);
-  const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
   const turnCount = useCiConfigExpertStore((s) => s.turnCount);
@@ -61,9 +59,11 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   // hide every AI entry point while a modular config is open rather than offer a broken action (BIVS-3735).
   const isModular = Boolean(useTree());
 
-  const ciConfigExpert = PageProps.settings()?.ai.ciConfigExpert;
-  const isEnabledByWorkspace = !!ciConfigExpert && ciConfigExpert.disabled !== 'by-workspace';
-  const isVisible = enableCiConfigExpertAgent && isEnabledByWorkspace && !isModular;
+  // The monolith folds the plan entitlement and the workspace- and project-level opt-in into this
+  // one value, so every AI entry point on both sides of the iframe reads the same verdict.
+  const availability = PageProps.settings()?.ai?.ciConfigExpert?.availability;
+  const isVisible =
+    !!availability && availability !== 'unavailable' && availability !== 'disabled-by-workspace' && !isModular;
 
   let tooltipLabel;
   let isDisabled = false;
@@ -74,12 +74,9 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
       tooltipLabel = 'AI functions are not available while an agentic run is in progress.';
     } else if (isAIDrawerOpen) {
       isDisabled = true;
-    } else if (ciConfigExpert?.disabled === 'by-project') {
+    } else if (availability === 'disabled-by-project') {
       isDisabled = true;
       tooltipLabel = 'AI functions are disabled. Go to Project settings to turn them on.';
-    } else if (ciConfigExpert?.disabled === 'unsupported') {
-      isDisabled = true;
-      tooltipLabel = 'AI functions are not available on your current plan.';
     }
   }
 

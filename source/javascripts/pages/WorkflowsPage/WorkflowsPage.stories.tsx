@@ -14,7 +14,12 @@ import {
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
-import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/storyutils/getAISettings.utils';
+import {
+  aiButtonDisabled,
+  aiButtonEnabled,
+  aiButtonHidden,
+  aiButtonUnavailable,
+} from '@/storyutils/getAISettings.utils';
 
 import WorkflowsPage from './WorkflowsPage';
 
@@ -22,9 +27,6 @@ type Story = StoryObj<typeof WorkflowsPage>;
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
-  },
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -119,7 +121,6 @@ export const NoContainerDefinitions: Story = {
     })(),
   },
   beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
     window.parent.pageProps = aiButtonEnabled();
   },
 };
@@ -179,6 +180,20 @@ export const EmptyCreateWithAIDisabled: Story = {
 export const EmptyWithoutCreateWithAI: Story = {
   beforeEach: () => {
     window.parent.pageProps = aiButtonHidden();
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+    })(),
+  },
+};
+
+// Renders the same as EmptyWithoutCreateWithAI today; the two diverge once opted-out workspaces get
+// the button plus the opt-in modal, and only this one stays button-less.
+export const EmptyWithAIUnavailable: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = aiButtonUnavailable();
   },
   parameters: {
     bitriseYmlStore: (() => {

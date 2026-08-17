@@ -26,7 +26,6 @@ export default {
   ],
   beforeEach: () => {
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
     window.parent.pageProps = aiButtonEnabled();
   },
 } as Meta<typeof PipelinesPage>;
