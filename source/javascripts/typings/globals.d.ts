@@ -74,7 +74,10 @@ declare global {
       };
       settings?: {
         ai: {
-          ciConfigExpert: AISettings<{ wfeIntegration: boolean }> & { availability: CiConfigExpertAvailability };
+          // Optional because the monolith only started sending it in bitrise-website#20666: a
+          // Workflow Editor build running against an older monolith gets the object without the
+          // field, so every read site has to guard.
+          ciConfigExpert: AISettings<{ wfeIntegration: boolean }> & { availability?: CiConfigExpertAvailability };
           failedBuilds: AISettings<any>;
           fixer: AISettings<any>;
         };
