@@ -119,6 +119,7 @@ const ToolVersions = ({ workflowId, isReadOnly }: Props) => {
               catalog={catalog}
               allowUnset={allowUnset}
               isCatalogLoading={isCatalogLoading}
+              isReadOnly={isReadOnly}
               onIdChange={(newId) => {
                 ToolsService.setTool(newId, pendingStrategy, pendingVersion, scope);
                 setHasPendingRow(false);
