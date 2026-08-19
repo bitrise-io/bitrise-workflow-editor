@@ -7,7 +7,7 @@ import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
-function parseToolVersion(rawValue: string): ParsedToolVersion {
+function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
   const raw = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
   const lower = raw.toLowerCase();
@@ -229,8 +229,7 @@ function renameTool(oldId: string, newId: string, scope: ToolScope) {
     YmlUtils.updateKeyByPath(doc, [...toolsPath, oldId], newId);
 
     const tools = YmlUtils.getMapIn(doc, toolsPath, true);
-    // A hand-edited YAML value may be a number (`python: 3.13`) or empty rather than a string.
-    const parsed = parseToolVersion(String(tools.get(newId) ?? ''));
+    const parsed = parseToolVersion(tools.get(newId));
     // Then overwrite its value: an exact version or prefix picked for the old tool is very
     // unlikely to be valid for the new one, so only the strategy carries over.
     YmlUtils.setIn(tools, [newId], serializeToolVersion(nextParsedVersionOnRename(parsed)), false);
