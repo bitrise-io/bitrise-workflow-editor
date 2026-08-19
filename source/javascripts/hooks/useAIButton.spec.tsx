@@ -5,17 +5,23 @@ import { renderHook } from '@testing-library/react';
 
 import { TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import { CiConfigExpertAvailability } from '@/typings/globals';
 
 import useAIButton from './useAIButton';
 
-// The CI config expert agent and the workspace enablement are the other two gates; force them on so
-// the test isolates the modular gate added in BIVS-3735.
+type Settings = { ai: { ciConfigExpert: { availability: CiConfigExpertAvailability } } } | undefined;
+
+const withAvailability = (availability: CiConfigExpertAvailability): Settings => ({
+  ai: { ciConfigExpert: { availability } },
+});
+
+let settings: Settings;
+
 jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ __esModule: true, segmentTrack: jest.fn() }));
-jest.mock('@/hooks/useFeatureFlag', () => ({ __esModule: true, default: () => true }));
 jest.mock('@/core/utils/PageProps', () => ({
   __esModule: true,
   default: {
-    settings: () => ({ ai: { ciConfigExpert: {} } }),
+    settings: () => settings,
     appSlug: () => 'app-slug',
     app: () => ({}),
   },
@@ -32,20 +38,50 @@ const ROOT: TreeNode = {
   includes: [],
 };
 
+const renderAIButton = () => renderHook(() => useAIButton({ action: 'explain_workflow' })).result.current;
+
 describe('useAIButton', () => {
-  it('is visible in a non-modular config', () => {
+  beforeEach(() => {
+    settings = withAvailability('enabled');
     bitriseYmlStore.setState({ tree: undefined });
+  });
 
-    const { result } = renderHook(() => useAIButton({ action: 'explain_workflow' }));
-
-    expect(result.current.isVisible).toBe(true);
+  it('is visible in a non-modular config', () => {
+    expect(renderAIButton().isVisible).toBe(true);
   });
 
   it('is hidden in a modular config (BIVS-3735)', () => {
     initializeModularConfig({ root: ROOT, branch: 'main', commitSha: SHA });
 
-    const { result } = renderHook(() => useAIButton({ action: 'explain_workflow' }));
+    expect(renderAIButton().isVisible).toBe(false);
+  });
 
-    expect(result.current.isVisible).toBe(false);
+  describe('availability', () => {
+    it('hides every entry point when the agent is not available for the workspace', () => {
+      settings = withAvailability('unavailable');
+
+      expect(renderAIButton().isVisible).toBe(false);
+    });
+
+    // An opted-out project or workspace is indistinguishable from an opted-in one here: the parent
+    // owns the difference and answers the click with the opt-in modal instead of the drawer.
+    it.each(['enabled', 'disabled-by-project', 'disabled-by-workspace'] as const)(
+      'offers a working entry point when the agent is available (%s)',
+      (availability) => {
+        settings = withAvailability(availability);
+
+        const { isVisible, tooltipLabel, getAIButtonProps } = renderAIButton();
+
+        expect(isVisible).toBe(true);
+        expect(getAIButtonProps().isDisabled).toBe(false);
+        expect(tooltipLabel).toBeUndefined();
+      },
+    );
+
+    it('hides every entry point when the parent has no settings at all (CLI mode)', () => {
+      settings = undefined;
+
+      expect(renderAIButton().isVisible).toBe(false);
+    });
   });
 });
