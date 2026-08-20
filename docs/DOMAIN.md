@@ -9,8 +9,8 @@ the code disagree, the code wins and the disagreement gets written down rather t
 over. If a fact stops being true, this file is wrong. Fix it.
 
 New to the codebase? Start with [README.md](README.md), then come back
-here. The mechanisms behind every claim below are in [ARCHITECTURE.md](ARCHITECTURE.md)
-and [SUBSYSTEMS.md](SUBSYSTEMS.md).
+here. The mechanisms behind every claim below are in [FLOWS.md](FLOWS.md) and
+[DECISIONS.md](DECISIONS.md).
 
 ---
 
@@ -81,7 +81,7 @@ referential integrity behind it.
 ```
 
 A `step_bundles` entry may reference another one. That is legal, recursive, and unguarded. See
-[SUBSYSTEMS.md](SUBSYSTEMS.md#step-bundles).
+[DECISIONS.md](DECISIONS.md#open-defects).
 
 ---
 
@@ -210,6 +210,43 @@ takes a `defaultStepLibrary` argument.
 **An empty version is not "unset". It is the policy *always latest*.** Removing a pin changes
 build behaviour. It is not tidying.
 
+### Trigger condition vocabulary
+
+The two trigger models share one shape and differ only in the words for a condition.
+
+| Concept | Legacy (`trigger_map`) | Target-based (`triggers:`) |
+|---|---|---|
+| Push branch | `push_branch` | `branch` |
+| PR target | `pull_request_target_branch` | `target_branch` |
+| PR source | `pull_request_source_branch` | `source_branch` |
+| PR label | `pull_request_label` | `label` |
+| PR comment | `pull_request_comment` | `comment` |
+| Tag | `tag` | `name` |
+| Commit message | `commit_message`, same in both |  |
+| Changed files | `changed_files`, same in both |  |
+
+Legacy keys are flat and prefixed (one object holds every condition kind); target-based keys are nested under their trigger type, so prefixes would be redundant. `LEGACY_TO_TARGET_BASED_CONDITION_MAP` is typed `Record<LegacyConditionType, …>`, so the compiler enforces totality. No reverse map exists.
+
+### Tool version grammar
+
+A `tools:` value is a small language, not a version.
+
+| In the YAML | Parses to | Means |
+|---|---|---|
+| `latest` | `{ strategy: 'latest-released' }` | Newest published version |
+| `installed` | `{ strategy: 'latest-installed' }` | Newest version already on the stack |
+| `20:latest` | `{ 'latest-released', prefix: '20' }` | Newest published inside the `20` line |
+| `20:installed` | `{ 'latest-installed', prefix: '20' }` | Newest installed inside the `20` line |
+| `unset` | `{ strategy: 'unset' }` | Do not manage this tool here |
+| `20.1.2` | `{ strategy: 'exact', version: '20.1.2' }` | Exactly that |
+| `20:banana` | `{ strategy: 'exact', version: '20:banana' }` | Exact, verbatim. An unrecognised suffix is not an error |
+
+> **All seven verified.** The keyword match is case-insensitive (`raw.toLowerCase()`) but the *prefix* keeps its original case, and `exact` keeps the raw string untouched. The colon split uses `indexOf(':') > 0`, so a leading colon never makes a prefix.
+
+> **Rule.** `unset` is **workflow-scope only**. `setTool` throws *Cannot use "unset" strategy at root scope*. It exists to opt one workflow out of a project default, so at the root it would mean nothing.
+
+> Reproduced: `setTool('nodejs', 'unset', '', { type: 'root' })` throws.
+
 ### Definition versus instance
 
 A step bundle is a function. The definition declares `inputs`, which are parameters with
@@ -316,7 +353,7 @@ Each of these was reproduced against the repo, not inferred.
 1. **Cross-file cascade.** Delete and rename don't reach other files. The pieces exist,
    `updateFileDocument` and the live entity index. What's missing is coordination and a policy
    decision, complicated by referencing files that may be `editable: false`.
-2. **Two unguarded recursions, same shape.** `getStepBundleChain` (see SUBSYSTEMS.md) and
+2. **Two unguarded recursions, same shape.** `getStepBundleChain` (see DECISIONS.md) and
    `getBeforeRunChain`/`getAfterRunChain` both recurse with no `seen` set, so a self-referencing
    or mutually recursive workflow or bundle throws `RangeError`. In both cases the UI filter that
    prevents *creating* a cycle is built from the same unguarded walk, so on an already-cyclic
@@ -342,7 +379,7 @@ Each of these was reproduced against the repo, not inferred.
 
 Per-area detail lives in the reference set: workflows, env vars, containers, stacks and
 machines, tools, steps and CVS, triggers, pipelines, step bundles, secrets, and the editor and
-language service. All of it is in [SUBSYSTEMS.md](SUBSYSTEMS.md).
+language service. The rationale for each is in [DECISIONS.md](DECISIONS.md).
 
 *Verified against the repo on 2026-08-20. The command behind each claim is in the lesson set
 this document was distilled from.*

@@ -16,9 +16,8 @@ Three companion documents, in the order you want them:
 - [docs/DOMAIN.md](docs/DOMAIN.md) is the domain model: entities, identity, the references between them,
   and which invariants anything actually enforces. Read it before designing anything that adds
   an entity, a reference between entities, or a cascade.
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/SUBSYSTEMS.md](docs/SUBSYSTEMS.md)
-  hold the verified detail: the cross-cutting mechanisms, then one section per feature area.
-  Every claim was checked against this repo with the command that checked it.
+- [docs/FLOWS.md](docs/FLOWS.md) walks the seven paths a change takes through the app, with
+  diagrams. [docs/DECISIONS.md](docs/DECISIONS.md) holds the rationale and the traps.
 
 This file covers where code goes. `docs/DOMAIN.md` covers what the code is about.
 
