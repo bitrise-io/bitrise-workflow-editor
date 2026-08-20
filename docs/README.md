@@ -21,17 +21,15 @@ carry the weight:
 | Marker | Means |
 |---|---|
 | `> **Rule.**` | Follow this. Going around it breaks something named in the next sentence. |
-| `> **Trap.**` | This will cost you an afternoon. Twelve of them, `grep -n '\*\*Trap\.\*\*' docs/*.md`. |
+| `> **Trap.**` | This will cost you an afternoon. `grep -n '\*\*Trap\.\*\*' docs/*.md` lists them. |
 | `> **Note.**` | Context worth having, not a rule. |
 | `> **Reproduced.**` | Demonstrated with a throwaway test, not inferred from reading. |
 
-Where a doc and the code disagree, **the code wins and the doc is a bug**. That is not a
-formality. This set was written by auditing the repo against its own `CLAUDE.md`, and it found
-that `import/no-cycle` was documented as enforced while being absent from every config, that the
-`useShallow` lint message pointed at a path that does not exist, and that page files described as
-"30 to 60 lines" measured 30 to 231. All three are fixed; the record is in
-[ARCHITECTURE.md](ARCHITECTURE.md#drift-this-set-found-in-claudemd) because the failure mode
-repeats.
+Where a doc and the code disagree, **the code wins and the doc is a bug**. This set came out of
+auditing the repo against its own `CLAUDE.md`, which turned out to assert three rules the code
+never obeyed. The lesson stuck: anything a machine can check is now a lint rule rather than a
+sentence, and counts are left out entirely, because a number nobody can reproduce reads as
+precision and isn't.
 
 ## Generating an onboarding from this
 

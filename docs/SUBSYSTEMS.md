@@ -172,7 +172,7 @@ in yml    normalized   resolves to   the UI calls it
 |---|---|
 | `version` | Literally what's in the YAML (denormalized) |
 | `normalizedVersion` | The semver range form the UI reasons in |
-| `resolvedVersion` | What it resolves to against today's available versions |
+| `resolvedVersion` | What it resolves to against the currently published versions |
 | `latestVersion` | Newest available overall |
 
 `denormalizeVersion` is `replace(/\.x/g, '')`; the round trip `2 → 2.x.x → 2` is lossless for every real input.
@@ -601,7 +601,7 @@ LicensePoolKind.UNITY = 'LICENSE_KIND_UNITY'
 
 Pools are a workspace resource fetched over the API; the config stores only `license_pool_id`, written by `updateLicensePoolId` through the same `updateFieldValue` path as stack and machine. The pool's own `envVarName` is how the licence reaches the build, which means a pool rename that changes that name is invisible to the config, because the config never mentions it.
 
-One kind exists today. The enum is there so a second one does not become a boolean.
+Only one kind is defined. The enum is there so a second one does not become a boolean.
 
 ### Scope validation
 

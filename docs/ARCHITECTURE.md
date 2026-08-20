@@ -32,7 +32,7 @@ Arrows point *toward the thing being imported*. Nothing ever points back up.
                  └─────────────────────────────────────┴──▶ core/utils (YmlUtils, …)
                                                        core/api ──▶ core/models
 
-  ├─ React lives here ─────────────┤├──── core/ : zero React, zero DOM ─────────┤
+  ├─ React lives here ─────────────┤├──── core/ : no React, no DOM  (lint) ─────────┤
 ```
 
 ### The layers
@@ -79,7 +79,7 @@ A fresh object identity is what invalidates `YmlUtils`' `WeakMap` caches (keyed 
 
 | Entry point | For | Called from |
 |---|---|---|
-| `updateBitriseYmlDocument(mutator)` | Structured, field-level edits | **Services only.** Zero `.tsx` callers. |
+| `updateBitriseYmlDocument(mutator)` | Structured, field-level edits | **Services only**, enforced by lint |
 | `updateBitriseYmlDocumentByString(s)` | Whole-document replacement from raw text | UI, legitimately: the YAML editor, the diff dialog, the AI drawer. |
 
 ### Where does X go?
@@ -108,26 +108,11 @@ A fresh object identity is what invalidates `YmlUtils`' `WeakMap` caches (keyed 
 
 ### Service conventions
 
-- Pure functions, exported as one object: `export default { … }`. Never classes. (15/15 services conform.)
+- Pure functions, exported as one object: `export default { … }`, never classes. A lint rule holds this.
 - Validate before mutating: `getXOrThrowError(id, doc)`.
 - Validators return `true`, or an error *message string*, not `false`.
 - Mutate only what's needed. Reordering or reformatting untouched YAML is a bug.
 - Dependency order: `WorkflowService` and `StepService` are foundational; `PipelineService` and friends build on them.
-
-### Drift this set found in `CLAUDE.md`
-
-Every claim below was false when the audit ran on 2026-08-20. The first two have since been
-fixed in `CLAUDE.md` and in `eslint.config.mjs`; they stay here as the record of what to watch
-for, because a rule that is documented but not enforced is the failure mode that repeats.
-
-| Claim | Reality when found | Status |
-|---|---|---|
-| `import/no-cycle: "error"` | **Not enabled anywhere.** Absent from `eslint.config.mjs`, from `@bitrise/eslint-plugin`, and from all three `eslint-plugin-import` configs that are extended. Cycles are prevented by convention only. | `CLAUDE.md` now says so |
-| Import `useShallow` from `@/core/hooks/useShallow` | **That path does not exist.** The hook lives at `@/hooks/useShallow`, which is what all 4 real imports use. The ESLint `no-restricted-imports` message named the wrong path too, so the rule, if it ever fired, sent you nowhere. | Both fixed |
-| Store file naming: `*.store.ts` | Mostly true, but `PipelinesPage.store.tsx` is `.tsx`. | Still true |
-| (Omission) The store holds one document | `CLAUDE.md` never mentioned **modular YAML mode**, the `tree` / `files` / `FileSlice` / merged-config-tab machinery that is roughly half of `BitriseYmlStore.ts`. | It has a section now |
-
----
 
 ## Modular YAML mode
 
@@ -227,21 +212,6 @@ Files get a `bitrise://` model URI, byte-identical to what the language server c
 - The merged preview runs as a **separate** language-service workspace on the `bitrise-merged://` scheme, so its flattened symbols don't pollute the real one.
 - `buildNodeUris` memoises in a `WeakMap` keyed by *tree identity*. Sound precisely because a keystroke clones `files` but never `tree`.
 
-### Map of the code
-
-| File | Holds |
-|---|---|
-| `core/models/Tree.ts` | Wire + internal types. Read the comments; they are the spec. |
-| `core/services/TreeService.ts` | `walk`, `findNode`, `serializeTree`, source labels |
-| `core/services/EntityIndexService.ts` | Precedence-ordered index built from live docs |
-| `core/stores/BitriseYmlStore.ts` | Slices, tabs, binding, both subscribers |
-| `hooks/useTree.ts` | Selectors: provenance, read-only view, model URIs |
-| `hooks/useMergedConfigSync.ts` | The re-merge loop |
-| `core/utils/lspModelUris.ts` | URI identity shared with the language server |
-| `core/api/BitriseYmlApi.ts` | `/config/tree`, `/config/merge`, wire ↔ model mapping |
-
----
-
 ## YAML preservation
 
 What survives a round-trip, and the rules that keep it that way.
@@ -252,7 +222,7 @@ What survives a round-trip, and the rules that keep it that way.
 
 1. **Never round-trip through JSON.** `toJSON` is for reading only. Serialising a plain object back to YAML destroys comments, key order and style.
 2. **Never hand-build YAML strings.** No template literals, no string concatenation.
-3. **Always go through `YmlUtils`.** 22 functions wrapping the `yaml` library; they operate on AST nodes, so unrelated bytes stay untouched.
+3. **Always go through `YmlUtils`.** It wraps the `yaml` library and works on AST nodes, so unrelated bytes stay untouched.
 
 ### What `toYml` actually does
 
@@ -349,7 +319,7 @@ Deletion case: when the remote removed lines you had, `conflict.b` is empty, so 
 | Copy | Used by | Positioning |
 |---|---|---|
 | `mergeYamls.ts` (exported) | Modular per-file dialog (flag-gated) | **Correct**. Merged-output line count |
-| `ConfigMergeDialog.tsx` (inline) | Legacy single-file dialog. **Ships today** | **Buggy**, `bIndex`/`oIndex` |
+| `ConfigMergeDialog.tsx` (inline) | Legacy single-file dialog. **Ships while `enable-wfe-modular-yaml-editing` is off** | **Buggy**, `bIndex`/`oIndex` |
 
 #### Review reflex
 
@@ -380,8 +350,8 @@ CLI plugin vs. monolith iframe. What differs, and where the branch belongs.
 | `core/api/*` | **Yes**. Endpoint paths and some request bodies differ |
 | Components | **Yes**, feature visibility (stacks & machines, some menus/notifications) |
 | `core/analytics` | **Yes**, Segment identifies a known user only on the website |
-| `core/services` | **No, zero occurrences** |
-| `core/stores` | **No, zero occurrences** |
+| `core/services` | **No.** Lint rejects it |
+| `core/stores` | **No.** Lint rejects it |
 
 Wanting `isWebsiteMode()` inside a service means the branch belongs elsewhere, usually in the API client, or as a prop decided by the component that knows.
 
@@ -389,11 +359,11 @@ Wanting `isWebsiteMode()` inside a service means the branch belongs elsewhere, u
 
 - **`window.env` does not exist under Jest.** `spec/setup-jest.ts` doesn't stub it, so `RuntimeUtils.isProduction()` *throws* in unit tests. `BitriseYmlStore.warnInDev` wraps it in `try/catch` for exactly this reason. Don't call `RuntimeUtils` from anything a service test will reach without handling it.
 - **This frame's own location is frozen.** The router only writes to the parent's hash, so `window.location` here stays at whatever it was on iframe load. That broke Intercom's page targeting; `useHashLocation` now mirrors the parent's hash locally before calling `Intercom('update')`. Read that comment before touching routing.
-- **`parent`, not `top`.** They coincide today; `parent` is the correct relationship if nesting ever changes.
+- **`parent`, not `top`.** They coincide unless the frame is nested deeper, and `parent` is the correct relationship either way.
 
 ### Known erosion
 
-`WindowUtils.location()` exists as the sanctioned way to read the host's URL and has **zero callers**. `window.parent.location.hash` appears 11 times across six production files, `useHashLocation`, `useSearchParams`, `useHashSearch`, `useFileTabs`, `useJumpToDefinition`, `Header.tsx`, `JumpToFileButton.tsx`, three of them the identical `recordActiveTabLocation(window.parent.location.hash)` line.
+`WindowUtils.location()` is the sanctioned way to read the host's URL, and code reaches straight past it to `window.parent.location.hash` instead, `useHashLocation`, `useSearchParams`, `useHashSearch`, `useFileTabs`, `useJumpToDefinition`, `Header.tsx`, `JumpToFileButton.tsx`, three of them the identical `recordActiveTabLocation(window.parent.location.hash)` line.
 
 Every read is correct; the cost is that the boundary no longer localises change. Either route them through `WindowUtils` or delete the unused accessor. The current state gets the downsides of both.
 
@@ -660,19 +630,6 @@ The cross-file opener is registered unconditionally, and that is safe: the only 
 - **Cross-file reveal polls.** `revealWhenReady` waits up to `REVEAL_MAX_ATTEMPTS = 60` animation frames (~1s) for the target editor to mount after a tab switch. Bounded so a blocked tab open cannot spin forever; generous so a large file still gets its range revealed instead of landing the user at line 1.
 - `yamlVersion: '1.1'` here matches `schema: 'yaml-1.1'` in `YmlUtils.toYml`. If one moves, both must, otherwise `yes`/`no` mean different things to the editor and the serializer ([Reference 03](#yaml-preservation)).
 
-### Map of the code
-
-| File | Holds |
-|---|---|
-| `hooks/useYmlLanguageServices.ts` | Model reconciliation, marker subscription, cross-file opener |
-| `core/utils/MonacoUtils.ts` | `configureForYaml`, the Bitrise LS wiring, env-var completion, marker aggregation |
-| `core/utils/lspModelUris.ts` | `bitrise://` URI construction, the exact-string contract with the LS |
-| `hooks/useModelValidationStatus.ts` | Per-model status for editors outside the store (diff, merge) |
-| `pages/YmlPage/components/{YmlEditor,ModularYmlEditor}.tsx` | The editor views |
-| `monaco-workers.ts`, `yaml.worker.ts` | Worker registration |
-
----
-
 ## The Go side
 
 Small, and it barely changes. Worth an hour once, then you can mostly forget it.
@@ -723,7 +680,7 @@ fallback:
 config.BitriseYMLPath = utility.EnvString("BITRISE_CONFIG", "bitrise.yml")
 ```
 
-`apiserver/config/config.go` is 22 lines and holds the constants rather than the env wiring:
+`apiserver/config/config.go` is short and holds the constants rather than the env wiring:
 `DefaultPort = "3645"`, `DefaultFrontendHost`, `DefaultFrontendPort = "4567"`,
 `MinimalValidSecrets`, `MinimalValidBitriseYML`, plus the `BitriseYMLPath` and `SecretsYMLPath`
 variables that `LaunchServer` fills in.

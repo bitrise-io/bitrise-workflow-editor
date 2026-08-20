@@ -83,7 +83,7 @@ spec/              # Test files (Jest unit + Playwright E2E)
 
 ### Patterns
 
-- **`core/` is framework-agnostic.** No React, no DOM. Pure TypeScript only
+- **`core/` is framework-agnostic.** No React, no DOM, enforced by lint. Pure TypeScript only
   - **`models/`** holds the internal application types used throughout the app
   - **`api/`** holds API client functions that take DTOs and map them to internal models. Services
     and hooks consume them. Components never call them directly
@@ -101,9 +101,9 @@ spec/              # Test files (Jest unit + Playwright E2E)
 - **Component architecture.** Hooks manage API calls and local state. Components render
 - **Two modes.** `MODE=CLI` (plugin, the default) and `MODE=WEBSITE`. Runtime behavior branches
   through `PageProps` and `RuntimeUtils`. **Branch at the edges only**: in `core/api` for endpoint
-  paths and request shapes, in components for feature visibility, in `core/analytics`. There are
-  zero occurrences in `core/services` and `core/stores` today. Wanting `isWebsiteMode()` inside a
-  service means the branch belongs somewhere else. Mode is sometimes a capability difference
+  paths and request shapes, in components for feature visibility, in `core/analytics`. A lint rule
+  rejects it in `core/services` and `core/stores`. Wanting `isWebsiteMode()` inside a service means
+  the branch belongs somewhere else. Mode is sometimes a capability difference
   rather than a URL swap. `SecretApi.getSecretValue` returns `undefined` in CLI mode because no
   local endpoint exists
 
@@ -114,8 +114,8 @@ spec/              # Test files (Jest unit + Playwright E2E)
   `updateBitriseYmlDocument(({doc}) => { ...; return doc })`. The store clones the document before
   calling, so mutate `doc` directly
 - **Two write entry points, and only two.** `updateBitriseYmlDocument(mutator)` handles structured
-  field-level edits and services alone call it. There are zero `.tsx` callers today; keep it that
-  way. `updateBitriseYmlDocumentByString(text)` replaces the whole document from raw text, and the
+  field-level edits and services alone call it, which a lint rule enforces.
+  `updateBitriseYmlDocumentByString(text)` replaces the whole document from raw text, and the
   UI calls it legitimately from the YAML editor, the diff dialog and the AI drawer
 - **`keep` arguments are load-bearing.** `YmlUtils.deleteByPath`, `deleteByValue` and
   `deleteByPredicate` take an ancestor path that must survive even when emptied. Omit it and a
@@ -204,8 +204,8 @@ A config can be split across several files linked by `include:`. Roughly half of
   needs no store. Today Workflows, Pipelines and StepBundles have a `*.store.ts` plus
   `Drawers.tsx`. Containers, Triggers, Secrets, EnvVars, Stacks, Licenses and Yml use local
   `useDisclosure` or `useState`
-- Pages are thin composition over canvas panels, config panels and drawers. Entry files run 30 to
-  231 LOC, median around 88, so treat "thin" as the intent rather than a band to measure against
+- Pages are thin composition over canvas panels, config panels and drawers. Entry file length
+  varies a lot in practice, so treat "thin" as the intent rather than a threshold
 - **Wiring a drawer takes three slots.** Each omission fails differently:
   ```tsx
   {isDialogMounted(TYPE) && (
@@ -228,7 +228,7 @@ A config can be split across several files linked by `include:`. Roughly half of
 
 ### Unified editor (`components/unified-editor/`)
 
-- The largest component subsystem, 119 files, covering workflow, step and pipeline configuration UI
+- The largest component subsystem, covering workflow, step and pipeline configuration UI
 - React context carries entity IDs and step data to nested components
 - `WorkflowCardContext` carries action callbacks, meaning step actions, workflow actions and
   selection, to deeply nested card components
@@ -303,7 +303,7 @@ A config can be split across several files linked by `include:`. Roughly half of
   Read that comment before touching routing
 - `BitriseYmlStore` always clones the YAML document before mutations. `YmlUtils` caching depends
   on it, since the WeakMap is keyed by document identity
-- `YmlUtils` wraps the `yaml` library in around 30 functions. Use it for all YAML node operations
-  instead of manipulating nodes directly
+- `YmlUtils` wraps the `yaml` library. Use it for all YAML node operations instead of touching
+  nodes directly
 - Services throw for sync errors. Components show user-facing notifications through
   `createBitkitToast` from `@bitrise/bitkit-v2`, or the legacy `useToast` from `@bitrise/bitkit`
