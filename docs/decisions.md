@@ -191,6 +191,9 @@ Debugging arrives holding an error, not a subsystem.
 | Dragging a chained workflow throws "not found" | It came from another module file. Adding accepts cross-file ids; reordering does not. [Why](#why-cross-file-operations-are-incomplete) |
 | A card renders with no buttons and no explanation | Capability is withheld, not disabled. [Why](#why-capability-is-expressed-by-absence) |
 | `RuntimeUtils` throws in a unit test | `window.env` does not exist under Jest. |
+| A feature silently does nothing in the CLI plugin | `PageProps.appSlug()` returns `''` there, so every query gated on `enabled: !!projectSlug` never fires. |
+| `window is not defined` in a hook or component test | Jest's `testEnvironment` is `node`. Add an `@jest-environment jsdom` docblock. |
+| A refactor passes lint and tests but does not compile | Nothing type-checks. Run `npx tsc --noEmit`. |
 
 ## Open defects
 
@@ -214,5 +217,9 @@ This set exists because an audit found `CLAUDE.md` asserting three rules the cod
 including a lint rule that was never enabled. Anything a machine can check is therefore a lint
 rule rather than a sentence, and a count appears only when you can re-derive it by opening one
 file. A number nobody can reproduce reads as precision and is not.
+
+`README.md` is human-facing and is not part of this set. It has drifted: it still announces an
+AngularJS-to-React transition that finished in May 2025, and describes webpack, karma, jasmine and
+`npm run e2e:*` scripts that no longer exist. Read it as history.
 
 Where a doc and the code disagree, the code wins and the doc is a bug.

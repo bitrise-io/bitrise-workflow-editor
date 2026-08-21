@@ -19,7 +19,7 @@ its own safety check reassures you
 ([why](docs/decisions.md#why-cross-file-operations-are-incomplete)).
 
 It ships two ways: as a Bitrise CLI plugin (`MODE=CLI`, the default) and as a website inside the
-Bitrise monolith (`MODE=WEBSITE`). The AngularJS to React migration is still in progress.
+Bitrise monolith (`MODE=WEBSITE`).
 
 ## Which doc answers your question
 
@@ -48,6 +48,7 @@ npm start                # Dev server + local Go API on port 4000
 npm run start:website    # Website mode (needs the monolith on :3000)
 npm run build            # Vite production build
 npm run lint             # ESLint (cached)
+npx tsc --noEmit         # The only type check. Not a script, not in CI
 npm test                 # Jest
 npm test -- --testPathPattern="path/to/file"
 npm run test:smoke       # Playwright
@@ -78,6 +79,9 @@ shows up as a wrecked pull request.
 - **After pulling across a version bump**, restart the Go process. Vite serves the new
   `/{version}/` path while `go run main.go` keeps the old compiled constant, and every request
   404s until you do.
+- **Nothing type-checks unless you do it.** There is no `tsc` script, `vite build` strips types
+  without checking them, and CI runs only lint and test. A typed refactor can pass everything and
+  still not compile, so run `npx tsc --noEmit` before you call one done.
 - **Four lint rules encode architecture.** `npm run lint` failing on `no-restricted-syntax` or
   `no-restricted-imports` means you crossed a boundary, not that you wrote sloppy code. See
   [docs/conventions.md](docs/conventions.md#lint).

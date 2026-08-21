@@ -198,7 +198,10 @@ core/ may not import react or react-dom        .tsx may not call updateBitriseYm
 useShallow comes from @/hooks/useShallow       raw useStore may not build a fresh value
 ```
 
-`TEST_BITRISE_YML` is restricted to spec, story and mock files. **No circular-import rule is
+`TEST_BITRISE_YML` is restricted to spec, story and mock files, but it is only *defined* in
+Storybook, by a Vite `define` in `.storybook/main.ts`. It is declared as a global in
+`typings/globals.d.ts`, so using it in a spec type-checks, passes lint and is `undefined` at
+runtime. **No circular-import rule is
 enabled** — `import/no-cycle` is absent from every config, so direction is a convention you
 uphold rather than a check that catches you.
 
@@ -225,11 +228,21 @@ hook, and that is where the false-pass trap below lives.
 
 - **Jest** transforms with `@swc/jest`. The global `yaml` comes from `spec/setup-jest.ts`.
   identity-obj-proxy mocks CSS and SVG.
+- **`testEnvironment` is `node`.** A test that renders a hook or a component needs an
+  `@jest-environment jsdom` docblock at the top of the file, or it has no `window`.
+- **Zustand stores reset themselves between tests.** `moduleDirectories` points at
+  `spec/__mocks__`, so `spec/__mocks__/zustand.ts` shadows the real package for every spec and its
+  `afterEach` calls `setState(initialState, true)` — replace, not merge. There is no `jest.mock`
+  to find, which is why this is invisible until you read `jest.config.cjs`.
+- **Nothing type-checks.** No `tsc` script, and CI runs lint and test only. Run `npx tsc --noEmit`
+  yourself after a typed refactor.
 - **`window.env` does not exist under Jest**, so `RuntimeUtils.isProduction()` throws in unit
   tests. `BitriseYmlStore.warnInDev` wraps it in try/catch for exactly that reason. Don't call
   `RuntimeUtils` from anything a service test reaches without handling it.
 - **Calling a store setter outside `act()` does not flush**, and a test written that way reports a
-  confident false pass.
+  confident false pass. `act()` works at all only because `spec/set-node-env.ts` forces
+  `NODE_ENV=test`; CI exports `production`, under which React loads its production build and
+  `act()` throws.
 - **Playwright** config is in `playwright.config.ts`, running Chromium, Firefox and WebKit.
 - **Storybook** uses the MSW addon. Stories sit next to their components.
 
