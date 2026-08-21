@@ -153,8 +153,9 @@ since stages were the tool. Graph is strictly more expressive, so no reverse con
 
 ## Why services look the way they do
 
-Pure functions with no React, so they run under plain Jest with no renderer, which is what makes
-the YAML round-trip test in [conventions.md](conventions.md#testing) possible at all.
+[Pure in the narrow sense](conventions.md#services) — no React, no DOM, no instance state — so
+they run under plain Jest with no renderer, which is what makes the YAML round-trip test in
+[conventions.md](conventions.md#testing) possible at all.
 
 Validators return the error message rather than `false` because they feed react-hook-form
 directly. Mutators validate first so a stale id fails at the top instead of writing half a change.
@@ -204,14 +205,14 @@ Reproduced, not inferred. Each one is a real bug someone will hit.
 | The shipping merge dialog positions conflict decorations with the wrong offsets | `ConfigMergeDialog.tsx` | open |
 | `hasVersionUpgrade` ignores your pin, so a step held at `2` wears a permanent badge | `VersionUtils` | open |
 | Secrets writes in CLI mode are read-all, modify, write-all with no concurrency token, so overlapping edits are last-writer-wins | `SecretApi` | open |
-| `services:` exists in the `BitriseYml` type and the editor never reads or writes it | `core/models` | open |
+| Two `services:` keys are typed and neither is read or written: the root `BitriseYml.services`, and `WithModel.services`, which is a real container reference the editor ignores | `core/models` | open |
 | UI-only fields (`isEditing`, `isSaved`) live in the `Secret` model, inside framework-agnostic `core/` | `core/models/Secret.ts` | open |
 
 ## A note on rot
 
 This set exists because an audit found `CLAUDE.md` asserting three rules the code never obeyed,
 including a lint rule that was never enabled. Anything a machine can check is therefore a lint
-rule rather than a sentence, and counts are left out entirely: a number nobody can reproduce
-reads as precision and is not.
+rule rather than a sentence, and a count appears only when you can re-derive it by opening one
+file. A number nobody can reproduce reads as precision and is not.
 
 Where a doc and the code disagree, the code wins and the doc is a bug.

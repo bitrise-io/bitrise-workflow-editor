@@ -73,8 +73,11 @@ flowchart TD
 ```
 
 Every edge label is the YAML key that carries the reference, which is what you grep when you
-need to find or clean up every pointer to something. Dashed nodes live outside the document. A `step_bundles` entry may reference another one, which is
-legal, recursive and [unguarded](decisions.md#open-defects).
+need to find or clean up every pointer to something. The map is the YAML schema, not the editor's
+coverage: a `with` group's `services:` is a genuine container reference that no code path reads
+or writes, so a cascade still has to clean it up. Dashed nodes live outside the document. A
+`step_bundles` entry may reference another one, which is legal, recursive and
+[unguarded](decisions.md#open-defects).
 
 ## Entities
 

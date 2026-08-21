@@ -12,6 +12,12 @@ it, the Go server validates and persists it. Secrets, stacks, license pools and 
 live outside that document with their own fetch and save paths, which is the other half of
 [docs/domain.md](docs/domain.md).
 
+That "one document" is sometimes a tree of files linked by `include:`, and then it is a binding
+to the active file rather than the whole config. Every service still works, and every service
+reaches only that far, so a cascade written without knowing this leaves sibling files dangling and
+its own safety check reassures you
+([why](docs/decisions.md#why-cross-file-operations-are-incomplete)).
+
 It ships two ways: as a Bitrise CLI plugin (`MODE=CLI`, the default) and as a website inside the
 Bitrise monolith (`MODE=WEBSITE`). The AngularJS to React migration is still in progress.
 

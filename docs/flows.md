@@ -1,7 +1,7 @@
 # Flows
 
-Seven paths through the app, chosen by what the codebase actually touches: the mutation entry
-point has ~575 call sites, modular mode is the most-worked-on area of the last year, and
+Seven paths through the app, chosen by what the codebase actually touches: everything that edits
+the config funnels through one mutation entry point, modular mode cuts across all of it, and
 `WorkflowService` and `StepService` are the two services everything else reaches for.
 
 Read [domain.md](domain.md) first if the words `workflow`, `pipeline`, `step bundle` and
@@ -81,8 +81,8 @@ Why it matters: [the wrapper is a precondition, not a tuning knob](decisions.md#
 
 ## 3. One file or many
 
-A config can be one `bitrise.yml` or a tree of files linked by `include:`. Roughly half of
-`BitriseYmlStore` exists to serve the second case.
+A config can be one `bitrise.yml` or a tree of files linked by `include:`. Most of the store's
+surface beyond the single mutation entry point exists to serve the second case.
 
 ```mermaid
 flowchart TD
