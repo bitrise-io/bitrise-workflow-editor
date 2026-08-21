@@ -2,7 +2,7 @@
 
 Seven paths through the app, chosen by what the codebase actually touches: everything that edits
 the config funnels through one mutation entry point, modular mode cuts across all of it, and
-`WorkflowService` and `StepService` are the two services everything else reaches for.
+`WorkflowService` and `StepService` are the two other services build on.
 
 Read [domain.md](domain.md) first if the words `workflow`, `pipeline`, `step bundle` and
 `CVS` don't yet mean specific things to you.
@@ -44,10 +44,13 @@ is read-only. Reads go through `yml`, writes go through `ymlDocument`.
 The clone is not defensive habit; it is what makes the caches and the subscriber work at all.
 [Why](decisions.md#why-the-store-clones-before-every-mutation).
 
-**Two entry points, and only two.** `updateBitriseYmlDocument(mutator)` is for structured edits
-and only services call it, which a lint rule enforces. `updateBitriseYmlDocumentByString(text)`
-replaces the whole document from raw text, and the UI calls it legitimately from the YAML editor,
-the diff dialog and the AI drawer.
+**Two entry points into the active document.** `updateBitriseYmlDocument(mutator)` is for
+structured edits and only services call it; a lint rule enforces that in `.tsx` files, and a `.ts`
+caller slips through. `updateBitriseYmlDocumentByString(text)` replaces the whole document from raw
+text, and the UI calls it legitimately from the YAML editor, the diff dialog and the AI drawer.
+Modular mode adds `updateFileDocument` and `updateFileDocumentByString`, which take a `nodeId` and
+write to a named file
+([why that matters](decisions.md#why-cross-file-operations-are-incomplete)).
 
 Why it matters: [YAML must survive a round-trip](decisions.md#why-the-yaml-is-an-ast-not-an-object).
 

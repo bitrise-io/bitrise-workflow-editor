@@ -21,9 +21,9 @@ How to write code here. Mechanism lives in [flows.md](flows.md), rationale in
 
 ```
 source/javascripts/
-  core/            no React, no DOM. Lint enforces it
+  core/            no React (lint-enforced), no DOM (convention)
     models/        internal types
-    api/           HTTP clients: DTO in, model out. Components never call these
+    api/           HTTP clients: DTO in, model out. Reach them through a hook
     services/      business logic over models. All structured YAML mutation
     stores/        Zustand stores, mainly BitriseYmlStore
     utils/         YmlUtils and friends
@@ -75,8 +75,10 @@ invalid standing alone is fine, and the thing that has to parse and validate is 
 ## Layer rules
 
 **`core/` is framework-agnostic.** No React, no DOM, so services test in plain Jest with no
-renderer. Lint enforces it. Anything that needs React goes in `hooks/`, anything that needs the
-DOM goes in `components/`.
+renderer. Lint enforces only the React half, by banning the `react` and `react-dom` imports.
+Nothing stops you reaching for `document` or `window`, and `CommonUtils`, `WindowUtils` and
+`PageProps` already do. Anything that needs React goes in `hooks/`, anything that needs the DOM
+goes in `components/`.
 
 **Dependency direction.** `StepService` depends on no other service. `WorkflowService` depends
 only on `EntityIndexService`, for the cross-file check in `assertWorkflowReferenceable`. Everything
@@ -116,9 +118,11 @@ function renameWorkflow(id: string, newName: string) {
   writing half a change.
 - **Validators return `string | boolean`.** The message on failure, not `false`, so they drop
   straight into react-hook-form.
-- **Two write entry points.** `updateBitriseYmlDocument(mutator)` for structured edits, services
-  only, lint-enforced. `updateBitriseYmlDocumentByString(text)` to replace the whole document from
-  raw text, which the YAML editor, diff dialog and AI drawer use legitimately.
+- **Write entry points.** `updateBitriseYmlDocument(mutator)` for structured edits and
+  `updateBitriseYmlDocumentByString(text)` to replace the whole document, both aimed at the active
+  document; `updateFileDocument` and `updateFileDocumentByString` take a `nodeId` and write to a
+  named file in modular mode. The services-only rule is lint-enforced in `.tsx` and nowhere else,
+  so a `.ts` hook or util calling the mutator is on you.
 - **`keep` arguments are load-bearing.** `YmlUtils.deleteByPath` and friends take an ancestor that
   must survive being emptied. Omit it and removing the last workflow from a pipeline takes the
   pipeline's `workflows` key with it.
@@ -157,7 +161,7 @@ context. Not because it has dialogs, and not because it fetches. Containers has 
 store. Workflows, Pipelines and StepBundles have `*.store.ts` plus `Drawers.tsx`; the rest use
 `useDisclosure`.
 
-Wiring a drawer takes three slots, and each omission fails differently:
+Wiring a drawer takes four props, and each omission fails differently:
 
 ```tsx
 {isDialogMounted(TYPE) && (
@@ -165,9 +169,10 @@ Wiring a drawer takes three slots, and each omission fails differently:
 )}
 ```
 
-No `isDialogMounted` and its queries, context and form state stay alive while idle. No `isOpen`
-and there is no animation. No `onCloseComplete` and it never unmounts, killing dialog-to-dialog
-navigation silently.
+No `isDialogMounted` guard and its queries, context and form state stay alive while idle. No
+`isOpen` and it never opens at all — the prop is required, so you get a type error first. No
+`onClose` and its own close button and ESC do nothing. No `onCloseComplete` and it never unmounts,
+killing dialog-to-dialog navigation silently.
 
 `openDialog` is a handler factory: pass `openDialog({type})` in JSX, call `openDialog({type})()`
 imperatively. Forget the `()` and nothing happens; add it in JSX and the dialog opens during
@@ -213,10 +218,10 @@ core/ may not import react or react-dom        .tsx may not call updateBitriseYm
 useShallow comes from @/hooks/useShallow       raw useStore may not build a fresh value
 ```
 
-`TEST_BITRISE_YML` is restricted to spec, story and mock files, but it is only *defined* in
-Storybook, by a Vite `define` in `.storybook/main.ts`. It is declared as a global in
-`typings/globals.d.ts`, so using it in a spec type-checks, passes lint and is `undefined` at
-runtime. **No circular-import rule is
+`TEST_BITRISE_YML` is lint-restricted to spec, story, `.storybook/` and mock files, but it is only
+*defined* in Storybook, by a Vite `define` in `.storybook/main.ts`. It is declared as a global in
+`typings/globals.d.ts`, so using it in a spec type-checks, passes lint, and throws
+`ReferenceError: TEST_BITRISE_YML is not defined` when the test runs. **No circular-import rule is
 enabled** — `import/no-cycle` is absent from every config, so direction is a convention you
 uphold rather than a check that catches you.
 
@@ -249,8 +254,8 @@ hook, and that is where the false-pass trap below lives.
   `spec/__mocks__`, so `spec/__mocks__/zustand.ts` shadows the real package for every spec and its
   `afterEach` calls `setState(initialState, true)` — replace, not merge. There is no `jest.mock`
   to find, which is why this is invisible until you read `jest.config.cjs`.
-- **Nothing type-checks.** No `tsc` script, and CI runs lint and test only. Run `npx tsc --noEmit`
-  yourself after a typed refactor.
+- **Nothing type-checks.** No `tsc` script, and CI's build step is `vite build`, which strips
+  types rather than checking them. Run `npx tsc --noEmit` yourself after a typed refactor.
 - **`window.env` does not exist under Jest**, so `RuntimeUtils.isProduction()` throws in unit
   tests. `BitriseYmlStore.warnInDev` wraps it in try/catch for exactly that reason. Don't call
   `RuntimeUtils` from anything a service test reaches without handling it.

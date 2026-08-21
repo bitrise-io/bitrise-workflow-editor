@@ -79,9 +79,10 @@ shows up as a wrecked pull request.
 - **After pulling across a version bump**, restart the Go process. Vite serves the new
   `/{version}/` path while `go run main.go` keeps the old compiled constant, and every request
   404s until you do.
-- **Nothing type-checks unless you do it.** There is no `tsc` script, `vite build` strips types
-  without checking them, and CI runs only lint and test. A typed refactor can pass everything and
-  still not compile, so run `npx tsc --noEmit` before you call one done.
+- **Nothing type-checks unless you do it.** There is no `tsc` script, and CI never type-checks:
+  it runs `npm run build`, `npm run lint`, `npm run test` and the Go checks, and `vite build`
+  strips types with swc rather than checking them. A typed refactor can pass all of that and still
+  not compile, so run `npx tsc --noEmit` before you call one done.
 - **Four lint rules encode architecture.** `npm run lint` failing on `no-restricted-syntax` or
   `no-restricted-imports` means you crossed a boundary, not that you wrote sloppy code. See
   [docs/conventions.md](docs/conventions.md#lint).
@@ -97,6 +98,7 @@ exactly one of them and the others link. The exceptions are deliberate and shoul
 YAML-preservation rule, because this file survives context compaction and `docs/` may not. If you
 find the same sentence in two places and it is not one of those, one of them is a bug. Add a claim only with the check that backs it. A count is admissible only when every reader
 counting the same way gets the same answer, like the four lint rules listed directly beneath the
-sentence that counts them. "Nine passes" in a function you can open failed that test: the function
-has ten calls, the diagram has eight boxes, and nine was the neighbouring function's count. Leave
-out file totals and call-site tallies entirely.
+sentence that counts them. "Nine passes in a function you can open" failed that test three ways:
+the function, its diagram and the neighbouring function each yield a different number, and which
+one you get depends on whether a nested call counts. Leave out file totals and call-site tallies
+entirely.

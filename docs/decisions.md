@@ -123,14 +123,19 @@ status will reintroduce that.
 
 ## Why capability is expressed by absence
 
-Cards render mutating controls based on **callback presence**, never a permission flag. To make a
-subtree read-only, withhold the callbacks at the context boundary. Every member of `StepActions`
+Cards render mutating controls based on **callback presence**, and never read a permission flag
+themselves. To make a subtree read-only, withhold the callbacks at the context boundary. Every member of `StepActions`
 and `WorkflowActions` is optional for exactly this reason, and the fully read-only case renders
 `<WorkflowCardContextProvider>` with no props at all.
 
-Nothing downstream checks a permission, so nothing downstream can forget to. The cost is that
-absence carries no reason: you get a missing button rather than a disabled one with an
-explanation.
+The check happens once, and in one place. `useStepActions` and `useWorkflowActions` call
+`useIsReadOnlyView()` and `pick()` the callbacks down to the inspection-only set, so every card
+consuming them is read-only without asking. The cost is that absence carries no reason: you get a
+missing button rather than a disabled one with an explanation.
+
+> **Trap.** The pattern only covers components that take their callbacks from those two hooks.
+> Plenty of others call `useIsReadOnlyView()` directly — `WhenToRunCard`, `PropertiesTab`,
+> `EntitySelector` among them — and those are the ones that can forget to.
 
 They throw outside their provider for the same reason: an empty action set is indistinguishable
 from read-only, so a silent fallback would render a permanently inert card instead of failing.

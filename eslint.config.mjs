@@ -3,6 +3,9 @@ import importPlugin from 'eslint-plugin-import';
 import bitriseConfig from "@bitrise/eslint-plugin";
 
 const RESTRICTED_IMPORTS = [
+  // `bitriseConfig.react` bans this, but our own `rules` block replaces `no-restricted-imports`
+  // wholesale rather than merging, so the ban has to be re-listed here or it silently disappears.
+  "lodash/fp",
   {
     name: "zustand/shallow",
     importNames: ["useShallow"],
