@@ -58,12 +58,13 @@ flowchart TD
   PL["pipelines"] -->|"uses:, stage lists"| WF["workflows"]
   WF -->|"before_run / after_run"| WF
   WF -->|"steps[]"| SR["step reference<br/><i>a CVS key</i>"]
+  SR -->|"execution_container, service_containers[]"| CN
   SR -->|"bundle::id"| SB["step_bundles"]
   SR -->|"with"| WG["with group"]
   SR -->|"script@2, git::, path::"| CAT["step catalog"]
   SB -->|"steps[]"| SR
-  SB --> CN["containers"]
-  WG --> CN
+  SB -->|"execution_container, service_containers[]"| CN["containers"]
+  WG -->|"container:, services:"| CN
   WF -.->|"meta.bitrise.io.*"| EXT["stacks, machines,<br/>license pools"]
   SR -.->|"$VAR in inputs"| SEC["secrets"]
   style CAT stroke-dasharray: 4
@@ -71,7 +72,8 @@ flowchart TD
   style SEC stroke-dasharray: 4
 ```
 
-Dashed nodes live outside the document. A `step_bundles` entry may reference another one, which is
+Every edge label is the YAML key that carries the reference, which is what you grep when you
+need to find or clean up every pointer to something. Dashed nodes live outside the document. A `step_bundles` entry may reference another one, which is
 legal, recursive and [unguarded](decisions.md#open-defects).
 
 ## Entities
@@ -87,7 +89,7 @@ legal, recursive and [unguarded](decisions.md#open-defects).
 | **Trigger** (legacy) | position in the list | `trigger_map[]` | `TriggerService` |
 | **Env var** | `key` plus its source | `app.envs[]`, `workflows.<id>.envs[]` | `EnvVarService` |
 | **Stage** | map key, legacy | `stages.<id>` | none |
-| **Secret** | `key` | *not in the document* | `SecretService` |
+| **Secret** | `key` | *not in the document.* Website mode: the monolith. CLI mode: `.bitrise.secrets.yml`, overridable with `BITRISE_SECRETS` | `SecretService` |
 | **Stack / machine** | catalog id | `meta.bitrise.io.*` | `StackAndMachineService` |
 | **File node** | opaque `nodeId` | the tree, not the YAML | `TreeService`, `FileTreeService` |
 

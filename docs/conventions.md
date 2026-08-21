@@ -36,6 +36,22 @@ cmd/               Go CLI (Cobra)
 spec/              Jest unit and Playwright E2E
 ```
 
+### Adding a field users can edit
+
+The order matters, because each layer depends on the one before it.
+
+1. **`core/models/BitriseYml.ts`** — add the key to the matching model, for example
+   `WorkflowModel`. The rest of the stack is typed off these.
+2. **`core/services`** — a setter through `updateBitriseYmlDocument`, plus a validator if the
+   value can be wrong.
+3. **`hooks/`** — a selector hook if the UI needs to read it back.
+4. **The component**, in `components/` or a page.
+5. **A `*.spec.ts` beside the service**, using the round-trip idiom under [Testing](#testing).
+
+The gate that is not in this repo: the Go server validates the saved config with the `bitrise`
+CLI, so a key the CLI does not know fails at save even though every layer above compiled. Check
+the key exists in the CLI's schema before building UI on it.
+
 ### Where does this go?
 
 | You are writing | It goes in |
@@ -52,10 +68,15 @@ spec/              Jest unit and Playwright E2E
 ## Layer rules
 
 **`core/` is framework-agnostic.** No React, no DOM, so services test in plain Jest with no
-renderer. Lint enforces it.
+renderer. Lint enforces it. Anything that needs React goes in `hooks/`, anything that needs the
+DOM goes in `components/`.
 
 **Dependency direction.** `WorkflowService` and `StepService` are foundational and depend on no
 other service. Everything else builds on them.
+
+`MODE` is set by the npm script, not by config: `npm start` exports `MODE=CLI`,
+`npm run start:website` exports `MODE=WEBSITE`, and Vite passes it through `envPrefix` into
+`window.env`, which is why it does not exist under Jest.
 
 **Branch on runtime mode at the edges only.** `MODE=CLI` is the plugin default, `MODE=WEBSITE` is
 the monolith iframe. Branch in `core/api` for endpoint paths and request shapes, in components for
@@ -66,7 +87,10 @@ sometimes a capability difference rather than a URL swap: `SecretApi.getSecretVa
 
 ## Services
 
-Pure functions exported through one `export default { … }`, never classes.
+Pure functions exported through one `export default { … }`, never classes. Pure in the sense
+that matters here: no React, no DOM, no instance state, so a service runs under plain Jest with
+no renderer. A mutator still reaches the store through `updateBitriseYmlDocument`, which is the
+one global effect a service is allowed.
 
 ```ts
 function renameWorkflow(id: string, newName: string) {
@@ -180,6 +204,25 @@ uphold rather than a check that catches you.
 
 ## Testing
 
+**Testing a service that mutates YAML.** Drive the vanilla store directly, then compare the
+serialised document. No renderer and no `act()`, because a service test never goes through React:
+
+```ts
+updateBitriseYmlDocumentByString(yaml`
+  workflows:
+    wf1: {}
+`);
+WorkflowService.renameWorkflow('wf1', 'wf2');
+expect(getYmlString()).toEqual(yaml`
+  workflows:
+    wf2: {}
+`);
+```
+
+That round trip is the point. Comparing emitted YAML rather than a parsed object is what catches
+a mutation that quietly reformats or reorders. `act()` only enters the picture when you render a
+hook, and that is where the false-pass trap below lives.
+
 - **Jest** transforms with `@swc/jest`. The global `yaml` comes from `spec/setup-jest.ts`.
   identity-obj-proxy mocks CSS and SVG.
 - **`window.env` does not exist under Jest**, so `RuntimeUtils.isProduction()` throws in unit
@@ -189,6 +232,13 @@ uphold rather than a check that catches you.
   confident false pass.
 - **Playwright** config is in `playwright.config.ts`, running Chromium, Firefox and WebKit.
 - **Storybook** uses the MSW addon. Stories sit next to their components.
+
+## Local dev
+
+The CLI-mode Go server has a **built-in termination timer** so a forgotten plugin process does
+not outlive its session. The frontend POSTs `/api/connection` on window load to stop it and DELETEs
+on unload to restart it, so a local server that dies on its own usually means no browser tab is
+holding it open. See `main.tsx`.
 
 ## Feature flags and mocks
 

@@ -41,9 +41,8 @@ The store keeps the config twice. `ymlDocument` is a `yaml` AST that remembers c
 order and formatting, and it is the writable one. `yml` is a plain object derived from it, and it
 is read-only. Reads go through `yml`, writes go through `ymlDocument`.
 
-The clone is not defensive habit. `YmlUtils` caches by document identity in a `WeakMap`, and the
-store's subscriber compares `a.ymlDocument === b.ymlDocument`. Mutating in place would serve
-stale cached reads and skip the re-render.
+The clone is not defensive habit; it is what makes the caches and the subscriber work at all.
+[Why](decisions.md#why-the-store-clones-before-every-mutation).
 
 **Two entry points, and only two.** `updateBitriseYmlDocument(mutator)` is for structured edits
 and only services call it, which a lint rule enforces. `updateBitriseYmlDocumentByString(text)`
@@ -160,19 +159,12 @@ flowchart LR
   G --> UI["what the drawer renders"]
 ```
 
-A step's key encodes library, id and version in one string, and `parseStepCVS` is ordered
-dispatch: specific prefixes first, bare form last, so reordering the branches changes behaviour.
-The bare form resolves against `default_step_lib_source`, which is why every predicate takes a
-`defaultStepLibrary`.
+`parseStepCVS` is ordered dispatch, so specific prefixes match before the bare form and
+reordering the branches changes behaviour. Only `userValues` reaches the document, which is why
+the UI can show a field the YAML does not contain.
 
-Only `userValues` reaches the document. A field can look set in the UI while the YAML holds
-nothing, and writing a value equal to the default still adds a line.
-
-> **Trap.** An empty version is not "unset", it is the policy *always latest*. Removing a pin
-> changes what runs; it is not tidying.
-
-Steps have no id. A step is the *i*-th entry of a `steps[]` array, so every operation takes an
-index and any concurrent reorder invalidates one you were holding.
+The grammar, the version model and why position is a step's identity are in
+[domain.md](domain.md#reference-tables).
 
 ---
 
@@ -197,9 +189,8 @@ Nine passes, one per class of inbound edge. Rename mirrors it one for one. The c
 the count of edge kinds, so a tenth way to reference a workflow needs a tenth pass and nothing
 enumerates them for you: grep the field name.
 
-The `keep` argument on `YmlUtils.deleteByPath` and friends names an ancestor that must survive
-being emptied. Omit it and removing the last workflow from a pipeline takes the pipeline's
-`workflows` key with it.
+Each pass carries a `keep` argument so emptying a collection does not delete its parent; see
+[conventions.md](conventions.md#services).
 
 > **Trap.** In modular mode every pass reaches only as far as the active file. Other files keep
 > the old name or a dangling reference, and "used by N workflows" undercounts, so the guard

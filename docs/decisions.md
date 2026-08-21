@@ -102,14 +102,21 @@ include tree registers as one workspace, which is what makes cross-file go-to-de
 Those URIs are byte-identical to what the language server composes for `include:` edges; the
 match is by exact string.
 
-Validation status tracks the **root model only**, and the reason is not laziness. monaco-yaml
-registers the whole-config schema with `fileMatch: ['*']`, so it also applies to include
-fragments, and a workflows-only module with no `format_version` reports an `anyOf` error.
-Aggregating markers would flip a valid config to invalid and bounce the user out of the visual
-editor. The root model still resolves cross-file references, so genuine breakage surfaces.
+Validation status tracks the root model only, and the reason is not laziness: the whole-config
+schema matches every model, so an include fragment reports an error for the `format_version` it
+was never supposed to have. Aggregating would flip a valid config to invalid and bounce the user
+out of the visual editor. The root model still resolves cross-file references, so genuine
+breakage surfaces. [The mechanism](flows.md#7-the-yaml-tab).
 
 Models are deliberately never disposed on cleanup, because async workers may be mid-flight and
 Strict Mode double-mounts.
+
+**The forced YAML view is not wired to that status, on purpose.** `InvalidYmlRedirect` fires only
+when the config cannot be *parsed*, because the visual editor then has no tree to render. Schema
+and marker errors on a well-formed config deliberately do not trigger it: the visual editor
+renders those fine, and the redirect is one-way, so gating it on marker status would strand
+people on the YAML view with no way back. Anyone "fixing" the redirect to also fire on an invalid
+status will reintroduce that.
 
 > **Trap.** In dev website mode the schema layer is skipped for cross-origin reasons, so there are
 > no markers at all and the status is permanently valid.
@@ -124,9 +131,8 @@ Nothing downstream checks a permission, so nothing downstream can forget to. The
 absence carries no reason: you get a missing button rather than a disabled one with an
 explanation.
 
-The accessor hooks throw outside their provider on purpose. An empty action set is
-indistinguishable from read-only, so a silent fallback would render a permanently inert card
-instead of failing loudly.
+They throw outside their provider for the same reason: an empty action set is indistinguishable
+from read-only, so a silent fallback would render a permanently inert card instead of failing.
 
 > **Trap.** The `WorkflowCardContext` provider's `useMemo` depends on a rest-spread, so the
 > dependency is a new object every render and the memo never holds. It gives you structure, not
@@ -134,8 +140,7 @@ instead of failing loudly.
 
 ## Why conversions are one-way
 
-Both legacy-to-current migrations are lossless in data and lossy in intent, which is why neither
-offers a way back.
+Neither migration offers a way back. The data maps cleanly; the intent does not.
 
 **Triggers.** The condition mapping is total and the compiler enforces it. The evaluation model is
 not: `trigger_map` is first-match-wins, target-based triggers all fire. Two legacy push triggers
@@ -148,16 +153,15 @@ since stages were the tool. Graph is strictly more expressive, so no reverse con
 
 ## Why services look the way they do
 
-Pure functions exported as one object, never classes, so they test in plain Jest with no renderer.
-`core/` may not import React, which lint now enforces.
+Pure functions with no React, so they run under plain Jest with no renderer, which is what makes
+the YAML round-trip test in [conventions.md](conventions.md#testing) possible at all.
 
-Every mutator opens with `getXOrThrowError(id, doc)` so a stale id fails at the top instead of
-writing half a change. Validators return `string | boolean`, the message on failure rather than
-`false`, so they drop straight into react-hook-form.
+Validators return the error message rather than `false` because they feed react-hook-form
+directly. Mutators validate first so a stale id fails at the top instead of writing half a change.
 
-There is no orchestrator. Deleting a workflow means removal, trigger cleanup and env var cleanup,
-and the store or the calling component sequences those. Check for cascades before changing a
-mutating service.
+There is no orchestrator, and that is a choice rather than an omission. One would have to know
+every cascade in the domain, which is exactly the knowledge that goes stale. A caller sequencing
+explicit calls fails visibly when a new cascade is added; a silent orchestrator would not.
 
 ## Why a page gets its own store
 
