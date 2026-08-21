@@ -4,7 +4,7 @@ The half you cannot get by reading the code: why it is built this way, and what 
 afternoon. Everything here is either a rationale that lives in nobody's head any more, or a
 hazard that was reproduced with a throwaway test rather than inferred.
 
-Mechanics live in [FLOWS.md](FLOWS.md). Vocabulary lives in [DOMAIN.md](DOMAIN.md).
+Mechanics live in [flows.md](flows.md). Vocabulary lives in [domain.md](domain.md).
 
 ## Why the YAML is an AST, not an object
 
@@ -167,6 +167,25 @@ dialogs" or "fetches data". Containers has both and needs no store.
 A drawer needs three pieces of state, not one boolean, because it has to survive its own close
 animation and hand over to a queued successor. Miss `onCloseComplete` and it never unmounts, and
 dialog-to-dialog navigation dies silently.
+
+## Start from the symptom
+
+Debugging arrives holding an error, not a subsystem.
+
+| What you see | What it is |
+|---|---|
+| The page hangs on mount, update-depth error | A raw `useStore(bitriseYmlStore, …)` selector building a fresh object. [Why](#why-useshallow-is-deep) |
+| An edit does nothing, no error anywhere | The write was aimed at a read-only file or the merged tab. It warns in development only. [Why](#why-cross-file-operations-are-incomplete) |
+| Every request 404s after a pull | A version bump. Vite serves the new path, the Go process kept the old compiled constant. Restart it. |
+| A save came back and your changes are gone | The merge resolved conflicts to remote and you dismissed the dialog. [Why](#why-conflicts-resolve-to-remote) |
+| Conflict highlights sit on the wrong lines | The shipping dialog positions them with `bIndex`/`oIndex` instead of the merged output. [Why](#why-conflicts-resolve-to-remote) |
+| `RangeError`, enormous stack, on load | A cycle in `before_run`/`after_run` or in `bundle::` nesting. The guard walks every entity, so it throws before it can exclude anything. |
+| The YAML tab shows no errors at all, ever | Dev website mode skips the schema layer for cross-origin reasons. [Why](#why-the-editor-shares-models-with-the-worker) |
+| A diff contains hunks you did not cause | The style vote reformatted the minority in a mixed-style file. [Why](#why-the-yaml-is-an-ast-not-an-object) |
+| A step shows an upgrade badge you cannot clear | `hasVersionUpgrade` ignores your pin and compares against the newest version overall. |
+| Dragging a chained workflow throws "not found" | It came from another module file. Adding accepts cross-file ids; reordering does not. [Why](#why-cross-file-operations-are-incomplete) |
+| A card renders with no buttons and no explanation | Capability is withheld, not disabled. [Why](#why-capability-is-expressed-by-absence) |
+| `RuntimeUtils` throws in a unit test | `window.env` does not exist under Jest. |
 
 ## Open defects
 

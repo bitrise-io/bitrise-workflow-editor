@@ -4,7 +4,7 @@ Seven paths through the app, chosen by what the codebase actually touches: the m
 point has ~575 call sites, modular mode is the most-worked-on area of the last year, and
 `WorkflowService` and `StepService` are the two services everything else reaches for.
 
-Read [DOMAIN.md](DOMAIN.md) first if the words `workflow`, `pipeline`, `step bundle` and
+Read [domain.md](domain.md) first if the words `workflow`, `pipeline`, `step bundle` and
 `CVS` don't yet mean specific things to you.
 
 | Flow | Start reading at |
@@ -50,7 +50,7 @@ and only services call it, which a lint rule enforces. `updateBitriseYmlDocument
 replaces the whole document from raw text, and the UI calls it legitimately from the YAML editor,
 the diff dialog and the AI drawer.
 
-Why it matters: [YAML must survive a round-trip](DECISIONS.md#why-the-yaml-is-an-ast-not-an-object).
+Why it matters: [YAML must survive a round-trip](decisions.md#why-the-yaml-is-an-ast-not-an-object).
 
 ---
 
@@ -76,7 +76,7 @@ Get this wrong and the page hangs rather than merely re-rendering too much, beca
 `useSyncExternalStore` compares snapshots by identity and a fresh object is never identical. A
 lint rule catches the common shapes; a fresh value built inside a block body is still on you.
 
-Why it matters: [the wrapper is a precondition, not a tuning knob](DECISIONS.md#why-useshallow-is-deep).
+Why it matters: [the wrapper is a precondition, not a tuning knob](decisions.md#why-useshallow-is-deep).
 
 ---
 
@@ -109,7 +109,7 @@ precedence order, highest first. `nodeId` is backend-owned and opaque; `path` is
 never key by it.
 
 Why it matters, and what it costs:
-[scope narrowed, guards not](DECISIONS.md#why-cross-file-operations-are-incomplete).
+[scope narrowed, guards not](decisions.md#why-cross-file-operations-are-incomplete).
 
 ---
 
@@ -142,7 +142,7 @@ survives a server restart. The modular tree does the same one level down with a 
 > remote side, your text is dropped from the buffer, and a red decoration is the only record.
 > Dismiss the dialog without editing and your work is gone, with no prompt and no undo.
 
-Why it works that way: [markers would break the YAML](DECISIONS.md#why-conflicts-resolve-to-remote).
+Why it works that way: [markers would break the YAML](decisions.md#why-conflicts-resolve-to-remote).
 
 ---
 
@@ -234,4 +234,4 @@ editor.
 > you get no markers and a permanently valid status.
 
 Why it is built this way:
-[one model, shared](DECISIONS.md#why-the-editor-shares-models-with-the-worker).
+[one model, shared](decisions.md#why-the-editor-shares-models-with-the-worker).

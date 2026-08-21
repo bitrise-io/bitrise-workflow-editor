@@ -8,9 +8,35 @@ Every claim here was checked against the code with a runnable command. Where a s
 the code disagree, the code wins and the disagreement gets written down rather than smoothed
 over. If a fact stops being true, this file is wrong. Fix it.
 
-New to the codebase? Start with [README.md](README.md), then come back
-here. The mechanisms behind every claim below are in [FLOWS.md](FLOWS.md) and
-[DECISIONS.md](DECISIONS.md).
+The mechanisms behind these claims are in [flows.md](flows.md); the reasoning is in
+[decisions.md](decisions.md).
+
+---
+
+## 0. Glossary
+
+The words that show up in tickets, type names and PR titles. Each links to where it is pinned
+down.
+
+| Term | Means |
+|---|---|
+| **active document** | The file `ymlDocument` currently points at. In a single-file config that is the config; in a modular one it is the selected tab. [§8](#8-modular-mode-narrows-every-rule) |
+| **CVS** | A step's reference, encoding library, id and version in one string, roughly `collection::id@version`. [§6](#cvs-the-step-reference-grammar) |
+| **entity index** | A precedence-ordered map of which file defines which entity, rebuilt from live documents. The only cross-file-aware structure. [§8](#8-modular-mode-narrows-every-rule) |
+| **FileSlice** | One file's state in modular mode: its path, its document, its saved document, and whether it is editable. |
+| **generator workflow** | A workflow that produces other workflows at runtime, so the canvas draws placeholders for them. |
+| **graph pipeline** | A pipeline with a `workflows` map and arbitrary `depends_on` edges, as opposed to staged. [§7](#7-two-models-twice) |
+| **legacy trigger** | An entry in the top-level `trigger_map`, flat and first-match-wins. [§7](#7-two-models-twice) |
+| **merged tab** | A read-only preview of the whole modular config flattened into one document. Nothing backs it, so writes to it no-op. |
+| **modular config** | A config split across files linked by `include:`. [§8](#8-modular-mode-narrows-every-rule) |
+| **nodeId** | The backend-owned opaque key for a file in the tree. `path` is not unique, so never key by it. |
+| **normalized version** | The semver range form the UI reasons in: `2` becomes `2.x.x`. [§6](#the-version-model) |
+| **staged pipeline** | A pipeline with a `stages` list, an ordered sequence of full barriers. [§7](#7-two-models-twice) |
+| **step bundle** | A named, reusable step sequence with its own inputs, referenced as `bundle::<id>`. [§6](#definition-versus-instance) |
+| **target-based trigger** | A trigger declared on the workflow it fires, nested under its type. All matches fire. [§7](#7-two-models-twice) |
+| **utility workflow** | A workflow whose id starts with `_`. Convention only; the YAML has no concept of it. [§4](#4-identity-and-naming) |
+| **`with` group** | A step-list wrapper that runs its steps inside a container. |
+| **`yml` vs `ymlDocument`** | `ymlDocument` is the writable AST. `yml` is a read-only plain object derived from it. Reads go through `yml`, writes through `ymlDocument`. [flows.md](flows.md#1-editing-the-config) |
 
 ---
 
@@ -81,7 +107,7 @@ referential integrity behind it.
 ```
 
 A `step_bundles` entry may reference another one. That is legal, recursive, and unguarded. See
-[DECISIONS.md](DECISIONS.md#open-defects).
+[DECISIONS.md](decisions.md#open-defects).
 
 ---
 
@@ -379,7 +405,7 @@ Each of these was reproduced against the repo, not inferred.
 
 Per-area detail lives in the reference set: workflows, env vars, containers, stacks and
 machines, tools, steps and CVS, triggers, pipelines, step bundles, secrets, and the editor and
-language service. The rationale for each is in [DECISIONS.md](DECISIONS.md).
+language service. The rationale for each is in [decisions.md](decisions.md).
 
 *Verified against the repo on 2026-08-20. The command behind each claim is in the lesson set
 this document was distilled from.*
