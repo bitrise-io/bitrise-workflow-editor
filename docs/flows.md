@@ -107,6 +107,16 @@ Mode is decided by `state.tree !== undefined`, never by the flag. `files` holds 
 precedence order, highest first. `nodeId` is backend-owned and opaque; `path` is not unique, so
 never key by it.
 
+**The flag defaults to off**, and the monolith resolves it per account into
+`globalProps.featureFlags.account`. So modular mode is not the common path, and every hazard below
+that begins "in modular mode" applies to the accounts that have it switched on rather than to
+everyone. That is the bit that decides how urgent a cross-file bug is.
+
+A node's `editable` flag is computed by the backend, not chosen in the UI: a file is editable only
+when it lives in the working repo on the current branch. An `include:` that names another repo,
+branch, tag or commit comes back read-only, which is what makes a full cross-file cascade a policy
+question rather than a coding one.
+
 Why it matters, and what it costs:
 [scope narrowed, guards not](decisions.md#why-cross-file-operations-are-incomplete).
 

@@ -50,7 +50,14 @@ The order matters, because each layer depends on the one before it.
 
 The gate that is not in this repo: the Go server validates the saved config with the `bitrise`
 CLI, so a key the CLI does not know fails at save even though every layer above compiled. Check
-the key exists in the CLI's schema before building UI on it.
+the key exists in the CLI's schema before building UI on it. The call is
+`apiserver/utility/utility.go`, which hands the config to `CreateBitriseConfigFromCLIParams` under
+`ValidationTypeFull`. That is the `bitrise` library pinned in `go.mod`, compiled into the server —
+not whatever CLI the user has installed, which `bitrise-plugin.yml` only floors at a minimum
+version. So the schema you are checking against moves when someone bumps that dependency.
+
+For a modular config the server validates the **merged** YAML, not each file. A module that is
+invalid standing alone is fine, and the thing that has to parse and validate is the merge.
 
 ### Where does this go?
 
@@ -165,6 +172,11 @@ navigation silently.
 `openDialog` is a handler factory: pass `openDialog({type})` in JSX, call `openDialog({type})()`
 imperatively. Forget the `()` and nothing happens; add it in JSX and the dialog opens during
 render.
+
+There is no global dialog registry. Each page declares its own enum in its `*.store.ts`, so the
+set of dialogs is per page by construction. `pages/WorkflowsPage/` is the copy-me example: the
+enum and the three-slot machinery in `WorkflowsPage.store.ts`, the wiring in
+`components/Drawers/`, the canvas beside it.
 
 ## Components
 
