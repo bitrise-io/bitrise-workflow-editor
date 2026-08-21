@@ -71,8 +71,9 @@ the key exists in the CLI's schema before building UI on it.
 renderer. Lint enforces it. Anything that needs React goes in `hooks/`, anything that needs the
 DOM goes in `components/`.
 
-**Dependency direction.** `WorkflowService` and `StepService` are foundational and depend on no
-other service. Everything else builds on them.
+**Dependency direction.** `StepService` depends on no other service. `WorkflowService` depends
+only on `EntityIndexService`, for the cross-file check in `assertWorkflowReferenceable`. Everything
+else builds on those two.
 
 `MODE` is set by the npm script, not by config: `npm start` exports `MODE=CLI`,
 `npm run start:website` exports `MODE=WEBSITE`, and Vite passes it through `envPrefix` into
@@ -80,8 +81,10 @@ other service. Everything else builds on them.
 
 **Branch on runtime mode at the edges only.** `MODE=CLI` is the plugin default, `MODE=WEBSITE` is
 the monolith iframe. Branch in `core/api` for endpoint paths and request shapes, in components for
-feature visibility, in `core/analytics`. Lint rejects it in `core/services` and `core/stores`.
-Wanting `isWebsiteMode()` inside a service means the branch belongs somewhere else. Mode is
+feature visibility, in `core/analytics`. Nothing enforces this: wanting `isWebsiteMode()` inside a
+service means the branch belongs somewhere else, but no lint rule will tell you. The one standing
+exception is `BitriseYmlStore.warnInDev`, which asks `RuntimeUtils` whether it is in production to
+decide whether to warn, not to change behaviour. Mode is
 sometimes a capability difference rather than a URL swap: `SecretApi.getSecretValue` returns
 `undefined` in CLI mode because no local endpoint exists.
 

@@ -119,7 +119,7 @@ file's list.
 
 **Renaming means rewriting every reference.** There is no indirection layer, which is exactly why
 it is a service function and not a store field. See
-[flows.md](flows.md#6-renaming-or-deleting-a-workflow) for the nine passes.
+[flows.md](flows.md#6-renaming-or-deleting-a-workflow) for the passes it takes.
 
 ## What is actually enforced
 
@@ -131,7 +131,7 @@ crosses a boundary is a bare string nothing validates.
 | Entity exists before mutation | `getXOrThrowError` | **Enforced**, throws |
 | Name charset and uniqueness | `validateName` | **At the form**, not the service |
 | A reference target exists | `assertWorkflowReferenceable` | Workflow chains only |
-| Deleting removes inbound edges | `deleteWorkflow`'s nine passes | Within the active document |
+| Deleting removes inbound edges | `deleteWorkflow`'s passes | Within the active document |
 | No cycles in `before_run`/`after_run` | `getChainableWorkflows` | **Assumed.** The filter is built from the unguarded walk, so it throws on an already-cyclic config |
 | No cycles in bundle nesting | `StepBundleList` filter | **Assumed**, same shape |
 | Referenced container exists | nothing | **Not checked** |
@@ -163,7 +163,7 @@ Every rule above that needs the whole config is therefore incomplete:
 | Rule | Single-file | Modular |
 |---|---|---|
 | Name uniqueness | Global | Active file only, so two files may define the same workflow |
-| Delete cascade | All nine passes land | References in other files are left dangling |
+| Delete cascade | Every pass lands | References in other files are left dangling |
 | Rename | Rewrites every reference | Other files keep the old name |
 | "Used by N workflows" | Accurate | **Under**counts, so it reassures |
 | Deleting an entity defined elsewhere | n/a | Throws, failing loudly rather than half-applying |

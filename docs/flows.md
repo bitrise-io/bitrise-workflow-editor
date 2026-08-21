@@ -185,11 +185,15 @@ flowchart TD
   D --> I["stages left empty"]
 ```
 
-Nine passes, one per class of inbound edge. Rename mirrors it one for one. The count of passes is
-the count of edge kinds, so a tenth way to reference a workflow needs a tenth pass and nothing
-enumerates them for you: grep the field name.
+One pass per class of inbound edge, and nothing enumerates the classes for you: a new way to
+reference a workflow needs a new pass, found by grepping the field name.
 
-Each pass carries a `keep` argument so emptying a collection does not delete its parent; see
+Rename covers the same edges but is not a mirror image. It has no equivalent of delete's
+empty-stage cleanup, and it rewrites a graph node's `uses:` in place where delete removes the node
+and then has to clean up the `depends_on` edges pointing at *it*. Read both before changing
+either.
+
+Passes that can empty a collection carry a `keep` argument so the parent survives; see
 [conventions.md](conventions.md#services).
 
 > **Trap.** In modular mode every pass reaches only as far as the active file. Other files keep

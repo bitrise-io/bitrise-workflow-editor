@@ -95,6 +95,8 @@ the doc in the same PR.
 exactly one of them and the others link. The exceptions are deliberate and should not be
 "deduplicated": the Jest and `act()` landmines are restated in this file, and so is the
 YAML-preservation rule, because this file survives context compaction and `docs/` may not. If you
-find the same sentence in two places and it is not one of those, one of them is a bug. Add a claim only with the check that backs it. Counts are fine when a reader can reproduce them
-in one step, like "nine passes" in a function you can open. Leave out counts nobody can
-re-derive, such as file totals or call-site tallies: they read as precision and are not.
+find the same sentence in two places and it is not one of those, one of them is a bug. Add a claim only with the check that backs it. A count is admissible only when every reader
+counting the same way gets the same answer, like the four lint rules listed directly beneath the
+sentence that counts them. "Nine passes" in a function you can open failed that test: the function
+has ten calls, the diagram has eight boxes, and nine was the neighbouring function's count. Leave
+out file totals and call-site tallies entirely.

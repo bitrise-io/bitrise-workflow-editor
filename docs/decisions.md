@@ -124,8 +124,9 @@ status will reintroduce that.
 ## Why capability is expressed by absence
 
 Cards render mutating controls based on **callback presence**, never a permission flag. To make a
-subtree read-only, withhold the callbacks at the context boundary: `useStepActions` drops from
-twelve actions to one, `useWorkflowActions` from eight to two.
+subtree read-only, withhold the callbacks at the context boundary. Every member of `StepActions`
+and `WorkflowActions` is optional for exactly this reason, and the fully read-only case renders
+`<WorkflowCardContextProvider>` with no props at all.
 
 Nothing downstream checks a permission, so nothing downstream can forget to. The cost is that
 absence carries no reason: you get a missing button rather than a disabled one with an
@@ -206,7 +207,7 @@ Reproduced, not inferred. Each one is a real bug someone will hit.
 | `getBeforeRunChain` / `getAfterRunChain` have the identical defect | `WorkflowService` | open |
 | Chaining accepts a cross-file workflow, reordering rejects it | `WorkflowService` | open |
 | The shipping merge dialog positions conflict decorations with the wrong offsets | `ConfigMergeDialog.tsx` | open |
-| `hasVersionUpgrade` ignores your pin, so a step held at `2` wears a permanent badge | `VersionUtils` | open |
+| `hasVersionUpgrade` resolves your pin and then compares against every published version rather than the ones the pin allows, so a step held at `2` wears a permanent badge. A spec asserts the current behaviour, so a fix breaks a passing test | `VersionUtils` | open |
 | Secrets writes in CLI mode are read-all, modify, write-all with no concurrency token, so overlapping edits are last-writer-wins | `SecretApi` | open |
 | Two `services:` keys are typed and neither is read or written: the root `BitriseYml.services`, and `WithModel.services`, which is a real container reference the editor ignores | `core/models` | open |
 | UI-only fields (`isEditing`, `isSaved`) live in the `Secret` model, inside framework-agnostic `core/` | `core/models/Secret.ts` | open |
