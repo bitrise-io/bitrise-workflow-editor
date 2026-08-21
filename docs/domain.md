@@ -1,218 +1,181 @@
-# The domain model
+# Domain
 
-Companion to [CLAUDE.md](../CLAUDE.md). That file says where code goes. This one says what the code
-is about: the entities, their identity, the references between them, and which invariants
-anything actually enforces.
+What the code is about: the words, the entities, and which invariants anything actually enforces.
+Mechanisms are in [flows.md](flows.md), reasoning in [decisions.md](decisions.md).
 
-Every claim here was checked against the code with a runnable command. Where a stated rule and
-the code disagree, the code wins and the disagreement gets written down rather than smoothed
-over. If a fact stops being true, this file is wrong. Fix it.
+Where a doc and the code disagree, the code wins and the doc is a bug.
 
-The mechanisms behind these claims are in [flows.md](flows.md); the reasoning is in
-[decisions.md](decisions.md).
-
----
-
-## 0. Glossary
-
-The words that show up in tickets, type names and PR titles. Each links to where it is pinned
-down.
+## Glossary
 
 | Term | Means |
 |---|---|
-| **active document** | The file `ymlDocument` currently points at. In a single-file config that is the config; in a modular one it is the selected tab. [§8](#8-modular-mode-narrows-every-rule) |
-| **CVS** | A step's reference, encoding library, id and version in one string, roughly `collection::id@version`. [§6](#cvs-the-step-reference-grammar) |
-| **entity index** | A precedence-ordered map of which file defines which entity, rebuilt from live documents. The only cross-file-aware structure. [§8](#8-modular-mode-narrows-every-rule) |
-| **FileSlice** | One file's state in modular mode: its path, its document, its saved document, and whether it is editable. |
-| **generator workflow** | A workflow that produces other workflows at runtime, so the canvas draws placeholders for them. |
-| **graph pipeline** | A pipeline with a `workflows` map and arbitrary `depends_on` edges, as opposed to staged. [§7](#7-two-models-twice) |
-| **legacy trigger** | An entry in the top-level `trigger_map`, flat and first-match-wins. [§7](#7-two-models-twice) |
-| **merged tab** | A read-only preview of the whole modular config flattened into one document. Nothing backs it, so writes to it no-op. |
-| **modular config** | A config split across files linked by `include:`. [§8](#8-modular-mode-narrows-every-rule) |
-| **nodeId** | The backend-owned opaque key for a file in the tree. `path` is not unique, so never key by it. |
-| **normalized version** | The semver range form the UI reasons in: `2` becomes `2.x.x`. [§6](#the-version-model) |
-| **staged pipeline** | A pipeline with a `stages` list, an ordered sequence of full barriers. [§7](#7-two-models-twice) |
-| **step bundle** | A named, reusable step sequence with its own inputs, referenced as `bundle::<id>`. [§6](#definition-versus-instance) |
-| **target-based trigger** | A trigger declared on the workflow it fires, nested under its type. All matches fire. [§7](#7-two-models-twice) |
-| **utility workflow** | A workflow whose id starts with `_`. Convention only; the YAML has no concept of it. [§4](#4-identity-and-naming) |
+| **active document** | The file `ymlDocument` points at. The whole config when single-file, the selected tab when modular. |
+| **CVS** | A step's reference, packing library, id and version into one string. [Table](#reference-tables) |
+| **entity index** | Precedence-ordered map of which file defines which entity. The only cross-file-aware structure. |
+| **FileSlice** | One file's state in modular mode: path, document, saved document, editable flag. |
+| **generator workflow** | A workflow that produces other workflows at runtime; the canvas draws placeholders for them. |
+| **graph pipeline** | Has a `workflows` map and arbitrary `depends_on` edges. |
+| **legacy trigger** | An entry in top-level `trigger_map`. Flat, prefixed keys, first-match-wins. |
+| **merged tab** | Read-only preview of a modular config flattened. No slice backs it, so writes no-op. |
+| **nodeId** | Backend-owned opaque key for a file. `path` is not unique, so never key by it. |
+| **staged pipeline** | Has a `stages` list: an ordered sequence of full barriers. |
+| **step bundle** | Named, reusable step sequence with its own inputs. Referenced as `bundle::<id>`. |
+| **target-based trigger** | Declared on the workflow it fires, nested under its type. All matches fire. |
+| **utility workflow** | Id starts with `_`. Convention only; the YAML has no concept of it. |
 | **`with` group** | A step-list wrapper that runs its steps inside a container. |
-| **`yml` vs `ymlDocument`** | `ymlDocument` is the writable AST. `yml` is a read-only plain object derived from it. Reads go through `yml`, writes through `ymlDocument`. [flows.md](flows.md#1-editing-the-config) |
+| **`yml` / `ymlDocument`** | `ymlDocument` is the writable AST, `yml` a read-only object derived from it. |
 
----
+## What the editor edits
 
-## 1. What the editor edits
-
-One artifact: **`bitrise.yml`**, the CI configuration of a single Bitrise project. In modular
-mode that artifact is a *tree of files* merged into one config. See
-[modular scoping](#8-modular-mode-narrows-every-rule).
+One artifact: **`bitrise.yml`**, the CI config of a single Bitrise project. Modular configs make
+that a tree of files merged into one.
 
 The domain splits in two, and the split matters more than any single entity:
 
-| | In the document | Outside the document |
+| | In the document | Outside it |
 |---|---|---|
 | **Entities** | workflows, pipelines, step bundles, containers, trigger map, app envs, tools, `meta` | secrets, stacks and machines, license pools, the step catalog |
-| **Read via** | `BitriseYmlStore` selector hooks | React Query hooks |
-| **Written via** | services calling `updateBitriseYmlDocument` | their own API endpoints, immediately |
-| **Saved** | all at once, as one file, with a concurrency token | per operation |
-| **Undo** | discard changes, which re-parses the saved document | none |
+| **Read via** | `BitriseYmlStore` selectors | React Query hooks |
+| **Written via** | services calling `updateBitriseYmlDocument` | their own endpoints, immediately |
+| **Saved** | all at once, one file, with a concurrency token | per operation |
+| **Undo** | discard changes, re-parsing the saved document | none |
 
-The config references the outside-the-document things by bare name (`meta.bitrise.io.stack`,
-`$MY_SECRET` inside a step input) and, with one exception, **nothing resolves those references**.
-A `bitrise.yml` naming a secret that does not exist is not an error state anywhere in the editor.
+> **Rule.** The config names the outside-the-document things by bare string
+> (`meta.bitrise.io.stack`, `$MY_SECRET` in an input) and **nothing resolves those references**. A
+> `bitrise.yml` naming a secret that does not exist is not an error state anywhere in the editor.
 
-> The exception is stacks. `StackAndMachineService.prepareStackAndMachineSelectionData` sets
-> `isInvalidStack` / `isInvalidMachineType` when the id in the YAML isn't in the fetched catalog,
-> and the selector renders it as an explicit invalid option. Nothing does the equivalent for
-> secrets. Verified: no file under `core/services/` or `core/api/` imports `useSecrets` or
-> `SecretApi`. The only consumers are the secrets page and the insert-variable popover.
+The one exception is stacks: `prepareStackAndMachineSelectionData` flags an id missing from the
+fetched catalog as `isInvalidStack` and renders it as an explicit invalid option. Nothing does the
+equivalent for secrets, containers or license pools.
 
----
+## The entity map
 
-## 2. The entity map
+Every arrow is a plain string in the YAML with no referential integrity behind it.
 
-Arrows are references by name. Every one of them is a plain string in the YAML with no
-referential integrity behind it.
-
-```
-                          ┌──────────────┐
-                          │ trigger_map  │  legacy, flat, first-match-wins
-                          └──────┬───────┘
-                                 │ workflow: / pipeline:
-        triggers: (target-based) │
-   ┌──────────────┐              ▼
-   │  pipelines   │──── uses: ───▶┌──────────────┐──── before_run / after_run ──┐
-   │              │               │  workflows   │◀─────────────────────────────┘
-   │  staged  ▸ stages[].workflows│              │
-   │  graph   ▸ workflows{}.uses  └──────┬───────┘
-   └──────────────┘                      │ steps[]
-                                         ▼
-                          ┌──────────────────────────────┐
-                          │  step reference (a CVS key)  │
-                          └───┬──────────┬───────────┬───┘
-                              │          │           │
-                bundle::<id>  │      with│           │  script@2 · git::… · path::…
-                              ▼          ▼           ▼
-                     ┌──────────────┐  ┌────────┐  ┌──────────────┐
-                     │ step_bundles │  │  with  │  │ step catalog │  (outside the doc)
-                     └──────┬───────┘  └───┬────┘  └──────────────┘
-                            │ steps[]      │ container: / services:
-                            └──────────────┼──────────────┐
-                                           ▼              ▼
-                                    ┌──────────────┐  ┌──────────────┐
-                                    │  containers  │  │  containers  │
-                                    └──────────────┘  └──────────────┘
-
-  outside the document, referenced by bare name and never resolved:
-      secrets · stacks and machines · license pools   (meta.bitrise.io.*, $VAR in inputs)
+```mermaid
+flowchart TD
+  TM["trigger_map<br/><i>legacy</i>"] -->|"workflow: / pipeline:"| WF
+  PL["pipelines"] -->|"uses:, stage lists"| WF["workflows"]
+  WF -->|"before_run / after_run"| WF
+  WF -->|"steps[]"| SR["step reference<br/><i>a CVS key</i>"]
+  SR -->|"bundle::id"| SB["step_bundles"]
+  SR -->|"with"| WG["with group"]
+  SR -->|"script@2, git::, path::"| CAT["step catalog"]
+  SB -->|"steps[]"| SR
+  SB --> CN["containers"]
+  WG --> CN
+  WF -.->|"meta.bitrise.io.*"| EXT["stacks, machines,<br/>license pools"]
+  SR -.->|"$VAR in inputs"| SEC["secrets"]
+  style CAT stroke-dasharray: 4
+  style EXT stroke-dasharray: 4
+  style SEC stroke-dasharray: 4
 ```
 
-A `step_bundles` entry may reference another one. That is legal, recursive, and unguarded. See
-[DECISIONS.md](decisions.md#open-defects).
+Dashed nodes live outside the document. A `step_bundles` entry may reference another one, which is
+legal, recursive and [unguarded](decisions.md#open-defects).
 
----
+## Entities
 
-## 3. Entities
+| Entity | Identity | Lives at | Service |
+|---|---|---|---|
+| **Workflow** | map key | `workflows.<id>` | `WorkflowService` |
+| **Pipeline** | map key | `pipelines.<id>` | `PipelineService` |
+| **Step bundle** | map key | `step_bundles.<id>` | `StepBundleService` |
+| **Step** | **positional**, its index | `…steps[i]` | `StepService`, `StepVariableService` |
+| **Container** | map key | `containers.<id>` | `ContainerService` |
+| **Trigger** (target-based) | position in the list | `workflows.<id>.triggers.<type>[]` | `TriggerService` |
+| **Trigger** (legacy) | position in the list | `trigger_map[]` | `TriggerService` |
+| **Env var** | `key` plus its source | `app.envs[]`, `workflows.<id>.envs[]` | `EnvVarService` |
+| **Stage** | map key, legacy | `stages.<id>` | none |
+| **Secret** | `key` | *not in the document* | `SecretService` |
+| **Stack / machine** | catalog id | `meta.bitrise.io.*` | `StackAndMachineService` |
+| **File node** | opaque `nodeId` | the tree, not the YAML | `TreeService`, `FileTreeService` |
 
-| Entity | Identity | Lives at | Service | Referenced by |
-|---|---|---|---|---|
-| **Workflow** | map key under `workflows:` | `workflows.<id>` | `WorkflowService` | pipelines (`uses`, stage lists), other workflows (`before_run`/`after_run`), `trigger_map` |
-| **Pipeline** | map key under `pipelines:` | `pipelines.<id>` | `PipelineService` | `trigger_map`, target-based triggers |
-| **Step bundle** | map key under `step_bundles:` | `step_bundles.<id>` | `StepBundleService` | workflow `steps[]`, other bundles' `steps[]`, as `bundle::<id>` |
-| **Step** | positional, the index in a `steps[]` array | `…steps[i]` | `StepService`, `StepVariableService` | nothing. Steps are never referenced |
-| **Container** | map key under `containers:` | `containers.<id>` | `ContainerService` | `execution_container`, `service_containers[]` on steps, bundles and `with` groups |
-| **Trigger (target-based)** | position in `workflows.<id>.triggers.<type>[]` | inside its owner | `TriggerService` | nothing |
-| **Trigger (legacy)** | position in `trigger_map[]` | top level | `TriggerService` | nothing |
-| **Env var** | `key`, plus its `source` (`app` or a workflow) | `app.envs[]`, `workflows.<id>.envs[]` | `EnvVarService` | text interpolation only |
-| **Stage** | map key under `stages:` | top level, legacy | none | staged pipelines |
-| **Secret** | `key` | *not in the document* | `SecretService` | `$KEY` in any input, unresolved |
-| **Stack / machine** | catalog id | `meta.bitrise.io.stack` and friends | `StackAndMachineService` | project default, per-workflow override |
-| **File node** (modular) | backend-owned opaque `nodeId` | the tree, not the YAML | `TreeService`, `FileTreeService` | `include:` edges |
+> **Rule.** **Position is identity for steps.** A step has no id; it is the *i*-th entry of a
+> `steps[]` array, and its CVS key names a catalog coordinate rather than this occurrence. Two
+> `script@1` steps in one workflow are indistinguishable except by index, so every step operation
+> takes an index and any concurrent reorder invalidates one you were holding.
 
-**Position is identity for steps.** A step has no id. It is the *i*-th entry of a `steps[]`
-array, and its CVS key names a coordinate in a catalog, not this particular occurrence. Two
-`script@1` steps in one workflow are indistinguishable except by index. Every step operation
-therefore takes an index, and any concurrent reorder invalidates a held one.
+Nothing references a step, a trigger or a stage. Everything else is referenced by name.
 
----
-
-## 4. Identity and naming
+## Naming
 
 ```
 /^[A-Za-z0-9-_.]+$/     workflows · pipelines · containers · step bundles
 ```
 
-Four services define that regex independently (`WORKFLOW_NAME_REGEX`, `PIPELINE_NAME_REGEX`,
-`CONTAINER_NAME_REGEX`, `STEP_BUNDLE_REGEX`) and four `validateName` functions repeat the same
-three checks: non-empty, matches, unique. `sanitizeName` strips everything outside the class.
+Four services define that regex independently and four `validateName` functions repeat the same
+three checks: non-empty, matches, unique. Validators return `string | boolean` — the error
+message on failure, never `false`.
 
-- **Namespaces are per-collection.** A workflow and a pipeline may share a name. Uniqueness is
-  only ever checked against the list of names the caller passes in, which in modular mode is the
-  *active file's* list. See §8.
-- **A leading underscore makes a utility workflow.** `isUtilityWorkflow` is
-  `id.startsWith('_')` and nothing more. It affects presentation and where a workflow may be
-  attached. The YAML has no concept of it.
-- **Renaming means rewriting every reference.** `renameWorkflow` re-keys the map and rewrites
-  chains and the trigger map. There is no indirection layer, so a rename is a many-place edit,
-  which is exactly why it is a service function and not a store field.
-- **Validators return `string | boolean`.** `true` for valid, the *error message* for invalid.
-  Never `false`.
+**Namespaces are per-collection**, so a workflow and a pipeline may share a name. Uniqueness is
+only ever checked against the list the caller passes in, which in modular mode is the active
+file's list.
 
----
+**Renaming means rewriting every reference.** There is no indirection layer, which is exactly why
+it is a service function and not a store field. See
+[flows.md](flows.md#6-renaming-or-deleting-a-workflow) for the nine passes.
 
-## 5. References and cascades
+## What is actually enforced
 
-`deleteWorkflow` is the reference implementation of removing an entity. Nine passes, each one a
-class of inbound edge:
+The most useful table here. Structural invariants inside one document hold. Every reference that
+crosses a boundary is a bare string nothing validates.
 
-```
-deleteByPath      workflows.<id>                                   the definition
-deleteByPath      stages.*.workflows.*.<id>                        legacy stage membership
-deleteByPath      pipelines.*.stages.*.*.workflows.*.<id>          inline stage membership
-deleteByPath      pipelines.*.workflows.<id>            keep ↑     graph node
-deleteByValue     workflows.*.after_run[*]                         chain edge
-deleteByValue     workflows.*.before_run[*]                        chain edge
-deleteByValue     pipelines.*.workflows.*.depends_on[*]            graph edge
-deleteByPredicate trigger_map[*] where workflow == id              legacy trigger
-deleteByPredicate pipelines.*.stages.*.* now-empty                 empty stage cleanup
-deleteByPredicate pipelines.*.workflows.* where uses == id
-                    …and recursively their own depends_on edges
-```
+| Invariant | Where | Strength |
+|---|---|---|
+| Entity exists before mutation | `getXOrThrowError` | **Enforced**, throws |
+| Name charset and uniqueness | `validateName` | **At the form**, not the service |
+| A reference target exists | `assertWorkflowReferenceable` | Workflow chains only |
+| Deleting removes inbound edges | `deleteWorkflow`'s nine passes | Within the active document |
+| No cycles in `before_run`/`after_run` | `getChainableWorkflows` | **Assumed.** The filter is built from the unguarded walk, so it throws on an already-cyclic config |
+| No cycles in bundle nesting | `StepBundleList` filter | **Assumed**, same shape |
+| Referenced container exists | nothing | **Not checked** |
+| Referenced secret exists | nothing | **Not checked** |
+| Referenced stack exists | `isInvalidStack` | Flagged, not blocked |
+| Untouched YAML stays byte-identical | `YmlUtils` and the style vote | **Best-effort.** A mixed-style file loses its minority style |
 
-Two things to take from it:
+## Two models, twice
 
-1. **The count of passes is the count of edge kinds.** Adding a new way to reference a workflow
-   means adding a tenth pass. Nothing enumerates the edges for you, so grep for the field name.
-2. **`keep` is load-bearing.** The last argument to `deleteByPath`, `deleteByValue` and
-   `deleteByPredicate` names an ancestor that must survive even when emptied. Omit it and
-   removing the last workflow from a pipeline removes the pipeline's `workflows` key.
+Triggers and pipelines each carry a legacy and a current model, handled in opposite ways.
 
-Deletes cascade. Creates do not validate, with one exception: `addChainedWorkflow` and friends
-call `assertWorkflowReferenceable`, which accepts a target defined in *another file* via the
-entity index. That is the one place a service consults cross-file state.
+| | Triggers | Pipelines |
+|---|---|---|
+| Old | `trigger_map[]`, flat, **first-match-wins** | `stages: []`, ordered full barriers |
+| New | `workflows.<id>.triggers.<type>[]`, all fire | `workflows: {}`, a `depends_on` DAG |
+| Detection | which key exists | `isGraph = Boolean(pipeline.workflows)`, structural |
+| Unification | one generic `Trigger<TConditionType>`, so one component set renders both | none, separate paths |
+| Conversion | only when there is at most one legacy trigger per type | always, one-way |
 
----
+Both are lossless in data and lossy in intent, which is
+[why neither converts back](decisions.md#why-conversions-are-one-way).
 
-## 6. The recurring shapes
+## Modular mode narrows every rule
 
-These four shapes appear across several entities. Learn them once.
+`ymlDocument` binds to the active tab's file, not the whole config
+([how](flows.md#3-one-file-or-many), [why](decisions.md#why-cross-file-operations-are-incomplete)).
+Every rule above that needs the whole config is therefore incomplete:
 
-### The three value layers
+| Rule | Single-file | Modular |
+|---|---|---|
+| Name uniqueness | Global | Active file only, so two files may define the same workflow |
+| Delete cascade | All nine passes land | References in other files are left dangling |
+| Rename | Rewrites every reference | Other files keep the old name |
+| "Used by N workflows" | Accurate | **Under**counts, so it reassures |
+| Deleting an entity defined elsewhere | n/a | Throws, failing loudly rather than half-applying |
 
-`defaultValues` / `userValues` / `mergedValues`. Used by steps, by step bundle instances
-(`ymlInstanceToStepBundle`), and by containers, where `Container = { id, userValues }`.
+`EntityIndexService` is the one cross-file-aware piece, and `assertWorkflowReferenceable` is the
+only service that reads it.
 
-**Only `userValues` is in the YAML.** The UI renders `mergedValues`, so a field can look set
-while the document holds nothing, and writing a value equal to the default still adds a line.
+## Reference tables
 
-### CVS, the step reference grammar
+Consult, don't read.
 
-A step's key encodes library, id and version in one string. `parseStepCVS` is **ordered
-dispatch**. Specific prefixes first, bare form last, so reordering the branches changes
-behaviour.
+<details>
+<summary><b>Step references (CVS)</b> — <code>parseStepCVS</code> is ordered dispatch, so reordering the branches changes behaviour</summary>
 
 | Reference | Library | Id | Version |
 |---|---|---|---|
-| `script@1` / `script` | `bitrise` (from `default_step_lib_source`) | `script` | `1` / none |
+| `script@1` / `script` | `bitrise`, from `default_step_lib_source` | `script` | `1` / none |
 | `bundle::my-bundle` | `bundle` | `my-bundle` | none |
 | `with` | `with` | `with` | none |
 | `path::./steps/local@x` | `path` | `./steps/local` | none, `@x` is **discarded** |
@@ -220,11 +183,13 @@ behaviour.
 | `https://…bitrise-steplib.git::script@1` | `bitrise` | `script` | `1` |
 | `https://custom…::baz@next` | `custom` | `baz` | `next` |
 
-Only `bitrise`, `custom` and `git` carry a version (`canUpdateVersion`). The bare form is
-context-dependent. It resolves against `default_step_lib_source`, which is why every predicate
-takes a `defaultStepLibrary` argument.
+Only `bitrise`, `custom` and `git` carry a version. The bare form is context-dependent, resolving
+against `default_step_lib_source`, which is why every predicate takes a `defaultStepLibrary`.
 
-### The version model
+</details>
+
+<details>
+<summary><b>Step versions</b> — an empty version is a policy, not an absence</summary>
 
 | In yml | Normalized | Resolves to | UI calls it |
 |---|---|---|---|
@@ -233,12 +198,13 @@ takes a `defaultStepLibrary` argument.
 | `2.1` | `2.1.x` | `2.1.9` | Patch updates only |
 | `2.1.6` | `2.1.6` | `2.1.6` | Version in bitrise.yml |
 
-**An empty version is not "unset". It is the policy *always latest*.** Removing a pin changes
-build behaviour. It is not tidying.
+> **Trap.** An empty version means *always latest*. Removing a pin changes what runs; it is not
+> tidying.
 
-### Trigger condition vocabulary
+</details>
 
-The two trigger models share one shape and differ only in the words for a condition.
+<details>
+<summary><b>Trigger conditions</b> — the two models differ only in vocabulary</summary>
 
 | Concept | Legacy (`trigger_map`) | Target-based (`triggers:`) |
 |---|---|---|
@@ -248,164 +214,50 @@ The two trigger models share one shape and differ only in the words for a condit
 | PR label | `pull_request_label` | `label` |
 | PR comment | `pull_request_comment` | `comment` |
 | Tag | `tag` | `name` |
-| Commit message | `commit_message`, same in both |  |
-| Changed files | `changed_files`, same in both |  |
+| Commit message | `commit_message` | `commit_message` |
+| Changed files | `changed_files` | `changed_files` |
 
-Legacy keys are flat and prefixed (one object holds every condition kind); target-based keys are nested under their trigger type, so prefixes would be redundant. `LEGACY_TO_TARGET_BASED_CONDITION_MAP` is typed `Record<LegacyConditionType, …>`, so the compiler enforces totality. No reverse map exists.
+Legacy keys are flat and prefixed because one object holds every condition kind. Target-based keys
+nest under their trigger type, so prefixes would be redundant.
+`LEGACY_TO_TARGET_BASED_CONDITION_MAP` is typed `Record<LegacyConditionType, …>`, so the compiler
+enforces totality. No reverse map exists.
 
-### Tool version grammar
+</details>
 
-A `tools:` value is a small language, not a version.
+<details>
+<summary><b>Tool versions</b> — a <code>tools:</code> value is a small language</summary>
 
-| In the YAML | Parses to | Means |
-|---|---|---|
-| `latest` | `{ strategy: 'latest-released' }` | Newest published version |
-| `installed` | `{ strategy: 'latest-installed' }` | Newest version already on the stack |
-| `20:latest` | `{ 'latest-released', prefix: '20' }` | Newest published inside the `20` line |
-| `20:installed` | `{ 'latest-installed', prefix: '20' }` | Newest installed inside the `20` line |
-| `unset` | `{ strategy: 'unset' }` | Do not manage this tool here |
-| `20.1.2` | `{ strategy: 'exact', version: '20.1.2' }` | Exactly that |
-| `20:banana` | `{ strategy: 'exact', version: '20:banana' }` | Exact, verbatim. An unrecognised suffix is not an error |
+| In the YAML | Means |
+|---|---|
+| `latest` | Newest published version |
+| `installed` | Newest version already on the stack |
+| `20:latest` | Newest published inside the `20` line |
+| `20:installed` | Newest installed inside the `20` line |
+| `unset` | Do not manage this tool here. Workflow scope only; `setTool` throws at root |
+| `20.1.2` | Exactly that |
+| `20:banana` | Exact and verbatim. An unrecognised suffix is not an error |
 
-> **All seven verified.** The keyword match is case-insensitive (`raw.toLowerCase()`) but the *prefix* keeps its original case, and `exact` keeps the raw string untouched. The colon split uses `indexOf(':') > 0`, so a leading colon never makes a prefix.
+Keyword matching is case-insensitive, the prefix keeps its case, and the colon split uses
+`indexOf(':') > 0`, so a leading colon never makes a prefix.
 
-> **Rule.** `unset` is **workflow-scope only**. `setTool` throws *Cannot use "unset" strategy at root scope*. It exists to opt one workflow out of a project default, so at the root it would mean nothing.
+</details>
 
-> Reproduced: `setTool('nodejs', 'unset', '', { type: 'root' })` throws.
+<details>
+<summary><b>The three value layers</b> — used by steps, bundle instances and containers</summary>
 
-### Definition versus instance
+`defaultValues` come from the catalog, `userValues` from `bitrise.yml`, `mergedValues` from both.
 
-A step bundle is a function. The definition declares `inputs`, which are parameters with
-defaults, and a reference supplies arguments. The service keeps the two sides apart down to the
-method names: `addStepBundleInput` declares, `updateStepBundleInputInstanceValue` passes.
-Containers work the same way, one definition and many references, each with its own `recreate`
-flag.
+> **Trap.** Only `userValues` reaches the document. A field can look set in the UI while the YAML
+> holds nothing, and writing a value equal to the default still adds a line.
 
-<a name="step-bundle"></a>
-**Hazard.** `getStepBundleChain` recurses with no cycle guard. A self-referencing or mutually
-recursive bundle throws `RangeError: Maximum call stack size exceeded`. `TreeService.walk` and
-`EntityIndexService.buildFromFiles` are both guarded. This one isn't. The UI filter that prevents
-*creating* a cycle is itself built from `getStepBundleChains`, so on an already-cyclic config the
-guard is what throws. Chains also do not dedup: a diamond yields `["top","l","leaf","r","leaf"]`,
-which is fine for `includes()` and wrong if counted.
+A step bundle is a function: the definition declares `inputs` with defaults, a reference supplies
+arguments. The service keeps the sides apart down to the method names, `addStepBundleInput` versus
+`updateStepBundleInputInstanceValue`. Containers work the same way, one definition and many
+references, each with its own `recreate` flag.
 
----
-
-## 7. Two models, twice
-
-The domain carries a legacy and a current model for two things at once, and handles them in
-opposite ways.
-
-| | Triggers | Pipelines |
-|---|---|---|
-| Old | `trigger_map[]`, flat, prefixed keys, **first-match-wins** | `stages: []`, an ordered sequence of full barriers |
-| New | `workflows.<id>.triggers.<type>[]`, nested, all fire | `workflows: {}`, an arbitrary `depends_on` DAG |
-| Detection | by which key exists | `isGraph = Boolean(pipeline.workflows)`, structural, no type field |
-| Unification | one generic `Trigger<TConditionType>`. Only the *condition vocabulary* differs, so one component set renders both | none, separate code paths |
-| Conversion | offered only when there is at most 1 legacy trigger per type (`canConvertSafely`) | always available, one-way |
-
-Both conversions are lossless in data and lossy in intent:
-
-- Triggers. The condition mapping is total, since the map is typed
-  `Record<LegacyConditionType, …>` and the compiler enforces it. The *evaluation model* is not.
-  Two legacy push triggers become two independent target-based triggers that both fire, where
-  before only the first ran. Hence the one-per-type rule.
-- Pipelines. A stage boundary becomes a complete bipartite edge set, m×n edges rather than m+n.
-  Faithful, and it preserves an over-specification the author never chose. They used stages
-  because stages were the tool. No reverse conversion exists, because graph is strictly more
-  expressive.
+</details>
 
 ---
 
-## 8. Modular mode narrows every rule
-
-**`ymlDocument` is not *the config*. It is a binding to the active tab's file.** Selecting a tab
-re-points it, and every service keeps working, unaware. That indirection is why multi-file
-editing shipped without touching a single pre-existing domain service.
-
-The consequence for the domain model is one sentence:
-
-> **Every service operation reaches exactly as far as the active document.** Any rule whose
-> correctness depends on seeing the whole config is incomplete in modular mode.
-
-| Rule | Single-file | Modular |
-|---|---|---|
-| Name uniqueness | Global | Active file only, so two files may define the same workflow |
-| `deleteWorkflow` cascade | All 9 passes land | References in *other* files are left dangling |
-| `renameWorkflow` | Rewrites every reference | Other files keep the old name |
-| "Used by N workflows" | Accurate | Counts the active file, so it **under**counts and reassures |
-| Deleting an entity defined elsewhere | n/a | Throws `… not found`, failing loudly rather than half-applying |
-
-The one cross-file-aware piece is `EntityIndexService`, a precedence-ordered map of which file
-defines which entity, rebuilt from live documents on every `files` change, so cross-file
-detection is correct before saving. Precedence runs highest first: a node outranks the files it
-includes, and a later include outranks an earlier sibling.
-
-`assertWorkflowReferenceable` is the only service that reads it. Everything else reads the same
-narrowed view as the operation it guards, including `useDependantWorkflows`, the guard that is
-supposed to warn you before a destructive delete. It cannot see the damage.
-
-Mode is decided by `state.tree !== undefined`, not by the feature flag
-(`enable-wfe-modular-yaml-editing`, default off). The flag only picks which bootstrap API runs.
-A flagged-on config with no `include:` falls back to plain single-file.
-
----
-
-## 9. What is actually enforced
-
-| Invariant | Where | Strength |
-|---|---|---|
-| Entity exists before mutation | `getXOrThrowError(id, doc)` | **Enforced**, throws |
-| Name matches the charset, is unique in its list | `validateName` | **Enforced at the form**, not at the service |
-| A reference target exists | `assertWorkflowReferenceable` | Enforced for workflow chains only |
-| Deleting an entity removes inbound edges | `deleteWorkflow`'s 9 passes | Enforced *within the active document* |
-| No cycles in `before_run`/`after_run` | `getChainableWorkflows` | **Assumed.** The picker filter is itself built from the unguarded walk, so it throws on an already-cyclic config |
-| No cycles in step bundle nesting | `StepBundleList` filter | **Assumed.** Throws on an already-cyclic config |
-| Referenced container exists | nothing | **Not checked** |
-| Referenced secret exists | nothing | **Not checked** |
-| Referenced stack exists | `isInvalidStack` | Flagged in the selector, not blocked |
-| Unchanged YAML stays byte-identical | `YmlUtils` plus the style vote | **Best-effort.** A mixed-style file gets its minority reformatted |
-
-The pattern: structural invariants inside one document are enforced. Every reference that
-crosses a boundary, to another file or to another Bitrise resource, is a bare string that
-nothing validates.
-
----
-
-## 10. Model-level gaps worth knowing
-
-Each of these was reproduced against the repo, not inferred.
-
-1. **Cross-file cascade.** Delete and rename don't reach other files. The pieces exist,
-   `updateFileDocument` and the live entity index. What's missing is coordination and a policy
-   decision, complicated by referencing files that may be `editable: false`.
-2. **Two unguarded recursions, same shape.** `getStepBundleChain` (see DECISIONS.md) and
-   `getBeforeRunChain`/`getAfterRunChain` both recurse with no `seen` set, so a self-referencing
-   or mutually recursive workflow or bundle throws `RangeError`. In both cases the UI filter that
-   prevents *creating* a cycle is built from the same unguarded walk, so on an already-cyclic
-   config the guard is what dies. `TreeService.walk` and `EntityIndexService.buildFromFiles` are
-   guarded and say so. These four functions are not.
-3. **Chaining accepts cross-file targets. Reordering rejects them.** `addChainedWorkflow`
-   validates with `assertWorkflowReferenceable`, which is entity-index aware.
-   `setChainedWorkflows` validates with `getWorkflowOrThrowError`, which sees the active document
-   only. Reproduced: chain a workflow from another module file, then drag to reorder, and it
-   throws. `ContainerService` is the counter-example. It validates against the aggregated index
-   and degrades reads to `undefined` rather than throwing during render.
-4. **UI state in `core/models`.** `Secret.isKeyChangeable`, `isEditing` and `isSaved` are marked
-   "UI only fields" in the source, which puts view state in a layer that must stay
-   framework-agnostic.
-5. **Secrets have no concurrency token.** In CLI mode, update and delete read the whole
-   collection, modify it, and write it back, with none of the `Bitrise-Config-Version` machinery.
-   Overlapping edits are last-writer-wins across every secret.
-6. **`hasVersionUpgrade` ignores your pin.** It asks whether *any* newer version exists, not one
-   within your range, so a step deliberately held at `2` shows a permanent upgrade badge because
-   `3.0.1` exists.
-
----
-
-Per-area detail lives in the reference set: workflows, env vars, containers, stacks and
-machines, tools, steps and CVS, triggers, pipelines, step bundles, secrets, and the editor and
-language service. The rationale for each is in [decisions.md](decisions.md).
-
-*Verified against the repo on 2026-08-20. The command behind each claim is in the lesson set
-this document was distilled from.*
+*Verified against the repo on 2026-08-20. Known gaps and defects are in
+[decisions.md](decisions.md#open-defects).*
