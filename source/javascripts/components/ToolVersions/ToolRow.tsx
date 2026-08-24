@@ -44,7 +44,7 @@ type ToolRowProps = {
   strategy: VersionStrategy;
   version: string;
   /** Only meaningful for `latest-of`: resolve against preinstalled versions where possible. */
-  installed?: boolean;
+  preferInstalled?: boolean;
   existingToolIds: string[];
   catalog: ToolCatalog | undefined;
   allowUnset?: boolean;
@@ -59,7 +59,7 @@ const ToolRow = ({
   toolId,
   strategy,
   version,
-  installed,
+  preferInstalled,
   existingToolIds,
   catalog,
   allowUnset,
@@ -170,15 +170,15 @@ const ToolRow = ({
       // since it's already invalid.
       setVersionTouched(true);
     }
-    onChange(ToolsService.toParsedToolVersion(newStrategy, '', installed));
+    onChange(ToolsService.toParsedToolVersion(newStrategy, '', preferInstalled));
   };
 
   const handleVersionChange = (newVersion: string) => {
-    onChange(ToolsService.toParsedToolVersion(strategy, newVersion, installed));
+    onChange(ToolsService.toParsedToolVersion(strategy, newVersion, preferInstalled));
   };
 
-  const handleInstalledChange = (newInstalled: boolean) => {
-    onChange(ToolsService.toParsedToolVersion(strategy, version, newInstalled));
+  const handlePreferInstalledChange = (newPreferInstalled: boolean) => {
+    onChange(ToolsService.toParsedToolVersion(strategy, version, newPreferInstalled));
   };
 
   return (
@@ -224,9 +224,9 @@ const ToolRow = ({
             {strategy === 'latest-of' && (
               <BitkitCheckbox
                 labelText="Use installed versions if possible"
-                checked={!!installed}
+                checked={!!preferInstalled}
                 state={isReadOnly ? 'readOnly' : undefined}
-                onChange={(e) => handleInstalledChange((e.target as unknown as HTMLInputElement).checked)}
+                onChange={(e) => handlePreferInstalledChange((e.target as unknown as HTMLInputElement).checked)}
               />
             )}
           </Box>
