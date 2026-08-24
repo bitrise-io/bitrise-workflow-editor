@@ -28,7 +28,7 @@ const DOCS_URL =
   'https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions';
 const CLI_DOCS_URL = `${DOCS_URL}#tool-setup-during-workflow-execution`;
 
-const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'latest-of', prefix: '', installed: false };
+const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'latest-of', prefix: '', preferInstalled: false };
 
 const HeaderLinkSeparator = () => (
   <Text as="span" color="text/tertiary" aria-hidden="true">
@@ -100,7 +100,7 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
               toolId={toolId}
               strategy={parsed.strategy}
               version={ToolsService.getVersionInputValue(parsed)}
-              installed={parsed.strategy === 'latest-of' && parsed.installed}
+              preferInstalled={parsed.strategy === 'latest-of' && parsed.preferInstalled}
               existingToolIds={existingToolIds}
               catalog={catalog}
               allowUnset={allowUnset}
@@ -117,7 +117,7 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
             toolId=""
             strategy={pendingVersion.strategy}
             version={ToolsService.getVersionInputValue(pendingVersion)}
-            installed={pendingVersion.strategy === 'latest-of' && pendingVersion.installed}
+            preferInstalled={pendingVersion.strategy === 'latest-of' && pendingVersion.preferInstalled}
             existingToolIds={existingToolIds}
             catalog={catalog}
             allowUnset={allowUnset}

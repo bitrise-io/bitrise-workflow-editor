@@ -17,7 +17,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   }
 
   if (lower === 'latest' || lower === 'installed') {
-    return { strategy: 'latest-of', prefix: '', installed: lower === 'installed' };
+    return { strategy: 'latest-of', prefix: '', preferInstalled: lower === 'installed' };
   }
 
   const colonIndex = raw.indexOf(':');
@@ -26,7 +26,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     const suffix = raw.slice(colonIndex + 1).toLowerCase();
 
     if (suffix === 'latest' || suffix === 'installed') {
-      return { strategy: 'latest-of', prefix, installed: suffix === 'installed' };
+      return { strategy: 'latest-of', prefix, preferInstalled: suffix === 'installed' };
     }
   }
 
@@ -38,7 +38,7 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
     case 'unset':
       return 'unset';
     case 'latest-of': {
-      const keyword = parsed.installed ? 'installed' : 'latest';
+      const keyword = parsed.preferInstalled ? 'installed' : 'latest';
       return parsed.prefix ? `${parsed.prefix}:${keyword}` : keyword;
     }
     case 'exact':
@@ -47,14 +47,18 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
 }
 
 /** Builds a parsed version from the row's controls, the strategy deciding what the fields mean. */
-function toParsedToolVersion(strategy: VersionStrategy, inputValue: string, installed = false): ParsedToolVersion {
+function toParsedToolVersion(
+  strategy: VersionStrategy,
+  inputValue: string,
+  preferInstalled = false,
+): ParsedToolVersion {
   switch (strategy) {
     case 'exact':
       return { strategy, version: inputValue };
     case 'unset':
       return { strategy };
     case 'latest-of':
-      return { strategy, prefix: inputValue, installed };
+      return { strategy, prefix: inputValue, preferInstalled };
   }
 }
 
@@ -253,9 +257,9 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
     case 'unset':
       return parsed;
     case 'latest-of':
-      // The installed choice is about how a version is resolved, not about which tool, so it
+      // The installed preference is about how a version is resolved, not about which tool, so it
       // survives the rename even though the prefix does not.
-      return { strategy: 'latest-of', prefix: '', installed: parsed.installed };
+      return { strategy: 'latest-of', prefix: '', preferInstalled: parsed.preferInstalled };
   }
 }
 
