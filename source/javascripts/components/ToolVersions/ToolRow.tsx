@@ -13,7 +13,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 
 import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '@/core/models/Tools';
@@ -107,14 +107,27 @@ const ToolRow = ({
     isError: isVersionsError,
   } = useToolVersions(canonicalToolId, isExactKnownTool || hasPrefixDropdown);
 
-  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
-  const prefixOptions = ToolsService.getPrefixOptions(toolVersions, version);
+  // Catalogs can list thousands of versions, so only compute the one the active branch needs.
+  const versionOptions = useMemo(
+    () => (isExactKnownTool ? ToolsService.getVersionOptions(toolVersions, version) : []),
+    [isExactKnownTool, toolVersions, version],
+  );
+  const prefixOptions = useMemo(
+    () => (hasPrefixDropdown ? ToolsService.getPrefixOptions(toolVersions, version) : []),
+    [hasPrefixDropdown, toolVersions, version],
+  );
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
-  const isVersionMissingFromCatalog =
-    !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version);
-  const isPrefixMissingFromCatalog =
-    !!toolVersions && version !== '' && !ToolsService.isPrefixInCatalog(toolVersions, version);
+  const isVersionMissingFromCatalog = useMemo(
+    () =>
+      isExactKnownTool && !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version),
+    [isExactKnownTool, toolVersions, version],
+  );
+  const isPrefixMissingFromCatalog = useMemo(
+    () =>
+      hasPrefixDropdown && !!toolVersions && version !== '' && !ToolsService.isPrefixInCatalog(toolVersions, version),
+    [hasPrefixDropdown, toolVersions, version],
+  );
 
   // An exact strategy needs a concrete version. An empty prefix is valid and means the newest
   // version overall, which serializes to bare `latest` or `installed`.
