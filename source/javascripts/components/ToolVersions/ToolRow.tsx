@@ -210,17 +210,17 @@ const ToolRow = ({
           </Box>
         </BitkitTooltip>
 
-        <Box display="flex" flexDirection="column" gap="8" flex="1">
-          <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+        <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+          <Box display="flex" flexDirection="column" gap="8" flex="1">
             <BitkitSelect
-                  size="lg"
-                items={Object.entries(STRATEGY_LABELS)
-                  .filter(([value]) => allowUnset || value !== 'unset')
-                  .map(([value, label]) => ({ value, label }))}
-                value={strategy}
-                state={isReadOnly ? 'readOnly' : undefined}
-                onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
-              />
+              size="lg"
+              items={Object.entries(STRATEGY_LABELS)
+                .filter(([value]) => allowUnset || value !== 'unset')
+                .map(([value, label]) => ({ value, label }))}
+              value={strategy}
+              state={isReadOnly ? 'readOnly' : undefined}
+              onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
+            />
             {strategy === 'latest-of' && (
               <BitkitCheckbox
                 labelText="Use installed versions if possible"
@@ -229,8 +229,8 @@ const ToolRow = ({
                 onChange={(e) => handleInstalledChange((e.target as unknown as HTMLInputElement).checked)}
               />
             )}
-          </BitkitTooltip>
-        </Box>
+          </Box>
+        </BitkitTooltip>
 
         {strategy !== 'unset' && (
           <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
@@ -258,17 +258,17 @@ const ToolRow = ({
                   value={version || undefined}
                   onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
                 />
-            ) : hasPrefixDropdown ? (
-              <BitkitSelect
-                size="lg"
-                placeholder="Select"
-                items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...prefixOptions]}
-                isLoading={isVersionsLoading}
-                state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                warningText={unmatchedPrefixWarning}
-                value={version || ANY_PREFIX_VALUE}
-                onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
-              />
+              ) : hasPrefixDropdown ? (
+                <BitkitSelect
+                  size="lg"
+                  placeholder="Select"
+                  items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...prefixOptions]}
+                  isLoading={isVersionsLoading}
+                  state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  warningText={unmatchedPrefixWarning}
+                  value={version || ANY_PREFIX_VALUE}
+                  onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
+                />
               ) : (
                 <BitkitTextInput
                   size="lg"
