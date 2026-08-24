@@ -5,6 +5,7 @@ import {
   BitkitLink,
   BitkitSelect,
   BitkitTextInput,
+  BitkitTooltip,
   IconMinusCircle,
   IconOpenInNew,
   rem,
@@ -30,6 +31,8 @@ const STRATEGY_LABELS: Record<VersionStrategy, string> = {
 };
 
 const OTHER_VALUE = '__other__';
+
+const READ_ONLY_TOOLTIP_TEXT = 'To edit, switch to the module file that defines it.';
 
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
@@ -161,80 +164,86 @@ const ToolRow = ({
   return (
     <Box display="flex" flexDirection="column" gap="8">
       <Box display="flex" alignItems="flex-start" gap="12">
-        <Box display="flex" flexDirection="column" gap="8" width={TOOL_ID_COLUMN_WIDTH} flexShrink="0">
-          <BitkitSelect
-            size="lg"
-            placeholder="Select one"
-            isLoading={isCatalogLoading}
-            items={dropdownItems}
-            state={isReadOnly ? 'readOnly' : undefined}
-            value={showCustomInput ? OTHER_VALUE : toolId}
-            onValueChange={handleDropdownChange}
-          />
-          {showCustomInput && (
-            <BitkitTextInput
+        <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+          <Box display="flex" flexDirection="column" gap="8" width={TOOL_ID_COLUMN_WIDTH} flexShrink="0">
+            <BitkitSelect
               size="lg"
-              placeholder="Tool ID (e.g. deno)"
-              errorText={toolIdFieldState.error?.message}
+              placeholder="Select one"
+              isLoading={isCatalogLoading}
+              items={dropdownItems}
               state={isReadOnly ? 'readOnly' : undefined}
-              inputProps={{
-                ...toolIdField,
-                onBlur: handleIdBlur,
-              }}
+              value={showCustomInput ? OTHER_VALUE : toolId}
+              onValueChange={handleDropdownChange}
             />
-          )}
-        </Box>
-
-        <BitkitSelect
-          flex="1"
-          size="lg"
-          items={Object.entries(STRATEGY_LABELS)
-            .filter(([value]) => allowUnset || value !== 'unset')
-            .map(([value, label]) => ({ value, label }))}
-          value={strategy}
-          state={isReadOnly ? 'readOnly' : undefined}
-          onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
-        />
-
-        {strategy !== 'unset' && (
-          <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
-            {/* A catalog-known tool always has at least one version to offer, so the dropdown
-                applies whenever one is possible at all. */}
-            {isExactKnownTool ? (
-              <BitkitCombobox
-                size="lg"
-                placeholder="Select"
-                emptyLabel="No matches"
-                items={versionOptions}
-                isLoading={isVersionsLoading}
-                // With no version list there is nothing to pick from. Read-only rather than
-                // disabled, so the configured version stays legible and reachable by keyboard
-                // and screen readers; the alert below points to the YAML editor instead.
-                state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                // Closing the menu without picking counts as visiting and leaving the field.
-                comboboxProps={{
-                  onOpenChange: (details) => !details.open && setVersionTouched(true),
-                  onBlur: () => setVersionTouched(true),
-                }}
-                errorText={displayedVersionError}
-                warningText={catalogMismatchWarning}
-                value={version || undefined}
-                onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
-              />
-            ) : (
+            {showCustomInput && (
               <BitkitTextInput
                 size="lg"
-                placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
-                errorText={displayedVersionError}
+                placeholder="Tool ID (e.g. deno)"
+                errorText={toolIdFieldState.error?.message}
                 state={isReadOnly ? 'readOnly' : undefined}
                 inputProps={{
-                  value: version,
-                  onChange: (e) => onVersionChange(e.target.value),
-                  onBlur: () => setVersionTouched(true),
+                  ...toolIdField,
+                  onBlur: handleIdBlur,
                 }}
               />
             )}
           </Box>
+        </BitkitTooltip>
+
+        <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+          <BitkitSelect
+            flex="1"
+            size="lg"
+            items={Object.entries(STRATEGY_LABELS)
+              .filter(([value]) => allowUnset || value !== 'unset')
+              .map(([value, label]) => ({ value, label }))}
+            value={strategy}
+            state={isReadOnly ? 'readOnly' : undefined}
+            onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
+          />
+        </BitkitTooltip>
+
+        {strategy !== 'unset' && (
+          <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+            <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
+              {/* A catalog-known tool always has at least one version to offer, so the dropdown
+                  applies whenever one is possible at all. */}
+              {isExactKnownTool ? (
+                <BitkitCombobox
+                  size="lg"
+                  placeholder="Select"
+                  emptyLabel="No matches"
+                  items={versionOptions}
+                  isLoading={isVersionsLoading}
+                  // With no version list there is nothing to pick from. Read-only rather than
+                  // disabled, so the configured version stays legible and reachable by keyboard
+                  // and screen readers; the alert below points to the YAML editor instead.
+                  state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  // Closing the menu without picking counts as visiting and leaving the field.
+                  comboboxProps={{
+                    onOpenChange: (details) => !details.open && setVersionTouched(true),
+                    onBlur: () => setVersionTouched(true),
+                  }}
+                  errorText={displayedVersionError}
+                  warningText={catalogMismatchWarning}
+                  value={version || undefined}
+                  onValueChange={(newVersion) => onVersionChange(newVersion ?? '')}
+                />
+              ) : (
+                <BitkitTextInput
+                  size="lg"
+                  placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+                  errorText={displayedVersionError}
+                  state={isReadOnly ? 'readOnly' : undefined}
+                  inputProps={{
+                    value: version,
+                    onChange: (e) => onVersionChange(e.target.value),
+                    onBlur: () => setVersionTouched(true),
+                  }}
+                />
+              )}
+            </Box>
+          </BitkitTooltip>
         )}
 
         <BitkitIconButton
