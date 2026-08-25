@@ -109,7 +109,7 @@ const ToolRow = ({
   // What the row is set to, which is `latest-of` from the moment a prefix starts being composed,
   // before anything is written.
   const effectiveStrategy: VersionStrategy = isLatestOf ? 'latest-of' : strategy;
-  const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
+  const isExactKnownTool = effectiveStrategy === 'exact' && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
@@ -118,8 +118,6 @@ const ToolRow = ({
     // Fetched for every catalog-known tool: picking `latest-of` seeds a prefix from the candidates.
   } = useToolVersions(canonicalToolId, isKnownCatalogTool);
 
-  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
-  const prefixOptions = ToolsService.getPrefixOptions(toolVersions, version);
   // A dropdown is only worth it when the catalog publishes version numbers.
   const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
   const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && hasVersionNumbers;
@@ -165,7 +163,7 @@ const ToolRow = ({
     : undefined;
   // The installed variants get no hint, because the catalog lists released versions only.
   const resolvesReleased = strategy === 'absolute-latest-released' || (isLatestOf && !preferInstalled);
-  const latestVersion = resolvesReleased ? ToolsService.getLatestVersion(toolVersions, version) : undefined;
+  const latestVersion = resolvesReleased ? ToolsService.getLatestVersion(toolVersions, shownVersion) : undefined;
   const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
   // `latest-of` explains itself under its prefix, the absolute strategy under the picker.
   const strategyHint = isLatestOf ? undefined : resolvedVersionHint;
@@ -213,7 +211,7 @@ const ToolRow = ({
       }
       // Strategy and prefix in one write: the bare keyword alone reads back as absolute.
       setPrefixDraft(null);
-      onChange({ strategy: 'latest-of', prefix: seedPrefix, installed: installedNext });
+      onChange({ strategy: 'latest-of', prefix: seedPrefix, preferInstalled: installedNext });
       return;
     }
 
@@ -279,16 +277,16 @@ const ToolRow = ({
         <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
           <Box display="flex" flexDirection="column" gap="8" flex="1">
             <BitkitSelect
-                  size="lg"
-                items={Object.entries(STRATEGY_LABELS)
-                  .filter(([value]) => allowUnset || value !== 'unset')
-                  .map(([value, label]) => ({ value, label }))}
-                value={effectiveStrategy}
-                state={isReadOnly ? 'readOnly' : undefined}
-            helperText={strategyHint}
-                onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
-              />
-            {strategy === 'latest-of' && (
+              size="lg"
+              items={Object.entries(STRATEGY_LABELS)
+                .filter(([value]) => allowUnset || value !== 'unset')
+                .map(([value, label]) => ({ value, label }))}
+              value={effectiveStrategy}
+              state={isReadOnly ? 'readOnly' : undefined}
+              helperText={strategyHint}
+              onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
+            />
+            {isLatestOf && (
               <BitkitCheckbox
                 labelText={
                   <>
@@ -357,7 +355,7 @@ const ToolRow = ({
                   errorText={displayedVersionError}
                   helperText={versionHint}
                   warningText={displayedVersionError ? undefined : unmatchedPrefixWarning}
-                state={isReadOnly ? 'readOnly' : undefined}
+                  state={isReadOnly ? 'readOnly' : undefined}
                   inputProps={{
                     value: shownVersion,
                     onChange: (e) => (isLatestOf ? handlePrefixDraftChange : handleVersionChange)(e.target.value),

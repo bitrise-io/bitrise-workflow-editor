@@ -46,8 +46,13 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
     case 'absolute-latest-installed':
       return 'installed';
     case 'latest-of': {
+      if (!parsed.prefix) {
+        // A bare keyword would read back as the absolute strategy, not latest-of with an
+        // empty prefix, so the invariant is enforced here rather than silently collapsing it.
+        throw new Error('latest-of requires a non-empty prefix, use an absolute strategy instead');
+      }
       const keyword = parsed.preferInstalled ? 'installed' : 'latest';
-      return parsed.prefix ? `${parsed.prefix}:${keyword}` : keyword;
+      return `${parsed.prefix}:${keyword}`;
     }
     case 'exact':
       return parsed.version;
