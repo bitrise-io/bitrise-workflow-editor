@@ -39,4 +39,15 @@ describe('deepLinkedEntity', () => {
   it('does not confuse a pipeline link for a workflow one', () => {
     expect(deepLinkedEntity('#!/pipelines?workflow_id=deploy')).toBeUndefined();
   });
+
+  it('matches the page on a segment boundary, not as a bare prefix', () => {
+    expect(deepLinkedEntity('#!/workflows-old?workflow_id=deploy')).toBeUndefined();
+    expect(deepLinkedEntity('#!/pipelines_v2?pipeline=nightly')).toBeUndefined();
+    expect(deepLinkedEntity('#!/step_bundlesx?step_bundle_id=common')).toBeUndefined();
+  });
+
+  it('still matches a sub-path of an entity page', () => {
+    expect(deepLinkedEntity('#!/workflows/?workflow_id=deploy')).toEqual({ kind: 'workflows', id: 'deploy' });
+    expect(deepLinkedEntity('#!/workflows/steps?workflow_id=deploy')).toEqual({ kind: 'workflows', id: 'deploy' });
+  });
 });

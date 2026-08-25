@@ -33,8 +33,12 @@ export function entityDeepLinkParam(kind: EntityKind): string | undefined {
  * workflow. `undefined` when the location isn't an entity page, or carries no entity id.
  */
 export function deepLinkedEntity(location: string): EntityDeepLink | undefined {
-  const [path, search] = location.replace(/^#?!?\/?/, '').split('?');
-  const route = ENTITY_DEEP_LINKS.find(({ path: entityPath }) => `/${path}`.startsWith(entityPath));
+  const [rawPath, search] = location.replace(/^#?!?\/?/, '').split('?');
+  const path = `/${rawPath}`;
+  // Segment boundary, not a bare prefix: an unrelated `/workflows-old` page is not a workflow link.
+  const route = ENTITY_DEEP_LINKS.find(
+    ({ path: entityPath }) => path === entityPath || path.startsWith(`${entityPath}/`),
+  );
   const id = route && new URLSearchParams(search).get(route.param);
   return id ? { kind: route.kind, id } : undefined;
 }
