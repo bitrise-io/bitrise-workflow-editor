@@ -144,7 +144,8 @@ const ToolRow = ({
   const unmatchedPrefixWarning = isPrefixMissingFromCatalog
     ? `No known version of ${toolId} starts with ${version}, use at your own risk`
     : undefined;
-  const latestVersion = installed ? undefined : ToolsService.getLatestVersion(toolVersions, version);
+  const latestVersion =
+    hasPrefixDropdown && !preferInstalled ? ToolsService.getLatestVersion(toolVersions, version) : undefined;
   const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
 
   const dropdownItems = [
