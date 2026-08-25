@@ -146,8 +146,9 @@ const ToolRow = ({
 
     return undefined;
   }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
-  // The catalog lists released versions only, so a preinstalled preference has nothing to resolve.
-  const latestVersion = preferInstalled ? undefined : ToolsService.getLatestVersion(toolVersions, trimmedVersion);
+  // Only the prefix dropdown resolves, and the catalog lists released versions only.
+  const latestVersion =
+    hasPrefixDropdown && !preferInstalled ? ToolsService.getLatestVersion(toolVersions, trimmedVersion) : undefined;
   const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
 
   const dropdownItems = [
