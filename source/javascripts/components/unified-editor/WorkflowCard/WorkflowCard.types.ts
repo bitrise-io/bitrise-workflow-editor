@@ -3,6 +3,12 @@ import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
 export type WorkflowActions = {
   onCreateWorkflow?: () => void;
+  /**
+   * Fired when the user clicks a card header (never the chevron or an action button — those are filtered out).
+   * `isSelected` is the state AFTER the click: true → this card just became the config target, false → it was cleared.
+   * Providing this callback is what makes a card's header clickable at all.
+   */
+  onSelectWorkflow?: (props: { workflowId: string; parentWorkflowId?: string; isSelected: boolean }) => void;
   onEditWorkflow?: (workflowId: string) => void;
   onEditChainedWorkflow?: (workflowId: string, parentWorkflowId: string) => void;
   onChainWorkflow?: (workflowId: string) => void;
@@ -62,4 +68,10 @@ export type SortableStepItem = {
 export type SelectionParent = {
   id: string;
   type: 'stepBundle' | 'workflow';
+};
+
+/** The workflow whose config is currently being edited — drives the card's selected outline. */
+export type SelectedWorkflow = {
+  workflowId: string;
+  parentWorkflowId?: string;
 };

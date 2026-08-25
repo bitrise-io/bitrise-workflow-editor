@@ -9,7 +9,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, MouseEvent, useMemo, useRef, useState } from 'react';
 
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
@@ -27,6 +27,7 @@ import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
+import { INTERACTIVE_CARD_HEADER_SELECTOR } from '../WorkflowCard.const';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
@@ -52,11 +53,12 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
   // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
   const isGhost = isCrossFile || isReadOnlyView;
-  const { isSelected } = useSelection();
+  const { isWorkflowSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isOpen, onOpen, onToggle } = useDisclosure();
-  const { onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow } = useWorkflowActions();
+  const { isOpen, onOpen, onClose, onToggle } = useDisclosure();
+  const { onSelectWorkflow, onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow } =
+    useWorkflowActions();
 
   const sortable = useSortable({
     id: uniqueId,
@@ -82,9 +84,28 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
   const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
 
-  const isHighlighted = isSelected({ workflowId: id });
+  const isHighlighted = isWorkflowSelected({ workflowId: id, parentWorkflowId });
   const isPlaceholder = sortable.isDragging;
   const title = workflow?.title || id;
+
+  const isClickable = Boolean(onSelectWorkflow) && !isCrossFile && !isDragging;
+  const handleCardClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target instanceof Element && event.target.closest(INTERACTIVE_CARD_HEADER_SELECTOR)) {
+      return;
+    }
+
+    // Always expand + select, so expansion and the drawer can't drift apart; only an already
+    // expanded and selected card collapses.
+    const isDeselecting = isOpen && isHighlighted;
+
+    if (isDeselecting) {
+      onClose();
+    } else {
+      onOpen();
+    }
+
+    onSelectWorkflow?.({ workflowId: id, parentWorkflowId, isSelected: !isDeselecting });
+  };
 
   const cardProps = useMemo(() => {
     const common: CardProps = {
@@ -183,7 +204,16 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
       {!isPlaceholder && (
         <>
-          <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
+          <Box
+            display="flex"
+            alignItems="center"
+            px="8"
+            py="6"
+            gap="4"
+            className="group"
+            cursor={isClickable ? 'pointer' : undefined}
+            onClick={isClickable ? handleCardClick : undefined}
+          >
             {isSortable && (
               <DragHandle
                 mx="-8"
