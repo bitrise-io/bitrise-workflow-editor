@@ -80,6 +80,19 @@ describe('useSelectedWorkflow', () => {
       expect(window.parent.location.hash).toContain('workflow_id=wf3');
     });
 
+    it('agrees with the page selector on which value of a duplicated workflow_id wins', () => {
+      // Both layers read the same location, so they must resolve a duplicated param identically:
+      // if bootstrap took the first value it would open the module for `wf1` while the page
+      // selected `wf3`, which is the lost-selection bug this whole path exists to prevent.
+      window.parent.location.hash = '#/workflows?workflow_id=wf1&workflow_id=wf3';
+      initializeModularConfigFromLocation(root);
+
+      const { result } = renderHook(() => useSelectedWorkflow());
+
+      expect(result.current[0]).toBe('wf3');
+      expect(window.parent.location.hash).toContain('workflow_id=wf3');
+    });
+
     it('falls back to the root file when no module defines the linked workflow', () => {
       window.parent.location.hash = '#/workflows?workflow_id=does-not-exist';
       initializeModularConfigFromLocation(root);
