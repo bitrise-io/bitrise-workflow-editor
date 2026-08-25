@@ -28,6 +28,11 @@ const LATEST_OF_SUFFIXES = LATEST_OF_KEYWORDS.map(({ keyword, preferInstalled })
   preferInstalled,
 }));
 
+/** The strategy a keyword means on its own, with no prefix to narrow it. */
+function toAbsoluteStrategy(preferInstalled: boolean): ParsedToolVersion {
+  return { strategy: preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
+}
+
 function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
   // Trimmed, mirroring the `strings.TrimSpace` that opens the CLI's `ParseVersionString`.
@@ -40,7 +45,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
 
   const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
   if (bare) {
-    return { strategy: bare.preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
+    return toAbsoluteStrategy(bare.preferInstalled);
   }
 
   // Mirrors the CLI's greedy, end anchored `(.*):latest$`, so `a:b:latest` has prefix `a:b`.
@@ -49,11 +54,12 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   );
 
   if (suffixed) {
-    return {
-      strategy: 'latest-of',
-      prefix: raw.slice(0, raw.length - suffixed.suffix.length),
-      preferInstalled: suffixed.preferInstalled,
-    };
+    const prefix = raw.slice(0, raw.length - suffixed.suffix.length);
+
+    // `:latest` carries no prefix, so it means the same as bare `latest`, and `latest-of` needs one.
+    return prefix === ''
+      ? toAbsoluteStrategy(suffixed.preferInstalled)
+      : { strategy: 'latest-of', prefix, preferInstalled: suffixed.preferInstalled };
   }
 
   return { strategy: 'exact', version: raw };
@@ -68,9 +74,15 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
     case 'absolute-latest-installed':
       return INSTALLED_KEYWORD;
     case 'latest-of': {
+      if (!parsed.prefix) {
+        // A bare keyword would read back as the absolute strategy, not latest-of with an
+        // empty prefix, so the invariant is enforced here rather than silently collapsing it.
+        throw new Error('latest-of requires a non-empty prefix, use an absolute strategy instead');
+      }
+
       const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
 
-      return parsed.prefix ? `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}` : keyword;
+      return `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}`;
     }
     case 'exact':
       return parsed.version;

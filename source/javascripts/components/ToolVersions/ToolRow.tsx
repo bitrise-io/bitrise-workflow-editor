@@ -109,7 +109,7 @@ const ToolRow = ({
   // What the row is set to, which is `latest-of` from the moment a prefix starts being composed,
   // before anything is written.
   const effectiveStrategy: VersionStrategy = isLatestOf ? 'latest-of' : strategy;
-  const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
+  const isExactKnownTool = effectiveStrategy === 'exact' && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
   const {
     data: toolVersions,
@@ -288,7 +288,7 @@ const ToolRow = ({
               helperText={strategyHint}
               onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
             />
-            {strategy === 'latest-of' && (
+            {isLatestOf && (
               <BitkitCheckbox
                 labelText={
                   <>
