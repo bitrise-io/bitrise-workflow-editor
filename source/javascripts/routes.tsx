@@ -1,5 +1,7 @@
 import { lazyWithPreload } from 'react-lazy-with-preload';
 
+import { EntityDeepLink, EntityKind } from '@/core/models/Tree';
+
 export const paths = {
   workflows: '/workflows',
   pipelines: '/pipelines',
@@ -12,6 +14,30 @@ export const paths = {
   licenses: '/licenses',
   yml: '/yml',
 };
+
+// Pages that address a single entity through a search param. Kinds without one (containers,
+// project env vars) are reached by page alone, so they can't be deep-linked to an entity.
+const ENTITY_DEEP_LINKS: ReadonlyArray<{ kind: EntityKind; path: string; param: string }> = [
+  { kind: 'workflows', path: paths.workflows, param: 'workflow_id' },
+  { kind: 'pipelines', path: paths.pipelines, param: 'pipeline' },
+  { kind: 'stepBundles', path: paths.stepBundles, param: 'step_bundle_id' },
+];
+
+/** The search param carrying the entity id on a kind's page; `undefined` for kinds without one. */
+export function entityDeepLinkParam(kind: EntityKind): string | undefined {
+  return ENTITY_DEEP_LINKS.find((link) => link.kind === kind)?.param;
+}
+
+/**
+ * The entity a router location addresses — `#!/workflows?workflow_id=deploy` → the `deploy`
+ * workflow. `undefined` when the location isn't an entity page, or carries no entity id.
+ */
+export function deepLinkedEntity(location: string): EntityDeepLink | undefined {
+  const [path, search] = location.replace(/^#?!?\/?/, '').split('?');
+  const route = ENTITY_DEEP_LINKS.find(({ path: entityPath }) => `/${path}`.startsWith(entityPath));
+  const id = route && new URLSearchParams(search).get(route.param);
+  return id ? { kind: route.kind, id } : undefined;
+}
 
 export const routes = [
   {

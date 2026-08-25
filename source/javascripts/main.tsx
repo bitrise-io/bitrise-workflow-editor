@@ -29,7 +29,7 @@ import bitriseLogo from '../images/bitrise-logo.svg';
 import errorImg from '../images/error-hairball.svg';
 import { trackConfigBranchLoaded } from './core/analytics/ConfigManagementAnalytics';
 import useYmlHasChanges from './hooks/useYmlHasChanges';
-import { preloadRoutes } from './routes';
+import { deepLinkedEntity, preloadRoutes } from './routes';
 
 const loaders = [];
 if (import.meta.env.CLARITY === 'true') {
@@ -171,6 +171,9 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
               mergedYml: config.mergedYml,
               branch: config.branch,
               commitSha: config.root.commitSha,
+              // Resolved against the whole tree here, before any page reads the config: an entity
+              // addressed by the URL may live in an included module, not in the root file.
+              deepLink: deepLinkedEntity(window.parent.location.hash),
             });
           }
         }
