@@ -71,11 +71,7 @@ describe('ToolsService', () => {
 
     it('reads a leading-colon value as the bare keyword, as the CLI does', () => {
       // The capture group may be empty, so `:latest` is bare `latest` and serializes back as such.
-      expect(ToolsService.parseToolVersion(':latest')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
+      expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'absolute-latest-released' });
       expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion(':latest'))).toBe('latest');
     });
 
