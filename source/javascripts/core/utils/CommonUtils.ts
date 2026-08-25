@@ -20,6 +20,15 @@ function parallelWorkflowSourceId(id: string): string | undefined {
   return sourceId === id ? undefined : sourceId;
 }
 
+/**
+ * Search params of a (hash) location, as a plain object. On a duplicated param the LAST value wins
+ * — the semantics every `?workflow_id=`/`?pipeline=` reader in the app shares, so a hand-built link
+ * can't be read one way here and another way by the page selectors.
+ */
+function searchParamsFromLocation(location: string): Record<string, string> {
+  return Object.fromEntries(new URLSearchParams(location.split('?')[1] || ''));
+}
+
 function findScrollContainer(element?: HTMLElement | null) {
   if (!element) {
     return null;
@@ -70,4 +79,12 @@ function getCookie(cname: string): string {
   return '';
 }
 
-export { download, findScrollContainer, generateUniqueEntityId, getCookie, getFormattedDate, parallelWorkflowSourceId };
+export {
+  download,
+  findScrollContainer,
+  generateUniqueEntityId,
+  getCookie,
+  getFormattedDate,
+  parallelWorkflowSourceId,
+  searchParamsFromLocation,
+};

@@ -46,6 +46,17 @@ describe('deepLinkedEntity', () => {
     expect(deepLinkedEntity('#!/step_bundlesx?step_bundle_id=common')).toBeUndefined();
   });
 
+  it('reads a duplicated param the same way the page selectors do (last value wins)', () => {
+    // `URLSearchParams.get()` would take the first value here, while the selectors read the hash
+    // through `getSearchParamsFromLocationHash()` and take the last — so bootstrap would open the
+    // module for one workflow and the page would then select the other.
+    expect(deepLinkedEntity('#!/workflows?workflow_id=module-wf&workflow_id=root-wf')).toEqual({
+      kind: 'workflows',
+      id: 'root-wf',
+    });
+    expect(deepLinkedEntity('#!/workflows?workflow_id=module-wf&workflow_id=')).toBeUndefined();
+  });
+
   it('still matches a sub-path of an entity page', () => {
     expect(deepLinkedEntity('#!/workflows/?workflow_id=deploy')).toEqual({ kind: 'workflows', id: 'deploy' });
     expect(deepLinkedEntity('#!/workflows/steps?workflow_id=deploy')).toEqual({ kind: 'workflows', id: 'deploy' });
