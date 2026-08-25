@@ -145,6 +145,16 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(bitriseYmlStore.getState().selectedNodeId).toBe('child-a');
     });
 
+    it('opens the defining module for a non-workflow kind too', () => {
+      const root = buildRoot();
+      root.includes[0].contents = 'step_bundles:\n  shared-setup: {}\n';
+      initializeModularConfig({ root, deepLink: { kind: 'stepBundles', id: 'shared-setup' } });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe('child-a');
+      expect(state.yml.step_bundles?.['shared-setup']).toBeDefined();
+    });
+
     it('keeps the root file selected when the linked entity is defined there', () => {
       const root = buildRoot();
       root.contents = 'workflows:\n  root-only: {}\n';

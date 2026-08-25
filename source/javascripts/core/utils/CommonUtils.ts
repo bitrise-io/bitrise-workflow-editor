@@ -6,6 +6,20 @@ function generateUniqueEntityId(existingIds: string[], prefix: string, i = 0) {
   return potentialId;
 }
 
+// A parallel workflow is materialised at build time as `<id>_<n>` copies that only ever exist in
+// the build, never in the config — so an id arriving from a build can carry one of those suffixes.
+const PARALLEL_WORKFLOW_VARIANT_REGEX = /_\d+$/;
+
+/**
+ * The source workflow id behind a generated parallel-workflow id (`sharded-tests_13` →
+ * `sharded-tests`), or `undefined` when the id carries no such suffix. The inverse of the
+ * `<prefix>_<n>` convention {@link generateUniqueEntityId} produces.
+ */
+function parallelWorkflowSourceId(id: string): string | undefined {
+  const sourceId = id.replace(PARALLEL_WORKFLOW_VARIANT_REGEX, '');
+  return sourceId === id ? undefined : sourceId;
+}
+
 function findScrollContainer(element?: HTMLElement | null) {
   if (!element) {
     return null;
@@ -56,4 +70,4 @@ function getCookie(cname: string): string {
   return '';
 }
 
-export { download, findScrollContainer, generateUniqueEntityId, getCookie, getFormattedDate };
+export { download, findScrollContainer, generateUniqueEntityId, getCookie, getFormattedDate, parallelWorkflowSourceId };

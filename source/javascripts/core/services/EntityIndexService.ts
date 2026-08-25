@@ -1,6 +1,7 @@
 import { Document } from 'yaml';
 
 import { EntityDeepLink, EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
+import { parallelWorkflowSourceId } from '@/core/utils/CommonUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 // Map-shaped YAML sections (entity id → definition), generically indexed by the DFS below.
@@ -27,14 +28,11 @@ function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): strin
   return definitionsOf(index, kind, id)[0]?.nodeId;
 }
 
-// A parallel workflow is materialised at build time as `<id>_<n>` copies that only ever exist in
-// the build, never in the config — so links arriving from a build can carry one of those ids.
-const PARALLEL_WORKFLOW_VARIANT_REGEX = /_\d+$/;
-
 /**
  * The `nodeId` of the module defining the entity a URL points at, or `undefined` when no module
  * defines it. Like {@link definingNodeId}, but resolves a generated parallel-workflow id back to
- * its source workflow — the same fallback `useSelectedWorkflow` applies when picking the selection.
+ * its source workflow — sharing {@link parallelWorkflowSourceId} with `useSelectedWorkflow`, so the
+ * module this opens and the workflow that page then selects can't disagree.
  */
 function deepLinkNodeId(index: EntityIndex, { kind, id }: EntityDeepLink): string | undefined {
   const exactMatch = definingNodeId(index, kind, id);
@@ -42,8 +40,8 @@ function deepLinkNodeId(index: EntityIndex, { kind, id }: EntityDeepLink): strin
     return exactMatch;
   }
 
-  const sourceId = id.replace(PARALLEL_WORKFLOW_VARIANT_REGEX, '');
-  return sourceId === id ? undefined : definingNodeId(index, kind, sourceId);
+  const sourceId = parallelWorkflowSourceId(id);
+  return sourceId ? definingNodeId(index, kind, sourceId) : undefined;
 }
 
 /** Build the entity index live from open file documents (mirrors the BE builder) so cross-file detection stays correct before save. */

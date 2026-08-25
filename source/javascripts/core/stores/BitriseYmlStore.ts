@@ -383,7 +383,11 @@ export function initializeModularConfig({
   mergedYml?: string;
   branch?: string;
   commitSha?: string;
-  /** Entity the opening URL points at, so the module defining it is the one opened. */
+  /**
+   * Entity the current URL points at, so the module defining it is the one opened. Resolved on
+   * every (re)initialisation — the first load and a branch reload alike — but deliberately not on
+   * tab switches, where falling back to the newly selected file's own entities is intended.
+   */
   deepLink?: EntityDeepLink;
 }) {
   const files = buildFileSlices(root);
