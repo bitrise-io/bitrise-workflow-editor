@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 import useBitriseYmlStore from './useBitriseYmlStore';
 
 export default function useYmlHasChanges() {
