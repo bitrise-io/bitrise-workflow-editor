@@ -1,6 +1,7 @@
 import { Document } from 'yaml';
 
-import { EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
+import { EntityDeepLink, EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
+import { parallelWorkflowSourceId } from '@/core/utils/CommonUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 // Map-shaped YAML sections (entity id → definition), generically indexed by the DFS below.
@@ -25,6 +26,22 @@ function definitionsOf(index: EntityIndex, kind: EntityKind, id: string): Entity
 /** The `nodeId` of the top-most (highest-precedence) node defining this entity; use `definitionsOf` when every layer matters. */
 function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): string | undefined {
   return definitionsOf(index, kind, id)[0]?.nodeId;
+}
+
+/**
+ * The `nodeId` of the module defining the entity a URL points at, or `undefined` when no module
+ * defines it. Like {@link definingNodeId}, but resolves a generated parallel-workflow id back to
+ * its source workflow — sharing {@link parallelWorkflowSourceId} with `useSelectedWorkflow`, so the
+ * module this opens and the workflow that page then selects can't disagree.
+ */
+function deepLinkNodeId(index: EntityIndex, { kind, id }: EntityDeepLink): string | undefined {
+  const exactMatch = definingNodeId(index, kind, id);
+  if (exactMatch || kind !== 'workflows') {
+    return exactMatch;
+  }
+
+  const sourceId = parallelWorkflowSourceId(id);
+  return sourceId ? definingNodeId(index, kind, sourceId) : undefined;
 }
 
 /** Build the entity index live from open file documents (mirrors the BE builder) so cross-file detection stays correct before save. */
@@ -106,6 +123,7 @@ export default {
   emptyEntityIndex,
   definingNodeId,
   definitionsOf,
+  deepLinkNodeId,
   buildFromFiles,
   equals,
 };

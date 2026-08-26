@@ -1,7 +1,9 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 
+import { searchParamsFromLocation } from '@/core/utils/CommonUtils';
+
 export const getSearchParamsFromLocationHash = (): Record<string, string> => {
-  return Object.fromEntries(new URLSearchParams(window.parent.location.hash.split('?')[1] || ''));
+  return searchParamsFromLocation(window.parent.location.hash);
 };
 
 export const setSearchParamsInLocationHash = (newSearchParams: Record<string, string>) => {
