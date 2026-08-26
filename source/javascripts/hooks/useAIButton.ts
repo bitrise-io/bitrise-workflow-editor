@@ -14,6 +14,7 @@ type OpenCiConfigExpertPayload = {
   action: string;
   bitriseYmlContents: string;
   selectedPage: string;
+  source?: string;
   yamlSelector: string;
 };
 
@@ -94,6 +95,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
       action,
       bitriseYmlContents: getYmlString(),
       selectedPage: selectedPage || '',
+      source,
       yamlSelector,
     };
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', payload);
