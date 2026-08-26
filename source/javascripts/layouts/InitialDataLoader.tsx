@@ -1,4 +1,7 @@
-import { Box, Button, Image, Link, Text, useToast } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, createBitkitToast } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
+import { Image } from '@chakra-ui/react/image';
+import { Text } from '@chakra-ui/react/text';
 import { datadogRum } from '@datadog/browser-rum';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -27,7 +30,6 @@ import errorImg from '../../images/error-hairball.svg';
  * guarantees (children never render against an un-bootstrapped store) is testable.
  */
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
-  const toast = useToast();
   const isLoaded = useRef(false);
   const isTracked = useRef(false);
   // Two trackers for the same milestone, with different jobs. The ref is the re-entry guard: it's
@@ -84,7 +86,8 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
   useEventListener('error', (e) => {
     datadogRum.addError(e);
-    toast({ duration: null, status: 'error', isClosable: true, description: e.message || 'Unknown error' });
+    // `critical` already persists until dismissed, which is what the old `duration: null` asked for.
+    createBitkitToast({ variant: 'critical', messageText: e.message || 'Unknown error' });
   });
 
   useEventListener('unhandledrejection', (e) => {
@@ -94,7 +97,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       return;
     }
     datadogRum.addError(e.reason);
-    toast({ duration: null, status: 'error', isClosable: true, description: e.reason?.message || 'Unknown error' });
+    createBitkitToast({ variant: 'critical', messageText: e.reason?.message || 'Unknown error' });
   });
 
   useEffect(() => {
@@ -132,16 +135,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
       if (requestedBranch) {
         if (configBranch && configBranch === requestedBranch) {
-          toast({
-            status: 'success',
-            isClosable: true,
-            description: `Configuration is loaded from ${requestedBranch} branch.`,
+          createBitkitToast({
+            variant: 'success',
+            messageText: `Configuration is loaded from ${requestedBranch} branch.`,
           });
         } else if (configBranch && configBranch !== requestedBranch) {
-          toast({
-            status: 'warning',
-            isClosable: true,
-            description: `Config unavailable on ${requestedBranch}. Using ${configBranch} (default branch).`,
+          createBitkitToast({
+            variant: 'warning',
+            messageText: `Config unavailable on ${requestedBranch}. Using ${configBranch} (default branch).`,
           });
         }
       }
@@ -156,7 +157,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setBootstrappedBranch(requestedBranch);
     }
-  }, [data, requestedBranch, toast, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
+  }, [data, requestedBranch, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
     if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
@@ -177,30 +178,31 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
     return (
       <Box
-        px="5%"
-        gap="3rem"
+        gap="48"
         width="100vw"
         height="100vh"
         display="flex"
-        marginX="auto"
         alignItems="center"
+        marginInline="auto"
+        paddingInline="5%"
         backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
       >
-        <Box display="flex" flexDir="column" gap="32" textColor="text/on-color" maxWidth="50%">
-          <Link href="/" title="Go to Dashboard">
+        <Box display="flex" flexDirection="column" gap="32" color="text/on-color" maxWidth="50%">
+          <BitkitLink href="/" title="Go to Dashboard">
             <Image src={bitriseLogo} />
-          </Link>
+          </BitkitLink>
           <Box>
-            <Text size="3" fontFamily="Source Code Pro, monospace" textTransform="uppercase" mb="16">
+            <Text textStyle="code/lg" textTransform="uppercase" marginBlockEnd="16">
               {detailedErrorMessage}
             </Text>
-            <Text textStyle="heading/h2" fontWeight="bold" fontSize="48" lineHeight="1.2">
-              {error?.message}
-            </Text>
+            {/* `display/lg` is the 48px bold token this headline already used. BitkitHeading can't
+                express it — it takes the size from its level, topping out at 30px — so keeping the
+                hero at its current size means the display token rather than that component. */}
+            <Text textStyle="display/lg">{error?.message}</Text>
           </Box>
-          <Button alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
+          <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
             Try again
-          </Button>
+          </BitkitButton>
         </Box>
         <Box>
           <Image src={errorImg} />

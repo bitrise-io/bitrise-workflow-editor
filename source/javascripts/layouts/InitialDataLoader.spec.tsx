@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, ReactNode } from 'react';
 
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
@@ -53,17 +53,30 @@ jest.mock('@/components/Header', () => ({ __esModule: true, default: () => null 
 jest.mock('@/components/Navigation', () => ({ __esModule: true, default: () => null }));
 jest.mock('@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs', () => ({ __esModule: true, default: () => null }));
 jest.mock('@chakra-ui/react/box', () => ({ Box: ({ children }: { children?: ReactNode }) => <div>{children}</div> }));
+jest.mock('@chakra-ui/react/text', () => ({
+  Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
+}));
+jest.mock('@chakra-ui/react/image', () => ({ Image: () => <img alt="" /> }));
 
-// Only the primitives the loader and LoadingState render; keeps the bitkit barrel (and its markdown
-// dependency tree) out of the test.
+// The v2 barrel re-exports a markdown component whose ESM dependency tree doesn't belong in this
+// test, so the two components the error branch renders are stubbed. Toasts are captured so the
+// branch-load notifications stay assertable.
+const createBitkitToastMock = jest.fn();
+jest.mock('@bitrise/bitkit-v2', () => ({
+  BitkitButton: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) => (
+    <button type="button" onClick={onClick}>
+      {children}
+    </button>
+  ),
+  BitkitLink: ({ children, href }: { children?: ReactNode; href?: string }) => <a href={href}>{children}</a>,
+  createBitkitToast: (...args: unknown[]) => createBitkitToastMock(...args),
+}));
+
+// `LoadingState` is still a v1 component; only the spinner it renders is needed here.
 jest.mock('@bitrise/bitkit', () => ({
   Box: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
-  Button: ({ children }: { children?: ReactNode }) => <button type="button">{children}</button>,
-  Image: () => <img alt="" />,
-  Link: ({ children }: { children?: ReactNode }) => <a href="/">{children}</a>,
   ProgressBitbot: () => <div data-testid="loading-state" />,
   Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
-  useToast: () => jest.fn(),
 }));
 
 jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn() } }));
@@ -71,11 +84,12 @@ jest.mock('@/core/analytics/ConfigManagementAnalytics', () => ({ trackConfigBran
 jest.mock('@/hooks/useYmlLanguageServices', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('@/hooks/useCloseAIDrawer', () => ({ __esModule: true, default: jest.fn() }));
 
-let treeQuery: { data?: GetConfigResponse; error: null; refetch: jest.Mock } = {
-  data: undefined,
-  error: null,
-  refetch: jest.fn(),
+type TreeQuery = {
+  data?: GetConfigResponse;
+  error: { status?: number; statusText?: string; message?: string } | null;
+  refetch: jest.Mock;
 };
+let treeQuery: TreeQuery = { data: undefined, error: null, refetch: jest.fn() };
 jest.mock('@/hooks/useCiConfigTree', () => ({ useGetCiConfigTree: () => treeQuery }));
 jest.mock('@/hooks/useCiConfig', () => ({
   useGetCiConfig: () => ({ data: undefined, error: null, isLoading: false, refetch: jest.fn() }),
@@ -119,6 +133,7 @@ function navigateTo(hash: string) {
 describe('InitialDataLoader', () => {
   beforeEach(() => {
     probeRenders.length = 0;
+    createBitkitToastMock.mockClear();
     treeQuery = { data: undefined, error: null, refetch: jest.fn() };
     ymlSettingsQuery = { data: { usesRepositoryYml: true }, isPending: false };
     jest.spyOn(PageProps, 'appSlug').mockReturnValue('app-1');
@@ -163,6 +178,32 @@ describe('InitialDataLoader', () => {
     expect(window.parent.location.hash).toContain('workflow_id=module-only');
     // Bootstrap resolved the link to the module that actually defines the workflow.
     expect(bitriseYmlStore.getState().selectedNodeId).toBe('module');
+  });
+
+  it('reports a branch fallback through a v2 toast', () => {
+    jest.spyOn(RuntimeUtils, 'isWebsiteMode').mockReturnValue(true);
+    window.parent.location.hash = '#/workflows?branch=feature&workflow_id=module-only';
+    // The requested branch has no config, so the default branch is loaded instead.
+    treeQuery = { data: modularConfig('main'), error: null, refetch: jest.fn() };
+
+    renderApp();
+
+    expect(createBitkitToastMock).toHaveBeenCalledWith({
+      variant: 'warning',
+      messageText: 'Config unavailable on feature. Using main (default branch).',
+    });
+  });
+
+  it('renders the error screen and retries from it', () => {
+    const refetch = jest.fn();
+    treeQuery = { data: undefined, error: { status: 500, statusText: 'Server Error', message: 'Boom' }, refetch };
+
+    renderApp();
+
+    expect(screen.getByText('500 - Server Error')).toBeDefined();
+    expect(screen.getByText('Boom')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(refetch).toHaveBeenCalled();
   });
 
   it('re-gates routes on a branch switch until the new branch is bootstrapped', () => {
