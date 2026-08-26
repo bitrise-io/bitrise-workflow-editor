@@ -19,7 +19,6 @@ const withAvailability = (availability: CiConfigExpertAvailability): Settings =>
 
 let settings: Settings;
 
-jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ __esModule: true, segmentTrack: jest.fn() }));
 jest.mock('@/core/utils/PageProps', () => ({
   __esModule: true,
   default: {

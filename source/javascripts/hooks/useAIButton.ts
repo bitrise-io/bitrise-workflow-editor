@@ -1,9 +1,7 @@
 import { useState } from 'react';
 
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -40,8 +38,6 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const isAIDrawerOpen = useCiConfigExpertStore((s) => s.isAIDrawerOpen);
   const selectedPage = useCurrentPage();
-  const conversationId = useCiConfigExpertStore((s) => s.conversationId);
-  const turnCount = useCiConfigExpertStore((s) => s.turnCount);
 
   useParentMessageListener('DISABLE_AI_BUTTONS', () => {
     setIsAgenticRunInProgress(true);
@@ -80,17 +76,9 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   }
 
   const onClick = () => {
-    segmentTrack('AI Assistant Opened', {
-      workspace_slug: GlobalProps.workspaceSlug(),
-      app_slug: PageProps.appSlug(),
-      source,
-      ai_assistant_conversation_id: conversationId,
-      ai_assistant_action: action,
-      is_resumed: !!turnCount,
-      prior_turn_count: turnCount ?? 0,
-      ai_assistant_type: 'ai_config_assistant',
-    });
-
+    // The website is the canonical emitter of "AI Assistant Opened": it fires the event when the
+    // drawer actually opens, for every entry point, using the `source` carried in the payload below.
+    // Tracking it here too would double-count every editor-initiated open.
     const payload: OpenCiConfigExpertPayload = {
       action,
       bitriseYmlContents: getYmlString(),
