@@ -77,6 +77,7 @@ const ToolRow = ({
   const [prefixDraft, setPrefixDraft] = useState<string | null>(null);
   // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
   const [versionSearch, setVersionSearch] = useState('');
+  const [prefixSearch, setPrefixSearch] = useState('');
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -136,6 +137,9 @@ const ToolRow = ({
   const searchedVersionOptions = versionSearch
     ? versionOptions.filter(({ label }) => label.toLowerCase().includes(versionSearch.toLowerCase()))
     : versionOptions;
+  const searchedPrefixOptions = prefixSearch
+    ? prefixOptions.filter(({ label }) => label.toLowerCase().includes(prefixSearch.toLowerCase()))
+    : prefixOptions;
   const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
@@ -205,6 +209,7 @@ const ToolRow = ({
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
     if (newStrategy === 'latest-of') {
+      setPrefixSearch('');
       const installedNext = strategy === 'absolute-latest-installed';
       if (seedPrefix === '') {
         // Nothing to seed from, so the row waits for a typed prefix instead of writing a bare
@@ -345,11 +350,14 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={prefixOptions}
+                  emptyLabel="No matches"
+                  items={searchedPrefixOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                   helperText={versionHint}
                   warningText={unmatchedPrefixWarning}
+                  searchValue={prefixSearch}
+                  onSearchChange={setPrefixSearch}
                   value={version || undefined}
                   onValueChange={handleVersionChange}
                 />
