@@ -119,11 +119,6 @@ const ToolRow = ({
     // Fetched for every catalog-known tool: picking `latest-of` seeds a prefix from the candidates.
   } = useToolVersions(canonicalToolId, isKnownCatalogTool);
 
-  const versionOptions = ToolsService.getVersionOptions(toolVersions, version);
-  const searchedVersionOptions = versionSearch
-    ? versionOptions.filter(({ label }) => label.toLowerCase().includes(versionSearch.toLowerCase()))
-    : versionOptions;
-  const prefixOptions = ToolsService.getPrefixOptions(toolVersions, version);
   // A dropdown is only worth it when the catalog publishes version numbers.
   const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
   const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && hasVersionNumbers;
@@ -138,6 +133,9 @@ const ToolRow = ({
     () => (hasPrefixDropdown ? ToolsService.getPrefixOptions(toolVersions, version) : []),
     [hasPrefixDropdown, toolVersions, version],
   );
+  const searchedVersionOptions = versionSearch
+    ? versionOptions.filter(({ label }) => label.toLowerCase().includes(versionSearch.toLowerCase()))
+    : versionOptions;
   const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
@@ -228,6 +226,7 @@ const ToolRow = ({
       // A tool outside the catalog has nothing to seed from, so it is flagged straight away.
       const newest = ToolsService.getLatestVersion(toolVersions) ?? '';
       setVersionTouched(newest === '');
+      setVersionSearch('');
       onChange({ strategy: 'exact', version: newest });
       return;
     }
