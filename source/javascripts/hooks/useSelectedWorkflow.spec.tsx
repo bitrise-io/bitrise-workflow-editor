@@ -3,9 +3,20 @@
  */
 import { renderHook } from '@testing-library/react';
 
-import { updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { TreeNode } from '@/core/models/Tree';
+import { initializeModularConfig, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { deepLinkedEntity } from '@/routes';
 
 import useSelectedWorkflow from './useSelectedWorkflow';
+
+function moduleNode(nodeId: string, contents: string, includes: TreeNode[] = []): TreeNode {
+  return { nodeId, path: `${nodeId}.yml`, contents, source: null, commitSha: 'sha', editable: true, includes };
+}
+
+/** Bootstrap a modular config the way `main.tsx` does: the URL decides which module opens. */
+function initializeModularConfigFromLocation(root: TreeNode) {
+  initializeModularConfig({ root, deepLink: deepLinkedEntity(window.parent.location.hash) });
+}
 
 describe('useSelectedWorkflow', () => {
   beforeEach(() => {
@@ -54,5 +65,42 @@ describe('useSelectedWorkflow', () => {
     const { result } = renderHook(() => useSelectedWorkflow());
 
     expect(result.current[0]).toBe('wf2');
+  });
+
+  describe('in a modular config', () => {
+    const root = moduleNode('root', 'workflows:\n  wf1: {}\n', [moduleNode('module', 'workflows:\n  wf3: {}\n')]);
+
+    it('resolves a link to a workflow defined in an included module', () => {
+      window.parent.location.hash = '#/workflows?workflow_id=wf3';
+      initializeModularConfigFromLocation(root);
+
+      const { result } = renderHook(() => useSelectedWorkflow());
+
+      expect(result.current[0]).toBe('wf3');
+      expect(window.parent.location.hash).toContain('workflow_id=wf3');
+    });
+
+    it('agrees with the page selector on which value of a duplicated workflow_id wins', () => {
+      // Both layers read the same location, so they must resolve a duplicated param identically:
+      // if bootstrap took the first value it would open the module for `wf1` while the page
+      // selected `wf3`, which is the lost-selection bug this whole path exists to prevent.
+      window.parent.location.hash = '#/workflows?workflow_id=wf1&workflow_id=wf3';
+      initializeModularConfigFromLocation(root);
+
+      const { result } = renderHook(() => useSelectedWorkflow());
+
+      expect(result.current[0]).toBe('wf3');
+      expect(window.parent.location.hash).toContain('workflow_id=wf3');
+    });
+
+    it('falls back to the root file when no module defines the linked workflow', () => {
+      window.parent.location.hash = '#/workflows?workflow_id=does-not-exist';
+      initializeModularConfigFromLocation(root);
+
+      const { result } = renderHook(() => useSelectedWorkflow());
+
+      expect(result.current[0]).toBe('wf1');
+      expect(window.parent.location.hash).toContain('workflow_id=wf1');
+    });
   });
 });
