@@ -228,6 +228,7 @@ const ToolRow = ({
       // A tool outside the catalog has nothing to seed from, so it is flagged straight away.
       const newest = ToolsService.getLatestVersion(toolVersions) ?? '';
       setVersionTouched(newest === '');
+      setVersionSearch('');
       onChange({ strategy: 'exact', version: newest });
       return;
     }
