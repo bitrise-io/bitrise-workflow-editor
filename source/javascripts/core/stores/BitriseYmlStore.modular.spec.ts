@@ -119,6 +119,60 @@ describe('BitriseYmlStore — modular tree', () => {
       });
     });
 
+    it('opens and selects the module defining the entity the URL points at', () => {
+      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'child-b' } });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe('child-b');
+      // The root tab stays open next to it, so the module is reached without losing the entry point.
+      expect(state.openTabs).toEqual([
+        { nodeId: 'root', isPreview: false },
+        { nodeId: 'child-b', isPreview: false },
+      ]);
+      // The active document is the module's, so the linked workflow resolves for the pages.
+      expect(state.yml.workflows?.['child-b']).toBeDefined();
+    });
+
+    it('selects a read-only module when that is where the linked entity is defined', () => {
+      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'readonly' } });
+
+      expect(bitriseYmlStore.getState().selectedNodeId).toBe('readonly');
+    });
+
+    it('follows a generated parallel-workflow id to the module defining its source workflow', () => {
+      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'child-a_3' } });
+
+      expect(bitriseYmlStore.getState().selectedNodeId).toBe('child-a');
+    });
+
+    it('opens the defining module for a non-workflow kind too', () => {
+      const root = buildRoot();
+      root.includes[0].contents = 'step_bundles:\n  shared-setup: {}\n';
+      initializeModularConfig({ root, deepLink: { kind: 'stepBundles', id: 'shared-setup' } });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe('child-a');
+      expect(state.yml.step_bundles?.['shared-setup']).toBeDefined();
+    });
+
+    it('keeps the root file selected when the linked entity is defined there', () => {
+      const root = buildRoot();
+      root.contents = 'workflows:\n  root-only: {}\n';
+      initializeModularConfig({ root, deepLink: { kind: 'workflows', id: 'root-only' } });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe('root');
+      expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
+    });
+
+    it('keeps the root file selected when no module defines the linked entity', () => {
+      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'nowhere-to-be-found' } });
+
+      const state = bitriseYmlStore.getState();
+      expect(state.selectedNodeId).toBe('root');
+      expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
+    });
+
     it('keeps the entity index live as module files are edited (cross-file detection before save)', () => {
       updateFileDocument('child-a', ({ doc }) => {
         YmlUtils.setIn(doc, ['workflows', 'brand-new'], {});
