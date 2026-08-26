@@ -207,6 +207,7 @@ const ToolRow = ({
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
     if (newStrategy === 'latest-of') {
+      setVersionSearch('');
       const installedNext = strategy === 'absolute-latest-installed';
       if (seedPrefix === '') {
         // Nothing to seed from, so the row waits for a typed prefix instead of writing a bare
@@ -347,11 +348,14 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={versionOptions}
+                  emptyLabel="No matches"
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                   helperText={versionHint}
                   warningText={catalogWarning}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
                   value={version || undefined}
                   onValueChange={handleVersionChange}
                 />

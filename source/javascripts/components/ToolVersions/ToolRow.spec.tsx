@@ -3,7 +3,7 @@
  */
 import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import { ComponentProps, useState } from 'react';
 
 import { ParsedToolVersion, ToolCatalog, ToolVersions } from '@/core/models/Tools';
@@ -89,6 +89,16 @@ const renderToolRow = (initial: ParsedToolVersion) => {
   );
 };
 
+// Bitkit's Select is a compound Ark UI listbox. Opening it and clicking an option occasionally
+// doesn't register in a single pass under jsdom, so each selection is retried until it takes.
+const selectStrategy = async (user: UserEvent, strategySelect: HTMLElement, label: string) => {
+  await waitFor(async () => {
+    await user.click(strategySelect);
+    await user.click(screen.getByRole('option', { name: label }));
+    expect(strategySelect.textContent).toContain(label);
+  });
+};
+
 describe('ToolRow', () => {
   beforeEach(() => {
     mockUseToolVersions.mockReturnValue({ data: NODE_VERSIONS, isLoading: false, isError: false });
@@ -104,18 +114,8 @@ describe('ToolRow', () => {
     fireEvent.change(screen.getByRole('textbox', { name: 'Search' }), { target: { value: '22' } });
     expect(screen.getByRole('option', { name: '22.11.0' })).not.toBeNull();
 
-    // Bitkit's Select is a compound Ark UI listbox. Opening it and clicking an option occasionally
-    // doesn't register in a single pass under jsdom, so each selection is retried until it takes.
-    const selectStrategy = async (label: string) => {
-      await waitFor(async () => {
-        await user.click(strategySelect);
-        await user.click(screen.getByRole('option', { name: label }));
-        expect(strategySelect.textContent).toContain(label);
-      });
-    };
-
-    await selectStrategy('Latest released version');
-    await selectStrategy('Exact version');
+    await selectStrategy(user, strategySelect, 'Latest released version');
+    await selectStrategy(user, strategySelect, 'Exact version');
 
     const [, , newVersionSelect] = screen.getAllByRole('combobox');
     await user.click(newVersionSelect);
@@ -125,5 +125,28 @@ describe('ToolRow', () => {
     expect(screen.getByRole('option', { name: '24.0.0' })).not.toBeNull();
     expect(screen.getByRole('option', { name: '22.11.0' })).not.toBeNull();
     expect(screen.getByRole('option', { name: '20.9.0' })).not.toBeNull();
+  });
+
+  it('offers the full prefix list again after switching away from and back to latest-of', async () => {
+    const user = userEvent.setup();
+    renderToolRow({ strategy: 'latest-of', prefix: '24', preferInstalled: false });
+
+    const [, strategySelect, prefixSelect] = screen.getAllByRole('combobox');
+
+    await user.click(prefixSelect);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search' }), { target: { value: '22' } });
+    expect(screen.getByRole('option', { name: '22' })).not.toBeNull();
+
+    await selectStrategy(user, strategySelect, 'Latest released version');
+    await selectStrategy(user, strategySelect, 'Latest version of');
+
+    const [, , newPrefixSelect] = screen.getAllByRole('combobox');
+    await user.click(newPrefixSelect);
+
+    const searchInput = screen.getByRole('textbox', { name: 'Search' }) as HTMLInputElement;
+    expect(searchInput.value).toBe('');
+    expect(screen.getByRole('option', { name: '24' })).not.toBeNull();
+    expect(screen.getByRole('option', { name: '22' })).not.toBeNull();
+    expect(screen.getByRole('option', { name: '20' })).not.toBeNull();
   });
 });
