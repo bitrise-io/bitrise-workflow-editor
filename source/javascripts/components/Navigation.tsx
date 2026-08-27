@@ -24,6 +24,7 @@ import useHashLocation from '@/hooks/useHashLocation';
 import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
+import useYmlParseErrorMessage from '@/hooks/useYmlParseErrorMessage';
 import { paths } from '@/routes';
 
 type Props = Omit<SidebarProps, 'children'>;
@@ -54,13 +55,17 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   // even one with schema/marker errors. Blocking on the broader validation status trapped users on
   // the current page whenever the YAML was merely schema-invalid (SSW-3087).
   const isParseError = useIsYmlParseError();
+  const navigationErrorMessage = useYmlParseErrorMessage(
+    'Please fix the errors in your YAML configuration before navigating.',
+    'navigating',
+  );
 
   const handleNavigation = useCallback(() => {
     if (isParseError && !path.startsWith(paths.yml)) {
       toast({
         status: 'error',
         title: 'Invalid YAML',
-        description: 'Please fix the errors in your YAML configuration before navigating.',
+        description: navigationErrorMessage,
         duration: null,
         isClosable: true,
       });
@@ -68,7 +73,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
     }
 
     navigate(path);
-  }, [isParseError, navigate, path, toast]);
+  }, [isParseError, navigate, navigationErrorMessage, path, toast]);
 
   return (
     <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation} data-intercom-target={intercomTarget}>

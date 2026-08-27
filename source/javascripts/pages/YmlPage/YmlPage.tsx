@@ -3,6 +3,7 @@ import { Box } from '@bitrise/bitkit';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useTree } from '@/hooks/useTree';
 import OptimizeYouCiConfigBySplittingNotification from '@/pages/YmlPage/components/OptimizeYouCiConfigBySplittingNotification'; // TODO: implement onConfigSourceChangeSaved function
+import YmlParseErrorNotification from '@/pages/YmlPage/components/YmlParseErrorNotification';
 import YourCiConfigIsSplitNotification from '@/pages/YmlPage/components/YourCiConfigIsSplitNotification';
 
 import ModularYmlEditor from './components/ModularYmlEditor';
@@ -14,6 +15,7 @@ const YmlPage = () => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column">
+      <YmlParseErrorNotification />
       <Box
         flexGrow="1"
         flexShrink="1"

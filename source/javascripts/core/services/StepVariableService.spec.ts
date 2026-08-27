@@ -61,6 +61,27 @@ describe('StepVariableService', () => {
       const input: EnvironmentItemModel = { VARIABLE_NAME: undefined, opts: {} };
       expect(StepVariableService.getValue(input)).toBe('');
     });
+
+    it('should render a value that YAML parsed as a flow map as inline YAML, not [object Object]', () => {
+      // An unquoted `notify_user_groups: {devs,qa}` is a flow mapping per the YAML spec, so it
+      // reaches this service as an object. Stringifying it naively both displayed and (once the
+      // field was edited) saved `[object Object]` over the user's value.
+      const input: EnvironmentItemModel = { notify_user_groups: { devs: null, qa: null }, opts: {} };
+
+      expect(StepVariableService.getValue(input)).toBe('{devs: null, qa: null}');
+    });
+
+    it('should render a value that YAML parsed as a flow sequence as inline YAML', () => {
+      const input: EnvironmentItemModel = { VARIABLE_NAME: ['a', 'b'], opts: {} };
+
+      expect(StepVariableService.getValue(input)).toBe('[a, b]');
+    });
+
+    it('should leave a brace value that stayed a plain scalar untouched', () => {
+      const input: EnvironmentItemModel = { deploy_path: './reports/{devs,qa}', opts: {} };
+
+      expect(StepVariableService.getValue(input)).toBe('./reports/{devs,qa}');
+    });
   });
 
   describe('findInput', () => {
