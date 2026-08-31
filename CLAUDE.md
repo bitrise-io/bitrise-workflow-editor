@@ -51,7 +51,8 @@ npm run lint             # ESLint (cached)
 npx tsc --noEmit         # The only type check. Not a script, not in CI
 npm test                 # Jest
 npm test -- --testPathPattern="path/to/file"
-npm run test:smoke       # Playwright
+npm run test:smoke       # Playwright, post-deploy only: needs SMOKE_TEST_* env
+                         # vars and signs into a real app
 npm run storybook        # Storybook on 6006
 
 go vet ./...             # Go
@@ -96,7 +97,9 @@ the doc in the same PR.
 exactly one of them and the others link. The exceptions are deliberate and should not be
 "deduplicated": the Jest and `act()` landmines are restated in this file, and so is the
 YAML-preservation rule, because this file survives context compaction and `docs/` may not. If you
-find the same sentence in two places and it is not one of those, one of them is a bug. Add a claim only with the check that backs it. A count is admissible only when every reader
+find the same sentence in two places and it is not one of those, one of them is a bug.
+
+Add a claim only with the check that backs it. A count is admissible only when every reader
 counting the same way gets the same answer, like the four lint rules listed directly beneath the
 sentence that counts them. "Nine passes in a function you can open" failed that test three ways:
 the function, its diagram and the neighbouring function each yield a different number, and which
