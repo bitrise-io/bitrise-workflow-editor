@@ -195,8 +195,11 @@ Every rule above that needs the whole config is therefore incomplete:
 | "Used by N workflows" | Accurate | **Under**counts, so it reassures |
 | Deleting an entity defined elsewhere | n/a | Throws, failing loudly rather than half-applying |
 
-`EntityIndexService` is the one cross-file-aware piece, and `assertWorkflowReferenceable` is the
-only service that reads it.
+`EntityIndexService` is the one cross-file-aware piece. Among services only
+`assertWorkflowReferenceable` reads it, which is why the write paths stay narrowed — but read paths
+increasingly do not: the store, `useTree`, `useJumpToDefinition`, `useTargetBasedTriggers` and the
+jump-to-definition UI all consult it. Cross-file *awareness* is spreading; cross-file *writing* is
+still one file at a time.
 
 ## Reference tables
 
