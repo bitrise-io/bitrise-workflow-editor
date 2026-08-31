@@ -89,9 +89,9 @@ surface beyond the single mutation entry point exists to serve the second case.
 
 ```mermaid
 flowchart TD
-  B["bootstrap"] --> F{"feature flag<br/>enable-wfe-modular-yaml-editing"}
-  F -- off --> S["initializeBitriseYmlDocument<br/><i>tree stays undefined</i>"]
-  F -- on --> T["GET /config/tree"]
+  B["bootstrap"] --> F{"CLI mode?<br/><i>or website + flag + usesRepositoryYml</i>"}
+  F -- "no" --> S["initializeBitriseYmlDocument<br/><i>tree stays undefined</i>"]
+  F -- "yes" --> T["GET /config/tree"]
   T --> N{"any include: edges?"}
   N -- no --> S
   N -- yes --> M["tree + files{nodeId: FileSlice}<br/>+ entityIndex"]
@@ -110,10 +110,18 @@ Mode is decided by `state.tree !== undefined`, never by the flag. `files` holds 
 precedence order, highest first. `nodeId` is backend-owned and opaque; `path` is not unique, so
 never key by it.
 
-**The flag defaults to off**, and the monolith resolves it per account into
-`globalProps.featureFlags.account`. So modular mode is not the common path, and every hazard below
-that begins "in modular mode" applies to the accounts that have it switched on rather than to
-everyone. That is the bit that decides how urgent a cross-file bug is.
+**Who actually gets modular mode** is not "whoever has the flag". `InitialDataLoader` computes
+`canBeModular && (isWebsiteMode ? isModularFlagEnabled : true)`:
+
+- **CLI mode: always on.** There is no LaunchDarkly in the plugin, and no Bitrise-stored config, so
+  the tree endpoint is simply used. A single-file config comes back as a one-node tree and drives
+  the editor exactly like the legacy flow.
+- **Website mode: flag *and* storage.** The account needs `enable-wfe-modular-yaml-editing`, which
+  defaults to off, *and* `usesRepositoryYml === true`. A Bitrise-stored config stays single-file
+  even with the flag on, because it cannot have modules.
+
+So every "in modular mode" hazard below is live for every CLI user today, not just for a ramped
+subset. That is the bit that decides how urgent a cross-file bug is.
 
 A node's `editable` flag is computed by the backend, not chosen in the UI: a file is editable only
 when it lives in the working repo on the current branch. An `include:` that names another repo,

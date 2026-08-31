@@ -93,11 +93,11 @@ shows up as a wrecked pull request.
 Where a doc and the code disagree, the code wins and the doc is a bug. Change behaviour, change
 the doc in the same PR.
 
-**One fact, one home, with two exceptions.** Each doc answers one question, so a fact belongs in
-exactly one of them and the others link. The exceptions are deliberate and should not be
-"deduplicated": the Jest and `act()` landmines are restated in this file, and so is the
-YAML-preservation rule, because this file survives context compaction and `docs/` may not. If you
-find the same sentence in two places and it is not one of those, one of them is a bug.
+**One fact, one home, with three exceptions.** Each doc answers one question, so a fact belongs
+in exactly one of them and the others link. Three are restated here on purpose and should not be
+"deduplicated", because this file survives context compaction and `docs/` may not: the Jest and
+`act()` landmines, the YAML-preservation rule, and the fact that nothing type-checks. If you find
+the same sentence in two places and it is not one of those, one of them is a bug.
 
 Add a claim only with the check that backs it. A count is admissible only when every reader
 counting the same way gets the same answer, like the four lint rules listed directly beneath the

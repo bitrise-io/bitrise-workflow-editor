@@ -80,9 +80,10 @@ Nothing stops you reaching for `document` or `window`, and `CommonUtils`, `Windo
 `PageProps` already do. Anything that needs React goes in `hooks/`, anything that needs the DOM
 goes in `components/`.
 
-**Dependency direction.** `StepService` depends on no other service. `WorkflowService` depends
-only on `EntityIndexService`, for the cross-file check in `assertWorkflowReferenceable`. Everything
-else builds on those two.
+**Dependency direction.** Most services import no other service at all. The exceptions are few
+enough to list: `WorkflowService` reaches for `EntityIndexService`, `ContainerService` and
+`PipelineService` for two each, and `BitriseYmlService`, `EnvVarService`, `StackAndMachineService`
+and `ToolsService` for one. `StepService` imports none. Check the imports before assuming a layer.
 
 `MODE` is set by the npm script, not by config: `npm start` exports `MODE=CLI`,
 `npm run start:website` exports `MODE=WEBSITE`, and Vite passes it through `envPrefix` into
@@ -210,13 +211,19 @@ permission flag. The accessor hooks throw outside their provider on purpose.
 
 ## Lint
 
-Flat config in `eslint.config.mjs`, using `@bitrise/eslint-plugin`. Four rules encode things the
-docs used to only assert:
+Flat config in `eslint.config.mjs`, using `@bitrise/eslint-plugin`. Four boundaries are enforced
+rather than merely asserted:
 
 ```
-core/ may not import react or react-dom        .tsx may not call updateBitriseYmlDocument
+core/ may not import react or react-dom,       .tsx may not call updateBitriseYmlDocument,
+including subpaths                             by that name or an alias
 useShallow comes from @/hooks/useShallow       raw useStore may not build a fresh value
 ```
+
+Two of those take two rule ids each — a `no-restricted-imports` entry plus a `no-restricted-syntax`
+selector — so count boundaries, not `rules:` keys. `no-restricted-syntax` alone matches the callee's
+local name, which an aliased import evades; the selectors also cannot see a fresh value built inside
+a block body.
 
 `TEST_BITRISE_YML` is lint-restricted to spec, story, `.storybook/` and mock files, but it is only
 *defined* in Storybook, by a Vite `define` in `.storybook/main.ts`. It is declared as a global in

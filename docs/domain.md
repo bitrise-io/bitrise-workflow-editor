@@ -118,7 +118,7 @@ though with groups are rare enough that it has probably never bitten anyone. Das
 | **Trigger** (target-based) | position in the list | `workflows.<id>.triggers.<type>[]` | `TriggerService` |
 | **Trigger** (legacy) | position in the list | `trigger_map[]` | `TriggerService` |
 | **Env var** | `key` plus its source | `app.envs[]`, `workflows.<id>.envs[]` | `EnvVarService` |
-| **Stage** | map key, legacy | `stages.<id>` | none |
+| **Stage** | map key, legacy | `stages.<id>`, referenced by name from `pipelines.<id>.stages[]` | none |
 | **Secret** | `key` | *not in the document.* Website mode: the monolith. CLI mode: `.bitrise.secrets.yml`, overridable with `BITRISE_SECRETS` | `SecretService` |
 | **Stack / machine** | catalog id | `meta.bitrise.io.*` | `StackAndMachineService` |
 | **File node** | opaque `nodeId` | the tree, not the YAML | `TreeService`, `FileTreeService` |
@@ -162,6 +162,7 @@ crosses a boundary is a bare string nothing validates.
 | No cycles in `before_run`/`after_run` | `getChainableWorkflows` | **Assumed.** The filter is built from the unguarded walk, so it throws on an already-cyclic config |
 | No cycles in bundle nesting | `StepBundleList` filter | **Assumed**, same shape |
 | Referenced container exists | nothing | **Not checked** |
+| Referenced stage exists | nothing | **Not checked.** `PipelineService` reads `stages[stageName]` and tolerates `undefined` |
 | Referenced secret exists | nothing | **Not checked** |
 | Referenced stack exists | `isInvalidStack` | Flagged, not blocked |
 | Untouched YAML stays byte-identical | `YmlUtils` and the style vote | **Best-effort.** A mixed-style file loses its minority style |

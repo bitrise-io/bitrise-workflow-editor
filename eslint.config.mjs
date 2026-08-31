@@ -42,7 +42,7 @@ const RAW_USE_STORE_SELECTORS = [
       },
       {
         selector:
-          "CallExpression[callee.name='useStore'][arguments.0.name='bitriseYmlStore'][arguments.1.body.callee.property.name=/^(map|filter|flatMap|slice|concat|sort|reduce)$/]",
+          "CallExpression[callee.name='useStore'][arguments.0.name='bitriseYmlStore'][arguments.1.body.callee.property.name=/^(map|filter|flatMap|slice|concat|sort)$/]",
         message: RAW_USE_STORE_MESSAGE,
       },
       {
@@ -102,18 +102,31 @@ export default defineConfig([
     files: ["source/javascripts/core/**/*.{ts,tsx}"],
     ignores: ["**/*.spec.{ts,tsx}", "**/*.stories.tsx", "**/*.mswMocks.ts", "**/*.mocks.ts"],
     rules: {
+      // `paths` entries match the bare package only, so `react-dom/client` and `react/jsx-runtime`
+      // need the `patterns` group beside them.
       "no-restricted-imports": [
         "error",
-        ...RESTRICTED_IMPORTS,
         {
-          name: "react",
-          message:
-            "core/ is framework-agnostic. Move anything that needs React into hooks/ or components/.",
-        },
-        {
-          name: "react-dom",
-          message:
-            "core/ is framework-agnostic. Move anything that needs the DOM into hooks/ or components/.",
+          paths: [
+            ...RESTRICTED_IMPORTS,
+            {
+              name: "react",
+              message:
+                "core/ is framework-agnostic. Move anything that needs React into hooks/ or components/.",
+            },
+            {
+              name: "react-dom",
+              message:
+                "core/ is framework-agnostic. Move anything that needs the DOM into hooks/ or components/.",
+            },
+          ],
+          patterns: [
+            {
+              group: ["react/*", "react-dom/*"],
+              message:
+                "core/ is framework-agnostic. Move anything that needs React or the DOM into hooks/ or components/.",
+            },
+          ],
         },
       ],
     },
@@ -125,6 +138,23 @@ export default defineConfig([
   {
     files: ["**/*.tsx"],
     rules: {
+      // The syntax rule below matches the callee's local name, which an aliased import evades.
+      // Restricting the imported symbol closes that.
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            ...RESTRICTED_IMPORTS,
+            {
+              name: "@/core/stores/BitriseYmlStore",
+              importNames: ["updateBitriseYmlDocument"],
+              message:
+                "updateBitriseYmlDocument() is for services only. Call a service from the component, " +
+                "or use updateBitriseYmlDocumentByString() if you are replacing the whole document.",
+            },
+          ],
+        },
+      ],
       "no-restricted-syntax": [
         "error",
         ...RAW_USE_STORE_SELECTORS,

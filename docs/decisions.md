@@ -224,8 +224,7 @@ including a lint rule that was never enabled. Anything a machine can check is th
 rule rather than a sentence, and a count appears only when you can re-derive it by opening one
 file. A number nobody can reproduce reads as precision and is not.
 
-`README.md` is human-facing and is not part of this set. It has drifted: it still announces an
-AngularJS-to-React transition that finished in May 2025, and describes webpack, karma, jasmine and
-`npm run e2e:*` scripts that no longer exist. Read it as history.
+`README.md` is human-facing and is not part of this set. It covers install, local dev against the
+monolith, and the release process; nothing here duplicates it.
 
 Where a doc and the code disagree, the code wins and the doc is a bug.
