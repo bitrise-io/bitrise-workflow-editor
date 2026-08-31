@@ -12,8 +12,12 @@ what values it takes: the [configuration YAML reference][ref] covers all sixteen
 and the [glossary][gl] covers the product vocabulary. Read those for the format; read this for
 what the *editor* adds, guarantees or fails to guarantee.
 
-Three things below are here because the public docs do not cover them at all — **stages**, **`with`
-groups** and **utility workflows** — so this table is their only definition.
+**Four of these are legacy**: stages, `with` groups, utility workflows and `trigger_map`. The first
+three are absent from the public docs entirely, and that absence is the point — they are not
+offered to new users. The editor still has to read, render and cascade over them, because configs
+in the wild contain them, so this table is their only definition. Do not build new surface on any
+of the four; where a current model exists beside a legacy one, see
+[the two-model sections](#two-models-twice).
 
 [ref]: https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference
 [gl]: https://docs.bitrise.io/en/bitrise-ci/references/glossary#workflow-editor
@@ -29,11 +33,11 @@ groups** and **utility workflows** — so this table is their only definition.
 | **legacy trigger** | An entry in top-level `trigger_map`. Flat, prefixed keys, first-match-wins. |
 | **merged tab** | Read-only preview of a modular config flattened. No slice backs it, so writes no-op. |
 | **nodeId** | Backend-owned opaque key for a file. `path` is not unique, so never key by it. |
-| **staged pipeline** | Has a `stages` list: an ordered sequence of full barriers. |
+| **staged pipeline** | *Legacy.* Has a `stages` list: an ordered sequence of full barriers. |
 | **step bundle** | Named, reusable step sequence with its own inputs. Referenced as `bundle::<id>`. |
 | **target-based trigger** | Declared on the workflow it fires, nested under its type. All matches fire. |
-| **utility workflow** | Id starts with `_`. Convention only; the YAML has no concept of it. |
-| **`with` group** | A step-list wrapper that runs its steps inside a container. |
+| **utility workflow** | *Legacy.* Id starts with `_`, marking it not directly runnable. Convention only; the YAML has no concept of it. |
+| **`with` group** | *Legacy.* A step-list wrapper that runs its steps inside a container. |
 | **`yml` / `ymlDocument`** | `ymlDocument` is the writable AST, `yml` a read-only object derived from it. |
 
 ## What the editor edits
