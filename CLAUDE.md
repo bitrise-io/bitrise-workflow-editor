@@ -79,13 +79,16 @@ shows up as a wrecked pull request.
   confident false pass. Watch a repro fail before you trust it passing.
 - **After pulling across a version bump**, restart the Go process. Vite serves the new
   `/{version}/` path while `go run main.go` keeps the old compiled constant, and every request
-  404s until you do.
+  404s until you do. Run `npm install` too: a stale tree makes `tsc` report
+  `Cannot find type definition file for 'node'` and lint report unresolved imports, both of which
+  read as code errors and are not.
 - **Nothing type-checks unless you do it.** There is no `tsc` script, and CI never type-checks:
   it runs `npm run build`, `npm run lint`, `npm run test` and the Go checks, and `vite build`
   strips types with swc rather than checking them. A typed refactor can pass all of that and still
   not compile, so run `npx tsc --noEmit` before you call one done.
-- **Four lint rules encode architecture.** `npm run lint` failing on `no-restricted-syntax` or
-  `no-restricted-imports` means you crossed a boundary, not that you wrote sloppy code. See
+- **Four architectural boundaries are linted.** `npm run lint` failing on `no-restricted-syntax`
+  or `no-restricted-imports` means you crossed one, not that you wrote sloppy code. Some take two
+  rule ids, so count boundaries rather than rules. See
   [docs/conventions.md](docs/conventions.md#lint).
 
 ## Writing docs here
