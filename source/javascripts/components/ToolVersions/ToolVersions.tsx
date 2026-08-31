@@ -24,13 +24,25 @@ import { paths } from '@/routes';
 
 import ToolRow from './ToolRow';
 
+const DOCS_URL =
+  'https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions';
+const CLI_DOCS_URL = `${DOCS_URL}#tool-setup-during-workflow-execution`;
+
+const HeaderLinkSeparator = () => (
+  <Text as="span" color="text/tertiary" aria-hidden="true">
+    &middot;
+  </Text>
+);
+
 type Props = {
   workflowId?: string;
+  /** Where the "Installed tools" link points: the selected stack's report, or the stack index. */
+  stackReportUrl: string;
   /** The store drops mutations here, so the rows must not pretend to accept edits. */
   isReadOnly?: boolean;
 };
 
-const ToolVersions = ({ workflowId, isReadOnly }: Props) => {
+const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
   const { replace } = useNavigation();
@@ -50,40 +62,33 @@ const ToolVersions = ({ workflowId, isReadOnly }: Props) => {
 
   return (
     <Stack gap="24" marginBlockStart="24" maxWidth={rem(800)}>
-      <Stack gap="4">
-        <Text textStyle="heading/h3">Tool setup</Text>
-        <Text textStyle="body/md/regular" color="text/secondary">
-          Customize tools and versions required in {scope.type === 'workflow' ? 'this workflow' : 'workflows'}. Tool
-          setup runs before the first step.{' '}
-          <BitkitLink
-            href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions"
-            isExternal
-            suffixIcon={IconOpenInNew}
-            colorVariant="purple"
-          >
+      <Stack gap="8">
+        <Stack gap="4">
+          <Text textStyle="heading/h3">Tool setup</Text>
+          <Text textStyle="body/md/regular" color="text/secondary">
+            Customize tools and versions required in {scope.type === 'workflow' ? 'this workflow' : 'workflows'}. Tool
+            setup runs before the first step.
+          </Text>
+        </Stack>
+        <Box display="flex" alignItems="center" flexWrap="wrap" gap="8">
+          <BitkitLink href={DOCS_URL} isExternal suffixIcon={IconOpenInNew} colorVariant="purple">
             Learn more
           </BitkitLink>
-        </Text>
-        <Text textStyle="body/md/regular" color="text/secondary">
-          Need more flexibility or want to use an existing version file? Check out{' '}
-          <BitkitLink
-            href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions#tool-setup-during-workflow-execution"
-            isExternal
-            suffixIcon={IconOpenInNew}
-            colorVariant="purple"
-          >
+          <HeaderLinkSeparator />
+          <BitkitLink href={CLI_DOCS_URL} isExternal suffixIcon={IconOpenInNew} colorVariant="purple">
             CLI and step use
           </BitkitLink>
-        </Text>
-        {scope.type === 'workflow' && (
-          <Text textStyle="body/md/regular" color="text/secondary">
-            Looking for global settings which apply to all workflows? Go to the{' '}
-            <BitkitLinkButton onClick={() => replace(paths.stacksAndMachines)}>
-              Stacks &amp; Machines page
-            </BitkitLinkButton>
-            .
-          </Text>
-        )}
+          <HeaderLinkSeparator />
+          <BitkitLink href={stackReportUrl} isExternal suffixIcon={IconOpenInNew} colorVariant="purple">
+            Installed tools
+          </BitkitLink>
+          {scope.type === 'workflow' && (
+            <>
+              <HeaderLinkSeparator />
+              <BitkitLinkButton onClick={() => replace(paths.stacksAndMachines)}>Global settings</BitkitLinkButton>
+            </>
+          )}
+        </Box>
       </Stack>
 
       <Stack gap="16">
