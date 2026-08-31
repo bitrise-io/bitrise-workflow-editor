@@ -2,12 +2,6 @@
 
 # Bitrise Workflow Editor
 
-> **Note: project is going through AngularJS -> React transition.
-> Please read more about this in
->
-the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).
-**
-
 ## How to install & use the Workflow Editor on your Mac/Linux
 
 1. Install [Go](https://golang.org) `brew install go` (on macOS)
@@ -28,12 +22,8 @@ at: [https://discuss.bitrise.io/t/workflow-editor-v2-open-source-offline-workflo
 
 ## Install requirements
 
-Workflow editor uses webpack for static asset compilation and asset bundling. For transformation we need to use some
-rails related transformation hence it also uses bundler to install ruby dependencies. In addition it uses karma and
-jasmine for frontend tests execution so it needs `node` and `npm` installed to get the dependencies for testing and also
-production.
-
-Finally the local executable is written in GO. so you need to have go set up as well and dependencies.
+The client is a Vite build and needs `node` and `npm`. The local executable is written in Go, so you need a Go
+toolchain too. One command installs both sides' dependencies and builds them:
 
 ```bash
 bitrise run setup
@@ -50,7 +40,7 @@ go install
 ### Run in development mode
 
 ```bash
-npm start          # start both local plugin api and webpack dev server
+npm start          # start both the local plugin api and the Vite dev server
 ```
 
 1. In your browser, you can reach the Workflow Editor on `localhost:4000/{version}`. Be aware that you usually have to
@@ -98,16 +88,17 @@ surfaces in the monolith as `OpenURI::HTTPError 404` from `WorkflowController#co
 ### Run client tests
 
 ```bash
-npm test        # run unit tests on already compiled client
-npm run e2e:api # run only the local binary api for e2e tests
+npm test                                  # Jest unit tests
+npm test -- --testPathPattern="path/to"   # a subset
+npm run storybook                         # component workshop on :6006
+npx tsc --noEmit                          # nothing else type-checks, including CI
 ```
 
-_NOTE: for e2e testing you could start a service normally with `npm start` (to develop and run tests on it parallel) or
-have a binary ready by `bitrise run setup` if you only want to verify the correctness of an already built
-feature. And then run the test dashboard with `npm run e2e:dev`_
+Jest runs in the `node` environment by default; a test that renders a hook or a component needs an
+`@jest-environment jsdom` docblock at the top of the file.
 
-If you only iterate on tests, you can also use `npm run test` as it skips transpilation and the transpilation and run
-the tests on an already transpiled JS.
+`npm run test:smoke` is a post-deploy Playwright check, not a local one. It signs into a deployed app and needs
+`SMOKE_TEST_APP_ID`, `SMOKE_TEST_USER_NAME`, `SMOKE_TEST_USER_PASSWORD` and `NPM_PACKAGE_VERSION`.
 
 ### Override LaunchDarkly flags
 
@@ -129,18 +120,23 @@ end up on master as a single commit.
 
 ## Tech standards
 
-1. Every new feature has to be created in typescript and React (
-   see [wiki](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/React-from-angularjs-best-practices) for
-   integration guides).
-1. If you touch legacy code, consider porting it to new standards or if that's not possible use ES5 syntax! There are no
-   transpilation for legacy codes (only minification).
-1. For tests you are safe to use whatever standards jsdom executes (ES6 supported).
-1. Use CSS for styling (try to use local components style if possible)
+1. TypeScript and React throughout. The AngularJS migration finished in May 2025 and there is no legacy tier left.
+1. New UI work uses `@bitrise/bitkit-v2` (Chakra v3). `@bitrise/bitkit` (Chakra v2) is legacy — port v1 components to
+   v2 in any file you already touch.
+1. Nothing type-checks unless you run `npx tsc --noEmit`, so run it before calling a typed change done.
+1. Four ESLint rules encode architectural boundaries rather than style. If `npm run lint` fails on
+   `no-restricted-syntax` or `no-restricted-imports`, you crossed a boundary — see
+   [docs/conventions.md](docs/conventions.md#lint).
+
+Working on this codebase with an AI agent? [CLAUDE.md](CLAUDE.md) is the entry point, and `docs/` holds the
+architecture, domain vocabulary and the reasoning behind the odd-looking parts.
 
 ## Testing standards
 
 1. Unit tests are required for every new feature
-1. Consider writing React Testing library component tests
+1. Consider writing React Testing Library component tests
+1. Services get a YAML round-trip test: seed the store, call the service, compare the emitted YAML. See
+   [docs/conventions.md](docs/conventions.md#testing)
 
 ## New version release
 
