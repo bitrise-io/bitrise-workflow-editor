@@ -7,6 +7,17 @@ Where a doc and the code disagree, the code wins and the doc is a bug.
 
 ## Glossary
 
+The YAML format itself is documented publicly, and that is the authority for what a key means and
+what values it takes: the [configuration YAML reference][ref] covers all sixteen top-level keys,
+and the [glossary][gl] covers the product vocabulary. Read those for the format; read this for
+what the *editor* adds, guarantees or fails to guarantee.
+
+Three things below are here because the public docs do not cover them at all — **stages**, **`with`
+groups** and **utility workflows** — so this table is their only definition.
+
+[ref]: https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference
+[gl]: https://docs.bitrise.io/en/bitrise-ci/references/glossary#workflow-editor
+
 | Term | Means |
 |---|---|
 | **active document** | The file `ymlDocument` points at. The whole config when single-file, the selected tab when modular. |
