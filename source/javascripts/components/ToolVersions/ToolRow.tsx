@@ -3,12 +3,14 @@ import {
   BitkitCheckbox,
   BitkitCombobox,
   BitkitIconButton,
+  BitkitLabelTooltip,
   BitkitLink,
   BitkitSelect,
   BitkitTextInput,
   BitkitTooltip,
   IconMinusCircle,
   IconOpenInNew,
+  IconQuestionCircle,
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
@@ -35,6 +37,8 @@ const OTHER_VALUE = '__other__';
 const ANY_PREFIX_VALUE = '__any__';
 
 const READ_ONLY_TOOLTIP_TEXT = 'To edit, switch to the module file that defines it.';
+const PREFER_INSTALLED_TOOLTIP_TEXT =
+  'Stacks include preinstalled versions of these tools. When checked, the preinstalled version matching your prefix is used instead of the latest release. If no preinstalled version matches, the latest release is used.';
 
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
@@ -236,7 +240,20 @@ const ToolRow = ({
             />
             {strategy === 'latest-of' && (
               <BitkitCheckbox
-                labelText="Use installed versions if possible"
+                labelText={
+                  <>
+                    Prefer pre-installed version{' '}
+                    <BitkitLabelTooltip text={PREFER_INSTALLED_TOOLTIP_TEXT}>
+                      <IconQuestionCircle
+                        size="16"
+                        color="icon/tertiary"
+                        tabIndex={0}
+                        role="img"
+                        aria-label="Prefer pre-installed version details"
+                      />
+                    </BitkitLabelTooltip>
+                  </>
+                }
                 checked={!!preferInstalled}
                 state={isReadOnly ? 'readOnly' : undefined}
                 onChange={(e) => handlePreferInstalledChange((e.target as unknown as HTMLInputElement).checked)}
