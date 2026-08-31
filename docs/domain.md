@@ -88,7 +88,7 @@ flowchart TD
   SR -->|"execution_container, service_containers[]"| CN
   SR -->|"bundle::id"| SB["step_bundles"]
   SR -->|"with"| WG["with group"]
-  SR -->|"script@2, git::, path::"| CAT["step catalog"]
+  SR -->|"script@1, git::, path::"| CAT["step catalog"]
   SB -->|"steps[]"| SR
   SB -->|"execution_container, service_containers[]"| CN["containers"]
   WG -->|"container:, services:"| CN
