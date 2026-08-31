@@ -3,7 +3,6 @@ import {
   BitkitCheckbox,
   BitkitCombobox,
   BitkitIconButton,
-  BitkitLabelTooltip,
   BitkitLink,
   BitkitSelect,
   BitkitTextInput,
@@ -243,7 +242,7 @@ const ToolRow = ({
                 labelText={
                   <>
                     Prefer pre-installed version{' '}
-                    <BitkitLabelTooltip text={PREFER_INSTALLED_TOOLTIP_TEXT}>
+                    <BitkitTooltip text={PREFER_INSTALLED_TOOLTIP_TEXT}>
                       <IconQuestionCircle
                         size="16"
                         color="icon/tertiary"
@@ -251,7 +250,7 @@ const ToolRow = ({
                         role="img"
                         aria-label="Prefer pre-installed version details"
                       />
-                    </BitkitLabelTooltip>
+                    </BitkitTooltip>
                   </>
                 }
                 checked={!!preferInstalled}
