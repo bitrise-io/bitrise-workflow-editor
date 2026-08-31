@@ -1,11 +1,10 @@
 import { omit } from 'es-toolkit';
 import { useCallback, useEffect, useMemo } from 'react';
 
+import { parallelWorkflowSourceId } from '@/core/utils/CommonUtils';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 import useSearchParams, { getSearchParamsFromLocationHash } from './useSearchParams';
-
-const GENERATED_WORKFLOW_ID_REGEX = /_[\d]+$/g;
 
 function selectValidWorkflowId(workflowIds: string[], requestedId?: string | null): string {
   if (requestedId) {
@@ -15,8 +14,8 @@ function selectValidWorkflowId(workflowIds: string[], requestedId?: string | nul
 
     // Check if the requested ID is a generated variant of an existing workflow ID (parallel workflow)
     // e.g., if the requested ID is "sharded-tests_13", check if "sharded-tests" exists
-    const originalId = requestedId.replace(GENERATED_WORKFLOW_ID_REGEX, '');
-    if (workflowIds.includes(originalId)) {
+    const originalId = parallelWorkflowSourceId(requestedId);
+    if (originalId && workflowIds.includes(originalId)) {
       return originalId;
     }
   }

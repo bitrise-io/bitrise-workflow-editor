@@ -41,6 +41,45 @@ describe('EntityIndexService', () => {
     });
   });
 
+  describe('deepLinkNodeId', () => {
+    it('resolves an entity the same way definingNodeId does', () => {
+      expect(EntityIndexService.deepLinkNodeId(index, { kind: 'workflows', id: 'release' })).toBe('n_pinned');
+      expect(EntityIndexService.deepLinkNodeId(index, { kind: 'stepBundles', id: 'common' })).toBe('n_shared');
+      expect(EntityIndexService.deepLinkNodeId(index, { kind: 'workflows', id: 'build' })).toBe('n_root');
+    });
+
+    it('resolves a generated parallel-workflow id back to its source workflow', () => {
+      expect(EntityIndexService.deepLinkNodeId(index, { kind: 'workflows', id: 'release_3' })).toBe('n_pinned');
+    });
+
+    it('prefers an exact match over the parallel-workflow fallback', () => {
+      const withSuffixedId: EntityIndex = {
+        ...index,
+        workflows: { ...index.workflows, release_3: [{ nodeId: 'n_suffixed' }] },
+      };
+
+      expect(EntityIndexService.deepLinkNodeId(withSuffixedId, { kind: 'workflows', id: 'release_3' })).toBe(
+        'n_suffixed',
+      );
+    });
+
+    it('applies the parallel-workflow fallback to workflows only', () => {
+      const withSuffixedLink: EntityIndex = {
+        ...index,
+        pipelines: { deploy: [{ nodeId: 'n_pipelines' }] },
+      };
+
+      expect(
+        EntityIndexService.deepLinkNodeId(withSuffixedLink, { kind: 'pipelines', id: 'deploy_2' }),
+      ).toBeUndefined();
+    });
+
+    it('returns undefined when no module defines the entity', () => {
+      expect(EntityIndexService.deepLinkNodeId(index, { kind: 'workflows', id: 'missing' })).toBeUndefined();
+      expect(EntityIndexService.deepLinkNodeId(index, { kind: 'workflows', id: 'missing_2' })).toBeUndefined();
+    });
+  });
+
   describe('buildFromFiles', () => {
     function node(nodeId: string, includes: TreeNode[] = []): TreeNode {
       return {
