@@ -7,20 +7,32 @@ Where a doc and the code disagree, the code wins and the doc is a bug.
 
 ## Glossary
 
-The YAML format itself is documented publicly, and that is the authority for what a key means and
-what values it takes: the [configuration YAML reference][ref] covers all sixteen top-level keys,
-and the [glossary][gl] covers the product vocabulary. Read those for the format; read this for
-what the *editor* adds, guarantees or fails to guarantee.
+The YAML format is documented in three places, none of them complete, and knowing which to open
+saves an afternoon:
 
-**Four of these are legacy**: stages, `with` groups, utility workflows and `trigger_map`. The first
-three are absent from the public docs entirely, and that absence is the point — they are not
+| Source | Good for | Stops at |
+|---|---|---|
+| [Configuration YAML reference][ref] | All sixteen top-level keys, both trigger models, containers, step bundles, `include`, `tools`. The current format | Legacy models: no stages, no `with` groups |
+| [Format spec][spec] in the CLI repo | Step and env fields in depth — `is_always_run`, `is_skippable`, `run_if`, `toolkit`, and env metadata like `is_expand` and `skip_if_empty` | Predates pipelines, containers, step bundles, `include` and `tools`, so its silence is age, not invalidity |
+| [Glossary][gl] | Product vocabulary: project, workspace, stack, secret | Anything editor-internal |
+
+Read those for the format. Read this for what the *editor* adds, guarantees, or fails to
+guarantee.
+
+**Three of these are legacy**: stages, utility workflows and `trigger_map`. Stages and utility
+workflows are absent from the public docs entirely, and that absence is the point — they are not
 offered to new users. The editor still has to read, render and cascade over them, because configs
 in the wild contain them, so this table is their only definition. Do not build new surface on any
-of the four; where a current model exists beside a legacy one, see
+of the three; where a current model exists beside a legacy one, see
 [the two-model sections](#two-models-twice).
+
+`with` groups are a fourth legacy shape, but effectively unused in real configs. They earn a line
+below only because `StepLike` unions them in, so anything touching step handling meets
+`isWithGroup` whether configs use it or not.
 
 [ref]: https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference
 [gl]: https://docs.bitrise.io/en/bitrise-ci/references/glossary#workflow-editor
+[spec]: https://github.com/bitrise-io/bitrise/blob/master/_docs/bitrise-yml-format-spec.md
 
 | Term | Means |
 |---|---|
@@ -37,7 +49,7 @@ of the four; where a current model exists beside a legacy one, see
 | **step bundle** | Named, reusable step sequence with its own inputs. Referenced as `bundle::<id>`. |
 | **target-based trigger** | Declared on the workflow it fires, nested under its type. All matches fire. |
 | **utility workflow** | *Legacy.* Id starts with `_`, marking it not directly runnable. Convention only; the YAML has no concept of it. |
-| **`with` group** | *Legacy.* A step-list wrapper that runs its steps inside a container. |
+| **`with` group** | *Legacy, effectively unused.* A step-list wrapper running its steps in a container. You meet it as a `StepLike` variant, not in the wild. |
 | **`yml` / `ymlDocument`** | `ymlDocument` is the writable AST, `yml` a read-only object derived from it. |
 
 ## What the editor edits
@@ -89,8 +101,8 @@ flowchart TD
 
 Every edge label is the YAML key that carries the reference, which is what you grep when you
 need to find or clean up every pointer to something. The map is the YAML schema, not the editor's
-coverage: a `with` group's `services:` is a genuine container reference that no code path reads
-or writes, so a cascade still has to clean it up. Dashed nodes live outside the document. A
+coverage: a `with` group's `services:` is a container reference no code path reads or writes,
+though with groups are rare enough that it has probably never bitten anyone. Dashed nodes live outside the document. A
 `step_bundles` entry may reference another one, which is legal, recursive and
 [unguarded](decisions.md#open-defects).
 
