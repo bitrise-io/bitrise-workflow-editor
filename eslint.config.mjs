@@ -2,6 +2,56 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import importPlugin from 'eslint-plugin-import';
 import bitriseConfig from "@bitrise/eslint-plugin";
 
+const RESTRICTED_IMPORTS = [
+  // `bitriseConfig.react` bans this, but our own `rules` block replaces `no-restricted-imports`
+  // wholesale rather than merging, so the ban has to be re-listed here or it silently disappears.
+  "lodash/fp",
+  {
+    name: "zustand/shallow",
+    importNames: ["useShallow"],
+    message: `Please import useShallow from '@/hooks/useShallow' instead.`,
+  },
+  {
+    name: "zustand/react/shallow",
+    importNames: ["useShallow"],
+    message: `Please import useShallow from '@/hooks/useShallow' instead.`,
+  },
+];
+
+const RAW_USE_STORE_MESSAGE =
+  "This selector builds a fresh value, so raw useStore() will re-render forever. " +
+  "Use useBitriseYmlStore() from '@/hooks/useBitriseYmlStore' — it applies the deep-equal useShallow. " +
+  "Raw useStore(bitriseYmlStore, ...) is only for selectors returning a primitive or an existing reference.";
+
+// `useBitriseYmlStore` wraps every selector in the deep-equal `@/hooks/useShallow`. Calling
+// `useStore(bitriseYmlStore, ...)` directly skips that, which is correct ONLY when the selector
+// returns a primitive or an existing reference. A selector that builds a fresh object/array
+// returns a new reference on every call, so React's useSyncExternalStore re-renders forever
+// ("Maximum update depth exceeded") on mount. These patterns catch the common fresh-value
+// shapes; a fresh value built inside a block body is not detectable here.
+const RAW_USE_STORE_SELECTORS = [
+      {
+        selector:
+          "CallExpression[callee.name='useStore'][arguments.0.name='bitriseYmlStore'][arguments.1.body.type='ObjectExpression']",
+        message: RAW_USE_STORE_MESSAGE,
+      },
+      {
+        selector:
+          "CallExpression[callee.name='useStore'][arguments.0.name='bitriseYmlStore'][arguments.1.body.type='ArrayExpression']",
+        message: RAW_USE_STORE_MESSAGE,
+      },
+      {
+        selector:
+          "CallExpression[callee.name='useStore'][arguments.0.name='bitriseYmlStore'][arguments.1.body.callee.property.name=/^(map|filter|flatMap|slice|concat|sort)$/]",
+        message: RAW_USE_STORE_MESSAGE,
+      },
+      {
+        selector:
+          "CallExpression[callee.name='useStore'][arguments.0.name='bitriseYmlStore'][arguments.1.body.callee.object.name='Object']",
+        message: RAW_USE_STORE_MESSAGE,
+      },
+];
+
 export default defineConfig([
   globalIgnores([
     ".ruby-lsp",
@@ -40,17 +90,79 @@ export default defineConfig([
             "Do not use TEST_BITRISE_YML outside of storybook, spec or mock files.",
         },
       ],
+      "no-restricted-imports": ["error", ...RESTRICTED_IMPORTS],
+      "no-restricted-syntax": ["error", ...RAW_USE_STORE_SELECTORS],
+    },
+  },
+
+  // `core/` is framework-agnostic: services and stores must stay testable in plain Jest with no
+  // renderer, and nothing in there may reach for the DOM. Specs are exempt; a test rendering a
+  // hook is not an architecture violation.
+  {
+    files: ["source/javascripts/core/**/*.{ts,tsx}"],
+    ignores: ["**/*.spec.{ts,tsx}", "**/*.stories.tsx", "**/*.mswMocks.ts", "**/*.mocks.ts"],
+    rules: {
+      // `paths` entries match the bare package only, so `react-dom/client` and `react/jsx-runtime`
+      // need the `patterns` group beside them.
       "no-restricted-imports": [
         "error",
         {
-          name: "zustand/shallow",
-          importNames: ["useShallow"],
-          message: `Please import useShallow from '@/core/hooks/useShallow' instead.`,
+          paths: [
+            ...RESTRICTED_IMPORTS,
+            {
+              name: "react",
+              message:
+                "core/ is framework-agnostic. Move anything that needs React into hooks/ or components/.",
+            },
+            {
+              name: "react-dom",
+              message:
+                "core/ is framework-agnostic. Move anything that needs the DOM into hooks/ or components/.",
+            },
+          ],
+          patterns: [
+            {
+              group: ["react/*", "react-dom/*"],
+              message:
+                "core/ is framework-agnostic. Move anything that needs React or the DOM into hooks/ or components/.",
+            },
+          ],
         },
+      ],
+    },
+  },
+
+  // Structured YAML mutation is a service concern. Components go through a service, or through
+  // `updateBitriseYmlDocumentByString` when they genuinely replace the whole document (the YAML
+  // editor, the diff dialog, the AI drawer).
+  {
+    files: ["**/*.tsx"],
+    rules: {
+      // The syntax rule below matches the callee's local name, which an aliased import evades.
+      // Restricting the imported symbol closes that.
+      "no-restricted-imports": [
+        "error",
         {
-          name: "zustand/react/shallow",
-          importNames: ["useShallow"],
-          message: `Please import useShallow from '@/core/hooks/useShallow' instead.`,
+          paths: [
+            ...RESTRICTED_IMPORTS,
+            {
+              name: "@/core/stores/BitriseYmlStore",
+              importNames: ["updateBitriseYmlDocument"],
+              message:
+                "updateBitriseYmlDocument() is for services only. Call a service from the component, " +
+                "or use updateBitriseYmlDocumentByString() if you are replacing the whole document.",
+            },
+          ],
+        },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        ...RAW_USE_STORE_SELECTORS,
+        {
+          selector: "CallExpression[callee.name='updateBitriseYmlDocument']",
+          message:
+            "updateBitriseYmlDocument() is for services only. Call a service from the component, " +
+            "or use updateBitriseYmlDocumentByString() if you are replacing the whole document.",
         },
       ],
     },
