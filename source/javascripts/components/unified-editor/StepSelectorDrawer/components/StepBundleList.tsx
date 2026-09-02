@@ -31,8 +31,8 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
   const bundleIds = allBundleIds.filter((id) => {
     if (excludedStepBundleId) {
-      // Exclude the bundle itself (direct self-reference — a chain never lists itself, and a
-      // cross-file bundle has no chain at all) and any bundle whose chain already reaches it.
+      // Exclude the bundle itself — a chain does list itself, but a cross-file bundle has no
+      // chain at all, so the first clause is still needed — and any bundle whose chain reaches it.
       return id !== excludedStepBundleId && !stepBundleChains[id]?.includes(excludedStepBundleId);
     }
     return true;

@@ -1,5 +1,6 @@
 import StepBundleService from '@/core/services/StepBundleService';
 
+import { StepBundles } from '../models/BitriseYml';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 describe('StepBundleService', () => {
@@ -1835,6 +1836,44 @@ describe('StepBundleService', () => {
       `;
 
       expect(getYmlString()).toEqual(expectedYml);
+    });
+  });
+  describe('getStepBundleChain', () => {
+    it('returns the full chain for nested bundles', () => {
+      const stepBundles: StepBundles = {
+        top: { steps: [{ 'bundle::mid': {} }] },
+        mid: { steps: [{ 'bundle::leaf': {} }] },
+        leaf: { steps: [{ 'script@1': {} }] },
+      };
+
+      expect(StepBundleService.getStepBundleChain(stepBundles, 'top')).toEqual(['top', 'mid', 'leaf']);
+    });
+
+    it('terminates on a self-referencing bundle', () => {
+      const stepBundles: StepBundles = { a: { steps: [{ 'bundle::a': {} }] } };
+
+      expect(StepBundleService.getStepBundleChain(stepBundles, 'a')).toEqual(['a']);
+    });
+
+    it('terminates on mutually recursive bundles', () => {
+      const stepBundles: StepBundles = {
+        a: { steps: [{ 'bundle::b': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+      };
+
+      expect(StepBundleService.getStepBundleChain(stepBundles, 'a')).toEqual(['a', 'b']);
+      expect(StepBundleService.getStepBundleChain(stepBundles, 'b')).toEqual(['b', 'a']);
+    });
+
+    it('lists a bundle reachable by two paths only once', () => {
+      const stepBundles: StepBundles = {
+        top: { steps: [{ 'bundle::l': {} }, { 'bundle::r': {} }] },
+        l: { steps: [{ 'bundle::leaf': {} }] },
+        r: { steps: [{ 'bundle::leaf': {} }] },
+        leaf: { steps: [{ 'script@1': {} }] },
+      };
+
+      expect(StepBundleService.getStepBundleChain(stepBundles, 'top')).toEqual(['top', 'l', 'leaf', 'r']);
     });
   });
 });

@@ -76,12 +76,18 @@ function getUsedByText(count: number) {
   }
 }
 
-function getStepBundleChain(stepBundles: StepBundles, id: string) {
+// Cycle-guarded so a malformed config can't recurse forever.
+function getStepBundleChain(stepBundles: StepBundles, id: string, seen = new Set<string>()) {
+  if (seen.has(id)) {
+    return [];
+  }
+  seen.add(id);
+
   let ids: string[] = [];
   stepBundles[id]?.steps?.forEach((step) => {
     const cvs = Object.keys(step)[0];
     if (cvs && cvs.startsWith('bundle::')) {
-      ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', '')));
+      ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', ''), seen));
     }
   });
   ids.unshift(id);
