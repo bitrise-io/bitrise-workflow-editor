@@ -52,9 +52,9 @@ function getDirectDependants(workflows: Workflows, cvs: string) {
 function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: StepBundles) {
   let directDependants: string[] = getDirectDependants(workflows, cvs);
 
-  const stepBundleChains = getStepBundleChains(stepBundles);
+  const usedIdsByBundle = getUsedStepBundleIdsByBundle(stepBundles);
 
-  Object.values(stepBundleChains).forEach((chain) => {
+  Object.values(usedIdsByBundle).forEach((chain) => {
     if (chain.length > 1) {
       chain.forEach((bundle) => {
         directDependants = directDependants.concat(getDirectDependants(workflows, idToCvs(bundle)));
@@ -76,8 +76,12 @@ function getUsedByText(count: number) {
   }
 }
 
-// Cycle-guarded so a malformed config can't recurse forever.
-function getStepBundleChain(stepBundles: StepBundles, id: string, seen = new Set<string>()) {
+/**
+ * Every step bundle `id` uses, transitively, with `id` itself first. Not a path — a bundle reached
+ * by two routes is listed once, so a diamond yields `['top', 'l', 'leaf', 'r']`. Cycle-guarded so a
+ * malformed config can't recurse forever; prefer `usesStepBundle` when you only need containment.
+ */
+function getUsedStepBundleIds(stepBundles: StepBundles, id: string, seen = new Set<string>()) {
   if (seen.has(id)) {
     return [];
   }
@@ -87,20 +91,33 @@ function getStepBundleChain(stepBundles: StepBundles, id: string, seen = new Set
   stepBundles[id]?.steps?.forEach((step) => {
     const cvs = Object.keys(step)[0];
     if (cvs && cvs.startsWith('bundle::')) {
-      ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', ''), seen));
+      ids = ids.concat(getUsedStepBundleIds(stepBundles, cvs.replace('bundle::', ''), seen));
     }
   });
   ids.unshift(id);
   return ids;
 }
 
-function getStepBundleChains(stepBundles: StepBundles) {
-  const stepBundleChains: Record<string, string[]> = {};
+/** `getUsedStepBundleIds` for every bundle at once, keyed by id — one walk per bundle. */
+function getUsedStepBundleIdsByBundle(stepBundles: StepBundles) {
+  const usedIdsByBundle: Record<string, string[]> = {};
   Object.keys(stepBundles).forEach((id) => {
-    stepBundleChains[id] = getStepBundleChain(stepBundles, id);
+    usedIdsByBundle[id] = getUsedStepBundleIds(stepBundles, id);
   });
 
-  return stepBundleChains;
+  return usedIdsByBundle;
+}
+
+/**
+ * Whether step bundle `id` uses step bundle `usedId`, directly or transitively. A bundle counts as
+ * using itself, which is what makes this the cycle check callers want. A missing `usedId` is never
+ * used.
+ */
+function usesStepBundle(stepBundles: StepBundles, id: string, usedId?: string) {
+  if (usedId === undefined) {
+    return false;
+  }
+  return id === usedId || getUsedStepBundleIds(stepBundles, id).includes(usedId);
 }
 
 function cvsToId(cvs: string) {
@@ -542,8 +559,9 @@ export default {
   getUsedByText,
   sanitizeName,
   validateName,
-  getStepBundleChains,
-  getStepBundleChain,
+  getUsedStepBundleIdsByBundle,
+  getUsedStepBundleIds,
+  usesStepBundle,
   getStepBundleOrThrowError,
   cvsToId,
   idToCvs,

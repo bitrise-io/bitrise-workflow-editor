@@ -279,13 +279,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
       if (cvs?.startsWith('bundle::')) {
         const id = StepBundleService.cvsToId(cvs);
-        if (selectionParent?.id === id) {
-          closeDialog();
-        }
-        if (
-          selectionParent?.id &&
-          StepBundleService.getStepBundleChain(stepBundles, id).includes(selectionParent?.id)
-        ) {
+        if (StepBundleService.usesStepBundle(stepBundles, id, selectionParent?.id)) {
           closeDialog();
         }
       }
@@ -322,13 +316,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       }
       if (cvs?.startsWith('bundle::')) {
         const id = StepBundleService.cvsToId(cvs);
-        if (selectionParent?.id === id) {
-          closeDialog();
-        }
-        if (
-          selectionParent?.id &&
-          StepBundleService.getStepBundleChain(stepBundles, id).includes(selectionParent?.id)
-        ) {
+        if (StepBundleService.usesStepBundle(stepBundles, id, selectionParent?.id)) {
           closeDialog();
         }
       }

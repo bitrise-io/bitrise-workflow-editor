@@ -1838,21 +1838,21 @@ describe('StepBundleService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
   });
-  describe('getStepBundleChain', () => {
-    it('returns the full chain for nested bundles', () => {
+  describe('getUsedStepBundleIds', () => {
+    it('returns every nested bundle, self first', () => {
       const stepBundles: StepBundles = {
         top: { steps: [{ 'bundle::mid': {} }] },
         mid: { steps: [{ 'bundle::leaf': {} }] },
         leaf: { steps: [{ 'script@1': {} }] },
       };
 
-      expect(StepBundleService.getStepBundleChain(stepBundles, 'top')).toEqual(['top', 'mid', 'leaf']);
+      expect(StepBundleService.getUsedStepBundleIds(stepBundles, 'top')).toEqual(['top', 'mid', 'leaf']);
     });
 
     it('terminates on a self-referencing bundle', () => {
       const stepBundles: StepBundles = { a: { steps: [{ 'bundle::a': {} }] } };
 
-      expect(StepBundleService.getStepBundleChain(stepBundles, 'a')).toEqual(['a']);
+      expect(StepBundleService.getUsedStepBundleIds(stepBundles, 'a')).toEqual(['a']);
     });
 
     it('terminates on mutually recursive bundles', () => {
@@ -1861,11 +1861,11 @@ describe('StepBundleService', () => {
         b: { steps: [{ 'bundle::a': {} }] },
       };
 
-      expect(StepBundleService.getStepBundleChain(stepBundles, 'a')).toEqual(['a', 'b']);
-      expect(StepBundleService.getStepBundleChain(stepBundles, 'b')).toEqual(['b', 'a']);
+      expect(StepBundleService.getUsedStepBundleIds(stepBundles, 'a')).toEqual(['a', 'b']);
+      expect(StepBundleService.getUsedStepBundleIds(stepBundles, 'b')).toEqual(['b', 'a']);
     });
 
-    it('lists a bundle reachable by two paths only once', () => {
+    it('lists a bundle used by two sibling bundles only once', () => {
       const stepBundles: StepBundles = {
         top: { steps: [{ 'bundle::l': {} }, { 'bundle::r': {} }] },
         l: { steps: [{ 'bundle::leaf': {} }] },
@@ -1873,7 +1873,56 @@ describe('StepBundleService', () => {
         leaf: { steps: [{ 'script@1': {} }] },
       };
 
-      expect(StepBundleService.getStepBundleChain(stepBundles, 'top')).toEqual(['top', 'l', 'leaf', 'r']);
+      expect(StepBundleService.getUsedStepBundleIds(stepBundles, 'top')).toEqual(['top', 'l', 'leaf', 'r']);
+    });
+  });
+  describe('usesStepBundle', () => {
+    const stepBundles: StepBundles = {
+      top: { steps: [{ 'bundle::mid': {} }] },
+      mid: { steps: [{ 'bundle::leaf': {} }] },
+      leaf: { steps: [{ 'script@1': {} }] },
+      other: { steps: [{ 'script@1': {} }] },
+    };
+
+    it('is true for a direct use', () => {
+      expect(StepBundleService.usesStepBundle(stepBundles, 'top', 'mid')).toBe(true);
+    });
+
+    it('is true for a transitive use', () => {
+      expect(StepBundleService.usesStepBundle(stepBundles, 'top', 'leaf')).toBe(true);
+    });
+
+    it('is true for itself, which is what makes it the cycle check', () => {
+      expect(StepBundleService.usesStepBundle(stepBundles, 'top', 'top')).toBe(true);
+    });
+
+    it('is false for an unrelated bundle', () => {
+      expect(StepBundleService.usesStepBundle(stepBundles, 'top', 'other')).toBe(false);
+    });
+
+    it('is false upwards — mid does not use top', () => {
+      expect(StepBundleService.usesStepBundle(stepBundles, 'mid', 'top')).toBe(false);
+    });
+
+    it('is false for a missing used id', () => {
+      expect(StepBundleService.usesStepBundle(stepBundles, 'top', undefined)).toBe(false);
+      expect(StepBundleService.usesStepBundle(stepBundles, 'top', '')).toBe(false);
+    });
+
+    it('treats two empty ids as the same bundle', () => {
+      // Callers pass a selection id that defaults to '', and an empty id matching an empty id
+      // used to close the dialog before this check moved into the service. Keep that.
+      expect(StepBundleService.usesStepBundle(stepBundles, '', '')).toBe(true);
+    });
+
+    it('terminates on a cyclic config', () => {
+      const cyclic: StepBundles = {
+        a: { steps: [{ 'bundle::b': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+      };
+
+      expect(StepBundleService.usesStepBundle(cyclic, 'a', 'b')).toBe(true);
+      expect(StepBundleService.usesStepBundle(cyclic, 'a', 'missing')).toBe(false);
     });
   });
 });
