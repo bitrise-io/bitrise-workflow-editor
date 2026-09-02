@@ -78,8 +78,8 @@ const StackAndMachine = ({
   });
 
   const availableRollbackVersion =
-    selectedStack.rollbackVersion?.[selectedMachineType.id][GlobalProps.workspaceSlug()] ||
-    selectedStack.rollbackVersion?.[selectedMachineType.id][PageProps.app()?.isOwnerPaying ? 'paying' : 'free'] ||
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[GlobalProps.workspaceSlug()] ||
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[PageProps.app()?.isOwnerPaying ? 'paying' : 'free'] ||
     '';
 
   const handleChange = useCallback(
