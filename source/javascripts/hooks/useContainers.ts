@@ -23,9 +23,20 @@ function groupByType(map: Containers): ReturnValue {
 
 // Merge a modular config's containers post-order (included files first, then the including file) so a
 // node outranks the files it includes — matching modular precedence when the same container id is
-// defined in more than one file.
-function collectContainers(node: TreeNode, files: Record<string, FileSlice>, acc: Containers): void {
-  node.includes.forEach((child) => collectContainers(child, files, acc));
+// defined in more than one file. Cycle-guarded so a malformed tree can't recurse forever, like
+// TreeService.walk and EntityIndexService.buildFromFiles; merging a file twice is a no-op anyway.
+function collectContainers(
+  node: TreeNode,
+  files: Record<string, FileSlice>,
+  acc: Containers,
+  seen: Set<string> = new Set(),
+): void {
+  if (seen.has(node.nodeId)) {
+    return;
+  }
+  seen.add(node.nodeId);
+
+  node.includes.forEach((child) => collectContainers(child, files, acc, seen));
   const slice = files[node.nodeId];
   if (slice) {
     Object.assign(acc, YmlUtils.toJSON(slice.ymlDocument).containers ?? {});

@@ -44,35 +44,47 @@ function getUsedByText(usedBy: string[]) {
   }
 }
 
-function getBeforeRunChain(workflows: Workflows, id: string): string[] {
+// Cycle-guarded per branch, not globally: a workflow can legitimately run twice in one chain, so
+// only an id that is its own ancestor is dropped.
+function getBeforeRunChain(workflows: Workflows, id: string, path: Set<string> = new Set([id])): string[] {
   const ids = workflows?.[id]?.before_run ?? [];
 
   return ids.reduce<string[]>((mergedIds, currentId) => {
-    if (workflows[currentId]) {
-      return [
-        ...mergedIds,
-        ...getBeforeRunChain(workflows, currentId),
-        currentId,
-        ...getAfterRunChain(workflows, currentId),
-      ];
+    if (!workflows[currentId] || path.has(currentId)) {
+      return mergedIds;
     }
-    return mergedIds;
+
+    path.add(currentId);
+    const expanded = [
+      ...mergedIds,
+      ...getBeforeRunChain(workflows, currentId, path),
+      currentId,
+      ...getAfterRunChain(workflows, currentId, path),
+    ];
+    path.delete(currentId);
+
+    return expanded;
   }, []);
 }
 
-function getAfterRunChain(workflows: Workflows, id: string): string[] {
+function getAfterRunChain(workflows: Workflows, id: string, path: Set<string> = new Set([id])): string[] {
   const ids = workflows?.[id]?.after_run ?? [];
 
   return ids.reduce<string[]>((mergedIds, currentId) => {
-    if (workflows[currentId]) {
-      return [
-        ...mergedIds,
-        ...getBeforeRunChain(workflows, currentId),
-        currentId,
-        ...getAfterRunChain(workflows, currentId),
-      ];
+    if (!workflows[currentId] || path.has(currentId)) {
+      return mergedIds;
     }
-    return mergedIds;
+
+    path.add(currentId);
+    const expanded = [
+      ...mergedIds,
+      ...getBeforeRunChain(workflows, currentId, path),
+      currentId,
+      ...getAfterRunChain(workflows, currentId, path),
+    ];
+    path.delete(currentId);
+
+    return expanded;
   }, []);
 }
 
