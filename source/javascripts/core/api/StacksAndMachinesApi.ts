@@ -22,7 +22,7 @@ type StackApiItem = {
   'description-link-gen2-applesilicon'?: string;
   machines?: string[];
   rollback_version?: {
-    [machineTypeId: string]: Record<'free' | 'paying' | string, string>;
+    [machineTypeId: string]: Record<string, string>;
   };
 };
 

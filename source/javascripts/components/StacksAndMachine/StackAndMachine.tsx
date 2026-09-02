@@ -57,12 +57,11 @@ const StackAndMachine = ({
   const { data, isLoading } = useStacksAndMachines();
   const { projectStackId, projectMachineTypeId } = useProjectStackAndMachine();
 
-  let rollbackType: 'free' | 'paying' | string;
-  if (data?.runningBuildsOnPrivateCloud) {
-    rollbackType = GlobalProps.workspaceSlug();
-  } else {
-    rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
-  }
+  const rollbackType = data?.runningBuildsOnPrivateCloud
+    ? GlobalProps.workspaceSlug()
+    : PageProps.app()?.isOwnerPaying
+      ? 'paying'
+      : 'free';
 
   const rollbackVersionFeatureEnabled = GlobalProps.accountFeatureFlags()?.rollbackVersionFeatureEnabled;
   const disableRollbackOption = rollbackVersionFeatureEnabled === false;

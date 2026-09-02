@@ -9,7 +9,7 @@ export type Stack = {
   description: string;
   descriptionUrl?: string;
   machineTypes: string[];
-  rollbackVersion?: Record<string, Record<'free' | 'paying' | string, string>>;
+  rollbackVersion?: Record<string, Record<string, string>>;
 };
 
 export type StackGroup = {
