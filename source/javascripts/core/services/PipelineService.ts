@@ -365,6 +365,26 @@ function updatePipelineWorkflowField<T extends PWK>(pipelineId: string, workflow
   });
 }
 
+/**
+ * Whether pipeline workflow `id` depends on `dependencyId`, directly or transitively. Cycle-guarded
+ * so an already-cyclic config can't recurse forever.
+ */
+function dependsOnWorkflow(
+  workflows: PipelineWorkflows,
+  id: string,
+  dependencyId: string,
+  seen = new Set<string>(),
+): boolean {
+  if (seen.has(id)) {
+    return false;
+  }
+  seen.add(id);
+
+  return (workflows[id]?.depends_on ?? []).some(
+    (dep) => dep === dependencyId || dependsOnWorkflow(workflows, dep, dependencyId, seen),
+  );
+}
+
 function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, dependsOn: string) {
   updateBitriseYmlDocument(({ doc }) => {
     if (dependsOn === workflowId) {
@@ -376,6 +396,15 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
 
     if (YmlUtils.isInSeq(workflow, ['depends_on'], dependsOn)) {
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
+    }
+
+    // The canvas already blocks this gesture, but the rule belongs here so every caller gets it.
+    const pipelineWorkflows = (YmlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'])?.toJSON() ??
+      {}) as PipelineWorkflows;
+    if (dependsOnWorkflow(pipelineWorkflows, dependsOn, workflowId)) {
+      throw new Error(
+        `Workflow ${workflowId} cannot depend on ${dependsOn}, because ${dependsOn} already depends on ${workflowId}.`,
+      );
     }
 
     YmlUtils.addIn(workflow, ['depends_on'], dependsOn);
@@ -421,5 +450,6 @@ export default {
   removeWorkflowFromPipeline,
   updatePipelineWorkflowField,
   addPipelineWorkflowDependency,
+  dependsOnWorkflow,
   removePipelineWorkflowDependency,
 };
