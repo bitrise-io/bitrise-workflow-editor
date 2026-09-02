@@ -7,12 +7,13 @@ import { datadogRum } from '@datadog/browser-rum';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
-import { ComponentProps, PropsWithChildren, StrictMode, useEffect, useRef } from 'react';
+import { ComponentProps, PropsWithChildren, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useEventListener } from 'usehooks-ts';
 
 import Client from '@/core/api/client';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import ConfigLoadTracker from '@/core/utils/ConfigLoadTracker';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
@@ -92,9 +93,6 @@ const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
 
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const toast = useToast();
-  const isLoaded = useRef(false);
-  const isTracked = useRef(false);
-  const loadedBranch = useRef<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
@@ -151,7 +149,10 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (data && loadedBranch.current !== requestedBranch) {
+    // The tracker is module-scoped on purpose: a render error remounts this component (see
+    // PassThroughFallback), and a component ref would read as a first load and re-initialise
+    // the store from the saved config, discarding unsaved changes.
+    if (data && ConfigLoadTracker.shouldLoad(requestedBranch)) {
       if (isModularEnabled) {
         const config = treeConfig.data;
         if (config) {
@@ -193,17 +194,17 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
           });
         }
       }
-      loadedBranch.current = requestedBranch;
-      if (!isLoaded.current) {
+      ConfigLoadTracker.markLoaded(requestedBranch);
+      if (ConfigLoadTracker.claimRoutePreload()) {
         setTimeout(preloadRoutes, 1000);
-        isLoaded.current = true;
       }
     }
   }, [data, requestedBranch, toast, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
-    if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
-      isTracked.current = true;
+    // Module-scoped for the same reason as the load guard above: a remount would otherwise
+    // re-fire this event and double-count the branch load.
+    if (data && ymlSettings?.usesRepositoryYml && ConfigLoadTracker.claimBranchLoadTracking()) {
       trackConfigBranchLoaded(configBranch);
     }
   }, [data, ymlSettings?.usesRepositoryYml, configBranch]);
