@@ -41,6 +41,36 @@ describe('mergeYamls', () => {
     expect(startLines).toEqual([1, 3]);
   });
 
+  it('marks the boundary line when the remote deleted lines you had edited', () => {
+    // Remote drops the middle line you changed, so the conflict resolves to an
+    // empty region: there is no output line to outline, only the gap it left.
+    const base = 'a\nb\nc\n';
+    const yours = 'a\nbY\nc\n';
+    const remote = 'a\nc\n';
+
+    const { mergedYml, decorations } = mergeYamls(yours, base, remote);
+
+    expect(mergedYml).toBe('a\nc\n');
+    expect(decorations).toHaveLength(1);
+    expect(decorations[0].options.isWholeLine).toBe(false);
+    expect(decorations[0].options.blockClassName).toBe('conflict');
+    expect(decorations[0].range.startLineNumber).toBe(1);
+  });
+
+  it('clamps a deletion at the top of the file to line 1', () => {
+    // The gap sits above the first output line, so the unclamped boundary would
+    // be line 0 — not a line Monaco can decorate.
+    const base = 'a\nb\n';
+    const yours = 'aY\nb\n';
+    const remote = 'b\n';
+
+    const { decorations } = mergeYamls(yours, base, remote);
+
+    expect(decorations).toHaveLength(1);
+    expect(decorations[0].range.startLineNumber).toBe(1);
+    expect(decorations[0].range.endLineNumber).toBe(1);
+  });
+
   it('returns the input unchanged when nothing differs', () => {
     const yaml = 'a: 1\nb: 2\n';
     const { mergedYml, decorations } = mergeYamls(yaml, yaml, yaml);

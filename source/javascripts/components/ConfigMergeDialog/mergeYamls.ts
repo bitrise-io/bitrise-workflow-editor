@@ -8,8 +8,8 @@ import { diff3Merge } from 'node-diff3';
  * auto-resolved to the remote side and reported as decorations so the UI can mark
  * them red — the user edits the merged result to recover their own changes.
  *
- * Shared by the modular per-file conflict dialog. (The legacy single-file dialog
- * keeps its own copy until the modular-editing flag graduates and it is removed.)
+ * Shared by both conflict dialogs — the modular per-file one and the legacy
+ * single-file one, which is removed when the modular-editing flag graduates.
  */
 export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];

@@ -11,12 +11,10 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
+import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { toMerged } from 'es-toolkit';
-import type { editor } from 'monaco-editor';
-import { diff3Merge } from 'node-diff3';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -34,85 +32,12 @@ import useCurrentPage from '@/hooks/useCurrentPage';
 import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
+import { diffEditorOptions, mergeYamls, readOnlyDiffEditorOptions } from './mergeYamls';
 
 type Props = Omit<DialogProps, 'title'> & {
   targetBranch: string;
   isNewTargetBranch: boolean;
 };
-
-const diffEditorOptions: DiffEditorProps['options'] = {
-  diffWordWrap: 'off',
-  automaticLayout: true,
-  roundedSelection: false,
-  renderSideBySide: false,
-  renderGutterMenu: false,
-  renderWhitespace: 'all',
-  ignoreTrimWhitespace: false,
-  padding: {
-    top: 16,
-    bottom: 16,
-  },
-  hideUnchangedRegions: {
-    enabled: true,
-  },
-};
-
-const readOnlyDiffEditorOptions: DiffEditorProps['options'] = {
-  ...diffEditorOptions,
-  readOnly: true,
-};
-
-function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
-  const rows: string[] = [];
-  const decorations: editor.IModelDeltaDecoration[] = [];
-
-  diff3Merge<string>(yourYaml, baseYaml, remoteYaml, {
-    stringSeparator: '\n',
-  }).forEach((region) => {
-    if (region.ok) {
-      rows.push(...region.ok);
-    } else if (region.conflict) {
-      rows.push(...region.conflict.b);
-
-      const remoteChangeIsADeletion = region.conflict.b.length === 0;
-
-      if (remoteChangeIsADeletion) {
-        decorations.push({
-          options: {
-            isWholeLine: false,
-            blockClassName: 'conflict',
-          },
-          range: {
-            startLineNumber: region.conflict.oIndex + 1,
-            startColumn: 1,
-            endLineNumber: region.conflict.oIndex + 1,
-            endColumn: 1,
-          },
-        });
-      }
-
-      if (!remoteChangeIsADeletion) {
-        decorations.push({
-          options: {
-            isWholeLine: true,
-            blockClassName: 'conflict',
-          },
-          range: {
-            startLineNumber: region.conflict.bIndex + 1,
-            startColumn: 1,
-            endLineNumber: region.conflict.bIndex + region.conflict.b.length,
-            endColumn: 1,
-          },
-        });
-      }
-    }
-  });
-
-  return {
-    decorations,
-    mergedYml: rows.join('\n'),
-  };
-}
 
 function useInitialCiConfigs() {
   const projectSlug = PageProps.appSlug();
