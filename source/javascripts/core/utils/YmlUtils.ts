@@ -287,6 +287,51 @@ function getIn(root: Root, path: Path, keepScalar = false) {
   return !keepScalar && isScalar(node) ? node.value : node;
 }
 
+/**
+ * yaml's own `setIn`/`deleteIn` walk the path with native traversal, which stops at an alias node:
+ * writing to or deleting a path that passes *through* `*anchor` throws "Expected YAML collection at
+ * <key>". This finds the anchored collection that blocks such a walk and returns it as a new root
+ * plus the rest of the path, so the caller can retry against a path that is alias-free at that hop.
+ * Writing there is writing to the anchored node — the same node the CLI and `toJSON()` see through
+ * the alias, and shared with every other alias pointing at it.
+ *
+ * Returns `undefined` when the path needs no re-rooting: no alias blocks it, or the alias resolves
+ * to something that isn't a collection (left to the native call to report).
+ */
+function rebaseThroughAlias(root: Root, path: Path) {
+  let current: unknown = isDocument(root) ? root.contents : root;
+
+  // Only interior segments matter; the final segment is assigned/deleted on its parent, and an
+  // alias sitting there is simply the value being replaced.
+  for (let i = 0; i < path.length - 1; i += 1) {
+    if (!isCollection(current)) {
+      return undefined;
+    }
+
+    const child = current.get(path[i], true);
+
+    if (isAlias(child)) {
+      const resolved = resolveAlias(root, child);
+      return isCollection(resolved) ? { root: resolved, path: path.slice(i + 1) } : undefined;
+    }
+
+    current = child;
+  }
+
+  return undefined;
+}
+
+/** `Collection.deleteIn`, retried through any alias that blocks the native walk. */
+function deleteIn(root: Root, path: Path): boolean {
+  const rebased = rebaseThroughAlias(root, path);
+
+  if (rebased) {
+    return deleteIn(rebased.root, rebased.path);
+  }
+
+  return (isDocument(root) || isCollection(root)) && root.deleteIn(path);
+}
+
 function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
@@ -298,6 +343,12 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
 
   if (isEmpty(path)) {
     throw new Error('Path cannot be empty when setting a value');
+  }
+
+  const rebased = rebaseThroughAlias(root, path);
+  if (rebased) {
+    setIn(rebased.root, rebased.path, value, stringToTypedValue);
+    return;
   }
 
   // An empty document has no usable root collection, so a nested `setIn` throws "Expected a YAML
@@ -573,7 +624,7 @@ function deleteByPath(root: Root, path: WildcardPath, keep: WildcardPath = [], c
   }
 
   const deletedNode = getIn(root, path, true);
-  if (isNode(deletedNode) && root.deleteIn(path)) {
+  if (isNode(deletedNode) && deleteIn(root, path)) {
     cb?.(deletedNode, path);
   }
 

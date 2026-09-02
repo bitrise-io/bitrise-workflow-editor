@@ -922,6 +922,46 @@ describe('YmlUtils', () => {
             steps: []
       `);
     });
+
+    it('should create a YAMLSeq inside an anchored parent reached through an alias', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _step: &common_step
+          script@1: {}
+        workflows:
+          wf1:
+            steps:
+            - *common_step
+      `);
+
+      const inputs = YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps', 0, 'script@1', 'inputs'], true);
+      YmlUtils.addIn(inputs, [], { content: 'echo hi' });
+
+      // Written into the anchored node, and the `*common_step` reference is left intact.
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        _step: &common_step
+          script@1:
+            inputs:
+            - content: echo hi
+        workflows:
+          wf1:
+            steps:
+            - *common_step
+      `);
+    });
+
+    // An anchor pointing at an empty node carries no shared data, so the reference is replaced
+    // locally rather than materialising a collection at the anchor's own location.
+    it('should replace a final-segment alias to an empty node when createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _steps: &common_steps
+        workflows:
+          wf1:
+            steps: *common_steps
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'], true)).toBeInstanceOf(YAMLSeq);
+      expect(YmlUtils.toJSON(root)).toEqual({ _steps: null, workflows: { wf1: { steps: [] } } });
+    });
   });
 
   describe('getMapIn', () => {
@@ -1044,6 +1084,51 @@ describe('YmlUtils', () => {
             meta:
               bitrise.io:
                 stack: linux-docker-android-22.04
+      `);
+    });
+
+    it('should create a missing key inside an anchored map reached through an alias', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _meta: &common_meta
+          other: 1
+        workflows:
+          wf1:
+            meta: *common_meta
+      `);
+
+      const meta = YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'], true);
+      YmlUtils.setIn(meta, ['stack'], 'linux-docker-android-22.04');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        _meta: &common_meta
+          other: 1
+          bitrise.io:
+            stack: linux-docker-android-22.04
+        workflows:
+          wf1:
+            meta: *common_meta
+      `);
+    });
+
+    it('should fill in an empty key inside an anchored map reached through an alias', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _meta: &common_meta
+          bitrise.io:
+        workflows:
+          wf1:
+            meta: *common_meta
+      `);
+
+      const meta = YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'], true);
+      YmlUtils.setIn(meta, ['stack'], 'linux-docker-android-22.04');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        _meta: &common_meta
+          bitrise.io:
+            stack: linux-docker-android-22.04
+        workflows:
+          wf1:
+            meta: *common_meta
       `);
     });
   });
@@ -1251,6 +1336,26 @@ describe('YmlUtils', () => {
           wf1: {}
           wf2: {}
       `);
+    });
+
+    it('should delete through an alias instead of throwing on the native walk', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _steps: &common_steps
+        - script: {}
+        - clone: {}
+        workflows:
+          wf1:
+            steps: *common_steps
+      `);
+
+      YmlUtils.deleteByPath(root, ['workflows', 'wf1', 'steps', 0], ['workflows', 'wf1']);
+
+      // Deleted from the anchored sequence, with the `*common_steps` reference kept.
+      expect(YmlUtils.toJSON(root)).toEqual({
+        _steps: [{ clone: {} }],
+        workflows: { wf1: { steps: [{ clone: {} }] } },
+      });
+      expect(YmlUtils.toYml(root)).toContain('steps: *common_steps');
     });
   });
 

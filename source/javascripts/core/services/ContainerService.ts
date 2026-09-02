@@ -257,45 +257,64 @@ function getAllContainers(containers: Containers, selector: (container: Containe
     .filter(selector);
 }
 
-// `undefined` for a reference that names no container (an empty map, an empty seq item, a number).
-// Both callers run during render, where throwing would take down the whole card.
-function parseContainerReference(value: unknown): ContainerReference | undefined {
-  if (typeof value === 'string') {
-    return value ? { id: value, recreate: false } : undefined;
-  }
+/** The plain value behind a node, resolving an alias first. */
+function scalarValueOf(doc: Document, node: unknown) {
+  const resolved = YmlUtils.resolveAlias(doc, node);
 
-  if (typeof value !== 'object' || value === null) {
-    return undefined;
-  }
-
-  const [containerId, config] = Object.entries(value as Record<string, { recreate?: boolean }>)[0] ?? [];
-
-  if (!containerId) {
-    return undefined;
-  }
-
-  return { id: containerId, recreate: config?.recreate === true };
+  return isScalar(resolved) ? resolved.value : resolved;
 }
 
-function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): ContainerReference[] | undefined {
-  if (type === ContainerType.Execution) {
-    const node = yamlMap.get(ContainerReferenceField.Execution);
+/**
+ * A container reference — a bare id (`ubuntu`) or `{ id: { recreate: true } }` — or `undefined` when
+ * the node names no container (an empty map, an empty seq item, a number).
+ *
+ * Read off the nodes rather than via `toJSON()`, and resolved against `doc` at every level: a
+ * reference can be written as `*anchor` (or hold one), and a subtree containing an unresolved alias
+ * serializes to `{ source: '<anchor>' }`, which would parse as a container literally named "source".
+ * Every caller runs during render, where throwing would take down the whole card.
+ */
+function parseContainerReference(doc: Document, node: unknown): ContainerReference | undefined {
+  const resolved = YmlUtils.resolveAlias(doc, node);
 
-    if (!node || (!isMap(node) && typeof node !== 'string')) {
+  if (isMap(resolved)) {
+    const pair = resolved.items[0];
+    const id = pair ? scalarValueOf(doc, pair.key) : undefined;
+
+    if (typeof id !== 'string' || !id) {
       return undefined;
     }
 
-    const value = isMap(node) ? node.toJSON() : node;
-    const reference = parseContainerReference(value);
+    const options = YmlUtils.resolveAlias(doc, pair?.value);
+    const recreate = isMap(options) ? scalarValueOf(doc, options.get('recreate', true)) : undefined;
+
+    return { id, recreate: recreate === true };
+  }
+
+  const value = isScalar(resolved) ? resolved.value : resolved;
+
+  return typeof value === 'string' && value ? { id: value, recreate: false } : undefined;
+}
+
+// `doc` is the alias-resolution root: an anchor referenced from a step is almost always declared
+// elsewhere in the file, so resolving against `yamlMap` alone would never find it.
+function getContainerReferences(
+  type: ContainerType,
+  yamlMap: YAMLMap,
+  doc: Document,
+): ContainerReference[] | undefined {
+  if (type === ContainerType.Execution) {
+    const reference = parseContainerReference(doc, yamlMap.get(ContainerReferenceField.Execution, true));
+
     return reference ? [reference] : undefined;
   }
 
   if (type === ContainerType.Service) {
-    // `services:` is only usable as a sequence; any other shape (a bare scalar, a map) is left to
-    // the YAML validator to report rather than thrown from here, mid-render.
-    const node = YmlUtils.getIn(yamlMap, [ContainerReferenceField.Service], true);
-    const references = (isSeq(node) ? (node.toJSON() as unknown[]) : [])
-      .map(parseContainerReference)
+    // Resolved first: `*anchor` pointing at a sequence is a config the CLI runs, not a bad shape.
+    // What's left after that — a bare scalar, a map — is genuinely unusable here, and reporting it
+    // is the YAML validator's job rather than something to throw over mid-render.
+    const node = YmlUtils.resolveAlias(doc, yamlMap.get(ContainerReferenceField.Service, true));
+    const references = (isSeq(node) ? node.items : [])
+      .map((item) => parseContainerReference(doc, item))
       .filter((reference): reference is ContainerReference => Boolean(reference));
 
     if (references.length > 0) {
@@ -313,7 +332,7 @@ function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: 
     return undefined;
   }
 
-  return getContainerReferences(type, yamlMap);
+  return getContainerReferences(type, yamlMap, doc);
 }
 
 function getContainerReferenceFromInstance(
@@ -334,7 +353,7 @@ function getContainerReferenceFromInstance(
     return undefined;
   }
 
-  return getContainerReferences(type, yamlMap);
+  return getContainerReferences(type, yamlMap, doc);
 }
 
 // The container id a reference node points at — a bare scalar id, or the first key of a

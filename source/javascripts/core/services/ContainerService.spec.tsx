@@ -8,6 +8,7 @@ import {
   updateBitriseYmlDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
 
+import YmlUtils from '../utils/YmlUtils';
 import ContainerService from './ContainerService';
 
 const MODULAR_SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
@@ -1789,6 +1790,131 @@ describe('ContainerService', () => {
             bitriseYmlStore.getState().ymlDocument,
           ),
         ).toEqual([{ id: 'ubuntu', recreate: false }]);
+      });
+
+      it('resolves an execution container written as an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            ubuntu:
+              type: execution
+              image: ubuntu:20.04
+          _image: &image ubuntu
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  execution_container: *image
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'ubuntu', recreate: false }]);
+      });
+
+      it('resolves an execution container whose recreate map is written as an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _ref: &ref
+            ubuntu:
+              recreate: true
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  execution_container: *ref
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'ubuntu', recreate: true }]);
+      });
+
+      it('resolves a service_containers sequence written as an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _services: &services
+          - postgres
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers: *services
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'postgres', recreate: false }]);
+      });
+
+      // An unresolved alias inside a subtree serializes to `{ source: '<anchor>' }`, which a
+      // JSON-based parse would report as a container literally named "source".
+      it('resolves a single service_containers entry written as an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _service: &service postgres
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - *service
+                  - redis
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([
+          { id: 'postgres', recreate: false },
+          { id: 'redis', recreate: false },
+        ]);
+      });
+
+      it('matches the expanded YAML when both fields alias a shared defaults block', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _defaults:
+            image: &img ruby-3
+            svcs: &svc [postgres]
+          workflows:
+            wf1:
+              steps:
+              - script@1:
+                  execution_container: *img
+                  service_containers: *svc
+        `);
+
+        const doc = bitriseYmlStore.getState().ymlDocument;
+
+        // The references the card shows must agree with what `toJSON()` — and the CLI — see.
+        expect(YmlUtils.toJSON(doc).workflows?.wf1?.steps?.[0]).toEqual({
+          'script@1': { execution_container: 'ruby-3', service_containers: ['postgres'] },
+        });
+        expect(
+          ContainerService.getContainerReferenceFromInstance('workflows', 'wf1', 0, ContainerType.Execution, doc),
+        ).toEqual([{ id: 'ruby-3', recreate: false }]);
+        expect(
+          ContainerService.getContainerReferenceFromInstance('workflows', 'wf1', 0, ContainerType.Service, doc),
+        ).toEqual([{ id: 'postgres', recreate: false }]);
       });
 
       it('resolves container references on an aliased workflow', () => {

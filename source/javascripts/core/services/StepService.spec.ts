@@ -1940,6 +1940,48 @@ describe('StepService', () => {
       );
     });
 
+    it('should keep move and clone operating on the raw sequence item for an aliased step', () => {
+      const source = yaml`
+        _step: &common_step
+          script@1: {}
+        workflows:
+          primary:
+            steps:
+            - a@1: {}
+            - *common_step
+      `;
+
+      // Moving must relocate the `*common_step` item itself. Reinserting the node it resolves to
+      // would inline the anchored map here and emit a second `&common_step`.
+      updateBitriseYmlDocumentByString(source);
+      StepService.moveStep('workflows', 'primary', 1, 0);
+
+      expect(getYmlString()).toEqual(yaml`
+        _step: &common_step
+          script@1: {}
+        workflows:
+          primary:
+            steps:
+            - *common_step
+            - a@1: {}
+      `);
+
+      // Cloning an alias yields another alias, not a copy of the anchored map.
+      updateBitriseYmlDocumentByString(source);
+      StepService.cloneStep('workflows', 'primary', 1);
+
+      expect(getYmlString()).toEqual(yaml`
+        _step: &common_step
+          script@1: {}
+        workflows:
+          primary:
+            steps:
+            - a@1: {}
+            - *common_step
+            - *common_step
+      `);
+    });
+
     it('should report a workflow of an unexpected shape as missing, not as a YAML shape error', () => {
       const doc = YmlUtils.toDoc(yaml`
         workflows:

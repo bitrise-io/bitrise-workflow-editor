@@ -1,6 +1,6 @@
 import { compact, isString, uniq } from 'es-toolkit';
 import semver from 'semver';
-import { Document, isMap, isScalar, YAMLMap } from 'yaml';
+import { Document, isMap, isNode, isScalar, YAMLMap } from 'yaml';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import { AlgoliaStepInfo } from '@/core/api/AlgoliaApi';
@@ -438,13 +438,17 @@ function addStep(source: Source, sourceId: string, cvs: string, to: number) {
   });
 }
 
+// `getStepOrThrowError` returns the node an alias resolves to, which is what every *data* edit
+// below wants. The two structural edits are the exception: they rearrange the sequence itself, so
+// they validate through it but move the raw sequence item. Reinserting a resolved node in place of
+// a `*anchor` item would inline the anchored map at the new position and emit a second `&anchor`.
 function moveStep(source: Source, sourceId: string, from: number, to: number) {
   updateBitriseYmlDocument(({ doc }) => {
-    const step = getStepOrThrowError(source, sourceId, from, doc);
-    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    getStepOrThrowError(source, sourceId, from, doc);
 
-    steps.items.splice(from, 1);
-    steps.items.splice(to, 0, step);
+    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    const [item] = steps.items.splice(from, 1);
+    steps.items.splice(to, 0, item);
 
     return doc;
   });
@@ -452,10 +456,13 @@ function moveStep(source: Source, sourceId: string, from: number, to: number) {
 
 function cloneStep(source: Source, sourceId: string, index: number) {
   updateBitriseYmlDocument(({ doc }) => {
-    const step = getStepOrThrowError(source, sourceId, index, doc);
-    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    getStepOrThrowError(source, sourceId, index, doc);
 
-    steps.items.splice(index + 1, 0, step.clone());
+    const steps = YmlUtils.getSeqIn(doc, [source, sourceId, 'steps'], true);
+    const item = steps.items[index];
+
+    // Cloning an alias yields another alias, so the clone stays a reference to the same anchor.
+    steps.items.splice(index + 1, 0, isNode(item) ? item.clone() : item);
 
     return doc;
   });
