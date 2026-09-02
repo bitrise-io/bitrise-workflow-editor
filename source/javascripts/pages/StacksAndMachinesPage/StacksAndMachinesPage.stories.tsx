@@ -114,6 +114,10 @@ export const WithStackRollbackVersionNotAvailableForRollbackType: Story = {
 export const WithDedicatedStackRollbackVersion: Story = {
   beforeEach: () => {
     set(window, 'parent.pageProps.project.isOwnerPaying', false);
+    set(window, 'parent.globalProps.account.slug', 'account-dedicated');
+    return () => {
+      window.parent.globalProps = undefined;
+    };
   },
   parameters: {
     bitriseYmlStore: (() => {

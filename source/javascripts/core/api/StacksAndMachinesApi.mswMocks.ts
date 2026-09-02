@@ -78,7 +78,7 @@ function groupedStacks(options?: Options): StackGroupApiItem[] {
           rollback_version: {
             'm1.medium': {
               paying: '2-82-0',
-              'account-1': '2-81-0',
+              'account-dedicated': '2-81-0',
             },
             'm1.large': {
               paying: '2-82-0',
