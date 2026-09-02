@@ -885,6 +885,43 @@ describe('YmlUtils', () => {
         'Expected a YAMLSeq at path "workflows.wf1.steps.0", but found YAMLMap',
       );
     });
+
+    it('should resolve an aliased YAMLSeq instead of throwing on the Alias node', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _steps: &common_steps
+        - script@1: {}
+        workflows:
+          wf1:
+            steps: *common_steps
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'])?.toJSON()).toEqual([{ 'script@1': {} }]);
+    });
+
+    it('should return undefined for a key written without a value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'])).toBeUndefined();
+    });
+
+    it('should create a YAMLSeq over a key written without a value when createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'], true)).toBeInstanceOf(YAMLSeq);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+    });
   });
 
   describe('getMapIn', () => {
@@ -934,6 +971,80 @@ describe('YmlUtils', () => {
       expect(() => YmlUtils.getMapIn(root, ['workflows', 'wf1', 'steps', 0, 'script', 'inputs', 0, 'key'])).toThrow(
         'Expected a YAMLMap at path "workflows.wf1.steps.0.script.inputs.0.key", but found Scalar',
       );
+    });
+
+    it('should resolve an aliased YAMLMap instead of throwing on the Alias node', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _step: &common_step
+          script@1:
+            inputs:
+            - content: echo hi
+        workflows:
+          wf1:
+            steps:
+            - activate-ssh-key@4: {}
+            - *common_step
+      `);
+
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'steps', 1])?.toJSON()).toEqual({
+        'script@1': { inputs: [{ content: 'echo hi' }] },
+      });
+    });
+
+    it('should resolve aliases in the middle of the path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _meta: &common_meta
+          bitrise.io:
+            stack: linux-docker-android-22.04
+        workflows:
+          wf1:
+            meta: *common_meta
+      `);
+
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'])?.toJSON()).toEqual({
+        stack: 'linux-docker-android-22.04',
+      });
+    });
+
+    it('should return undefined for an alias whose anchor is missing', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            meta: *missing_anchor
+      `);
+
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta'])).toBeUndefined();
+    });
+
+    it('should return undefined for a key written without a value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            meta:
+              bitrise.io:
+      `);
+
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'])).toBeUndefined();
+    });
+
+    it('should create a YAMLMap over a key written without a value when createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            meta:
+              bitrise.io:
+      `);
+
+      const meta = YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'], true);
+      YmlUtils.setIn(meta, ['stack'], 'linux-docker-android-22.04');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            meta:
+              bitrise.io:
+                stack: linux-docker-android-22.04
+      `);
     });
   });
 

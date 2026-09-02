@@ -1325,7 +1325,7 @@ describe('ContainerService', () => {
         ).toBeUndefined();
       });
 
-      it('should throw error when step index does not exist', () => {
+      it('should return undefined when step index does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -1333,7 +1333,7 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
+        expect(
           ContainerService.getContainerReferenceFromInstance(
             'workflows',
             'wf1',
@@ -1341,7 +1341,7 @@ describe('ContainerService', () => {
             ContainerType.Execution,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow('Step at index 5 not found in workflows.wf1');
+        ).toBeUndefined();
       });
     });
 
@@ -1599,7 +1599,7 @@ describe('ContainerService', () => {
         ).toBeUndefined();
       });
 
-      it('should throw error when step index does not exist', () => {
+      it('should return undefined when step index does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -1607,7 +1607,7 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
+        expect(
           ContainerService.getContainerReferenceFromInstance(
             'workflows',
             'wf1',
@@ -1615,7 +1615,7 @@ describe('ContainerService', () => {
             ContainerType.Service,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow('Step at index 10 not found in workflows.wf1');
+        ).toBeUndefined();
       });
     });
 
@@ -1678,6 +1678,144 @@ describe('ContainerService', () => {
       expect(result2).toEqual([{ id: 'node', recreate: false }]);
       expect(result3).toEqual([{ id: 'postgres', recreate: false }]);
       expect(result4).toBeUndefined();
+    });
+
+    describe('steps the editor cannot read as a `{cvs: options}` map', () => {
+      // Every case below reaches this function through StepCard's render, so none of them may throw.
+      it.each([
+        ['written as a plain string', 'script@1'],
+        ['written without a value', ''],
+      ])('returns undefined for a step %s', (_, stepValue) => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - ${stepValue}
+        `);
+
+        const doc = bitriseYmlStore.getState().ymlDocument;
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance('workflows', 'wf1', 0, ContainerType.Execution, doc),
+        ).toBeUndefined();
+        expect(
+          ContainerService.getContainerReferenceFromInstance('workflows', 'wf1', 0, ContainerType.Service, doc),
+        ).toBeUndefined();
+      });
+
+      it('returns undefined when the workflow itself is not a map', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1: some-string
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
+      it('returns undefined when service_containers is not a sequence', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers: postgres
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
+      it('skips reference entries that name no container', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - {}
+                  -
+                  - postgres
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'postgres', recreate: false }]);
+      });
+    });
+
+    describe('steps and workflows written with YAML anchors', () => {
+      it('resolves container references on an aliased step', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            ubuntu:
+              type: execution
+              image: ubuntu:20.04
+          _step: &common_step
+            script:
+              execution_container: ubuntu
+          workflows:
+            wf1:
+              steps:
+              - *common_step
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'ubuntu', recreate: false }]);
+      });
+
+      it('resolves container references on an aliased workflow', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            postgres:
+              type: service
+              image: postgres:13
+          _workflow: &common_workflow
+            steps:
+            - script:
+                service_containers:
+                - postgres
+          workflows:
+            wf1: *common_workflow
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'postgres', recreate: false }]);
+      });
     });
   });
 

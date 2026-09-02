@@ -4,6 +4,7 @@ import { isEqual, isNil, isPrimitive } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import {
   Document,
+  isAlias,
   isCollection,
   isDocument,
   isMap,
@@ -208,6 +209,59 @@ function unflowEmptyCollection(node: unknown) {
   }
 }
 
+// yaml's own `getIn`/`hasIn` stop at an alias node (`*anchor`) because an alias is not a collection,
+// while `toJSON()` — what the UI renders from — expands aliases. The two views of the same document
+// then disagree: the UI shows the aliased workflow/step/meta block, but every document-level read of
+// it hands back the raw `Alias`, so callers expecting a map or a seq blow up on YAML the CLI accepts.
+// Resolving aliases while walking a path keeps both views on the same data.
+//
+// Cached per root object, like `collectPaths`: safe because `updateBitriseYmlDocument` clones the
+// document before mutating it, and nothing in the editor creates or moves an anchor.
+const anchorLookupCache = new WeakMap<Root, Node[]>();
+
+function anchorLookupNodes(root: Root) {
+  const cached = anchorLookupCache.get(root);
+  if (cached) {
+    return cached;
+  }
+
+  const nodes: Node[] = [];
+  visit(root, {
+    Node(_, node) {
+      if (isAlias(node) || node.anchor) {
+        nodes.push(node);
+      }
+    },
+  });
+  anchorLookupCache.set(root, nodes);
+
+  return nodes;
+}
+
+/**
+ * Resolves an alias node to the node its anchor is declared on — the last matching anchor before the
+ * alias, as YAML defines it. Returns `node` unchanged when it isn't an alias, and `undefined` when
+ * the anchor isn't reachable from `root`: a dangling alias, or an anchor declared outside `root`
+ * when `root` is a nested collection rather than the whole document.
+ */
+function resolveAlias(root: Root, node: unknown) {
+  if (!isAlias(node)) {
+    return node;
+  }
+
+  let resolved: unknown;
+  for (const candidate of anchorLookupNodes(root)) {
+    if (candidate === node) {
+      break;
+    }
+    if (candidate.anchor === node.source) {
+      resolved = candidate;
+    }
+  }
+
+  return resolved;
+}
+
 function getIn(root: Root, path: Path, keepScalar = false) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
@@ -221,23 +275,16 @@ function getIn(root: Root, path: Path, keepScalar = false) {
     return root;
   }
 
-  return root.getIn(path, keepScalar);
-}
+  let node = resolveAlias(root, isDocument(root) ? root.contents : root);
 
-function hasIn(root: Root, path: Path) {
-  if (!isDocument(root) && !isCollection(root)) {
-    throw new Error('Root node must be a YAML Document or YAML Collection');
+  for (let i = 0; i < path.length; i += 1) {
+    if (!isCollection(node)) {
+      return undefined;
+    }
+    node = resolveAlias(root, node.get(path[i], true));
   }
 
-  if (isWildcardPath(path)) {
-    throw new Error('Path cannot contain wildcards when checking for existence');
-  }
-
-  if (isEmpty(path)) {
-    return true;
-  }
-
-  return root.hasIn(path);
+  return !keepScalar && isScalar(node) ? node.value : node;
 }
 
 function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
@@ -426,6 +473,15 @@ function isEqualValues(a: unknown, b: unknown) {
   return isEqual(isNode(a) ? toJSON(a) : a, isNode(b) ? toJSON(b) : b);
 }
 
+/**
+ * Whether a path holds nothing to read. A key written without a value (`meta:` on its own line, or a
+ * bare `-` seq item) parses to a null scalar rather than to a missing key, so the key looks present
+ * while there is no collection there. Both shapes mean "absent" to the collection getters.
+ */
+function isEmptyNode(node: unknown) {
+  return isNil(node) || (isScalar(node) && isNil(node.value));
+}
+
 function getSeqIn(root: Root, path: Path): YAMLSeq | undefined;
 function getSeqIn(root: Root, path: Path, createIfNotExists: true): YAMLSeq;
 function getSeqIn(root: Root, path: Path, createIfNotExists?: boolean): YAMLSeq | undefined;
@@ -438,15 +494,16 @@ function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
     throw new Error('Path cannot contain wildcards when getting a YAMLSeq');
   }
 
-  if (!hasIn(root, path) && !createIfNotExists) {
-    return undefined;
-  }
+  let node = getIn(root, path, true);
 
-  if (!hasIn(root, path) && createIfNotExists) {
+  if (isEmptyNode(node)) {
+    if (!createIfNotExists) {
+      return undefined;
+    }
+
     setIn(root, path, new YAMLSeq());
+    node = getIn(root, path, true);
   }
-
-  const node = getIn(root, path, true);
 
   if (!isSeq(node)) {
     throw new Error(`Expected a YAMLSeq at path "${path.join('.')}", but found ${node?.constructor.name}`);
@@ -467,15 +524,16 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
     throw new Error('Path cannot contain wildcards when getting a YAMLMap');
   }
 
-  if (!root.hasIn(path) && !createIfNotExists) {
-    return undefined;
-  }
+  let node = getIn(root, path, true);
 
-  if (!root.hasIn(path) && createIfNotExists) {
+  if (isEmptyNode(node)) {
+    if (!createIfNotExists) {
+      return undefined;
+    }
+
     setIn(root, path, new YAMLMap());
+    node = getIn(root, path, true);
   }
-
-  const node = getIn(root, path, true);
 
   if (!isMap(node)) {
     throw new Error(`Expected a YAMLMap at path "${path.join('.')}", but found ${node?.constructor.name}`);
@@ -668,8 +726,10 @@ export default {
   isEqualValues,
   addIn,
   setIn,
+  getIn,
   getSeqIn,
   getMapIn,
+  resolveAlias,
   isInSeq,
   deleteByPath,
   deleteByValue,

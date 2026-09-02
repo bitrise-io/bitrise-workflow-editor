@@ -400,10 +400,13 @@ export const moveStepIndices = (
   }
 };
 
+// Reads go through `getIn` rather than `getMapIn` so that a node of an unexpected shape (a scalar,
+// or an alias whose anchor is missing) surfaces as this domain-level "not found" instead of the
+// low-level "Expected a YAMLMap at path ..." — every caller below already handles "not found".
 function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) {
-  const entity = YmlUtils.getMapIn(doc, [source, sourceId]);
+  const entity = YmlUtils.getIn(doc, [source, sourceId], true);
 
-  if (!entity) {
+  if (!isMap(entity)) {
     throw new Error(`${source}.${sourceId} not found`);
   }
 
@@ -411,10 +414,13 @@ function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) 
 }
 
 function getStepOrThrowError(source: Source, sourceId: string, stepIndex: number, doc: Document) {
-  const entity = getSourceOrThrowError(source, sourceId, doc);
-  const step = YmlUtils.getMapIn(entity, ['steps', stepIndex]);
+  getSourceOrThrowError(source, sourceId, doc);
 
-  if (!step || !isMap(step)) {
+  // Rooted at the document, not at the workflow map, so an aliased step (`- *some_step`) resolves
+  // against anchors declared anywhere in the file.
+  const step = YmlUtils.getIn(doc, [source, sourceId, 'steps', stepIndex], true);
+
+  if (!isMap(step)) {
     throw new Error(`Step at index ${stepIndex} not found in ${source}.${sourceId}`);
   }
 
