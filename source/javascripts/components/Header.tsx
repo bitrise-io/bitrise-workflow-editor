@@ -360,10 +360,20 @@ const Header = () => {
       alignItems={['flex-start', 'center']}
     >
       <Box display="flex" alignItems="center" gap="8" minWidth={0}>
+        {/* The fixed crumbs are unmasked one by one on purpose — the project name between them is
+            customer data, so the Breadcrumb itself must stay masked. */}
         <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
-          {isWebsiteMode && !isMobile && <BreadcrumbLink href="/dashboard">Bitrise CI</BreadcrumbLink>}
+          {isWebsiteMode && !isMobile && (
+            <BreadcrumbLink href="/dashboard" data-clarity-unmask="true">
+              Bitrise CI
+            </BreadcrumbLink>
+          )}
           {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
-          {(!isWebsiteMode || !isMobile) && <BreadcrumbLink isCurrentPage>CI configuration</BreadcrumbLink>}
+          {(!isWebsiteMode || !isMobile) && (
+            <BreadcrumbLink isCurrentPage data-clarity-unmask="true">
+              CI configuration
+            </BreadcrumbLink>
+          )}
         </Breadcrumb>
         {isWebsiteMode && <ConfigSettingsMenu />}
       </Box>
@@ -377,6 +387,7 @@ const Header = () => {
           size="sm"
           value={editorView}
           aria-label="Editor view"
+          data-clarity-unmask="true"
           onValueChange={(details) => handleEditorViewChange(details.value)}
         >
           <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={isParseError}>
@@ -394,6 +405,7 @@ const Header = () => {
         justifyContent="stretch"
         flexDir={['column', 'row']}
         alignSelf={['stretch', 'flex-end']}
+        data-clarity-unmask="true"
       >
         <Button
           size="sm"

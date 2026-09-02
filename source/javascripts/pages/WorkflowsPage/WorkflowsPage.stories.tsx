@@ -14,7 +14,7 @@ import {
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
-import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/storyutils/getAISettings.utils';
+import { aiButtonEnabled, aiButtonUnavailable } from '@/storyutils/getAISettings.utils';
 
 import WorkflowsPage from './WorkflowsPage';
 
@@ -22,9 +22,6 @@ type Story = StoryObj<typeof WorkflowsPage>;
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
-  beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
-  },
   parameters: {
     layout: 'fullscreen',
     msw: {
@@ -119,7 +116,6 @@ export const NoContainerDefinitions: Story = {
     })(),
   },
   beforeEach: () => {
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
     window.parent.pageProps = aiButtonEnabled();
   },
 };
@@ -164,21 +160,9 @@ export const EmptyCreateWithAI: Story = {
   },
 };
 
-export const EmptyCreateWithAIDisabled: Story = {
-  beforeEach: () => {
-    window.parent.pageProps = aiButtonDisabled();
-  },
-  parameters: {
-    bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'workflows', {});
-      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
-    })(),
-  },
-};
-
 export const EmptyWithoutCreateWithAI: Story = {
   beforeEach: () => {
-    window.parent.pageProps = aiButtonHidden();
+    window.parent.pageProps = aiButtonUnavailable();
   },
   parameters: {
     bitriseYmlStore: (() => {

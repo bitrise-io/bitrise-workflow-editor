@@ -4,7 +4,7 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 import { BitriseYml } from '../models/BitriseYml';
-import { EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
+import { EntityDeepLink, EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
 import EntityIndexService from '../services/EntityIndexService';
 import TreeService from '../services/TreeService';
 import RuntimeUtils from '../utils/RuntimeUtils';
@@ -377,19 +377,37 @@ export function initializeModularConfig({
   mergedYml,
   branch,
   commitSha,
+  deepLink,
 }: {
   root: TreeNode;
   mergedYml?: string;
   branch?: string;
   commitSha?: string;
+  /**
+   * Entity the current URL points at, so the module defining it is the one opened. Resolved on
+   * every (re)initialisation — the first load and a branch reload alike — but deliberately not on
+   * tab switches, where falling back to the newly selected file's own entities is intended.
+   */
+  deepLink?: EntityDeepLink;
 }) {
   const files = buildFileSlices(root);
   const entityIndex = EntityIndexService.buildFromFiles(root, files);
 
+  // A URL can point at an entity defined in an included module. Landing on the root file would
+  // leave that entity unresolvable there and the page would silently select some other one, so open
+  // the defining module alongside the root tab and make it active. An entity no module defines
+  // keeps the root file selected, leaving the page's own fallback in charge.
+  const linkedNodeId = deepLink ? EntityIndexService.deepLinkNodeId(entityIndex, deepLink) : undefined;
+  const selectedNodeId = linkedNodeId && files[linkedNodeId] ? linkedNodeId : root.nodeId;
+  const openTabs: OpenTab[] = [{ nodeId: root.nodeId, isPreview: false }];
+  if (selectedNodeId !== root.nodeId) {
+    openTabs.push({ nodeId: selectedNodeId, isPreview: false });
+  }
+
   bitriseYmlStore.setState({
-    ...modularTreePatch(root, files, entityIndex, files[root.nodeId]),
-    selectedNodeId: root.nodeId,
-    openTabs: [{ nodeId: root.nodeId, isPreview: false }],
+    ...modularTreePatch(root, files, entityIndex, files[selectedNodeId]),
+    selectedNodeId,
+    openTabs,
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
     mergedYml,
     mergedYmlStale: mergedYml === undefined,

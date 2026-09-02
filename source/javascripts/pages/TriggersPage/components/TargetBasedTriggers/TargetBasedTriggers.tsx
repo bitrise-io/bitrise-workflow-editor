@@ -183,7 +183,7 @@ const TargetBasedTriggers = () => {
   const renderTable = (triggers: TargetBasedTrigger[], useJump: boolean) => (
     <TableContainer marginBlockEnd="32">
       <Table>
-        <Thead>
+        <Thead data-clarity-unmask="true">
           <Tr>
             <Th
               isSortable
@@ -241,6 +241,7 @@ const TargetBasedTriggers = () => {
         </>
       ) : (
         <EmptyState
+          data-clarity-unmask="true"
           iconName="Trigger"
           title="Target based triggers will appear here"
           maxHeight="208"

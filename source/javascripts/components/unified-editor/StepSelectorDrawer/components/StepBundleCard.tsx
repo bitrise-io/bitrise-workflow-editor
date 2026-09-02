@@ -1,4 +1,5 @@
-import { Box, Card, CardProps, Collapse, ControlButton, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Card, CardProps, Collapse, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
@@ -114,7 +115,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   let cardPadding;
   if (isCollapsable) {
     if (!isPreviewMode) {
-      cardPadding = '6px 8px 6px 0px';
+      cardPadding = '6px 8px 6px 4px';
     }
   } else {
     cardPadding = '4px 8px';
@@ -224,7 +225,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
             >
               {/* No expand/collapse for cross-file refs — their nested steps live in another file. */}
               {isCollapsable && !isCrossFile && (
-                <ControlButton
+                <BitkitControlButton
                   size="xs"
                   tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
                   className="nopan"
@@ -232,11 +233,8 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                     e.stopPropagation();
                     onToggle();
                   }}
-                  iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-                  aria-label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
-                  tooltipProps={{
-                    'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`,
-                  }}
+                  icon={isOpen ? IconChevronUp : IconChevronDown}
+                  label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
                 />
               )}
               <Box flex="1" minW={0}>

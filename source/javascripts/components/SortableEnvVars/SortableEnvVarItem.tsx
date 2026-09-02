@@ -1,4 +1,5 @@
-import { Box, Checkbox, ControlButton, Input, Text } from '@bitrise/bitkit';
+import { Box, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode, useState } from 'react';
@@ -117,14 +118,13 @@ const SortableEnvVarItem = ({
               {jumpButton}
             </Box>
           ) : (
-            <ControlButton
+            <BitkitControlButton
               isDanger
-              ml="8"
+              marginInlineStart="8"
               size="md"
-              aria-label="Remove"
-              iconName="MinusCircle"
-              isDisabled={isReadOnlyView}
-              tooltipProps={{ 'aria-label': 'Remove' }}
+              label="Remove"
+              icon={IconMinusCircle}
+              state={isReadOnlyView ? 'disabled' : undefined}
               onClick={() => onRemove?.()}
             />
           )}

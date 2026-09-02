@@ -3,7 +3,6 @@ import {
   Button,
   ButtonGroup,
   Collapse,
-  ControlButton,
   Dialog,
   DialogBody,
   DialogFooter,
@@ -16,6 +15,7 @@ import {
   Textarea,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
@@ -334,12 +334,12 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                       onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
                       showCreate={false}
                     />
-                    <ControlButton
-                      iconName="Trash"
+                    <BitkitControlButton
+                      icon={IconTrash}
                       isDanger
-                      isDisabled={fields.length === 1}
+                      state={fields.length === 1 ? 'disabled' : undefined}
                       size="lg"
-                      aria-label="Remove environment variable"
+                      label="Remove environment variable"
                       onClick={() => remove(index)}
                     />
                   </ButtonGroup>

@@ -10,10 +10,10 @@ const useTabs = create(combine({ index: 0 }, (set) => ({ onChange: (index: numbe
 const EnvVarsPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <Text as="h2" textStyle="heading/h2" p="32">
+      <Text as="h2" textStyle="heading/h2" p="32" data-clarity-unmask="true">
         Environment Variables
       </Text>
-      <TabList px="16">
+      <TabList px="16" data-clarity-unmask="true">
         <Tab>Project</Tab>
         <Tab>Workflows</Tab>
       </TabList>

@@ -17,10 +17,10 @@ const AddTriggerButton = ({ onAddTrigger }: Props) => {
 
   return (
     <Menu>
-      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus">
+      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus" data-clarity-unmask="true">
         Add trigger
       </MenuButton>
-      <MenuList>
+      <MenuList data-clarity-unmask="true">
         <MenuItem onClick={() => onAddTrigger('push')} leftIconName="Push">
           Push
         </MenuItem>

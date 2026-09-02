@@ -1,4 +1,12 @@
-import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Card, CardProps, Collapse, Text, useDisclosure } from '@bitrise/bitkit';
+import {
+  BitkitControlButton,
+  IconChevronDown,
+  IconChevronUp,
+  IconLink,
+  IconSettings,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef, useState } from 'react';
@@ -117,11 +125,10 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     return (
       <ButtonGroup spacing="0" display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
         {onChainChainedWorkflow && !isCrossFile && (
-          <ControlButton
+          <BitkitControlButton
             size="xs"
-            iconName="Link"
-            aria-label="Chain Workflows"
-            tooltipProps={{ 'aria-label': 'Chain Workflows' }}
+            icon={IconLink}
+            label="Chain Workflows"
             onClick={() => {
               onOpen();
               onChainChainedWorkflow(id);
@@ -134,21 +141,19 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
           <CrossFileJumpButton kind="workflows" id={id} onOpenChange={setIsJumpPopoverOpen} />
         )}
         {onEditChainedWorkflow && (
-          <ControlButton
+          <BitkitControlButton
             size="xs"
-            iconName="Settings"
-            aria-label="Edit Workflow"
-            tooltipProps={{ 'aria-label': 'Edit Workflow' }}
+            icon={IconSettings}
+            label="Edit Workflow"
             onClick={() => onEditChainedWorkflow(id, parentWorkflowId)}
           />
         )}
         {onRemoveChainedWorkflow && (
-          <ControlButton
+          <BitkitControlButton
             isDanger
             size="xs"
-            iconName="Trash"
-            aria-label="Remove Workflow"
-            tooltipProps={{ 'aria-label': 'Remove' }}
+            icon={IconTrash}
+            label="Remove Workflow"
             onClick={() => onRemoveChainedWorkflow(parentWorkflowId, placement, id, index)}
           />
         )}
@@ -192,17 +197,15 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
             {/* No expand/collapse for cross-file refs — their nested content isn't shown here. */}
             {!isCrossFile && (
-              <ControlButton
+              <BitkitControlButton
                 size="xs"
                 tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
                 className="nopan"
                 onClick={onToggle}
-                isDisabled={isDragging}
-                iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-                aria-label={!isDragging ? `${isOpen ? 'Collapse' : 'Expand'} Workflow details` : ''}
-                tooltipProps={{
-                  'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
-                }}
+                state={isDragging ? 'disabled' : undefined}
+                icon={isOpen ? IconChevronUp : IconChevronDown}
+                label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+                tooltipProps={{ disabled: isDragging }}
               />
             )}
 

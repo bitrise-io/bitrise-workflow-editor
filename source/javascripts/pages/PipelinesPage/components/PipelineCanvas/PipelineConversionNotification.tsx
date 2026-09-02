@@ -14,7 +14,11 @@ const PipelineConversionNotification = () => {
   }
 
   return (
-    <Ribbon colorScheme="blue" onClose={() => hidePipelineConversionNotificationFor(selectedPipeline)}>
+    <Ribbon
+      colorScheme="blue"
+      data-clarity-unmask="true"
+      onClose={() => hidePipelineConversionNotificationFor(selectedPipeline)}
+    >
       This Pipeline is based on a staged setup. Review artifact sharing and run conditions before running.
     </Ribbon>
   );

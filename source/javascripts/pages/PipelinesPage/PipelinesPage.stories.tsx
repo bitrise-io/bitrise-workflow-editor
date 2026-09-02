@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { aiButtonDisabled, aiButtonEnabled, aiButtonHidden } from '@/storyutils/getAISettings.utils';
+import { aiButtonEnabled, aiButtonUnavailable } from '@/storyutils/getAISettings.utils';
 
 import PipelinesPage from './PipelinesPage';
 
@@ -26,7 +26,6 @@ export default {
   ],
   beforeEach: () => {
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
-    set(window, 'parent.globalProps.featureFlags.account.enable-ci-config-expert-agent', true);
     window.parent.pageProps = aiButtonEnabled();
   },
 } as Meta<typeof PipelinesPage>;
@@ -35,7 +34,7 @@ type Story = StoryObj<typeof PipelinesPage>;
 
 export const CreateFirstGraphPipeline: Story = {
   beforeEach: () => {
-    window.parent.pageProps = aiButtonHidden();
+    window.parent.pageProps = aiButtonUnavailable();
   },
   parameters: {
     bitriseYmlStore: { yml: { format_version: '2' } },
@@ -43,15 +42,6 @@ export const CreateFirstGraphPipeline: Story = {
 };
 
 export const EmptyWithCreateWithAI: Story = {
-  parameters: {
-    bitriseYmlStore: { yml: { format_version: '2' } },
-  },
-};
-
-export const EmptyWithCreateWithAIDisabled: Story = {
-  beforeEach: () => {
-    window.parent.pageProps = aiButtonDisabled();
-  },
   parameters: {
     bitriseYmlStore: { yml: { format_version: '2' } },
   },

@@ -90,6 +90,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
       )}
       {hasNoSearchResults && (
         <EmptyState
+          data-clarity-unmask="true"
           iconName="Magnifier"
           backgroundColor="background/primary"
           title={`No ${entityName}s are matching your filter`}

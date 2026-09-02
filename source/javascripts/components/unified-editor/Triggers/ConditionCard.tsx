@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  ControlButton,
   Icon,
   Input,
   Select,
@@ -14,6 +13,7 @@ import {
   Toggletip,
   Tr,
 } from '@bitrise/bitkit';
+import { BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
 import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -53,7 +53,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
   return (
     <Card variant="outline" overflow="hidden">
       <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
-        <Thead backgroundColor="background/primary">
+        <Thead backgroundColor="background/primary" data-clarity-unmask="true">
           <Tr>
             <Th width="35%">Condition</Th>
             <Th>Value</Th>
@@ -136,13 +136,13 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                 </Td>
                 {!isTagCondition && (
                   <Td height="auto" paddingBlock="12" verticalAlign="top" paddingLeft="0">
-                    <ControlButton
-                      iconName="Trash"
-                      aria-label="Remove"
-                      isTooltipDisabled={fields.length === 1}
+                    <BitkitControlButton
+                      icon={IconTrash}
+                      label="Remove"
+                      tooltipProps={{ disabled: fields.length === 1 }}
                       size="md"
                       isDanger
-                      isDisabled={fields.length === 1}
+                      state={fields.length === 1 ? 'disabled' : undefined}
                       onClick={() => remove(index)}
                     />
                   </Td>

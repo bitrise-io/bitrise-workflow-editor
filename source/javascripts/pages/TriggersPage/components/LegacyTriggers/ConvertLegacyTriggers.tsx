@@ -46,6 +46,7 @@ const ConvertLegacyTriggers = ({ triggers }: Props) => {
       }}
       marginBlockStart="16"
       status="info"
+      data-clarity-unmask="true"
     >
       <Text as="h4" textStyle="comp/notification/title">
         Convert legacy triggers to the new format

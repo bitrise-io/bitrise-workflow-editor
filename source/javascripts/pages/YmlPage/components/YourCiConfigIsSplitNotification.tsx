@@ -23,6 +23,7 @@ const YourCiConfigIsSplitNotification = () => {
       left="50%"
       transform="translateX(-50%)"
       status="info"
+      data-clarity-unmask="true"
       onClose={() => updateSplittedMetaData('true')}
       whiteSpace="nowrap"
       width="auto"

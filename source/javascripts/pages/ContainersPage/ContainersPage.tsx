@@ -61,10 +61,10 @@ const ContainersPage = () => {
 
   return (
     <>
-      <Text as="h2" textStyle="heading/h2" pt="32" px="32" mb="4">
+      <Text as="h2" textStyle="heading/h2" pt="32" px="32" mb="4" data-clarity-unmask="true">
         Containers
       </Text>
-      <Text textStyle="body/md/regular" color="text/secondary" pb="24" px="32">
+      <Text textStyle="body/md/regular" color="text/secondary" pb="24" px="32" data-clarity-unmask="true">
         Create custom environments and services for your Workflows.{' '}
         <Link
           colorScheme="purple"
@@ -75,7 +75,9 @@ const ContainersPage = () => {
         </Link>
       </Text>
       <Tabs index={tabIndex} onChange={onTabChange}>
-        <TabList px="16">
+        {/* The badges carry a bare count of container definitions — no ids, images or workflow
+            names — so the tab strip counts as chrome rather than customer data. */}
+        <TabList px="16" data-clarity-unmask="true">
           <Tab badge={getContainersBadge(executionContainers.length)}>Execution containers</Tab>
           <Tab badge={getContainersBadge(serviceContainers.length)}>Service containers</Tab>
         </TabList>

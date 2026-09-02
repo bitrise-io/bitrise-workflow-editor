@@ -90,7 +90,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
               </Box>
             </Box>
             <Box position="relative" mt="8" mx="-24">
-              <TabList paddingX="8">
+              <TabList paddingX="8" data-clarity-unmask="true">
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>
                 {stepHasOutputVariables && <Tab>Output variables</Tab>}

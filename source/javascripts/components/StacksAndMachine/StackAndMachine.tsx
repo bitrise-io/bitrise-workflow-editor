@@ -127,7 +127,7 @@ const StackAndMachine = ({
     >
       <Box display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
         {/* Tooltip wraps only the selectors — not selectsTrailing, whose jump button has its own tooltip. */}
-        <Tooltip label="Read-only here — edit it in the module file that defines it." isDisabled={!isReadOnlyView}>
+        <Tooltip label="To edit, switch to the module file that defines them." isDisabled={!isReadOnlyView}>
           <Box
             ref={ref}
             display="flex"
@@ -184,7 +184,13 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
-      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} />}
+      {isToolVersionsEnabled && (
+        <ToolVersions
+          workflowId={workflowId}
+          isReadOnly={isReadOnlyView}
+          stackReportUrl={StackAndMachineService.getStackReportUrl(selectedStack, isInvalidStack)}
+        />
+      )}
     </StackAndMachineWrapper>
   );
 };

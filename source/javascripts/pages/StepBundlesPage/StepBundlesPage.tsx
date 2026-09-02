@@ -58,6 +58,7 @@ const StepBundlesPage = () => {
     </Box>
   ) : (
     <EmptyState
+      data-clarity-unmask="true"
       iconName="Steps"
       title="Your Step bundles will appear here"
       description="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."

@@ -10,6 +10,9 @@ import ToolVersions from './ToolVersions';
 
 const meta: Meta<typeof ToolVersions> = {
   component: ToolVersions,
+  args: {
+    stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-26.6.x#languages-and-runtimes',
+  },
   decorators: [
     (Story) => (
       <Box padding="24">
@@ -19,7 +22,7 @@ const meta: Meta<typeof ToolVersions> = {
   ],
   parameters: {
     msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog()],
+      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions()],
     },
   },
 };
@@ -97,5 +100,47 @@ export const CustomTool: Story = {
       });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
+  },
+};
+
+export const VersionNotInCatalog: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+        nodejs: '999.999.999',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const EmptyExactVersion: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+        nodejs: '',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const VersionsLoading: Story = {
+  ...RootScope,
+  parameters: {
+    ...RootScope.parameters,
+    msw: {
+      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsPending()],
+    },
+  },
+};
+
+export const VersionsError: Story = {
+  ...RootScope,
+  parameters: {
+    ...RootScope.parameters,
+    msw: {
+      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsError()],
+    },
   },
 };

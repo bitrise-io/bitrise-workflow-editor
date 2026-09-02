@@ -1,144 +1,110 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code (claude.ai/code) working in this repository.
 
 @./node_modules/@bitrise/bitkit-v2/AGENTS.md
 
-## Project Overview
+## The one idea
 
-Bitrise Workflow Editor — a React + Go application for editing CI/CD workflow configurations (bitrise.yml). Runs as a Bitrise CLI plugin (default) or as a website integrated with the Bitrise monolith. Transitioning from AngularJS to React.
+The editor holds **one YAML document** as an AST in a Zustand store and lets people edit it
+through a dozen typed UIs instead of a text box. Pages read from the document, services mutate
+it, the Go server validates and persists it. Secrets, stacks, license pools and the step catalog
+live outside that document with their own fetch and save paths, which is the other half of
+[docs/domain.md](docs/domain.md).
 
-## Common Commands
+That "one document" is sometimes a tree of files linked by `include:`, and then it is a binding
+to the active file rather than the whole config. Every service still works, and every service
+reaches only that far, so a cascade written without knowing this leaves sibling files dangling and
+its own safety check reassures you
+([why](docs/decisions.md#why-cross-file-operations-are-incomplete)).
+
+It ships two ways: as a Bitrise CLI plugin (`MODE=CLI`, the default) and as a website inside the
+Bitrise monolith (`MODE=WEBSITE`).
+
+## Which doc answers your question
+
+| Question | Doc |
+|---|---|
+| How does X work? | [docs/flows.md](docs/flows.md), seven paths with diagrams |
+| What does this word mean, and what is guaranteed? | [docs/domain.md](docs/domain.md) |
+| Why is it like this, may I change it, and what does this error mean? | [docs/decisions.md](docs/decisions.md), including a symptom index |
+| How do I write code here? | [docs/conventions.md](docs/conventions.md) |
+
+Read `domain.md` before designing anything that adds an entity, a reference between entities, or
+a cascade. Read `decisions.md` before changing something that looks odd, because it usually looks
+that way on purpose.
+
+Debugging something? `docs/decisions.md` opens with a symptom table, and
+`grep -rn '\*\*Trap\.\*\*' docs/` lists every known hazard in the set.
+
+Those four cover what the source cannot tell you: rationale, and hazards that only appear at
+runtime. Service surfaces, model fields and file maps are deliberately absent. Read the code, it
+is right there and it does not go stale.
+
+## Commands
 
 ```bash
 npm start                # Dev server + local Go API on port 4000
-npm run start:website    # Dev server in website mode (requires monolith running on :3000)
+npm run start:website    # Website mode (needs the monolith on :3000)
 npm run build            # Vite production build
 npm run lint             # ESLint (cached)
-npm run lint:fix         # ESLint autofix
-npm test                 # Jest unit tests
-npm test -- --testPathPattern="path/to/file"  # Run single test file
-npm run test:smoke       # Playwright E2E tests
-npm run storybook        # Storybook on port 6006
+npx tsc --noEmit         # The only type check. Not a script, not in CI
+npm test                 # Jest
+npm test -- --testPathPattern="path/to/file"
+npm run test:smoke       # Playwright, post-deploy only: needs SMOKE_TEST_* env
+                         # vars and signs into a real app
+npm run storybook        # Storybook on 6006
+
+go vet ./...             # Go
+go test ./...
 ```
 
-**Go API server:**
-```bash
-go vet ./...             # Vet Go code
-go test ./...            # Go tests
-```
+Setup is `bitrise run setup`. Husky runs lint-staged pre-commit. The dev server is at
+`localhost:4000/{version}`, with the version from package.json.
 
-**Setup:** `bitrise run setup` (installs Node + Go deps)
+## The rule nothing enforces
 
-## Architecture
+**Never read `yml`, edit the plain object, and write it back.** `toJSON` is for reading.
+Structured edits go through a service calling `updateBitriseYmlDocument`, and inside the mutator
+you touch nodes only through `YmlUtils`. Round-tripping through JSON destroys every comment and
+reorders every key in a file the user reviews in a diff. No lint rule catches this; the failure
+shows up as a wrecked pull request.
 
-### Frontend (`source/javascripts/`)
+## Traps that bite agents specifically
 
-- **Framework:** React 18 + TypeScript (strict mode), built with Vite
-- **UI:** `@bitrise/bitkit-v2` (new, Chakra UI v3) for new components; `@bitrise/bitkit` (legacy, Chakra UI v2) still present but being replaced — use v2 for all new work, and migrate v1 components to v2 in any file you touch
-- **State:** Zustand — `BitriseYmlStore` is the central store holding the YAML document
-- **Data fetching:** TanStack React Query
-- **Routing:** wouter (lazy-loaded pages)
-- **YAML editing:** Monaco Editor + monaco-yaml + custom `@bitrise/languageserver`
-- **Graph visualization:** XYFlow + dagre (pipeline/workflow graphs)
-- **Drag & drop:** dnd-kit
-- **Path alias:** `@/` → `source/javascripts/`
+- **`window.env` does not exist under Jest**, so `RuntimeUtils.isProduction()` throws in unit
+  tests. Wrap the call the way `BitriseYmlStore.warnInDev` does, or keep `RuntimeUtils` out of
+  anything a service test reaches.
+- **A store setter called outside `act()` does not flush**, so a test written that way reports a
+  confident false pass. Watch a repro fail before you trust it passing.
+- **After pulling across a version bump**, restart the Go process. Vite serves the new
+  `/{version}/` path while `go run main.go` keeps the old compiled constant, and every request
+  404s until you do. Run `npm install` too: a stale tree makes `tsc` report
+  `Cannot find type definition file for 'node'` and lint report unresolved imports, both of which
+  read as code errors and are not.
+- **Nothing type-checks unless you do it.** There is no `tsc` script, and CI never type-checks:
+  it runs `npm run build`, `npm run lint`, `npm run test` and the Go checks, and `vite build`
+  strips types with swc rather than checking them. A typed refactor can pass all of that and still
+  not compile, so run `npx tsc --noEmit` before you call one done.
+- **Four architectural boundaries are linted.** `npm run lint` failing on `no-restricted-syntax`
+  or `no-restricted-imports` means you crossed one, not that you wrote sloppy code. Some take two
+  rule ids, so count boundaries rather than rules. See
+  [docs/conventions.md](docs/conventions.md#lint).
 
-### Key directories
+## Writing docs here
 
-```
-source/javascripts/
-  core/
-    api/           # API clients (BitriseYmlApi, StepApi, EnvVarsApi, etc.)
-    stores/        # Zustand stores (BitriseYmlStore is the main one)
-    models/        # TypeScript types for BitriseYml, Step, Workflow, etc.
-    services/      # Domain logic (StepService, PipelineService, etc.)
-  hooks/           # React hooks (useCiConfig, useSecrets, useFeatureFlag, etc.)
-  components/      # Shared + unified-editor components
-  pages/           # WorkflowsPage, PipelinesPage, TriggersPage, etc.
+Where a doc and the code disagree, the code wins and the doc is a bug. Change behaviour, change
+the doc in the same PR.
 
-apiserver/         # Go HTTP server (Gorilla Mux), serves API + embedded static assets
-cmd/               # Go CLI (Cobra)
-spec/              # Test files (Jest unit + Playwright E2E)
-```
+**One fact, one home, with three exceptions.** Each doc answers one question, so a fact belongs
+in exactly one of them and the others link. Three are restated here on purpose and should not be
+"deduplicated", because this file survives context compaction and `docs/` may not: the Jest and
+`act()` landmines, the YAML-preservation rule, and the fact that nothing type-checks. If you find
+the same sentence in two places and it is not one of those, one of them is a bug.
 
-### Patterns
-
-- **`core/` is framework-agnostic** — no React or DOM dependencies. Pure TypeScript only
-  - **`models/`** — internal application types used throughout the app
-  - **`api/`** — API client functions that work with DTOs and map them to internal models. Consumed by services and hooks, never called directly from components
-  - **`services/`** — business logic operating on models. Must have thorough unit tests covering happy paths, edge cases, error conditions, and different YAML formats where applicable
-  - **`stores/`** — Zustand stores (mainly `BitriseYmlStore`). Coordinate state across the app
-- **YAML preservation:** Service functions that modify YAML must not make unnecessary changes or reorder existing fields — only touch what's needed
-- **Component architecture:** hooks manage API calls and local state; components focus on rendering
-- **Two modes:** `MODE=CLI` (plugin, default) and `MODE=WEBSITE` — runtime behavior branches via `PageProps`/`RuntimeUtils` and environment checks
-
-### Service Conventions
-
-- All services are **pure functions** exported via `export default { ... }`, not classes
-- **Mutation pattern:** services mutate YAML via `updateBitriseYmlDocument(({doc}) => { ...; return doc })` — the store clones the document before calling, so services mutate `doc` directly
-- **Validation pattern:** `getXOrThrowError(id, doc)` before any mutation to ensure the target exists
-- **Validate functions** return `string | boolean` — `true` on success, error message string on failure
-- Services **never import React** — they live in `core/` which is framework-agnostic
-- **Dependency direction:** `WorkflowService` and `StepService` are foundational (no service deps); others build on top (`PipelineService` → `WorkflowService` + `StepService`, etc.)
-- **Cross-service operations:** Some user actions (e.g., deleting a workflow) touch multiple services (removal + trigger cleanup + env var cleanup). There's no explicit orchestrator — the store or calling code coordinates these calls. Be aware of cascading effects when modifying service functions
-
-### Hook Conventions
-
-- **Store selectors** are thin hooks wrapping `useBitriseYmlStore` with `useShallow` (e.g., `useWorkflows`, `useContainers`)
-- **Data fetching hooks** use TanStack React Query (`useQuery`/`useMutation`) with proper `staleTime`/`gcTime`
-- Hooks should be **thin wrappers** — delegate business logic to services rather than implementing it inline
-
-### Page Conventions
-
-- **Complex pages** (Workflows, Pipelines, StepBundles) use a page-specific Zustand store for dialog/selection state + a `Drawers.tsx` component for dialog rendering
-- **Simple pages** use local hooks (`useDisclosure`, `useState`) — no page store needed
-- Pages are **thin wrappers** (~30-60 LOC) composing canvas panels, config panels, and drawers
-
-### Runtime & Tooling
-
-- **MSW mocks:** API mocks for tests/stories use `.mswMocks.ts` files
-- **Feature flags:** LaunchDarkly with local overrides in `ld.local.json`; access via `useFeatureFlag()` hook
-- **YAML validation:** Done server-side (Go); invalid YAML state tracked separately in store
-
-### Unified-Editor (`components/unified-editor/`)
-
-- Largest component subsystem (119 files) — handles workflow/step/pipeline configuration UI
-- Uses **React context** for passing entity IDs and step data to nested components
-- Uses **`WorkflowCardContext`** for passing action callbacks (step actions, workflow actions, selection) to deeply nested card components
-- **`FloatingDrawer`** is the standard drawer wrapper — opened via page store's `openDialog`/`closeDialog`
-- Step editing flow: click → page store opens dialog → Drawer mounts → context provider fetches data → tabs render config
-
-## File Naming Conventions
-
-- Components: `PascalCase.tsx`
-- Stores: `*.store.ts`
-- Context providers: `*.context.tsx`
-- Constants: `*.const.ts`
-- Tests: `*.spec.ts` / `*.spec.tsx`
-- Stories: `*.stories.tsx`
-- MSW mocks: `*.mswMocks.ts`
-
-## Lint Rules to Know
-
-- `import/no-cycle: "error"` — no circular imports
-- Import `useShallow` from `@/core/hooks/useShallow`, not from `zustand/shallow`
-- `TEST_BITRISE_YML` global is restricted to spec/story/mock files only
-- ESLint flat config in `eslint.config.mjs` using `@bitrise/eslint-plugin`
-
-## Testing
-
-- **Jest:** Uses `@swc/jest` for transforms. Global `yaml` is available in tests (from `spec/setup-jest.ts`). CSS/SVG mocked via identity-obj-proxy.
-- **Playwright:** Config in `playwright.config.ts`. Supports Chromium, Firefox, WebKit.
-- **Storybook:** MSW addon for API mocking. Stories colocated with components.
-
-## Important Notes
-
-- Dev server available at `localhost:4000/{version}` (version from package.json)
-- Go static assets are embedded via go.rice (rice-box)
-- **Version bumps** (`package.json` + `version/version.go`): Vite hot-reloads `package.json` and starts serving at the new `/{version}/` (or `/{urlPrefix}/{version}/`) path, but the Go `go run main.go` process keeps its already-compiled binary with the old `version.VERSION` constant. The two then disagree on the route prefix and requests 404. After pulling/rebasing across a version-bump commit, restart the `workflow-editor` service (don't rely on Vite's hot-reload) so Go recompiles against the new constant.
-- Husky pre-commit hooks run lint-staged
-- The app runs inside an **iframe** on the Bitrise website — routing uses hash-based location (`useHashLocation`) and communicates with the parent window via `WindowUtils`
-- `BitriseYmlStore` always **clones the YAML document before mutations** — this is critical for `YmlUtils` caching to work correctly (WeakMap keyed by document identity)
-- `YmlUtils` is a comprehensive YAML manipulation library (~30 functions) wrapping the `yaml` library — use it for all YAML node operations instead of manipulating nodes directly
-- Error handling in services uses **throw** for sync errors; toasts via `createBitkitToast` from `@bitrise/bitkit-v2` for user-facing notifications in components (legacy: `useToast` from `@bitrise/bitkit`)
+Add a claim only with the check that backs it. A count is admissible only when every reader
+counting the same way gets the same answer, like the four lint rules listed directly beneath the
+sentence that counts them. "Nine passes in a function you can open" failed that test three ways:
+the function, its diagram and the neighbouring function each yield a different number, and which
+one you get depends on whether a nested call counts. Leave out file totals and call-site tallies
+entirely.

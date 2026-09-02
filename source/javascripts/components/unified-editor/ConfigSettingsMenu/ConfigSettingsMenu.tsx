@@ -100,6 +100,7 @@ const ConfigSettingsMenu = (props: Props) => {
               value="switch-branch"
               icon={IconBranch}
               disabled={hasChanges}
+              data-clarity-unmask="true"
               onClick={() => {
                 setIsSwitchBranchDialogOpen(true);
                 trackBranchSwitchPopupShown();
@@ -109,7 +110,14 @@ const ConfigSettingsMenu = (props: Props) => {
             </BitkitActionMenu.Item>
           </BitkitTooltip>
         )}
-        <BitkitActionMenu.Item value="download-yml" icon={IconDownload} onClick={handleDownload}>
+        {/* Only the fixed menu item labels — the branch / storage label in the trigger row above is
+            customer data, so it stays masked. */}
+        <BitkitActionMenu.Item
+          value="download-yml"
+          icon={IconDownload}
+          onClick={handleDownload}
+          data-clarity-unmask="true"
+        >
           Download YAML file
         </BitkitActionMenu.Item>
         <BitkitActionMenu.Item
@@ -117,6 +125,7 @@ const ConfigSettingsMenu = (props: Props) => {
           icon={IconFolder}
           disabled={isPending}
           onClick={handleStorageChange}
+          data-clarity-unmask="true"
         >
           Change storage...
         </BitkitActionMenu.Item>

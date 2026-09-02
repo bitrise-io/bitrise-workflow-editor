@@ -63,7 +63,15 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
       alignItems={['flex-start', 'center']}
       bg="background/secondary"
     >
-      <Card p="24" display="flex" flexDir={['column', 'row']} gap="32" variant="outline" width="auto">
+      <Card
+        p="24"
+        display="flex"
+        flexDir={['column', 'row']}
+        gap="32"
+        variant="outline"
+        width="auto"
+        data-clarity-unmask="true"
+      >
         <Box maxW="420" display="flex" flexDir="column" gap="16">
           <Text as="h3" textStyle="heading/h3">
             Get started with Pipelines

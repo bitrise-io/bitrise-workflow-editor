@@ -1,4 +1,5 @@
-import { ButtonGroup, ControlButton, Input, InputProps } from '@bitrise/bitkit';
+import { ButtonGroup, Input, InputProps } from '@bitrise/bitkit';
+import { BitkitControlButton, IconCheck, IconCross, IconPencil } from '@bitrise/bitkit-v2';
 import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 
 type Props = InputProps & {
@@ -109,22 +110,22 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
       rightAddon={
         editable.isEditing ? (
           <ButtonGroup mx="8" spacing="0">
-            <ControlButton
+            <BitkitControlButton
               size={buttonSize}
-              iconName="Check"
-              aria-label="Change"
-              isDisabled={editable.validationResult !== true}
+              icon={IconCheck}
+              label="Change"
+              state={editable.validationResult !== true ? 'disabled' : undefined}
               onClick={handleCommit}
             />
-            <ControlButton size={buttonSize} aria-label="Cancel" iconName="Cross" onClick={handleCancel} />
+            <BitkitControlButton size={buttonSize} label="Cancel" icon={IconCross} onClick={handleCancel} />
           </ButtonGroup>
         ) : (
-          <ControlButton
-            mx="8"
+          <BitkitControlButton
+            marginInline="8"
             size={buttonSize}
-            aria-label="Edit"
-            iconName="Pencil"
-            isDisabled={isDisabled}
+            label="Edit"
+            icon={IconPencil}
+            state={isDisabled ? 'disabled' : undefined}
             onClick={handleEdit}
           />
         )

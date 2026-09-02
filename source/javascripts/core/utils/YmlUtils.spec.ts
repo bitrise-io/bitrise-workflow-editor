@@ -1984,4 +1984,34 @@ describe('YmlUtils', () => {
       ).toThrow('Node at path "workflows.wf1.steps" is not a YAML Node');
     });
   });
+
+  describe('parse-error documents', () => {
+    // Malformed YAML: yaml's Document.toString()/stringify() would otherwise throw
+    // "Document with errors cannot be stringified".
+    const INVALID_YML = 'workflows:\n  a:\n    steps:\n  - : : :\n\tbad_tab\n';
+
+    it('toDoc parses malformed YAML into a document with errors (does not throw)', () => {
+      const doc = YmlUtils.toDoc(INVALID_YML);
+      expect(doc.errors.length).toBeGreaterThan(0);
+    });
+
+    it('toYml returns the raw source verbatim for a parse-error document instead of throwing', () => {
+      const doc = YmlUtils.toDoc(INVALID_YML);
+      expect(() => YmlUtils.toYml(doc)).not.toThrow();
+      expect(YmlUtils.toYml(doc)).toBe(INVALID_YML);
+    });
+
+    it('toYml still serializes valid documents normally', () => {
+      const doc = YmlUtils.toDoc(yaml`workflows: {}`);
+      expect(YmlUtils.toYml(doc)).toBe(yaml`workflows: {}`);
+    });
+
+    it('isEquals does not throw when comparing against a parse-error document', () => {
+      const invalid = YmlUtils.toDoc(INVALID_YML);
+      const valid = YmlUtils.toDoc(yaml`workflows: {}`);
+      expect(() => YmlUtils.isEquals(invalid, valid)).not.toThrow();
+      expect(YmlUtils.isEquals(invalid, valid)).toBe(false);
+      expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
+    });
+  });
 });

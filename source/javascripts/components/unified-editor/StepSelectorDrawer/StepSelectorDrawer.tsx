@@ -63,7 +63,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
               )}
             </Box>
             <Box position="relative" mt="8" mx="-24">
-              <TabList paddingX="8">
+              <TabList paddingX="8" data-clarity-unmask="true">
                 <Tab>Step</Tab>
                 <Tab>Step bundle</Tab>
               </TabList>

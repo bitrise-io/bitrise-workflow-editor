@@ -63,6 +63,7 @@ const PipelineConversionSignposting = () => {
   return (
     <Ribbon
       colorScheme="blue"
+      data-clarity-unmask="true"
       onClose={handleDismiss}
       action={{
         label: 'Convert Pipeline',

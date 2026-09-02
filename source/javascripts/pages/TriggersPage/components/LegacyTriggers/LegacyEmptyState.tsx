@@ -26,7 +26,8 @@ const LegacyEmptyState = ({ type }: Props) => {
   const { title, description } = TEXTS[type];
 
   return (
-    <EmptyState iconName="Trigger" title={title} maxHeight="208">
+    // `title`/`description` come from the static TEXTS map above, keyed by trigger type.
+    <EmptyState data-clarity-unmask="true" iconName="Trigger" title={title} maxHeight="208">
       <Text marginTop="8">
         {description}{' '}
         <Link

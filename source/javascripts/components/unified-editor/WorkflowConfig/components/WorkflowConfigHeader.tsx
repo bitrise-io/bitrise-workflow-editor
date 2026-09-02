@@ -53,15 +53,16 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
             {title || id || 'Workflow'}
           </Text>
           {showSubTitle && !isCrossFile && (
-            <Text textStyle="body/sm/regular" color="text/secondary">
+            <Text textStyle="body/md/regular" color="text/secondary">
               {WorkflowService.getUsedByText(dependants)}
             </Text>
           )}
           {showDefinitionLink && (
-            <Text textStyle="body/sm/regular" color="text/secondary">
+            <Text textStyle="body/md/regular" color="text/secondary">
               <EntityModuleProvenance
                 kind="workflows"
                 id={id}
+                pathTextStyle="body/md/semibold"
                 fallback={<JumpToDefinitionLink kind="workflows" id={id} />}
               />
             </Text>
@@ -81,7 +82,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           </Tooltip>
         )}
       </Box>
-      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16">
+      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">
         <Tab>Configuration</Tab>
         <Tab isDisabled={isCrossFile}>Properties</Tab>
         {shouldShowTriggersTab && <Tab isDisabled={isCrossFile}>Triggers</Tab>}

@@ -15,7 +15,7 @@ const TargetBasedTriggerNotification = () => {
   }
 
   return (
-    <Notification status="info" onClose={() => updateMetaData('true')} marginBlockEnd="24">
+    <Notification status="info" onClose={() => updateMetaData('true')} marginBlockEnd="24" data-clarity-unmask="true">
       <Text textStyle="heading/h4">Triggers</Text>
       <Text>
         Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple

@@ -1,4 +1,12 @@
-import { Box, Card, CardProps, Collapse, ControlButton, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { Box, Card, CardProps, Collapse, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import {
+  BitkitControlButton,
+  IconChevronDown,
+  IconChevronUp,
+  IconLink,
+  IconSettings,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
@@ -132,16 +140,13 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         {/* No expand/collapse for cross-file refs — their nested content lives in another file
             and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
         {isCollapsable && !isCrossFile && (
-          <ControlButton
+          <BitkitControlButton
             size="xs"
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
             className="nopan"
             onClick={onToggle}
-            iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-            aria-label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
-            tooltipProps={{
-              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} Workflow details`,
-            }}
+            icon={isOpen ? IconChevronUp : IconChevronDown}
+            label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
           />
         )}
 
@@ -156,11 +161,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
             {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
             {onChainWorkflow && !isCrossFile && (
-              <ControlButton
+              <BitkitControlButton
                 size="xs"
-                iconName="Link"
-                aria-label="Chain Workflows"
-                tooltipProps={{ 'aria-label': 'Chain Workflows' }}
+                icon={IconLink}
+                label="Chain Workflows"
                 onClick={() => {
                   onOpen();
                   onChainWorkflow(id);
@@ -175,21 +179,19 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
               <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
             {onEditWorkflow && (
-              <ControlButton
+              <BitkitControlButton
                 size="xs"
-                iconName="Settings"
-                aria-label="Edit Workflow"
-                tooltipProps={{ 'aria-label': 'Edit Workflow' }}
+                icon={IconSettings}
+                label="Edit Workflow"
                 onClick={() => onEditWorkflow(id)}
               />
             )}
             {onRemoveWorkflow && (
-              <ControlButton
+              <BitkitControlButton
                 isDanger
                 size="xs"
-                iconName="Trash"
-                aria-label="Remove Workflow"
-                tooltipProps={{ 'aria-label': 'Remove Workflow' }}
+                icon={IconTrash}
+                label="Remove Workflow"
                 onClick={() => onRemoveWorkflow(id)}
               />
             )}

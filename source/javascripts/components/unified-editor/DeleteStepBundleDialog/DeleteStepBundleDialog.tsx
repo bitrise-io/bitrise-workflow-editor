@@ -21,7 +21,7 @@ const DeleteStepBundleDialog = ({ stepBundleId, onDeleteStepBundle, onClose, ...
         <Text>
           Are you sure you want to delete <strong>{stepBundleId}</strong>?
         </Text>
-        <List variant="unstyled" spacing="6">
+        <List variant="unstyled" spacing="6" data-clarity-unmask="true">
           <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
             All settings of this Step bundle will be deleted.
           </ListItem>
@@ -33,7 +33,7 @@ const DeleteStepBundleDialog = ({ stepBundleId, onDeleteStepBundle, onClose, ...
           </ListItem>
         </List>
       </DialogBody>
-      <DialogFooter>
+      <DialogFooter data-clarity-unmask="true">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

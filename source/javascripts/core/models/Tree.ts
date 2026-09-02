@@ -51,6 +51,9 @@ export type EntityIndex = {
 
 export type EntityKind = keyof EntityIndex;
 
+/** An entity a URL points at (`#!/workflows?workflow_id=deploy`), to be resolved against the index. */
+export type EntityDeepLink = { kind: EntityKind; id: string };
+
 /** Bootstrap response (`GET /config/tree`). Always tree-shaped; a non-modular config is a single root node with `includes: []`. */
 export type GetConfigResponse = {
   root: TreeNode;

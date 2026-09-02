@@ -12,6 +12,7 @@ const GraphPipelineCanvasEmptyState = ({ onAddWorkflow, ...props }: Props) => {
   return (
     <EmptyState
       {...props}
+      data-clarity-unmask="true"
       iconName="WorkflowFlow"
       title="Welcome to the Pipeline canvas"
       description="Start building your graph by adding Workflow nodes to the canvas."

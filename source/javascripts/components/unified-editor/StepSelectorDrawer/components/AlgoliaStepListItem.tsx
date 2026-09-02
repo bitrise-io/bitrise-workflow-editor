@@ -3,7 +3,6 @@ import {
   Box,
   Card,
   CardProps,
-  ControlButton,
   Icon,
   LinkButton,
   MarkdownContent,
@@ -11,6 +10,7 @@ import {
   Tooltip,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { BitkitControlButton, IconPlus } from '@bitrise/bitkit-v2';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
 
@@ -150,7 +150,7 @@ const AlgoliaStepListItem = ({
           />
         )}
 
-        {!isDisabled && isOpen && <ControlButton aria-label="Add to Workflow" iconName="Plus" onClick={onClick} />}
+        {!isDisabled && isOpen && <BitkitControlButton label="Add to Workflow" icon={IconPlus} onClick={onClick} />}
       </Box>
 
       {!isOpen && (

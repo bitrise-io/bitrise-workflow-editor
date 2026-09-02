@@ -12,10 +12,10 @@ const LicensesPage = () => {
 
   return (
     <Box p="32">
-      <Text as="h2" textStyle="heading/h2" marginBlockEnd="4">
+      <Text as="h2" textStyle="heading/h2" marginBlockEnd="4" data-clarity-unmask="true">
         Licenses
       </Text>
-      <Text color="text/secondary" marginBlockEnd="32">
+      <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">
         You can run your builds on Bitrise machines relying on license pools. Your Workflow-specific builds will run
         utilizing the selected pool.{' '}
         <Link
@@ -31,6 +31,7 @@ const LicensesPage = () => {
           description="Your workflow-specific builds will run utilizing the selected pool."
           iconName="Key"
           title="Workflow-specific license pools"
+          data-clarity-unmask="true"
         >
           <Button as="a" href={`/workspaces/${workspaceSlug}/settings/integrations`} target="_blank">
             Add license pool
@@ -39,7 +40,7 @@ const LicensesPage = () => {
       )}
       {!isPending && !!licensePools?.length && (
         <Table isFixed variant="borderless">
-          <Thead>
+          <Thead data-clarity-unmask="true">
             <Tr>
               <Th>Workflow</Th>
               <Th>License pool</Th>

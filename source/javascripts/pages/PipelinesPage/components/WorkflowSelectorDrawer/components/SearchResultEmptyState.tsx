@@ -7,6 +7,7 @@ type Props = {
 const SearchResultEmptyState = ({ onClickButton }: Props) => {
   return (
     <EmptyState
+      data-clarity-unmask="true"
       iconName="Magnifier"
       title="No Workflows are matching your filter"
       description="Modify your filters to get results."

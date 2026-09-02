@@ -1,13 +1,10 @@
 import { useState } from 'react';
 
-import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import { useTree } from '@/hooks/useTree';
 
@@ -15,6 +12,7 @@ type OpenCiConfigExpertPayload = {
   action: string;
   bitriseYmlContents: string;
   selectedPage: string;
+  source?: string;
   yamlSelector: string;
 };
 
@@ -39,10 +37,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   const { action, source, yamlSelector = 'workflow' } = options;
   const [isAgenticRunInProgress, setIsAgenticRunInProgress] = useState(false);
   const isAIDrawerOpen = useCiConfigExpertStore((s) => s.isAIDrawerOpen);
-  const enableCiConfigExpertAgent = useFeatureFlag('enable-ci-config-expert-agent');
   const selectedPage = useCurrentPage();
-  const conversationId = useCiConfigExpertStore((s) => s.conversationId);
-  const turnCount = useCiConfigExpertStore((s) => s.turnCount);
 
   useParentMessageListener('DISABLE_AI_BUTTONS', () => {
     setIsAgenticRunInProgress(true);
@@ -61,9 +56,12 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
   // hide every AI entry point while a modular config is open rather than offer a broken action (BIVS-3735).
   const isModular = Boolean(useTree());
 
-  const ciConfigExpert = PageProps.settings()?.ai.ciConfigExpert;
-  const isEnabledByWorkspace = !!ciConfigExpert && ciConfigExpert.disabled !== 'by-workspace';
-  const isVisible = enableCiConfigExpertAgent && isEnabledByWorkspace && !isModular;
+  // The monolith folds the plan entitlement and the workspace- and project-level opt-in into this
+  // one value, so every AI entry point on both sides of the iframe reads the same verdict. Only a
+  // workspace the assistant isn't available to at all hides them: an opted-out project still gets
+  // working buttons, and the parent answers the click with the opt-in modal instead of the drawer.
+  const availability = PageProps.settings()?.ai?.ciConfigExpert?.availability;
+  const isVisible = !!availability && availability !== 'unavailable' && !isModular;
 
   let tooltipLabel;
   let isDisabled = false;
@@ -74,31 +72,18 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
       tooltipLabel = 'AI functions are not available while an agentic run is in progress.';
     } else if (isAIDrawerOpen) {
       isDisabled = true;
-    } else if (ciConfigExpert?.disabled === 'by-project') {
-      isDisabled = true;
-      tooltipLabel = 'AI functions are disabled. Go to Project settings to turn them on.';
-    } else if (ciConfigExpert?.disabled === 'unsupported') {
-      isDisabled = true;
-      tooltipLabel = 'AI functions are not available on your current plan.';
     }
   }
 
   const onClick = () => {
-    segmentTrack('AI Assistant Opened', {
-      workspace_slug: GlobalProps.workspaceSlug(),
-      app_slug: PageProps.appSlug(),
-      source,
-      ai_assistant_conversation_id: conversationId,
-      ai_assistant_action: action,
-      is_resumed: !!turnCount,
-      prior_turn_count: turnCount ?? 0,
-      ai_assistant_type: 'ai_config_assistant',
-    });
-
+    // The website is the canonical emitter of "AI Assistant Opened": it fires the event when the
+    // drawer actually opens, for every entry point, using the `source` carried in the payload below.
+    // Tracking it here too would double-count every editor-initiated open.
     const payload: OpenCiConfigExpertPayload = {
       action,
       bitriseYmlContents: getYmlString(),
       selectedPage: selectedPage || '',
+      source,
       yamlSelector,
     };
     WindowUtils.postMessageToParent('OPEN_CI_CONFIG_EXPERT', payload);
