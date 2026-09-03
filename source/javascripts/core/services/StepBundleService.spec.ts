@@ -1,6 +1,6 @@
 import StepBundleService from '@/core/services/StepBundleService';
 
-import { StepBundles } from '../models/BitriseYml';
+import { StepBundles, Workflows } from '../models/BitriseYml';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 describe('StepBundleService', () => {
@@ -1892,7 +1892,7 @@ describe('StepBundleService', () => {
       expect(StepBundleService.usesStepBundle(stepBundles, 'top', 'leaf')).toBe(true);
     });
 
-    it('is true for itself, which is what makes it the cycle check', () => {
+    it('is true for itself, so deleting an open bundle closes its drawer', () => {
       expect(StepBundleService.usesStepBundle(stepBundles, 'top', 'top')).toBe(true);
     });
 
@@ -1904,7 +1904,7 @@ describe('StepBundleService', () => {
       expect(StepBundleService.usesStepBundle(stepBundles, 'mid', 'top')).toBe(false);
     });
 
-    it('is false for a missing used id', () => {
+    it('is false for an undefined used id, and for an empty one against a real bundle', () => {
       expect(StepBundleService.usesStepBundle(stepBundles, 'top', undefined)).toBe(false);
       expect(StepBundleService.usesStepBundle(stepBundles, 'top', '')).toBe(false);
     });
@@ -1923,6 +1923,48 @@ describe('StepBundleService', () => {
 
       expect(StepBundleService.usesStepBundle(cyclic, 'a', 'b')).toBe(true);
       expect(StepBundleService.usesStepBundle(cyclic, 'a', 'missing')).toBe(false);
+    });
+  });
+  describe('getDependantWorkflows', () => {
+    it('reports workflows that use the bundle directly', () => {
+      const stepBundles: StepBundles = { a: { steps: [{ 'script@1': {} }] } };
+      const workflows: Workflows = { usesA: { steps: [{ 'bundle::a': {} }] } };
+
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::a', stepBundles)).toEqual(['usesA']);
+    });
+
+    it('reports workflows that use a bundle containing it', () => {
+      const stepBundles: StepBundles = {
+        a: { steps: [{ 'script@1': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+      };
+      const workflows: Workflows = { usesB: { steps: [{ 'bundle::b': {} }] } };
+
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::a', stepBundles)).toEqual(['usesB']);
+    });
+
+    it('does not report workflows using an unrelated bundle that happens to nest another', () => {
+      const stepBundles: StepBundles = {
+        a: { steps: [{ 'script@1': {} }] },
+        unrelated: { steps: [{ 'bundle::nested': {} }] },
+        nested: { steps: [{ 'script@1': {} }] },
+      };
+      const workflows: Workflows = {
+        usesA: { steps: [{ 'bundle::a': {} }] },
+        usesUnrelated: { steps: [{ 'bundle::unrelated': {} }] },
+      };
+
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::a', stepBundles)).toEqual(['usesA']);
+    });
+
+    it('terminates on a cyclic config', () => {
+      const stepBundles: StepBundles = {
+        a: { steps: [{ 'bundle::b': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+      };
+      const workflows: Workflows = { usesA: { steps: [{ 'bundle::a': {} }] } };
+
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::a', stepBundles)).toEqual(['usesA']);
     });
   });
 });

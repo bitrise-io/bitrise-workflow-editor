@@ -49,20 +49,21 @@ function getDirectDependants(workflows: Workflows, cvs: string) {
   return directDependants;
 }
 
+/**
+ * Workflows affected by a change to `cvs`: those using it directly, plus those using any bundle that
+ * contains it. The direct pass is kept because a cross-file bundle has no entry in the lookup.
+ */
 function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: StepBundles) {
-  let directDependants: string[] = getDirectDependants(workflows, cvs);
+  const id = cvsToId(cvs);
+  let dependants: string[] = getDirectDependants(workflows, cvs);
 
-  const usedIdsByBundle = getUsedStepBundleIdsByBundle(stepBundles);
-
-  Object.values(usedIdsByBundle).forEach((chain) => {
-    if (chain.length > 1) {
-      chain.forEach((bundle) => {
-        directDependants = directDependants.concat(getDirectDependants(workflows, idToCvs(bundle)));
-      });
+  Object.entries(getUsedStepBundleIdsByBundle(stepBundles)).forEach(([bundleId, usedIds]) => {
+    if (usedIds.includes(id)) {
+      dependants = dependants.concat(getDirectDependants(workflows, idToCvs(bundleId)));
     }
   });
 
-  return uniq(directDependants);
+  return uniq(dependants);
 }
 
 function getUsedByText(count: number) {
@@ -110,14 +111,15 @@ function getUsedStepBundleIdsByBundle(stepBundles: StepBundles) {
 
 /**
  * Whether step bundle `id` uses step bundle `usedId`, directly or transitively. A bundle counts as
- * using itself, which is what makes this the cycle check callers want. A missing `usedId` is never
- * used.
+ * using itself, so deleting the bundle a drawer has open also closes that drawer. An `undefined`
+ * `usedId` uses nothing. Only sees into locally defined bundles — a cross-file bundle has no steps
+ * here, so its contents are invisible.
  */
 function usesStepBundle(stepBundles: StepBundles, id: string, usedId?: string) {
   if (usedId === undefined) {
     return false;
   }
-  return id === usedId || getUsedStepBundleIds(stepBundles, id).includes(usedId);
+  return getUsedStepBundleIds(stepBundles, id).includes(usedId);
 }
 
 function cvsToId(cvs: string) {
