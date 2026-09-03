@@ -79,10 +79,11 @@ describe('mergeYamls', () => {
     expect(decorations[0].range.endLineNumber).toBe(1);
   });
 
-  it('anchors a trailing deletion past the last line when there is no final newline', () => {
-    // Nothing follows the removed tail, so the gap is one line past the 1-line output.
-    // Monaco clamps an out-of-range decoration to the model's last line rather than
-    // dropping it, landing the marker at the end of the file — where the tail was.
+  it('renders a trailing deletion after the last line, not above it', () => {
+    // Nothing follows the removed tail, so the gap is below the 1-line output. Left as an
+    // out-of-range line 2, Monaco would pull the range back to line 1 and — block decorations
+    // positioning from `startLineNumber` alone — draw it at that line's TOP edge, above the
+    // surviving 'a' rather than after it. `blockIsAfterEnd` on the last line is the bottom edge.
     const base = 'a\nb';
     const yours = 'a\nbY';
     const remote = 'a';
@@ -91,6 +92,22 @@ describe('mergeYamls', () => {
 
     expect(mergedYml).toBe('a');
     expect(decorations).toHaveLength(1);
+    expect(decorations[0].options.blockIsAfterEnd).toBe(true);
+    expect(decorations[0].range.startLineNumber).toBe(1);
+    expect(decorations[0].range.endLineNumber).toBe(1);
+  });
+
+  it('keeps a mid-file deletion on the top edge, without blockIsAfterEnd', () => {
+    // The counterpart to the case above: a gap with output lines after it is the top edge of
+    // the following line, so the bottom-edge opt-in must NOT leak onto every deletion.
+    const base = 'a\nb\nc\n';
+    const yours = 'a\nbY\nc\n';
+    const remote = 'a\nc\n';
+
+    const { decorations } = mergeYamls(yours, base, remote);
+
+    expect(decorations).toHaveLength(1);
+    expect(decorations[0].options.blockIsAfterEnd).toBeUndefined();
     expect(decorations[0].range.startLineNumber).toBe(2);
   });
 

@@ -14,6 +14,8 @@ import { diff3Merge } from 'node-diff3';
 export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];
   const decorations: editor.IModelDeltaDecoration[] = [];
+  // Deletion markers can only be finalised once the total output length is known — see below.
+  const deletionMarkers: { index: number; gapLine: number }[] = [];
 
   diff3Merge<string>(yourYaml, baseYaml, remoteYaml, {
     stringSeparator: '\n',
@@ -37,12 +39,10 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
     const remoteChangeIsADeletion = region.conflict.b.length === 0;
 
     if (remoteChangeIsADeletion) {
-      // No output lines to outline, only the gap the removal left. Monaco draws an
-      // empty-range block decoration at the TOP edge of `startLineNumber` — the
-      // `blockIsAfterEnd` option exists precisely to opt into the other edge — and the
-      // top of `conflictStartLine` IS that gap. Anchoring a line earlier drew it a full
-      // line too high. A trailing deletion in a file with no final newline puts this one
-      // past the last line; Monaco clamps such a range to the model instead of dropping it.
+      // No output lines to outline, only the gap the removal left. Monaco draws an empty-range
+      // block decoration at the TOP edge of `startLineNumber`, and the top of `conflictStartLine`
+      // IS that gap. Anchoring a line earlier drew it a full line too high.
+      deletionMarkers.push({ index: decorations.length, gapLine: conflictStartLine });
       decorations.push({
         options: { isWholeLine: false, blockClassName: 'conflict' },
         range: {
@@ -63,6 +63,24 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
         },
       });
     }
+  });
+
+  // A deletion with nothing after it leaves its gap BELOW the last line, so `gapLine` is one
+  // past the end. Monaco would not drop that range, it would pull it back to the last line —
+  // and since block decorations position from `startLineNumber` alone, the marker would then
+  // render at that line's TOP edge, above the surviving text instead of after it.
+  // `blockIsAfterEnd` is the documented opt-in for the bottom edge: an empty range on the last
+  // line, rendered after it. Reachable only without a trailing newline; YAML usually has one.
+  const lineCount = Math.max(rows.length, 1);
+  deletionMarkers.forEach(({ index, gapLine }) => {
+    if (gapLine <= lineCount) {
+      return;
+    }
+
+    decorations[index] = {
+      options: { isWholeLine: false, blockClassName: 'conflict', blockIsAfterEnd: true },
+      range: { startLineNumber: lineCount, startColumn: 1, endLineNumber: lineCount, endColumn: 1 },
+    };
   });
 
   return {
