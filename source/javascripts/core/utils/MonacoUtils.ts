@@ -247,7 +247,24 @@ type MarkerNavigationController = monaco.editor.IEditorContribution & {
   close(focusEditor?: boolean): void;
 };
 
-const guardedMarkerControllers = new WeakSet<MarkerNavigationController>();
+const guardedMarkerControllers = new WeakSet<monaco.editor.IEditorContribution>();
+
+/**
+ * Whether the contribution really exposes the three methods the guard wraps and calls. The type
+ * argument to `getContribution` is erased at build time, so this check is the only thing standing
+ * between a renamed method and a `.bind` of undefined thrown while an editor is being created.
+ */
+function hasMarkerNavigationApi(
+  contribution: monaco.editor.IEditorContribution,
+): contribution is MarkerNavigationController {
+  const candidate = contribution as Partial<MarkerNavigationController>;
+
+  return (
+    typeof candidate.showAtMarker === 'function' &&
+    typeof candidate.navigate === 'function' &&
+    typeof candidate.close === 'function'
+  );
+}
 
 function warnBrokenMarkerSession(error: unknown) {
   // eslint-disable-next-line no-console
@@ -273,9 +290,17 @@ function warnBrokenMarkerSession(error: unknown) {
  * a different fault on a freshly built session and is deliberately left to propagate.
  */
 function guardMarkerNavigation(editor: monaco.editor.ICodeEditor) {
-  const controller = editor.getContribution<MarkerNavigationController>(MARKER_NAVIGATION_CONTROLLER_ID);
+  const controller = editor.getContribution<monaco.editor.IEditorContribution>(MARKER_NAVIGATION_CONTROLLER_ID);
 
   if (!controller || guardedMarkerControllers.has(controller)) {
+    return;
+  }
+
+  // Checked before the controller is marked or touched, so an upgrade that renames or drops any of
+  // these leaves the guard inert instead of failing editor creation, and never half-wraps. A shape
+  // this doesn't recognise likely doesn't keep the session invariant below either, so such a
+  // controller is left completely alone.
+  if (!hasMarkerNavigationApi(controller)) {
     return;
   }
 

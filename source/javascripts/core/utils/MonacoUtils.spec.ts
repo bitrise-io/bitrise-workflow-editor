@@ -66,7 +66,7 @@ function createBrokenController(brokenAttempts: number) {
   return { controller, attempts };
 }
 
-function guard(controller: MarkerController | null, { onCreate = false } = {}) {
+function guard(controller: object | null, { onCreate = false } = {}) {
   const editor = {
     getContribution: (id: string) => (id === MARKER_NAVIGATION_CONTROLLER_ID ? controller : null),
   };
@@ -164,6 +164,44 @@ describe('MonacoUtils.configureMarkerNavigationGuard', () => {
     expect(() => controller.showAtMarker({})).toThrow("Cannot read properties of undefined (reading 'showAtMarker')");
     expect(attempts.showAtMarker).toBe(2);
     expect(controller.close).toHaveBeenCalledTimes(1);
+  });
+
+  // The type argument to `getContribution` is erased at build time, so only a runtime check keeps a
+  // renamed or removed method from throwing while an editor is being created.
+  it.each(['showAtMarker', 'navigate', 'close'])('leaves a contribution alone when %s is missing', (missing) => {
+    const complete: Record<string, unknown> = {
+      showAtMarker: () => {},
+      navigate: async () => {},
+      close: () => {},
+    };
+    const controller: Record<string, unknown> = { ...complete };
+    delete controller[missing];
+
+    expect(() => guard(controller)).not.toThrow();
+
+    // Nothing was replaced: the guard behaves as if it had never been installed.
+    Object.keys(controller).forEach((name) => {
+      expect(controller[name]).toBe(complete[name]);
+    });
+  });
+
+  it('leaves a contribution alone when an expected method is not callable', () => {
+    const controller = { showAtMarker: 'not a function', navigate: async () => {}, close: () => {} };
+    const { navigate, close } = controller;
+
+    expect(() => guard(controller)).not.toThrow();
+
+    expect(controller.navigate).toBe(navigate);
+    expect(controller.close).toBe(close);
+  });
+
+  it('wraps a contribution that has all of the expected methods', () => {
+    const { controller } = createBrokenController(0);
+    const original = controller.showAtMarker;
+
+    guard(controller);
+
+    expect(controller.showAtMarker).not.toBe(original);
   });
 
   it('tolerates an editor without a marker navigation controller', () => {
