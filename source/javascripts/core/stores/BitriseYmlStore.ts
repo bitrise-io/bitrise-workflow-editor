@@ -144,6 +144,8 @@ export function discardBitriseYmlDocument() {
  * Reported in production too, unlike `warnInDev`: reaching here means an edit the user made was
  * thrown away, which is a correctness event rather than a developer hint. Every UI path is supposed
  * to gate on `editable` first, so this firing at all points at a missing gate.
+ *
+ * `warnInDev` still covers lookups that discard nothing, like binding a node that isn't there.
  */
 function reportDroppedMutation(message: string) {
   // eslint-disable-next-line no-console
@@ -456,12 +458,14 @@ export function updateFileDocument(nodeId: string, mutator: YamlMutator) {
   const slice = files[nodeId];
 
   if (!slice) {
-    warnInDev(`updateFileDocument: no file with node_id "${nodeId}"`);
+    reportDroppedMutation(`updateFileDocument: no file with node_id "${nodeId}"`);
     return;
   }
 
   if (!slice.editable) {
-    warnInDev(`updateFileDocument: file "${slice.path}" (node_id "${nodeId}") is read-only; mutation ignored`);
+    reportDroppedMutation(
+      `updateFileDocument: file "${slice.path}" (node_id "${nodeId}") is read-only; mutation ignored`,
+    );
     return;
   }
 

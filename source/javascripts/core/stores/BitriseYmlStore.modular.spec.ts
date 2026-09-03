@@ -214,7 +214,7 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
     });
 
-    it('no-ops and warns for a read-only file', () => {
+    it('no-ops and reports a dropped mutation for a read-only file', () => {
       const before = bitriseYmlStore.getState().files.readonly.ymlDocument;
       updateFileDocument('readonly', ({ doc }) => {
         YmlUtils.setIn(doc, ['workflows', 'x'], {});
@@ -222,12 +222,12 @@ describe('BitriseYmlStore — modular tree', () => {
       });
 
       expect(bitriseYmlStore.getState().files.readonly.ymlDocument).toBe(before);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('read-only'));
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('read-only'));
     });
 
-    it('no-ops and warns for an unknown node_id', () => {
+    it('no-ops and reports a dropped mutation for an unknown node_id', () => {
       updateFileDocument('missing', ({ doc }) => doc);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('no file with node_id'));
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('no file with node_id'));
     });
   });
 
