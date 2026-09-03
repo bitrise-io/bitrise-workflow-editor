@@ -2,6 +2,7 @@ import { StepApiResult } from '@/core/api/StepApi';
 
 import { BITRISE_STEP_LIBRARY_SSH_URL, BITRISE_STEP_LIBRARY_URL, Step } from '../models/Step';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
+import YmlUtils from '../utils/YmlUtils';
 import StepService from './StepService';
 
 jest.mock('@/../images/step/icon-default.svg', () => 'default-icon');
@@ -1887,6 +1888,35 @@ describe('StepService', () => {
       expectErrors(
         [() => StepService.changeStepVersion('workflows', 'primary', 2, '1.2.3')],
         ['Step at index 2 not found in workflows.primary'],
+      );
+    });
+  });
+
+  describe('getStepOrThrowError', () => {
+    it.each([
+      ['a plain string', 'script@1'],
+      ['no value at all', ''],
+    ])('should report a step written as %s as a missing step, not as a YAML shape error', (_, stepValue) => {
+      const doc = YmlUtils.toDoc(yaml`
+        workflows:
+          primary:
+            steps:
+            - ${stepValue}
+      `);
+
+      expect(() => StepService.getStepOrThrowError('workflows', 'primary', 0, doc)).toThrow(
+        'Step at index 0 not found in workflows.primary',
+      );
+    });
+
+    it('should report a workflow of an unexpected shape as missing, not as a YAML shape error', () => {
+      const doc = YmlUtils.toDoc(yaml`
+        workflows:
+          primary: some-string
+      `);
+
+      expect(() => StepService.getStepOrThrowError('workflows', 'primary', 0, doc)).toThrow(
+        'workflows.primary not found',
       );
     });
   });

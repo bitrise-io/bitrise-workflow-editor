@@ -2575,6 +2575,59 @@ describe('StackAndMachineService', () => {
           );
         }).toThrow(`Workflow nonexistent not found. Ensure that the workflow exists in the 'workflows' section.`);
       });
+
+      it('fills in meta when it is written without a value', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            workflows:
+              primary:
+                meta:
+                steps: []`,
+        );
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
+
+        expect(getYmlString()).toEqual(yaml`
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-16
+                  machine_type_id: mac-m1
+              steps: []
+        `);
+      });
+
+      it('fills in meta.[bitrise.io] when it is written without a value', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            workflows:
+              primary:
+                meta:
+                  bitrise.io:
+                steps: []`,
+        );
+
+        StackAndMachineService.updateStackAndMachine(
+          { stackId: 'osx-xcode-16', machineTypeId: 'mac-m1' },
+          StackAndMachineSource.Workflow,
+          'primary',
+        );
+
+        expect(getYmlString()).toEqual(yaml`
+          workflows:
+            primary:
+              meta:
+                bitrise.io:
+                  stack: osx-xcode-16
+                  machine_type_id: mac-m1
+              steps: []
+        `);
+      });
     });
   });
 });

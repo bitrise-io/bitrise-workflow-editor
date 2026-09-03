@@ -196,7 +196,10 @@ function getStepBundleOrThrowError(doc: Document, id: string) {
 }
 
 function throwIfStepBundleAlreadyExists(doc: Document, id: string) {
-  if (YmlUtils.getMapIn(doc, ['step_bundles', id])) {
+  // `hasIn`, not `getMapIn`: the question is whether the key is taken, and a bundle written as a
+  // bare `b:` still takes it. Reading it as "absent" would let a rename write a second `b:` key,
+  // producing a bitrise.yml that no longer parses. Matches WorkflowService/ContainerService.
+  if (doc.hasIn(['step_bundles', id])) {
     throw new Error(`Step bundle '${id}' already exists`);
   }
 }
