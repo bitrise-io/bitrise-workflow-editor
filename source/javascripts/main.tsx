@@ -6,11 +6,12 @@ import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
-import { ComponentProps, StrictMode, useEffect } from 'react';
+import { ComponentProps, StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import InitialDataLoader from '@/components/InitialDataLoader';
 import Client from '@/core/api/client';
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import MainLayout from '@/layouts/MainLayout';
 
@@ -70,11 +71,18 @@ const DefaultQueryClient = new QueryClient({
 let hasRetriedRenderError = false;
 
 /**
- * Retries once, so a transient error still passes through unnoticed, then stops and says so. It has
- * to stop: unsaved YAML now survives a remount (see ConfigLoadTracker), which means a deterministic
- * render error no longer heals itself by reloading the saved config over the user's edits.
+ * Retries once, so a transient error still passes through unnoticed, then stops and admits it can't
+ * recover. It has to stop: unsaved YAML now survives a remount (see ConfigLoadTracker), so a
+ * deterministic error no longer heals itself by reloading the saved config over the user's edits.
+ *
+ * This only fires for a failure in the providers, InitialDataLoader or Header. A page that throws is
+ * caught by PageErrorBoundary, which keeps the navigation and can route to the YAML editor. Here
+ * there is no chrome and no route left, so reloading is the only exit and it discards the edits.
+ * Hence the copy button: it is the last point at which that YAML still exists.
  */
 const RenderErrorFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ error, resetError }) => {
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     if (!hasRetriedRenderError) {
       hasRetriedRenderError = true;
@@ -90,15 +98,30 @@ const RenderErrorFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({
     return null;
   }
 
+  const copyUnsavedYml = () => {
+    navigator.clipboard.writeText(getYmlString()).then(
+      () => setCopied(true),
+      () => setCopied(false),
+    );
+  };
+
   // Deliberately plain markup: the fallback replaces everything inside the boundary, including the
   // theme providers, so it cannot rely on Bitkit or Chakra components rendering correctly here.
   return (
     <div style={{ padding: '32px', fontFamily: 'sans-serif', lineHeight: 1.5 }}>
-      <h2 style={{ margin: '0 0 8px', fontSize: '20px' }}>Something went wrong displaying the editor</h2>
-      <p style={{ margin: '0 0 16px' }}>Your unsaved changes are still here — nothing was saved or discarded.</p>
-      <button type="button" onClick={resetError}>
-        Try again
-      </button>
+      <h2 style={{ margin: '0 0 8px', fontSize: '20px' }}>The editor can&apos;t recover from this error</h2>
+      <p style={{ margin: '0 0 16px', maxWidth: '52ch' }}>
+        Reloading fixes the page but discards any changes you hadn&apos;t saved. Copy your configuration first if you
+        want to keep it.
+      </p>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button type="button" onClick={copyUnsavedYml}>
+          {copied ? 'Copied' : 'Copy configuration'}
+        </button>
+        <button type="button" onClick={() => window.location.reload()}>
+          Reload the page
+        </button>
+      </div>
     </div>
   );
 };
