@@ -108,14 +108,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         initializeBitriseYmlDocument(legacyConfig.data);
       }
 
-      if (requestedBranch) {
-        if (configBranch && configBranch === requestedBranch) {
+      if (requestedBranch && configBranch) {
+        if (configBranch === requestedBranch) {
           toast({
             status: 'success',
             isClosable: true,
             description: `Configuration is loaded from ${requestedBranch} branch.`,
           });
-        } else if (configBranch && configBranch !== requestedBranch) {
+        } else {
           toast({
             status: 'warning',
             isClosable: true,

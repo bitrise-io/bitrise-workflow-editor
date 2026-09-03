@@ -45,9 +45,15 @@ function getUsedByText(usedBy: string[]) {
 }
 
 // Cycle-guarded per branch, not globally: a workflow can legitimately run twice in one chain, so
-// only an id that is its own ancestor is dropped.
-function getBeforeRunChain(workflows: Workflows, id: string, path: Set<string> = new Set([id])): string[] {
-  const ids = workflows?.[id]?.before_run ?? [];
+// only an id that is its own ancestor is dropped. Each expanded id brings both of its own chains,
+// which is why the two placements share one walker.
+function getRunChain(
+  workflows: Workflows,
+  id: string,
+  placement: ChainedWorkflowPlacement,
+  path: Set<string>,
+): string[] {
+  const ids = workflows?.[id]?.[placement] ?? [];
 
   return ids.reduce<string[]>((mergedIds, currentId) => {
     if (!workflows[currentId] || path.has(currentId)) {
@@ -57,9 +63,9 @@ function getBeforeRunChain(workflows: Workflows, id: string, path: Set<string> =
     path.add(currentId);
     const expanded = [
       ...mergedIds,
-      ...getBeforeRunChain(workflows, currentId, path),
+      ...getRunChain(workflows, currentId, 'before_run', path),
       currentId,
-      ...getAfterRunChain(workflows, currentId, path),
+      ...getRunChain(workflows, currentId, 'after_run', path),
     ];
     path.delete(currentId);
 
@@ -67,25 +73,12 @@ function getBeforeRunChain(workflows: Workflows, id: string, path: Set<string> =
   }, []);
 }
 
+function getBeforeRunChain(workflows: Workflows, id: string, path: Set<string> = new Set([id])): string[] {
+  return getRunChain(workflows, id, 'before_run', path);
+}
+
 function getAfterRunChain(workflows: Workflows, id: string, path: Set<string> = new Set([id])): string[] {
-  const ids = workflows?.[id]?.after_run ?? [];
-
-  return ids.reduce<string[]>((mergedIds, currentId) => {
-    if (!workflows[currentId] || path.has(currentId)) {
-      return mergedIds;
-    }
-
-    path.add(currentId);
-    const expanded = [
-      ...mergedIds,
-      ...getBeforeRunChain(workflows, currentId, path),
-      currentId,
-      ...getAfterRunChain(workflows, currentId, path),
-    ];
-    path.delete(currentId);
-
-    return expanded;
-  }, []);
+  return getRunChain(workflows, id, 'after_run', path);
 }
 
 function getWorkflowChain(workflows: Workflows, id: string): string[] {

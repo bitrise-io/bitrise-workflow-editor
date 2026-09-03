@@ -190,11 +190,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
               );
             }
           }
-          if (cvs?.startsWith('bundle::')) {
-            const bundleId = StepBundleService.cvsToId(cvs);
-            if (StepBundleService.usesStepBundle(stepBundles, bundleId, selectionParent?.id)) {
-              closeDialog();
-            }
+          if (StepBundleService.stepCvsUsesStepBundle(stepBundles, cvs, selectionParent?.id)) {
+            closeDialog();
           }
           break;
         }

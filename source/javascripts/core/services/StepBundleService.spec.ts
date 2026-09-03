@@ -1925,6 +1925,25 @@ describe('StepBundleService', () => {
       expect(StepBundleService.usesStepBundle(cyclic, 'a', 'missing')).toBe(false);
     });
   });
+  describe('stepCvsUsesStepBundle', () => {
+    const stepBundles: StepBundles = {
+      top: { steps: [{ 'bundle::leaf': {} }] },
+      leaf: { steps: [{ 'script@1': {} }] },
+    };
+
+    it('resolves the cvs and answers like usesStepBundle', () => {
+      expect(StepBundleService.stepCvsUsesStepBundle(stepBundles, 'bundle::top', 'leaf')).toBe(true);
+      expect(StepBundleService.stepCvsUsesStepBundle(stepBundles, 'bundle::leaf', 'top')).toBe(false);
+    });
+
+    it('is false for a step that is not a bundle reference', () => {
+      expect(StepBundleService.stepCvsUsesStepBundle(stepBundles, 'script@1', 'leaf')).toBe(false);
+    });
+
+    it('is false when there is no step cvs at all', () => {
+      expect(StepBundleService.stepCvsUsesStepBundle(stepBundles, undefined, 'leaf')).toBe(false);
+    });
+  });
   describe('getDependantWorkflows', () => {
     it('reports workflows that use the bundle directly', () => {
       const stepBundles: StepBundles = { a: { steps: [{ 'script@1': {} }] } };

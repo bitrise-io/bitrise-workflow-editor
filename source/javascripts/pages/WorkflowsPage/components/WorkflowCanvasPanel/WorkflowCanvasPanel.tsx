@@ -277,11 +277,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         }
       }
 
-      if (cvs?.startsWith('bundle::')) {
-        const id = StepBundleService.cvsToId(cvs);
-        if (StepBundleService.usesStepBundle(stepBundles, id, selectionParent?.id)) {
-          closeDialog();
-        }
+      if (StepBundleService.stepCvsUsesStepBundle(stepBundles, cvs, selectionParent?.id)) {
+        closeDialog();
       }
     },
     [selectionParent?.id, selectionParent?.type, selectedStepIndices, closeDialog, setSelectedStepIndices, stepBundles],
@@ -314,11 +311,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
         }
       }
-      if (cvs?.startsWith('bundle::')) {
-        const id = StepBundleService.cvsToId(cvs);
-        if (StepBundleService.usesStepBundle(stepBundles, id, selectionParent?.id)) {
-          closeDialog();
-        }
+      if (StepBundleService.stepCvsUsesStepBundle(stepBundles, cvs, selectionParent?.id)) {
+        closeDialog();
       }
     },
     [closeDialog, selectedStepIndices, selectionParent?.id, selectionParent?.type, setSelectedStepIndices, stepBundles],

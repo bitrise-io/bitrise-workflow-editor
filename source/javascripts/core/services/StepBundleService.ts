@@ -55,15 +55,13 @@ function getDirectDependants(workflows: Workflows, cvs: string) {
  */
 function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: StepBundles) {
   const id = cvsToId(cvs);
-  let dependants: string[] = getDirectDependants(workflows, cvs);
 
-  Object.entries(getUsedStepBundleIdsByBundle(stepBundles)).forEach(([bundleId, usedIds]) => {
-    if (usedIds.includes(id)) {
-      dependants = dependants.concat(getDirectDependants(workflows, idToCvs(bundleId)));
-    }
-  });
-
-  return uniq(dependants);
+  return uniq([
+    ...getDirectDependants(workflows, cvs),
+    ...Object.entries(getUsedStepBundleIdsByBundle(stepBundles))
+      .filter(([, usedIds]) => usedIds.includes(id))
+      .flatMap(([bundleId]) => getDirectDependants(workflows, idToCvs(bundleId))),
+  ]);
 }
 
 function getUsedByText(count: number) {
@@ -131,6 +129,18 @@ function idToCvs(id: string) {
     return id;
   }
   return `bundle::${id}`;
+}
+
+/**
+ * `usesStepBundle` for a step's cvs rather than a bundle id: false for a step that isn't a bundle
+ * reference at all. Callers ask this to decide whether deleting a step closed the bundle a drawer
+ * has open, so pass the cvs of the deleted step, not its id.
+ */
+function stepCvsUsesStepBundle(stepBundles: StepBundles, cvs?: string, usedId?: string) {
+  if (!cvs?.startsWith('bundle::')) {
+    return false;
+  }
+  return usesStepBundle(stepBundles, cvsToId(cvs), usedId);
 }
 
 function ymlInstanceToStepBundle(
@@ -564,6 +574,7 @@ export default {
   getUsedStepBundleIdsByBundle,
   getUsedStepBundleIds,
   usesStepBundle,
+  stepCvsUsesStepBundle,
   getStepBundleOrThrowError,
   cvsToId,
   idToCvs,
