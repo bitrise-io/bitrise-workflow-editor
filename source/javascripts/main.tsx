@@ -65,18 +65,48 @@ const DefaultQueryClient = new QueryClient({
   },
 });
 
-const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ resetError }) => {
-  useEffect(() => {
-    resetError();
-  }, [resetError]);
+// Module-scoped, not a ref: the boundary mounts a fresh fallback for every throw, so per-instance
+// state would reset each time and retry forever.
+let hasRetriedRenderError = false;
 
-  return null;
+/**
+ * Retries once, so a transient error still passes through unnoticed, then stops and says so. It has
+ * to stop: unsaved YAML now survives a remount (see ConfigLoadTracker), which means a deterministic
+ * render error no longer heals itself by reloading the saved config over the user's edits.
+ */
+const RenderErrorFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ error, resetError }) => {
+  useEffect(() => {
+    if (!hasRetriedRenderError) {
+      hasRetriedRenderError = true;
+      resetError();
+      return;
+    }
+    // Datadog only receives this in website mode, so log it unconditionally for CLI/plugin runs.
+    // eslint-disable-next-line no-console
+    console.error('Workflow Editor failed to render:', error);
+  }, [error, resetError]);
+
+  if (!hasRetriedRenderError) {
+    return null;
+  }
+
+  // Deliberately plain markup: the fallback replaces everything inside the boundary, including the
+  // theme providers, so it cannot rely on Bitkit or Chakra components rendering correctly here.
+  return (
+    <div style={{ padding: '32px', fontFamily: 'sans-serif', lineHeight: 1.5 }}>
+      <h2 style={{ margin: '0 0 8px', fontSize: '20px' }}>Something went wrong displaying the editor</h2>
+      <p style={{ margin: '0 0 16px' }}>Your unsaved changes are still here — nothing was saved or discarded.</p>
+      <button type="button" onClick={resetError}>
+        Try again
+      </button>
+    </div>
+  );
 };
 
 const App = () => {
   return (
     <StrictMode>
-      <ErrorBoundary fallback={PassThroughFallback}>
+      <ErrorBoundary fallback={RenderErrorFallback}>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
             <Provider resetCSS={false}>
