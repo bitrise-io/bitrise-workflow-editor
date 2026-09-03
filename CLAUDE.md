@@ -91,11 +91,9 @@ shows up as a wrecked pull request.
   rule ids, so count boundaries rather than rules. See
   [docs/conventions.md](docs/conventions.md#lint).
 - **`keepCurrent*Model` without a `path` leaks rather than reuses.** The `@monaco-editor/react`
-  props only skip disposal; reuse goes through `getModel(Uri.parse(path))`, which can never find a
-  model created without one. Check the same element for `path` / `originalModelPath` /
-  `modifiedModelPath`: with one they are load-bearing, and the YmlPage editors need them to protect
-  the model the language services share. Without one they strand a model per unmount, and the prop
-  name is what makes it read as deliberate.
+  props only skip disposal; reuse needs `getModel(Uri.parse(path))` to hit. With a `path` /
+  `originalModelPath` / `modifiedModelPath` on the same element they are load-bearing — the
+  YmlPage editors guard a model the language services share. Without one: a model per unmount.
 
 ## Writing docs here
 
