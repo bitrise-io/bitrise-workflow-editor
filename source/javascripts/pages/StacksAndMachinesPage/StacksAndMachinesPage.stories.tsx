@@ -69,6 +69,19 @@ export const RegionLockedUser: Story = {
   },
 };
 
+export const WithStackRollbackVersion: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'osx-xcode-15.0.x',
+        machine_type_id: 'm2.large',
+        stack_rollback_version: '2-82-0',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 export const WithInvalidStackRollbackVersion: Story = {
   parameters: {
     bitriseYmlStore: (() => {
@@ -79,6 +92,47 @@ export const WithInvalidStackRollbackVersion: Story = {
       });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
+  },
+};
+
+export const WithStackRollbackVersionNotAvailableForRollbackType: Story = {
+  beforeEach: () => {
+    set(window, 'parent.pageProps.project.isOwnerPaying', false);
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'osx-xcode-15.0.x',
+        machine_type_id: 'm1.large',
+        stack_rollback_version: '2-82-0',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+export const WithDedicatedStackRollbackVersion: Story = {
+  beforeEach: () => {
+    set(window, 'parent.pageProps.project.isOwnerPaying', false);
+    set(window, 'parent.globalProps.account.slug', 'account-dedicated');
+    return () => {
+      window.parent.globalProps = undefined;
+    };
+  },
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set(TEST_BITRISE_YML, 'meta["bitrise.io"]', {
+        stack: 'osx-xcode-15.0.x',
+        machine_type_id: 'm1.medium',
+        stack_rollback_version: '2-81-0',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+    msw: {
+      handlers: {
+        story: [getStacksAndMachines({ privateCloud: 'machine-overrides' })],
+      },
+    },
   },
 };
 
