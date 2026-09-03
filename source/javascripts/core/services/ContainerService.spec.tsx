@@ -2204,6 +2204,86 @@ describe('ContainerService', () => {
   });
 
   describe('getWorkflowsUsingContainer', () => {
+    // These usage counts drive the "Used by N Workflows" label and the delete warning, so a
+    // reference the scan cannot read reads as "unused" — the container can then be deleted without
+    // a warning, leaving the alias dangling.
+    describe('references written as aliases', () => {
+      it('should count a workflow that references a container through an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _defaults:
+            image: &img ruby-3
+          containers:
+            ruby-3:
+              image: ruby:3
+          workflows:
+            aliased:
+              steps:
+              - script@1:
+                  execution_container: *img
+            plain:
+              steps:
+              - script@1:
+                  execution_container: ruby-3
+        `);
+
+        const doc = bitriseYmlStore.getState().ymlDocument;
+
+        expect(ContainerService.getWorkflowsUsingContainer(doc, 'ruby-3')).toEqual(['plain', 'aliased']);
+        expect([...ContainerService.getWorkflowsUsingContainers(doc, ['ruby-3'])]).toEqual([
+          ['ruby-3', ['plain', 'aliased']],
+        ]);
+      });
+
+      it('should count aliased service sequences, aliased entries and aliased step bundle references', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _services: &services
+          - postgres
+          _one: &one postgres
+          containers:
+            postgres:
+              image: postgres:13
+          step_bundles:
+            b1:
+              execution_container: *one
+          workflows:
+            wf_seq:
+              steps:
+              - script@1:
+                  service_containers: *services
+            wf_entry:
+              steps:
+              - script@1:
+                  service_containers:
+                  - *one
+            wf_bundle:
+              steps:
+              - bundle::b1: {}
+        `);
+
+        expect(ContainerService.getWorkflowsUsingContainer(bitriseYmlStore.getState().ymlDocument, 'postgres')).toEqual(
+          ['wf_seq', 'wf_entry', 'wf_bundle'],
+        );
+      });
+
+      it('should still report a container referenced only through aliases as used', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          _image: &img ruby-3
+          containers:
+            ruby-3:
+              image: ruby:3
+          workflows:
+            only_aliased:
+              steps:
+              - script@1:
+                  execution_container: *img
+        `);
+
+        expect(ContainerService.getWorkflowsUsingContainer(bitriseYmlStore.getState().ymlDocument, 'ruby-3')).toEqual([
+          'only_aliased',
+        ]);
+      });
+    });
+
     describe('execution container target', () => {
       it('should return workflows using a specific execution container', () => {
         updateBitriseYmlDocumentByString(yaml`

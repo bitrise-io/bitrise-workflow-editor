@@ -359,6 +359,11 @@ function getContainerReferenceFromInstance(
 // The container id a reference node points at — a bare scalar id, or the first key of a
 // `{ id: {opts} }` map — or undefined if it isn't a container reference. The inverse of the shapes
 // `referencesContainer` matched (a scalar equal to the id, or a map whose first key is the id).
+//
+// Read the node with `YmlUtils.getIn`, never `doc.getIn`: the paths handed to this come from
+// `getMatchingPaths`, which enumerates `toJSON()` and so happily matches a leaf written as
+// `*anchor`. A native read hands back the raw `Alias` — neither a map nor a scalar — and the
+// reference silently disappears from the usage counts.
 function referencedContainerId(node: unknown): string | undefined {
   if (isMap(node)) {
     return node.items.length > 0 ? String(node.items[0]?.key) : undefined;
@@ -397,7 +402,7 @@ function getWorkflowsUsingContainers(doc: Document, containerIds: string[]): Map
     ...YmlUtils.getMatchingPaths(doc, ExecutionContainerWildcardRefPath),
     ...YmlUtils.getMatchingPaths(doc, ServiceContainerWildcardRefPath),
   ].forEach(([path]) => {
-    const containerId = referencedContainerId(doc.getIn(path));
+    const containerId = referencedContainerId(YmlUtils.getIn(doc, path, true));
     if (containerId && ids.has(containerId)) {
       bucket(directByContainer, containerId, String(path[1]), () => []);
     }
@@ -410,7 +415,7 @@ function getWorkflowsUsingContainers(doc: Document, containerIds: string[]): Map
     ...YmlUtils.getMatchingPaths(doc, StepBundleExecutionContainerWildcardRefPath),
     ...YmlUtils.getMatchingPaths(doc, StepBundleServiceContainerWildcardRefPath),
   ].forEach(([path]) => {
-    const containerId = referencedContainerId(doc.getIn(path));
+    const containerId = referencedContainerId(YmlUtils.getIn(doc, path, true));
     if (containerId && ids.has(containerId)) {
       bucket(stepBundleIdsByContainer, containerId, String(path[1]), () => new Set<string>());
     }
