@@ -238,6 +238,87 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
   isConfiguredForBitriseLanguageServer = true;
 };
 
+const MARKER_NAVIGATION_CONTROLLER_ID = 'editor.contrib.markerController';
+
+/** The parts of Monaco's (internal) marker-navigation controller the guard below touches. */
+type MarkerNavigationController = monaco.editor.IEditorContribution & {
+  showAtMarker(marker: monaco.editor.IMarker): void;
+  navigate(next: boolean, multiFile?: boolean): Promise<void>;
+  close(focusEditor?: boolean): void;
+};
+
+const guardedMarkerControllers = new WeakSet<MarkerNavigationController>();
+
+function warnBrokenMarkerSession(error: unknown) {
+  // eslint-disable-next-line no-console
+  console.warn('Rebuilding the marker navigation session after a failed attempt to open it:', error);
+}
+
+/**
+ * Monaco's marker-navigation controller — the "View Problem" action in a marker hover, and the
+ * next/previous problem commands — keeps its peek widget and its marker list as one session, and
+ * assumes that a session holding a marker list also holds a widget:
+ *
+ *     const model = this._getOrCreateModel(textModel.uri);  // returns an existing list untouched
+ *     ...
+ *     this._widget.showAtMarker(...)                        // undefined if the widget is gone
+ *
+ * A session that ends up with only half of that therefore raises `Cannot read properties of
+ * undefined (reading 'showAtMarker')` from inside Monaco's own hover click handler and marker
+ * commands, where the editor has nowhere to catch it. The dereference is still unguarded upstream
+ * in monaco-editor 0.56.0, so a version bump doesn't help.
+ *
+ * Closing the controller drops the stale session, which makes the retry rebuild both halves — so
+ * the user gets the peek widget they asked for instead of a dead click. A retry that fails again is
+ * a different fault on a freshly built session and is deliberately left to propagate.
+ */
+function guardMarkerNavigation(editor: monaco.editor.ICodeEditor) {
+  const controller = editor.getContribution<MarkerNavigationController>(MARKER_NAVIGATION_CONTROLLER_ID);
+
+  if (!controller || guardedMarkerControllers.has(controller)) {
+    return;
+  }
+
+  guardedMarkerControllers.add(controller);
+
+  const showAtMarker = controller.showAtMarker.bind(controller);
+  const navigate = controller.navigate.bind(controller);
+
+  controller.showAtMarker = (marker) => {
+    try {
+      showAtMarker(marker);
+    } catch (error) {
+      warnBrokenMarkerSession(error);
+      controller.close(false);
+      showAtMarker(marker);
+    }
+  };
+
+  controller.navigate = async (next, multiFile) => {
+    try {
+      await navigate(next, multiFile);
+    } catch (error) {
+      warnBrokenMarkerSession(error);
+      controller.close(false);
+      await navigate(next, multiFile);
+    }
+  };
+}
+
+let isConfiguredForMarkerNavigationGuard = false;
+const configureMarkerNavigationGuard: BeforeMountHandler = (monacoInstance) => {
+  if (isConfiguredForMarkerNavigationGuard) {
+    return;
+  }
+
+  // Editors that already exist are covered too, so the guard doesn't depend on this running before
+  // the first editor is created.
+  monacoInstance.editor.getEditors().forEach(guardMarkerNavigation);
+  monacoInstance.editor.onDidCreateEditor(guardMarkerNavigation);
+
+  isConfiguredForMarkerNavigationGuard = true;
+};
+
 export type ValidationStatus = 'valid' | 'invalid' | 'warnings';
 
 /**
@@ -308,6 +389,7 @@ export default {
   configureForYaml,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
+  configureMarkerNavigationGuard,
   onModelMarkerStatusChange,
   onWorkspaceMarkerStatusChange,
 };

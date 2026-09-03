@@ -1,6 +1,5 @@
 import Editor, { OnMount } from '@monaco-editor/react';
 import { useRef } from 'react';
-import { useUnmount } from 'usehooks-ts';
 
 import LoadingState from '@/components/LoadingState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
@@ -13,12 +12,10 @@ const YmlEditor = () => {
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
   const { data: ymlSettings, isLoading: isLoadingSetting } = useCiConfigSettings();
 
-  useUnmount(() => {
-    if (monacoEditorRef.current) {
-      monacoEditorRef.current.dispose();
-      monacoEditorRef.current = undefined;
-    }
-  });
+  // NOTE: The editor is NOT disposed here. `<Editor>` created it and disposes it on unmount itself,
+  // after saving its view state (`keepCurrentModel` leaves the model — shared with the language
+  // service — alone). Disposing it first ran that teardown against an already-disposed widget,
+  // which both lost the view state and tore the editor's contributions down out of order.
 
   if (isLoadingSetting) {
     return <LoadingState />;
