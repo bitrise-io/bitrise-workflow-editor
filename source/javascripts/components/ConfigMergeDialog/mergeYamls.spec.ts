@@ -26,19 +26,22 @@ describe('mergeYamls', () => {
   });
 
   it('positions each conflict decoration by merged-output line, not input index', () => {
-    // Two separate overlapping changes with an unchanged line between them, so the
-    // merge emits: conflict(line 1), ok(line 2), conflict(line 3). The second
-    // conflict must be marked at output line 3 — the old bIndex-based code put it
-    // elsewhere.
-    const base = 'a\nKEEP\nd\n';
-    const yours = 'aY\nKEEP\ndY\n';
-    const remote = 'aR\nKEEP\ndR\n';
+    // Two overlapping changes with a clean local insertion between them. The
+    // insertion is what makes this bite: it pushes the merged output past the
+    // remote input, so `bIndex` and the output line stop agreeing. With
+    // equal-length inputs they coincide and the bug hides.
+    // Merged output is 6 lines and the second conflict is on line 6 ('dR'); the
+    // old bIndex-based code marked line 4, which is 'NEW2' — your own text — and
+    // left the real conflict unmarked.
+    const base = 'a\nb\nc\nd\n';
+    const yours = 'aY\nb\nNEW1\nNEW2\nc\ndY\n';
+    const remote = 'aR\nb\nc\ndR\n';
 
     const { mergedYml, decorations } = mergeYamls(yours, base, remote);
 
-    expect(mergedYml).toBe('aR\nKEEP\ndR\n');
+    expect(mergedYml).toBe('aR\nb\nNEW1\nNEW2\nc\ndR\n');
     const startLines = decorations.map((d) => d.range.startLineNumber).sort((x, y) => x - y);
-    expect(startLines).toEqual([1, 3]);
+    expect(startLines).toEqual([1, 6]);
   });
 
   it('marks the boundary line when the remote deleted lines you had edited', () => {
