@@ -119,6 +119,22 @@ describe('StepBundleService', () => {
     });
   });
 
+  describe('getStepBundleChains', () => {
+    it('terminates on a cycle between bundles', () => {
+      const cyclic: StepBundles = {
+        a: { steps: [{ 'bundle::b': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+        selfReferencing: { steps: [{ 'bundle::selfReferencing': {} }] },
+      };
+
+      expect(StepBundleService.getStepBundleChains(cyclic)).toEqual({
+        a: ['a', 'b'],
+        b: ['b', 'a'],
+        selfReferencing: ['selfReferencing'],
+      });
+    });
+  });
+
   describe('createStepBundle', () => {
     it('creates an empty step bundle', () => {
       updateBitriseYmlDocumentByString(
