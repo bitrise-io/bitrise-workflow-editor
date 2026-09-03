@@ -48,8 +48,39 @@ export const useSortableEnvVars = ({
     return envsRef.current.findIndex((env) => env.uniqueId === uniqueId);
   }, []);
 
-  const updateKeyDebounced = useDebounceCallback(EnvVarService.updateKey, 250, { leading: false });
-  const updateValueDebounced = useDebounceCallback(EnvVarService.updateValue, 250, { leading: false });
+  // The debounced writes carry the row's `uniqueId` rather than its index, and resolve the position
+  // only when they actually run: the row can move or go away during the delay (a preceding row
+  // removed, a reorder), and a position captured before the delay would write to whatever ended up
+  // there. `oldKey`/`key` describe the row itself, so those are still captured at call time — they
+  // are what the caller knows the document holds for that row, whatever position it is at.
+  const flushKeyUpdate = useCallback(
+    (newKey: string, at: { uniqueId: string; oldKey: string }) => {
+      const index = indexOf(at.uniqueId);
+
+      if (index === -1) {
+        return;
+      }
+
+      EnvVarService.updateKey(newKey, { source, sourceId, index, oldKey: at.oldKey });
+    },
+    [indexOf, source, sourceId],
+  );
+
+  const flushValueUpdate = useCallback(
+    (value: string, at: { uniqueId: string; key: string }) => {
+      const index = indexOf(at.uniqueId);
+
+      if (index === -1) {
+        return;
+      }
+
+      EnvVarService.updateValue(value, { source, sourceId, index, key: at.key });
+    },
+    [indexOf, source, sourceId],
+  );
+
+  const updateKeyDebounced = useDebounceCallback(flushKeyUpdate, 250, { leading: false });
+  const updateValueDebounced = useDebounceCallback(flushValueUpdate, 250, { leading: false });
 
   // `initialEnvs` is fixed to a specific file, so the active-file change must not re-seed it;
   // only re-seed on active-file changes when the list is read from the store.
@@ -130,7 +161,7 @@ export const useSortableEnvVars = ({
 
     const oldKey = envsRef.current[index].key;
     updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, key } : env)));
-    updateKeyDebounced(key, { source, sourceId, index, oldKey });
+    updateKeyDebounced(key, { uniqueId, oldKey });
   };
 
   const onValueChange = (uniqueId: string) => (value: string) => {
@@ -142,7 +173,7 @@ export const useSortableEnvVars = ({
 
     const { key } = envsRef.current[index];
     updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, value } : env)));
-    updateValueDebounced(value, { source, sourceId, index, key });
+    updateValueDebounced(value, { uniqueId, key });
   };
 
   const onIsExpandChange = (uniqueId: string) => (isExpand: boolean) => {

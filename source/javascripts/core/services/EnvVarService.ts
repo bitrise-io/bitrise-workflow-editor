@@ -200,10 +200,14 @@ function remove(at: { source: EnvVarSource; sourceId?: string; index: number }) 
   updateBitriseYmlDocument(({ doc }) => {
     const envs = getEnvVarSeqOrThrowError(doc, at);
 
-    // Removing an entry that isn't there any more already produces the requested end state, so an
-    // out-of-bounds index is not an error here. The index comes from a list rendered in the UI,
-    // which can be a render ahead of the document (two remove clicks batched together, a change
-    // from elsewhere) — and throwing would take the whole editor down with the user's unsaved work.
+    // An index past the end already describes the requested end state, so it is not an error here:
+    // the index comes from a list rendered in the UI, which can be a render ahead of the document
+    // (two remove clicks batched together, a change from elsewhere).
+    //
+    // This makes an out-of-bounds index a no-op; it does NOT make removal idempotent. Addressing is
+    // positional, so repeating a still-valid index removes whatever sits there now — with [A, B],
+    // `remove(0)` twice removes both. A caller that needs to remove one specific row has to track
+    // that row's identity itself, the way `useSortableEnvVars` does.
     if (at.index < 0 || at.index >= envs.items.length) {
       return doc;
     }
@@ -228,15 +232,19 @@ function reorder(newIndices: number[], at: { source: EnvVarSource; sourceId?: st
       );
     }
 
-    const reordered = newIndices.map((i) => envs.get(i));
+    // A reorder has to be a permutation of the existing entries. Matching lengths alone don't make
+    // it one: an index out of range reads as undefined, and a repeated index copies one entry over
+    // another and drops whatever the missing index pointed at. Both silently rewrite the user's env
+    // vars, so validate before building the new sequence rather than after touching the document.
+    const isPermutation =
+      new Set(newIndices).size === newIndices.length &&
+      newIndices.every((i) => Number.isInteger(i) && i >= 0 && i < envs.items.length);
 
-    // `envs.get()` yields undefined for an index past the end, and assigning that into the sequence
-    // would write empty entries over the user's env vars. Bail out before touching the document.
-    if (reordered.some((env) => env === undefined)) {
+    if (!isPermutation) {
       throw new Error(`The indices (${newIndices.join(', ')}) don't address every environment variable exactly once`);
     }
 
-    envs.items = reordered;
+    envs.items = newIndices.map((i) => envs.get(i));
     return doc;
   });
 }

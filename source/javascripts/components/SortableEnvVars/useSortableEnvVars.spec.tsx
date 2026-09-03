@@ -73,6 +73,57 @@ describe('useSortableEnvVars', () => {
     );
   });
 
+  describe('debounced key and value writes', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    const flushDebounce = () => act(() => jest.advanceTimersByTime(250));
+
+    it('writes a value to the row it was typed in after a preceding row is removed', () => {
+      const { result } = renderSortableEnvVars();
+      const [nodeVersion, , environment] = result.current.envs;
+
+      act(() => result.current.onValueChange(environment.uniqueId)('staging'));
+      act(() => result.current.onRemove(nodeVersion.uniqueId)());
+      flushDebounce();
+
+      expect(getYmlString()).toBe(
+        ['workflows:', '  wf1:', '    envs:', '    - PROJECT_NAME: Mando', '    - ENVIRONMENT: staging', ''].join('\n'),
+      );
+    });
+
+    it('writes a key to the row it was typed in after a preceding row is removed', () => {
+      const { result } = renderSortableEnvVars();
+      const [nodeVersion, , environment] = result.current.envs;
+
+      act(() => result.current.onKeyChange(environment.uniqueId)('STAGE'));
+      act(() => result.current.onRemove(nodeVersion.uniqueId)());
+      flushDebounce();
+
+      expect(getYmlString()).toBe(
+        ['workflows:', '  wf1:', '    envs:', '    - PROJECT_NAME: Mando', '    - STAGE: production', ''].join('\n'),
+      );
+    });
+
+    it('drops a pending write for a row that is removed before it flushes', () => {
+      const { result } = renderSortableEnvVars();
+      const [, , environment] = result.current.envs;
+
+      act(() => result.current.onValueChange(environment.uniqueId)('staging'));
+      act(() => result.current.onRemove(environment.uniqueId)());
+
+      expect(flushDebounce).not.toThrow();
+      expect(getYmlString()).toBe(
+        ['workflows:', '  wf1:', '    envs:', '    - NODE_VERSION: lts', '    - PROJECT_NAME: Mando', ''].join('\n'),
+      );
+    });
+  });
+
   it('applies is_expand to the row it was toggled on after a preceding row is removed', () => {
     const { result } = renderSortableEnvVars();
     const [nodeVersion, , environment] = result.current.envs;

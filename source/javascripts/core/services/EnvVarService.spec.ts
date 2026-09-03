@@ -495,7 +495,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('is idempotent when the same index is removed twice', () => {
+      it('ignores a repeated index once it is past the end', () => {
         updateBitriseYmlDocumentByString(
           yaml`
             app:
@@ -511,6 +511,29 @@ describe('EnvVarService', () => {
           app:
             envs:
             - SERVICE_VERSION: 1.2.3
+        `);
+      });
+
+      // Removal is positional, not identity-based: a repeated index that is still in bounds removes
+      // whatever moved into that position. Callers that need to remove one specific row must track
+      // that row themselves — `useSortableEnvVars` does, keyed by the row's `uniqueId`.
+      it('removes a second entry when a still-valid index is repeated', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            app:
+              envs:
+              - SERVICE_VERSION: 1.2.3
+              - PROJECT_NAME: Mando
+              - ENVIRONMENT: production`,
+        );
+
+        EnvVarService.remove({ source: EnvVarSource.App, index: 0 });
+        EnvVarService.remove({ source: EnvVarSource.App, index: 0 });
+
+        expect(getYmlString()).toBe(yaml`
+          app:
+            envs:
+            - ENVIRONMENT: production
         `);
       });
     });
@@ -596,7 +619,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('is idempotent when the same index is removed twice', () => {
+      it('ignores a repeated index once it is past the end', () => {
         updateBitriseYmlDocumentByString(
           yaml`
             workflows:
@@ -686,7 +709,12 @@ describe('EnvVarService', () => {
         }).toThrow('The number of indices (3) should match the number of environment variables (2)');
       });
 
-      it('leaves app.envs untouched when an index is out of bounds', () => {
+      it.each([
+        ['an index is out of bounds', [0, 2]],
+        ['an index is repeated', [0, 0]],
+        ['an index is negative', [-1, 1]],
+        ['an index is not an integer', [0.5, 1]],
+      ])('leaves app.envs untouched when %s', (_, indices) => {
         updateBitriseYmlDocumentByString(
           yaml`
             app:
@@ -696,8 +724,8 @@ describe('EnvVarService', () => {
         );
 
         expect(() => {
-          EnvVarService.reorder([0, 2], { source: EnvVarSource.App });
-        }).toThrow(`The indices (0, 2) don't address every environment variable exactly once`);
+          EnvVarService.reorder(indices, { source: EnvVarSource.App });
+        }).toThrow(`The indices (${indices.join(', ')}) don't address every environment variable exactly once`);
 
         expect(getYmlString()).toBe(yaml`
           app:
