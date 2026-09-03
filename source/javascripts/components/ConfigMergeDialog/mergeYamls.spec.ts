@@ -44,25 +44,30 @@ describe('mergeYamls', () => {
     expect(startLines).toEqual([1, 6]);
   });
 
-  it('marks the boundary line when the remote deleted lines you had edited', () => {
-    // Remote drops the middle line you changed, so the conflict resolves to an
-    // empty region: there is no output line to outline, only the gap it left.
-    const base = 'a\nb\nc\n';
-    const yours = 'a\nbY\nc\n';
-    const remote = 'a\nc\n';
+  it('marks the gap a remote deletion left, positioned by merged-output line', () => {
+    // Remote drops the line you changed, so the conflict resolves to an empty region:
+    // no output line to outline, only the gap it left. A clean local insertion above it
+    // pushes the output past the base, so an input-index anchor drifts.
+    // Merged output is 6 lines and 'c' was removed from between 'b' (line 4) and 'd'
+    // (line 5), so the gap is the top edge of line 5. Anchoring a line earlier gives 4,
+    // a full line too high; anchoring on oIndex gives 3, which is 'NEW2' — your text.
+    const base = 'a\nb\nc\nd\n';
+    const yours = 'a\nNEW1\nNEW2\nb\ncY\nd\n';
+    const remote = 'a\nb\nd\n';
 
     const { mergedYml, decorations } = mergeYamls(yours, base, remote);
 
-    expect(mergedYml).toBe('a\nc\n');
+    expect(mergedYml).toBe('a\nNEW1\nNEW2\nb\nd\n');
     expect(decorations).toHaveLength(1);
     expect(decorations[0].options.isWholeLine).toBe(false);
     expect(decorations[0].options.blockClassName).toBe('conflict');
-    expect(decorations[0].range.startLineNumber).toBe(1);
+    expect(decorations[0].range.startLineNumber).toBe(5);
+    expect(decorations[0].range.endLineNumber).toBe(5);
   });
 
-  it('clamps a deletion at the top of the file to line 1', () => {
-    // The gap sits above the first output line, so the unclamped boundary would
-    // be line 0 — not a line Monaco can decorate.
+  it('anchors a deletion at the top of the file to line 1', () => {
+    // The gap sits above the first output line, and the top edge of line 1 is that
+    // gap — the lower bound falls out of the anchor, with nothing left to clamp.
     const base = 'a\nb\n';
     const yours = 'aY\nb\n';
     const remote = 'b\n';
@@ -72,6 +77,21 @@ describe('mergeYamls', () => {
     expect(decorations).toHaveLength(1);
     expect(decorations[0].range.startLineNumber).toBe(1);
     expect(decorations[0].range.endLineNumber).toBe(1);
+  });
+
+  it('anchors a trailing deletion past the last line when there is no final newline', () => {
+    // Nothing follows the removed tail, so the gap is one line past the 1-line output.
+    // Monaco clamps an out-of-range decoration to the model's last line rather than
+    // dropping it, landing the marker at the end of the file — where the tail was.
+    const base = 'a\nb';
+    const yours = 'a\nbY';
+    const remote = 'a';
+
+    const { mergedYml, decorations } = mergeYamls(yours, base, remote);
+
+    expect(mergedYml).toBe('a');
+    expect(decorations).toHaveLength(1);
+    expect(decorations[0].range.startLineNumber).toBe(2);
   });
 
   it('returns the input unchanged when nothing differs', () => {

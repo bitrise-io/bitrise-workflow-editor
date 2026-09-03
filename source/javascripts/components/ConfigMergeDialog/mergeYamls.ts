@@ -37,12 +37,20 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
     const remoteChangeIsADeletion = region.conflict.b.length === 0;
 
     if (remoteChangeIsADeletion) {
-      // The remote removed lines you had — there are no output lines to mark, so
-      // flag the boundary (the line now sitting in the gap, clamped to line 1).
-      const boundaryLine = Math.max(conflictStartLine - 1, 1);
+      // No output lines to outline, only the gap the removal left. Monaco draws an
+      // empty-range block decoration at the TOP edge of `startLineNumber` — the
+      // `blockIsAfterEnd` option exists precisely to opt into the other edge — and the
+      // top of `conflictStartLine` IS that gap. Anchoring a line earlier drew it a full
+      // line too high. A trailing deletion in a file with no final newline puts this one
+      // past the last line; Monaco clamps such a range to the model instead of dropping it.
       decorations.push({
         options: { isWholeLine: false, blockClassName: 'conflict' },
-        range: { startLineNumber: boundaryLine, startColumn: 1, endLineNumber: boundaryLine, endColumn: 1 },
+        range: {
+          startLineNumber: conflictStartLine,
+          startColumn: 1,
+          endLineNumber: conflictStartLine,
+          endColumn: 1,
+        },
       });
     } else {
       decorations.push({
