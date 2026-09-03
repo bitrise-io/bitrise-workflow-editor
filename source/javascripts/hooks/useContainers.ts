@@ -25,15 +25,9 @@ function groupByType(map: Containers): ReturnValue {
 // node outranks the files it includes — matching modular precedence when the same container id is
 // defined in more than one file.
 //
-// Deliberately NOT cycle-guarded, unlike TreeService.walk: `fromWireTreeNode` builds this tree by
-// mapping a JSON payload into freshly allocated nodes, so it cannot be cyclic. A visited set would
-// also be wrong here — this walk is last-write-wins, and the visit order mirrors the Go merger's
-// `mergeTree`, which is post-order with no dedupe. Skipping a file reached twice (a diamond include,
-// which the backend permits — it rejects only ancestor repeats) would drop its final,
-// highest-precedence merge and change which definition wins.
-//
-// Known divergence: Go's `mergeValue` deep-merges a duplicated key's body, while `Object.assign`
-// replaces it wholesale. Only visible when two files define the same container id.
+// No cycle guard on purpose: `fromWireTreeNode` builds this tree from JSON, so it cannot be cyclic,
+// and a visited set would skip the second merge of a diamond-included file, changing which
+// definition wins.
 function collectContainers(node: TreeNode, files: Record<string, FileSlice>, acc: Containers): void {
   node.includes.forEach((child) => collectContainers(child, files, acc));
   const slice = files[node.nodeId];
