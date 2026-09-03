@@ -4,7 +4,14 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { EnvVarSource } from '@/core/models/EnvVar';
-import { getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { TreeNode } from '@/core/models/Tree';
+import {
+  getFileYmlString,
+  getYmlString,
+  initializeBitriseYmlDocument,
+  initializeModularConfig,
+  selectNode,
+} from '@/core/stores/BitriseYmlStore';
 
 import { useSortableEnvVars } from './useSortableEnvVars';
 
@@ -110,6 +117,41 @@ describe('useSortableEnvVars', () => {
       );
     });
 
+    it('lands every keystroke of a burst, because each rename builds on the previous one', () => {
+      const { result } = renderSortableEnvVars();
+      const [nodeVersion] = result.current.envs;
+
+      act(() => result.current.onKeyChange(nodeVersion.uniqueId)('N'));
+      act(() => jest.advanceTimersByTime(100));
+      act(() => result.current.onKeyChange(nodeVersion.uniqueId)('NO'));
+      flushDebounce();
+
+      expect(getYmlString()).toBe(
+        [
+          'workflows:',
+          '  wf1:',
+          '    envs:',
+          '    - NO: lts',
+          '    - PROJECT_NAME: Mando',
+          '    - ENVIRONMENT: production',
+          '',
+        ].join('\n'),
+      );
+    });
+
+    it('drops a pending write once the list is unmounted', () => {
+      const { result, unmount } = renderSortableEnvVars();
+      const [nodeVersion] = result.current.envs;
+
+      // `useDebounceCallback` cancels a different debounce instance than the one it hands back, so
+      // the timer fires after unmount regardless — the write itself has to decline to land.
+      act(() => result.current.onValueChange(nodeVersion.uniqueId)('changed'));
+      unmount();
+
+      expect(flushDebounce).not.toThrow();
+      expect(getYmlString()).toBe(WORKFLOW_ENVS);
+    });
+
     it('drops a pending write for a row that is removed before it flushes', () => {
       const { result } = renderSortableEnvVars();
       const [, , environment] = result.current.envs;
@@ -145,5 +187,94 @@ describe('useSortableEnvVars', () => {
         '',
       ].join('\n'),
     );
+  });
+
+  describe('modular config', () => {
+    const SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
+
+    // Both files define `workflows.wf1.envs`, and the second entry carries the same key in each —
+    // so a write that leaked across the file boundary would apply cleanly and silently.
+    const ROOT_YML = ['workflows:', '  wf1:', '    envs:', '    - ROOT_A: 1', '    - SHARED: root', ''].join('\n');
+    const CHILD_YML = ['workflows:', '  wf1:', '    envs:', '    - CHILD_A: 1', '    - SHARED: child', ''].join('\n');
+
+    const renderOnRoot = () => {
+      const child: TreeNode = {
+        nodeId: 'n_child',
+        path: 'child-a.yml',
+        contents: CHILD_YML,
+        source: { path: 'child-a.yml', repository: null, branch: null, tag: null, commit: null },
+        commitSha: SHA,
+        editable: true,
+        includes: [],
+      };
+      const root: TreeNode = {
+        nodeId: 'root',
+        path: 'bitrise.yml',
+        contents: ROOT_YML,
+        source: null,
+        commitSha: SHA,
+        editable: true,
+        includes: [child],
+      };
+
+      // initializeModularConfig selects the root file, so the list renders against `bitrise.yml`.
+      initializeModularConfig({ root, branch: 'main', commitSha: SHA });
+
+      return renderHook(() => useSortableEnvVars({ source: EnvVarSource.Workflows, sourceId: 'wf1' }));
+    };
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('drops a pending write when the active file changes before it flushes', () => {
+      const { result } = renderOnRoot();
+      const shared = result.current.envs.find((env) => env.key === 'SHARED');
+
+      act(() => result.current.onKeyChange(shared?.uniqueId ?? '')('RENAMED'));
+      act(() => selectNode('n_child'));
+
+      expect(() => act(() => jest.advanceTimersByTime(250))).not.toThrow();
+
+      // Neither file is touched: the edit is dropped rather than redirected into `child-a.yml`.
+      expect(getFileYmlString('root')).toBe(ROOT_YML);
+      expect(getFileYmlString('n_child')).toBe(CHILD_YML);
+    });
+
+    // Deliberately NOT wrapped in `act`: this is the case where the file switch has reached the
+    // store but React has not re-rendered yet, so neither the re-seeded list nor any effect-updated
+    // ref knows about it — only reading the store at flush time catches it. Wrapping this in `act`
+    // would test the easy path instead (see the case above).
+    it('drops a pending write when the file switch has not reached React yet', () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const { result } = renderOnRoot();
+      const shared = result.current.envs.find((env) => env.key === 'SHARED');
+
+      act(() => result.current.onKeyChange(shared?.uniqueId ?? '')('RENAMED'));
+      selectNode('n_child');
+
+      expect(() => act(() => jest.advanceTimersByTime(250))).not.toThrow();
+
+      expect(getFileYmlString('root')).toBe(ROOT_YML);
+      expect(getFileYmlString('n_child')).toBe(CHILD_YML);
+      consoleError.mockRestore();
+    });
+
+    it('writes to the active file when it has not changed', () => {
+      const { result } = renderOnRoot();
+      const shared = result.current.envs.find((env) => env.key === 'SHARED');
+
+      act(() => result.current.onKeyChange(shared?.uniqueId ?? '')('RENAMED'));
+      act(() => jest.advanceTimersByTime(250));
+
+      expect(getFileYmlString('root')).toBe(
+        ['workflows:', '  wf1:', '    envs:', '    - ROOT_A: 1', '    - RENAMED: root', ''].join('\n'),
+      );
+      expect(getFileYmlString('n_child')).toBe(CHILD_YML);
+    });
   });
 });

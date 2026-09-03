@@ -1,14 +1,25 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDebounceCallback } from 'usehooks-ts';
+import { useDebounceCallback, useUnmount } from 'usehooks-ts';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
 import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import { listenToEnvVarCreated } from './SortableEnvVars.events';
+
+/**
+ * The file a write lands in. `updateBitriseYmlDocument` reads exactly this when the mutator runs, so
+ * it is read from the store — not from a rendered value or a ref an effect maintains — at both ends
+ * of a debounced write: a file switch reaches the store before React re-renders, and the debounce
+ * timer can fire in between.
+ */
+function activeWriteTarget() {
+  return bitriseYmlStore.getState().selectedNodeId;
+}
 
 type UseSortableEnvVarsProps = {
   source: EnvVarSource;
@@ -48,14 +59,44 @@ export const useSortableEnvVars = ({
     return envsRef.current.findIndex((env) => env.uniqueId === uniqueId);
   }, []);
 
-  // The debounced writes carry the row's `uniqueId` rather than its index, and resolve the position
-  // only when they actually run: the row can move or go away during the delay (a preceding row
-  // removed, a reorder), and a position captured before the delay would write to whatever ended up
-  // there. `oldKey`/`key` describe the row itself, so those are still captured at call time — they
-  // are what the caller knows the document holds for that row, whatever position it is at.
+  const isMountedRef = useRef(true);
+
+  useUnmount(() => {
+    isMountedRef.current = false;
+  });
+
+  /**
+   * Where a pending write is still allowed to land: the row's current position, or -1 when it may
+   * not be applied at all.
+   *
+   * A debounce timer outlives the interaction that scheduled it, and the write resolves both its
+   * row and its target document only when it runs:
+   *
+   * - The row moves when a preceding row is removed or the list is reordered, so a position
+   *   captured before the delay would write to whatever ended up there.
+   * - `updateBitriseYmlDocument` picks the file from the active tab as the mutator runs. In modular
+   *   mode the same `sourceId` can live in several files, so a file switch inside the window would
+   *   redirect the write into a document it was never meant for — silently, when that file happens
+   *   to hold a matching key. See `activeWriteTarget` for why the store is read directly here.
+   * - After unmount there is nothing left to write for. (`useDebounceCallback`'s own unmount cancel
+   *   targets a different debounce instance than the one it hands back, so the timer still fires.)
+   */
+  const resolvePendingRow = useCallback(
+    (at: { uniqueId: string; fileId?: string }) => {
+      if (!isMountedRef.current || at.fileId !== activeWriteTarget()) {
+        return -1;
+      }
+
+      return indexOf(at.uniqueId);
+    },
+    [indexOf],
+  );
+
+  // `oldKey`/`key` stay captured at call time: they describe the row itself — what the caller knows
+  // the document holds for it — not where it sits, so they survive the row moving.
   const flushKeyUpdate = useCallback(
-    (newKey: string, at: { uniqueId: string; oldKey: string }) => {
-      const index = indexOf(at.uniqueId);
+    (newKey: string, at: { uniqueId: string; fileId?: string; oldKey: string }) => {
+      const index = resolvePendingRow(at);
 
       if (index === -1) {
         return;
@@ -63,12 +104,12 @@ export const useSortableEnvVars = ({
 
       EnvVarService.updateKey(newKey, { source, sourceId, index, oldKey: at.oldKey });
     },
-    [indexOf, source, sourceId],
+    [resolvePendingRow, source, sourceId],
   );
 
   const flushValueUpdate = useCallback(
-    (value: string, at: { uniqueId: string; key: string }) => {
-      const index = indexOf(at.uniqueId);
+    (value: string, at: { uniqueId: string; fileId?: string; key: string }) => {
+      const index = resolvePendingRow(at);
 
       if (index === -1) {
         return;
@@ -76,7 +117,7 @@ export const useSortableEnvVars = ({
 
       EnvVarService.updateValue(value, { source, sourceId, index, key: at.key });
     },
-    [indexOf, source, sourceId],
+    [resolvePendingRow, source, sourceId],
   );
 
   const updateKeyDebounced = useDebounceCallback(flushKeyUpdate, 250, { leading: false });
@@ -161,7 +202,7 @@ export const useSortableEnvVars = ({
 
     const oldKey = envsRef.current[index].key;
     updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, key } : env)));
-    updateKeyDebounced(key, { uniqueId, oldKey });
+    updateKeyDebounced(key, { uniqueId, fileId: activeWriteTarget(), oldKey });
   };
 
   const onValueChange = (uniqueId: string) => (value: string) => {
@@ -173,7 +214,7 @@ export const useSortableEnvVars = ({
 
     const { key } = envsRef.current[index];
     updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, value } : env)));
-    updateValueDebounced(value, { uniqueId, key });
+    updateValueDebounced(value, { uniqueId, fileId: activeWriteTarget(), key });
   };
 
   const onIsExpandChange = (uniqueId: string) => (isExpand: boolean) => {
