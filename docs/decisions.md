@@ -208,8 +208,7 @@ Reproduced, not inferred. Each one is a real bug someone will hit.
 | What | Where | Status |
 |---|---|---|
 | Cross-file delete and rename leave dangling or stale references | modular mode | ticketed |
-| `getStepBundleChain` recurses with no cycle guard, and the UI filter that prevents cycles is built from the same walk, so it throws first | `StepBundleService` | ticketed |
-| `getBeforeRunChain` / `getAfterRunChain` have the identical defect | `WorkflowService` | open |
+| `getBeforeRunChain` / `getAfterRunChain` recurse with no cycle guard, and the UI filter that prevents cycles is built from the same walk, so it throws first | `WorkflowService` | open |
 | Chaining accepts a cross-file workflow, reordering rejects it | `WorkflowService` | open |
 | The shipping merge dialog positions conflict decorations with the wrong offsets | `ConfigMergeDialog.tsx` | open |
 | `hasVersionUpgrade` resolves your pin and then compares against every published version rather than the ones the pin allows, so a step held at `2` wears a permanent badge. A spec asserts the current behaviour, so a fix breaks a passing test | `VersionUtils` | open |
