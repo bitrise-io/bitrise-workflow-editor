@@ -453,7 +453,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when env_var is not found at index', () => {
+      it('leaves app.envs untouched when the index is out of bounds', () => {
         updateBitriseYmlDocumentByString(
           yaml`
             app:
@@ -464,7 +464,54 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.remove({ source: EnvVarSource.App, index: 3 });
-        }).toThrow('Project-level environment variable not found, index 3 is out of bounds');
+        }).not.toThrow();
+
+        expect(getYmlString()).toBe(yaml`
+          app:
+            envs:
+            - SERVICE_VERSION: 1.2.3
+            - PROJECT_NAME: Mando
+        `);
+      });
+
+      it('leaves app.envs untouched when the index is negative', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            app:
+              envs:
+              - SERVICE_VERSION: 1.2.3
+              - PROJECT_NAME: Mando`,
+        );
+
+        expect(() => {
+          EnvVarService.remove({ source: EnvVarSource.App, index: -1 });
+        }).not.toThrow();
+
+        expect(getYmlString()).toBe(yaml`
+          app:
+            envs:
+            - SERVICE_VERSION: 1.2.3
+            - PROJECT_NAME: Mando
+        `);
+      });
+
+      it('is idempotent when the same index is removed twice', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            app:
+              envs:
+              - SERVICE_VERSION: 1.2.3
+              - PROJECT_NAME: Mando`,
+        );
+
+        EnvVarService.remove({ source: EnvVarSource.App, index: 1 });
+        EnvVarService.remove({ source: EnvVarSource.App, index: 1 });
+
+        expect(getYmlString()).toBe(yaml`
+          app:
+            envs:
+            - SERVICE_VERSION: 1.2.3
+        `);
       });
     });
 
@@ -520,7 +567,7 @@ describe('EnvVarService', () => {
         `);
       });
 
-      it('throws an error when env_var is not found at index', () => {
+      it('leaves workflows.[id].envs untouched when the index is out of bounds', () => {
         updateBitriseYmlDocumentByString(
           yaml`
             workflows:
@@ -535,7 +582,39 @@ describe('EnvVarService', () => {
 
         expect(() => {
           EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf1', index: 3 });
-        }).toThrow("Environment variable not found in Workflow 'wf1', index 3 is out of bounds");
+        }).not.toThrow();
+
+        expect(getYmlString()).toBe(yaml`
+          workflows:
+            wf1:
+              envs:
+              - NODE_VERSION: lts
+              - PROJECT_NAME: Mando
+            wf2:
+              envs:
+              - PARALLEL: 4
+        `);
+      });
+
+      it('is idempotent when the same index is removed twice', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            workflows:
+              wf1:
+                envs:
+                - NODE_VERSION: lts
+                - PROJECT_NAME: Mando`,
+        );
+
+        EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf1', index: 1 });
+        EnvVarService.remove({ source: EnvVarSource.Workflows, sourceId: 'wf1', index: 1 });
+
+        expect(getYmlString()).toBe(yaml`
+          workflows:
+            wf1:
+              envs:
+              - NODE_VERSION: lts
+        `);
       });
 
       it('throws an error when source is Workflow and sourceId is not provided', () => {
@@ -605,6 +684,27 @@ describe('EnvVarService', () => {
         expect(() => {
           EnvVarService.reorder([0, 1, 2], { source: EnvVarSource.App });
         }).toThrow('The number of indices (3) should match the number of environment variables (2)');
+      });
+
+      it('leaves app.envs untouched when an index is out of bounds', () => {
+        updateBitriseYmlDocumentByString(
+          yaml`
+            app:
+              envs:
+              - SERVICE_VERSION: 1.2.3
+              - PROJECT_NAME: Mando`,
+        );
+
+        expect(() => {
+          EnvVarService.reorder([0, 2], { source: EnvVarSource.App });
+        }).toThrow(`The indices (0, 2) don't address every environment variable exactly once`);
+
+        expect(getYmlString()).toBe(yaml`
+          app:
+            envs:
+            - SERVICE_VERSION: 1.2.3
+            - PROJECT_NAME: Mando
+        `);
       });
     });
 

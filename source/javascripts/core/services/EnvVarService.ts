@@ -198,7 +198,15 @@ function create(at: { source: EnvVarSource; sourceId?: string }): void {
 
 function remove(at: { source: EnvVarSource; sourceId?: string; index: number }) {
   updateBitriseYmlDocument(({ doc }) => {
-    getEnvVarOrThrowError(doc, at);
+    const envs = getEnvVarSeqOrThrowError(doc, at);
+
+    // Removing an entry that isn't there any more already produces the requested end state, so an
+    // out-of-bounds index is not an error here. The index comes from a list rendered in the UI,
+    // which can be a render ahead of the document (two remove clicks batched together, a change
+    // from elsewhere) — and throwing would take the whole editor down with the user's unsaved work.
+    if (at.index < 0 || at.index >= envs.items.length) {
+      return doc;
+    }
 
     YmlUtils.deleteByPath(
       doc,
@@ -220,7 +228,15 @@ function reorder(newIndices: number[], at: { source: EnvVarSource; sourceId?: st
       );
     }
 
-    envs.items = newIndices.map((i) => envs.get(i));
+    const reordered = newIndices.map((i) => envs.get(i));
+
+    // `envs.get()` yields undefined for an index past the end, and assigning that into the sequence
+    // would write empty entries over the user's env vars. Bail out before touching the document.
+    if (reordered.some((env) => env === undefined)) {
+      throw new Error(`The indices (${newIndices.join(', ')}) don't address every environment variable exactly once`);
+    }
+
+    envs.items = reordered;
     return doc;
   });
 }

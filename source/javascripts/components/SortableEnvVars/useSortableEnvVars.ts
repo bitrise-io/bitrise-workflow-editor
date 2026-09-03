@@ -1,6 +1,6 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
@@ -31,6 +31,23 @@ export const useSortableEnvVars = ({
   // file is part of the identity of the env var list — re-seed when it changes.
   const activeFileId = useBitriseYmlStore((s) => s.selectedNodeId);
 
+  // The document addresses env vars by position, so every mutation has to resolve the row's index
+  // at the moment it runs. `envs` catches up only on re-render, so two handler calls landing in the
+  // same React batch (a double click on Remove, a click on a row while a drag settles) would both
+  // resolve against the pre-update list and send the same — by then out-of-bounds — index to the
+  // document. This ref carries the up-to-date list between renders.
+  const envsRef = useRef<SortableEnvVar[]>([]);
+
+  const updateEnvs = useCallback((updater: (current: SortableEnvVar[]) => SortableEnvVar[]) => {
+    envsRef.current = updater(envsRef.current);
+    setEnvs(envsRef.current);
+  }, []);
+
+  /** Current position of a row, or -1 once it is gone from the list. */
+  const indexOf = useCallback((uniqueId: string) => {
+    return envsRef.current.findIndex((env) => env.uniqueId === uniqueId);
+  }, []);
+
   const updateKeyDebounced = useDebounceCallback(EnvVarService.updateKey, 250, { leading: false });
   const updateValueDebounced = useDebounceCallback(EnvVarService.updateValue, 250, { leading: false });
 
@@ -40,23 +57,23 @@ export const useSortableEnvVars = ({
 
   useEffect(() => {
     const base = initialEnvs ?? EnvVarService.getAll(source, sourceId || '');
-    setEnvs(
+    updateEnvs(() =>
       base.map((env) => ({
         ...env,
         uniqueId: crypto.randomUUID(),
       })),
     );
-  }, [source, sourceId, reseedFileId, initialEnvs]);
+  }, [source, sourceId, reseedFileId, initialEnvs, updateEnvs]);
 
   useEffect(() => {
     if (!listenForExternalChanges) return;
 
     return listenToEnvVarCreated((event) => {
       if (event.detail.source === source && event.detail.sourceId === sourceId) {
-        setEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...event.detail.envVar }]);
+        updateEnvs((oldEnvVars) => [...oldEnvVars, { uniqueId: crypto.randomUUID(), ...event.detail.envVar }]);
       }
     });
-  }, [listenForExternalChanges, source, sourceId]);
+  }, [listenForExternalChanges, source, sourceId, updateEnvs]);
 
   const onDragStart = (event: DragStartEvent) => {
     setActiveItem(event.active.data.current as SortableEnvVar);
@@ -65,19 +82,19 @@ export const useSortableEnvVars = ({
   const onDragEnd = (event: DragEndEvent) => {
     const overId = event.over?.id.toString();
     const activeId = event.active.id.toString();
+    const currentEnvs = envsRef.current;
+    const currentOverIndex = overId ? indexOf(overId) : -1;
+    const currentActiveIndex = activeId ? indexOf(activeId) : -1;
 
-    if (activeId && overId) {
-      const currentOverIndex = envs.findIndex(({ uniqueId }) => uniqueId === overId);
-      const currentActiveIndex = envs.findIndex(({ uniqueId }) => uniqueId === activeId);
-      const reorderedEnvs = arrayMove(envs, currentActiveIndex, currentOverIndex);
+    // Either row may already be gone (the list re-seeded, or the row was removed mid-drag).
+    // `arrayMove` treats a -1 as an offset from the end, which would reorder unrelated rows.
+    if (currentOverIndex !== -1 && currentActiveIndex !== -1) {
+      const reorderedEnvs = arrayMove(currentEnvs, currentActiveIndex, currentOverIndex);
+      const newIndices = reorderedEnvs.map((newEnvVar) =>
+        currentEnvs.findIndex((oldEnvVar) => newEnvVar.uniqueId === oldEnvVar.uniqueId),
+      );
 
-      const newIndices: number[] = [];
-      reorderedEnvs.forEach((newEnvVar) => {
-        const newIndex = envs.findIndex((oldEnvVar) => newEnvVar.uniqueId === oldEnvVar.uniqueId);
-        newIndices.push(newIndex);
-      });
-
-      setEnvs(reorderedEnvs);
+      updateEnvs(() => reorderedEnvs);
       EnvVarService.reorder(newIndices, { source, sourceId });
     }
 
@@ -89,27 +106,53 @@ export const useSortableEnvVars = ({
   };
 
   const onAdd = () => {
-    setEnvs([...envs, { uniqueId: crypto.randomUUID(), ...EnvVarService.EMPTY_ENV_VAR }]);
+    updateEnvs((current) => [...current, { uniqueId: crypto.randomUUID(), ...EnvVarService.EMPTY_ENV_VAR }]);
     EnvVarService.create({ source, sourceId });
   };
 
-  const onRemove = (index: number) => () => {
-    setEnvs(envs.filter((_, i) => i !== index));
+  const onRemove = (uniqueId: string) => () => {
+    const index = indexOf(uniqueId);
+
+    if (index === -1) {
+      return;
+    }
+
+    updateEnvs((current) => current.filter((_, i) => i !== index));
     EnvVarService.remove({ source, sourceId, index });
   };
 
-  const onKeyChange = (index: number) => (key: string) => {
-    setEnvs(envs.map((env, i) => (i === index ? { ...env, key } : env)));
-    updateKeyDebounced(key, { source, sourceId, index, oldKey: envs[index].key });
+  const onKeyChange = (uniqueId: string) => (key: string) => {
+    const index = indexOf(uniqueId);
+
+    if (index === -1) {
+      return;
+    }
+
+    const oldKey = envsRef.current[index].key;
+    updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, key } : env)));
+    updateKeyDebounced(key, { source, sourceId, index, oldKey });
   };
 
-  const onValueChange = (index: number) => (value: string) => {
-    setEnvs(envs.map((env, i) => (i === index ? { ...env, value } : env)));
-    updateValueDebounced(value, { source, sourceId, index, key: envs[index].key });
+  const onValueChange = (uniqueId: string) => (value: string) => {
+    const index = indexOf(uniqueId);
+
+    if (index === -1) {
+      return;
+    }
+
+    const { key } = envsRef.current[index];
+    updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, value } : env)));
+    updateValueDebounced(value, { source, sourceId, index, key });
   };
 
-  const onIsExpandChange = (index: number) => (isExpand: boolean) => {
-    setEnvs(envs.map((env, i) => (i === index ? { ...env, isExpand } : env)));
+  const onIsExpandChange = (uniqueId: string) => (isExpand: boolean) => {
+    const index = indexOf(uniqueId);
+
+    if (index === -1) {
+      return;
+    }
+
+    updateEnvs((current) => current.map((env, i) => (i === index ? { ...env, isExpand } : env)));
     EnvVarService.updateIsExpand(isExpand, { source, sourceId, index });
   };
 

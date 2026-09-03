@@ -67,14 +67,14 @@ const SortableEnvVars = ({
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SortableContext items={envs.map(({ uniqueId }) => uniqueId)} strategy={verticalListSortingStrategy}>
-          {envs.map((env, index) => (
+          {envs.map((env) => (
             <SortableEnvVarItem
               key={env.uniqueId}
               env={env}
-              onRemove={onRemove(index)}
-              onKeyChange={onKeyChange(index)}
-              onValueChange={onValueChange(index)}
-              onIsExpandChange={onIsExpandChange(index)}
+              onRemove={onRemove(env.uniqueId)}
+              onKeyChange={onKeyChange(env.uniqueId)}
+              onValueChange={onValueChange(env.uniqueId)}
+              onIsExpandChange={onIsExpandChange(env.uniqueId)}
               jumpButton={isReadOnlyView ? renderJumpButton?.(env) : undefined}
             />
           ))}
