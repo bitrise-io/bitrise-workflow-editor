@@ -58,7 +58,8 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
   // Only a deletion with nothing after it can anchor past the last line. Monaco pulls that
   // range back and — block decorations positioning from `startLineNumber` alone — would draw
   // the marker above the surviving text; `blockIsAfterEnd` is its opt-in for the bottom edge.
-  // Reachable only without a trailing newline, and it can only ever be the last decoration.
+  // Reachable only without a trailing newline, and — diff3 coalescing adjacent conflicts — in
+  // practice that is the last decoration, so the last one is the only one worth re-checking.
   const lineCount = Math.max(rows.length, 1);
   const last = decorations[decorations.length - 1];
 
