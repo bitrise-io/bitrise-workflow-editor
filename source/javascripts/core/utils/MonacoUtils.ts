@@ -296,12 +296,29 @@ function onWorkspaceMarkerStatusChange(
   };
 }
 
-/** Single-model form of {@link onWorkspaceMarkerStatusChange}. */
+/**
+ * Single-model form of {@link onWorkspaceMarkerStatusChange}.
+ *
+ * Unlike the workspace form — whose callers look the models up fresh, so a disposed one simply
+ * stops being returned — this captures `model`, which can be disposed while the subscription is
+ * still alive (an editor unmounting under a dialog that stays open). What the marker service
+ * reports for a dead URI is owner-dependent and not worth depending on either way, so end the
+ * subscription with the model: `onWillDispose` fires before disposal and `dispose()` cancels
+ * both debounce timers, so no status lands after the model it described is gone.
+ */
 function onModelMarkerStatusChange(
   model: monaco.editor.ITextModel,
   callback: (status: ValidationStatus) => void,
 ): monaco.IDisposable {
-  return onWorkspaceMarkerStatusChange(() => [model], callback);
+  const subscription = onWorkspaceMarkerStatusChange(() => [model], callback);
+  const willDispose = model.onWillDispose(() => subscription.dispose());
+
+  return {
+    dispose: () => {
+      willDispose.dispose();
+      subscription.dispose();
+    },
+  };
 }
 
 export default {

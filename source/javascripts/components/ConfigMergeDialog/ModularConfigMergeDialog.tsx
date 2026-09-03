@@ -247,8 +247,6 @@ const ModularConfigMergeDialogBody = ({
                   original={activeMerge.baseYml}
                   modified={activeMerge.yourYml}
                   options={readOnlyDiffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
                 />
               </Box>
             </Box>
@@ -267,8 +265,6 @@ const ModularConfigMergeDialogBody = ({
                   original={activeMerge.baseYml}
                   modified={resolved[activeMerge.nodeId] ?? activeMerge.mergedYml}
                   options={diffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
                   onMount={onResultEditorMount(activeMerge.nodeId, activeMerge.decorations)}
                 />
               </Box>
@@ -288,8 +284,6 @@ const ModularConfigMergeDialogBody = ({
                   original={activeMerge.baseYml}
                   modified={activeMerge.remoteYml}
                   options={readOnlyDiffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
                 />
               </Box>
             </Box>
