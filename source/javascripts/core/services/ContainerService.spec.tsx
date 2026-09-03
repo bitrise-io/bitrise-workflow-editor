@@ -1763,6 +1763,50 @@ describe('ContainerService', () => {
         ).toEqual([{ id: 'postgres', recreate: false }]);
       });
 
+      it('skips a nested-array reference entry instead of naming a container after its index', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - [postgres]
+                  - redis
+        `);
+
+        // `Object.entries(['postgres'])` would otherwise yield a container called "0".
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'redis', recreate: false }]);
+      });
+
+      it('returns undefined when every reference entry is unreadable', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - [postgres]
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
       it('returns undefined for a step bundle definition of an unexpected shape', () => {
         updateBitriseYmlDocumentByString(yaml`
           step_bundles:

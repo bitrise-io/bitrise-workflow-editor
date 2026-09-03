@@ -260,7 +260,9 @@ function parseContainerReference(value: unknown): ContainerReference | undefined
     return value ? { id: value, recreate: false } : undefined;
   }
 
-  if (typeof value !== 'object' || value === null) {
+  // Arrays reach the object branch too, and `Object.entries` would turn a nested `[[postgres]]`
+  // entry into a container literally named "0" — a bogus chip with working actions behind it.
+  if (Array.isArray(value) || typeof value !== 'object' || value === null) {
     return undefined;
   }
 

@@ -10,6 +10,7 @@ import { ComponentProps, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import Client from '@/core/api/client';
+import { createResetBudget } from '@/core/utils/resetBudget';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import InitialDataLoader from '@/layouts/InitialDataLoader';
 import MainLayout from '@/layouts/MainLayout';
@@ -68,27 +69,18 @@ const DefaultQueryClient = new QueryClient({
 // The fallback resets the boundary so a transient render error doesn't leave the whole editor
 // blanked out. A *deterministic* one re-throws on the very next render though, and resetting again
 // spins that into an unbounded render loop that re-reports the same error to RUM thousands of times
-// in a single session. Give up after a few immediate retries and stay in the fallback instead; the
-// errors still reach RUM, but once per occurrence rather than as a storm.
-const MAX_IMMEDIATE_RESETS = 3;
-const IMMEDIATE_RESET_WINDOW_MS = 1000;
-
+// in a single session. The budget stops that after a burst, while still letting spaced-out transient
+// failures recover; the errors still reach RUM, but once per occurrence rather than as a storm.
+//
 // Module scope on purpose: the fallback unmounts on every successful reset, so component state
 // cannot see how many times it has already retried.
-let immediateResets = 0;
-let lastResetAt = 0;
+const resetBudget = createResetBudget({ maxResets: 3, windowMs: 1000 });
 
 const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ resetError }) => {
   useEffect(() => {
-    const now = Date.now();
-    immediateResets = now - lastResetAt < IMMEDIATE_RESET_WINDOW_MS ? immediateResets + 1 : 1;
-    lastResetAt = now;
-
-    if (immediateResets > MAX_IMMEDIATE_RESETS) {
-      return;
+    if (resetBudget.tryConsume()) {
+      resetError();
     }
-
-    resetError();
   }, [resetError]);
 
   return null;
