@@ -1,4 +1,4 @@
-import { isMap, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+import { isAlias, isMap, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import YmlUtils from './YmlUtils';
 
@@ -698,6 +698,121 @@ describe('YmlUtils', () => {
       `);
 
       expect(() => YmlUtils.setIn(root, [], {})).toThrow('Path cannot be empty when setting a value');
+    });
+  });
+
+  describe('setIn through aliases', () => {
+    it('should replace a last-segment alias locally instead of writing into its anchor', () => {
+      const root = YmlUtils.toDoc(yaml`
+        app:
+          envs:
+          - FOO: &v "x"
+          - BAR: *v
+      `);
+
+      YmlUtils.setIn(root, ['app', 'envs', 1, 'BAR'], 'changed');
+
+      // The anchor keeps its own value and is still declared exactly once.
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        app:
+          envs:
+          - FOO: &v "x"
+          - BAR: changed
+      `);
+    });
+
+    it('should write through an alias that is an interior hop of the path', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _meta: &common_meta
+          stack: old
+        workflows:
+          wf1:
+            meta: *common_meta
+      `);
+
+      YmlUtils.setIn(root, ['workflows', 'wf1', 'meta', 'stack'], 'new');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        _meta: &common_meta
+          stack: new
+        workflows:
+          wf1:
+            meta: *common_meta
+      `);
+    });
+  });
+
+  describe('nested roots', () => {
+    it('should resolve an alias against the document the nested root came from', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _inputs: &common_inputs
+        - content: echo hi
+        - other: 1
+        workflows:
+          wf1:
+            steps:
+            - script@1:
+                inputs: *common_inputs
+      `);
+
+      // The anchor lives outside this subtree, so resolving against it alone would find nothing.
+      const stepData = YmlUtils.getIn(root, ['workflows', 'wf1', 'steps', 0, 'script@1'], true) as never;
+
+      expect(YmlUtils.getSeqIn(stepData, ['inputs'])?.toJSON()).toEqual([{ content: 'echo hi' }, { other: 1 }]);
+    });
+
+    it('should not replace an aliased collection when createIfNotExists is used on a nested root', () => {
+      const root = YmlUtils.toDoc(yaml`
+        _inputs: &common_inputs
+        - content: echo hi
+        - other: 1
+        workflows:
+          wf1:
+            steps:
+            - script@1:
+                inputs: *common_inputs
+      `);
+
+      const stepData = YmlUtils.getIn(root, ['workflows', 'wf1', 'steps', 0, 'script@1'], true) as never;
+      const inputs = YmlUtils.getSeqIn(stepData, ['inputs'], true);
+
+      // The anchored sequence itself, not a fresh empty one written over the reference.
+      expect(inputs.toJSON()).toEqual([{ content: 'echo hi' }, { other: 1 }]);
+      expect(YmlUtils.toYml(root)).toContain('inputs: *common_inputs');
+    });
+
+    it('should refuse to create over an alias it cannot resolve rather than dropping it', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script@1:
+                inputs: *missing_anchor
+      `);
+
+      const stepData = YmlUtils.getIn(root, ['workflows', 'wf1', 'steps', 0, 'script@1'], true) as never;
+
+      expect(() => YmlUtils.getSeqIn(stepData, ['inputs'], true)).toThrow(
+        'Cannot resolve alias "*missing_anchor" at path "inputs"',
+      );
+
+      // Nothing was written over the reference. Asserted on the node: a document holding a dangling
+      // alias cannot be serialized at all (yaml throws `Unresolved alias`).
+      expect(isAlias(root.getIn(['workflows', 'wf1', 'steps', 0, 'script@1', 'inputs'], true))).toBe(true);
+    });
+
+    it('should stay lenient on the read path for an alias it cannot resolve', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+            - script@1:
+                inputs: *missing_anchor
+      `);
+
+      const stepData = YmlUtils.getIn(root, ['workflows', 'wf1', 'steps', 0, 'script@1'], true) as never;
+
+      expect(YmlUtils.getSeqIn(stepData, ['inputs'])).toBeUndefined();
     });
   });
 

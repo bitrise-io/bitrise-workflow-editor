@@ -1892,6 +1892,42 @@ describe('StepService', () => {
     });
   });
 
+  describe('aliased step data', () => {
+    it('should edit the anchored inputs instead of replacing the alias with an empty list', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        workflows:
+          base:
+            steps:
+            - script@1:
+                inputs: &common_inputs
+                - content: echo hi
+                - other: 1
+          wf:
+            steps:
+            - script@1:
+                inputs: *common_inputs
+      `);
+
+      StepService.updateStepInput('workflows', 'wf', 0, 'content', 'echo bye');
+
+      // `other: 1` must survive, and `wf` must still reference the anchor. (yaml indents a block
+      // sequence that follows an anchor; that reformatting is unrelated to this edit.)
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          base:
+            steps:
+            - script@1:
+                inputs: &common_inputs
+                  - content: echo bye
+                  - other: 1
+          wf:
+            steps:
+            - script@1:
+                inputs: *common_inputs
+      `);
+    });
+  });
+
   describe('getStepOrThrowError', () => {
     it('should resolve a step written as an alias', () => {
       const doc = YmlUtils.toDoc(yaml`

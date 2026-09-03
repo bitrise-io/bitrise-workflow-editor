@@ -219,6 +219,47 @@ function unflowEmptyCollection(node: unknown) {
 // document before mutating it, and nothing in the editor creates or moves an anchor.
 const anchorLookupCache = new WeakMap<Root, Node[]>();
 
+// Most callers hand these helpers a nested collection (a workflow, a step's option map) rather than
+// the document, but an anchor is declared at the document level — outside that subtree. Resolving
+// against the subtree alone would report a perfectly valid `*anchor` as absent, and on a
+// `createIfNotExists` path that means overwriting the alias and dropping the data it points at.
+//
+// So remember which document a node came from. A nested root is always obtained by reading from the
+// document first (there is no other way to get hold of it), so indexing a document the first time it
+// is used as a root always happens before any nested call that needs it.
+const documentByNode = new WeakMap<Node, Document>();
+const indexedDocuments = new WeakSet<Document>();
+
+// One walk per document version, seeding both indexes at once. On a 12k-line config that is ~20ms,
+// paid once when the document is first read from — reads after it are unaffected.
+function trackDocument(root: Root) {
+  if (!isDocument(root) || indexedDocuments.has(root)) {
+    return;
+  }
+
+  indexedDocuments.add(root);
+
+  const anchored: Node[] = [];
+  visit(root, {
+    Node(_, node) {
+      documentByNode.set(node, root);
+      if (isAlias(node) || node.anchor) {
+        anchored.push(node);
+      }
+    },
+  });
+  anchorLookupCache.set(root, anchored);
+}
+
+/** The document `root` belongs to, falling back to `root` itself when the owner isn't known. */
+function aliasScope(root: Root): Root {
+  if (isDocument(root)) {
+    return root;
+  }
+
+  return documentByNode.get(root) ?? root;
+}
+
 function anchorLookupNodes(root: Root) {
   const cached = anchorLookupCache.get(root);
   if (cached) {
@@ -250,7 +291,7 @@ function resolveAlias(root: Root, node: unknown) {
   }
 
   let resolved: unknown;
-  for (const candidate of anchorLookupNodes(root)) {
+  for (const candidate of anchorLookupNodes(aliasScope(root))) {
     if (candidate === node) {
       break;
     }
@@ -262,6 +303,10 @@ function resolveAlias(root: Root, node: unknown) {
   return resolved;
 }
 
+function rootCollection(root: Root) {
+  return resolveAlias(root, isDocument(root) ? root.contents : root);
+}
+
 function getIn(root: Root, path: Path, keepScalar = false) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
@@ -271,11 +316,13 @@ function getIn(root: Root, path: Path, keepScalar = false) {
     throw new Error('Path cannot contain wildcards when getting a value');
   }
 
+  trackDocument(root);
+
   if (isEmpty(path)) {
     return root;
   }
 
-  let node = resolveAlias(root, isDocument(root) ? root.contents : root);
+  let node = rootCollection(root);
 
   for (let i = 0; i < path.length; i += 1) {
     if (!isCollection(node)) {
@@ -285,6 +332,18 @@ function getIn(root: Root, path: Path, keepScalar = false) {
   }
 
   return !keepScalar && isScalar(node) ? node.value : node;
+}
+
+/**
+ * The node stored at `path`, with an alias in the *final* segment left unresolved — `getIn` resolves
+ * it, which is what reading a value wants, but not what "what is written here?" wants. A last-segment
+ * alias is the value being replaced or refused, never a hop on the way to a deeper key.
+ */
+function getRawIn(root: Root, path: Path) {
+  const parentPath = path.slice(0, -1);
+  const parent = isEmpty(parentPath) ? rootCollection(root) : getIn(root, parentPath, true);
+
+  return isCollection(parent) ? parent.get(path[path.length - 1], true) : undefined;
 }
 
 /**
@@ -299,7 +358,7 @@ function getIn(root: Root, path: Path, keepScalar = false) {
  * to something that isn't a collection (left to the native call to report).
  */
 function rebaseThroughAlias(root: Root, path: Path) {
-  let current: unknown = isDocument(root) ? root.contents : root;
+  let current: unknown = rootCollection(root);
 
   // Only interior segments matter; the final segment is assigned/deleted on its parent, and an
   // alias sitting there is simply the value being replaced.
@@ -381,7 +440,12 @@ function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
 
   unflowEmptyCollection(getIn(root, parentPath));
 
-  const existingNode = getIn(root, path, true);
+  // Read alias-blind: `toScalar` reuses the node it is handed by mutating it in place, so reusing
+  // the node an alias resolves to would rewrite the anchor's own value — corrupting every other
+  // reference to it — and then seat that same node at the alias position, declaring the anchor
+  // twice. A last-segment alias is the value being replaced; there is nothing here to carry over.
+  const rawNode = getRawIn(root, path);
+  const existingNode = isAlias(rawNode) ? undefined : rawNode;
   const valueToWrite = stringToTypedValue ? toTypedValue(value) : value;
 
   if (isPrimitive(valueToWrite)) {
@@ -533,6 +597,25 @@ function isEmptyNode(node: unknown) {
   return isNil(node) || (isScalar(node) && isNil(node.value));
 }
 
+/**
+ * Guards the `createIfNotExists` branch. An alias whose anchor cannot be found reads as "absent", but
+ * creating a collection over it would delete whatever that anchor points at — silent data loss, and a
+ * far worse outcome than the error the caller used to get. "Can't handle" is not "absent", so say so.
+ *
+ * An alias that *does* resolve, to an empty node, is a different story: there is no data behind it to
+ * lose, so it falls through and the reference is replaced locally.
+ *
+ * Reads stay lenient (`undefined`) because they run during render, where throwing takes down the
+ * page. Only the write path refuses, and it always runs inside a mutation.
+ */
+function assertResolvableBeforeCreate(root: Root, path: Path) {
+  const rawNode = getRawIn(root, path);
+
+  if (isAlias(rawNode) && resolveAlias(root, rawNode) === undefined) {
+    throw new Error(`Cannot resolve alias "*${rawNode.source}" at path "${path.join('.')}"`);
+  }
+}
+
 function getSeqIn(root: Root, path: Path): YAMLSeq | undefined;
 function getSeqIn(root: Root, path: Path, createIfNotExists: true): YAMLSeq;
 function getSeqIn(root: Root, path: Path, createIfNotExists?: boolean): YAMLSeq | undefined;
@@ -552,6 +635,7 @@ function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
       return undefined;
     }
 
+    assertResolvableBeforeCreate(root, path);
     setIn(root, path, new YAMLSeq());
     node = getIn(root, path, true);
   }
@@ -582,6 +666,7 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
       return undefined;
     }
 
+    assertResolvableBeforeCreate(root, path);
     setIn(root, path, new YAMLMap());
     node = getIn(root, path, true);
   }

@@ -4,6 +4,61 @@ import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from 
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
+  describe('aliased workflow chains', () => {
+    const source = yaml`
+      _chain: &common_chain
+      - prep
+      workflows:
+        prep: {}
+        extra: {}
+        wf:
+          before_run: *common_chain
+    `;
+
+    it('should read a chain written as an alias rather than treating it as absent', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        _chain: &common_chain
+        - prep
+        - extra
+        workflows:
+          prep: {}
+          extra: {}
+          wf:
+            before_run: *common_chain
+      `);
+
+      // `removeChainedWorkflow` reads the chain first and throws if it looks absent.
+      WorkflowService.removeChainedWorkflow('wf', 'before_run', 'prep', 0);
+
+      expect(getYmlString()).toEqual(yaml`
+        _chain: &common_chain
+          - extra
+        workflows:
+          prep: {}
+          extra: {}
+          wf:
+            before_run: *common_chain
+      `);
+    });
+
+    it('should extend the anchored chain instead of overwriting the alias', () => {
+      updateBitriseYmlDocumentByString(source);
+
+      WorkflowService.setChainedWorkflows('wf', 'before_run', ['prep', 'extra']);
+
+      expect(getYmlString()).toEqual(yaml`
+        _chain: &common_chain
+          - prep
+          - extra
+        workflows:
+          prep: {}
+          extra: {}
+          wf:
+            before_run: *common_chain
+      `);
+    });
+  });
+
   describe('validateName', () => {
     describe('when the initial name is empty', () => {
       it('returns true if workflow name is valid and unique', () => {

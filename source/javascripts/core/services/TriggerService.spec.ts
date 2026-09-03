@@ -4,6 +4,31 @@ import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/Bitris
 import TriggerService from './TriggerService';
 
 describe('TriggerService', () => {
+  describe('aliased triggers', () => {
+    it('should add enabled to the anchored triggers instead of dropping the trigger list', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        _triggers: &common_triggers
+          push:
+          - branch: main
+        workflows:
+          wf3:
+            triggers: *common_triggers
+      `);
+
+      TriggerService.updateEnabled(false, { source: 'workflows' as TriggerSource, sourceId: 'wf3' });
+
+      expect(getYmlString()).toEqual(yaml`
+        _triggers: &common_triggers
+          push:
+          - branch: main
+          enabled: false
+        workflows:
+          wf3:
+            triggers: *common_triggers
+      `);
+    });
+  });
+
   describe('Legacy Triggers', () => {
     describe('toLegacyTriggers', () => {
       it('should convert trigger map to legacy triggers', () => {
