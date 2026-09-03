@@ -58,6 +58,7 @@ function init() {
 describe('BitriseYmlStore — modular tree', () => {
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     init();
   });
 
@@ -454,7 +455,8 @@ describe('BitriseYmlStore — modular tree', () => {
       });
 
       expect(bitriseYmlStore.getState().ymlDocument).toBe(before);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('read-only'));
+      // Reported via console.error, not warnInDev: a dropped edit must be visible in production too.
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('read-only'));
     });
 
     it('discards edits across all files and rebinds the active document', () => {
