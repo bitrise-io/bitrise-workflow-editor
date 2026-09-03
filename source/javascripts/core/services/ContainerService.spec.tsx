@@ -1807,6 +1807,57 @@ describe('ContainerService', () => {
         ).toBeUndefined();
       });
 
+      it('skips an aliased reference entry instead of naming a container after the anchor key', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            pg: &pg
+              image: postgres
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - *pg
+                  - redis
+        `);
+
+        // Serializing the sequence as a whole would render the alias as `{ source: 'pg' }`, which
+        // would parse as a container called "source".
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'redis', recreate: false }]);
+      });
+
+      it('returns undefined when the only reference entry is an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            pg: &pg
+              image: postgres
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - *pg
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
       it('returns undefined for a step bundle definition of an unexpected shape', () => {
         updateBitriseYmlDocumentByString(yaml`
           step_bundles:

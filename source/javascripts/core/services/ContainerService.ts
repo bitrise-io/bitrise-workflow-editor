@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, isScalar, isSeq, YAMLMap } from 'yaml';
+import { Document, isAlias, isMap, isNode, isScalar, isSeq, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
@@ -291,9 +291,16 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
   if (type === ContainerType.Service) {
     // `service_containers:` is only usable as a sequence; any other shape is left to the YAML
     // validator to report rather than thrown from here, mid-render.
+    //
+    // Entries are converted one at a time, skipping aliases. Calling `toJSON()` on the sequence as a
+    // whole has no document to resolve against, so an alias entry serializes to
+    // `{ source: '<anchor>' }` and would read as a container literally named "source" — a chip for
+    // something that doesn't exist, with working actions behind it. Reading an alias needs the
+    // document; until then, skip the entry rather than invent a reference for it.
     const node = YmlUtils.getIn(yamlMap, [ContainerReferenceField.Service], true);
-    const references = (isSeq(node) ? (node.toJSON() as unknown[]) : [])
-      .map(parseContainerReference)
+    const references = (isSeq(node) ? node.items : [])
+      .filter((item) => !isAlias(item))
+      .map((item) => parseContainerReference(isNode(item) ? item.toJSON() : item))
       .filter((reference): reference is ContainerReference => Boolean(reference));
 
     if (references.length > 0) {
