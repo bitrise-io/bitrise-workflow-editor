@@ -874,6 +874,31 @@ describe('YmlUtils', () => {
       expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: []`);
     });
 
+    it('should return undefined for a key written without a value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'])).toBeUndefined();
+    });
+
+    it('should create a YAMLSeq over a key written without a value when createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            steps:
+      `);
+
+      expect(YmlUtils.getSeqIn(root, ['workflows', 'wf1', 'steps'], true)).toBeInstanceOf(YAMLSeq);
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            steps: []
+      `);
+    });
+
     it('should throw an error if the path does not point to a YAMLSeq', () => {
       const root = YmlUtils.toDoc(yaml`
         workflows:
@@ -919,6 +944,37 @@ describe('YmlUtils', () => {
       const root = YmlUtils.toDoc(yaml``);
       expect(YmlUtils.getMapIn(root, ['workflows'], true)).toBeInstanceOf(YAMLMap);
       expect(YmlUtils.toYml(root)).toEqual(yaml`workflows: {}`);
+    });
+
+    it('should return undefined for a key written without a value', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            meta:
+              bitrise.io:
+      `);
+
+      expect(YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'])).toBeUndefined();
+    });
+
+    it('should create a YAMLMap over a key written without a value when createIfNotExists is true', () => {
+      const root = YmlUtils.toDoc(yaml`
+        workflows:
+          wf1:
+            meta:
+              bitrise.io:
+      `);
+
+      const meta = YmlUtils.getMapIn(root, ['workflows', 'wf1', 'meta', 'bitrise.io'], true);
+      YmlUtils.setIn(meta, ['stack'], 'linux-docker-android-22.04');
+
+      expect(YmlUtils.toYml(root)).toEqual(yaml`
+        workflows:
+          wf1:
+            meta:
+              bitrise.io:
+                stack: linux-docker-android-22.04
+      `);
     });
 
     it('should throw an error if the path does not point to a YAMLMap', () => {

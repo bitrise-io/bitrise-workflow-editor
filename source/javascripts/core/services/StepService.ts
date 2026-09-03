@@ -400,10 +400,14 @@ export const moveStepIndices = (
   }
 };
 
+// Read with `getIn` and check the shape here, rather than letting `getMapIn` throw. A node of an
+// unexpected shape at these paths is a config the editor can't read, not a programming error, and it
+// should surface as one of these domain errors instead of a low-level "Expected a YAMLMap at path
+// ..." — every caller below already handles "not found".
 function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) {
-  const entity = YmlUtils.getMapIn(doc, [source, sourceId]);
+  const entity = YmlUtils.getIn(doc, [source, sourceId], true);
 
-  if (!entity) {
+  if (!isMap(entity)) {
     throw new Error(`${source}.${sourceId} not found`);
   }
 
@@ -412,9 +416,9 @@ function getSourceOrThrowError(source: Source, sourceId: string, doc: Document) 
 
 function getStepOrThrowError(source: Source, sourceId: string, stepIndex: number, doc: Document) {
   const entity = getSourceOrThrowError(source, sourceId, doc);
-  const step = YmlUtils.getMapIn(entity, ['steps', stepIndex]);
+  const step = YmlUtils.getIn(entity, ['steps', stepIndex], true);
 
-  if (!step || !isMap(step)) {
+  if (!isMap(step)) {
     throw new Error(`Step at index ${stepIndex} not found in ${source}.${sourceId}`);
   }
 

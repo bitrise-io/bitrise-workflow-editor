@@ -1,5 +1,5 @@
 import { uniq } from 'es-toolkit';
-import { Document, isMap, isScalar, YAMLMap } from 'yaml';
+import { Document, isMap, isScalar, isSeq, YAMLMap } from 'yaml';
 
 import { ContainerModel, Containers } from '@/core/models/BitriseYml';
 import { Container, ContainerReference, ContainerReferenceField, ContainerType } from '@/core/models/Container';
@@ -64,6 +64,29 @@ function getStepDataOrThrowError(
   }
 
   throw new Error(`Invalid step data at index ${stepIndex} in ${source} '${sourceId}'`);
+}
+
+/**
+ * The option map of a step (`- script@1: {...}` → the `{...}`), or `undefined` when the step is
+ * absent — a cross-file workflow, a step bundle defined in another module — or isn't a
+ * `{cvs: options}` map at all. Unlike `getStepDataOrThrowError` this neither throws nor materializes
+ * a missing option map, so it is safe to call while rendering.
+ */
+function findStepData(
+  doc: Document,
+  source: 'workflows' | 'step_bundles',
+  sourceId: string,
+  stepIndex: number,
+): YAMLMap | undefined {
+  const step = YmlUtils.getIn(doc, [source, sourceId, 'steps', stepIndex], true);
+
+  if (!isMap(step)) {
+    return undefined;
+  }
+
+  const stepData = step.items[0]?.value;
+
+  return isMap(stepData) ? stepData : undefined;
 }
 
 function addContainerReference(
@@ -230,17 +253,21 @@ function getAllContainers(containers: Containers, selector: (container: Containe
     .filter(selector);
 }
 
-type ContainerReferenceValue = string | Record<string, { recreate?: boolean }>;
-
-function parseContainerReference(value: ContainerReferenceValue): ContainerReference {
+// `undefined` for a reference that names no container (an empty map, an empty seq item, a number).
+// Both callers run during render, where throwing would take down the whole card.
+function parseContainerReference(value: unknown): ContainerReference | undefined {
   if (typeof value === 'string') {
-    return { id: value, recreate: false };
+    return value ? { id: value, recreate: false } : undefined;
   }
 
-  const [containerId, config] = Object.entries(value)[0] ?? [];
+  if (typeof value !== 'object' || value === null) {
+    return undefined;
+  }
+
+  const [containerId, config] = Object.entries(value as Record<string, { recreate?: boolean }>)[0] ?? [];
 
   if (!containerId) {
-    throw new Error(`Container not found. Ensure that the container exists in the 'containers' section.`);
+    return undefined;
   }
 
   return { id: containerId, recreate: config?.recreate === true };
@@ -255,15 +282,20 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
     }
 
     const value = isMap(node) ? node.toJSON() : node;
-    return [parseContainerReference(value)];
+    const reference = parseContainerReference(value);
+    return reference ? [reference] : undefined;
   }
 
   if (type === ContainerType.Service) {
-    const serviceContainers = YmlUtils.getSeqIn(yamlMap, [ContainerReferenceField.Service])?.toJSON() as
-      ContainerReferenceValue[] | undefined;
+    // `service_containers:` is only usable as a sequence; any other shape is left to the YAML
+    // validator to report rather than thrown from here, mid-render.
+    const node = YmlUtils.getIn(yamlMap, [ContainerReferenceField.Service], true);
+    const references = (isSeq(node) ? (node.toJSON() as unknown[]) : [])
+      .map(parseContainerReference)
+      .filter((reference): reference is ContainerReference => Boolean(reference));
 
-    if (serviceContainers && serviceContainers.length > 0) {
-      return serviceContainers.map(parseContainerReference);
+    if (references.length > 0) {
+      return references;
     }
   }
 
@@ -271,9 +303,10 @@ function getContainerReferences(type: ContainerType, yamlMap: YAMLMap): Containe
 }
 
 function getContainerReferencesFromStepBundleDefinition(sourceId: string, type: ContainerType, doc: Document) {
-  // A cross-file bundle definition is absent here; return none rather than throwing (throwing crashes the card during render).
-  const yamlMap = YmlUtils.getMapIn(doc, ['step_bundles', sourceId]);
-  if (!yamlMap) {
+  // A cross-file bundle definition is absent here, and the definition may be of a shape this can't
+  // read; return none rather than throwing (throwing crashes the card during render).
+  const yamlMap = YmlUtils.getIn(doc, ['step_bundles', sourceId], true);
+  if (!isMap(yamlMap)) {
     return undefined;
   }
 
@@ -290,13 +323,14 @@ function getContainerReferenceFromInstance(
   if (source === 'step_bundles' && stepIndex === -1) {
     return getContainerReferencesFromStepBundleDefinition(sourceId, type, doc);
   }
-  // A cross-file source (a workflow/step bundle defined in another module) is absent from the active
-  // document; return none rather than throwing (throwing crashes the card during render) — mirrors
-  // getContainerReferencesFromStepBundleDefinition.
-  if (!YmlUtils.getMapIn(doc, [source, sourceId])) {
+  // This runs on every StepCard render, so it must not throw: a cross-file source (a workflow/step
+  // bundle defined in another module) is absent from the active document, and a step can be written
+  // in a shape this can't read. Either way the card renders without container references.
+  const yamlMap = findStepData(doc, source, sourceId, stepIndex);
+  if (!yamlMap) {
     return undefined;
   }
-  const yamlMap = getStepDataOrThrowError(doc, source, sourceId, stepIndex);
+
   return getContainerReferences(type, yamlMap);
 }
 
