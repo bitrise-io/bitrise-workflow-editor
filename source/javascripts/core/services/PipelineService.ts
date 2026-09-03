@@ -398,7 +398,8 @@ function addPipelineWorkflowDependency(pipelineId: string, workflowId: string, d
       throw new Error(`Workflow ${workflowId} already depends on ${dependsOn}.`);
     }
 
-    // The canvas already blocks this gesture, but the rule belongs here so every caller gets it.
+    // The canvas blocks the gesture, but against its own synced copy of the graph — this covers
+    // the lag, and any future caller.
     const pipelineWorkflows = (YmlUtils.getMapIn(doc, ['pipelines', pipelineId, 'workflows'])?.toJSON() ??
       {}) as PipelineWorkflows;
     if (dependsOnWorkflow(pipelineWorkflows, dependsOn, workflowId)) {

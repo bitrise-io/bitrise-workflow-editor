@@ -1,5 +1,6 @@
 /**
- * Tracks whether the YAML store has already been initialised, and for which requested branch.
+ * One-time app-load state: whether the YAML store has been initialised and for which requested
+ * branch, plus whether the route preload and the branch-loaded analytics event have fired.
  *
  * This deliberately lives at module scope rather than in a component ref, because the fact it
  * records is about the module-scoped `bitriseYmlStore` — not about any component instance. The

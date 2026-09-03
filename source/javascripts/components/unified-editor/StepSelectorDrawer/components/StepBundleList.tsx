@@ -27,8 +27,8 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   // Active-file bundles unioned with bundles from other module files (one row per id).
   const allBundleIds = [...new Set([...Object.keys(stepBundles), ...Object.keys(entityIndex.stepBundles)])];
 
-  // Built once for the whole list rather than per row. Only local bundles have an entry, so the
-  // lookup is guarded below; a cross-file bundle has none and can't be excluded by reachability.
+  // One lookup for every row, rather than a walk per row. Only local bundles get an entry, so the
+  // read below is guarded; a cross-file bundle has none and can't be excluded by reachability.
   const usedIdsByBundle = StepBundleService.getUsedStepBundleIdsByBundle(stepBundles);
   const bundleIds = allBundleIds.filter((id) => {
     if (excludedStepBundleId) {

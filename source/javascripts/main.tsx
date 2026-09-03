@@ -149,9 +149,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    // The tracker is module-scoped on purpose: a render error remounts this component (see
-    // PassThroughFallback), and a component ref would read as a first load and re-initialise
-    // the store from the saved config, discarding unsaved changes.
+    // Module-scoped on purpose — see ConfigLoadTracker.
     if (data && ConfigLoadTracker.shouldLoad(requestedBranch)) {
       if (isModularEnabled) {
         const config = treeConfig.data;
@@ -202,8 +200,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   }, [data, requestedBranch, toast, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
-    // Module-scoped for the same reason as the load guard above: a remount would otherwise
-    // re-fire this event and double-count the branch load.
+    // Module-scoped so a remount can't re-fire this and double-count the branch load.
     if (data && ymlSettings?.usesRepositoryYml && ConfigLoadTracker.claimBranchLoadTracking()) {
       trackConfigBranchLoaded(configBranch);
     }
