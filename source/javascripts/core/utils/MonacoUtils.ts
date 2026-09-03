@@ -296,12 +296,26 @@ function onWorkspaceMarkerStatusChange(
   };
 }
 
-/** Single-model form of {@link onWorkspaceMarkerStatusChange}. */
+/**
+ * Single-model form of {@link onWorkspaceMarkerStatusChange}. This one captures `model` instead of
+ * looking it up, so it can outlive what it watches: `DiffEditorDialog` keeps the badge and the
+ * Apply gate mounted while a tab switch remounts the editor beneath them and disposes its model,
+ * and what a disposed model's markers report is its owner's business. So end the subscription with
+ * the model — `onWillDispose` fires before disposal, and `dispose()` cancels both debounce timers.
+ */
 function onModelMarkerStatusChange(
   model: monaco.editor.ITextModel,
   callback: (status: ValidationStatus) => void,
 ): monaco.IDisposable {
-  return onWorkspaceMarkerStatusChange(() => [model], callback);
+  const subscription = onWorkspaceMarkerStatusChange(() => [model], callback);
+  const willDispose = model.onWillDispose(() => subscription.dispose());
+
+  return {
+    dispose: () => {
+      willDispose.dispose();
+      subscription.dispose();
+    },
+  };
 }
 
 export default {
