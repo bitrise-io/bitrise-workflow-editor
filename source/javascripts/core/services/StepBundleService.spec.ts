@@ -1,5 +1,6 @@
 import StepBundleService from '@/core/services/StepBundleService';
 
+import { StepBundles, Workflows } from '../models/BitriseYml';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 describe('StepBundleService', () => {
@@ -55,6 +56,81 @@ describe('StepBundleService', () => {
         expect(StepBundleService.validateName('sb2', 'sb1', ['sb1', 'sb2', 'sb3'])).toBe(
           'Step bundle name should be unique',
         );
+      });
+    });
+  });
+
+  describe('getDependantWorkflows', () => {
+    const stepBundles: StepBundles = {
+      parent: { steps: [{ 'bundle::child': {} }] },
+      child: { steps: [{ 'bundle::grandchild': {} }] },
+      grandchild: { steps: [{ script: {} }] },
+      standalone: { steps: [{ script: {} }] },
+      unused: { steps: [{ script: {} }] },
+    };
+
+    const workflows: Workflows = {
+      wf1: { steps: [{ 'bundle::parent': {} }] },
+      wf2: { steps: [{ 'bundle::standalone': {} }] },
+      wf3: { steps: [{ script: {} }] },
+      wf4: { steps: [{ 'bundle::child': {} }, { 'bundle::standalone': {} }] },
+    };
+
+    it('returns the workflows referencing the bundle directly', () => {
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::parent', stepBundles)).toEqual(['wf1']);
+    });
+
+    it('returns the workflows referencing the bundle through a parent bundle', () => {
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::grandchild', stepBundles).sort()).toEqual([
+        'wf1',
+        'wf4',
+      ]);
+    });
+
+    it('ignores the usages of unrelated nested bundles', () => {
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::standalone', stepBundles).sort()).toEqual([
+        'wf2',
+        'wf4',
+      ]);
+    });
+
+    it('returns an empty array for a bundle no workflow references', () => {
+      expect(StepBundleService.getDependantWorkflows(workflows, 'bundle::unused', stepBundles)).toEqual([]);
+    });
+
+    it('lists a workflow once when it references the bundle more than once', () => {
+      const twice: Workflows = { wf: { steps: [{ 'bundle::standalone': {} }, { 'bundle::standalone': {} }] } };
+      expect(StepBundleService.getDependantWorkflows(twice, 'bundle::standalone', stepBundles)).toEqual(['wf']);
+    });
+
+    it('counts direct references to a bundle missing from step_bundles', () => {
+      // The shape a modular config produces: the active file references a bundle another module defines.
+      const noLocalDefinition: Workflows = { wf: { steps: [{ 'bundle::remote': {} }] } };
+      expect(StepBundleService.getDependantWorkflows(noLocalDefinition, 'bundle::remote', {})).toEqual(['wf']);
+    });
+
+    it('terminates on a cycle between bundles', () => {
+      const cyclic: StepBundles = {
+        a: { steps: [{ 'bundle::b': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+      };
+      const usingA: Workflows = { wf: { steps: [{ 'bundle::a': {} }] } };
+      expect(StepBundleService.getDependantWorkflows(usingA, 'bundle::b', cyclic)).toEqual(['wf']);
+    });
+  });
+
+  describe('getStepBundleChains', () => {
+    it('terminates on a cycle between bundles', () => {
+      const cyclic: StepBundles = {
+        a: { steps: [{ 'bundle::b': {} }] },
+        b: { steps: [{ 'bundle::a': {} }] },
+        selfReferencing: { steps: [{ 'bundle::selfReferencing': {} }] },
+      };
+
+      expect(StepBundleService.getStepBundleChains(cyclic)).toEqual({
+        a: ['a', 'b'],
+        b: ['b', 'a'],
+        selfReferencing: ['selfReferencing'],
       });
     });
   });

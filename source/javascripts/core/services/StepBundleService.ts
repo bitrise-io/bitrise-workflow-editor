@@ -36,6 +36,17 @@ function validateName(newStepBundleName: string, initStepBundleName: string, ste
   return true;
 }
 
+function cvsToId(cvs: string) {
+  return cvs.replace('bundle::', '');
+}
+
+function idToCvs(id: string) {
+  if (id.startsWith('bundle::')) {
+    return id;
+  }
+  return `bundle::${id}`;
+}
+
 function getDirectDependants(workflows: Workflows, cvs: string) {
   const directDependants: string[] = [];
   Object.entries(workflows ?? {}).forEach(([workflowId, workflow]) => {
@@ -50,19 +61,20 @@ function getDirectDependants(workflows: Workflows, cvs: string) {
 }
 
 function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: StepBundles) {
-  let directDependants: string[] = getDirectDependants(workflows, cvs);
+  const id = cvsToId(cvs);
 
-  const stepBundleChains = getStepBundleChains(stepBundles);
+  // A workflow depends on this bundle through any bundle whose chain reaches it, so a nested bundle
+  // counts the workflows using its parents too. Only the chains containing `id` may contribute:
+  // an unrelated family's chain says nothing about this bundle's usage.
+  const referencingIds = Object.keys(stepBundles).filter((bundleId) =>
+    getStepBundleChain(stepBundles, bundleId).includes(id),
+  );
 
-  Object.values(stepBundleChains).forEach((chain) => {
-    if (chain.length > 1) {
-      chain.forEach((bundle) => {
-        directDependants = directDependants.concat(getDirectDependants(workflows, idToCvs(bundle)));
-      });
-    }
-  });
+  // `cvs` is added explicitly: a bundle defined in another module file is absent from `stepBundles`,
+  // so the chain filter alone would not even find the bundle itself.
+  const referencingCvss = uniq([cvs, ...referencingIds.map(idToCvs)]);
 
-  return uniq(directDependants);
+  return uniq(referencingCvss.flatMap((referencingCvs) => getDirectDependants(workflows, referencingCvs)));
 }
 
 function getUsedByText(count: number) {
@@ -77,14 +89,28 @@ function getUsedByText(count: number) {
 }
 
 function getStepBundleChain(stepBundles: StepBundles, id: string) {
-  let ids: string[] = [];
-  stepBundles[id]?.steps?.forEach((step) => {
-    const cvs = Object.keys(step)[0];
-    if (cvs && cvs.startsWith('bundle::')) {
-      ids = ids.concat(getStepBundleChain(stepBundles, cvs.replace('bundle::', '')));
+  const ids: string[] = [];
+  // A cycle is unreachable through the UI but not through a hand-edited YAML or a cross-file
+  // reference, and an unguarded walk blows the stack.
+  const visited = new Set<string>();
+
+  function walk(currentId: string) {
+    if (visited.has(currentId)) {
+      return;
     }
-  });
-  ids.unshift(id);
+    visited.add(currentId);
+    ids.push(currentId);
+
+    stepBundles[currentId]?.steps?.forEach((step) => {
+      const cvs = Object.keys(step)[0];
+      if (cvs && cvs.startsWith('bundle::')) {
+        walk(cvsToId(cvs));
+      }
+    });
+  }
+
+  walk(id);
+
   return ids;
 }
 
@@ -95,17 +121,6 @@ function getStepBundleChains(stepBundles: StepBundles) {
   });
 
   return stepBundleChains;
-}
-
-function cvsToId(cvs: string) {
-  return cvs.replace('bundle::', '');
-}
-
-function idToCvs(id: string) {
-  if (id.startsWith('bundle::')) {
-    return id;
-  }
-  return `bundle::${id}`;
 }
 
 function ymlInstanceToStepBundle(
