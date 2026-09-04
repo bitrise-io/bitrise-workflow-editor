@@ -44,7 +44,6 @@ const config: StorybookConfig = {
     <script>
       window.env = {
         CLARITY: 'false',
-        ANALYTICS: 'false',
         DATADOG_RUM: 'false',
         MODE: 'WEBSITE',
         NODE_ENV: 'development',
