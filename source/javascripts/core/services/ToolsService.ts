@@ -16,12 +16,8 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     return { strategy: 'unset' };
   }
 
-  if (lower === 'latest') {
-    return { strategy: 'latest-released' };
-  }
-
-  if (lower === 'installed') {
-    return { strategy: 'latest-installed' };
+  if (lower === 'latest' || lower === 'installed') {
+    return { strategy: 'latest-of', prefix: '', preferInstalled: lower === 'installed' };
   }
 
   const colonIndex = raw.indexOf(':');
@@ -29,12 +25,8 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     const prefix = raw.slice(0, colonIndex);
     const suffix = raw.slice(colonIndex + 1).toLowerCase();
 
-    if (suffix === 'latest') {
-      return { strategy: 'latest-released', prefix };
-    }
-
-    if (suffix === 'installed') {
-      return { strategy: 'latest-installed', prefix };
+    if (suffix === 'latest' || suffix === 'installed') {
+      return { strategy: 'latest-of', prefix, preferInstalled: suffix === 'installed' };
     }
   }
 
@@ -45,12 +37,40 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return 'unset';
-    case 'latest-released':
-      return parsed.prefix ? `${parsed.prefix}:latest` : 'latest';
-    case 'latest-installed':
-      return parsed.prefix ? `${parsed.prefix}:installed` : 'installed';
+    case 'latest-of': {
+      const keyword = parsed.preferInstalled ? 'installed' : 'latest';
+      return parsed.prefix ? `${parsed.prefix}:${keyword}` : keyword;
+    }
     case 'exact':
       return parsed.version;
+  }
+}
+
+/** Builds a parsed version from the row's controls, the strategy deciding what the fields mean. */
+function toParsedToolVersion(
+  strategy: VersionStrategy,
+  inputValue: string,
+  preferInstalled = false,
+): ParsedToolVersion {
+  switch (strategy) {
+    case 'exact':
+      return { strategy, version: inputValue };
+    case 'unset':
+      return { strategy };
+    case 'latest-of':
+      return { strategy, prefix: inputValue, preferInstalled };
+  }
+}
+
+/** The inverse of `toParsedToolVersion`: what the row's version field shows. */
+function getVersionInputValue(parsed: ParsedToolVersion): string {
+  switch (parsed.strategy) {
+    case 'exact':
+      return parsed.version;
+    case 'unset':
+      return '';
+    case 'latest-of':
+      return parsed.prefix;
   }
 }
 
@@ -106,18 +126,53 @@ function getVersionOptions(
   return ordered.map((version) => ({ value: version, label: version }));
 }
 
-function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
-  return toolVersions.versions.some((entry) => entry.version === version);
+/**
+ * Every proper prefix of `version` cut at a separator: `zulu-musl-8.96.0` yields `zulu`,
+ * `zulu-musl`, `zulu-musl-8` and `zulu-musl-8.96`. A value with no separator has no proper prefix,
+ * so it stands in for itself.
+ */
+function toPrefixes(version: string): string[] {
+  const cuts = [...version].flatMap((char, index) => (/[.\-_+]/.test(char) ? [version.slice(0, index)] : []));
+  return cuts.length > 0 ? cuts : [version];
 }
 
 /**
- * The version value to keep when the row's strategy changes: a prefix survives
- * moving between the two prefix strategies; any other change clears the value,
- * because exact versions and prefixes aren't interchangeable.
+ * Prefix suggestions taken from the version list, keeping its order so the newest come first.
+ * Derived by cutting each value at its separators rather than by parsing semver, because a prefix
+ * is matched as a string and most catalogs are not semver: java publishes `zulu-musl-8.96.0.19`,
+ * python `3.15.0rc1`. A `currentPrefix` the list does not suggest is added at the top, so the
+ * control always reflects the YAML.
  */
-function nextVersionOnStrategyChange(prev: VersionStrategy, next: VersionStrategy, version: string): string {
-  const isPrefix = (s: VersionStrategy) => s === 'latest-released' || s === 'latest-installed';
-  return isPrefix(prev) && isPrefix(next) ? version : '';
+function getPrefixOptions(
+  toolVersions: ToolVersions | undefined,
+  currentPrefix: string,
+): { value: string; label: string }[] {
+  const prefixes: string[] = [];
+  const seen = new Set<string>();
+
+  (toolVersions?.versions ?? []).forEach(({ version }) => {
+    toPrefixes(version).forEach((prefix) => {
+      if (prefix && !seen.has(prefix)) {
+        seen.add(prefix);
+        prefixes.push(prefix);
+      }
+    });
+  });
+
+  if (currentPrefix && !seen.has(currentPrefix)) {
+    prefixes.unshift(currentPrefix);
+  }
+
+  return prefixes.map((prefix) => ({ value: prefix, label: prefix }));
+}
+
+/** Whether any catalog version starts with `prefix`, which is how a prefix is matched. */
+function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
+  return toolVersions.versions.some(({ version }) => version.startsWith(prefix));
+}
+
+function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
+  return toolVersions.versions.some((entry) => entry.version === version);
 }
 
 /**
@@ -164,22 +219,11 @@ function validateToolId(id: string, initialId: string, existingIds: string[] = [
   return true;
 }
 
-function setTool(toolId: string, strategy: VersionStrategy, inputValue: string, scope: ToolScope) {
-  if (strategy === 'unset' && scope.type === 'root') {
+function setTool(toolId: string, parsed: ParsedToolVersion, scope: ToolScope) {
+  if (parsed.strategy === 'unset' && scope.type === 'root') {
     throw new Error('Cannot use "unset" strategy at root scope');
   }
 
-  let parsed: ParsedToolVersion;
-  switch (strategy) {
-    case 'exact':
-      parsed = { strategy, version: inputValue };
-      break;
-    case 'unset':
-      parsed = { strategy };
-      break;
-    default:
-      parsed = { strategy, prefix: inputValue };
-  }
   const versionString = serializeToolVersion(parsed);
 
   updateBitriseYmlDocument(({ doc }) => {
@@ -212,8 +256,10 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
       return { strategy: 'exact', version: '' };
     case 'unset':
       return parsed;
-    default:
-      return { strategy: parsed.strategy };
+    case 'latest-of':
+      // The installed preference is about how a version is resolved, not about which tool, so it
+      // survives the rename even though the prefix does not.
+      return { strategy: 'latest-of', prefix: '', preferInstalled: parsed.preferInstalled };
   }
 }
 
@@ -241,6 +287,9 @@ function renameTool(oldId: string, newId: string, scope: ToolScope) {
 export type { ToolScope };
 export default {
   parseToolVersion,
+  serializeToolVersion,
+  toParsedToolVersion,
+  getVersionInputValue,
   setTool,
   deleteTool,
   renameTool,
@@ -248,8 +297,9 @@ export default {
   isKnownToolId,
   resolveToolName,
   getVersionOptions,
+  getPrefixOptions,
   isVersionInCatalog,
-  nextVersionOnStrategyChange,
+  isPrefixInCatalog,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,

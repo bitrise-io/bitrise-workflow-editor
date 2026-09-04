@@ -60,6 +60,32 @@ export const WorkflowScope: Story = {
   },
 };
 
+/** Every latest-of combination at once: both keywords, with and without a prefix. */
+export const LatestOfStrategies: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+        node: '22:latest',
+        ruby: '3.3:installed',
+        golang: 'latest',
+        python: 'installed',
+        deno: '2.90:latest',
+      });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+/** A prefix the catalog cannot resolve. Still valid YAML, so it warns rather than errors. */
+export const UnknownPrefix: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { nodejs: '18.99:latest' });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
 export const Empty: Story = {};
 
 export const CatalogLoading: Story = {

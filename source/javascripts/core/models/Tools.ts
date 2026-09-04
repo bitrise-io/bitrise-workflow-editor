@@ -1,8 +1,8 @@
-export type VersionStrategy = 'latest-released' | 'latest-installed' | 'exact' | 'unset';
+export type VersionStrategy = 'latest-of' | 'exact' | 'unset';
 
 export type ParsedToolVersion =
-  | { strategy: 'latest-released'; prefix?: string }
-  | { strategy: 'latest-installed'; prefix?: string }
+  /** The newest version starting with `prefix` (empty matches any), preferring the latest installed match when `preferInstalled` is set. */
+  | { strategy: 'latest-of'; prefix: string; preferInstalled: boolean }
   | { strategy: 'exact'; version: string }
   | { strategy: 'unset' };
 
