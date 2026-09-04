@@ -166,6 +166,15 @@ function getPrefixOptions(
   return prefixes.map((prefix) => ({ value: prefix, label: prefix }));
 }
 
+/**
+ * What a prefix resolves to: the first version the catalog lists that starts with it. The catalog
+ * is published newest first, so the first match is the highest one, which is what Bitrise installs.
+ * An empty prefix therefore resolves to the newest version overall.
+ */
+function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): string | undefined {
+  return toolVersions?.versions.find(({ version }) => version.startsWith(prefix))?.version;
+}
+
 /** Whether any catalog version starts with `prefix`, which is how a prefix is matched. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
   return toolVersions.versions.some(({ version }) => version.startsWith(prefix));
@@ -298,6 +307,7 @@ export default {
   resolveToolName,
   getVersionOptions,
   getPrefixOptions,
+  getLatestVersion,
   isVersionInCatalog,
   isPrefixInCatalog,
   getToolIdOptions,

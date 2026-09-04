@@ -1,3 +1,5 @@
+import semver from 'semver';
+
 import ToolsService from '@/core/services/ToolsService';
 
 import { ToolVersions } from '../models/Tools';
@@ -256,6 +258,45 @@ describe('ToolsService', () => {
 
     it('returns nothing when the version list is missing', () => {
       expect(values(undefined)).toEqual([]);
+    });
+  });
+
+  describe('getLatestVersion', () => {
+    const mixedCatalog = (versions: string[]): ToolVersions => ({
+      toolId: 'nodejs',
+      versions: versions.map((version) => ({ version, isSemver: semver.valid(version) !== null })),
+    });
+    // Published newest first, the way the catalog API serves it.
+    const nodeVersions = mixedCatalog(['24.2.0', '22.12.0', '22.4.1', '20.9.0', 'lts-iron']);
+
+    it('resolves an empty prefix to the newest version', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions)).toBe('24.2.0');
+    });
+
+    it('resolves a prefix to the highest version starting with it', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '22')).toBe('22.12.0');
+      expect(ToolsService.getLatestVersion(nodeVersions, '22.4')).toBe('22.4.1');
+      expect(ToolsService.getLatestVersion(nodeVersions, '22.4.1')).toBe('22.4.1');
+    });
+
+    it('matches as a string, so a shared leading digit counts', () => {
+      // Bitrise matches prefixes by string, so `2` covers both 24.x and 22.x and takes the highest.
+      expect(ToolsService.getLatestVersion(nodeVersions, '2')).toBe('24.2.0');
+    });
+
+    it('resolves prefixes of versions that are not semver', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, 'lts')).toBe('lts-iron');
+      const java = mixedCatalog(['zulu-musl-8.96.0.19', 'zulu-musl-8.94.0.17', '18.0.1.1']);
+      expect(ToolsService.getLatestVersion(java, 'zulu-musl-8')).toBe('zulu-musl-8.96.0.19');
+    });
+
+    it('returns undefined when nothing starts with the prefix', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '29')).toBeUndefined();
+    });
+
+    it('returns undefined without a version list', () => {
+      expect(ToolsService.getLatestVersion(undefined)).toBeUndefined();
+      expect(ToolsService.getLatestVersion(mixedCatalog([]))).toBeUndefined();
     });
   });
 

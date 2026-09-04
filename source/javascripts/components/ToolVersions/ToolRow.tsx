@@ -144,6 +144,9 @@ const ToolRow = ({
   const unmatchedPrefixWarning = isPrefixMissingFromCatalog
     ? `No known version of ${toolId} starts with ${version}, use at your own risk`
     : undefined;
+  const latestVersion =
+    hasPrefixDropdown && !preferInstalled ? ToolsService.getLatestVersion(toolVersions, version) : undefined;
+  const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -294,6 +297,7 @@ const ToolRow = ({
                   items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...prefixOptions]}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  helperText={resolvedVersionHint}
                   warningText={unmatchedPrefixWarning}
                   value={version || ANY_PREFIX_VALUE}
                   onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
