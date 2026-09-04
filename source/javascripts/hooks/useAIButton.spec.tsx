@@ -5,6 +5,8 @@ import { renderHook } from '@testing-library/react';
 
 import { TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
+import WindowUtils from '@/core/utils/WindowUtils';
 import { CiConfigExpertAvailability } from '@/typings/globals';
 
 import useAIButton from './useAIButton';
@@ -17,7 +19,6 @@ const withAvailability = (availability: CiConfigExpertAvailability): Settings =>
 
 let settings: Settings;
 
-jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ __esModule: true, segmentTrack: jest.fn() }));
 jest.mock('@/core/utils/PageProps', () => ({
   __esModule: true,
   default: {
@@ -44,10 +45,26 @@ describe('useAIButton', () => {
   beforeEach(() => {
     settings = withAvailability('enabled');
     bitriseYmlStore.setState({ tree: undefined });
+    useCiConfigExpertStore.setState({ isAIDrawerOpen: false });
   });
 
   it('is visible in a non-modular config', () => {
     expect(renderAIButton().isVisible).toBe(true);
+  });
+
+  // The parent forwards the source to its opt-in popup tracking, so it must cross the iframe boundary.
+  it('sends the source to the parent in the OPEN_CI_CONFIG_EXPERT payload', () => {
+    const postMessage = jest.spyOn(WindowUtils, 'postMessageToParent').mockImplementation(() => {});
+
+    const { getAIButtonProps } = renderHook(() =>
+      useAIButton({ action: 'explain_pipeline', source: 'pipeline_drawer' }),
+    ).result.current;
+    getAIButtonProps().onClick();
+
+    expect(postMessage).toHaveBeenCalledWith(
+      'OPEN_CI_CONFIG_EXPERT',
+      expect.objectContaining({ action: 'explain_pipeline', source: 'pipeline_drawer' }),
+    );
   });
 
   it('is hidden in a modular config (BIVS-3735)', () => {

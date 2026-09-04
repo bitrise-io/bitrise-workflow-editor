@@ -21,13 +21,19 @@ const ENTITY_TYPE_BY_KIND: Record<EntityKind, string> = {
 
 /**
  * Modular-config properties shared by several events: whether the config is modular (has any
- * include) and, if so, how many includes it has in total and how many of those are cross-repo.
- * Derived from the loaded tree; `{ is_modular_config: false }` in single-file mode.
+ * include), how many includes it has in total and how many of those are cross-repo. Derived from
+ * the loaded tree. In single-file mode (no tree — either modular is off, or the root yml has no
+ * includes) both counts are sent as an explicit 0 rather than omitted: the tracking plan requires
+ * them on every event, and a missing key reads as lost data instead of "no includes".
  */
 function modularConfigProps() {
   const { tree } = bitriseYmlStore.getState();
   if (!tree) {
-    return { is_modular_config: false as const };
+    return {
+      is_modular_config: false as const,
+      number_of_includes_in_bitrise_yml: 0,
+      number_of_cross_repo_includes_in_bitrise_yml: 0,
+    };
   }
 
   let includes = 0;

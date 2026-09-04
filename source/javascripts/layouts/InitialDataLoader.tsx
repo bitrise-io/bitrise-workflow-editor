@@ -1,6 +1,9 @@
-import { Box, Button, Image, Link, Text, useToast } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, createBitkitToast } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
+import { Image } from '@chakra-ui/react/image';
+import { Text } from '@chakra-ui/react/text';
 import { datadogRum } from '@datadog/browser-rum';
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { trackConfigBranchLoaded } from '@/core/analytics/ConfigManagementAnalytics';
@@ -17,13 +20,25 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
-import { preloadRoutes } from '@/routes';
+import { deepLinkedEntity, preloadRoutes } from '@/routes';
 
 import bitriseLogo from '../../images/bitrise-logo.svg';
 import errorImg from '../../images/error-hairball.svg';
 
+/**
+ * Owns the bootstrap: resolves which config endpoint to hit, loads it into `BitriseYmlStore`, and
+ * only then lets its children render. Extracted from the app entry point so the mount sequencing it
+ * guarantees (children never render against an un-bootstrapped store) is testable.
+ */
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
-  const toast = useToast();
+  // Two trackers for the same milestone, with different jobs and different lifetimes.
+  // ConfigLoadTracker is the re-entry guard, and it is module-scoped on purpose: the ErrorBoundary
+  // remounts this component on any render error, and a ref would read that remount as a first load
+  // and re-bootstrap the store over the user's unsaved YAML. The state is what CHILDREN observe —
+  // only a re-render can reopen the gate below — so it stays per-instance and is set on every pass,
+  // including a remount where the store is already loaded. `null` = nothing bootstrapped yet,
+  // distinct from the `undefined` of "no branch requested".
+  const [bootstrappedBranch, setBootstrappedBranch] = useState<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
@@ -59,6 +74,11 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   const { data, error, refetch } = isModularEnabled ? treeConfig : legacyConfig;
   const configBranch = isModularEnabled ? treeConfig.data?.branch : legacyConfig.data?.branch;
 
+  // The config is in the store AND it's the one the URL asks for. Both halves matter: `data`
+  // arrives a commit before the bootstrap effect runs, and a branch switch invalidates a config
+  // that was legitimately bootstrapped for the previous branch.
+  const isBootstrapped = Boolean(data) && bootstrappedBranch === requestedBranch;
+
   useEventListener('beforeunload', (e) => {
     // NOTE: The return is important for the browser to show the dialog
     return RuntimeUtils.isProduction() && hasChanges && e.preventDefault();
@@ -66,7 +86,8 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
   useEventListener('error', (e) => {
     datadogRum.addError(e);
-    toast({ duration: null, status: 'error', isClosable: true, description: e.message || 'Unknown error' });
+    // `critical` already persists until dismissed, which is what the old `duration: null` asked for.
+    createBitkitToast({ variant: 'critical', messageText: e.message || 'Unknown error' });
   });
 
   useEventListener('unhandledrejection', (e) => {
@@ -76,12 +97,15 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       return;
     }
     datadogRum.addError(e.reason);
-    toast({ duration: null, status: 'error', isClosable: true, description: e.reason?.message || 'Unknown error' });
+    createBitkitToast({ variant: 'critical', messageText: e.reason?.message || 'Unknown error' });
   });
 
   useEffect(() => {
-    // Module-scoped on purpose — see ConfigLoadTracker.
-    if (data && ConfigLoadTracker.shouldLoad(requestedBranch)) {
+    if (!data) {
+      return;
+    }
+
+    if (ConfigLoadTracker.shouldLoad(requestedBranch)) {
       if (isModularEnabled) {
         const config = treeConfig.data;
         if (config) {
@@ -101,6 +125,11 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
               mergedYml: config.mergedYml,
               branch: config.branch,
               commitSha: config.root.commitSha,
+              // Resolved against the whole tree here, before any page reads the config: an entity
+              // addressed by the URL may live in an included module, not in the root file. This
+              // effect also runs on a branch switch, which re-resolves the link against the newly
+              // loaded tree — keeping the user on the module defining the entity they're viewing.
+              deepLink: deepLinkedEntity(window.parent.location.hash),
             });
           }
         }
@@ -108,18 +137,16 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         initializeBitriseYmlDocument(legacyConfig.data);
       }
 
-      if (requestedBranch && configBranch) {
-        if (configBranch === requestedBranch) {
-          toast({
-            status: 'success',
-            isClosable: true,
-            description: `Configuration is loaded from ${requestedBranch} branch.`,
+      if (requestedBranch) {
+        if (configBranch && configBranch === requestedBranch) {
+          createBitkitToast({
+            variant: 'success',
+            messageText: `Configuration is loaded from ${requestedBranch} branch.`,
           });
-        } else {
-          toast({
-            status: 'warning',
-            isClosable: true,
-            description: `Config unavailable on ${requestedBranch}. Using ${configBranch} (default branch).`,
+        } else if (configBranch && configBranch !== requestedBranch) {
+          createBitkitToast({
+            variant: 'warning',
+            messageText: `Config unavailable on ${requestedBranch}. Using ${configBranch} (default branch).`,
           });
         }
       }
@@ -128,10 +155,15 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         setTimeout(preloadRoutes, 1000);
       }
     }
-  }, [data, requestedBranch, toast, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
+
+    // Outside the guard above: on a remount the store is already loaded, so nothing re-bootstraps,
+    // but the gate still has to reopen or children never render again. Setting the same value twice
+    // is a no-op, so the extra pass costs nothing.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBootstrappedBranch(requestedBranch);
+  }, [data, requestedBranch, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
-    // Module-scoped so a remount can't re-fire this and double-count the branch load.
     if (data && ymlSettings?.usesRepositoryYml && ConfigLoadTracker.claimBranchLoadTracking()) {
       trackConfigBranchLoaded(configBranch);
     }
@@ -149,30 +181,31 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
     return (
       <Box
-        px="5%"
-        gap="3rem"
+        gap="48"
         width="100vw"
         height="100vh"
         display="flex"
-        marginX="auto"
         alignItems="center"
+        marginInline="auto"
+        paddingInline="5%"
         backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
       >
-        <Box display="flex" flexDir="column" gap="32" textColor="text/on-color" maxWidth="50%">
-          <Link href="/" title="Go to Dashboard">
+        <Box display="flex" flexDirection="column" gap="32" color="text/on-color" maxWidth="50%">
+          <BitkitLink href="/" title="Go to Dashboard">
             <Image src={bitriseLogo} />
-          </Link>
+          </BitkitLink>
           <Box>
-            <Text size="3" fontFamily="Source Code Pro, monospace" textTransform="uppercase" mb="16">
+            <Text textStyle="code/lg" textTransform="uppercase" marginBlockEnd="16">
               {detailedErrorMessage}
             </Text>
-            <Text textStyle="heading/h2" fontWeight="bold" fontSize="48" lineHeight="1.2">
-              {error?.message}
-            </Text>
+            {/* `display/lg` is the 48px bold token this headline already used. BitkitHeading can't
+                express it — it takes the size from its level, topping out at 30px — so keeping the
+                hero at its current size means the display token rather than that component. */}
+            <Text textStyle="display/lg">{error?.message}</Text>
           </Box>
-          <Button alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
+          <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
             Try again
-          </Button>
+          </BitkitButton>
         </Box>
         <Box>
           <Image src={errorImg} />
@@ -183,7 +216,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
   // Expose whether the config is still loading (settings check + tree/legacy fetch) so the layout
   // can show the loading state in the content area while keeping the header + navigation visible.
-  return <ConfigLoadingProvider value={!data}>{children}</ConfigLoadingProvider>;
+  //
+  // Gated on the bootstrap having run, not merely on `data` having arrived. Passive effects run
+  // child-first, so routes mounted in the same commit as the effect above would run their own
+  // selection effects first — against an empty (or previous branch's) store — and "correct" the
+  // URL, stripping an id that only resolves once the config is in the store. Deriving the gate
+  // (rather than flipping it from an effect) also closes it in the very render where the requested
+  // branch changes, so a branch switch unmounts the routes before they can see the stale config.
+  return <ConfigLoadingProvider value={!isBootstrapped}>{children}</ConfigLoadingProvider>;
 };
 
 export default InitialDataLoader;

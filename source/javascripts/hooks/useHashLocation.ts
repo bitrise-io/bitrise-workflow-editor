@@ -21,20 +21,7 @@ const useHashLocation: BaseLocationHook = () => {
 
   useEffect(() => {
     const listener = () => {
-      const parentHash = window.parent.location.hash;
-      setPath(`/${parentHash.replace(/^#?!?\/?/, '')}`);
-
-      // Intercom boots inside this iframe's own document, so its "Current page URL contains…"
-      // targeting reads THIS window's own location — but the router only ever writes to
-      // window.parent's hash (whether from navigate() below, an Intercom tour step's own button,
-      // or anything else touching the parent's location), so this window's location is otherwise
-      // frozen at whatever it was on the iframe's initial load. Mirror the parent's hash onto our
-      // own location first, so Intercom's page-URL check has something current to see, then nudge
-      // it to re-evaluate. Calling Intercom('update') alone is not enough while this URL is stale.
-      if (window.location.hash !== parentHash) {
-        window.location.hash = parentHash;
-      }
-      window.Intercom?.('update');
+      setPath(`/${window.parent.location.hash.replace(/^#?!?\/?/, '')}`);
     };
 
     window.parent.addEventListener('hashchange', listener);

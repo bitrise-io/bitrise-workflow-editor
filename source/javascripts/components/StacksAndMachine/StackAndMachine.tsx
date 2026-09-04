@@ -57,7 +57,6 @@ const StackAndMachine = ({
   const { data, isLoading } = useStacksAndMachines();
   const { projectStackId, projectMachineTypeId } = useProjectStackAndMachine();
 
-  const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
   const rollbackVersionFeatureEnabled = GlobalProps.accountFeatureFlags()?.rollbackVersionFeatureEnabled;
   const disableRollbackOption = rollbackVersionFeatureEnabled === false;
 
@@ -79,9 +78,9 @@ const StackAndMachine = ({
   });
 
   const availableRollbackVersion =
-    selectedStack.rollbackVersion?.[selectedMachineType.id as keyof typeof selectedStack.rollbackVersion]?.[
-      rollbackType
-    ] || '';
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[GlobalProps.workspaceSlug()] ||
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[PageProps.app()?.isOwnerPaying ? 'paying' : 'free'] ||
+    '';
 
   const handleChange = useCallback(
     // eslint-disable-next-line react-hooks/preserve-manual-memoization
@@ -127,7 +126,7 @@ const StackAndMachine = ({
     >
       <Box display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
         {/* Tooltip wraps only the selectors — not selectsTrailing, whose jump button has its own tooltip. */}
-        <Tooltip label="Read-only here — edit it in the module file that defines it." isDisabled={!isReadOnlyView}>
+        <Tooltip label="To edit, switch to the module file that defines them." isDisabled={!isReadOnlyView}>
           <Box
             ref={ref}
             display="flex"
@@ -184,7 +183,13 @@ const StackAndMachine = ({
         </Notification>
       )}
       <DeprecatedMachineNotification machineTypeId={selectedMachineType.id} />
-      {isToolVersionsEnabled && <ToolVersions workflowId={workflowId} />}
+      {isToolVersionsEnabled && (
+        <ToolVersions
+          workflowId={workflowId}
+          isReadOnly={isReadOnlyView}
+          stackReportUrl={StackAndMachineService.getStackReportUrl(selectedStack, isInvalidStack)}
+        />
+      )}
     </StackAndMachineWrapper>
   );
 };

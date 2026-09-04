@@ -36,6 +36,17 @@ function validateName(newStepBundleName: string, initStepBundleName: string, ste
   return true;
 }
 
+function cvsToId(cvs: string) {
+  return cvs.replace('bundle::', '');
+}
+
+function idToCvs(id: string) {
+  if (id.startsWith('bundle::')) {
+    return id;
+  }
+  return `bundle::${id}`;
+}
+
 function getDirectDependants(workflows: Workflows, cvs: string) {
   const directDependants: string[] = [];
   Object.entries(workflows ?? {}).forEach(([workflowId, workflow]) => {
@@ -90,7 +101,7 @@ function getUsedStepBundleIds(stepBundles: StepBundles, id: string, seen = new S
   stepBundles[id]?.steps?.forEach((step) => {
     const cvs = Object.keys(step)[0];
     if (cvs && cvs.startsWith('bundle::')) {
-      ids = ids.concat(getUsedStepBundleIds(stepBundles, cvs.replace('bundle::', ''), seen));
+      ids = ids.concat(getUsedStepBundleIds(stepBundles, cvsToId(cvs), seen));
     }
   });
   ids.unshift(id);
@@ -118,17 +129,6 @@ function usesStepBundle(stepBundles: StepBundles, id: string, usedId?: string) {
     return false;
   }
   return getUsedStepBundleIds(stepBundles, id).includes(usedId);
-}
-
-function cvsToId(cvs: string) {
-  return cvs.replace('bundle::', '');
-}
-
-function idToCvs(id: string) {
-  if (id.startsWith('bundle::')) {
-    return id;
-  }
-  return `bundle::${id}`;
 }
 
 /**

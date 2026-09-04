@@ -9,10 +9,10 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { ComponentProps, StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import InitialDataLoader from '@/components/InitialDataLoader';
 import Client from '@/core/api/client';
 import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import InitialDataLoader from '@/layouts/InitialDataLoader';
 import MainLayout from '@/layouts/MainLayout';
 
 const loaders = [];

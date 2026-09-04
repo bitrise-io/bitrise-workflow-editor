@@ -7,7 +7,7 @@ import { bitriseYmlStore, openTab, recordActiveTabLocation } from '@/core/stores
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useNavigation from '@/hooks/useNavigation';
 import useSearchParams from '@/hooks/useSearchParams';
-import { paths } from '@/routes';
+import { entityDeepLinkParam, paths } from '@/routes';
 
 const KIND_PATH: Record<EntityKind, string> = {
   workflows: paths.workflows,
@@ -15,14 +15,6 @@ const KIND_PATH: Record<EntityKind, string> = {
   stepBundles: paths.stepBundles,
   containers: paths.containers,
   appEnvs: paths.envVars,
-};
-
-// Per-entity deep-link param. Container/appEnvs pages have no per-entity route param — opening the
-// defining file's tab (below) lands the user on the right page, so they have no entry here.
-const KIND_PARAM: Partial<Record<EntityKind, string>> = {
-  workflows: 'workflow_id',
-  pipelines: 'pipeline',
-  stepBundles: 'step_bundle_id',
 };
 
 /**
@@ -60,7 +52,9 @@ export default function useJumpToDefinition() {
       openTab(nodeId, { preview: false });
 
       const params: Record<string, string> = {};
-      const param = KIND_PARAM[kind];
+      // Container/appEnvs pages have no per-entity param — opening the defining file's tab (above)
+      // already lands the user on the right page.
+      const param = entityDeepLinkParam(kind);
       if (param) {
         params[param] = id;
       }

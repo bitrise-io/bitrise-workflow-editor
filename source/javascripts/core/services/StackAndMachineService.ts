@@ -61,6 +61,17 @@ function isSelfHostedStack(stack: Stack) {
   return stack.id.startsWith('agent');
 }
 
+const STACKS_URL = 'https://bitrise.io/stacks/';
+
+// Returns the URL of the stack report, or the stack index if the stack is invalid, self-hosted, or not specified.
+function getStackReportUrl(stack: Stack, isInvalidStack: boolean): string {
+  if (isInvalidStack || !stack.id || isSelfHostedStack(stack)) {
+    return STACKS_URL;
+  }
+
+  return `${STACKS_URL}stack_reports/${encodeURIComponent(stack.id)}#languages-and-runtimes`;
+}
+
 function getOsOfStack(stack: Stack): string {
   switch (stack.os) {
     case 'linux':
@@ -502,6 +513,7 @@ export default {
   toStackOption,
   toMachineTypeDetailedOption,
   getStackById,
+  getStackReportUrl,
   getMachinesOfStack,
   updateStackAndMachine,
   updateLicensePoolId,
