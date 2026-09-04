@@ -57,7 +57,6 @@ const StackAndMachine = ({
   const { data, isLoading } = useStacksAndMachines();
   const { projectStackId, projectMachineTypeId } = useProjectStackAndMachine();
 
-  const rollbackType = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
   const rollbackVersionFeatureEnabled = GlobalProps.accountFeatureFlags()?.rollbackVersionFeatureEnabled;
   const disableRollbackOption = rollbackVersionFeatureEnabled === false;
 
@@ -79,9 +78,9 @@ const StackAndMachine = ({
   });
 
   const availableRollbackVersion =
-    selectedStack.rollbackVersion?.[selectedMachineType.id as keyof typeof selectedStack.rollbackVersion]?.[
-      rollbackType
-    ] || '';
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[GlobalProps.workspaceSlug()] ||
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[PageProps.app()?.isOwnerPaying ? 'paying' : 'free'] ||
+    '';
 
   const handleChange = useCallback(
     // eslint-disable-next-line react-hooks/preserve-manual-memoization
