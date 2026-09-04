@@ -32,17 +32,9 @@ describe('ToolsService', () => {
       });
     });
 
-    it('parses the bare keywords as latest-of with no prefix', () => {
-      expect(ToolsService.parseToolVersion('latest')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
-      expect(ToolsService.parseToolVersion('installed')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: true,
-      });
+    it('parses the bare keywords as the absolute strategies', () => {
+      expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('installed')).toEqual({ strategy: 'absolute-latest-installed' });
     });
 
     it('parses bare partial versions as exact', () => {
@@ -79,26 +71,10 @@ describe('ToolsService', () => {
     });
 
     it('parses keywords case-insensitively', () => {
-      expect(ToolsService.parseToolVersion('Latest')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
-      expect(ToolsService.parseToolVersion('LATEST')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
-      expect(ToolsService.parseToolVersion('Installed')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: true,
-      });
-      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: true,
-      });
+      expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('Installed')).toEqual({ strategy: 'absolute-latest-installed' });
+      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({ strategy: 'absolute-latest-installed' });
       expect(ToolsService.parseToolVersion('Unset')).toEqual({ strategy: 'unset' });
       expect(ToolsService.parseToolVersion('22:Latest')).toEqual({
         strategy: 'latest-of',
@@ -115,14 +91,16 @@ describe('ToolsService', () => {
     // A committed row renders from what setTool wrote, so a lossy round trip would change the
     // controls under the user.
     it.each([
-      ['22:latest', '22', false],
-      ['22:installed', '22', true],
-      ['latest', '', false],
-      ['installed', '', true],
-    ])('round-trips %s', (raw, prefix, preferInstalled) => {
+      ['22:latest', { strategy: 'latest-of', prefix: '22', preferInstalled: false }],
+      ['22:installed', { strategy: 'latest-of', prefix: '22', preferInstalled: true }],
+      ['latest', { strategy: 'absolute-latest-released' }],
+      ['installed', { strategy: 'absolute-latest-installed' }],
+      ['unset', { strategy: 'unset' }],
+      ['24.7.0', { strategy: 'exact', version: '24.7.0' }],
+    ])('round-trips %s', (raw, expected) => {
       const parsed = ToolsService.parseToolVersion(raw);
 
-      expect(parsed).toEqual({ strategy: 'latest-of', prefix, preferInstalled });
+      expect(parsed).toEqual(expected);
       expect(ToolsService.serializeToolVersion(parsed)).toBe(raw);
     });
   });
@@ -297,6 +275,31 @@ describe('ToolsService', () => {
     it('returns undefined without a version list', () => {
       expect(ToolsService.getLatestVersion(undefined)).toBeUndefined();
       expect(ToolsService.getLatestVersion(mixedCatalog([]))).toBeUndefined();
+    });
+  });
+
+  describe('getSeedPrefix', () => {
+    // Newest first, as the catalog API publishes it.
+    const catalog = versionCatalog('nodejs', ['24.2.0', '22.12.0', '22.4.1']);
+
+    it('keeps the broadest suggested prefix of the version being switched away from', () => {
+      expect(ToolsService.getSeedPrefix(catalog, '22.12.0')).toBe('22');
+      expect(ToolsService.getSeedPrefix(catalog, '22')).toBe('22');
+    });
+
+    it('falls back to the newest suggestion when the current value shares no prefix', () => {
+      expect(ToolsService.getSeedPrefix(catalog, '')).toBe('24');
+      expect(ToolsService.getSeedPrefix(catalog, 'lts-iron')).toBe('24');
+      expect(ToolsService.getSeedPrefix(catalog, '18.9.9')).toBe('24');
+    });
+
+    it('falls back to the current version own prefix when there are no suggestions', () => {
+      expect(ToolsService.getSeedPrefix(undefined, '2.90.0')).toBe('2');
+      expect(ToolsService.getSeedPrefix(undefined, 'nightly')).toBe('nightly');
+    });
+
+    it('returns an empty prefix with neither suggestions nor a current version', () => {
+      expect(ToolsService.getSeedPrefix(undefined, '')).toBe('');
     });
   });
 
@@ -500,7 +503,7 @@ describe('ToolsService', () => {
             python: "3.13.4"
         `);
 
-        ToolsService.setTool('node', { strategy: 'latest-of', prefix: '', preferInstalled: false }, { type: 'root' });
+        ToolsService.setTool('node', { strategy: 'absolute-latest-released' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -521,10 +524,10 @@ describe('ToolsService', () => {
         `);
       });
 
-      it('sets the installed variant without a prefix', () => {
+      it('sets the absolute installed strategy', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('ruby', { strategy: 'latest-of', prefix: '', preferInstalled: true }, { type: 'root' });
+        ToolsService.setTool('ruby', { strategy: 'absolute-latest-installed' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -731,6 +734,20 @@ describe('ToolsService', () => {
           tools:
             ruby: latest
             python: "3.13.4"
+        `);
+      });
+
+      it('keeps the installed choice while dropping the stale prefix', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            ruby: 3.3:installed
+        `);
+
+        ToolsService.renameTool('ruby', 'node', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            node: installed
         `);
       });
 

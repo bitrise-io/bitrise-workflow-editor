@@ -60,17 +60,50 @@ export const WorkflowScope: Story = {
   },
 };
 
-/** Every latest-of combination at once: both keywords, with and without a prefix. */
-export const LatestOfStrategies: Story = {
+/** All five strategies at once, so each control combination is visible side by side. */
+export const AllStrategies: Story = {
+  args: { workflowId: 'generator' },
   parameters: {
     bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
+      const yml = set({ ...TEST_BITRISE_YML }, 'workflows.generator.tools', {
         node: '22:latest',
         ruby: '3.3:installed',
         golang: 'latest',
         python: 'installed',
-        deno: '2.90:latest',
+        flutter: '3.32.0',
+        deno: 'latest',
+        elixir: 'unset',
       });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+/** A prefixed value on a tool the catalog does not know: no candidates, so the prefix is typed. */
+export const CatalogFreePrefix: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { deno: '2.90:latest' });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+/** A catalog that is mostly not semver: prefixes come from cutting the values at separators. */
+export const NonSemverTool: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { java: 'zulu-musl-8:latest' });
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+    })(),
+  },
+};
+
+/** A catalog with no version numbers: the prefix is typed, since suggestions would be useless. */
+export const ChannelNamesOnly: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { elixir: 'night:latest' });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },

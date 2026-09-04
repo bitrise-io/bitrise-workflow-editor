@@ -14,20 +14,26 @@ const CATALOG: ToolCatalogEntry[] = [
   { name: 'ruby', aliases: [] },
   { name: 'python', aliases: [] },
   { name: 'flutter', aliases: [] },
+  { name: 'java', aliases: [] },
+  { name: 'elixir', aliases: [] },
 ];
 
 // A tool is only listed in the catalog once it has at least one published version, so every
 // entry here has a non-empty list — keep it that way when adding tools.
 const VERSIONS: Record<string, string[]> = {
   golang: ['1.25.7', '1.25.6', '1.24.2', '1.23.0'],
+  // Newest first, like the real catalog: a prefix resolves to the first entry that starts with it.
   nodejs: [
-    // Long, unsorted list on purpose: exercises newest-first sorting and type-to-filter.
-    ...['24.0.0', '24.1.0', '24.2.0', '22.4.1', '22.11.0', '22.12.0', '20.9.0', '20.10.0', '20.11.1', '18.20.4'],
+    ...['24.2.0', '24.1.0', '24.0.0', '22.12.0', '22.11.0', '22.4.1', '20.11.1', '20.10.0', '20.9.0', '18.20.4'],
     'lts-iron',
   ],
   ruby: ['3.4.2', '3.3.6', '3.2.6'],
   python: ['3.13.4', '3.12.8', '3.11.11'],
   flutter: ['3.35.1', '3.32.0', '3.29.3'],
+  // Mostly not semver, like the real catalog: exercises string-derived prefixes.
+  java: ['26.0.2', 'zulu-musl-8.96.0.19', 'zulu-musl-8.94.0.17', '18.0.1.1'],
+  // No version numbers at all, so a prefix has to be typed.
+  elixir: ['nightly', 'stable', 'edge'],
 };
 
 /**
