@@ -1,7 +1,6 @@
 import {
   BitkitAlert,
   BitkitCheckbox,
-  BitkitCombobox,
   BitkitIconButton,
   BitkitLink,
   BitkitSelect,
@@ -76,6 +75,9 @@ const ToolRow = ({
   const [manualOther, setManualOther] = useState(false);
   // The prefix being typed, or null while it is picked from the dropdown.
   const [prefixDraft, setPrefixDraft] = useState<string | null>(null);
+  // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
+  const [versionSearch, setVersionSearch] = useState('');
+  const [prefixSearch, setPrefixSearch] = useState('');
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -132,6 +134,12 @@ const ToolRow = ({
     () => (hasPrefixDropdown ? ToolsService.getPrefixOptions(toolVersions, version) : []),
     [hasPrefixDropdown, toolVersions, version],
   );
+  const searchedVersionOptions = versionSearch
+    ? versionOptions.filter(({ label }) => label.toLowerCase().includes(versionSearch.toLowerCase()))
+    : versionOptions;
+  const searchedPrefixOptions = prefixSearch
+    ? prefixOptions.filter(({ label }) => label.toLowerCase().includes(prefixSearch.toLowerCase()))
+    : prefixOptions;
   const seedPrefix = ToolsService.getSeedPrefix(toolVersions, version);
   // toolVersions is undefined both while loading and after a failed fetch, so comparing
   // against it before real data arrives would flash a false "missing" warning.
@@ -201,6 +209,7 @@ const ToolRow = ({
 
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
     if (newStrategy === 'latest-of') {
+      setPrefixSearch('');
       const installedNext = strategy === 'absolute-latest-installed';
       if (seedPrefix === '') {
         // Nothing to seed from, so the row waits for a typed prefix instead of writing a bare
@@ -217,16 +226,18 @@ const ToolRow = ({
 
     setPrefixDraft(null);
 
-    // Every other switch empties the version field, because an exact version and a prefix are not
-    // interchangeable and the remaining strategies have no version at all.
-    if (version !== '') {
-      // The switch emptied the field for the user, so let them fill it before it is flagged.
-      setVersionTouched(false);
-    } else if (newStrategy === 'exact') {
-      // The field was already empty, so it won't hit the branch above -> flag it immediately
-      // since it's already invalid.
-      setVersionTouched(true);
+    if (newStrategy === 'exact') {
+      // Seeded like `latest-of`, so the switch lands on a version rather than on a required field.
+      // A tool outside the catalog has nothing to seed from, so it is flagged straight away.
+      const newest = ToolsService.getLatestVersion(toolVersions) ?? '';
+      setVersionTouched(newest === '');
+      setVersionSearch('');
+      onChange({ strategy: 'exact', version: newest });
+      return;
     }
+
+    // The remaining strategies have no version at all, so the field goes with them.
+    setVersionTouched(false);
     onChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 
@@ -316,35 +327,37 @@ const ToolRow = ({
               {/* A catalog-known tool always has at least one version to offer, so the dropdown
                   applies whenever one is possible at all. */}
               {isExactKnownTool ? (
-                <BitkitCombobox
+                <BitkitSelect
                   size="lg"
                   placeholder="Select"
                   emptyLabel="No matches"
-                  items={versionOptions}
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   // With no version list there is nothing to pick from. Read-only rather than
                   // disabled, so the configured version stays legible and reachable by keyboard
                   // and screen readers; the alert below points to the YAML editor instead.
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                   // Closing the menu without picking counts as visiting and leaving the field.
-                  comboboxProps={{
-                    onOpenChange: (details) => !details.open && setVersionTouched(true),
-                    onBlur: () => setVersionTouched(true),
-                  }}
+                  selectProps={{ onOpenChange: (details) => !details.open && setVersionTouched(true) }}
                   errorText={displayedVersionError}
                   warningText={catalogMismatchWarning}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
                   value={version || undefined}
-                  onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
+                  onValueChange={handleVersionChange}
                 />
               ) : hasPrefixDropdown ? (
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={prefixOptions}
+                  emptyLabel="No matches"
+                  items={searchedPrefixOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
                   helperText={versionHint}
                   warningText={unmatchedPrefixWarning}
+                  searchValue={prefixSearch}
+                  onSearchChange={setPrefixSearch}
                   value={version || undefined}
                   onValueChange={handleVersionChange}
                 />
