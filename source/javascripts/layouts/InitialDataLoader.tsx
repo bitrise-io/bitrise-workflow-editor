@@ -3,11 +3,12 @@ import { Box } from '@chakra-ui/react/box';
 import { Image } from '@chakra-ui/react/image';
 import { Text } from '@chakra-ui/react/text';
 import { datadogRum } from '@datadog/browser-rum';
-import { PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, useEffect, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { trackConfigBranchLoaded } from '@/core/analytics/ConfigManagementAnalytics';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import ConfigLoadTracker from '@/core/utils/ConfigLoadTracker';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
@@ -30,14 +31,13 @@ import errorImg from '../../images/error-hairball.svg';
  * guarantees (children never render against an un-bootstrapped store) is testable.
  */
 const InitialDataLoader = ({ children }: PropsWithChildren) => {
-  const isLoaded = useRef(false);
-  const isTracked = useRef(false);
-  // Two trackers for the same milestone, with different jobs. The ref is the re-entry guard: it's
-  // written synchronously, so a StrictMode double-invoke (or any effect re-run) can't bootstrap
-  // twice. The state is what CHILDREN observe — only a re-render can reopen the gate below, which a
-  // ref alone would never trigger. `null` = nothing bootstrapped yet, distinct from the `undefined`
-  // of "no branch requested".
-  const loadedBranch = useRef<string | undefined | null>(null);
+  // Two trackers for the same milestone, with different jobs and different lifetimes.
+  // ConfigLoadTracker is the re-entry guard, and it is module-scoped on purpose: the ErrorBoundary
+  // remounts this component on any render error, and a ref would read that remount as a first load
+  // and re-bootstrap the store over the user's unsaved YAML. The state is what CHILDREN observe —
+  // only a re-render can reopen the gate below — so it stays per-instance and is set on every pass,
+  // including a remount where the store is already loaded. `null` = nothing bootstrapped yet,
+  // distinct from the `undefined` of "no branch requested".
   const [bootstrappedBranch, setBootstrappedBranch] = useState<string | undefined | null>(null);
   const hasChanges = useYmlHasChanges();
   const [searchParams] = useSearchParams();
@@ -101,7 +101,11 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (data && loadedBranch.current !== requestedBranch) {
+    if (!data) {
+      return;
+    }
+
+    if (ConfigLoadTracker.shouldLoad(requestedBranch)) {
       if (isModularEnabled) {
         const config = treeConfig.data;
         if (config) {
@@ -146,22 +150,21 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
           });
         }
       }
-      loadedBranch.current = requestedBranch;
-      if (!isLoaded.current) {
+      ConfigLoadTracker.markLoaded(requestedBranch);
+      if (ConfigLoadTracker.claimRoutePreload()) {
         setTimeout(preloadRoutes, 1000);
-        isLoaded.current = true;
       }
-      // Last: opens the gate below, so children first render against an initialized store. The
-      // extra render this costs IS the fix — tracking this in the ref alone would leave children
-      // rendering a commit early, which is the race this replaces. Keep the setState.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setBootstrappedBranch(requestedBranch);
     }
+
+    // Outside the guard above: on a remount the store is already loaded, so nothing re-bootstraps,
+    // but the gate still has to reopen or children never render again. Setting the same value twice
+    // is a no-op, so the extra pass costs nothing.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBootstrappedBranch(requestedBranch);
   }, [data, requestedBranch, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
-    if (data && ymlSettings?.usesRepositoryYml && !isTracked.current) {
-      isTracked.current = true;
+    if (data && ymlSettings?.usesRepositoryYml && ConfigLoadTracker.claimBranchLoadTracking()) {
       trackConfigBranchLoaded(configBranch);
     }
   }, [data, ymlSettings?.usesRepositoryYml, configBranch]);

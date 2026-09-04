@@ -119,17 +119,8 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           setSelectedStepIndices(moveStepIndices('remove', selectedStepIndices, stepIndices[0]));
         }
       }
-      if (cvs?.startsWith('bundle::')) {
-        const id = StepBundleService.cvsToId(cvs);
-        if (selectionParent?.id === id) {
-          closeDialog();
-        }
-        if (
-          selectionParent?.id &&
-          StepBundleService.getStepBundleChain(stepBundles, id).includes(selectionParent?.id)
-        ) {
-          closeDialog();
-        }
+      if (StepBundleService.stepCvsUsesStepBundle(stepBundles, cvs, selectionParent?.id)) {
+        closeDialog();
       }
     },
     [selectionParent?.id, selectedStepIndices, closeDialog, setSelectedStepIndices, stepBundles],

@@ -140,18 +140,30 @@ export function discardBitriseYmlDocument() {
   });
 }
 
-/** The active file slice if it's editable, else `undefined` after a dev warning. */
+/**
+ * Reported in production too, unlike `warnInDev`: reaching here means an edit the user made was
+ * thrown away, which is a correctness event rather than a developer hint. Every UI path is supposed
+ * to gate on `editable` first, so this firing at all points at a missing gate.
+ *
+ * `warnInDev` still covers lookups that discard nothing, like binding a node that isn't there.
+ */
+function reportDroppedMutation(message: string) {
+  // eslint-disable-next-line no-console
+  console.error(message);
+}
+
+/** The active file slice if it's editable, else `undefined` after reporting the dropped mutation. */
 function editableActiveSlice(caller: string): { nodeId: string; slice: FileSlice } | undefined {
   const state = bitriseYmlStore.getState();
   const nodeId = state.selectedNodeId;
   const slice = nodeId ? state.files[nodeId] : undefined;
 
   if (!nodeId || !slice) {
-    warnInDev(`${caller}: no editable file is active (selected "${nodeId}"); mutation ignored`);
+    reportDroppedMutation(`${caller}: no editable file is active (selected "${nodeId}"); mutation ignored`);
     return undefined;
   }
   if (!slice.editable) {
-    warnInDev(`${caller}: file "${slice.path}" is read-only; mutation ignored`);
+    reportDroppedMutation(`${caller}: file "${slice.path}" is read-only; mutation ignored`);
     return undefined;
   }
 
@@ -464,12 +476,14 @@ export function updateFileDocument(nodeId: string, mutator: YamlMutator) {
   const slice = files[nodeId];
 
   if (!slice) {
-    warnInDev(`updateFileDocument: no file with node_id "${nodeId}"`);
+    reportDroppedMutation(`updateFileDocument: no file with node_id "${nodeId}"`);
     return;
   }
 
   if (!slice.editable) {
-    warnInDev(`updateFileDocument: file "${slice.path}" (node_id "${nodeId}") is read-only; mutation ignored`);
+    reportDroppedMutation(
+      `updateFileDocument: file "${slice.path}" (node_id "${nodeId}") is read-only; mutation ignored`,
+    );
     return;
   }
 

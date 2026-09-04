@@ -6,6 +6,7 @@ import { ComponentType, ReactNode } from 'react';
 
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import ConfigLoadTracker from '@/core/utils/ConfigLoadTracker';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -132,6 +133,8 @@ function navigateTo(hash: string) {
 
 describe('InitialDataLoader', () => {
   beforeEach(() => {
+    // Module-scoped by design, so it outlives a component — and would otherwise outlive a test too.
+    ConfigLoadTracker.reset();
     probeRenders.length = 0;
     createBitkitToastMock.mockClear();
     treeQuery = { data: undefined, error: null, refetch: jest.fn() };
@@ -204,6 +207,25 @@ describe('InitialDataLoader', () => {
     expect(screen.getByText('Boom')).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(refetch).toHaveBeenCalled();
+  });
+
+  // The data-loss regression: the top-level ErrorBoundary remounts this subtree on any render
+  // error. Re-bootstrapping here overwrites ymlDocument AND savedYmlDocument from the server,
+  // silently discarding unsaved edits, which is why the load guard is module-scoped. Fails against
+  // a ref-based guard, which reads a remount as a first load.
+  it('does not re-bootstrap the store when it remounts', () => {
+    treeQuery = { data: modularConfig('master'), error: null, refetch: jest.fn() };
+    const { unmount } = renderApp();
+
+    // Bootstrapping replaces the documents, so their identity is the signal: if a remount
+    // re-bootstraps, every file slice is rebuilt and the user's unsaved edits go with them.
+    const filesAfterFirstMount = bitriseYmlStore.getState().files;
+    expect(Object.keys(filesAfterFirstMount).length).toBeGreaterThan(0);
+
+    unmount();
+    renderApp();
+
+    expect(bitriseYmlStore.getState().files).toBe(filesAfterFirstMount);
   });
 
   it('re-gates routes on a branch switch until the new branch is bootstrapped', () => {

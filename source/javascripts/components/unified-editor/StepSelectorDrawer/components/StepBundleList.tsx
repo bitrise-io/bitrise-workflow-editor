@@ -27,13 +27,14 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
   // Active-file bundles unioned with bundles from other module files (one row per id).
   const allBundleIds = [...new Set([...Object.keys(stepBundles), ...Object.keys(entityIndex.stepBundles)])];
 
-  // Chains only exist for local bundles, so guard the lookup; a cross-file bundle has no chain and can't be excluded.
-  const stepBundleChains = StepBundleService.getStepBundleChains(stepBundles);
+  // One lookup for every row, rather than a walk per row. Only local bundles get an entry, so the
+  // read below is guarded; a cross-file bundle has none and can't be excluded by reachability.
+  const usedIdsByBundle = StepBundleService.getUsedStepBundleIdsByBundle(stepBundles);
   const bundleIds = allBundleIds.filter((id) => {
     if (excludedStepBundleId) {
-      // Exclude the bundle itself (direct self-reference — a chain never lists itself, and a
-      // cross-file bundle has no chain at all) and any bundle whose chain already reaches it.
-      return id !== excludedStepBundleId && !stepBundleChains[id]?.includes(excludedStepBundleId);
+      // A bundle does list itself, so the second clause covers the direct case for local bundles —
+      // but a cross-file bundle has no entry at all, which is why the first clause stays.
+      return id !== excludedStepBundleId && !usedIdsByBundle[id]?.includes(excludedStepBundleId);
     }
     return true;
   });

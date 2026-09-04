@@ -1540,4 +1540,49 @@ describe('WorkflowService', () => {
       }).toThrow(`Invalid placement: invalid_placement. It should be 'before_run' or 'after_run'.`);
     });
   });
+  describe('run chain cycle guards', () => {
+    it('terminates when a workflow before_runs itself', () => {
+      const workflows: Workflows = { 'wf-1': { before_run: ['wf-1'] } };
+
+      expect(WorkflowService.getWorkflowChain(workflows, 'wf-1')).toEqual(['wf-1']);
+    });
+
+    it('terminates when a workflow after_runs itself', () => {
+      const workflows: Workflows = { 'wf-1': { after_run: ['wf-1'] } };
+
+      expect(WorkflowService.getWorkflowChain(workflows, 'wf-1')).toEqual(['wf-1']);
+    });
+
+    it('terminates on mutually recursive before_run workflows', () => {
+      const workflows: Workflows = {
+        'wf-1': { before_run: ['wf-2'] },
+        'wf-2': { before_run: ['wf-1'] },
+      };
+
+      expect(WorkflowService.getWorkflowChain(workflows, 'wf-1')).toEqual(['wf-2', 'wf-1']);
+    });
+
+    it('terminates on a cycle that runs through after_run', () => {
+      const workflows: Workflows = {
+        'wf-1': { before_run: ['wf-2'] },
+        'wf-2': { after_run: ['wf-1'] },
+      };
+
+      expect(WorkflowService.getWorkflowChain(workflows, 'wf-1')).toEqual(['wf-2', 'wf-1']);
+    });
+
+    it('runs a workflow twice when two sibling branches both chain it', () => {
+      // Unlike step bundle reachability, a run chain is an execution order, so this repetition is
+      // the correct answer — `setup` really does run twice. Hence a per-branch guard, not a
+      // visited set: useEnvVars walks this order to resolve env var precedence.
+      const workflows: Workflows = {
+        setup: {},
+        'wf-1': { before_run: ['setup'] },
+        'wf-2': { before_run: ['setup'] },
+        main: { before_run: ['wf-1', 'wf-2'] },
+      };
+
+      expect(WorkflowService.getWorkflowChain(workflows, 'main')).toEqual(['setup', 'wf-1', 'setup', 'wf-2', 'main']);
+    });
+  });
 });
