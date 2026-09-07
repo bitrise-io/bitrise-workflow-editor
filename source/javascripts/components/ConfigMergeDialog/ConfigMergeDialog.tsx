@@ -296,8 +296,6 @@ const ConfigMergeDialogContent = ({
                 original={baseYml}
                 modified={yourYml}
                 options={readOnlyDiffEditorOptions}
-                keepCurrentModifiedModel
-                keepCurrentOriginalModel
               />
             </Box>
           </Box>
@@ -315,8 +313,6 @@ const ConfigMergeDialogContent = ({
                 original={baseYml}
                 modified={mergedYml}
                 options={diffEditorOptions}
-                keepCurrentModifiedModel
-                keepCurrentOriginalModel
                 onMount={onFinalYmlEditorMount}
               />
             </Box>
@@ -335,8 +331,6 @@ const ConfigMergeDialogContent = ({
                 original={baseYml}
                 modified={remoteYml}
                 options={readOnlyDiffEditorOptions}
-                keepCurrentModifiedModel
-                keepCurrentOriginalModel
               />
             </Box>
           </Box>

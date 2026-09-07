@@ -90,6 +90,10 @@ shows up as a wrecked pull request.
   or `no-restricted-imports` means you crossed one, not that you wrote sloppy code. Some take two
   rule ids, so count boundaries rather than rules. See
   [docs/conventions.md](docs/conventions.md#lint).
+- **`keepCurrent*Model` without a `path` leaks rather than reuses.** The `@monaco-editor/react`
+  props only skip disposal; reuse needs `getModel(Uri.parse(path))` to hit. With a `path` /
+  `originalModelPath` / `modifiedModelPath` on the same element they are load-bearing — the
+  YmlPage editors guard a model the language services share. Without one: a model per unmount.
 
 ## Writing docs here
 
