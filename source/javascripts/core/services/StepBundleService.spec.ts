@@ -2,6 +2,7 @@ import StepBundleService from '@/core/services/StepBundleService';
 
 import { StepBundles, Workflows } from '../models/BitriseYml';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
+import YmlUtils from '../utils/YmlUtils';
 
 describe('StepBundleService', () => {
   describe('validateName', () => {
@@ -136,6 +137,19 @@ describe('StepBundleService', () => {
   });
 
   describe('createStepBundle', () => {
+    it('should throw an error if the id is taken by a key written without a value', () => {
+      updateBitriseYmlDocumentByString(yaml`
+        step_bundles:
+          b:
+      `);
+
+      expect(() => StepBundleService.createStepBundle('b')).toThrow("Step bundle 'b' already exists");
+      expect(getYmlString()).toEqual(yaml`
+        step_bundles:
+          b:
+      `);
+    });
+
     it('creates an empty step bundle', () => {
       updateBitriseYmlDocumentByString(
         yaml`
@@ -406,6 +420,22 @@ describe('StepBundleService', () => {
   });
 
   describe('changeStepBundleId', () => {
+    // Same duplicate-key corruption as renamePipeline: `updateKeyByPath` rewrites the key in place,
+    // so passing the guard leaves two identical keys and an unparseable document.
+    it('should refuse to rename onto an id taken by a key written without a value', () => {
+      const source = yaml`
+        step_bundles:
+          b:
+          a:
+            steps: []
+      `;
+      updateBitriseYmlDocumentByString(source);
+
+      expect(() => StepBundleService.changeStepBundleId('a', 'b')).toThrow("Step bundle 'b' already exists");
+      expect(getYmlString()).toEqual(source);
+      expect(YmlUtils.toDoc(getYmlString()).errors).toHaveLength(0);
+    });
+
     it('changes the id of a step bundle', () => {
       updateBitriseYmlDocumentByString(
         yaml`

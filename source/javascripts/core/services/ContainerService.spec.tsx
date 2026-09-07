@@ -1325,7 +1325,7 @@ describe('ContainerService', () => {
         ).toBeUndefined();
       });
 
-      it('should throw error when step index does not exist', () => {
+      it('should return undefined when step index does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -1333,7 +1333,7 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
+        expect(
           ContainerService.getContainerReferenceFromInstance(
             'workflows',
             'wf1',
@@ -1341,7 +1341,7 @@ describe('ContainerService', () => {
             ContainerType.Execution,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow('Step at index 5 not found in workflows.wf1');
+        ).toBeUndefined();
       });
     });
 
@@ -1599,7 +1599,7 @@ describe('ContainerService', () => {
         ).toBeUndefined();
       });
 
-      it('should throw error when step index does not exist', () => {
+      it('should return undefined when step index does not exist', () => {
         updateBitriseYmlDocumentByString(yaml`
         workflows:
           wf1:
@@ -1607,7 +1607,7 @@ describe('ContainerService', () => {
               - script: {}
       `);
 
-        expect(() =>
+        expect(
           ContainerService.getContainerReferenceFromInstance(
             'workflows',
             'wf1',
@@ -1615,7 +1615,7 @@ describe('ContainerService', () => {
             ContainerType.Service,
             bitriseYmlStore.getState().ymlDocument,
           ),
-        ).toThrow('Step at index 10 not found in workflows.wf1');
+        ).toBeUndefined();
       });
     });
 
@@ -1678,6 +1678,200 @@ describe('ContainerService', () => {
       expect(result2).toEqual([{ id: 'node', recreate: false }]);
       expect(result3).toEqual([{ id: 'postgres', recreate: false }]);
       expect(result4).toBeUndefined();
+    });
+
+    describe('steps the editor cannot read as a `{cvs: options}` map', () => {
+      // Every case below reaches this function through StepCard's render, so none of them may throw.
+      it.each([
+        ['written as a plain string', 'script@1'],
+        ['written without a value', ''],
+      ])('returns undefined for a step %s', (_, stepValue) => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - ${stepValue}
+        `);
+
+        const doc = bitriseYmlStore.getState().ymlDocument;
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance('workflows', 'wf1', 0, ContainerType.Execution, doc),
+        ).toBeUndefined();
+        expect(
+          ContainerService.getContainerReferenceFromInstance('workflows', 'wf1', 0, ContainerType.Service, doc),
+        ).toBeUndefined();
+      });
+
+      it('returns undefined when the workflow itself is not a map', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1: some-string
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
+      it('returns undefined when service_containers is not a sequence', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers: postgres
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
+      it('skips reference entries that name no container', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - {}
+                  -
+                  - postgres
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'postgres', recreate: false }]);
+      });
+
+      it('skips a nested-array reference entry instead of naming a container after its index', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - [postgres]
+                  - redis
+        `);
+
+        // `Object.entries(['postgres'])` would otherwise yield a container called "0".
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'redis', recreate: false }]);
+      });
+
+      it('returns undefined when every reference entry is unreadable', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - [postgres]
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
+      it('skips an aliased reference entry instead of naming a container after the anchor key', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            pg: &pg
+              image: postgres
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - *pg
+                  - redis
+        `);
+
+        // Serializing the sequence as a whole would render the alias as `{ source: 'pg' }`, which
+        // would parse as a container called "source".
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toEqual([{ id: 'redis', recreate: false }]);
+      });
+
+      it('returns undefined when the only reference entry is an alias', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          containers:
+            pg: &pg
+              image: postgres
+          workflows:
+            wf1:
+              steps:
+              - script:
+                  service_containers:
+                  - *pg
+        `);
+
+        expect(
+          ContainerService.getContainerReferenceFromInstance(
+            'workflows',
+            'wf1',
+            0,
+            ContainerType.Service,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
+
+      it('returns undefined for a step bundle definition of an unexpected shape', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          step_bundles:
+            b1: some-string
+        `);
+
+        expect(
+          ContainerService.getContainerReferencesFromStepBundleDefinition(
+            'b1',
+            ContainerType.Execution,
+            bitriseYmlStore.getState().ymlDocument,
+          ),
+        ).toBeUndefined();
+      });
     });
   });
 

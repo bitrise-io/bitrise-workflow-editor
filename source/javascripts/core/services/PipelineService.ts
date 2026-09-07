@@ -227,7 +227,9 @@ function getPipelineWorkflowOrThrowError(pipelineId: string, workflowId: string,
 
 function createPipeline(id: string, baseId?: string) {
   updateBitriseYmlDocument(({ doc }) => {
-    if (YmlUtils.getMapIn(doc, ['pipelines', id])) {
+    // `hasIn`, not `getMapIn`: a pipeline written as a bare `release:` still occupies the key, and
+    // reading it as "absent" would overwrite it instead of reporting the clash.
+    if (doc.hasIn(['pipelines', id])) {
       throw new Error(`Pipeline ${id} already exists`);
     }
 
@@ -256,7 +258,9 @@ function renamePipeline(id: string, newName: string) {
   updateBitriseYmlDocument(({ doc }) => {
     getPipelineOrThrowError(id, doc);
 
-    if (YmlUtils.getMapIn(doc, ['pipelines', newName])) {
+    // As in createPipeline: a valueless `b:` still takes the name, and renaming onto it would leave
+    // two `b:` keys behind — a document that no longer parses.
+    if (doc.hasIn(['pipelines', newName])) {
       throw new Error(`Pipeline ${newName} already exists`);
     }
 

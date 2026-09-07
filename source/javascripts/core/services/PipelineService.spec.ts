@@ -1,5 +1,6 @@
 import { BitriseYml, PipelineModel, Stages } from '../models/BitriseYml';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
+import YmlUtils from '../utils/YmlUtils';
 import PipelineService from './PipelineService';
 
 describe('PipelineService', () => {
@@ -658,6 +659,23 @@ describe('PipelineService', () => {
       );
     });
 
+    // A key written with no value still occupies the name. Treating it as free would overwrite the
+    // entry instead of reporting the clash.
+    it('should throw an error if the pipeline id is taken by a key written without a value', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          pipelines:
+            release:
+        `,
+      );
+
+      expect(() => PipelineService.createPipeline('release')).toThrow('Pipeline release already exists');
+      expect(getYmlString()).toEqual(yaml`
+        pipelines:
+          release:
+      `);
+    });
+
     it('should throw an error if the pipeline id already exists', () => {
       updateBitriseYmlDocumentByString(
         yaml`
@@ -674,6 +692,22 @@ describe('PipelineService', () => {
   });
 
   describe('renamePipeline', () => {
+    // Renaming onto a valueless key used to rewrite the key in place, leaving two identical keys
+    // behind — a bitrise.yml that no longer parses, with the renamed pipeline's body lost.
+    it('should refuse to rename onto a name taken by a key written without a value', () => {
+      const source = yaml`
+        pipelines:
+          b:
+          a:
+            workflows: {}
+      `;
+      updateBitriseYmlDocumentByString(source);
+
+      expect(() => PipelineService.renamePipeline('a', 'b')).toThrow('Pipeline b already exists');
+      expect(getYmlString()).toEqual(source);
+      expect(YmlUtils.toDoc(getYmlString()).errors).toHaveLength(0);
+    });
+
     it('should rename the pipeline and update references', () => {
       updateBitriseYmlDocumentByString(
         yaml`

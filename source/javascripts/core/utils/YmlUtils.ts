@@ -224,22 +224,6 @@ function getIn(root: Root, path: Path, keepScalar = false) {
   return root.getIn(path, keepScalar);
 }
 
-function hasIn(root: Root, path: Path) {
-  if (!isDocument(root) && !isCollection(root)) {
-    throw new Error('Root node must be a YAML Document or YAML Collection');
-  }
-
-  if (isWildcardPath(path)) {
-    throw new Error('Path cannot contain wildcards when checking for existence');
-  }
-
-  if (isEmpty(path)) {
-    return true;
-  }
-
-  return root.hasIn(path);
-}
-
 function setIn(root: Root, path: Path, value: unknown, stringToTypedValue = true) {
   if (!isDocument(root) && !isCollection(root)) {
     throw new Error('Root node must be a YAML Document or YAML Collection');
@@ -426,6 +410,15 @@ function isEqualValues(a: unknown, b: unknown) {
   return isEqual(isNode(a) ? toJSON(a) : a, isNode(b) ? toJSON(b) : b);
 }
 
+/**
+ * Whether a path holds nothing to read. A key written without a value (`meta:` on its own line, or a
+ * bare `-` seq item) parses to a null scalar rather than to a missing key, so the key looks present
+ * while there is no collection there. Both shapes mean "absent" to the collection getters.
+ */
+function isEmptyNode(node: unknown) {
+  return isNil(node) || (isScalar(node) && isNil(node.value));
+}
+
 function getSeqIn(root: Root, path: Path): YAMLSeq | undefined;
 function getSeqIn(root: Root, path: Path, createIfNotExists: true): YAMLSeq;
 function getSeqIn(root: Root, path: Path, createIfNotExists?: boolean): YAMLSeq | undefined;
@@ -438,15 +431,16 @@ function getSeqIn(root: Root, path: Path, createIfNotExists = false) {
     throw new Error('Path cannot contain wildcards when getting a YAMLSeq');
   }
 
-  if (!hasIn(root, path) && !createIfNotExists) {
-    return undefined;
-  }
+  let node = getIn(root, path, true);
 
-  if (!hasIn(root, path) && createIfNotExists) {
+  if (isEmptyNode(node)) {
+    if (!createIfNotExists) {
+      return undefined;
+    }
+
     setIn(root, path, new YAMLSeq());
+    node = getIn(root, path, true);
   }
-
-  const node = getIn(root, path, true);
 
   if (!isSeq(node)) {
     throw new Error(`Expected a YAMLSeq at path "${path.join('.')}", but found ${node?.constructor.name}`);
@@ -467,15 +461,16 @@ function getMapIn(root: Root, path: Path, createIfNotExists = false) {
     throw new Error('Path cannot contain wildcards when getting a YAMLMap');
   }
 
-  if (!root.hasIn(path) && !createIfNotExists) {
-    return undefined;
-  }
+  let node = getIn(root, path, true);
 
-  if (!root.hasIn(path) && createIfNotExists) {
+  if (isEmptyNode(node)) {
+    if (!createIfNotExists) {
+      return undefined;
+    }
+
     setIn(root, path, new YAMLMap());
+    node = getIn(root, path, true);
   }
-
-  const node = getIn(root, path, true);
 
   if (!isMap(node)) {
     throw new Error(`Expected a YAMLMap at path "${path.join('.')}", but found ${node?.constructor.name}`);
@@ -668,6 +663,7 @@ export default {
   isEqualValues,
   addIn,
   setIn,
+  getIn,
   getSeqIn,
   getMapIn,
   isInSeq,
