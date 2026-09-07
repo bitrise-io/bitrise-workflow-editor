@@ -11,7 +11,7 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
+import { MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { toMerged } from 'es-toolkit';
@@ -31,6 +31,7 @@ import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useModelValidationStatus from '@/hooks/useModelValidationStatus';
 
+import ManagedDiffEditor from '../DiffEditor/ManagedDiffEditor';
 import YmlValidationBadge from '../YmlValidationBadge';
 import { diffEditorOptions, mergeYamls, readOnlyDiffEditorOptions } from './mergeYamls';
 
@@ -215,7 +216,7 @@ const ConfigMergeDialogContent = ({
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Your changes</Text>
             <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-              <DiffEditor
+              <ManagedDiffEditor
                 theme="vs-dark"
                 language="yaml"
                 original={baseYml}
@@ -232,7 +233,7 @@ const ConfigMergeDialogContent = ({
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Results</Text>
             <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
-              <DiffEditor
+              <ManagedDiffEditor
                 theme="vs-dark"
                 language="yaml"
                 original={baseYml}
@@ -250,7 +251,7 @@ const ConfigMergeDialogContent = ({
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Remote changes</Text>
             <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-              <DiffEditor
+              <ManagedDiffEditor
                 theme="vs-dark"
                 language="yaml"
                 original={baseYml}

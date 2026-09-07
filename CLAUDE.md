@@ -93,7 +93,14 @@ shows up as a wrecked pull request.
 - **`keepCurrent*Model` without a `path` leaks rather than reuses.** The `@monaco-editor/react`
   props only skip disposal; reuse needs `getModel(Uri.parse(path))` to hit. With a `path` /
   `originalModelPath` / `modifiedModelPath` on the same element they are load-bearing — the
-  YmlPage editors guard a model the language services share. Without one: a model per unmount.
+  YmlPage editors guard a model the language services share. Without one they hand you the
+  disposal instead, which is the deal `ManagedDiffEditor` takes.
+- **Mount a diff editor through `@/components/DiffEditor/ManagedDiffEditor`, never the library's
+  `<DiffEditor>`.** Left to itself the library ends both models before the widget still holding
+  them, and Monaco reports `TextModel got disposed before DiffEditorWidget model got reset` once
+  per unmount. `ManagedDiffEditor` owns the models (see above) and resets the widget first. The
+  single `<Editor>` needs none of this: `CodeEditorWidget` just calls `setModel(null)` and says
+  nothing.
 
 ## Writing docs here
 

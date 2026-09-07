@@ -1,5 +1,7 @@
 import { ProgressBitbot } from '@bitrise/bitkit';
-import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
+import { DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
+
+import ManagedDiffEditor from './ManagedDiffEditor';
 
 export type Props = {
   originalText: string;
@@ -42,7 +44,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
         }
       `}
       </style>
-      <DiffEditor
+      <ManagedDiffEditor
         theme="vs-dark"
         language={language}
         original={originalText}

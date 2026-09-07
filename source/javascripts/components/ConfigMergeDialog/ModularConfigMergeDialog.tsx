@@ -1,6 +1,6 @@
 import { Box, Button, ButtonGroup, DialogBody, DialogFooter, Icon, Notification, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitTabs } from '@bitrise/bitkit-v2';
-import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
+import { MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';
 import { useMemo, useRef, useState } from 'react';
@@ -14,6 +14,7 @@ import YmlUtils from '@/core/utils/YmlUtils';
 import usePushBranch from '@/hooks/usePushBranch';
 
 import { DiffEditorDialogShell } from '../DiffEditor/DiffEditorDialog';
+import ManagedDiffEditor from '../DiffEditor/ManagedDiffEditor';
 import { diffEditorOptions, mergeYamls, readOnlyDiffEditorOptions } from './mergeYamls';
 
 type Props = {
@@ -171,7 +172,10 @@ const ModularConfigMergeDialogBody = ({
         );
       }
 
-      diff.onDidDispose(() => disposables.forEach((d) => d.dispose()));
+      // On the inner editor, not `diff`: `DelegatingEditor` declares `onDidDispose` and never fires
+      // it, so hanging this off the diff editor disposes nothing (monaco 0.53 fires `_onDidDispose`
+      // in `codeEditorWidget.js` alone).
+      modified.onDidDispose(() => disposables.forEach((d) => d.dispose()));
     };
   };
 
@@ -236,7 +240,7 @@ const ModularConfigMergeDialogBody = ({
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Your changes</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-                <DiffEditor
+                <ManagedDiffEditor
                   key={`${activeMerge.nodeId}-yours`}
                   theme="vs-dark"
                   language="yaml"
@@ -254,7 +258,7 @@ const ModularConfigMergeDialogBody = ({
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Results</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
-                <DiffEditor
+                <ManagedDiffEditor
                   key={`${activeMerge.nodeId}-results`}
                   theme="vs-dark"
                   language="yaml"
@@ -273,7 +277,7 @@ const ModularConfigMergeDialogBody = ({
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Remote changes</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
-                <DiffEditor
+                <ManagedDiffEditor
                   key={`${activeMerge.nodeId}-remote`}
                   theme="vs-dark"
                   language="yaml"
