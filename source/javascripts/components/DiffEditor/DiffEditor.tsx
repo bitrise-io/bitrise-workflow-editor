@@ -50,6 +50,8 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
         options={readOnly ? { ...diffEditorOptions, readOnly: true } : diffEditorOptions}
         loading={<ProgressBitbot />}
         onMount={handleEditorDidMount}
+        keepCurrentModifiedModel
+        keepCurrentOriginalModel
         wrapperProps={{ style: { flex: 1, display: 'flex' } }}
       />
     </>

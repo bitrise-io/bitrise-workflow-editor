@@ -133,6 +133,10 @@ const ModularConfigMergeDialogBody = ({
   const onResultEditorMount = (mountedNodeId: string, decorations: editor.IModelDeltaDecoration[]) => {
     return (diff: MonacoDiffEditor) => {
       const modified = diff.getModifiedEditor();
+      // Tab switches remount this editor (its key includes the node_id), so every
+      // listener registered here must be disposed on unmount — otherwise the global
+      // marker listener (onModelMarkerStatusChange) leaks one per visit and keeps
+      // firing setValidity for stale models. Collected here, disposed on dispose.
       const disposables: IDisposable[] = [];
 
       disposables.push(
@@ -243,6 +247,8 @@ const ModularConfigMergeDialogBody = ({
                   original={activeMerge.baseYml}
                   modified={activeMerge.yourYml}
                   options={readOnlyDiffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
                 />
               </Box>
             </Box>
@@ -261,6 +267,8 @@ const ModularConfigMergeDialogBody = ({
                   original={activeMerge.baseYml}
                   modified={resolved[activeMerge.nodeId] ?? activeMerge.mergedYml}
                   options={diffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
                   onMount={onResultEditorMount(activeMerge.nodeId, activeMerge.decorations)}
                 />
               </Box>
@@ -280,6 +288,8 @@ const ModularConfigMergeDialogBody = ({
                   original={activeMerge.baseYml}
                   modified={activeMerge.remoteYml}
                   options={readOnlyDiffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
                 />
               </Box>
             </Box>
