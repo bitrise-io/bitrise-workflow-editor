@@ -5,20 +5,38 @@ import { stringify } from 'yaml';
 
 import ToolCatalogApiMocks from '@/core/api/ToolCatalogApi.mswMocks';
 import YmlUtils from '@/core/utils/YmlUtils';
+import YamlPanel from '@/storyutils/YamlPanel';
 
 import ToolVersions from './ToolVersions';
+
+/** A store holding one `tools` block. Cloned, since `set` writes into shared nested objects. */
+const withTools = (tools: Record<string, string>, workflowId?: string) => {
+  const path = workflowId ? `workflows.${workflowId}.tools` : 'tools';
+  const yml = set(structuredClone(TEST_BITRISE_YML), path, tools);
+
+  return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
+};
 
 const meta: Meta<typeof ToolVersions> = {
   component: ToolVersions,
   args: {
     stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-26.6.x#languages-and-runtimes',
   },
+  // One decorator owns both layouts, so the padding is not applied twice.
   decorators: [
-    (Story) => (
-      <Box padding="24">
-        <Story />
-      </Box>
-    ),
+    (Story, { parameters }) =>
+      parameters.yamlPreview ? (
+        <Box display="flex" gap="32" padding="24" alignItems="flex-start">
+          <Box flex="1" minWidth="0">
+            <Story />
+          </Box>
+          <YamlPanel />
+        </Box>
+      ) : (
+        <Box padding="24">
+          <Story />
+        </Box>
+      ),
   ],
   parameters: {
     msw: {
@@ -33,15 +51,12 @@ type Story = StoryObj<typeof ToolVersions>;
 
 export const RootScope: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
-        go: '1.23.0',
-        node: '22:latest',
-        ruby: 'installed',
-        python: '3.13.4',
-      });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({
+      go: '1.23.0',
+      node: '22:latest',
+      ruby: 'installed',
+      python: '3.13.4',
+    }),
   },
 };
 
@@ -50,39 +65,34 @@ export const WorkflowScope: Story = {
     workflowId: 'generator',
   },
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'workflows.generator.tools', {
-        node: '22:latest',
-        python: '3.13.4',
-      });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({ node: '22:latest', python: '3.13.4' }, 'generator'),
   },
 };
 
 /** Every latest-of combination at once: both keywords, with and without a prefix. */
 export const LatestOfStrategies: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
-        node: '22:latest',
-        ruby: '3.3:installed',
-        golang: 'latest',
-        python: 'installed',
-        deno: '2.90:latest',
-      });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({
+      node: '22:latest',
+      ruby: '3.3:installed',
+      golang: 'latest',
+      python: 'installed',
+      deno: '2.90:latest',
+    }),
   },
 };
 
 /** A prefix the catalog cannot resolve. Still valid YAML, so it warns rather than errors. */
 export const UnknownPrefix: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', { nodejs: '18.99:latest' });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({ nodejs: '18.99:latest' }),
+  },
+};
+
+/** A prefix sharing only leading characters, so `24.2` warns instead of matching `24.20.0`. */
+export const PrefixAcrossSeparator: Story = {
+  parameters: {
+    bitriseYmlStore: withTools({ nodejs: '2:latest' }),
   },
 };
 
@@ -120,34 +130,19 @@ export const RealApi: Story = {
 
 export const CustomTool: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
-        deno: '2.90.0',
-      });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({ deno: '2.90.0' }),
   },
 };
 
 export const VersionNotInCatalog: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
-        nodejs: '999.999.999',
-      });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({ nodejs: '999.999.999' }),
   },
 };
 
 export const EmptyExactVersion: Story = {
   parameters: {
-    bitriseYmlStore: (() => {
-      const yml = set({ ...TEST_BITRISE_YML }, 'tools', {
-        nodejs: '',
-      });
-      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
-    })(),
+    bitriseYmlStore: withTools({ nodejs: '' }),
   },
 };
 
@@ -168,5 +163,28 @@ export const VersionsError: Story = {
     msw: {
       handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsError()],
     },
+  },
+};
+
+/** Editable YAML beside the rows, so a change can be driven from either side. */
+export const YamlPreview: Story = {
+  parameters: {
+    yamlPreview: true,
+    bitriseYmlStore: withTools({
+      nodejs: '22:latest',
+      ruby: '3.3:installed',
+      golang: 'latest',
+      deno: '2.90:latest',
+    }),
+  },
+};
+
+export const YamlPreviewWorkflowScope: Story = {
+  args: {
+    workflowId: 'generator',
+  },
+  parameters: {
+    yamlPreview: true,
+    bitriseYmlStore: withTools({ python: '3.13.4' }, 'generator'),
   },
 };
