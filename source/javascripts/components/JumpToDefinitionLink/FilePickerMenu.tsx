@@ -35,7 +35,7 @@ const FilePickerMenu = ({ rootNode, nodeIds, onSelect, trigger, onOpenChange }: 
   }, [rootNode, projectRepoLabel, nodeIds]);
 
   return (
-    <BitkitActionMenu.Root
+    <BitkitActionMenu
       trigger={trigger}
       size="md"
       positioning={{ placement: 'bottom-start' }}
@@ -47,7 +47,7 @@ const FilePickerMenu = ({ rootNode, nodeIds, onSelect, trigger, onOpenChange }: 
           {item.label}
         </BitkitActionMenu.Item>
       ))}
-    </BitkitActionMenu.Root>
+    </BitkitActionMenu>
   );
 };
 
