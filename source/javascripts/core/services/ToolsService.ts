@@ -100,53 +100,100 @@ function resolveToolName(catalog: ToolCatalog | undefined, id: string): string {
   return entry?.name ?? id;
 }
 
-/**
- * Builds the exact-version dropdown options: semver versions sorted newest first,
- * then non-semver versions in catalog order. A non-empty `currentVersion` missing
- * from the catalog is injected at the top so the dropdown always reflects what's
- * in the YAML instead of showing an empty selection.
- */
-function getVersionOptions(
-  toolVersions: ToolVersions | undefined,
-  currentVersion: string,
-): { value: string; label: string }[] {
+type VersionOption = { value: string; label: string };
+
+/** The configured value put on top when the catalog lacks it, so a control reflects the YAML. */
+function withConfiguredValue(options: VersionOption[], configured: string): VersionOption[] {
+  if (!configured || options.some(({ value }) => value === configured)) {
+    return options;
+  }
+
+  return [{ value: configured, label: configured }, ...options];
+}
+
+/** Options for the exact version dropdown. Semver newest first, then the rest in catalog order. */
+function getVersionOptions(toolVersions: ToolVersions | undefined): VersionOption[] {
   const versions = toolVersions?.versions ?? [];
-  const ordered = [
+
+  return [
     ...versions
       .filter(({ isSemver }) => isSemver)
       .map(({ version }) => version)
       .sort(semver.rcompare),
     ...versions.filter(({ isSemver }) => !isSemver).map(({ version }) => version),
-  ];
+  ].map((version) => ({ value: version, label: version }));
+}
 
-  if (currentVersion && !ordered.includes(currentVersion)) {
-    ordered.unshift(currentVersion);
+/** Version separators, as characters so a single one is tested with `includes`. */
+const SEPARATORS = '.-_+';
+
+/** A part of nothing but digits, as the `8` in `zulu-musl-8.96.0.19`, where a version begins. */
+const NUMERIC_PART = /^\d+$/;
+
+/** Whether `version` is in `prefix`'s line, the way mise reads it: `24.2` covers `24.2.0`, not `24.20.0`. */
+function matchesPrefix(version: string, prefix: string): boolean {
+  if (prefix === '' || version === prefix) {
+    return true;
   }
 
-  return ordered.map((version) => ({ value: version, label: version }));
+  // Length checked first, or `includes` would match a character past the end of the string.
+  return version.length > prefix.length && version.startsWith(prefix) && SEPARATORS.includes(version[prefix.length]);
 }
 
-/**
- * Every proper prefix of `version` cut at a separator: `zulu-musl-8.96.0` yields `zulu`,
- * `zulu-musl`, `zulu-musl-8` and `zulu-musl-8.96`. A value with no separator has no proper prefix,
- * so it stands in for itself.
- */
+/** Where `version` can be cut to name a line: the whole name, then at most major and minor. */
 function toPrefixes(version: string): string[] {
-  const cuts = [...version].flatMap((char, index) => (/[.\-_+]/.test(char) ? [version.slice(0, index)] : []));
-  return cuts.length > 0 ? cuts : [version];
+  const cuts: string[] = [];
+  // All digits, not merely containing one: `miniconda3-3.9` is a line, `miniconda3-3` is not.
+  let major = -1;
+  let partStart = 0;
+
+  for (let index = 0; index < version.length; index += 1) {
+    if (!SEPARATORS.includes(version[index])) {
+      continue;
+    }
+
+    if (major === -1 && NUMERIC_PART.test(version.slice(partStart, index))) {
+      major = cuts.length;
+    }
+
+    cuts.push(version.slice(0, index));
+    partStart = index + 1;
+  }
+
+  if (cuts.length === 0) {
+    return [version];
+  }
+
+  return major === -1 ? cuts : cuts.slice(0, major + 2);
 }
 
-/**
- * Prefix suggestions taken from the version list, keeping its order so the newest come first.
- * Derived by cutting each value at its separators rather than by parsing semver, because a prefix
- * is matched as a string and most catalogs are not semver: java publishes `zulu-musl-8.96.0.19`,
- * python `3.15.0rc1`. A `currentPrefix` the list does not suggest is added at the top, so the
- * control always reflects the YAML.
- */
-function getPrefixOptions(
-  toolVersions: ToolVersions | undefined,
-  currentPrefix: string,
-): { value: string; label: string }[] {
+/** A prefix that is nothing but numbers and dots, like `24` or `24.2`, so it can be ordered. */
+const NUMERIC_PREFIX = /^\d+(\.\d+)*$/;
+
+/** Newest first, part by part so `24.11` beats `24.2`, and a prefix sorts above what it contains. */
+function compareNumericPrefixes(a: string, b: string): number {
+  const aParts = a.split('.').map(Number);
+  const bParts = b.split('.').map(Number);
+
+  for (let index = 0; index < Math.max(aParts.length, bParts.length); index += 1) {
+    if (aParts[index] === undefined) {
+      return -1;
+    }
+
+    if (bParts[index] === undefined) {
+      return 1;
+    }
+
+    if (aParts[index] !== bParts[index]) {
+      return bParts[index] - aParts[index];
+    }
+  }
+
+  return 0;
+}
+
+/** Prefix suggestions cut from each version, since catalogs are rarely semver. Newest first. */
+function getPrefixOptions(toolVersions: ToolVersions | undefined): VersionOption[] {
   const prefixes: string[] = [];
   const seen = new Set<string>();
 
@@ -159,16 +206,15 @@ function getPrefixOptions(
     });
   });
 
-  if (currentPrefix && !seen.has(currentPrefix)) {
-    prefixes.unshift(currentPrefix);
-  }
-
-  return prefixes.map((prefix) => ({ value: prefix, label: prefix }));
+  return [
+    ...prefixes.filter((prefix) => NUMERIC_PREFIX.test(prefix)).sort(compareNumericPrefixes),
+    ...prefixes.filter((prefix) => !NUMERIC_PREFIX.test(prefix)),
+  ].map((prefix) => ({ value: prefix, label: prefix }));
 }
 
-/** Whether any catalog version starts with `prefix`, which is how a prefix is matched. */
+/** Whether the catalog has any version in `prefix`'s line. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
-  return toolVersions.versions.some(({ version }) => version.startsWith(prefix));
+  return toolVersions.versions.some(({ version }) => matchesPrefix(version, prefix));
 }
 
 function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
@@ -298,6 +344,7 @@ export default {
   resolveToolName,
   getVersionOptions,
   getPrefixOptions,
+  withConfiguredValue,
   isVersionInCatalog,
   isPrefixInCatalog,
   getToolIdOptions,

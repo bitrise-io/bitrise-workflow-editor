@@ -163,7 +163,7 @@ describe('ToolsService', () => {
     it('sorts semver versions newest first', () => {
       const catalog = versionCatalog('nodejs', ['22.4.1', '24.0.0', '22.11.0']);
 
-      expect(ToolsService.getVersionOptions(catalog, '')).toEqual([
+      expect(ToolsService.getVersionOptions(catalog)).toEqual([
         { value: '24.0.0', label: '24.0.0' },
         { value: '22.11.0', label: '22.11.0' },
         { value: '22.4.1', label: '22.4.1' },
@@ -181,7 +181,7 @@ describe('ToolsService', () => {
         ],
       };
 
-      expect(ToolsService.getVersionOptions(catalog, '').map(({ value }) => value)).toEqual([
+      expect(ToolsService.getVersionOptions(catalog).map(({ value }) => value)).toEqual([
         '24.0.0',
         '22.4.1',
         'lts-iron',
@@ -189,35 +189,44 @@ describe('ToolsService', () => {
       ]);
     });
 
-    it('injects a current version missing from the catalog at the top', () => {
-      const catalog = versionCatalog('nodejs', ['24.0.0']);
-
-      expect(ToolsService.getVersionOptions(catalog, '18.9.9').map(({ value }) => value)).toEqual(['18.9.9', '24.0.0']);
+    it('returns nothing when the catalog is undefined', () => {
+      expect(ToolsService.getVersionOptions(undefined)).toEqual([]);
     });
+  });
 
-    it('does not duplicate a current version that is already in the catalog', () => {
-      const catalog = versionCatalog('nodejs', ['24.0.0', '22.4.1']);
+  describe('withConfiguredValue', () => {
+    const options = [
+      { value: '24.0.0', label: '24.0.0' },
+      { value: '22.4.1', label: '22.4.1' },
+    ];
 
-      expect(ToolsService.getVersionOptions(catalog, '22.4.1').map(({ value }) => value)).toEqual(['24.0.0', '22.4.1']);
-    });
-
-    it('ignores an empty current version', () => {
-      expect(ToolsService.getVersionOptions(versionCatalog('nodejs', ['24.0.0']), '')).toEqual([
-        { value: '24.0.0', label: '24.0.0' },
+    it('injects a configured value the options do not offer at the top', () => {
+      expect(ToolsService.withConfiguredValue(options, '18.9.9').map(({ value }) => value)).toEqual([
+        '18.9.9',
+        '24.0.0',
+        '22.4.1',
       ]);
     });
 
-    it('returns only the current version when the catalog is undefined', () => {
-      expect(ToolsService.getVersionOptions(undefined, '18.9.9')).toEqual([{ value: '18.9.9', label: '18.9.9' }]);
-      expect(ToolsService.getVersionOptions(undefined, '')).toEqual([]);
+    it('does not duplicate a configured value the options already offer', () => {
+      expect(ToolsService.withConfiguredValue(options, '22.4.1')).toBe(options);
+    });
+
+    it('ignores an empty configured value', () => {
+      expect(ToolsService.withConfiguredValue(options, '')).toBe(options);
+      expect(ToolsService.withConfiguredValue([], '')).toEqual([]);
+    });
+
+    it('stands alone when there are no options to offer', () => {
+      expect(ToolsService.withConfiguredValue([], '18.9.9')).toEqual([{ value: '18.9.9', label: '18.9.9' }]);
     });
   });
 
   describe('getPrefixOptions', () => {
-    const values = (toolVersions: ToolVersions | undefined, currentPrefix = '') =>
-      ToolsService.getPrefixOptions(toolVersions, currentPrefix).map(({ value }) => value);
+    const values = (toolVersions: ToolVersions | undefined) =>
+      ToolsService.getPrefixOptions(toolVersions).map(({ value }) => value);
 
-    it('cuts each version at its separators, keeping the catalog order', () => {
+    it('cuts each version at its separators', () => {
       expect(values(versionCatalog('nodejs', ['26.7.0', '26.6.0', '22.4.1']))).toEqual([
         '26',
         '26.7',
@@ -227,13 +236,57 @@ describe('ToolsService', () => {
       ]);
     });
 
-    it('derives prefixes from values that are not semver', () => {
+    it('orders numeric prefixes newest first, comparing part by part', () => {
+      // Catalog order is not relied on, and 22.11 outranks 22.4 even though it loses as a string.
+      expect(values(versionCatalog('nodejs', ['22.4.1', '24.0.0', '22.11.0', '22.12.0']))).toEqual([
+        '24',
+        '24.0',
+        '22',
+        '22.12',
+        '22.11',
+        '22.4',
+      ]);
+    });
+
+    it('puts named prefixes after the numeric ones, in catalog order', () => {
+      const catalog: ToolVersions = {
+        toolId: 'nodejs',
+        versions: [
+          { version: 'lts-iron', isSemver: false },
+          { version: '22.4.1', isSemver: true },
+          { version: 'nightly', isSemver: false },
+        ],
+      };
+
+      expect(values(catalog)).toEqual(['22', '22.4', 'lts', 'nightly']);
+    });
+
+    it('stops at the minor, because a deeper cut names one release rather than a line', () => {
+      // The catalog has thousands of these, and `26.0.2` only ever resolves to `26.0.2.1`.
+      expect(values(versionCatalog('java', ['26.0.2.1'], false))).toEqual(['26', '26.0']);
+    });
+
+    it('does not mistake a number inside the name for the version', () => {
+      // Only an all digit part starts the version, so the `3` in `miniconda3` must not end the name.
+      expect(values(versionCatalog('python', ['miniconda3-3.9-25.11.1'], false))).toEqual([
+        'miniconda3',
+        'miniconda3-3',
+        'miniconda3-3.9',
+      ]);
+      expect(values(versionCatalog('java', ['semeru-openj9-11.0.20'], false))).toEqual([
+        'semeru',
+        'semeru-openj9',
+        'semeru-openj9-11',
+        'semeru-openj9-11.0',
+      ]);
+    });
+
+    it('keeps the whole name of a value that is not semver, then stops at the minor', () => {
       expect(values(versionCatalog('java', ['zulu-musl-8.96.0.19'], false))).toEqual([
         'zulu',
         'zulu-musl',
         'zulu-musl-8',
         'zulu-musl-8.96',
-        'zulu-musl-8.96.0',
       ]);
       expect(values(versionCatalog('python', ['3.15.0rc1', '3.15-dev'], false))).toEqual(['3', '3.15']);
     });
@@ -246,14 +299,6 @@ describe('ToolsService', () => {
       expect(values(versionCatalog('nodejs', ['22.4.1', '22.4.2', '22.4.3']))).toEqual(['22', '22.4']);
     });
 
-    it('injects a configured prefix the list does not suggest at the top', () => {
-      expect(values(versionCatalog('nodejs', ['24.2.0']), '18')).toEqual(['18', '24', '24.2']);
-    });
-
-    it('does not duplicate a configured prefix the list already suggests', () => {
-      expect(values(versionCatalog('nodejs', ['24.2.0']), '24')).toEqual(['24', '24.2']);
-    });
-
     it('returns nothing when the version list is missing', () => {
       expect(values(undefined)).toEqual([]);
     });
@@ -262,15 +307,31 @@ describe('ToolsService', () => {
   describe('isPrefixInCatalog', () => {
     const catalog = versionCatalog('nodejs', ['22.4.1', '24.2.0']);
 
-    it('accepts any prefix a version starts with', () => {
+    it('accepts a prefix that names a line in the catalog', () => {
       expect(ToolsService.isPrefixInCatalog(catalog, '22')).toBe(true);
       expect(ToolsService.isPrefixInCatalog(catalog, '22.4')).toBe(true);
-      // A prefix is matched as a string, so a shared leading digit counts as a match.
-      expect(ToolsService.isPrefixInCatalog(catalog, '2')).toBe(true);
+    });
+
+    it('accepts an empty prefix, which is what bare `latest` means', () => {
+      expect(ToolsService.isPrefixInCatalog(catalog, '')).toBe(true);
+    });
+
+    it('accepts a prefix that names a whole version', () => {
+      expect(ToolsService.isPrefixInCatalog(catalog, '22.4.1')).toBe(true);
     });
 
     it('accepts a prefix of a value that is not semver', () => {
-      expect(ToolsService.isPrefixInCatalog(versionCatalog('java', ['zulu-musl-8.96.0.19'], false), 'zulu')).toBe(true);
+      const java = versionCatalog('java', ['zulu-musl-8.96.0.19'], false);
+
+      expect(ToolsService.isPrefixInCatalog(java, 'zulu')).toBe(true);
+      expect(ToolsService.isPrefixInCatalog(java, 'zulu-musl-8')).toBe(true);
+    });
+
+    it('rejects a prefix that only shares leading characters with a version', () => {
+      // `2` names no line at all, and `24.2` names the `24.2.x` line rather than `24.20.0`.
+      expect(ToolsService.isPrefixInCatalog(catalog, '2')).toBe(false);
+      expect(ToolsService.isPrefixInCatalog(versionCatalog('nodejs', ['24.20.0']), '24.2')).toBe(false);
+      expect(ToolsService.isPrefixInCatalog(versionCatalog('java', ['zulu-musl-8.96.0.19'], false), 'zul')).toBe(false);
     });
 
     it('rejects a prefix no version starts with', () => {

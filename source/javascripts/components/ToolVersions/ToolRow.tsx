@@ -110,40 +110,42 @@ const ToolRow = ({
     isError: isVersionsError,
   } = useToolVersions(canonicalToolId, isExactKnownTool || hasPrefixDropdown);
 
-  // Catalogs can list thousands of versions, so only compute the one the active branch needs.
+  // Only one branch renders, so build one list, and keep the catalog half out of the pick memo.
+  const catalogOptions = useMemo(() => {
+    if (isExactKnownTool) {
+      return ToolsService.getVersionOptions(toolVersions);
+    }
+
+    return hasPrefixDropdown ? ToolsService.getPrefixOptions(toolVersions) : [];
+  }, [isExactKnownTool, hasPrefixDropdown, toolVersions]);
   const versionOptions = useMemo(
-    () => (isExactKnownTool ? ToolsService.getVersionOptions(toolVersions, version) : []),
-    [isExactKnownTool, toolVersions, version],
-  );
-  const prefixOptions = useMemo(
-    () => (hasPrefixDropdown ? ToolsService.getPrefixOptions(toolVersions, version) : []),
-    [hasPrefixDropdown, toolVersions, version],
-  );
-  // toolVersions is undefined both while loading and after a failed fetch, so comparing
-  // against it before real data arrives would flash a false "missing" warning.
-  const isVersionMissingFromCatalog = useMemo(
-    () =>
-      isExactKnownTool && !!toolVersions && version !== '' && !ToolsService.isVersionInCatalog(toolVersions, version),
-    [isExactKnownTool, toolVersions, version],
-  );
-  const isPrefixMissingFromCatalog = useMemo(
-    () =>
-      hasPrefixDropdown && !!toolVersions && version !== '' && !ToolsService.isPrefixInCatalog(toolVersions, version),
-    [hasPrefixDropdown, toolVersions, version],
+    () => ToolsService.withConfiguredValue(catalogOptions, version),
+    [catalogOptions, version],
   );
 
+  // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
+  const trimmedVersion = version.trim();
   // An exact strategy needs a concrete version. An empty prefix is valid and means the newest
   // version overall, which serializes to bare `latest` or `installed`.
-  const versionError = strategy === 'exact' && version.trim() === '' ? 'Tool version is required' : undefined;
+  const versionError = strategy === 'exact' && trimmedVersion === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
   // The configured value is not in the catalog, likely a leftover from hand written YAML. It is
-  // still valid and may resolve at build time, so both cases warn rather than error.
-  const catalogMismatchWarning = isVersionMissingFromCatalog
-    ? `${version} is not a known version, use at your own risk`
-    : undefined;
-  const unmatchedPrefixWarning = isPrefixMissingFromCatalog
-    ? `No known version of ${toolId} starts with ${version}, use at your own risk`
-    : undefined;
+  // Warn rather than error, and wait for real data, since `toolVersions` is undefined while loading.
+  const catalogWarning = useMemo(() => {
+    if (!toolVersions || trimmedVersion === '') {
+      return undefined;
+    }
+
+    if (isExactKnownTool && !ToolsService.isVersionInCatalog(toolVersions, trimmedVersion)) {
+      return `${trimmedVersion} is not a known version, use at your own risk`;
+    }
+
+    if (hasPrefixDropdown && !ToolsService.isPrefixInCatalog(toolVersions, trimmedVersion)) {
+      return `No known version of ${toolId} is in the ${trimmedVersion} line, use at your own risk`;
+    }
+
+    return undefined;
+  }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -255,7 +257,7 @@ const ToolRow = ({
                 }
                 checked={!!preferInstalled}
                 state={isReadOnly ? 'readOnly' : undefined}
-                onChange={(e) => handlePreferInstalledChange((e.target as unknown as HTMLInputElement).checked)}
+                onCheckedChange={({ checked }) => handlePreferInstalledChange(checked === true)}
               />
             )}
           </Box>
@@ -283,7 +285,7 @@ const ToolRow = ({
                     onBlur: () => setVersionTouched(true),
                   }}
                   errorText={displayedVersionError}
-                  warningText={catalogMismatchWarning}
+                  warningText={catalogWarning}
                   value={version || undefined}
                   onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
                 />
@@ -291,10 +293,10 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...prefixOptions]}
+                  items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...versionOptions]}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  warningText={unmatchedPrefixWarning}
+                  warningText={catalogWarning}
                   value={version || ANY_PREFIX_VALUE}
                   onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
                 />
