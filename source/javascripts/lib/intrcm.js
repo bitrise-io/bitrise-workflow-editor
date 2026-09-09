@@ -1,20 +1,6 @@
+import syncIntercomWithEditorNavigation from './intercomPageSync';
+
 const APP_ID = import.meta.env.INTERCOM_APP_ID;
-
-const syncOwnUrlWithParentHash = () => {
-  const url = new URL(window.location.href);
-
-  if (url.hash === window.parent.location.hash) {
-    return;
-  }
-
-  url.hash = window.parent.location.hash;
-  window.history.replaceState(window.history.state, '', url);
-};
-
-const revalidatePageTargetingOfBothInstances = () => {
-  window.Intercom?.('update');
-  window.parent.Intercom?.('update');
-};
 
 if (APP_ID) {
   window.intercomSettings = {
@@ -28,10 +14,7 @@ if (APP_ID) {
   const isEmbeddedInParentWindow = window.parent !== window;
 
   if (isEmbeddedInParentWindow) {
-    window.parent.addEventListener('hashchange', () => {
-      syncOwnUrlWithParentHash();
-      revalidatePageTargetingOfBothInstances();
-    });
+    syncIntercomWithEditorNavigation(window);
   }
 }
 
