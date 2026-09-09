@@ -66,8 +66,33 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion('foo:bar')).toEqual({ strategy: 'exact', version: 'foo:bar' });
     });
 
-    it('parses a leading-colon value as exact', () => {
-      expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'exact', version: ':latest' });
+    it('takes the prefix up to the last colon that starts a keyword, as the CLI does', () => {
+      // Greedy and end anchored, so everything before `:latest` is the prefix, colons included.
+      expect(ToolsService.parseToolVersion('a:b:latest')).toEqual({
+        strategy: 'latest-of',
+        prefix: 'a:b',
+        preferInstalled: false,
+      });
+    });
+
+    it('reads a leading-colon value as the bare keyword, as the CLI does', () => {
+      // The capture group may be empty, so `:latest` is bare `latest` and serializes back as such.
+      expect(ToolsService.parseToolVersion(':latest')).toEqual({
+        strategy: 'latest-of',
+        prefix: '',
+        preferInstalled: false,
+      });
+      expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion(':latest'))).toBe('latest');
+    });
+
+    it('trims surrounding whitespace, the way the CLI does before it parses', () => {
+      expect(ToolsService.parseToolVersion(' 22:latest ')).toEqual({
+        strategy: 'latest-of',
+        prefix: '22',
+        preferInstalled: false,
+      });
+      expect(ToolsService.parseToolVersion('  3.13.4  ')).toEqual({ strategy: 'exact', version: '3.13.4' });
+      expect(ToolsService.parseToolVersion('   ')).toEqual({ strategy: 'exact', version: '' });
     });
 
     it('tolerates non-string values from hand-edited YAML', () => {

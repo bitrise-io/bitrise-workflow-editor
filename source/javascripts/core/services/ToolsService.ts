@@ -7,27 +7,53 @@ import WorkflowService from './WorkflowService';
 
 type ToolScope = { type: 'root' } | { type: 'workflow'; workflowId: string };
 
+/** Separates a prefix from its keyword, as the colon in `22:latest`. */
+const KEYWORD_SEPARATOR = ':';
+
+/** Turns a tool off for one workflow. A strategy of its own, so it carries no prefix. */
+const UNSET_KEYWORD = 'unset';
+
+const LATEST_KEYWORD = 'latest';
+const INSTALLED_KEYWORD = 'installed';
+
+/** The keywords `latest-of` can carry. Matched ignoring case, unlike the CLI. See `docs/domain.md`. */
+const LATEST_OF_KEYWORDS = [
+  { keyword: INSTALLED_KEYWORD, preferInstalled: true },
+  { keyword: LATEST_KEYWORD, preferInstalled: false },
+];
+
+/** The same keywords with their separator, longest first so neither suffix shadows the other. */
+const LATEST_OF_SUFFIXES = LATEST_OF_KEYWORDS.map(({ keyword, preferInstalled }) => ({
+  suffix: `${KEYWORD_SEPARATOR}${keyword}`,
+  preferInstalled,
+}));
+
 function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
-  const raw = typeof rawValue === 'string' ? rawValue : String(rawValue ?? '');
+  // Trimmed, mirroring the `strings.TrimSpace` that opens the CLI's `ParseVersionString`.
+  const raw = (typeof rawValue === 'string' ? rawValue : String(rawValue ?? '')).trim();
   const lower = raw.toLowerCase();
 
-  if (lower === 'unset') {
+  if (lower === UNSET_KEYWORD) {
     return { strategy: 'unset' };
   }
 
-  if (lower === 'latest' || lower === 'installed') {
-    return { strategy: 'latest-of', prefix: '', preferInstalled: lower === 'installed' };
+  const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
+  if (bare) {
+    return { strategy: 'latest-of', prefix: '', preferInstalled: bare.preferInstalled };
   }
 
-  const colonIndex = raw.indexOf(':');
-  if (colonIndex > 0) {
-    const prefix = raw.slice(0, colonIndex);
-    const suffix = raw.slice(colonIndex + 1).toLowerCase();
+  // Mirrors the CLI's greedy, end anchored `(.*):latest$`, so `a:b:latest` has prefix `a:b`.
+  const suffixed = LATEST_OF_SUFFIXES.find(
+    ({ suffix }) => raw.slice(raw.length - suffix.length).toLowerCase() === suffix,
+  );
 
-    if (suffix === 'latest' || suffix === 'installed') {
-      return { strategy: 'latest-of', prefix, preferInstalled: suffix === 'installed' };
-    }
+  if (suffixed) {
+    return {
+      strategy: 'latest-of',
+      prefix: raw.slice(0, raw.length - suffixed.suffix.length),
+      preferInstalled: suffixed.preferInstalled,
+    };
   }
 
   return { strategy: 'exact', version: raw };
@@ -36,10 +62,11 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
 function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
-      return 'unset';
+      return UNSET_KEYWORD;
     case 'latest-of': {
-      const keyword = parsed.preferInstalled ? 'installed' : 'latest';
-      return parsed.prefix ? `${parsed.prefix}:${keyword}` : keyword;
+      const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
+
+      return parsed.prefix ? `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}` : keyword;
     }
     case 'exact':
       return parsed.version;
