@@ -170,7 +170,7 @@ function matchesPrefix(version: string, prefix: string): boolean {
 /** Where `version` can be cut to name a line: the whole name, then at most major and minor. */
 function toPrefixes(version: string): string[] {
   const cuts: string[] = [];
-  // All digits, not merely containing one: `miniconda3-3.9` is a line, `miniconda3-3` is not.
+  // Anchored, or a name carrying digits of its own such as `miniconda3` would end the name early.
   let major = -1;
   let partStart = 0;
 
