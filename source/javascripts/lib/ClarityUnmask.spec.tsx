@@ -197,11 +197,11 @@ describe('Clarity unmasking', () => {
           </BitkitSegmentedControl>
           {/* Portalled: the attribute has to sit on the item itself, since a tagged ancestor in the
               main tree would not enclose the portalled node. */}
-          <BitkitActionMenu.Root open trigger={<button type="button">trigger</button>}>
+          <BitkitActionMenu open trigger={<button type="button">trigger</button>}>
             <BitkitActionMenu.Item value="x" data-clarity-unmask="true">
               action menu item
             </BitkitActionMenu.Item>
-          </BitkitActionMenu.Root>
+          </BitkitActionMenu>
         </Wrapper>,
       );
 
