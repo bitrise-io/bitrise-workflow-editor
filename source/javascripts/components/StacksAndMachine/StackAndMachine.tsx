@@ -78,12 +78,11 @@ const StackAndMachine = ({
   });
 
   let rollbackVersionClusterKey = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
-  Object.entries(selectedStack.rollbackVersion || {}).some(([_machineTypeId, rollbackVersionByCluster]) => {
+  Object.values(selectedStack.rollbackVersion || {}).find((rollbackVersionByCluster) => {
     if (rollbackVersionByCluster[GlobalProps.workspaceSlug()]) {
       rollbackVersionClusterKey = GlobalProps.workspaceSlug();
       return true;
     }
-    return false;
   });
 
   const availableRollbackVersion =
