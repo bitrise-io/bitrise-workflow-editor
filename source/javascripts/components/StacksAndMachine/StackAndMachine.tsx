@@ -77,10 +77,16 @@ const StackAndMachine = ({
     withoutDefaultOptions,
   });
 
+  let rollbackVersionClusterKey = PageProps.app()?.isOwnerPaying ? 'paying' : 'free';
+  Object.values(selectedStack.rollbackVersion || {}).find((rollbackVersionByCluster) => {
+    if (rollbackVersionByCluster[GlobalProps.workspaceSlug()]) {
+      rollbackVersionClusterKey = GlobalProps.workspaceSlug();
+      return true;
+    }
+  });
+
   const availableRollbackVersion =
-    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[GlobalProps.workspaceSlug()] ||
-    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[PageProps.app()?.isOwnerPaying ? 'paying' : 'free'] ||
-    '';
+    selectedStack.rollbackVersion?.[selectedMachineType.id]?.[rollbackVersionClusterKey] || '';
 
   const handleChange = useCallback(
     // eslint-disable-next-line react-hooks/preserve-manual-memoization
