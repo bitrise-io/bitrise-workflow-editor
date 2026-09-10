@@ -58,6 +58,7 @@ function init() {
 describe('BitriseYmlStore — modular tree', () => {
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     init();
   });
 
@@ -267,7 +268,7 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
     });
 
-    it('no-ops and warns for a read-only file', () => {
+    it('no-ops and reports a dropped mutation for a read-only file', () => {
       const before = bitriseYmlStore.getState().files.readonly.ymlDocument;
       updateFileDocument('readonly', ({ doc }) => {
         YmlUtils.setIn(doc, ['workflows', 'x'], {});
@@ -275,12 +276,12 @@ describe('BitriseYmlStore — modular tree', () => {
       });
 
       expect(bitriseYmlStore.getState().files.readonly.ymlDocument).toBe(before);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('read-only'));
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('read-only'));
     });
 
-    it('no-ops and warns for an unknown node_id', () => {
+    it('no-ops and reports a dropped mutation for an unknown node_id', () => {
       updateFileDocument('missing', ({ doc }) => doc);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('no file with node_id'));
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('no file with node_id'));
     });
   });
 
@@ -508,7 +509,8 @@ describe('BitriseYmlStore — modular tree', () => {
       });
 
       expect(bitriseYmlStore.getState().ymlDocument).toBe(before);
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('read-only'));
+      // Reported via console.error, not warnInDev: a dropped edit must be visible in production too.
+      expect(console.error).toHaveBeenCalledWith(expect.stringContaining('read-only'));
     });
 
     it('discards edits across all files and rebinds the active document', () => {

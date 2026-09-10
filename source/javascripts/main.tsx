@@ -6,10 +6,11 @@ import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
-import { ComponentProps, StrictMode, useEffect } from 'react';
+import { ComponentProps, StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import Client from '@/core/api/client';
+import { getYmlString } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import InitialDataLoader from '@/layouts/InitialDataLoader';
 import MainLayout from '@/layouts/MainLayout';
@@ -65,18 +66,70 @@ const DefaultQueryClient = new QueryClient({
   },
 });
 
-const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ resetError }) => {
-  useEffect(() => {
-    resetError();
-  }, [resetError]);
+// Module-scoped, not a ref: the boundary mounts a fresh fallback for every throw, so per-instance
+// state would reset each time and retry forever.
+let hasRetriedRenderError = false;
 
-  return null;
+/**
+ * Retries once, so a transient error still passes through unnoticed, then stops and admits it can't
+ * recover. It has to stop: unsaved YAML now survives a remount (see ConfigLoadTracker), so a
+ * deterministic error no longer heals itself by reloading the saved config over the user's edits.
+ *
+ * This only fires for a failure in the providers, InitialDataLoader or Header. A page that throws is
+ * caught by PageErrorBoundary, which keeps the navigation and can route to the YAML editor. Here
+ * there is no chrome and no route left, so reloading is the only exit and it discards the edits.
+ * Hence the copy button: it is the last point at which that YAML still exists.
+ */
+const RenderErrorFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ error, resetError }) => {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!hasRetriedRenderError) {
+      hasRetriedRenderError = true;
+      resetError();
+      return;
+    }
+    // Datadog only receives this in website mode, so log it unconditionally for CLI/plugin runs.
+    // eslint-disable-next-line no-console
+    console.error('Workflow Editor failed to render:', error);
+  }, [error, resetError]);
+
+  if (!hasRetriedRenderError) {
+    return null;
+  }
+
+  const copyUnsavedYml = () => {
+    navigator.clipboard.writeText(getYmlString()).then(
+      () => setCopied(true),
+      () => setCopied(false),
+    );
+  };
+
+  // Deliberately plain markup: the fallback replaces everything inside the boundary, including the
+  // theme providers, so it cannot rely on Bitkit or Chakra components rendering correctly here.
+  return (
+    <div style={{ padding: '32px', fontFamily: 'sans-serif', lineHeight: 1.5 }}>
+      <h2 style={{ margin: '0 0 8px', fontSize: '20px' }}>The editor can&apos;t recover from this error</h2>
+      <p style={{ margin: '0 0 16px', maxWidth: '52ch' }}>
+        Reloading fixes the page but discards any changes you hadn&apos;t saved. Copy your configuration first if you
+        want to keep it.
+      </p>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button type="button" onClick={copyUnsavedYml}>
+          {copied ? 'Copied' : 'Copy configuration'}
+        </button>
+        <button type="button" onClick={() => window.location.reload()}>
+          Reload the page
+        </button>
+      </div>
+    </div>
+  );
 };
 
 const App = () => {
   return (
     <StrictMode>
-      <ErrorBoundary fallback={PassThroughFallback}>
+      <ErrorBoundary fallback={RenderErrorFallback}>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
             <Provider resetCSS={false}>

@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
 import LoadingState from '@/components/LoadingState';
 import Navigation from '@/components/Navigation';
+import PageErrorBoundary from '@/components/PageErrorBoundary';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
@@ -51,12 +52,14 @@ const MainLayout = () => {
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>
                 <InvalidYmlRedirect />
-                <Switch>
-                  {routes.map(({ path, component }) => (
-                    <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
-                  ))}
-                  <Redirect to={paths.workflows} replace />
-                </Switch>
+                <PageErrorBoundary>
+                  <Switch>
+                    {routes.map(({ path, component }) => (
+                      <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
+                    ))}
+                    <Redirect to={paths.workflows} replace />
+                  </Switch>
+                </PageErrorBoundary>
               </Router>
             )}
           </Box>

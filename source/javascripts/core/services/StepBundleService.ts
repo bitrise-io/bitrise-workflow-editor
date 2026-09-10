@@ -60,21 +60,19 @@ function getDirectDependants(workflows: Workflows, cvs: string) {
   return directDependants;
 }
 
+/**
+ * Workflows affected by a change to `cvs`: those using it directly, plus those using any bundle that
+ * contains it. The direct pass is kept because a cross-file bundle has no entry in the lookup.
+ */
 function getDependantWorkflows(workflows: Workflows, cvs: string, stepBundles: StepBundles) {
   const id = cvsToId(cvs);
 
-  // A workflow depends on this bundle through any bundle whose chain reaches it, so a nested bundle
-  // counts the workflows using its parents too. Only the chains containing `id` may contribute:
-  // an unrelated family's chain says nothing about this bundle's usage.
-  const referencingIds = Object.keys(stepBundles).filter((bundleId) =>
-    getStepBundleChain(stepBundles, bundleId).includes(id),
-  );
-
-  // `cvs` is added explicitly: a bundle defined in another module file is absent from `stepBundles`,
-  // so the chain filter alone would not even find the bundle itself.
-  const referencingCvss = uniq([cvs, ...referencingIds.map(idToCvs)]);
-
-  return uniq(referencingCvss.flatMap((referencingCvs) => getDirectDependants(workflows, referencingCvs)));
+  return uniq([
+    ...getDirectDependants(workflows, cvs),
+    ...Object.entries(getUsedStepBundleIdsByBundle(stepBundles))
+      .filter(([, usedIds]) => usedIds.includes(id))
+      .flatMap(([bundleId]) => getDirectDependants(workflows, idToCvs(bundleId))),
+  ]);
 }
 
 function getUsedByText(count: number) {
@@ -88,39 +86,61 @@ function getUsedByText(count: number) {
   }
 }
 
-function getStepBundleChain(stepBundles: StepBundles, id: string) {
-  const ids: string[] = [];
-  // A cycle is unreachable through the UI but not through a hand-edited YAML or a cross-file
-  // reference, and an unguarded walk blows the stack.
-  const visited = new Set<string>();
-
-  function walk(currentId: string) {
-    if (visited.has(currentId)) {
-      return;
-    }
-    visited.add(currentId);
-    ids.push(currentId);
-
-    stepBundles[currentId]?.steps?.forEach((step) => {
-      const cvs = Object.keys(step)[0];
-      if (cvs && cvs.startsWith('bundle::')) {
-        walk(cvsToId(cvs));
-      }
-    });
+/**
+ * Every step bundle `id` uses, transitively, with `id` itself first. Not a path — a bundle reached
+ * by two routes is listed once, so a diamond yields `['top', 'l', 'leaf', 'r']`. Cycle-guarded so a
+ * malformed config can't recurse forever; prefer `usesStepBundle` when you only need containment.
+ */
+function getUsedStepBundleIds(stepBundles: StepBundles, id: string, seen = new Set<string>()) {
+  if (seen.has(id)) {
+    return [];
   }
+  seen.add(id);
 
-  walk(id);
-
+  let ids: string[] = [];
+  stepBundles[id]?.steps?.forEach((step) => {
+    const cvs = Object.keys(step)[0];
+    if (cvs && cvs.startsWith('bundle::')) {
+      ids = ids.concat(getUsedStepBundleIds(stepBundles, cvsToId(cvs), seen));
+    }
+  });
+  ids.unshift(id);
   return ids;
 }
 
-function getStepBundleChains(stepBundles: StepBundles) {
-  const stepBundleChains: Record<string, string[]> = {};
+/** `getUsedStepBundleIds` for every bundle at once, keyed by id — one walk per bundle. */
+function getUsedStepBundleIdsByBundle(stepBundles: StepBundles) {
+  const usedIdsByBundle: Record<string, string[]> = {};
   Object.keys(stepBundles).forEach((id) => {
-    stepBundleChains[id] = getStepBundleChain(stepBundles, id);
+    usedIdsByBundle[id] = getUsedStepBundleIds(stepBundles, id);
   });
 
-  return stepBundleChains;
+  return usedIdsByBundle;
+}
+
+/**
+ * Whether step bundle `id` uses step bundle `usedId`, directly or transitively. A bundle counts as
+ * using itself, so deleting the bundle a drawer has open also closes that drawer. An `undefined`
+ * `usedId` uses nothing. Only sees into locally defined bundles — a cross-file bundle has no steps
+ * here, so its contents are invisible.
+ */
+function usesStepBundle(stepBundles: StepBundles, id: string, usedId?: string) {
+  if (usedId === undefined) {
+    return false;
+  }
+  return getUsedStepBundleIds(stepBundles, id).includes(usedId);
+}
+
+/**
+ * `usesStepBundle` for a step's cvs rather than a bundle id: false for a step that isn't a bundle
+ * reference at all. Callers ask this to decide whether deleting a step closed the bundle a drawer
+ * has open, so pass the cvs of the deleted step, not its id.
+ */
+function stepCvsUsesStepBundle(stepBundles: StepBundles, cvs?: string, usedId?: string) {
+  if (!cvs?.startsWith('bundle::')) {
+    return false;
+  }
+  return usesStepBundle(stepBundles, cvsToId(cvs), usedId);
 }
 
 function ymlInstanceToStepBundle(
@@ -551,8 +571,10 @@ export default {
   getUsedByText,
   sanitizeName,
   validateName,
-  getStepBundleChains,
-  getStepBundleChain,
+  getUsedStepBundleIdsByBundle,
+  getUsedStepBundleIds,
+  usesStepBundle,
+  stepCvsUsesStepBundle,
   getStepBundleOrThrowError,
   cvsToId,
   idToCvs,

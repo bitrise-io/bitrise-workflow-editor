@@ -1247,6 +1247,39 @@ describe('PipelineService', () => {
     });
   });
 
+  describe('dependsOnWorkflow', () => {
+    it('is true for a direct dependency', () => {
+      const workflows = { wf1: {}, wf2: { depends_on: ['wf1'] } };
+
+      expect(PipelineService.dependsOnWorkflow(workflows, 'wf2', 'wf1')).toBe(true);
+    });
+
+    it('is true for a transitive dependency', () => {
+      const workflows = { wf1: {}, wf2: { depends_on: ['wf1'] }, wf3: { depends_on: ['wf2'] } };
+
+      expect(PipelineService.dependsOnWorkflow(workflows, 'wf3', 'wf1')).toBe(true);
+    });
+
+    it('is false in the other direction', () => {
+      const workflows = { wf1: {}, wf2: { depends_on: ['wf1'] } };
+
+      expect(PipelineService.dependsOnWorkflow(workflows, 'wf1', 'wf2')).toBe(false);
+    });
+
+    it('is false for an unrelated workflow', () => {
+      const workflows = { wf1: {}, wf2: { depends_on: ['wf1'] }, other: {} };
+
+      expect(PipelineService.dependsOnWorkflow(workflows, 'wf2', 'other')).toBe(false);
+    });
+
+    it('terminates on an already-cyclic config', () => {
+      const workflows = { wf1: { depends_on: ['wf2'] }, wf2: { depends_on: ['wf1'] } };
+
+      expect(PipelineService.dependsOnWorkflow(workflows, 'wf1', 'wf2')).toBe(true);
+      expect(PipelineService.dependsOnWorkflow(workflows, 'wf1', 'missing')).toBe(false);
+    });
+  });
+
   describe('addPipelineWorkflowDependency', () => {
     it('should add a dependency to the workflow in the given pipeline', () => {
       updateBitriseYmlDocumentByString(
@@ -1366,6 +1399,79 @@ describe('PipelineService', () => {
       expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf1', 'wf1')).toThrow(
         'Workflow wf1 cannot depend on itself.',
       );
+    });
+
+    it('should throw when the dependency would create a direct cycle', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+                wf2:
+                  depends_on:
+                  - wf1
+          workflows:
+            wf1: {}
+            wf2: {}
+        `,
+      );
+
+      expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf1', 'wf2')).toThrow(
+        'Workflow wf1 cannot depend on wf2, because wf2 already depends on wf1.',
+      );
+    });
+
+    it('should throw when the dependency would create a transitive cycle', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                wf1: {}
+                wf2:
+                  depends_on:
+                  - wf1
+                wf3:
+                  depends_on:
+                  - wf2
+          workflows:
+            wf1: {}
+            wf2: {}
+            wf3: {}
+        `,
+      );
+
+      expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'wf1', 'wf3')).toThrow(
+        'Workflow wf1 cannot depend on wf3, because wf3 already depends on wf1.',
+      );
+    });
+
+    it('should allow a diamond, which is not a cycle', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          pipelines:
+            pipeline1:
+              workflows:
+                top: {}
+                left:
+                  depends_on:
+                  - top
+                right:
+                  depends_on:
+                  - top
+                bottom:
+                  depends_on:
+                  - left
+          workflows:
+            top: {}
+            left: {}
+            right: {}
+            bottom: {}
+        `,
+      );
+
+      expect(() => PipelineService.addPipelineWorkflowDependency('pipeline1', 'bottom', 'right')).not.toThrow();
     });
   });
 

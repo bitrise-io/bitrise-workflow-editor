@@ -24,6 +24,10 @@ function groupByType(map: Containers): ReturnValue {
 // Merge a modular config's containers post-order (included files first, then the including file) so a
 // node outranks the files it includes — matching modular precedence when the same container id is
 // defined in more than one file.
+//
+// No cycle guard on purpose: `fromWireTreeNode` builds this tree from JSON, so it cannot be cyclic,
+// and a visited set would skip the second merge of a diamond-included file, changing which
+// definition wins.
 function collectContainers(node: TreeNode, files: Record<string, FileSlice>, acc: Containers): void {
   node.includes.forEach((child) => collectContainers(child, files, acc));
   const slice = files[node.nodeId];
