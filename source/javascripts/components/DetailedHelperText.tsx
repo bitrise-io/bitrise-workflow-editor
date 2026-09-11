@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import { Box, Collapse, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
 
 type Props = {
