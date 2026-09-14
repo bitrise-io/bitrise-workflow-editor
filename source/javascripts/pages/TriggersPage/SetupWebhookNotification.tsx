@@ -1,4 +1,4 @@
-import { Notification, Text } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -21,16 +21,16 @@ const SetupWebhookNotification = () => {
   }
 
   return (
-    <Notification
-      status="info"
+    <BitkitAlert
+      variant="info"
       data-clarity-unmask="true"
+      dismissible
       onClose={() => updateMetaData('true')}
       action={{ href: integrationsUrl, label: 'Set up webhooks' }}
-      marginY="32"
-    >
-      <Text fontWeight="bold">Configure webhooks</Text>
-      <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
-    </Notification>
+      marginBlock="32"
+      titleText="Configure webhooks"
+      messageText="Enable Bitrise to interact with third-party services and are necessary for triggers to work."
+    />
   );
 };
 

@@ -1,4 +1,4 @@
-import { Notification } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 
 type Props = {
   onRetryButtonClick?: VoidFunction;
@@ -6,19 +6,17 @@ type Props = {
 
 const AlgoliaStepListErrorState = ({ onRetryButtonClick }: Props) => {
   return (
-    <Notification
+    <BitkitAlert
       data-clarity-unmask="true"
-      status="error"
+      variant="critical"
       action={
         onRetryButtonClick && {
           label: 'Retry',
-          placement: 'end',
           onClick: onRetryButtonClick,
         }
       }
-    >
-      Network error: Failed to fetch steps. Please try again.
-    </Notification>
+      messageText="Network error: Failed to fetch steps. Please try again."
+    />
   );
 };
 

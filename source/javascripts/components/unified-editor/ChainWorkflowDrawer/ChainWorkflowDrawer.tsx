@@ -1,4 +1,5 @@
-import { Box, Notification, SearchInput, Text } from '@bitrise/bitkit';
+import { Box, SearchInput, Text } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 import FloatingDrawer, {
@@ -49,9 +50,12 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...
                 Add Workflows before or after the Steps of the selected Workflow. Each linked Workflow executes on the
                 same VM, ensuring a cohesive build process.
               </Text>
-              <Notification status="info" flexShrink="0" data-clarity-unmask="true">
-                Changes to a chained Workflow affect all other Workflows using it.
-              </Notification>
+              <BitkitAlert
+                variant="info"
+                flexShrink="0"
+                data-clarity-unmask="true"
+                messageText="Changes to a chained Workflow affect all other Workflows using it."
+              />
               <Controller<FormValues>
                 name="search"
                 render={({ field: { ref, onChange, ...rest } }) => (

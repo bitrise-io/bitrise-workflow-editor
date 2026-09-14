@@ -24,7 +24,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Notification,
   Provider,
   Ribbon,
   Sidebar,
@@ -139,9 +138,6 @@ describe('Clarity unmasking', () => {
           <Button data-clarity-unmask="true">button</Button>
           <Card data-clarity-unmask="true">card</Card>
           <EmptyState title="empty state" data-clarity-unmask="true" />
-          <Notification status="info" data-clarity-unmask="true">
-            notification
-          </Notification>
           <Ribbon colorScheme="blue" data-clarity-unmask="true">
             ribbon
           </Ribbon>
@@ -181,7 +177,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(15);
+      expect(unmasked()).toHaveLength(14);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
       ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();

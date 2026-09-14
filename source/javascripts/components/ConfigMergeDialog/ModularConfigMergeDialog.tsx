@@ -1,5 +1,5 @@
-import { Box, Button, ButtonGroup, DialogBody, DialogFooter, Icon, Notification, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitTabs } from '@bitrise/bitkit-v2';
+import { Box, Button, ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitTabs } from '@bitrise/bitkit-v2';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';
@@ -296,19 +296,12 @@ const ModularConfigMergeDialogBody = ({
           </Box>
         )}
 
-        <Notification status="info">
-          <Text textStyle="comp/notification/title">Merge conflict auto-resolution</Text>
-          <Text>
-            In case of a conflict, remote changes will take priority over your local changes. To retain your changes,
-            edit the results before applying.
-          </Text>
-        </Notification>
-        {clientError && (
-          <Notification status="error">
-            <Text textStyle="comp/notification/title">Error pushing changes</Text>
-            <Text>{clientError}</Text>
-          </Notification>
-        )}
+        <BitkitAlert
+          variant="info"
+          titleText="Merge conflict auto-resolution"
+          messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before applying."
+        />
+        {clientError && <BitkitAlert variant="critical" titleText="Error pushing changes" messageText={clientError} />}
       </DialogBody>
       <DialogFooter>
         <ButtonGroup spacing={16}>
