@@ -51,8 +51,11 @@ function buildRoot(): TreeNode {
   });
 }
 
+/** What the backend merges `buildRoot()` into, and what the merged tab binds. */
+const MERGED_YML = 'format_version: "13"\nworkflows:\n  child-a: {}\n  child-b: {}\n  readonly: {}\n';
+
 function init() {
-  initializeModularConfig({ root: buildRoot(), branch: 'main', commitSha: 'abc' });
+  initializeModularConfig({ root: buildRoot(), mergedYml: MERGED_YML, branch: 'main', commitSha: 'abc' });
 }
 
 describe('BitriseYmlStore — modular tree', () => {
@@ -104,7 +107,7 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
       expect(state.configBranch).toBe('main');
       expect(state.configCommitSha).toBe('abc');
-      expect(state.mergedYmlStale).toBe(true);
+      expect(state.mergedYmlStale).toBe(false);
       // Derived live from file documents, so it includes workflows the seed omitted (child-b, readonly).
       expect(state.entityIndex).toEqual({
         workflows: {
@@ -119,26 +122,20 @@ describe('BitriseYmlStore — modular tree', () => {
       });
     });
 
-    it('selects the merged view so a URL pointing into an included module resolves', () => {
-      const root = buildRoot();
-      initializeModularConfig({ root, mergedYml: 'workflows:\n  child-b: {}\n' });
-
-      const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
-      // The root file stays open beside it, so the entry point isn't lost.
-      expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
-      // The active document is the merge, so an entity defined in a module resolves for the pages.
-      expect(state.yml.workflows?.['child-b']).toBeDefined();
-      expect(state.mergedYmlStale).toBe(false);
+    it('binds the merge as the active document, so an entity defined in a module resolves', () => {
+      // The root file alone has no workflows at all; the pages see the merged set.
+      expect(bitriseYmlStore.getState().yml.workflows?.['child-b']).toBeDefined();
     });
 
-    it('binds the root document transiently and stays stale when the bootstrap merge is absent', () => {
+    it('selects the root file — not the merged tab — when there is no merge to bind', () => {
       initializeModularConfig({ root: buildRoot() });
 
       const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
-      expect(state.mergedYmlStale).toBe(true);
+      expect(state.selectedNodeId).toBe('root');
       expect(state.yml.format_version).toBe('13');
+      // Left stale, so re-selecting the merged tab fetches the merge.
+      expect(state.mergedYml).toBeUndefined();
+      expect(state.mergedYmlStale).toBe(true);
     });
 
     it('keeps the entity index live as module files are edited (cross-file detection before save)', () => {
@@ -149,12 +146,6 @@ describe('BitriseYmlStore — modular tree', () => {
 
       const { entityIndex: index } = bitriseYmlStore.getState();
       expect(index.workflows['brand-new']).toEqual([{ nodeId: 'child-a' }]);
-    });
-
-    it('leaves the merged config stale when no initial mergedYml is provided', () => {
-      const state = bitriseYmlStore.getState();
-      expect(state.mergedYml).toBeUndefined();
-      expect(state.mergedYmlStale).toBe(true);
     });
 
     it('seeds the merged config (not stale) when the bootstrap response carries mergedYml', () => {
@@ -391,9 +382,12 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('active-file binding (whole WFE edits the active file)', () => {
-    it('seeds the active document from the root file on init', () => {
+    it('seeds the active document from the merge on init, and re-points it to a file on select', () => {
+      expect(bitriseYmlStore.getState().yml).toMatchObject({ format_version: '13' });
+
+      selectNode('root');
+
       const state = bitriseYmlStore.getState();
-      expect(state.yml).toMatchObject({ format_version: '13' });
       expect(state.ymlDocument).toBe(state.files.root.ymlDocument);
       expect(state.hasChanges).toBe(false);
     });

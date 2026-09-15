@@ -389,13 +389,20 @@ export function initializeModularConfig({
   // A modular config opens on the merged view: it's the only tab where every entity resolves, so a
   // URL pointing at a workflow defined in an included module lands on that workflow instead of the
   // root file's arbitrary first one. The root file is open beside it, just not selected.
-  // Without the bootstrap merge there's nothing to bind yet, so bind the root doc transiently —
-  // `useMergedConfigSync` refetches the merge (stale below) and rebinds once it arrives.
-  const mergedDocument = mergedYml !== undefined ? YmlUtils.toDoc(mergedYml) : files[root.nodeId].ymlDocument;
+  //
+  // With no merge (`InitialDataLoader` couldn't get one) the root file is selected instead. Binding
+  // it under the merged tab would be worse than not selecting that tab: a module's entity would
+  // resolve there against the root document and the page would rewrite the URL — the very bug the
+  // merged default fixes. The merged tab stays stale, so re-selecting it retries the merge.
+  const rootSlice = files[root.nodeId];
+  const activePatch =
+    mergedYml !== undefined
+      ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(mergedYml))
+      : activeDocumentPatch(root.nodeId, rootSlice.ymlDocument, rootSlice.savedYmlDocument);
 
   bitriseYmlStore.setState({
-    ...modularTreePatch(root, files, entityIndex, files[root.nodeId]),
-    ...activeDocumentPatch(MERGED_CONFIG_NODE_ID, mergedDocument),
+    ...modularTreePatch(root, files, entityIndex, rootSlice),
+    ...activePatch,
     openTabs: [{ nodeId: root.nodeId, isPreview: false }],
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
     mergedYml,

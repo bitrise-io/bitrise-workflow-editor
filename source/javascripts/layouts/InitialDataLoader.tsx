@@ -7,6 +7,7 @@ import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import { trackConfigBranchLoaded } from '@/core/analytics/ConfigManagementAnalytics';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -101,31 +102,18 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEffect(() => {
-    if (data && loadedBranch.current !== requestedBranch) {
-      if (isModularEnabled) {
-        const config = treeConfig.data;
-        if (config) {
-          if (config.root.includes.length === 0) {
-            // No includes → no modules: even with modular enabled, present it as a plain single-file
-            // config (no tree/tabs/merged view). Saving still works — it's repo-stored, so the push
-            // flow handles the single-file case (`bitriseYml`), and the mode is re-decided per branch.
-            initializeBitriseYmlDocument({
-              ymlString: config.root.contents,
-              version: '',
-              branch: config.branch,
-              commitSha: config.root.commitSha,
-            });
-          } else {
-            initializeModularConfig({
-              root: config.root,
-              mergedYml: config.mergedYml,
-              branch: config.branch,
-              commitSha: config.root.commitSha,
-            });
-          }
-        }
-      } else if (legacyConfig.data) {
-        initializeBitriseYmlDocument(legacyConfig.data);
+    if (!data || loadedBranch.current === requestedBranch) {
+      return undefined;
+    }
+
+    // Claimed before the bootstrap below, which is async when the merge has to be fetched: a
+    // re-render while it's in flight must not start a second bootstrap.
+    loadedBranch.current = requestedBranch;
+    let cancelled = false;
+
+    const openGate = () => {
+      if (cancelled) {
+        return;
       }
 
       if (requestedBranch) {
@@ -141,7 +129,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
           });
         }
       }
-      loadedBranch.current = requestedBranch;
+
       if (!isLoaded.current) {
         setTimeout(preloadRoutes, 1000);
         isLoaded.current = true;
@@ -149,9 +137,76 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       // Last: opens the gate below, so children first render against an initialized store. The
       // extra render this costs IS the fix — tracking this in the ref alone would leave children
       // rendering a commit early, which is the race this replaces. Keep the setState.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBootstrappedBranch(requestedBranch);
+    };
+
+    const config = isModularEnabled ? treeConfig.data : undefined;
+
+    if (config && config.root.includes.length > 0) {
+      const initModular = (mergedYml?: string) => {
+        if (cancelled) {
+          return;
+        }
+        initializeModularConfig({
+          root: config.root,
+          mergedYml,
+          branch: config.branch,
+          commitSha: config.root.commitSha,
+        });
+        openGate();
+      };
+
+      // An empty merge is a failed merge, not a config that merges to nothing.
+      if (config.mergedYml) {
+        initModular(config.mergedYml);
+        return undefined;
+      }
+
+      // Open the root file rather than a merged tab rendering something else, and say so. The tab
+      // stays there and re-selecting it retries the merge.
+      const failMerge = () => {
+        initModular(undefined);
+        if (!cancelled) {
+          createBitkitToast({
+            variant: 'warning',
+            messageText: 'Merged configuration is unavailable. Open the Merged config tab to retry.',
+          });
+        }
+      };
+
+      // A modular config opens on the merged view, so the merge has to be in hand before the store
+      // is initialized: a page resolving a module's entity against any other document falls back to
+      // the wrong one and rewrites the URL (BIVS-3807). The tree endpoint normally carries the
+      // merge; when it doesn't, fetch it here, behind this same loading gate.
+      BitriseYmlApi.getMergedConfig({
+        projectSlug: PageProps.appSlug(),
+        tree: config.root,
+        branch: config.branch,
+      })
+        .then(({ mergedYml }) => (mergedYml ? initModular(mergedYml) : failMerge()))
+        .catch(failMerge);
+
+      return () => {
+        cancelled = true;
+      };
     }
+
+    if (config) {
+      // No includes → no modules: even with modular enabled, present it as a plain single-file
+      // config (no tree/tabs/merged view). Saving still works — it's repo-stored, so the push
+      // flow handles the single-file case (`bitriseYml`), and the mode is re-decided per branch.
+      initializeBitriseYmlDocument({
+        ymlString: config.root.contents,
+        version: '',
+        branch: config.branch,
+        commitSha: config.root.commitSha,
+      });
+    } else if (legacyConfig.data) {
+      initializeBitriseYmlDocument(legacyConfig.data);
+    }
+
+    openGate();
+    return undefined;
   }, [data, requestedBranch, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {
