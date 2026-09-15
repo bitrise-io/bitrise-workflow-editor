@@ -4,7 +4,7 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 import { BitriseYml } from '../models/BitriseYml';
-import { EntityDeepLink, EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
+import { EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
 import EntityIndexService from '../services/EntityIndexService';
 import TreeService from '../services/TreeService';
 import RuntimeUtils from '../utils/RuntimeUtils';
@@ -377,41 +377,39 @@ export function initializeModularConfig({
   mergedYml,
   branch,
   commitSha,
-  deepLink,
 }: {
   root: TreeNode;
   mergedYml?: string;
   branch?: string;
   commitSha?: string;
-  /**
-   * Entity the current URL points at, so the module defining it is the one opened. Resolved on
-   * every (re)initialisation — the first load and a branch reload alike — but deliberately not on
-   * tab switches, where falling back to the newly selected file's own entities is intended.
-   */
-  deepLink?: EntityDeepLink;
 }) {
   const files = buildFileSlices(root);
   const entityIndex = EntityIndexService.buildFromFiles(root, files);
+  // Same rule as `setMergedConfig`: an empty merge counts as no merge.
+  const merge = mergedYml || undefined;
 
-  // A URL can point at an entity defined in an included module. Landing on the root file would
-  // leave that entity unresolvable there and the page would silently select some other one, so open
-  // the defining module alongside the root tab and make it active. An entity no module defines
-  // keeps the root file selected, leaving the page's own fallback in charge.
-  const linkedNodeId = deepLink ? EntityIndexService.deepLinkNodeId(entityIndex, deepLink) : undefined;
-  const selectedNodeId = linkedNodeId && files[linkedNodeId] ? linkedNodeId : root.nodeId;
-  const openTabs: OpenTab[] = [{ nodeId: root.nodeId, isPreview: false }];
-  if (selectedNodeId !== root.nodeId) {
-    openTabs.push({ nodeId: selectedNodeId, isPreview: false });
-  }
+  // A modular config opens on the merged view: it's the only tab where every entity resolves, so a
+  // URL pointing at a workflow defined in an included module lands on that workflow instead of the
+  // root file's arbitrary first one. The root file is open beside it, just not selected.
+  //
+  // With no merge (`InitialDataLoader` couldn't get one) the root file is selected instead. Binding
+  // it under the merged tab would be worse than not selecting that tab: a module's entity would
+  // resolve there against the root document and the page would rewrite the URL — the very bug the
+  // merged default fixes. The merged tab stays stale, so re-selecting it retries the merge.
+  const rootSlice = files[root.nodeId];
+  const activePatch =
+    merge !== undefined
+      ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(merge))
+      : activeDocumentPatch(root.nodeId, rootSlice.ymlDocument, rootSlice.savedYmlDocument);
 
   bitriseYmlStore.setState({
-    ...modularTreePatch(root, files, entityIndex, files[selectedNodeId]),
-    selectedNodeId,
-    openTabs,
+    ...modularTreePatch(root, files, entityIndex, rootSlice),
+    ...activePatch,
+    openTabs: [{ nodeId: root.nodeId, isPreview: false }],
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
-    mergedYml,
-    mergedYmlStale: mergedYml === undefined,
-    savedMergedYml: mergedYml,
+    mergedYml: merge,
+    mergedYmlStale: merge === undefined,
+    savedMergedYml: merge,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
   });
@@ -612,6 +610,14 @@ export function discardFile(nodeId: string) {
 }
 
 export function setMergedConfig(mergedYml: string) {
+  // An empty merge is a failed merge, not a config that merges to nothing — `getMergedConfig`
+  // returns `''` for a response without a merge. Accepting it would clear `mergedYmlStale` and bind
+  // an empty document, so the merged tab would show a blank "successful" merge with no retry left.
+  if (!mergedYml) {
+    warnInDev('setMergedConfig: empty merge ignored, leaving the merged config stale');
+    return;
+  }
+
   const { selectedNodeId, hasChanges } = bitriseYmlStore.getState();
   // A merge computed while nothing is dirty IS the saved baseline; while edits are pending it stays frozen.
   const savedMergedYml = hasChanges ? bitriseYmlStore.getState().savedMergedYml : mergedYml;

@@ -1,11 +1,11 @@
 /**
  * @jest-environment jsdom
  */
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ComponentType, ReactNode } from 'react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { ComponentType, ReactNode, StrictMode } from 'react';
 
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -29,8 +29,7 @@ function WorkflowsPageProbe() {
   return <div data-testid="selected-workflow">{selectedWorkflowId}</div>;
 }
 
-// The real route table is lazy (and pulls the whole page graph); swap in the probe as the workflows
-// page. `deepLinkedEntity` stays real — it is part of what this test exercises.
+// The real route table is lazy (and pulls the whole page graph); swap in the probe as the workflows page.
 jest.mock('@/routes', () => ({
   ...jest.requireActual('@/routes'),
   preloadRoutes: jest.fn(),
@@ -95,6 +94,14 @@ jest.mock('@/hooks/useCiConfig', () => ({
   useGetCiConfig: () => ({ data: undefined, error: null, isLoading: false, refetch: jest.fn() }),
 }));
 
+// The bootstrap merge (`POST /config/merge`) — the loader's fallback when the tree endpoint didn't
+// carry one. `useMergedConfigSync` reaches the same function, so this covers both callers.
+const getMergedConfigMock = jest.fn();
+jest.mock('@/core/api/BitriseYmlApi', () => ({
+  __esModule: true,
+  default: { getMergedConfig: (...args: unknown[]) => getMergedConfigMock(...args) },
+}));
+
 let ymlSettingsQuery: { data?: { usesRepositoryYml: boolean }; isPending: boolean } = {
   data: { usesRepositoryYml: true },
   isPending: false,
@@ -106,12 +113,20 @@ function node(nodeId: string, contents: string, includes: TreeNode[] = []): Tree
   return { nodeId, path: `${nodeId}.yml`, contents, source: null, commitSha: 'sha', editable: true, includes };
 }
 
+const MERGED_YML = 'workflows:\n  root-wf: {}\n  module-only: {}\n';
+
 /** A modular tree whose `module-only` workflow exists ONLY in an included file, never in the root. */
 function modularConfig(branch: string): GetConfigResponse {
   return {
     root: node('root', 'workflows:\n  root-wf: {}\n', [node('module', 'workflows:\n  module-only: {}\n')]),
+    mergedYml: MERGED_YML,
     branch,
   };
+}
+
+/** The same tree as the backend sends it when it couldn't merge at bootstrap. */
+function modularConfigWithoutMerge(branch: string): GetConfigResponse {
+  return { ...modularConfig(branch), mergedYml: undefined };
 }
 
 function renderApp() {
@@ -139,6 +154,7 @@ describe('InitialDataLoader', () => {
     jest.spyOn(PageProps, 'appSlug').mockReturnValue('app-1');
     jest.spyOn(RuntimeUtils, 'isProduction').mockReturnValue(false);
     jest.spyOn(RuntimeUtils, 'isWebsiteMode').mockReturnValue(false);
+    getMergedConfigMock.mockReset();
     bitriseYmlStore.setState({ tree: undefined, files: {}, selectedNodeId: undefined, openTabs: [] });
   });
 
@@ -176,8 +192,8 @@ describe('InitialDataLoader', () => {
     expect(probeRenders[0].selectedWorkflowId).toBe('module-only');
     expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only');
     expect(window.parent.location.hash).toContain('workflow_id=module-only');
-    // Bootstrap resolved the link to the module that actually defines the workflow.
-    expect(bitriseYmlStore.getState().selectedNodeId).toBe('module');
+    // Bootstrap opened the merged view, the one tab where a module's workflow resolves.
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
   });
 
   it('reports a branch fallback through a v2 toast', () => {
@@ -204,6 +220,78 @@ describe('InitialDataLoader', () => {
     expect(screen.getByText('Boom')).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(refetch).toHaveBeenCalled();
+  });
+
+  it('fetches the merge before bootstrapping when the tree endpoint did not carry one', async () => {
+    window.parent.location.hash = '#/workflows?workflow_id=module-only';
+    getMergedConfigMock.mockResolvedValue({ mergedYml: MERGED_YML });
+    treeQuery = { data: modularConfigWithoutMerge('main'), error: null, refetch: jest.fn() };
+
+    const { rerender } = renderApp();
+
+    // Routes stay behind the gate while the merge is in flight, so no page can validate the
+    // requested id against a store that isn't bootstrapped yet.
+    expect(screen.queryByTestId('selected-workflow')).toBeNull();
+    expect(getMergedConfigMock).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID));
+    rerender(
+      <InitialDataLoader>
+        <MainLayout />
+      </InitialDataLoader>,
+    );
+
+    expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only');
+    expect(window.parent.location.hash).toContain('workflow_id=module-only');
+  });
+
+  it('bootstraps under StrictMode when the tree data is already in hand', async () => {
+    window.parent.location.hash = '#/workflows?workflow_id=module-only';
+    getMergedConfigMock.mockResolvedValue({ mergedYml: MERGED_YML });
+    treeQuery = { data: modularConfigWithoutMerge('main'), error: null, refetch: jest.fn() };
+
+    // StrictMode runs setup → cleanup → setup on mount. The cancelled first pass has to hand its
+    // claim back, or the second pass sees the branch as loaded, returns, and the gate never opens.
+    render(
+      <StrictMode>
+        <InitialDataLoader>
+          <MainLayout />
+        </InitialDataLoader>
+      </StrictMode>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only'));
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+  });
+
+  it('opens the root file and warns when the bootstrap merge fails, instead of a merged tab showing it', async () => {
+    window.parent.location.hash = '#/workflows?workflow_id=module-only';
+    getMergedConfigMock.mockRejectedValue(new Error('Boom'));
+    treeQuery = { data: modularConfigWithoutMerge('main'), error: null, refetch: jest.fn() };
+
+    const { rerender } = renderApp();
+    await waitFor(() => expect(bitriseYmlStore.getState().selectedNodeId).toBe('root'));
+    rerender(
+      <InitialDataLoader>
+        <MainLayout />
+      </InitialDataLoader>,
+    );
+
+    expect(bitriseYmlStore.getState().mergedYmlStale).toBe(true);
+    expect(createBitkitToastMock).toHaveBeenCalledWith({
+      variant: 'warning',
+      messageText: 'Merged configuration is unavailable. Open the Merged config tab to retry.',
+    });
+  });
+
+  it('treats an empty merge as a failed one', async () => {
+    window.parent.location.hash = '#/workflows?workflow_id=module-only';
+    getMergedConfigMock.mockResolvedValue({ mergedYml: '' });
+    treeQuery = { data: modularConfigWithoutMerge('main'), error: null, refetch: jest.fn() };
+
+    renderApp();
+
+    await waitFor(() => expect(bitriseYmlStore.getState().selectedNodeId).toBe('root'));
   });
 
   it('re-gates routes on a branch switch until the new branch is bootstrapped', () => {
@@ -234,6 +322,6 @@ describe('InitialDataLoader', () => {
     expect(probeRenders.every((r) => r.storeWasBootstrapped)).toBe(true);
     expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only');
     expect(window.parent.location.hash).toContain('workflow_id=module-only');
-    expect(bitriseYmlStore.getState().selectedNodeId).toBe('module');
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
   });
 });
