@@ -5,6 +5,7 @@ import {
   bitriseYmlStore,
   getYmlString,
   initializeModularConfig,
+  selectNode,
   updateBitriseYmlDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
 
@@ -36,6 +37,8 @@ const initModularConfigWithContainerInModule = (type: 'execution' | 'service') =
     ],
   };
   initializeModularConfig({ root, branch: 'main', commitSha: MODULAR_SHA });
+  // A modular config opens on the (read-only) merged view; these cases edit the root file, so select it.
+  selectNode('root');
 };
 
 describe('ContainerService', () => {

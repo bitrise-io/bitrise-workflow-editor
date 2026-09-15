@@ -5,7 +5,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ComponentType, ReactNode } from 'react';
 
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
-import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -29,8 +29,7 @@ function WorkflowsPageProbe() {
   return <div data-testid="selected-workflow">{selectedWorkflowId}</div>;
 }
 
-// The real route table is lazy (and pulls the whole page graph); swap in the probe as the workflows
-// page. `deepLinkedEntity` stays real — it is part of what this test exercises.
+// The real route table is lazy (and pulls the whole page graph); swap in the probe as the workflows page.
 jest.mock('@/routes', () => ({
   ...jest.requireActual('@/routes'),
   preloadRoutes: jest.fn(),
@@ -110,6 +109,7 @@ function node(nodeId: string, contents: string, includes: TreeNode[] = []): Tree
 function modularConfig(branch: string): GetConfigResponse {
   return {
     root: node('root', 'workflows:\n  root-wf: {}\n', [node('module', 'workflows:\n  module-only: {}\n')]),
+    mergedYml: 'workflows:\n  root-wf: {}\n  module-only: {}\n',
     branch,
   };
 }
@@ -176,8 +176,8 @@ describe('InitialDataLoader', () => {
     expect(probeRenders[0].selectedWorkflowId).toBe('module-only');
     expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only');
     expect(window.parent.location.hash).toContain('workflow_id=module-only');
-    // Bootstrap resolved the link to the module that actually defines the workflow.
-    expect(bitriseYmlStore.getState().selectedNodeId).toBe('module');
+    // Bootstrap opened the merged view, the one tab where a module's workflow resolves.
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
   });
 
   it('reports a branch fallback through a v2 toast', () => {
@@ -234,6 +234,6 @@ describe('InitialDataLoader', () => {
     expect(probeRenders.every((r) => r.storeWasBootstrapped)).toBe(true);
     expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only');
     expect(window.parent.location.hash).toContain('workflow_id=module-only');
-    expect(bitriseYmlStore.getState().selectedNodeId).toBe('module');
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
   });
 });

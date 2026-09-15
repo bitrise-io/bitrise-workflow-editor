@@ -43,7 +43,7 @@ below only because `StepLike` unions them in, so anything touching step handling
 | **generator workflow** | A workflow that produces other workflows at runtime; the canvas draws placeholders for them. |
 | **graph pipeline** | Has a `workflows` map and arbitrary `depends_on` edges. |
 | **legacy trigger** | An entry in top-level `trigger_map`. Flat, prefixed keys, first-match-wins. |
-| **merged tab** | Read-only preview of a modular config flattened. No slice backs it, so writes no-op. |
+| **merged tab** | Read-only preview of a modular config flattened, and the tab it opens on — the only one where every entity resolves. No slice backs it, so writes no-op. |
 | **nodeId** | Backend-owned opaque key for a file. `path` is not unique, so never key by it. |
 | **staged pipeline** | *Legacy.* Has a `stages` list: an ordered sequence of full barriers. |
 | **step bundle** | Named, reusable step sequence with its own inputs. Referenced as `bundle::<id>`. |

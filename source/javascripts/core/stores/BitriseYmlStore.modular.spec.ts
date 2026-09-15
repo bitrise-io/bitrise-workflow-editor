@@ -100,7 +100,7 @@ describe('BitriseYmlStore — modular tree', () => {
 
     it('seeds selection, the root tab, branch/commit and the entity index', () => {
       const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe('root');
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
       expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
       expect(state.configBranch).toBe('main');
       expect(state.configCommitSha).toBe('abc');
@@ -119,58 +119,26 @@ describe('BitriseYmlStore — modular tree', () => {
       });
     });
 
-    it('opens and selects the module defining the entity the URL points at', () => {
-      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'child-b' } });
+    it('selects the merged view so a URL pointing into an included module resolves', () => {
+      const root = buildRoot();
+      initializeModularConfig({ root, mergedYml: 'workflows:\n  child-b: {}\n' });
 
       const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe('child-b');
-      // The root tab stays open next to it, so the module is reached without losing the entry point.
-      expect(state.openTabs).toEqual([
-        { nodeId: 'root', isPreview: false },
-        { nodeId: 'child-b', isPreview: false },
-      ]);
-      // The active document is the module's, so the linked workflow resolves for the pages.
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+      // The root file stays open beside it, so the entry point isn't lost.
+      expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
+      // The active document is the merge, so an entity defined in a module resolves for the pages.
       expect(state.yml.workflows?.['child-b']).toBeDefined();
+      expect(state.mergedYmlStale).toBe(false);
     });
 
-    it('selects a read-only module when that is where the linked entity is defined', () => {
-      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'readonly' } });
-
-      expect(bitriseYmlStore.getState().selectedNodeId).toBe('readonly');
-    });
-
-    it('follows a generated parallel-workflow id to the module defining its source workflow', () => {
-      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'child-a_3' } });
-
-      expect(bitriseYmlStore.getState().selectedNodeId).toBe('child-a');
-    });
-
-    it('opens the defining module for a non-workflow kind too', () => {
-      const root = buildRoot();
-      root.includes[0].contents = 'step_bundles:\n  shared-setup: {}\n';
-      initializeModularConfig({ root, deepLink: { kind: 'stepBundles', id: 'shared-setup' } });
+    it('binds the root document transiently and stays stale when the bootstrap merge is absent', () => {
+      initializeModularConfig({ root: buildRoot() });
 
       const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe('child-a');
-      expect(state.yml.step_bundles?.['shared-setup']).toBeDefined();
-    });
-
-    it('keeps the root file selected when the linked entity is defined there', () => {
-      const root = buildRoot();
-      root.contents = 'workflows:\n  root-only: {}\n';
-      initializeModularConfig({ root, deepLink: { kind: 'workflows', id: 'root-only' } });
-
-      const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe('root');
-      expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
-    });
-
-    it('keeps the root file selected when no module defines the linked entity', () => {
-      initializeModularConfig({ root: buildRoot(), deepLink: { kind: 'workflows', id: 'nowhere-to-be-found' } });
-
-      const state = bitriseYmlStore.getState();
-      expect(state.selectedNodeId).toBe('root');
-      expect(state.openTabs).toEqual([{ nodeId: 'root', isPreview: false }]);
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
+      expect(state.mergedYmlStale).toBe(true);
+      expect(state.yml.format_version).toBe('13');
     });
 
     it('keeps the entity index live as module files are edited (cross-file detection before save)', () => {
@@ -290,7 +258,7 @@ describe('BitriseYmlStore — modular tree', () => {
 
       const state = bitriseYmlStore.getState();
       expect(YmlUtils.toJSON(state.files['child-a'].ymlDocument)).toEqual({ workflows: { 'via-string': {} } });
-      expect(state.selectedNodeId).toBe('root');
+      expect(state.selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
       expect(state.entityIndex.workflows['via-string']).toEqual([{ nodeId: 'child-a' }]);
     });
 

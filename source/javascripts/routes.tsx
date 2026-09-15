@@ -1,7 +1,6 @@
 import { lazyWithPreload } from 'react-lazy-with-preload';
 
-import { EntityDeepLink, EntityKind } from '@/core/models/Tree';
-import { searchParamsFromLocation } from '@/core/utils/CommonUtils';
+import { EntityKind } from '@/core/models/Tree';
 
 export const paths = {
   workflows: '/workflows',
@@ -27,23 +26,6 @@ const ENTITY_DEEP_LINKS: ReadonlyArray<{ kind: EntityKind; path: string; param: 
 /** The search param carrying the entity id on a kind's page; `undefined` for kinds without one. */
 export function entityDeepLinkParam(kind: EntityKind): string | undefined {
   return ENTITY_DEEP_LINKS.find((link) => link.kind === kind)?.param;
-}
-
-/**
- * The entity a router location addresses — `#!/workflows?workflow_id=deploy` → the `deploy`
- * workflow. `undefined` when the location isn't an entity page, or carries no entity id.
- */
-export function deepLinkedEntity(location: string): EntityDeepLink | undefined {
-  const [rawPath] = location.replace(/^#?!?\/?/, '').split('?');
-  const path = `/${rawPath}`;
-  // Segment boundary, not a bare prefix: an unrelated `/workflows-old` page is not a workflow link.
-  const route = ENTITY_DEEP_LINKS.find(
-    ({ path: entityPath }) => path === entityPath || path.startsWith(`${entityPath}/`),
-  );
-  // Read the id through the shared parser, so a duplicated param can't resolve to one entity here
-  // and a different one in the page selectors — which would re-open the very bug this fixes.
-  const id = route && searchParamsFromLocation(location)[route.param];
-  return id ? { kind: route.kind, id } : undefined;
 }
 
 export const routes = [

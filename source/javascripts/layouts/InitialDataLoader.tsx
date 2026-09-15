@@ -19,7 +19,7 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
-import { deepLinkedEntity, preloadRoutes } from '@/routes';
+import { preloadRoutes } from '@/routes';
 
 import bitriseLogo from '../../images/bitrise-logo.svg';
 import errorImg from '../../images/error-hairball.svg';
@@ -121,11 +121,6 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
               mergedYml: config.mergedYml,
               branch: config.branch,
               commitSha: config.root.commitSha,
-              // Resolved against the whole tree here, before any page reads the config: an entity
-              // addressed by the URL may live in an included module, not in the root file. This
-              // effect also runs on a branch switch, which re-resolves the link against the newly
-              // loaded tree — keeping the user on the module defining the entity they're viewing.
-              deepLink: deepLinkedEntity(window.parent.location.hash),
             });
           }
         }
