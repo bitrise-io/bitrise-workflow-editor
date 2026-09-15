@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Text } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
@@ -154,10 +155,13 @@ const SecretsPage = () => {
           Learn more
         </Link>
       </Text>
-      <Notification status="info" marginY="24" data-clarity-unmask="true">
-        <b>We advise not to expose Secrets in pull requests</b> <br />
-        Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request.
-      </Notification>
+      <BitkitAlert
+        variant="info"
+        marginBlock="24"
+        data-clarity-unmask="true"
+        titleText="We advise not to expose Secrets in pull requests"
+        messageText="Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request."
+      />
 
       <Text as="h4" textStyle="heading/h4" paddingBottom="8" data-clarity-unmask="true">
         Shared Secrets
@@ -206,9 +210,7 @@ const SecretsPage = () => {
       <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
         <DialogBody>
           {deleteError && (
-            <Notification status="error" data-clarity-unmask="true">
-              Error while deleting secret!
-            </Notification>
+            <BitkitAlert variant="critical" data-clarity-unmask="true" messageText="Error while deleting secret!" />
           )}
           <Text data-clarity-unmask="true">
             Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />

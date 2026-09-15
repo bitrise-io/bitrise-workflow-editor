@@ -1,4 +1,5 @@
-import { Link, Notification, Text } from '@bitrise/bitkit';
+import { Link } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
@@ -18,19 +19,26 @@ const OrderOfTriggersNotification = () => {
   }
 
   return (
-    <Notification status="info" marginTop="12" data-clarity-unmask="true" onClose={() => updateMetaData('true')}>
-      <Text fontWeight="bold">Order of triggers</Text>
-      <Text>
-        The first matching trigger is executed by the system, so make sure that the order of triggers is configured
-        correctly.{' '}
-        <Link
-          href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
-          isUnderlined
-        >
-          Learn more
-        </Link>
-      </Text>
-    </Notification>
+    <BitkitAlert
+      variant="info"
+      marginBlockStart="12"
+      data-clarity-unmask="true"
+      dismissible
+      onClose={() => updateMetaData('true')}
+      titleText="Order of triggers"
+      messageText={
+        <>
+          The first matching trigger is executed by the system, so make sure that the order of triggers is configured
+          correctly.{' '}
+          <Link
+            href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
+            isUnderlined
+          >
+            Learn more
+          </Link>
+        </>
+      }
+    />
   );
 };
 

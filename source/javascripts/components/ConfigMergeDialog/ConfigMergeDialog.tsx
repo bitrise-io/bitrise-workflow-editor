@@ -7,10 +7,10 @@ import {
   DialogFooter,
   DialogProps,
   Icon,
-  Notification,
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
@@ -187,10 +187,11 @@ const ConfigMergeDialogContent = ({
   if (initialError || !data) {
     return (
       <Box px="32">
-        <Notification status="error">
-          <Text textStyle="comp/notification/title">Error fetching initial configs</Text>
-          <Text>{initialError?.message || 'Initial configs not found'}</Text>
-        </Notification>
+        <BitkitAlert
+          variant="critical"
+          titleText="Error fetching initial configs"
+          messageText={initialError?.message || 'Initial configs not found'}
+        />
       </Box>
     );
   }
@@ -266,20 +267,19 @@ const ConfigMergeDialogContent = ({
             </Box>
           </Box>
         </Box>
-        <Notification status="info">
-          <Text textStyle="comp/notification/title">Merge conflict auto-resolution</Text>
-          <Text>
-            In case of a conflict, remote changes will take priority over your local changes. To retain your changes,
-            edit the results before saving.
-          </Text>
-        </Notification>
+        <BitkitAlert
+          variant="info"
+          titleText="Merge conflict auto-resolution"
+          messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before saving."
+        />
         {(clientError || saveError) && (
-          <Notification status="error">
-            <Text textStyle="comp/notification/title">Error saving...</Text>
-            <Text>
-              {clientError?.message || saveError?.getResponseErrorMessage() || saveError?.message || 'Unknown error'}
-            </Text>
-          </Notification>
+          <BitkitAlert
+            variant="critical"
+            titleText="Error saving..."
+            messageText={
+              clientError?.message || saveError?.getResponseErrorMessage() || saveError?.message || 'Unknown error'
+            }
+          />
         )}
       </DialogBody>
       <DialogFooter>

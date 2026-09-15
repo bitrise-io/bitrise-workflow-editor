@@ -1,4 +1,4 @@
-import { Notification } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useUserMetaData from '@/hooks/useUserMetaData';
@@ -17,20 +17,19 @@ const YourCiConfigIsSplitNotification = () => {
   }
 
   return (
-    <Notification
-      pos="absolute"
+    <BitkitAlert
+      position="absolute"
       zIndex="1000"
       left="50%"
       transform="translateX(-50%)"
-      status="info"
+      variant="info"
       data-clarity-unmask="true"
+      dismissible
       onClose={() => updateSplittedMetaData('true')}
       whiteSpace="nowrap"
       width="auto"
-    >
-      Your configuration in the Git repository is split across multiple files, but on this page you can see it as one
-      merged YAML.
-    </Notification>
+      messageText="Your configuration in the Git repository is split across multiple files, but on this page you can see it as one merged YAML."
+    />
   );
 };
 
