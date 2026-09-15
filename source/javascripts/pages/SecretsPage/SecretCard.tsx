@@ -11,13 +11,13 @@ import {
   Icon,
   IconButton,
   Input,
-  Notification,
   Skeleton,
   SkeletonBox,
   Text,
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -289,7 +289,7 @@ const SecretCard = (props: SecretCardProps) => {
                 </Text>
               </Box>
             </Checkbox>
-            {saveError && <Notification status="error">Error while updating secret!</Notification>}
+            {saveError && <BitkitAlert variant="critical" messageText="Error while updating secret!" />}
             <Box display="flex" justifyContent="space-between">
               <Box display="flex" gap="16">
                 <Button type="submit" size="md" isDisabled={!watch('key') || !watch('value')} isLoading={saveLoading}>

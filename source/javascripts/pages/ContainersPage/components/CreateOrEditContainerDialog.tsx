@@ -10,12 +10,11 @@ import {
   Divider,
   Input,
   Link,
-  Notification,
   Text,
   Textarea,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
@@ -258,24 +257,27 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             <Text textStyle="heading/h3" mt="8">
               Authentication credentials
             </Text>
-            <Notification status="info">
-              <Text textStyle="comp/notification/title" mb="2">
-                Authentication recommended
-              </Text>
-              <Text textStyle="body/md/regular">
-                Authenticate to pull private images and avoid rate limits issues. Add credentials here (Bitrise CLI runs
-                docker login automatically) or use an OAuth Step.
-              </Text>
-              <Text textStyle="body/md/regular">
-                <Link
-                  href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#docker-authentication-credentials"
-                  isExternal
-                  isUnderlined
-                >
-                  Learn more
-                </Link>
-              </Text>
-            </Notification>
+            <BitkitAlert
+              variant="info"
+              titleText="Authentication recommended"
+              messageText={
+                <>
+                  <Text textStyle="body/md/regular">
+                    Authenticate to pull private images and avoid rate limits issues. Add credentials here (Bitrise CLI
+                    runs docker login automatically) or use an OAuth Step.
+                  </Text>
+                  <Text textStyle="body/md/regular">
+                    <Link
+                      href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#docker-authentication-credentials"
+                      isExternal
+                      isUnderlined
+                    >
+                      Learn more
+                    </Link>
+                  </Text>
+                </>
+              }
+            />
             <Controller
               control={control}
               name="userValues.credentials.server"

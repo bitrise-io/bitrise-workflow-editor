@@ -1,4 +1,5 @@
-import { Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
+import { Input, TagsInput, Text } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -64,18 +65,15 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
               onRemove={() => {}}
             />
           )}
-          <Notification
+          <BitkitAlert
             action={{
               label: 'Go to YAML page',
               onClick: () => replace('/yml'),
             }}
-            status="info"
-          >
-            <Text textStyle="comp/notification/title">Edit container or service configuration</Text>
-            <Text textStyle="comp/notification/message">
-              View more details or edit the container or service configuration on the Configuration YAML page.
-            </Text>
-          </Notification>
+            variant="info"
+            titleText="Edit container or service configuration"
+            messageText="View more details or edit the container or service configuration on the Configuration YAML page."
+          />
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>

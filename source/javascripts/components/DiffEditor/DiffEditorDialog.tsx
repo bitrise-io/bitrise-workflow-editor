@@ -6,10 +6,10 @@ import {
   DialogFooter,
   DialogProps,
   Icon,
-  Notification,
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -124,13 +124,16 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
         <Icon name="Cross" />
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
-        <Notification status="info">
-          {tabs
-            ? 'For the merged config you can only view your changes. For each module you can edit the right side of the diff view, and your changes will be applied.'
-            : isReadOnly
-              ? 'This file is read-only — changes here cannot be applied.'
-              : 'You can edit the right side of the diff view, and your changes will be applied.'}
-        </Notification>
+        <BitkitAlert
+          variant="info"
+          messageText={
+            tabs
+              ? 'For the merged config you can only view your changes. For each module you can edit the right side of the diff view, and your changes will be applied.'
+              : isReadOnly
+                ? 'This file is read-only — changes here cannot be applied.'
+                : 'You can edit the right side of the diff view, and your changes will be applied.'
+          }
+        />
         {tabs}
         <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
           <DiffEditor
