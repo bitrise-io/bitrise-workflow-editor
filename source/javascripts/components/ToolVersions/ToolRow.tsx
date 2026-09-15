@@ -146,6 +146,10 @@ const ToolRow = ({
 
     return undefined;
   }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
+  // Only the prefix dropdown resolves, and the catalog lists released versions only.
+  const latestVersion =
+    hasPrefixDropdown && !preferInstalled ? ToolsService.getLatestVersion(toolVersions, trimmedVersion) : undefined;
+  const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -296,6 +300,7 @@ const ToolRow = ({
                   items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...versionOptions]}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  helperText={resolvedVersionHint}
                   warningText={catalogWarning}
                   value={version || ANY_PREFIX_VALUE}
                   onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
