@@ -110,11 +110,13 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     // re-render while it's in flight must not start a second bootstrap.
     loadedBranch.current = requestedBranch;
     let cancelled = false;
+    let settled = false;
 
     const openGate = () => {
       if (cancelled) {
         return;
       }
+      settled = true;
 
       if (requestedBranch) {
         if (configBranch && configBranch === requestedBranch) {
@@ -140,6 +142,17 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       setBootstrappedBranch(requestedBranch);
     };
 
+    // A bootstrap that never reached `openGate` has to hand its claim back, or nothing bootstraps
+    // this branch again: StrictMode runs setup → cleanup → setup on mount, so with the tree data
+    // already in hand the first pass is cancelled mid-merge while the second sees the claim and
+    // returns — leaving the gate shut for good.
+    const releaseUnfinishedClaim = () => {
+      cancelled = true;
+      if (!settled) {
+        loadedBranch.current = null;
+      }
+    };
+
     const config = isModularEnabled ? treeConfig.data : undefined;
 
     if (config && config.root.includes.length > 0) {
@@ -159,7 +172,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       // An empty merge is a failed merge, not a config that merges to nothing.
       if (config.mergedYml) {
         initModular(config.mergedYml);
-        return undefined;
+        return releaseUnfinishedClaim;
       }
 
       // Open the root file rather than a merged tab rendering something else, and say so. The tab
@@ -186,9 +199,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
         .then(({ mergedYml }) => (mergedYml ? initModular(mergedYml) : failMerge()))
         .catch(failMerge);
 
-      return () => {
-        cancelled = true;
-      };
+      return releaseUnfinishedClaim;
     }
 
     if (config) {
@@ -206,7 +217,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     }
 
     openGate();
-    return undefined;
+    return releaseUnfinishedClaim;
   }, [data, requestedBranch, isModularEnabled, legacyConfig.data, treeConfig.data, configBranch]);
 
   useEffect(() => {

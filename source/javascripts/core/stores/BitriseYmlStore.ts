@@ -385,6 +385,8 @@ export function initializeModularConfig({
 }) {
   const files = buildFileSlices(root);
   const entityIndex = EntityIndexService.buildFromFiles(root, files);
+  // Same rule as `setMergedConfig`: an empty merge counts as no merge.
+  const merge = mergedYml || undefined;
 
   // A modular config opens on the merged view: it's the only tab where every entity resolves, so a
   // URL pointing at a workflow defined in an included module lands on that workflow instead of the
@@ -396,8 +398,8 @@ export function initializeModularConfig({
   // merged default fixes. The merged tab stays stale, so re-selecting it retries the merge.
   const rootSlice = files[root.nodeId];
   const activePatch =
-    mergedYml !== undefined
-      ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(mergedYml))
+    merge !== undefined
+      ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(merge))
       : activeDocumentPatch(root.nodeId, rootSlice.ymlDocument, rootSlice.savedYmlDocument);
 
   bitriseYmlStore.setState({
@@ -405,9 +407,9 @@ export function initializeModularConfig({
     ...activePatch,
     openTabs: [{ nodeId: root.nodeId, isPreview: false }],
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
-    mergedYml,
-    mergedYmlStale: mergedYml === undefined,
-    savedMergedYml: mergedYml,
+    mergedYml: merge,
+    mergedYmlStale: merge === undefined,
+    savedMergedYml: merge,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
   });
@@ -608,6 +610,14 @@ export function discardFile(nodeId: string) {
 }
 
 export function setMergedConfig(mergedYml: string) {
+  // An empty merge is a failed merge, not a config that merges to nothing — `getMergedConfig`
+  // returns `''` for a response without a merge. Accepting it would clear `mergedYmlStale` and bind
+  // an empty document, so the merged tab would show a blank "successful" merge with no retry left.
+  if (!mergedYml) {
+    warnInDev('setMergedConfig: empty merge ignored, leaving the merged config stale');
+    return;
+  }
+
   const { selectedNodeId, hasChanges } = bitriseYmlStore.getState();
   // A merge computed while nothing is dirty IS the saved baseline; while edits are pending it stays frozen.
   const savedMergedYml = hasChanges ? bitriseYmlStore.getState().savedMergedYml : mergedYml;

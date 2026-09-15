@@ -528,6 +528,18 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('merged config view binding', () => {
+    it('ignores an empty merge, so a failed retry leaves the tab stale instead of blank', () => {
+      // The state a failed bootstrap merge leaves behind: root file selected, merged tab stale.
+      initializeModularConfig({ root: buildRoot() });
+      selectMergedConfig();
+
+      setMergedConfig('');
+
+      const state = bitriseYmlStore.getState();
+      expect(state.mergedYmlStale).toBe(true);
+      expect(state.mergedYml).toBeUndefined();
+    });
+
     const MERGED = 'format_version: "13"\nworkflows:\n  child-a: {}\n  defined-elsewhere: {}\n';
 
     it('binds the active document to the merged config so every entity resolves locally', () => {

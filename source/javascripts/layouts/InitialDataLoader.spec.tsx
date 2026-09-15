@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ComponentType, ReactNode } from 'react';
+import { ComponentType, ReactNode, StrictMode } from 'react';
 
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
@@ -243,6 +243,25 @@ describe('InitialDataLoader', () => {
 
     expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only');
     expect(window.parent.location.hash).toContain('workflow_id=module-only');
+  });
+
+  it('bootstraps under StrictMode when the tree data is already in hand', async () => {
+    window.parent.location.hash = '#/workflows?workflow_id=module-only';
+    getMergedConfigMock.mockResolvedValue({ mergedYml: MERGED_YML });
+    treeQuery = { data: modularConfigWithoutMerge('main'), error: null, refetch: jest.fn() };
+
+    // StrictMode runs setup → cleanup → setup on mount. The cancelled first pass has to hand its
+    // claim back, or the second pass sees the branch as loaded, returns, and the gate never opens.
+    render(
+      <StrictMode>
+        <InitialDataLoader>
+          <MainLayout />
+        </InitialDataLoader>
+      </StrictMode>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('selected-workflow').textContent).toBe('module-only'));
+    expect(bitriseYmlStore.getState().selectedNodeId).toBe(MERGED_CONFIG_NODE_ID);
   });
 
   it('opens the root file and warns when the bootstrap merge fails, instead of a merged tab showing it', async () => {
