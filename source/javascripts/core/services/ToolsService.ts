@@ -28,6 +28,11 @@ const LATEST_OF_SUFFIXES = LATEST_OF_KEYWORDS.map(({ keyword, preferInstalled })
   preferInstalled,
 }));
 
+/** The strategy a keyword means on its own, with no prefix to narrow it. */
+function toAbsoluteStrategy(preferInstalled: boolean): ParsedToolVersion {
+  return { strategy: preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
+}
+
 function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
   // Trimmed, mirroring the `strings.TrimSpace` that opens the CLI's `ParseVersionString`.
@@ -40,7 +45,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
 
   const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
   if (bare) {
-    return { strategy: 'latest-of', prefix: '', preferInstalled: bare.preferInstalled };
+    return toAbsoluteStrategy(bare.preferInstalled);
   }
 
   // Mirrors the CLI's greedy, end anchored `(.*):latest$`, so `a:b:latest` has prefix `a:b`.
@@ -49,11 +54,12 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   );
 
   if (suffixed) {
-    return {
-      strategy: 'latest-of',
-      prefix: raw.slice(0, raw.length - suffixed.suffix.length),
-      preferInstalled: suffixed.preferInstalled,
-    };
+    const prefix = raw.slice(0, raw.length - suffixed.suffix.length);
+
+    // `:latest` carries no prefix, so it means the same as bare `latest`, and `latest-of` needs one.
+    return prefix === ''
+      ? toAbsoluteStrategy(suffixed.preferInstalled)
+      : { strategy: 'latest-of', prefix, preferInstalled: suffixed.preferInstalled };
   }
 
   return { strategy: 'exact', version: raw };
@@ -63,10 +69,20 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return UNSET_KEYWORD;
+    case 'absolute-latest-released':
+      return LATEST_KEYWORD;
+    case 'absolute-latest-installed':
+      return INSTALLED_KEYWORD;
     case 'latest-of': {
+      if (!parsed.prefix) {
+        // A bare keyword would read back as the absolute strategy, not latest-of with an
+        // empty prefix, so the invariant is enforced here rather than silently collapsing it.
+        throw new Error('latest-of requires a non-empty prefix, use an absolute strategy instead');
+      }
+
       const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
 
-      return parsed.prefix ? `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}` : keyword;
+      return `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}`;
     }
     case 'exact':
       return parsed.version;
@@ -83,6 +99,8 @@ function toParsedToolVersion(
     case 'exact':
       return { strategy, version: inputValue };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return { strategy };
     case 'latest-of':
       return { strategy, prefix: inputValue, preferInstalled };
@@ -95,6 +113,8 @@ function getVersionInputValue(parsed: ParsedToolVersion): string {
     case 'exact':
       return parsed.version;
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return '';
     case 'latest-of':
       return parsed.prefix;
@@ -244,6 +264,18 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): 
   return getVersionOptions(toolVersions).find(({ value }) => matchesPrefix(value, prefix))?.value;
 }
 
+/**
+ * The prefix to select when a row switches onto `latest-of`. Prefers a suggested prefix of the
+ * version it is switching away from, so a row reading 22.12.0 offers 22 rather than upgrading to
+ * the newest major. Falls back to the newest suggestion, then to the current version's own prefix.
+ */
+function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
+  const options = getPrefixOptions(toolVersions).map(({ value }) => value);
+  const ownPrefixes = currentValue ? toPrefixes(currentValue) : [];
+
+  return ownPrefixes.find((prefix) => options.includes(prefix)) ?? options[0] ?? ownPrefixes[0] ?? '';
+}
+
 /** Whether the catalog has any version in `prefix`'s line. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
   return toolVersions.versions.some(({ version }) => matchesPrefix(version, prefix));
@@ -333,11 +365,12 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
     case 'exact':
       return { strategy: 'exact', version: '' };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return parsed;
     case 'latest-of':
-      // The installed preference is about how a version is resolved, not about which tool, so it
-      // survives the rename even though the prefix does not.
-      return { strategy: 'latest-of', prefix: '', preferInstalled: parsed.preferInstalled };
+      // The prefix belonged to the old tool, and the new one has no candidates yet.
+      return { strategy: parsed.preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
   }
 }
 
@@ -377,6 +410,7 @@ export default {
   getVersionOptions,
   getPrefixOptions,
   withConfiguredValue,
+  getSeedPrefix,
   getLatestVersion,
   isVersionInCatalog,
   isPrefixInCatalog,
