@@ -28,8 +28,8 @@ const SetupWebhookNotification = () => {
       onClose={() => updateMetaData('true')}
       action={{ href: integrationsUrl, label: 'Set up webhooks' }}
       marginBlock="32"
-      titleText="Configure webhooks"
-      messageText="Enable Bitrise to interact with third-party services and are necessary for triggers to work."
+      titleText="Set up webhooks to activate your triggers"
+      messageText="Triggers need a webhook to detect activity in your repository. Set one up so pushes and pull requests can start builds automatically."
     />
   );
 };
