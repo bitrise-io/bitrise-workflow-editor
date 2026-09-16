@@ -408,6 +408,11 @@ const Header = () => {
             </BitkitSegmentedControl>
           </BitkitTooltip>
         }
+        // Stays masked in recordings, deliberately. `title` is a string and the component exposes
+        // no hook onto its `h1`, so the only way to opt it out is to tag the root — which opts out
+        // the whole subtree, including the project name in the trail. Masking a fixed label costs a
+        // little readability; unmasking customer data is a leak. From `tablet` up the heading is
+        // `srOnly` anyway, and the visible label is the trail's current item, which is opted out.
         title="CI configuration"
         variant="minimal"
       >

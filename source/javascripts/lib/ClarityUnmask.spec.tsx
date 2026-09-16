@@ -213,7 +213,11 @@ describe('Clarity unmasking', () => {
     // an unmasked ancestor silently unmasks anything added under it later. When this fails, confirm
     // the added subtree renders no configuration or user input, then update the map.
     const EXPECTED: Record<string, number> = {
-      'components/Header.tsx': 4,
+      // Six rather than four since the header moved onto BitkitPageHeader: the actions are the
+      // component's own slot now, so the one wrapper that unmasked all three buttons became one
+      // attribute per button. They render fixed labels — Show diff, Discard, Save changes — so the
+      // widened sites carry no configuration or user input.
+      'components/Header.tsx': 6,
       'components/LoadingState.tsx': 1,
       'components/Navigation.tsx': 1,
       'components/ReadOnlyViewNotification.tsx': 1,
