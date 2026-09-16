@@ -381,15 +381,23 @@ const Header = () => {
       : []),
   ];
 
+  // Passed as `undefined` rather than an empty wrapper when nothing would render — in CLI mode below
+  // `tablet` every crumb condition is false and ConfigSettingsMenu is website-only, so the wrapper
+  // would be empty. BitkitPageHeader decides its layout on the slot's presence, not its contents, so
+  // an empty element still buys the sub-page padding and a headerBlock gap: the title sits ~24px
+  // lower over nothing.
+  const trail =
+    breadcrumbItems.length > 0 || isWebsiteMode ? (
+      <Box display="flex" alignItems="center" gap="8" minWidth={0}>
+        <BitkitBreadcrumb>{breadcrumbItems}</BitkitBreadcrumb>
+        {isWebsiteMode && <ConfigSettingsMenu />}
+      </Box>
+    ) : undefined;
+
   return (
     <>
       <BitkitPageHeader
-        breadcrumb={
-          <Box display="flex" alignItems="center" gap="8" minWidth={0}>
-            <BitkitBreadcrumb>{breadcrumbItems}</BitkitBreadcrumb>
-            {isWebsiteMode && <ConfigSettingsMenu />}
-          </Box>
-        }
+        breadcrumb={trail}
         controls={
           <BitkitTooltip
             disabled={!isParseError}
