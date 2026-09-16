@@ -1,14 +1,14 @@
+import { useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
 import {
-  Box,
-  Breadcrumb,
-  BreadcrumbLink,
-  Button,
-  Tooltip,
-  useDisclosure,
-  useResponsive,
-  useToast,
-} from '@bitrise/bitkit';
-import { BitkitSegmentedControl, BitkitTooltip, IconCode, IconWebUi } from '@bitrise/bitkit-v2';
+  BitkitBreadcrumb,
+  BitkitButton,
+  BitkitPageHeader,
+  BitkitSegmentedControl,
+  BitkitTooltip,
+  IconCode,
+  IconWebUi,
+} from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -346,103 +346,108 @@ const Header = () => {
     }
   });
 
+  // BitkitBreadcrumb types its children as breadcrumb elements only, so the conditional crumbs are
+  // spread into an array rather than rendered with `&&`, which would widen them to `false`.
+  //
+  // The fixed crumbs are unmasked one by one on purpose — the project name between them is customer
+  // data, so the Breadcrumb itself must stay masked.
+  const breadcrumbItems = [
+    ...(isWebsiteMode && !isMobile
+      ? [
+          <BitkitBreadcrumb.Item key="bitrise-ci" href="/dashboard" data-clarity-unmask="true">
+            Bitrise CI
+          </BitkitBreadcrumb.Item>,
+        ]
+      : []),
+    ...(isWebsiteMode && appPath && appName
+      ? [
+          <BitkitBreadcrumb.Item key="app" href={appPath}>
+            {appName}
+          </BitkitBreadcrumb.Item>,
+        ]
+      : []),
+    // Below tablet the header stays expanded and renders `title` as a visible heading, so the trail
+    // drops its current item there to keep "CI configuration" from showing twice.
+    ...(!isMobile
+      ? [
+          <BitkitBreadcrumb.CurrentItem key="ci-configuration" data-clarity-unmask="true">
+            CI configuration
+          </BitkitBreadcrumb.CurrentItem>,
+        ]
+      : []),
+  ];
+
   return (
-    <Box
-      gap="16"
-      as="header"
-      display="flex"
-      paddingBlock={16}
-      paddingInline={32}
-      borderBottom="1px solid"
-      flexDir={['column', 'row']}
-      justifyContent="space-between"
-      borderColor="separator.primary"
-      alignItems={['flex-start', 'center']}
-    >
-      <Box display="flex" alignItems="center" gap="8" minWidth={0}>
-        {/* The fixed crumbs are unmasked one by one on purpose — the project name between them is
-            customer data, so the Breadcrumb itself must stay masked. */}
-        <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
-          {isWebsiteMode && !isMobile && (
-            <BreadcrumbLink href="/dashboard" data-clarity-unmask="true">
-              Bitrise CI
-            </BreadcrumbLink>
-          )}
-          {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
-          {(!isWebsiteMode || !isMobile) && (
-            <BreadcrumbLink isCurrentPage data-clarity-unmask="true">
-              CI configuration
-            </BreadcrumbLink>
-          )}
-        </Breadcrumb>
-        {isWebsiteMode && <ConfigSettingsMenu />}
-      </Box>
-
-      <BitkitTooltip
-        disabled={!isParseError}
-        placement={isMobile ? 'bottom' : 'bottom-start'}
-        text="YAML can't be parsed, please fix it before switching to the Visual editor."
+    <>
+      <BitkitPageHeader
+        breadcrumb={
+          <Box display="flex" alignItems="center" gap="8" minWidth={0}>
+            <BitkitBreadcrumb>{breadcrumbItems}</BitkitBreadcrumb>
+            {isWebsiteMode && <ConfigSettingsMenu />}
+          </Box>
+        }
+        controls={
+          <BitkitTooltip
+            disabled={!isParseError}
+            placement={isMobile ? 'bottom' : 'bottom-start'}
+            text="YAML can't be parsed, please fix it before switching to the Visual editor."
+          >
+            <BitkitSegmentedControl
+              size="sm"
+              value={editorView}
+              aria-label="Editor view"
+              data-clarity-unmask="true"
+              onValueChange={(details) => handleEditorViewChange(details.value)}
+            >
+              <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={isParseError}>
+                Visual
+              </BitkitSegmentedControl.Item>
+              <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
+                YAML
+              </BitkitSegmentedControl.Item>
+            </BitkitSegmentedControl>
+          </BitkitTooltip>
+        }
+        title="CI configuration"
+        variant="minimal"
       >
-        <BitkitSegmentedControl
-          size="sm"
-          value={editorView}
-          aria-label="Editor view"
-          data-clarity-unmask="true"
-          onValueChange={(details) => handleEditorViewChange(details.value)}
-        >
-          <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={isParseError}>
-            Visual
-          </BitkitSegmentedControl.Item>
-          <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
-            YAML
-          </BitkitSegmentedControl.Item>
-        </BitkitSegmentedControl>
-      </BitkitTooltip>
-
-      <Box
-        gap="8"
-        display="flex"
-        justifyContent="stretch"
-        flexDir={['column', 'row']}
-        alignSelf={['stretch', 'flex-end']}
-        data-clarity-unmask="true"
-      >
-        <Button
+        <BitkitButton
           size="sm"
           className="diff"
           variant="secondary"
+          data-clarity-unmask="true"
           onClick={openDiffViewer}
-          isDisabled={!hasChanges || isSavingConfig}
+          state={!hasChanges || isSavingConfig ? 'disabled' : undefined}
         >
           Show diff
-        </Button>
-        <Button
-          isDanger
+        </BitkitButton>
+        <BitkitButton
           size="sm"
           className="discard"
-          variant="secondary"
+          variant="danger-secondary"
+          data-clarity-unmask="true"
           onClick={onDiscard}
-          isDisabled={!hasChanges || isSavingConfig}
+          state={!hasChanges || isSavingConfig ? 'disabled' : undefined}
         >
           Discard
-        </Button>
-        <Tooltip
-          isDisabled={ymlStatus !== 'invalid'}
+        </BitkitButton>
+        <BitkitTooltip
+          disabled={ymlStatus !== 'invalid'}
           placement={isMobile ? 'bottom' : 'bottom-start'}
-          label="YAML is invalid, please fix it before saving."
+          text="YAML is invalid, please fix it before saving."
         >
-          <Button
+          <BitkitButton
             size="sm"
             className="save"
             variant="primary"
-            isLoading={isSavingConfig}
-            isDisabled={!hasChanges || ymlStatus === 'invalid'}
+            data-clarity-unmask="true"
             onClick={() => saveCIConfig('save_changes_button')}
+            state={isSavingConfig ? 'loading' : !hasChanges || ymlStatus === 'invalid' ? 'disabled' : undefined}
           >
             Save changes
-          </Button>
-        </Tooltip>
-      </Box>
+          </BitkitButton>
+        </BitkitTooltip>
+      </BitkitPageHeader>
       {isModular ? (
         <GlobalDiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
       ) : (
@@ -475,7 +480,7 @@ const Header = () => {
         onPush={handlePush}
         onManualUpdate={openUpdateConfigDialog}
       />
-    </Box>
+    </>
   );
 };
 
