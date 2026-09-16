@@ -36,7 +36,14 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import { BitkitActionMenu, BitkitAlert, BitkitProvider, BitkitSegmentedControl } from '@bitrise/bitkit-v2';
+import {
+  BitkitActionMenu,
+  BitkitAlert,
+  BitkitBreadcrumb,
+  BitkitButton,
+  BitkitProvider,
+  BitkitSegmentedControl,
+} from '@bitrise/bitkit-v2';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
@@ -198,11 +205,32 @@ describe('Clarity unmasking', () => {
               action menu item
             </BitkitActionMenu.Item>
           </BitkitActionMenu>
+          <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
+          {/* Tagged on a span inside the label, not on the crumb: BitkitBreadcrumb.Item and
+              .CurrentItem destructure only `href`/`children` and drop every other prop, so tagging
+              the crumb is silently inert. Pinned in this shape so that a version which starts
+              forwarding — or a call site that stops wrapping — is caught here instead of quietly
+              re-masking the trail. */}
+          <BitkitBreadcrumb>
+            <BitkitBreadcrumb.Item href="#">
+              <span data-clarity-unmask="true">breadcrumb item</span>
+            </BitkitBreadcrumb.Item>
+            <BitkitBreadcrumb.CurrentItem>
+              <span data-clarity-unmask="true">breadcrumb current item</span>
+            </BitkitBreadcrumb.CurrentItem>
+          </BitkitBreadcrumb>
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(3);
-      ['alert message', 'segment label', 'action menu item'].forEach((label) => {
+      expect(unmasked()).toHaveLength(6);
+      [
+        'alert message',
+        'segment label',
+        'action menu item',
+        'bitkit button',
+        'breadcrumb item',
+        'breadcrumb current item',
+      ].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
