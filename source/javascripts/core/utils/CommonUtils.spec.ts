@@ -1,4 +1,4 @@
-import { parallelWorkflowSourceId, searchParamsFromLocation } from './CommonUtils';
+import { isBrowserExtensionError, parallelWorkflowSourceId, searchParamsFromLocation } from './CommonUtils';
 
 describe('parallelWorkflowSourceId', () => {
   it('strips the generated parallel-workflow suffix', () => {
@@ -34,5 +34,26 @@ describe('searchParamsFromLocation', () => {
   it('returns an empty object when there is no query string', () => {
     expect(searchParamsFromLocation('#!/workflows')).toEqual({});
     expect(searchParamsFromLocation('')).toEqual({});
+  });
+});
+
+describe('isBrowserExtensionError', () => {
+  it('matches the shapes the window listeners and the RUM SDK hand us', () => {
+    // ErrorEvent: the path is on the event itself
+    expect(isBrowserExtensionError({ filename: 'chrome-extension://abc/content.js', message: 'boom' })).toBe(true);
+    // ErrorEvent: the path is only in the wrapped Error's stack
+    expect(isBrowserExtensionError({ error: { stack: 'at f (moz-extension://abc/x.js:1:1)' } })).toBe(true);
+    // A bare Error, as `unhandledrejection` gives us via `e.reason`
+    expect(isBrowserExtensionError({ stack: 'at g (chrome-extension://abc/x.js:1:1)' })).toBe(true);
+    // Legacy Safari and EdgeHTML schemes, which the app still sees from older extensions
+    expect(isBrowserExtensionError({ stack: 'at h (safari-extension://abc/x.js:1:1)' })).toBe(true);
+    expect(isBrowserExtensionError({ stack: 'at i (ms-browser-extension://abc/x.js:1:1)' })).toBe(true);
+  });
+
+  it('leaves our own errors alone', () => {
+    expect(isBrowserExtensionError({ stack: 'at save (https://app.bitrise.io/wfe.js:1:1)' })).toBe(false);
+    expect(isBrowserExtensionError(undefined)).toBe(false);
+    // "extension" on its own is not an extension URL
+    expect(isBrowserExtensionError({ message: 'unknown file extension: .yml' })).toBe(false);
   });
 });
