@@ -1,6 +1,7 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
 
+import { isBrowserExtensionError } from '@/core/utils/CommonUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 function datadogEnv(hostname) {
@@ -22,6 +23,8 @@ datadogRum.init({
   trackSessionAcrossSubdomains: true,
   sessionPersistence: 'local-storage',
   plugins: [reactPlugin()],
+  // Extension errors are not ours to fix and they burn RUM volume, so drop them before they're sent.
+  beforeSend: (event) => !(event.type === 'error' && isBrowserExtensionError(event)),
 });
 
 datadogRum.startView(`/app/?/workflow_editor${window.location.hash?.split('?')?.[0] || '#!/workflows'}`);
