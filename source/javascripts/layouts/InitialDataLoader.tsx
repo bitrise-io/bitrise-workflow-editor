@@ -9,6 +9,7 @@ import { useEventListener } from 'usehooks-ts';
 import { trackConfigBranchLoaded } from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import { isBrowserExtensionError } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useGetCiConfig } from '@/hooks/useCiConfig';
@@ -86,6 +87,9 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   });
 
   useEventListener('error', (e) => {
+    if (isBrowserExtensionError(e)) {
+      return;
+    }
     datadogRum.addError(e);
     // `critical` already persists until dismissed, which is what the old `duration: null` asked for.
     createBitkitToast({ variant: 'critical', messageText: e.message || 'Unknown error' });
@@ -94,7 +98,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   useEventListener('unhandledrejection', (e) => {
     // Monaco rejects with a benign "Canceled" sentinel when a model is disposed (e.g. tab switch); not a real error.
     const reason = e.reason as { name?: string; message?: string } | undefined;
-    if (reason?.name === 'Canceled' || reason?.message === 'Canceled') {
+    if (reason?.name === 'Canceled' || reason?.message === 'Canceled' || isBrowserExtensionError(reason)) {
       return;
     }
     datadogRum.addError(e.reason);
