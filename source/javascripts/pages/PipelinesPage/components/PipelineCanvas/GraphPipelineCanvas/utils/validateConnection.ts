@@ -16,7 +16,6 @@ export default function validateConnection(nodes: Node[], edges: Edge[]): IsVali
 
       visited.add(node.id);
 
-      // eslint-disable-next-line no-restricted-syntax
       for (const outgoer of getOutgoers(node, nodes, edges)) {
         if (outgoer.id === connection.source) return true;
         if (hasCycle(outgoer, visited)) return true;
