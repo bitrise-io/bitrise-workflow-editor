@@ -12,6 +12,8 @@ import {
 } from '@bitrise/bitkit';
 import { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
+import assistProps from '@/components/AssistMode/assistProps';
+import { AssistId } from '@/components/AssistMode/assistRegistry';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -31,6 +33,7 @@ type NavigationItemProps = PropsWithChildren<{
   path: string;
   icon: TypeIconName;
   intercomTarget?: string;
+  assistId?: AssistId;
 }>;
 
 function usePathWithSearchParams() {
@@ -45,7 +48,7 @@ function usePathWithSearchParams() {
   );
 }
 
-const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItemProps) => {
+const NavigationItem = ({ children, path, icon, intercomTarget, assistId }: NavigationItemProps) => {
   const toast = useToast();
   const { isMobile } = useResponsive();
   const [hashPath, navigate] = useHashLocation();
@@ -71,7 +74,12 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   }, [isParseError, navigate, path, toast]);
 
   return (
-    <SidebarItem selected={Boolean(isSelected)} onClick={handleNavigation} data-intercom-target={intercomTarget}>
+    <SidebarItem
+      selected={Boolean(isSelected)}
+      onClick={handleNavigation}
+      data-intercom-target={intercomTarget}
+      {...(assistId ? assistProps(assistId) : {})}
+    >
       <SidebarItemIcon name={icon} />
       {!isMobile && <SidebarItemLabel>{children}</SidebarItemLabel>}
     </SidebarItem>
@@ -128,6 +136,7 @@ const Navigation = (props: Props) => {
           path={withSearchParams(paths.workflows)}
           icon="Workflow"
           intercomTarget="Workflows Page Navigation Item"
+          assistId="wfe.workflows"
         >
           Workflows
         </NavigationItem>
@@ -149,6 +158,7 @@ const Navigation = (props: Props) => {
           path={withSearchParams(paths.secrets)}
           icon="Lock"
           intercomTarget="Secrets Page Navigation Item"
+          assistId="wfe.secrets"
         >
           Secrets
         </NavigationItem>
@@ -156,6 +166,7 @@ const Navigation = (props: Props) => {
           path={withSearchParams(paths.envVars)}
           icon="Dollars"
           intercomTarget="Env Vars Page Navigation Item"
+          assistId="wfe.env-vars"
         >
           Env Vars
         </NavigationItem>
@@ -163,6 +174,7 @@ const Navigation = (props: Props) => {
           path={withSearchParams(paths.triggers)}
           icon="Trigger"
           intercomTarget="Triggers Page Navigation Item"
+          assistId="wfe.triggers"
         >
           Triggers
         </NavigationItem>
@@ -178,6 +190,7 @@ const Navigation = (props: Props) => {
             path={withSearchParams(paths.stacksAndMachines)}
             icon="Stack"
             intercomTarget="Stacks & Machines Page Navigation Item"
+            assistId="wfe.stacks"
           >
             Stacks & Machines
           </NavigationItem>

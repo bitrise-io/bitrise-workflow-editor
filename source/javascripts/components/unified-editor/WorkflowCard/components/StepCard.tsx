@@ -18,6 +18,7 @@ import { memo, MouseEvent, ReactNode, useMemo } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
+import assistProps from '@/components/AssistMode/assistProps';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
@@ -271,6 +272,9 @@ const StepCard = ({
                   display="flex"
                   onClick={handleClick}
                   role={isButton ? 'button' : 'div'}
+                  // On the clickable content Box, not the Card root, so the assist outline
+                  // never wraps the drag handle and dnd-kit sorting is untouched.
+                  {...assistProps('wfe.step')}
                 >
                   <Avatar
                     size="32"
