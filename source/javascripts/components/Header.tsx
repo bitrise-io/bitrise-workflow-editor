@@ -351,15 +351,11 @@ const Header = () => {
   //
   // The fixed crumbs are unmasked one by one on purpose — the project name between them is customer
   // data, so the Breadcrumb itself must stay masked.
-  //
-  // The tag goes on a span inside the label rather than on the crumb: BitkitBreadcrumb.Item and
-  // .CurrentItem destructure only `href`/`children` and drop every other prop, so tagging the crumb
-  // itself is silently inert. `ClarityUnmask.spec.tsx` pins this shape.
   const breadcrumbItems = [
-    ...(isWebsiteMode && !isMobile
+    ...(isWebsiteMode
       ? [
-          <BitkitBreadcrumb.Item key="bitrise-ci" href="/dashboard">
-            <span data-clarity-unmask="true">Bitrise CI</span>
+          <BitkitBreadcrumb.Item key="bitrise-ci" href="/dashboard" data-clarity-unmask="true">
+            Bitrise CI
           </BitkitBreadcrumb.Item>,
         ]
       : []),
@@ -374,8 +370,8 @@ const Header = () => {
     // drops its current item there to keep "CI configuration" from showing twice.
     ...(!isMobile
       ? [
-          <BitkitBreadcrumb.CurrentItem key="ci-configuration">
-            <span data-clarity-unmask="true">CI configuration</span>
+          <BitkitBreadcrumb.CurrentItem key="ci-configuration" data-clarity-unmask="true">
+            CI configuration
           </BitkitBreadcrumb.CurrentItem>,
         ]
       : []),
@@ -452,6 +448,9 @@ const Header = () => {
           disabled={ymlStatus !== 'invalid'}
           placement={isMobile ? 'bottom' : 'bottom-start'}
           text="YAML is invalid, please fix it before saving."
+          // The button is disabled in exactly the state this explains, and a disabled button takes
+          // no pointer events, so without a wrapper the tooltip could never open.
+          wrapTrigger
         >
           <BitkitButton
             size="sm"

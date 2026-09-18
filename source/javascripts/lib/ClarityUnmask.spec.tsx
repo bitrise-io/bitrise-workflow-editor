@@ -206,17 +206,16 @@ describe('Clarity unmasking', () => {
             </BitkitActionMenu.Item>
           </BitkitActionMenu>
           <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
-          {/* Tagged on a span inside the label, not on the crumb: BitkitBreadcrumb.Item and
-              .CurrentItem destructure only `href`/`children` and drop every other prop, so tagging
-              the crumb is silently inert. Pinned in this shape so that a version which starts
-              forwarding — or a call site that stops wrapping — is caught here instead of quietly
-              re-masking the trail. */}
+          {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
+              their remaining props onto the link they render, so the attribute reaches the DOM. That
+              forwarding is what this asserts — a release that stopped doing it would silently
+              re-mask the trail, and this is where it surfaces. */}
           <BitkitBreadcrumb>
-            <BitkitBreadcrumb.Item href="#">
-              <span data-clarity-unmask="true">breadcrumb item</span>
+            <BitkitBreadcrumb.Item href="#" data-clarity-unmask="true">
+              breadcrumb item
             </BitkitBreadcrumb.Item>
-            <BitkitBreadcrumb.CurrentItem>
-              <span data-clarity-unmask="true">breadcrumb current item</span>
+            <BitkitBreadcrumb.CurrentItem data-clarity-unmask="true">
+              breadcrumb current item
             </BitkitBreadcrumb.CurrentItem>
           </BitkitBreadcrumb>
         </Wrapper>,
