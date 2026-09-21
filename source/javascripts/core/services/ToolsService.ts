@@ -1,6 +1,6 @@
 import semver from 'semver';
 
-import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
+import { ParsedToolVersion, ToolCatalog, ToolVersion, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
@@ -239,9 +239,34 @@ function getPrefixOptions(toolVersions: ToolVersions | undefined): VersionOption
   ].map((prefix) => ({ value: prefix, label: prefix }));
 }
 
-/** What `prefix` resolves to: the newest catalog version in its line, or the newest overall. */
+/**
+ * mise's `VERSION_REGEX`, transcribed from `src/plugins/mod.rs` minus its `^Available versions:`
+ * alternative, which guards plugin script output rather than naming a version. Do not hand write a
+ * replacement. mise last changed the pattern on 2026-07-22 (`cf4634be3`), the fifth change that
+ * year, so check it against the source when a hint looks wrong.
+ */
+const PRERELEASE_MARKER =
+  /-src|[-.]dev|-latest|-stm|[-.]rc|-milestone|-alpha|-beta|[-.]pre|-next|-test|-nightly|-canary|-experimental|-insider|-edge|snapshot|master|\d(?:alpha|beta|rc)\d*\b/i;
+
+function isPrerelease({ version, isSemver }: ToolVersion): boolean {
+  return isSemver ? semver.prerelease(version) !== null : PRERELEASE_MARKER.test(version);
+}
+
+/**
+ * What `prefix` resolves to: the newest catalog version in its line, or the newest overall.
+ * Mirrors mise's `find_match_in_list`.
+ */
 function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): string | undefined {
-  return getVersionOptions(toolVersions).find(({ value }) => matchesPrefix(value, prefix))?.value;
+  const versions = toolVersions?.versions ?? [];
+
+  if (prefix && versions.some(({ version }) => version === prefix)) {
+    return prefix;
+  }
+
+  const line = versions.filter(({ version }) => matchesPrefix(version, prefix));
+
+  // A line of nothing but prereleases still answers, rather than leaving the row blank.
+  return (line.find((entry) => !isPrerelease(entry)) ?? line[0])?.version;
 }
 
 /** Whether the catalog has any version in `prefix`'s line. */
