@@ -360,6 +360,43 @@ describe('ToolsService', () => {
       expect(ToolsService.getLatestVersion(java, 'zulu-musl-8')).toBe('zulu-musl-8.96.0.19');
     });
 
+    it('keeps a version semver cannot read above the shorter one semver can', () => {
+      // `mise latest java@26` gives `26.0.2.1`.
+      const java = mixedCatalog(['26.0.2.1', '26.0.2', '26.0.1', '26.0.0']);
+      expect(ToolsService.getLatestVersion(java, '26')).toBe('26.0.2.1');
+      expect(ToolsService.getLatestVersion(java, '26.0')).toBe('26.0.2.1');
+    });
+
+    it('prefers an exact catalog hit over the longer versions below it', () => {
+      // `mise latest java@26.0.2` gives `26.0.2`, and `mise latest swift@6.2` gives `6.2`.
+      const java = mixedCatalog(['26.0.2.1', '26.0.2']);
+      expect(ToolsService.getLatestVersion(java, '26.0.2')).toBe('26.0.2');
+      const swift = mixedCatalog(['6.2.4', '6.2.3', '6.2']);
+      expect(ToolsService.getLatestVersion(swift, '6.2')).toBe('6.2');
+    });
+
+    it('passes over prereleases, as `latest` does', () => {
+      // `mise latest python` gives `3.14.7`, skipping the dev and rc entries published above it.
+      const python = mixedCatalog(['3.16-dev', '3.15.0rc2', '3.15-dev', '3.14.7', '3.14.6']);
+      expect(ToolsService.getLatestVersion(python)).toBe('3.14.7');
+      expect(ToolsService.getLatestVersion(python, '3')).toBe('3.14.7');
+      expect(ToolsService.getLatestVersion(python, '3.14')).toBe('3.14.7');
+      // Including the ones semver reads itself.
+      expect(ToolsService.getLatestVersion(mixedCatalog(['4.0.0-preview3', '3.9.1']))).toBe('3.9.1');
+    });
+
+    it('reads a marker that runs straight into a number', () => {
+      // `-preview1` ends on a word character, which a `\b` anchored pattern passes over.
+      const ruby = mixedCatalog(['truffleruby-23.0.0-preview1', 'truffleruby-22.3.1']);
+      expect(ToolsService.getLatestVersion(ruby, 'truffleruby-2')).toBeUndefined();
+      expect(ToolsService.getLatestVersion(ruby, 'truffleruby')).toBe('truffleruby-22.3.1');
+    });
+
+    it('falls back to the newest entry when a line holds nothing but prereleases', () => {
+      const python = mixedCatalog(['3.15.0rc2', '3.15-dev', '3.14.7']);
+      expect(ToolsService.getLatestVersion(python, '3.15')).toBe('3.15.0rc2');
+    });
+
     it('returns undefined when nothing starts with the prefix', () => {
       expect(ToolsService.getLatestVersion(nodeVersions, '29')).toBeUndefined();
     });
