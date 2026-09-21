@@ -288,6 +288,26 @@ corroborates the rule without being it, since that is a listing command rather t
 > resolves differently under `tool_config.provider: asdf`. `isPrefixInCatalog` and the prefix
 > dropdown both follow the mise rule, because that is the default.
 
+Which version in the line wins is mise's `find_match_in_list` (`src/backend/mod.rs`): an exact hit
+returns itself, otherwise the last entry in list order. There is no sort, and `version_order`
+defaults to `VersionOrder::Source`. mise lists ascending and the catalogs are published descending,
+so last there is first here. Prereleases are dropped first, by mise's `VERSION_REGEX`
+(`src/plugins/mod.rs`), transcribed into `PRERELEASE_MARKER` rather than guessed at. It is a moving
+target, last changed 2026-07-22 in `cf4634be3`.
+
+`getLatestVersion` adds one thing mise does not need: where semver can read every candidate, it
+sorts. The catalogs are only *mostly* newest first, and flutter publishes one line as
+`v1.12.13+hotfix.7, +hotfix.9, +hotfix.5, +hotfix.8`. The result is a hint under the prefix
+dropdown, never written to the YAML.
+
+> **Trap.** Sort with `rsort`, not `rcompare` or `maxSatisfying`. Those rank by `SemVer.compare`,
+> which ignores build metadata, so they answer `flutter@v1.12.13` with `+hotfix.7`. `maxSatisfying`
+> also drops everything that is not semver, which is most of java's catalog.
+
+> **Trap.** Do not resolve through `getVersionOptions`. Sorting semver above non-semver is fine for
+> a dropdown and wrong here: it demotes the versions carrying a fourth part, so `java@26` lands on
+> `26.0.2` where mise gives `26.0.2.1`.
+
 > **Trap.** One divergence from the CLI is left on purpose. Keyword matching here ignores case,
 > while the CLI's `(.*):latest$` does not. So `22:LATEST` renders as a prefixed keyword here but is
 > an exact version to the CLI, which then fails to install it. The lenient reading is the one that
