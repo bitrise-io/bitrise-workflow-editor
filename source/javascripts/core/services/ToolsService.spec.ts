@@ -392,6 +392,21 @@ describe('ToolsService', () => {
       expect(ToolsService.getLatestVersion(ruby, 'truffleruby')).toBe('truffleruby-22.3.1');
     });
 
+    it('asks semver for the largest when it can read every candidate', () => {
+      // The catalog publishes this line out of order and only build metadata separates the
+      // entries, which `rcompare` ignores. `mise latest flutter@v1.12.13` gives `+hotfix.9`.
+      const flutter = mixedCatalog(['v1.12.13+hotfix.7', 'v1.12.13+hotfix.9', 'v1.12.13+hotfix.5']);
+      expect(ToolsService.getLatestVersion(flutter, 'v1.12.13')).toBe('v1.12.13+hotfix.9');
+      expect(ToolsService.getLatestVersion(flutter)).toBe('v1.12.13+hotfix.9');
+    });
+
+    it('does not re-sort a line semver cannot read end to end', () => {
+      expect(ToolsService.getLatestVersion(mixedCatalog(['26.0.2.1', '26.0.2', '26.0.1']), '26')).toBe('26.0.2.1');
+      // Reversed on purpose: with `26.0.2.1` unreadable to semver there is nothing to sort by, so
+      // the catalog's own order stands rather than the readable versions floating to the top.
+      expect(ToolsService.getLatestVersion(mixedCatalog(['26.0.1', '26.0.2', '26.0.2.1']), '26')).toBe('26.0.1');
+    });
+
     it('falls back to the newest entry when a line holds nothing but prereleases', () => {
       const python = mixedCatalog(['3.15.0rc2', '3.15-dev', '3.14.7']);
       expect(ToolsService.getLatestVersion(python, '3.15')).toBe('3.15.0rc2');
