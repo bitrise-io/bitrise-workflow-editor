@@ -254,7 +254,8 @@ function isPrerelease({ version, isSemver }: ToolVersion): boolean {
 
 /**
  * What `prefix` resolves to: the newest catalog version in its line, or the newest overall.
- * Mirrors mise's `find_match_in_list`.
+ * Mirrors mise's `find_match_in_list`, plus a semver sort that mise's own list does not need.
+ * See `docs/domain.md`, which carries the traps.
  */
 function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): string | undefined {
   const versions = toolVersions?.versions ?? [];
@@ -264,9 +265,17 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, prefix = ''): 
   }
 
   const line = versions.filter(({ version }) => matchesPrefix(version, prefix));
-
+  const stable = line.filter((entry) => !isPrerelease(entry));
   // A line of nothing but prereleases still answers, rather than leaving the row blank.
-  return (line.find((entry) => !isPrerelease(entry)) ?? line[0])?.version;
+  const candidates = stable.length ? stable : line;
+
+  if (candidates.length && candidates.every(({ isSemver }) => isSemver)) {
+    // `rsort`, not `rcompare` or `maxSatisfying`: only it weighs the build metadata that
+    // separates one `+hotfix` from the next.
+    return semver.rsort(candidates.map(({ version }) => version))[0];
+  }
+
+  return candidates[0]?.version;
 }
 
 /** Whether the catalog has any version in `prefix`'s line. */
