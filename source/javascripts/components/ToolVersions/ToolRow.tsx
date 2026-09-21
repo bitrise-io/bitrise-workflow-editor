@@ -146,10 +146,15 @@ const ToolRow = ({
 
     return undefined;
   }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
-  // Only the prefix dropdown resolves, and the catalog lists released versions only.
-  const latestVersion =
-    hasPrefixDropdown && !preferInstalled ? ToolsService.getLatestVersion(toolVersions, trimmedVersion) : undefined;
-  const resolvedVersionHint = latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
+  // Only the prefix dropdown resolves, and the catalog has no preinstalled versions to offer.
+  const resolvedVersionHint = useMemo(() => {
+    if (!hasPrefixDropdown || preferInstalled) {
+      return undefined;
+    }
+
+    const latestVersion = ToolsService.getLatestVersion(toolVersions, trimmedVersion);
+    return latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
+  }, [hasPrefixDropdown, preferInstalled, toolVersions, trimmedVersion]);
 
   const dropdownItems = [
     ...dropdownOptions,
