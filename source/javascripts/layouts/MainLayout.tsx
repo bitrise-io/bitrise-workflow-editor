@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react/box';
 import { Redirect, Router, Switch } from 'wouter';
 
+import AssistMode from '@/components/AssistMode/AssistMode';
 import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
 import LoadingState from '@/components/LoadingState';
@@ -34,6 +35,8 @@ const MainLayout = () => {
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column">
+      {/* Website mode only: in CLI mode there is no parent page to sync assisted mode with. */}
+      {isWebsiteMode && <AssistMode />}
       <Header />
       {tabsUnderHeader && <OpenFileTabs />}
       <Box display="flex" flex="1" minHeight={0}>

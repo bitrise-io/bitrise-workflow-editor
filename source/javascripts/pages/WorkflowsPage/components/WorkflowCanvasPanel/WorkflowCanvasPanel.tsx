@@ -2,6 +2,7 @@ import { Box, CardProps, IconButton } from '@bitrise/bitkit';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
 
+import assistProps from '@/components/AssistMode/assistProps';
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
@@ -388,7 +389,10 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   return (
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
-        <WorkflowSelector />
+        {/* The wrapper carries the assist anchor because EntitySelector's prop list is closed. */}
+        <Box flex="1" minW="0" display="flex" {...assistProps('wfe.workflow-selector')}>
+          <WorkflowSelector />
+        </Box>
         {RuntimeUtils.isWebsiteMode() && (
           <IconButton
             size="md"
