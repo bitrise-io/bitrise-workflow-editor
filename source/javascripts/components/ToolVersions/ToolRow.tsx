@@ -279,9 +279,8 @@ const ToolRow = ({
                   // disabled, so the configured version stays legible and reachable by keyboard
                   // and screen readers; the alert below points to the YAML editor instead.
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  // Closing the menu without picking counts as visiting and leaving the field.
+                  // Leaving the field counts as visiting it, so the error can surface.
                   comboboxProps={{
-                    onOpenChange: (details) => !details.open && setVersionTouched(true),
                     onBlur: () => setVersionTouched(true),
                   }}
                   errorText={displayedVersionError}
