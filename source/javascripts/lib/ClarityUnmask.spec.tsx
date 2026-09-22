@@ -24,7 +24,6 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Notification,
   Provider,
   Ribbon,
   Sidebar,
@@ -37,7 +36,14 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import { BitkitActionMenu, BitkitAlert, BitkitProvider, BitkitSegmentedControl } from '@bitrise/bitkit-v2';
+import {
+  BitkitActionMenu,
+  BitkitAlert,
+  BitkitBreadcrumb,
+  BitkitButton,
+  BitkitProvider,
+  BitkitSegmentedControl,
+} from '@bitrise/bitkit-v2';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
@@ -139,9 +145,6 @@ describe('Clarity unmasking', () => {
           <Button data-clarity-unmask="true">button</Button>
           <Card data-clarity-unmask="true">card</Card>
           <EmptyState title="empty state" data-clarity-unmask="true" />
-          <Notification status="info" data-clarity-unmask="true">
-            notification
-          </Notification>
           <Ribbon colorScheme="blue" data-clarity-unmask="true">
             ribbon
           </Ribbon>
@@ -181,7 +184,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(15);
+      expect(unmasked()).toHaveLength(14);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
       ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
@@ -197,16 +200,36 @@ describe('Clarity unmasking', () => {
           </BitkitSegmentedControl>
           {/* Portalled: the attribute has to sit on the item itself, since a tagged ancestor in the
               main tree would not enclose the portalled node. */}
-          <BitkitActionMenu.Root open trigger={<button type="button">trigger</button>}>
+          <BitkitActionMenu open trigger={<button type="button">trigger</button>}>
             <BitkitActionMenu.Item value="x" data-clarity-unmask="true">
               action menu item
             </BitkitActionMenu.Item>
-          </BitkitActionMenu.Root>
+          </BitkitActionMenu>
+          <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
+          {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
+              their remaining props onto the link they render, so the attribute reaches the DOM. That
+              forwarding is what this asserts — a release that stopped doing it would silently
+              re-mask the trail, and this is where it surfaces. */}
+          <BitkitBreadcrumb>
+            <BitkitBreadcrumb.Item href="#" data-clarity-unmask="true">
+              breadcrumb item
+            </BitkitBreadcrumb.Item>
+            <BitkitBreadcrumb.CurrentItem data-clarity-unmask="true">
+              breadcrumb current item
+            </BitkitBreadcrumb.CurrentItem>
+          </BitkitBreadcrumb>
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(3);
-      ['alert message', 'segment label', 'action menu item'].forEach((label) => {
+      expect(unmasked()).toHaveLength(6);
+      [
+        'alert message',
+        'segment label',
+        'action menu item',
+        'bitkit button',
+        'breadcrumb item',
+        'breadcrumb current item',
+      ].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -217,7 +240,11 @@ describe('Clarity unmasking', () => {
     // an unmasked ancestor silently unmasks anything added under it later. When this fails, confirm
     // the added subtree renders no configuration or user input, then update the map.
     const EXPECTED: Record<string, number> = {
-      'components/Header.tsx': 4,
+      // Six rather than four since the header moved onto BitkitPageHeader: the actions are the
+      // component's own slot now, so the one wrapper that unmasked all three buttons became one
+      // attribute per button. They render fixed labels — Show diff, Discard, Save changes — so the
+      // widened sites carry no configuration or user input.
+      'components/Header.tsx': 6,
       'components/LoadingState.tsx': 1,
       'components/Navigation.tsx': 1,
       'components/ReadOnlyViewNotification.tsx': 1,

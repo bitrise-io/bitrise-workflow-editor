@@ -43,7 +43,7 @@ below only because `StepLike` unions them in, so anything touching step handling
 | **generator workflow** | A workflow that produces other workflows at runtime; the canvas draws placeholders for them. |
 | **graph pipeline** | Has a `workflows` map and arbitrary `depends_on` edges. |
 | **legacy trigger** | An entry in top-level `trigger_map`. Flat, prefixed keys, first-match-wins. |
-| **merged tab** | Read-only preview of a modular config flattened. No slice backs it, so writes no-op. |
+| **merged tab** | Read-only preview of a modular config flattened, and the tab it opens on — the only one where every entity resolves. No slice backs it, so writes no-op. |
 | **nodeId** | Backend-owned opaque key for a file. `path` is not unique, so never key by it. |
 | **staged pipeline** | *Legacy.* Has a `stages` list: an ordered sequence of full barriers. |
 | **step bundle** | Named, reusable step sequence with its own inputs. Referenced as `bundle::<id>`. |
@@ -273,8 +273,25 @@ enforces totality. No reverse map exists.
 | `20.1.2` | Exactly that |
 | `20:banana` | Exact and verbatim. An unrecognised suffix is not an error |
 
-Keyword matching is case-insensitive, the prefix keeps its case, and the colon split uses
-`indexOf(':') > 0`, so a leading colon never makes a prefix.
+The value is trimmed first, mirroring the `strings.TrimSpace` that opens the CLI's
+`ParseVersionString`. The prefix keeps its case, and it ends at the last colon that starts a
+keyword, mirroring the CLI's greedy `(.*):latest$`, anchored at the end. So `a:b:latest` has
+prefix `a:b`, and `:latest` has none, which means bare `latest`.
+
+A prefix names a *line*, and it has to end on a separator (`.`, `-`, `_`, `+`) boundary, so `24.2`
+covers `24.2.0` but not `24.20.0`, and `2` covers nothing in a catalog of `22.x`. mise is the
+authority here. The CLI does no matching of its own, it hands the prefix over as
+`mise latest <tool>@<prefix>`. The `bitrise tools versions` filter cuts the same way, which
+corroborates the rule without being it, since that is a listing command rather than the resolver.
+
+> **Trap.** The `asdf` provider matches the raw string instead, so a prefix straddling a boundary
+> resolves differently under `tool_config.provider: asdf`. `isPrefixInCatalog` and the prefix
+> dropdown both follow the mise rule, because that is the default.
+
+> **Trap.** One divergence from the CLI is left on purpose. Keyword matching here ignores case,
+> while the CLI's `(.*):latest$` does not. So `22:LATEST` renders as a prefixed keyword here but is
+> an exact version to the CLI, which then fails to install it. The lenient reading is the one that
+> matches intent, so the fix belongs in the CLI rather than here.
 
 </details>
 

@@ -5,17 +5,11 @@ import { renderHook } from '@testing-library/react';
 
 import { TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
-import { deepLinkedEntity } from '@/routes';
 
 import useSelectedWorkflow from './useSelectedWorkflow';
 
 function moduleNode(nodeId: string, contents: string, includes: TreeNode[] = []): TreeNode {
   return { nodeId, path: `${nodeId}.yml`, contents, source: null, commitSha: 'sha', editable: true, includes };
-}
-
-/** Bootstrap a modular config the way `main.tsx` does: the URL decides which module opens. */
-function initializeModularConfigFromLocation(root: TreeNode) {
-  initializeModularConfig({ root, deepLink: deepLinkedEntity(window.parent.location.hash) });
 }
 
 describe('useSelectedWorkflow', () => {
@@ -69,10 +63,13 @@ describe('useSelectedWorkflow', () => {
 
   describe('in a modular config', () => {
     const root = moduleNode('root', 'workflows:\n  wf1: {}\n', [moduleNode('module', 'workflows:\n  wf3: {}\n')]);
+    // What the BE merges the tree into, and what the merged view — the tab a modular config opens
+    // on — binds as the active document.
+    const mergedYml = 'workflows:\n  wf1: {}\n  wf3: {}\n';
 
     it('resolves a link to a workflow defined in an included module', () => {
       window.parent.location.hash = '#/workflows?workflow_id=wf3';
-      initializeModularConfigFromLocation(root);
+      initializeModularConfig({ root, mergedYml });
 
       const { result } = renderHook(() => useSelectedWorkflow());
 
@@ -80,12 +77,9 @@ describe('useSelectedWorkflow', () => {
       expect(window.parent.location.hash).toContain('workflow_id=wf3');
     });
 
-    it('agrees with the page selector on which value of a duplicated workflow_id wins', () => {
-      // Both layers read the same location, so they must resolve a duplicated param identically:
-      // if bootstrap took the first value it would open the module for `wf1` while the page
-      // selected `wf3`, which is the lost-selection bug this whole path exists to prevent.
+    it('reads the last value of a duplicated workflow_id, like every other location reader', () => {
       window.parent.location.hash = '#/workflows?workflow_id=wf1&workflow_id=wf3';
-      initializeModularConfigFromLocation(root);
+      initializeModularConfig({ root, mergedYml });
 
       const { result } = renderHook(() => useSelectedWorkflow());
 
@@ -93,9 +87,9 @@ describe('useSelectedWorkflow', () => {
       expect(window.parent.location.hash).toContain('workflow_id=wf3');
     });
 
-    it('falls back to the root file when no module defines the linked workflow', () => {
+    it('falls back to the first runnable workflow when the linked one exists nowhere', () => {
       window.parent.location.hash = '#/workflows?workflow_id=does-not-exist';
-      initializeModularConfigFromLocation(root);
+      initializeModularConfig({ root, mergedYml });
 
       const { result } = renderHook(() => useSelectedWorkflow());
 

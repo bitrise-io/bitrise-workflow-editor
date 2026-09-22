@@ -84,7 +84,6 @@ export default defineConfig(({ mode }) => {
       'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV || 'development'),
       'import.meta.env.MODE': JSON.stringify(env.MODE || 'CLI'),
       'import.meta.env.CLARITY': JSON.stringify(env.CLARITY || 'false'),
-      'import.meta.env.ANALYTICS': JSON.stringify(env.ANALYTICS || 'false'),
       'import.meta.env.DATADOG_RUM': JSON.stringify(env.DATADOG_RUM || 'false'),
       'import.meta.env.PUBLIC_URL_ROOT': JSON.stringify(env.PUBLIC_URL_ROOT || ''),
       'import.meta.env.WFE_VERSION': JSON.stringify(version),
@@ -119,15 +118,6 @@ export default defineConfig(({ mode }) => {
       cors: true,
     },
 
-    envPrefix: [
-      'MODE',
-      'VITE_',
-      'CLARITY',
-      'NODE_ENV',
-      'ANALYTICS',
-      'DATADOG_RUM',
-      'PUBLIC_URL_ROOT',
-      'INTERCOM_APP_ID',
-    ],
+    envPrefix: ['MODE', 'VITE_', 'CLARITY', 'NODE_ENV', 'DATADOG_RUM', 'PUBLIC_URL_ROOT', 'INTERCOM_APP_ID'],
   };
 });

@@ -90,6 +90,14 @@ shows up as a wrecked pull request.
   or `no-restricted-imports` means you crossed one, not that you wrote sloppy code. Some take two
   rule ids, so count boundaries rather than rules. See
   [docs/conventions.md](docs/conventions.md#lint).
+- **`keepCurrent*Model` without a `path` leaks rather than reuses, and on the `<DiffEditor>`s that
+  leak is deliberate.** The `@monaco-editor/react` props only skip disposal; reuse needs
+  `getModel(Uri.parse(path))` to hit, so a pathless editor strands a model pair per unmount.
+  Do not "fix" that by deleting them. Disposal then goes back to the library, which ends both
+  models before the widget still holding them, and Monaco reports `TextModel got disposed before
+  DiffEditorWidget model got reset` on every unmount — that was #1898, reverted here after it
+  reached production on 2.5.16378. With a `path` the props are load-bearing instead: the YmlPage
+  editors guard a model the language services share.
 
 ## Writing docs here
 

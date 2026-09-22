@@ -1,4 +1,5 @@
-import { Notification, Text, useToast } from '@bitrise/bitkit';
+import { useToast } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 
 import { TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
@@ -39,20 +40,17 @@ const ConvertLegacyTriggers = ({ triggers }: Props) => {
   };
 
   return (
-    <Notification
+    <BitkitAlert
       action={{
         label: 'Convert triggers',
         onClick,
       }}
       marginBlockStart="16"
-      status="info"
+      variant="info"
       data-clarity-unmask="true"
-    >
-      <Text as="h4" textStyle="comp/notification/title">
-        Convert legacy triggers to the new format
-      </Text>
-      Make sure to check the converted triggers before saving.
-    </Notification>
+      titleText="Convert legacy triggers to the new format"
+      messageText="Make sure to check the converted triggers before saving."
+    />
   );
 };
 

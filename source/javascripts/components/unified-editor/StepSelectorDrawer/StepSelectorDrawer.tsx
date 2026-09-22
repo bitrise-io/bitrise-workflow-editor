@@ -1,4 +1,5 @@
-import { Box, Notification, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
+import { Box, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, useTabs } from '@bitrise/bitkit';
+import { BitkitAlert } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -69,23 +70,18 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
               </TabList>
             </Box>
             {stepLimitReached && (
-              <Notification
-                mt={16}
-                status="warning"
+              <BitkitAlert
+                marginBlockStart="16"
+                variant="warning"
                 alignSelf="flex-end"
                 action={{
                   label: 'Upgrade',
                   href: upgradeLink,
                   target: '_blank',
-                  rel: 'noreferrer noopener',
                 }}
-              >
-                <Text size="3" fontWeight="bold">
-                  You cannot add a new Step now
-                </Text>
-                Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in your
-                current plan. To add more Steps, upgrade your plan.
-              </Notification>
+                titleText="You cannot add a new Step now"
+                messageText={`Your team has already reached the ${uniqueStepLimit} unique Steps per project limit included in your current plan. To add more Steps, upgrade your plan.`}
+              />
             )}
             {tabId === 'step' && <StepFilter mt="24" mb="12" />}
             {tabId === 'stepBundle' && <StepBundleFilter mt="24" mb="12" />}

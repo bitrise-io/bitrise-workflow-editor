@@ -8,8 +8,8 @@ import { diff3Merge } from 'node-diff3';
  * auto-resolved to the remote side and reported as decorations so the UI can mark
  * them red — the user edits the merged result to recover their own changes.
  *
- * Shared by the modular per-file conflict dialog. (The legacy single-file dialog
- * keeps its own copy until the modular-editing flag graduates and it is removed.)
+ * Shared by both conflict dialogs — the modular per-file one and the legacy
+ * single-file one, which is removed when the modular-editing flag graduates.
  */
 export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: string) {
   const rows: string[] = [];
@@ -27,22 +27,20 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
       return;
     }
 
-    // Decorations must be positioned by the running line count of the MERGED
-    // OUTPUT, not by diff3's `bIndex`/`oIndex` — those are offsets into the
-    // remote/base inputs and don't map onto the concatenated merged result, so
-    // with more than one conflict region they land on the wrong line.
+    // Position by the running line count of the MERGED OUTPUT. diff3's `bIndex`/`oIndex`
+    // are offsets into the remote/base inputs, so past the first conflict they drift.
     const conflictStartLine = rows.length + 1; // 1-based line where conflict.b begins
     rows.push(...region.conflict.b);
 
     const remoteChangeIsADeletion = region.conflict.b.length === 0;
 
     if (remoteChangeIsADeletion) {
-      // The remote removed lines you had — there are no output lines to mark, so
-      // flag the boundary (the line now sitting in the gap, clamped to line 1).
-      const boundaryLine = Math.max(conflictStartLine - 1, 1);
+      // No output lines to outline, only the gap the removal left. Monaco anchors an
+      // empty-range block decoration at the TOP edge of `startLineNumber`, and the top of
+      // `conflictStartLine` IS that gap — a line earlier draws it a full line too high.
       decorations.push({
         options: { isWholeLine: false, blockClassName: 'conflict' },
-        range: { startLineNumber: boundaryLine, startColumn: 1, endLineNumber: boundaryLine, endColumn: 1 },
+        range: { startLineNumber: conflictStartLine, startColumn: 1, endLineNumber: conflictStartLine, endColumn: 1 },
       });
     } else {
       decorations.push({
@@ -56,6 +54,19 @@ export function mergeYamls(yourYaml: string, baseYaml: string, remoteYaml: strin
       });
     }
   });
+
+  // Only a deletion with nothing after it can anchor past the last line. Monaco pulls that
+  // range back and — block decorations positioning from `startLineNumber` alone — would draw
+  // the marker above the surviving text; `blockIsAfterEnd` is its opt-in for the bottom edge.
+  // Reachable only without a trailing newline, and — diff3 coalescing adjacent conflicts — in
+  // practice that is the last decoration, so the last one is the only one worth re-checking.
+  const lineCount = Math.max(rows.length, 1);
+  const last = decorations[decorations.length - 1];
+
+  if (last && last.range.startLineNumber > lineCount) {
+    last.options = { ...last.options, blockIsAfterEnd: true };
+    last.range = { startLineNumber: lineCount, startColumn: 1, endLineNumber: lineCount, endColumn: 1 };
+  }
 
   return {
     decorations,

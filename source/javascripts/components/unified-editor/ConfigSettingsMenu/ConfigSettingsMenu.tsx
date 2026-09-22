@@ -89,7 +89,7 @@ const ConfigSettingsMenu = (props: Props) => {
         </Box>
       </Skeleton>
 
-      <BitkitActionMenu.Root
+      <BitkitActionMenu
         size="md"
         positioning={{ placement: 'bottom-end' }}
         trigger={<BitkitControlButton icon={IconChevronDown} label="Configuration options" size="xs" />}
@@ -129,7 +129,7 @@ const ConfigSettingsMenu = (props: Props) => {
         >
           Change storage...
         </BitkitActionMenu.Item>
-      </BitkitActionMenu.Root>
+      </BitkitActionMenu>
 
       <SwitchBranchDialog isOpen={isSwitchBranchDialogOpen} onClose={() => setIsSwitchBranchDialogOpen(false)} />
       <ConfigurationYmlSourceDialog isOpen={isStorageDialogOpen} onClose={() => setIsStorageDialogOpen(false)} />

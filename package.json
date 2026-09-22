@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "2.5.16368",
+  "version": "2.5.16459",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -27,8 +27,8 @@
     "lint": "eslint source/javascripts --cache",
     "lint:fix": "eslint source/javascripts --cache --quiet --fix",
     "build": "vite build",
-    "build:website": "MODE=WEBSITE ANALYTICS=true CLARITY=true DATADOG_RUM=true npm run build",
-    "build:plugin": "MODE=CLI ANALYTICS=true npm run build && ./_scripts/compile_api.sh",
+    "build:website": "MODE=WEBSITE CLARITY=true DATADOG_RUM=true npm run build",
+    "build:plugin": "MODE=CLI npm run build && ./_scripts/compile_api.sh",
     "start:dev": "vite",
     "start:dev:api": "DEV=true ./_scripts/run_api.sh 4000",
     "start:base": "concurrently \"npm:start:dev\" \"npm:start:dev:api\"",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@bitrise/bitkit": "^13.359.0",
-    "@bitrise/bitkit-v2": "^0.3.324",
+    "@bitrise/bitkit-v2": "0.3.419",
     "@bitrise/languageserver": "github:bitrise-io/bitrise-yml-language-server#d28eca30c83c37e69ad4093681e0152160a8fbb0",
     "@dagrejs/dagre": "^3.0.0",
     "@datadog/browser-rum": "^7.4.0",

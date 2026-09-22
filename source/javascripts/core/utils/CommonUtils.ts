@@ -64,6 +64,20 @@ function getFormattedDate(date: Date): string {
   }).format(date);
 }
 
+const BROWSER_EXTENSION_URL_REGEX = /\w+-extension:\/\//;
+
+function isBrowserExtensionError(error: unknown): boolean {
+  const e = (error ?? {}) as {
+    message?: string;
+    stack?: string;
+    filename?: string;
+    error?: { message?: string; stack?: string };
+  };
+  return BROWSER_EXTENSION_URL_REGEX.test(
+    `${e.message} ${e.stack} ${e.filename} ${e.error?.message} ${e.error?.stack}`,
+  );
+}
+
 function getCookie(cname: string): string {
   const name = `${cname}=`;
   const cookies = document.cookie.split(';');
@@ -85,6 +99,7 @@ export {
   generateUniqueEntityId,
   getCookie,
   getFormattedDate,
+  isBrowserExtensionError,
   parallelWorkflowSourceId,
   searchParamsFromLocation,
 };
