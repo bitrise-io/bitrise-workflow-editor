@@ -22,6 +22,8 @@ const useSearchParams = () => {
   useEffect(() => {
     const listener = () => setSearchParams(getSearchParamsFromLocationHash());
     window.parent.addEventListener('hashchange', listener);
+    // Catch a `hashchange` that fired between render and subscribing (see useHashLocation).
+    listener();
     return () => window.parent.removeEventListener('hashchange', listener);
   }, []);
 
