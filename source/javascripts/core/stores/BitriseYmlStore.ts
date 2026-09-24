@@ -340,6 +340,43 @@ export function getModularConfigTree(): TreeNode | undefined {
   return TreeService.serializeTree(tree, live);
 }
 
+export type ConfigFileForDownload = { path: string; content: string; hasUnsavedChanges: boolean };
+
+/**
+ * Every config file's latest valid document, for rescuing work when the editor can't continue.
+ * A pending edit that doesn't parse isn't in the content (that would download a broken file), but
+ * it still counts as unsaved, because a reload throws it away. Files that can't be serialized are
+ * skipped rather than failing the whole list.
+ */
+export function getConfigFilesForDownload(): ConfigFileForDownload[] {
+  const state = bitriseYmlStore.getState();
+  const hasPendingUnparseableEdit = state.__invalidYmlString !== undefined;
+
+  const toFile = (path: string, doc: Document, isDirty: boolean): ConfigFileForDownload[] => {
+    try {
+      return [{ path, content: YmlUtils.toYml(doc), hasUnsavedChanges: isDirty }];
+    } catch {
+      return [];
+    }
+  };
+
+  if (!state.tree) {
+    if (state.ymlDocument.contents == null) {
+      return [];
+    }
+    const isDirty = hasPendingUnparseableEdit || !YmlUtils.isEquals(state.ymlDocument, state.savedYmlDocument);
+    return toFile('bitrise.yml', state.ymlDocument, isDirty);
+  }
+
+  return Object.values(state.files).flatMap((slice) =>
+    toFile(
+      slice.path,
+      slice.ymlDocument,
+      isFileDirty(slice) || (hasPendingUnparseableEdit && slice.nodeId === state.selectedNodeId),
+    ),
+  );
+}
+
 /** Apply a full YAML string to a file's slice (the global diff dialog's per-file "Apply changes"). */
 export function updateFileDocumentByString(nodeId: string, ymlString: string) {
   const state = bitriseYmlStore.getState();
