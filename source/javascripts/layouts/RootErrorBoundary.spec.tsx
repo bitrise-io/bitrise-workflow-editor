@@ -104,7 +104,7 @@ describe('RootErrorBoundary', () => {
   it('offers Edit as YAML outside the YAML page, on the route scheme useHashLocation expects', () => {
     renderRoot(new Error('boom'));
 
-    expect(buttonLabels()).toEqual(['Reload the editor', 'Edit as YAML']);
+    expect(buttonLabels()).toEqual(['Edit as YAML', 'Reload the editor']);
     fireEvent.click(screen.getByText('Edit as YAML'));
     expect(window.parent.location.hash).toBe('#!/yml');
   });
@@ -114,6 +114,20 @@ describe('RootErrorBoundary', () => {
     renderRoot(new Error('the YAML page broke'));
 
     expect(buttonLabels()).toEqual(['Reload the editor']);
+  });
+
+  it('asks before a reload discards unsaved changes, and stays put when the user declines', () => {
+    initializeBitriseYmlDocument({ ymlString: YML, version: '' });
+    updateBitriseYmlDocumentByString(`${YML}  deploy: {}\n`);
+    const confirm = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    renderRoot(new Error('boom'));
+
+    expect(buttonLabels()).toEqual(['bitrise.yml', 'Edit as YAML', 'Reload the editor']);
+    fireEvent.click(screen.getByText('Edit as YAML'));
+
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining('discards your unsaved changes'));
+    expect(window.parent.location.hash).toBe('#!/workflows');
+    confirm.mockRestore();
   });
 
   it('offers no download before a configuration has loaded', () => {
@@ -139,7 +153,7 @@ describe('RootErrorBoundary', () => {
     renderRoot(new Error('boom'));
 
     expect(screen.getByText('Unsaved changes')).toBeDefined();
-    expect(screen.getByRole('alert').textContent).toContain('discards your unsaved changes');
+    expect(screen.getByRole('alert').textContent).toContain('reloading discards them');
 
     fireEvent.click(screen.getByText('bitrise.yml'));
 

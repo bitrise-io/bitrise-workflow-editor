@@ -11,12 +11,16 @@ import { paths } from '@/routes';
 
 const YML_ROUTE_IN_PARENT_HASH = `#!${paths.yml}`;
 
-function reloadEditor() {
-  window.location.reload();
-}
+const DISCARD_UNSAVED_CHANGES_PROMPT =
+  'Reloading discards your unsaved changes. Download them first if you want to keep them. Reload anyway?';
 
-function openYmlEditorAndReload() {
-  window.parent.location.hash = YML_ROUTE_IN_PARENT_HASH;
+function reload(hasUnsavedChanges: boolean, hash?: string) {
+  if (hasUnsavedChanges && !window.confirm(DISCARD_UNSAVED_CHANGES_PROMPT)) {
+    return;
+  }
+  if (hash) {
+    window.parent.location.hash = hash;
+  }
   window.location.reload();
 }
 
@@ -56,29 +60,36 @@ const DownloadConfiguration = ({ files }: Pick<ErrorPageContentProps, 'files'>) 
 );
 
 const FullErrorPage = ({ error, files, offerYmlEditor }: ErrorPageContentProps & { error: Error }) => {
-  const savedState = files.some((file) => file.hasUnsavedChanges)
-    ? 'Nothing has been saved, and reloading or leaving this page discards your unsaved changes. Download them first.'
+  const hasUnsavedChanges = files.some((file) => file.hasUnsavedChanges);
+  const savedState = hasUnsavedChanges
+    ? 'You have unsaved changes, and they only exist in this tab. Download them first: reloading discards them.'
     : 'Your configuration is unchanged and nothing has been saved.';
   const nextStep = offerYmlEditor
-    ? 'Reload to try again, or keep working on the configuration as YAML.'
+    ? 'Keep working on the configuration as YAML, or reload to try again.'
     : 'Reload to try again.';
+  const download = files.length > 0 && <DownloadConfiguration files={files} />;
 
   return (
     <ErrorPage eyebrow="Error – This page couldn't render" headline="This page couldn't be displayed">
       <Text textStyle="body/lg/regular">
         {`${savedState} ${nextStep} If this keeps happening, send the error below to Bitrise support.`}
       </Text>
+      {hasUnsavedChanges && download}
       <HStack gap="12">
-        <BitkitButton variant="primary" size="lg" onClick={reloadEditor}>
-          Reload the editor
-        </BitkitButton>
         {offerYmlEditor && (
-          <BitkitButton variant="secondary" size="lg" onClick={openYmlEditorAndReload}>
+          <BitkitButton variant="primary" size="lg" onClick={() => reload(hasUnsavedChanges, YML_ROUTE_IN_PARENT_HASH)}>
             Edit as YAML
           </BitkitButton>
         )}
+        <BitkitButton
+          variant={offerYmlEditor ? 'secondary' : 'primary'}
+          size="lg"
+          onClick={() => reload(hasUnsavedChanges)}
+        >
+          Reload the editor
+        </BitkitButton>
       </HStack>
-      {files.length > 0 && <DownloadConfiguration files={files} />}
+      {!hasUnsavedChanges && download}
       {error.message && <BitkitCodeSnippet variant="multi">{error.message}</BitkitCodeSnippet>}
     </ErrorPage>
   );
