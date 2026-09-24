@@ -766,6 +766,71 @@ function readSeqIn(doc: Document, path: Path): YAMLSeq | undefined {
   return isSeq(node) ? node : undefined;
 }
 
+const keyOf = (pair: Pair) => String(isScalar(pair.key) ? pair.key.value : pair.key);
+
+function mergeSourcePairs(doc: Document, value: unknown): Pair[] {
+  const sources = isSeq(value) ? value.items : [value];
+  return sources.flatMap((source) => {
+    const map = isAlias(source) ? source.resolve(doc) : source;
+    if (!isMap(map)) {
+      throw new Error('A merge key (<<) must point at a map');
+    }
+    return (map.items as Pair[]).flatMap((pair) => (isMergeKey(pair) ? mergeSourcePairs(doc, pair.value) : [pair]));
+  });
+}
+
+/**
+ * Replaces every merge key with the keys it merges (the map's own keys win, then earlier sources) and
+ * every alias with a copy of its anchor, then drops the anchors. Mutates `doc`; comments are kept.
+ */
+function expandYamlSharing(doc: Document): Document {
+  visit(doc, {
+    Map(_, map) {
+      if (!map.items.some(isMergeKey)) {
+        return;
+      }
+      const seen = new Set(map.items.filter((pair) => !isMergeKey(pair)).map(keyOf));
+      map.items = map.items.flatMap((pair) => {
+        if (!isMergeKey(pair)) {
+          return [pair];
+        }
+        return mergeSourcePairs(doc, pair.value).flatMap((source) => {
+          const key = keyOf(source);
+          if (seen.has(key)) {
+            return [];
+          }
+          seen.add(key);
+          return [source.clone()];
+        });
+      });
+    },
+  });
+
+  visit(doc, {
+    Alias(_, alias, path) {
+      const target = alias.resolve(doc) as Node | undefined;
+      if (!isNode(target) || path.includes(target)) {
+        throw new Error(`The alias *${alias.source} can't be expanded`);
+      }
+      const copy = target.clone() as Node;
+      copy.anchor = undefined;
+      copy.commentBefore = alias.commentBefore ?? copy.commentBefore;
+      copy.comment = alias.comment ?? copy.comment;
+      return copy;
+    },
+  });
+
+  visit(doc, {
+    Node(_, node) {
+      if (node.anchor) {
+        node.anchor = undefined;
+      }
+    },
+  });
+
+  return doc;
+}
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -796,6 +861,7 @@ export default {
   findVisualEditorUnsupportedFeatures,
   isMergeKey,
   summarizeYamlSharing,
+  expandYamlSharing,
   readMapIn,
   readSeqIn,
 };

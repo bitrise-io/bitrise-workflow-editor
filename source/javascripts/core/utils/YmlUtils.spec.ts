@@ -1,4 +1,4 @@
-import { isMap, Scalar, YAMLMap, YAMLSeq } from 'yaml';
+import { isMap, parseDocument, Scalar, YAMLMap, YAMLSeq } from 'yaml';
 
 import YmlUtils from './YmlUtils';
 
@@ -2075,6 +2075,53 @@ describe('YmlUtils', () => {
     it('returns undefined for a missing path or the wrong type', () => {
       expect(YmlUtils.readMapIn(doc, ['missing', 'path'])).toBeUndefined();
       expect(YmlUtils.readSeqIn(doc, ['workflows'])).toBeUndefined();
+    });
+  });
+
+  describe('expandYamlSharing', () => {
+    const expand = (raw: string) => YmlUtils.toYml(YmlUtils.expandYamlSharing(YmlUtils.toDoc(raw)));
+    const resolved = (raw: string) => parseDocument(raw, { merge: true }).toJS();
+
+    it('leaves no alias, merge key or anchor behind, resolves to the same values and keeps comments', () => {
+      const raw = [
+        '# kept',
+        '_base: &base',
+        '  envs:',
+        '  - A: 1 # env comment',
+        '  steps: &steps',
+        '  - script@1: {}',
+        'workflows:',
+        '  primary:',
+        '    <<: *base',
+        '    envs:',
+        '    - B: 2',
+        '  deploy:',
+        '    <<: [*base]',
+        '  nested:',
+        '    steps: *steps',
+        '',
+      ].join('\n');
+
+      const expanded = expand(raw);
+
+      expect(YmlUtils.summarizeYamlSharing(YmlUtils.toDoc(expanded))).toEqual({
+        hasAliases: false,
+        hasMergeKeys: false,
+        hasAnchors: false,
+      });
+      expect(resolved(expanded)).toEqual(resolved(raw));
+      expect(expanded).toContain('# kept');
+      expect(expanded.match(/# env comment/g)).toHaveLength(2);
+    });
+
+    it("lets the map's own keys win over merged ones, and earlier merge sources over later ones", () => {
+      const raw = ['a: &a { x: 1, y: 1 }', 'b: &b { y: 2, z: 2 }', 'c:', '  <<: [*a, *b]', '  x: 0', ''].join('\n');
+
+      expect(parseDocument(expand(raw)).toJS().c).toEqual({ x: 0, y: 1, z: 2 });
+    });
+
+    it('throws on a merge key that does not point at a map, rather than guessing', () => {
+      expect(() => expand('a: &a 1\nb:\n  <<: *a\n')).toThrow('A merge key (<<) must point at a map');
     });
   });
 });
