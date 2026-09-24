@@ -1,3 +1,5 @@
+import semver from 'semver';
+
 import ToolsService from '@/core/services/ToolsService';
 
 import { ToolVersions } from '../models/Tools';
@@ -326,6 +328,97 @@ describe('ToolsService', () => {
 
     it('returns nothing when the version list is missing', () => {
       expect(values(undefined)).toEqual([]);
+    });
+  });
+
+  describe('getLatestVersion', () => {
+    const mixedCatalog = (versions: string[]): ToolVersions => ({
+      toolId: 'nodejs',
+      versions: versions.map((version) => ({ version, isSemver: semver.valid(version) !== null })),
+    });
+    // Published newest first, the way the catalog API serves it.
+    const nodeVersions = mixedCatalog(['24.2.0', '22.12.0', '22.4.1', '20.9.0', 'lts-iron']);
+
+    it('resolves an empty prefix to the newest version', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions)).toBe('24.2.0');
+    });
+
+    it('resolves a prefix to the highest version starting with it', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '22')).toBe('22.12.0');
+      expect(ToolsService.getLatestVersion(nodeVersions, '22.4')).toBe('22.4.1');
+      expect(ToolsService.getLatestVersion(nodeVersions, '22.4.1')).toBe('22.4.1');
+    });
+
+    it('does not match a prefix that only shares leading characters', () => {
+      // A prefix names a line, so `2` names none of 24.x or 22.x.
+      expect(ToolsService.getLatestVersion(nodeVersions, '2')).toBeUndefined();
+    });
+
+    it('resolves prefixes of versions that are not semver', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, 'lts')).toBe('lts-iron');
+      const java = mixedCatalog(['zulu-musl-8.96.0.19', 'zulu-musl-8.94.0.17', '18.0.1.1']);
+      expect(ToolsService.getLatestVersion(java, 'zulu-musl-8')).toBe('zulu-musl-8.96.0.19');
+    });
+
+    it('keeps a version semver cannot read above the shorter one semver can', () => {
+      // `mise latest java@26` gives `26.0.2.1`.
+      const java = mixedCatalog(['26.0.2.1', '26.0.2', '26.0.1', '26.0.0']);
+      expect(ToolsService.getLatestVersion(java, '26')).toBe('26.0.2.1');
+      expect(ToolsService.getLatestVersion(java, '26.0')).toBe('26.0.2.1');
+    });
+
+    it('prefers an exact catalog hit over the longer versions below it', () => {
+      // `mise latest java@26.0.2` gives `26.0.2`, and `mise latest swift@6.2` gives `6.2`.
+      const java = mixedCatalog(['26.0.2.1', '26.0.2']);
+      expect(ToolsService.getLatestVersion(java, '26.0.2')).toBe('26.0.2');
+      const swift = mixedCatalog(['6.2.4', '6.2.3', '6.2']);
+      expect(ToolsService.getLatestVersion(swift, '6.2')).toBe('6.2');
+    });
+
+    it('passes over prereleases, as `latest` does', () => {
+      // `mise latest python` gives `3.14.7`, skipping the dev and rc entries published above it.
+      const python = mixedCatalog(['3.16-dev', '3.15.0rc2', '3.15-dev', '3.14.7', '3.14.6']);
+      expect(ToolsService.getLatestVersion(python)).toBe('3.14.7');
+      expect(ToolsService.getLatestVersion(python, '3')).toBe('3.14.7');
+      expect(ToolsService.getLatestVersion(python, '3.14')).toBe('3.14.7');
+      // Including the ones semver reads itself.
+      expect(ToolsService.getLatestVersion(mixedCatalog(['4.0.0-preview3', '3.9.1']))).toBe('3.9.1');
+    });
+
+    it('reads a marker that runs straight into a number', () => {
+      // `-preview1` ends on a word character, which a `\b` anchored pattern passes over.
+      const ruby = mixedCatalog(['truffleruby-23.0.0-preview1', 'truffleruby-22.3.1']);
+      expect(ToolsService.getLatestVersion(ruby, 'truffleruby-2')).toBeUndefined();
+      expect(ToolsService.getLatestVersion(ruby, 'truffleruby')).toBe('truffleruby-22.3.1');
+    });
+
+    it('asks semver for the largest when it can read every candidate', () => {
+      // The catalog publishes this line out of order and only build metadata separates the
+      // entries, which `rcompare` ignores. `mise latest flutter@v1.12.13` gives `+hotfix.9`.
+      const flutter = mixedCatalog(['v1.12.13+hotfix.7', 'v1.12.13+hotfix.9', 'v1.12.13+hotfix.5']);
+      expect(ToolsService.getLatestVersion(flutter, 'v1.12.13')).toBe('v1.12.13+hotfix.9');
+      expect(ToolsService.getLatestVersion(flutter)).toBe('v1.12.13+hotfix.9');
+    });
+
+    it('does not re-sort a line semver cannot read end to end', () => {
+      expect(ToolsService.getLatestVersion(mixedCatalog(['26.0.2.1', '26.0.2', '26.0.1']), '26')).toBe('26.0.2.1');
+      // Reversed on purpose: with `26.0.2.1` unreadable to semver there is nothing to sort by, so
+      // the catalog's own order stands rather than the readable versions floating to the top.
+      expect(ToolsService.getLatestVersion(mixedCatalog(['26.0.1', '26.0.2', '26.0.2.1']), '26')).toBe('26.0.1');
+    });
+
+    it('falls back to the newest entry when a line holds nothing but prereleases', () => {
+      const python = mixedCatalog(['3.15.0rc2', '3.15-dev', '3.14.7']);
+      expect(ToolsService.getLatestVersion(python, '3.15')).toBe('3.15.0rc2');
+    });
+
+    it('returns undefined when nothing starts with the prefix', () => {
+      expect(ToolsService.getLatestVersion(nodeVersions, '29')).toBeUndefined();
+    });
+
+    it('returns undefined without a version list', () => {
+      expect(ToolsService.getLatestVersion(undefined)).toBeUndefined();
+      expect(ToolsService.getLatestVersion(mixedCatalog([]))).toBeUndefined();
     });
   });
 
