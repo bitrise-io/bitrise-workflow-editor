@@ -179,23 +179,16 @@ A drawer needs three pieces of state, not one boolean, because it has to survive
 animation and hand over to a queued successor. Miss `onCloseComplete` and it never unmounts, and
 dialog-to-dialog navigation dies silently.
 
-## Why aliases and merge keys switch off the visual editor
+## Aliases and merge keys switch off the visual editor
 
-Services walk the document with `getMapIn`/`getSeqIn`, which throw on an alias at the end of a path
-and silently return nothing for one in the middle, and a write through an alias would change every
-place that shares the anchor. So a document with an alias or a `<<` merge key is YAML-only: the Visual
-toggle is disabled with the reason, `MainLayout` doesn't mount a visual page at all (it would throw
-before the redirect's effect runs), the YAML page says why, and Monaco marks each line. An anchor
-nothing refers to is harmless and blocks nothing. `wfe_yaml_sharing_detected` in Datadog RUM counts
-who hits this, once per page load per file and combination.
+`getMapIn`/`getSeqIn` throw on an alias at the end of a path and return nothing for one in the
+middle, and writing through an alias would change every place that shares the anchor. So a document
+with an alias or a `<<` merge key is YAML-only, and `MainLayout` doesn't mount a visual page at all:
+it would throw before the redirect runs. Unused anchors block nothing. An alias with no anchor counts
+as a parse error, because the parser accepts it and every later serialization throws.
 
-Code that reads every file of a modular config, like the entity index, the default-stack lookup and
-the project env vars, reads through `readMapIn`/`readSeqIn`, which follow aliases, and resolves values
-with `toJS(doc)`. They are read-only by design.
-
-**Trap.** The check is on the active document only. A sibling file of a modular config can hold
-aliases while the visual editor shows the active one, so anything that walks every file must read
-through the alias-following helpers.
+Only the open file is checked, so code that reads every file of a modular config must use
+`readMapIn`/`readSeqIn` and `toJS(doc)`, which follow aliases. They're read-only by design.
 
 ## Start from the symptom
 
@@ -214,7 +207,6 @@ Debugging arrives holding an error, not a subsystem.
 | A step shows an upgrade badge you cannot clear | `hasVersionUpgrade` ignores your pin and compares against the newest version overall. |
 | Dragging a chained workflow throws "not found" | It came from another module file. Adding accepts cross-file ids; reordering does not. [Why](#why-cross-file-operations-are-incomplete) |
 | A card renders with no buttons and no explanation | Capability is withheld, not disabled. [Why](#why-capability-is-expressed-by-absence) |
-| The Visual toggle is greyed out on a config that parses | It uses YAML aliases or merge keys. [Why](#why-aliases-and-merge-keys-switch-off-the-visual-editor) |
 | `RuntimeUtils` throws in a unit test | `window.env` does not exist under Jest. |
 | A feature silently does nothing in the CLI plugin | `PageProps.appSlug()` returns `''` there, so every query gated on `enabled: !!projectSlug` never fires. |
 | `window is not defined` in a hook or component test | Jest's `testEnvironment` is `node`. Add an `@jest-environment jsdom` docblock. |
