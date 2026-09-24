@@ -74,6 +74,10 @@ instead of throwing, and skips just the aliased and merged entries. A file loade
 opens like invalid YAML typed into the editor: its raw text is the invalid string. Editing in the YAML
 view keeps aliases and merge keys: the document holds them as nodes and writes them back as they were.
 
+"Expand…" is the way out, and it's opt-in because it rewrites a file people review: one shared step
+list used by five workflows becomes five copies. It keeps comments, drops the anchors, and leaves
+anchor-only blocks like `_shared` for the user to delete.
+
 ## The editor reads YAML differently from the CLI
 
 Builds use the Bitrise CLI, which parses with Go's `yaml.v2` (YAML 1.1). The editor parses with
