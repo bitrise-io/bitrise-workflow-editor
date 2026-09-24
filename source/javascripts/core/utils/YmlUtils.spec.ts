@@ -2014,6 +2014,15 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+  describe('toDoc with an alias whose anchor does not exist', () => {
+    it('reports a parse error instead of a document that throws when serialized', () => {
+      const doc = YmlUtils.toDoc('a: &shared 1\nb: *shar\n');
+
+      expect(doc.errors.map(({ code }) => code)).toEqual(['BAD_ALIAS']);
+      expect(() => YmlUtils.toDoc('a: &shared 1\nb: *shared\n').toString()).not.toThrow();
+    });
+  });
+
   describe('findVisualEditorUnsupportedFeatures', () => {
     const textAt = (raw: string, { start, end }: { start: number; end: number }) => raw.slice(start, end);
 

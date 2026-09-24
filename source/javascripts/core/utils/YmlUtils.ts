@@ -19,6 +19,7 @@ import {
   stringify,
   visit,
   YAMLMap,
+  YAMLParseError,
   YAMLSeq,
 } from 'yaml';
 
@@ -67,11 +68,36 @@ function rawErrorSource(root: Root): string | undefined {
   return isDocument(root) && root.errors.length > 0 ? rawSourceByErrorDoc.get(root) : undefined;
 }
 
+/**
+ * The parser accepts an alias whose anchor doesn't exist (yet, while the user is typing `*na…`), and
+ * every later serialization throws. Report it as the parse error it is instead.
+ */
+function addUnresolvedAliasErrors(doc: Document, raw: string) {
+  if (doc.errors.length > 0 || !raw.includes('*')) {
+    return;
+  }
+  visit(doc, {
+    Alias(_, alias) {
+      if (alias.resolve(doc) === undefined) {
+        const [start, end] = alias.range ?? [0, 0];
+        doc.errors.push(
+          new YAMLParseError(
+            [start, end],
+            'BAD_ALIAS',
+            `Unresolved alias (the anchor must be set before the alias): ${alias.source}`,
+          ),
+        );
+      }
+    },
+  });
+}
+
 function toDoc(raw: string) {
   const doc = parseDocument(raw, {
     stringKeys: true,
     keepSourceTokens: true,
   });
+  addUnresolvedAliasErrors(doc, raw);
   if (doc.errors.length > 0) {
     rawSourceByErrorDoc.set(doc, raw);
   }
