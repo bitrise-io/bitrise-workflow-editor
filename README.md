@@ -125,18 +125,16 @@ end up on master as a single commit.
    v2 in any file you already touch.
 1. Nothing type-checks unless you run `npx tsc --noEmit`, so run it before calling a typed change done.
 1. Four ESLint rules encode architectural boundaries rather than style. If `npm run lint` fails on
-   `no-restricted-syntax` or `no-restricted-imports`, you crossed a boundary — see
-   [docs/conventions.md](docs/conventions.md#lint).
+   `no-restricted-syntax` or `no-restricted-imports`, you crossed a boundary — see [CLAUDE.md](CLAUDE.md#traps).
 
-Working on this codebase with an AI agent? [CLAUDE.md](CLAUDE.md) is the entry point, and `docs/` holds the
-architecture, domain vocabulary and the reasoning behind the odd-looking parts.
+Working on this codebase with an AI agent? [CLAUDE.md](CLAUDE.md) is the entry point, and
+[docs/decisions.md](docs/decisions.md) explains the parts that look odd on purpose.
 
 ## Testing standards
 
 1. Unit tests are required for every new feature
 1. Consider writing React Testing Library component tests
-1. Services get a YAML round-trip test: seed the store, call the service, compare the emitted YAML. See
-   [docs/conventions.md](docs/conventions.md#testing)
+1. Services get a YAML round-trip test: seed the store, call the service, compare the emitted YAML.
 
 ## New version release
 
