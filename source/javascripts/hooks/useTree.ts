@@ -253,7 +253,7 @@ export function useDefaultStackDefinitions(): DefaultStackDefinition[] {
       }
       seen.add(node.nodeId);
       const doc = s.files[node.nodeId]?.ymlDocument;
-      const meta = doc ? YmlUtils.getMapIn(doc, ['meta', 'bitrise.io']) : undefined;
+      const meta = doc ? YmlUtils.readMapIn(doc, ['meta', 'bitrise.io']) : undefined;
       if (meta && ROOT_META_STACK_FIELDS.some((field) => meta.has(field))) {
         result.push({
           nodeId: node.nodeId,
