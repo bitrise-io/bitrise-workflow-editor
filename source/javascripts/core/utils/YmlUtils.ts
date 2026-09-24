@@ -4,6 +4,7 @@ import { isEqual, isNil, isPrimitive } from 'es-toolkit';
 import { isEmpty } from 'es-toolkit/compat';
 import {
   Document,
+  isAlias,
   isCollection,
   isDocument,
   isMap,
@@ -12,6 +13,7 @@ import {
   isScalar,
   isSeq,
   Node,
+  Pair,
   parseDocument,
   Scalar,
   stringify,
@@ -655,6 +657,89 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
   }
 }
 
+const isMergeKey = (pair: Pair) => isScalar(pair.key) && pair.key.value === '<<';
+
+type UnsupportedFeature = { kind: 'alias' | 'merge-key'; start: number; end: number };
+
+/** Aliases and merge keys, in document order. The alias a merge key merges counts as the merge key. */
+function collectUnsupportedFeatures(doc: Document, onAnchor?: () => void): UnsupportedFeature[] {
+  const found: UnsupportedFeature[] = [];
+  const add = (kind: UnsupportedFeature['kind'], range?: [number, number, number] | null) =>
+    found.push({ kind, start: range?.[0] ?? 0, end: range?.[1] ?? 0 });
+  visit(doc, {
+    Pair(_, pair) {
+      if (isMergeKey(pair)) {
+        add('merge-key', (pair.key as Scalar).range);
+        return visit.SKIP;
+      }
+      return undefined;
+    },
+    Alias(_, alias) {
+      add('alias', alias.range);
+    },
+    Node(_, node) {
+      if (node.anchor) {
+        onAnchor?.();
+      }
+    },
+  });
+  return found;
+}
+
+function findVisualEditorUnsupportedFeatures(raw: string): UnsupportedFeature[] {
+  const doc = toDoc(raw);
+  return doc.errors.length > 0 ? [] : collectUnsupportedFeatures(doc);
+}
+
+type YamlSharing = { hasAliases: boolean; hasMergeKeys: boolean; hasAnchors: boolean };
+
+const yamlSharingCache = new WeakMap<Document, YamlSharing>();
+
+function summarizeYamlSharing(doc: Document): YamlSharing {
+  const cached = yamlSharingCache.get(doc);
+  if (cached) {
+    return cached;
+  }
+
+  let hasAnchors = false;
+  const found = collectUnsupportedFeatures(doc, () => {
+    hasAnchors = true;
+  });
+  const sharing: YamlSharing = {
+    hasAliases: found.some(({ kind }) => kind === 'alias'),
+    hasMergeKeys: found.some(({ kind }) => kind === 'merge-key'),
+    hasAnchors,
+  };
+
+  yamlSharingCache.set(doc, sharing);
+  return sharing;
+}
+
+/** Follows aliases, so the node may be a shared anchor: writing into it changes every alias too. */
+function readIn(doc: Document, path: Path): unknown {
+  let node: unknown = doc.contents;
+  for (const key of path) {
+    if (isAlias(node)) {
+      node = node.resolve(doc);
+    }
+    if (!isCollection(node)) {
+      return undefined;
+    }
+    node = node.get(key, true);
+  }
+  return isAlias(node) ? node.resolve(doc) : node;
+}
+
+function readMapIn(doc: Document, path: Path): YAMLMap | undefined {
+  const node = readIn(doc, path);
+  return isMap(node) ? node : undefined;
+}
+
+function readSeqIn(doc: Document, path: Path): YAMLSeq | undefined {
+  const node = readIn(doc, path);
+  return isSeq(node) ? node : undefined;
+}
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -682,4 +767,9 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  findVisualEditorUnsupportedFeatures,
+  isMergeKey,
+  summarizeYamlSharing,
+  readMapIn,
+  readSeqIn,
 };

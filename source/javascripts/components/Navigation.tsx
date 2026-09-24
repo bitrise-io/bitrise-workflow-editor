@@ -28,9 +28,9 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
-import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
+import useVisualEditorBlocker, { VISUAL_EDITOR_BLOCKERS } from '@/hooks/useVisualEditorBlocker';
 import { paths } from '@/routes';
 
 type Props = Omit<BitkitPageSidebarProps, 'children'>;
@@ -57,17 +57,20 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   const toast = useToast();
   const [hashPath, navigate] = useHashLocation();
   const isSelected = hashPath.startsWith(path);
-  // Only a genuine parse failure blocks navigation: the visual pages render any config that parses,
-  // even one with schema/marker errors. Blocking on the broader validation status trapped users on
-  // the current page whenever the YAML was merely schema-invalid (SSW-3087).
-  const isParseError = useIsYmlParseError();
+  // Schema/marker errors don't block navigation: the visual pages render any config that parses.
+  // Blocking on the broader validation status trapped users on the current page whenever the YAML
+  // was merely schema-invalid (SSW-3087).
+  const visualEditorBlocker = useVisualEditorBlocker();
 
   const handleNavigation = useCallback(() => {
-    if (isParseError && !path.startsWith(paths.yml)) {
+    if (visualEditorBlocker && !path.startsWith(paths.yml)) {
       toast({
         status: 'error',
-        title: 'Invalid YAML',
-        description: 'Please fix the errors in your YAML configuration before navigating.',
+        title: VISUAL_EDITOR_BLOCKERS[visualEditorBlocker].title,
+        description:
+          visualEditorBlocker === 'parse-error'
+            ? 'Please fix the errors in your YAML configuration before navigating.'
+            : VISUAL_EDITOR_BLOCKERS[visualEditorBlocker].message,
         duration: null,
         isClosable: true,
       });
@@ -75,7 +78,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
     }
 
     navigate(path);
-  }, [isParseError, navigate, path, toast]);
+  }, [visualEditorBlocker, navigate, path, toast]);
 
   return (
     <BitkitPageSidebar.Item

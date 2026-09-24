@@ -15,6 +15,7 @@ import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
+import YmlUtils from './YmlUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
@@ -238,6 +239,58 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
   isConfiguredForBitriseLanguageServer = true;
 };
 
+const UNSUPPORTED_FEATURE_OWNER = 'wfe-visual-editor-support';
+
+const UNSUPPORTED_FEATURE_MESSAGE = {
+  alias:
+    "The Visual editor doesn't support YAML aliases yet, so it's off for this configuration. Builds aren't affected: the Bitrise CLI resolves aliases.",
+  'merge-key':
+    "The Visual editor doesn't support YAML merge keys (<<) yet, so it's off for this configuration. Builds aren't affected: the Bitrise CLI applies them.",
+} as const;
+
+function unsupportedFeatureMarkers(model: monaco.editor.ITextModel): monaco.editor.IMarkerData[] {
+  return YmlUtils.findVisualEditorUnsupportedFeatures(model.getValue()).map(({ kind, start, end }) => {
+    const from = model.getPositionAt(start);
+    const to = model.getPositionAt(end);
+    return {
+      severity: monaco.MarkerSeverity.Warning,
+      message: UNSUPPORTED_FEATURE_MESSAGE[kind],
+      source: 'Workflow Editor',
+      startLineNumber: from.lineNumber,
+      startColumn: from.column,
+      endLineNumber: to.lineNumber,
+      endColumn: to.column,
+    };
+  });
+}
+
+let isWatchingUnsupportedFeatures = false;
+const configureUnsupportedFeatureWarnings: BeforeMountHandler = (monacoInstance) => {
+  if (isWatchingUnsupportedFeatures) {
+    return;
+  }
+  isWatchingUnsupportedFeatures = true;
+
+  const watch = (model: monaco.editor.ITextModel) => {
+    if (model.getLanguageId() !== 'yaml' || model.uri.scheme === MERGED_MODEL_SCHEME) {
+      return;
+    }
+
+    const update = () =>
+      monacoInstance.editor.setModelMarkers(model, UNSUPPORTED_FEATURE_OWNER, unsupportedFeatureMarkers(model));
+    const updateSoon = debounce(update, 300);
+    const contentSubscription = model.onDidChangeContent(updateSoon);
+    model.onWillDispose(() => {
+      updateSoon.cancel();
+      contentSubscription.dispose();
+    });
+    update();
+  };
+
+  monacoInstance.editor.getModels().forEach(watch);
+  monacoInstance.editor.onDidCreateModel(watch);
+};
+
 export type ValidationStatus = 'valid' | 'invalid' | 'warnings';
 
 /**
@@ -306,6 +359,7 @@ function onModelMarkerStatusChange(
 
 export default {
   configureForYaml,
+  configureUnsupportedFeatureWarnings,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
   onModelMarkerStatusChange,

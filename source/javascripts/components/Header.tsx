@@ -39,9 +39,9 @@ import { closeAIDrawer } from '@/hooks/useCloseAIDrawer';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useHashLocation from '@/hooks/useHashLocation';
-import useIsYmlParseError from '@/hooks/useIsYmlParseError';
 import usePushBranch, { PushBranchPayload } from '@/hooks/usePushBranch';
 import useSearchParams from '@/hooks/useSearchParams';
+import useVisualEditorBlocker, { VISUAL_EDITOR_BLOCKERS } from '@/hooks/useVisualEditorBlocker';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -70,11 +70,11 @@ const Header = () => {
   const hasChanges = useYmlHasChanges();
   const isModular = useBitriseYmlStore((s) => !!s.tree);
   // `ymlStatus` gates saving + the validation badge (any schema/marker error blocks a save).
-  // `isParseError` is narrower — it gates only the view switch, since the visual editor renders
-  // any config that parses, even one with schema errors. Conflating the two forces users onto the
+  // `visualEditorBlocker` is narrower — it gates only the view switch, since the visual editor
+  // renders any config it can read, even one with schema errors. Conflating the two forces users onto the
   // YAML view on every schema-invalid load (SSW-3087).
   const ymlStatus = useYmlValidationStatus();
-  const isParseError = useIsYmlParseError();
+  const visualEditorBlocker = useVisualEditorBlocker();
 
   const [path, navigate] = useHashLocation();
   const [searchParams] = useSearchParams();
@@ -102,7 +102,7 @@ const Header = () => {
       }
 
       if (value === 'visual') {
-        if (isParseError) {
+        if (visualEditorBlocker) {
           return;
         }
 
@@ -121,7 +121,7 @@ const Header = () => {
         );
       }
     },
-    [searchParams, navigate, isParseError],
+    [searchParams, navigate, visualEditorBlocker],
   );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -396,9 +396,9 @@ const Header = () => {
         breadcrumb={trail}
         controls={
           <BitkitTooltip
-            disabled={!isParseError}
+            disabled={!visualEditorBlocker}
             placement={isMobile ? 'bottom' : 'bottom-start'}
-            text="YAML can't be parsed, please fix it before switching to the Visual editor."
+            text={visualEditorBlocker ? VISUAL_EDITOR_BLOCKERS[visualEditorBlocker].message : ''}
           >
             <BitkitSegmentedControl
               size="sm"
@@ -407,7 +407,7 @@ const Header = () => {
               data-clarity-unmask="true"
               onValueChange={(details) => handleEditorViewChange(details.value)}
             >
-              <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={isParseError}>
+              <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={Boolean(visualEditorBlocker)}>
                 Visual
               </BitkitSegmentedControl.Item>
               <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
