@@ -768,14 +768,19 @@ function readSeqIn(doc: Document, path: Path): YAMLSeq | undefined {
 
 const keyOf = (pair: Pair) => String(isScalar(pair.key) ? pair.key.value : pair.key);
 
-function mergeSourcePairs(doc: Document, value: unknown): Pair[] {
+function mergeSourcePairs(doc: Document, value: unknown, ancestors: readonly unknown[]): Pair[] {
   const sources = isSeq(value) ? value.items : [value];
   return sources.flatMap((source) => {
     const map = isAlias(source) ? source.resolve(doc) : source;
     if (!isMap(map)) {
       throw new Error('A merge key (<<) must point at a map');
     }
-    return (map.items as Pair[]).flatMap((pair) => (isMergeKey(pair) ? mergeSourcePairs(doc, pair.value) : [pair]));
+    if (ancestors.includes(map)) {
+      throw new Error(`The alias *${isAlias(source) ? source.source : ''} can't be expanded`);
+    }
+    return (map.items as Pair[]).flatMap((pair) =>
+      isMergeKey(pair) ? mergeSourcePairs(doc, pair.value, [...ancestors, map]) : [pair],
+    );
   });
 }
 
@@ -785,7 +790,7 @@ function mergeSourcePairs(doc: Document, value: unknown): Pair[] {
  */
 function expandYamlSharing(doc: Document): Document {
   visit(doc, {
-    Map(_, map) {
+    Map(_, map, path) {
       if (!map.items.some(isMergeKey)) {
         return;
       }
@@ -794,7 +799,7 @@ function expandYamlSharing(doc: Document): Document {
         if (!isMergeKey(pair)) {
           return [pair];
         }
-        return mergeSourcePairs(doc, pair.value).flatMap((source) => {
+        return mergeSourcePairs(doc, pair.value, [...path, map]).flatMap((source) => {
           const key = keyOf(source);
           if (seen.has(key)) {
             return [];

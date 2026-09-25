@@ -2123,5 +2123,14 @@ describe('YmlUtils', () => {
     it('throws on a merge key that does not point at a map, rather than guessing', () => {
       expect(() => expand('a: &a 1\nb:\n  <<: *a\n')).toThrow('A merge key (<<) must point at a map');
     });
+
+    it('throws on an alias inside the node it points to, rather than recursing forever', () => {
+      expect(() => expand('a: &a\n  b: *a\n')).toThrow("The alias *a can't be expanded");
+    });
+
+    it('throws on a merge key inside the map it merges, rather than recursing forever', () => {
+      expect(() => expand('a: &a\n  x: 1\n  <<: *a\n')).toThrow("The alias *a can't be expanded");
+      expect(() => expand('a: &a\n  x: 1\n  b:\n    <<: *a\n')).toThrow("The alias *a can't be expanded");
+    });
   });
 });
