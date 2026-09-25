@@ -1,16 +1,18 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 
 import { TreeNode } from '@/core/models/Tree';
+import WorkflowService from '@/core/services/WorkflowService';
 import {
   initializeBitriseYmlDocument,
   initializeModularConfig,
+  selectNode,
   updateBitriseYmlDocumentByString,
   updateFileDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
 
 import RootErrorBoundary from './RootErrorBoundary';
 
-const YML = 'workflows:\n  primary:\n    steps:\n    - git-clone@8: {}\n';
+export const YML = 'workflows:\n  primary:\n    steps:\n    - git-clone@8: {}\n';
 const ROOT_YML = 'include:\n- path: modules/workflows.yml\n';
 const UNPARSEABLE_YML = 'workflows:\n  primary: {\n';
 export const EDITED_YML = `${YML}  deploy: {}\n`;
@@ -36,9 +38,9 @@ function loadYml(ymlString = YML) {
   initializeBitriseYmlDocument({ ymlString, version: '' });
 }
 
-function loadModular() {
+function loadModular(moduleYml = YML) {
   initializeModularConfig({
-    root: node('n_root', 'bitrise.yml', ROOT_YML, [node('n_wf', 'modules/workflows.yml', YML)]),
+    root: node('n_root', 'bitrise.yml', ROOT_YML, [node('n_wf', 'modules/workflows.yml', moduleYml)]),
     mergedYml: YML,
   });
 }
@@ -91,6 +93,13 @@ export const UnsavedChanges: Story = {
   }),
 };
 
+export const UnsavedVisualEdit: Story = {
+  beforeEach: onPage('#!/workflows', () => {
+    loadYml();
+    WorkflowService.createWorkflow('deploy');
+  }),
+};
+
 export const UnsavedEditThatDoesNotParse: Story = {
   beforeEach: onPage('#!/yml', () => {
     loadYml();
@@ -106,6 +115,15 @@ export const UnsavedEditToAConfigThatNeverParsed: Story = {
   }),
 };
 
+// The Save button counts no changes here, so neither does the error page.
+export const TypedBackTheSavedTextOfAConfigThatNeverParsed: Story = {
+  beforeEach: onPage('#!/yml', () => {
+    loadYml(UNPARSEABLE_YML);
+    updateBitriseYmlDocumentByString(YML);
+    updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
+  }),
+};
+
 export const ModularOneFileUnsaved: Story = {
   beforeEach: onPage('#!/workflows', () => {
     loadModular();
@@ -118,6 +136,22 @@ export const ModularEveryFileUnsaved: Story = {
     loadModular();
     updateFileDocumentByString('n_root', EDITED_ROOT_YML);
     updateFileDocumentByString('n_wf', EDITED_YML);
+  }),
+};
+
+export const ModularEditThatDoesNotParse: Story = {
+  beforeEach: onPage('#!/yml', () => {
+    loadModular();
+    selectNode('n_wf');
+    updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
+  }),
+};
+
+export const ModularEditToAModuleThatNeverParsed: Story = {
+  beforeEach: onPage('#!/yml', () => {
+    loadModular(UNPARSEABLE_YML);
+    selectNode('n_wf');
+    updateBitriseYmlDocumentByString(OTHER_UNPARSEABLE_YML);
   }),
 };
 
