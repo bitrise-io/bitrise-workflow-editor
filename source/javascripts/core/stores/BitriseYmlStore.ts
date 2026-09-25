@@ -372,13 +372,13 @@ export function getConfigFilesForDownload(): ConfigFileForDownload[] {
     return toFile('bitrise.yml', state.ymlDocument, hasPendingUnparseableEdit || state.hasChanges);
   }
 
-  return Object.values(state.files).flatMap((slice) =>
-    toFile(
-      slice.path,
-      slice.ymlDocument,
-      isFileDirty(slice) || (hasPendingUnparseableEdit && slice.nodeId === state.selectedNodeId),
-    ),
-  );
+  return Object.values(state.files).flatMap((slice) => {
+    const hasPendingEdit = hasPendingUnparseableEdit && slice.nodeId === state.selectedNodeId;
+    if (hasPendingEdit && slice.ymlDocument.errors.length > 0 && state.__invalidYmlString) {
+      return [{ path: slice.path, content: state.__invalidYmlString, hasUnsavedChanges: true }];
+    }
+    return toFile(slice.path, slice.ymlDocument, isFileDirty(slice) || hasPendingEdit);
+  });
 }
 
 /** Apply a full YAML string to a file's slice (the global diff dialog's per-file "Apply changes"). */

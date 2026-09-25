@@ -170,5 +170,24 @@ describe('getConfigFilesForDownload', () => {
         ['modules/b.yml', true],
       ]);
     });
+
+    it('offers the pending text, flagged, for a module that never parsed and got another edit', () => {
+      const otherUnparseable = 'workflows:\n  deploy: {\n';
+      initializeModularConfig({
+        root: node('root', 'bitrise.yml', ROOT_YML, {
+          includes: [node('a', 'modules/a.yml', A_YML), node('b', 'modules/b.yml', UNPARSEABLE_YML)],
+        }),
+        mergedYml: A_YML,
+      });
+      openTab('b', { preview: false });
+      selectNode('b');
+      updateBitriseYmlDocumentByString(otherUnparseable);
+
+      expect(getConfigFilesForDownload()).toEqual([
+        { path: 'bitrise.yml', content: ROOT_YML, hasUnsavedChanges: false },
+        { path: 'modules/a.yml', content: A_YML, hasUnsavedChanges: false },
+        { path: 'modules/b.yml', content: otherUnparseable, hasUnsavedChanges: true },
+      ]);
+    });
   });
 });

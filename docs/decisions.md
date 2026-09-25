@@ -84,7 +84,8 @@ Datadog events per session.
 
 "Edit as YAML" reloads the page, because the config loader sits under the boundary and would load
 the saved file over the edits. So with unsaved changes the download leads and Edit as YAML confirms
-first. The download is the latest document that parses.
+first. The download is the latest version that parses, except for a file that never parsed, where
+the pending text is the only copy of the work.
 
 ## Things that fail somewhere else
 
