@@ -37,7 +37,7 @@ The dev server is at `localhost:4000/{version}`, with the version from package.j
 **Never read `yml`, edit the plain object, and write it back.** `toJSON` is for reading.
 Structured edits go through a service calling `updateBitriseYmlDocument`, and inside the mutator
 you touch nodes only through `YmlUtils`. Round-tripping through JSON destroys every comment and
-reorders every key in a file the user reviews in a diff.
+anchor and rewrites the formatting, in a file the user reviews in a diff.
 
 ## Traps
 

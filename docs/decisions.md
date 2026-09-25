@@ -46,8 +46,9 @@ version. Dismissing the dialog without editing discards your work.
 ## Monaco models are shared with the language worker
 
 One model per file, keyed by a `bitrise://` URI, shared by the editor and the language worker, so
-the include tree is one workspace and cross-file go-to-definition works. Models are never disposed,
-because workers may be mid-flight and StrictMode double-mounts.
+the include tree is one workspace and cross-file go-to-definition works. Effect cleanup never disposes
+models, because workers may be mid-flight and StrictMode double-mounts. A model is disposed only
+when its file leaves the tree and no editor has it open.
 
 Validation status watches the **root model only**. The whole-config schema matches every model, so
 an include fragment reports errors for keys it was never meant to have.
@@ -82,8 +83,9 @@ would have to know every cascade in the domain, and it would go stale silently.
   Modular configs are validated merged, not per file.
 - **A page gets its own store** only when its dialogs open each other while sharing selection.
   A drawer needs `isOpen`, `onClose` and `onCloseComplete`; without the last it never unmounts.
-- **React Query policies are per observer.** Two hooks sharing a `queryKey` must share
-  `staleTime` and `gcTime`, or they fight.
+- **A shared `queryKey` needs a shared policy.** `staleTime` is per observer, so two hooks on one
+  key with different values disagree about freshness. `gcTime` is per query and the longest one
+  wins, so a single `Infinity` observer keeps the data cached for everyone.
 - **Zustand stores reset between tests** through `spec/__mocks__/zustand.ts`, with no `jest.mock`
   anywhere to hint at it.
 - **`TEST_BITRISE_YML` only exists in Storybook.** It type-checks and lints in a spec, then throws
