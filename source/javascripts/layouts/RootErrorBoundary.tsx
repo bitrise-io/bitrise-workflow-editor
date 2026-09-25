@@ -22,7 +22,8 @@ function openYmlEditor() {
 // Never throws, and never returns an empty string: this runs in the last fallback there is.
 function messageOf(thrown: unknown) {
   try {
-    const message = thrown instanceof Error ? thrown.message || thrown.name : String(thrown ?? '');
+    // `String()` on an Error's fields too: a `message` can be overridden with a non-string at runtime.
+    const message = String((thrown instanceof Error ? thrown.message || thrown.name : thrown) ?? '');
     return message || 'An unknown error was thrown';
   } catch {
     return 'An unknown error was thrown';
