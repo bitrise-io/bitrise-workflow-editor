@@ -3,9 +3,11 @@ import { HStack, Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { PropsWithChildren } from 'react';
+import { useEventListener } from 'usehooks-ts';
 
 import { getUnsavedConfigFiles, isYmlPageLocation, UnsavedConfigFile } from '@/core/stores/BitriseYmlStore';
 import { downloadYml } from '@/core/utils/CommonUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { getSearchStringFromLocationHash } from '@/hooks/useHashSearch';
 import ErrorPage from '@/layouts/ErrorPage';
@@ -51,6 +53,12 @@ const ErrorPageFallback = ({ error }: { error: unknown }) => {
   const hasUnsavedChanges = unsavedFiles.length > 0;
   const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
   const message = messageOf(error);
+
+  // The loader's leave-page warning unmounted with the tree, and this page is where edits are most at risk.
+  useEventListener('beforeunload', (e) => {
+    // NOTE: The return is important for the browser to show the dialog
+    return RuntimeUtils.isProduction() && hasUnsavedChanges && e.preventDefault();
+  });
 
   return (
     <BitkitProvider>

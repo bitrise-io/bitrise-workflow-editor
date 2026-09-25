@@ -6,6 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { PropsWithChildren, ReactNode } from 'react';
 
 import { downloadYml } from '@/core/utils/CommonUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 
 import * as stories from './RootErrorBoundary.stories';
@@ -103,6 +104,30 @@ describe('RootErrorBoundary', () => {
     await renderStory(UnprintableValueThrown);
 
     expect(screen.getByText('An unknown error was thrown')).toBeDefined();
+  });
+
+  describe('leaving the page', () => {
+    const leave = () => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event;
+    };
+
+    beforeEach(() => {
+      jest.spyOn(RuntimeUtils, 'isProduction').mockReturnValue(true);
+    });
+
+    it('asks the browser to warn while there are unsaved changes', async () => {
+      await renderStory(UnsavedChanges);
+
+      expect(leave().defaultPrevented).toBe(true);
+    });
+
+    it('lets the page go when nothing is unsaved', async () => {
+      await renderStory(NothingUnsaved);
+
+      expect(leave().defaultPrevented).toBe(false);
+    });
   });
 
   it('links the logo to the dashboard', async () => {
