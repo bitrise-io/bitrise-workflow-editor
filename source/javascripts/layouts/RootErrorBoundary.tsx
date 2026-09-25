@@ -4,9 +4,10 @@ import { Text } from '@chakra-ui/react/text';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { PropsWithChildren } from 'react';
 
-import { ConfigFileForDownload, getConfigFilesForDownload, isYmlPageLocation } from '@/core/stores/BitriseYmlStore';
-import { download } from '@/core/utils/CommonUtils';
+import { getUnsavedConfigFiles, isYmlPageLocation, UnsavedConfigFile } from '@/core/stores/BitriseYmlStore';
+import { downloadYml } from '@/core/utils/CommonUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
+import { getSearchStringFromLocationHash } from '@/hooks/useHashSearch';
 import ErrorPage from '@/layouts/ErrorPage';
 import { paths } from '@/routes';
 
@@ -20,8 +21,7 @@ function openYmlEditor(hasUnsavedChanges: boolean) {
     return;
   }
   // Keep the hash query: `?branch=` lives there, and dropping it loads the default branch.
-  const query = window.parent.location.hash.split('?')[1];
-  window.parent.location.hash = query ? `${YML_ROUTE_IN_PARENT_HASH}?${query}` : YML_ROUTE_IN_PARENT_HASH;
+  window.parent.location.hash = `${YML_ROUTE_IN_PARENT_HASH}${getSearchStringFromLocationHash()}`;
   WindowUtils.reloadEditor();
 }
 
@@ -35,22 +35,19 @@ function messageOf(thrown: unknown) {
   }
 }
 
-function readConfigFiles(): ConfigFileForDownload[] {
+// This page is the last fallback, so a store it can't read means no downloads, not a blank screen.
+function readUnsavedFiles(): UnsavedConfigFile[] {
   try {
-    return getConfigFilesForDownload();
+    return getUnsavedConfigFiles();
   } catch {
     return [];
   }
 }
 
-function downloadConfigFile({ path, content }: ConfigFileForDownload) {
-  download(content, path.replace(/\//g, '-'), 'application/yaml;charset=utf-8');
-}
-
 // Datadog's boundary reports the error and, unlike a check on the error value, also catches a thrown
 // `undefined`. The fallback never calls `resetError`: retrying re-renders the tree that just threw.
 const ErrorPageFallback = ({ error }: { error: unknown }) => {
-  const unsavedFiles = readConfigFiles().filter((file) => file.hasUnsavedChanges);
+  const unsavedFiles = readUnsavedFiles();
   const hasUnsavedChanges = unsavedFiles.length > 0;
   const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
   const message = messageOf(error);
@@ -80,7 +77,7 @@ const ErrorPageFallback = ({ error }: { error: unknown }) => {
                 variant="primary"
                 size="lg"
                 icon={IconDownload}
-                onClick={() => downloadConfigFile(file)}
+                onClick={() => downloadYml(file.content, file.path)}
               >
                 {`Download ${file.path}`}
               </BitkitButton>

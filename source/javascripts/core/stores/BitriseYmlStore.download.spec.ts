@@ -2,10 +2,11 @@ import { TreeNode } from '@/core/models/Tree';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 import {
-  getConfigFilesForDownload,
+  bitriseYmlStore,
+  getUnsavedConfigFiles,
+  hasYmlChanges,
   initializeBitriseYmlDocument,
   initializeModularConfig,
-  openTab,
   selectNode,
   updateBitriseYmlDocument,
   updateBitriseYmlDocumentByString,
@@ -15,6 +16,7 @@ import {
 const YML = 'workflows:\n  primary: {}\n';
 const EDITED_YML = 'workflows:\n  primary: {}\n  deploy: {}\n';
 const UNPARSEABLE_YML = 'workflows:\n  primary: {\n';
+const OTHER_UNPARSEABLE_YML = 'workflows:\n  deploy: {\n';
 
 function node(nodeId: string, path: string, contents: string, overrides: Partial<TreeNode> = {}): TreeNode {
   return { nodeId, path, contents, source: null, commitSha: 'sha', editable: true, includes: [], ...overrides };
@@ -24,170 +26,129 @@ const ROOT_YML = 'include:\n- path: modules/a.yml\n- path: modules/b.yml\n';
 const A_YML = 'workflows:\n  a: {}\n';
 const B_YML = 'workflows:\n  b: {}\n';
 
-function initModular() {
+function initModular(bYml = B_YML) {
   initializeModularConfig({
     root: node('root', 'bitrise.yml', ROOT_YML, {
-      includes: [node('a', 'modules/a.yml', A_YML), node('b', 'modules/b.yml', B_YML)],
+      includes: [node('a', 'modules/a.yml', A_YML), node('b', 'modules/b.yml', bYml)],
     }),
     mergedYml: `${A_YML}${B_YML}`,
   });
 }
 
-describe('getConfigFilesForDownload', () => {
-  beforeEach(() => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
+describe('getUnsavedConfigFiles', () => {
   describe('single-file config', () => {
     it('offers nothing before a configuration has loaded', () => {
       initializeBitriseYmlDocument({ ymlString: '', version: '' });
 
-      expect(getConfigFilesForDownload()).toEqual([]);
+      expect(getUnsavedConfigFiles()).toEqual([]);
     });
 
-    it('offers bitrise.yml as loaded, not flagged, when nothing changed', () => {
+    it('offers nothing when nothing changed', () => {
       initializeBitriseYmlDocument({ ymlString: YML, version: '' });
 
-      expect(getConfigFilesForDownload()).toEqual([{ path: 'bitrise.yml', content: YML, hasUnsavedChanges: false }]);
+      expect(getUnsavedConfigFiles()).toEqual([]);
     });
 
-    it('offers the edited document, flagged, after a string edit', () => {
+    it('offers the edited document after a string edit', () => {
       initializeBitriseYmlDocument({ ymlString: YML, version: '' });
       updateBitriseYmlDocumentByString(EDITED_YML);
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: EDITED_YML, hasUnsavedChanges: true },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'bitrise.yml', content: EDITED_YML }]);
     });
 
-    it('offers the edited document, flagged, after a structured edit', () => {
+    it('offers the edited document after a structured edit', () => {
       initializeBitriseYmlDocument({ ymlString: YML, version: '' });
       updateBitriseYmlDocument(({ doc }) => {
         YmlUtils.setIn(doc, ['workflows', 'deploy'], {});
         return doc;
       });
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: EDITED_YML, hasUnsavedChanges: true },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'bitrise.yml', content: EDITED_YML }]);
     });
 
-    it('offers the latest version that parses, flagged, while the pending edit does not parse', () => {
+    it('offers the latest version that parses while the pending edit does not parse', () => {
       initializeBitriseYmlDocument({ ymlString: YML, version: '' });
       updateBitriseYmlDocumentByString(EDITED_YML);
       updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: EDITED_YML, hasUnsavedChanges: true },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'bitrise.yml', content: EDITED_YML }]);
     });
 
-    it('flags an unparseable edit even when the parsed document still matches the saved one', () => {
+    it('counts an unparseable edit as unsaved even when the parsed document still matches the saved one', () => {
       initializeBitriseYmlDocument({ ymlString: YML, version: '' });
       updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
 
-      expect(getConfigFilesForDownload()).toEqual([{ path: 'bitrise.yml', content: YML, hasUnsavedChanges: true }]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'bitrise.yml', content: YML }]);
     });
 
     it('offers nothing when the config never parsed and nothing was typed since', () => {
       initializeBitriseYmlDocument({ ymlString: UNPARSEABLE_YML, version: '' });
 
-      expect(getConfigFilesForDownload()).toEqual([]);
+      expect(getUnsavedConfigFiles()).toEqual([]);
     });
 
-    it('offers the pending text, flagged, when the config never parsed and the user typed another edit', () => {
-      const otherUnparseable = 'workflows:\n  deploy: {\n';
+    it('offers the pending text when the config never parsed and the user typed another edit', () => {
       initializeBitriseYmlDocument({ ymlString: UNPARSEABLE_YML, version: '' });
-      updateBitriseYmlDocumentByString(otherUnparseable);
+      updateBitriseYmlDocumentByString(OTHER_UNPARSEABLE_YML);
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: otherUnparseable, hasUnsavedChanges: true },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'bitrise.yml', content: OTHER_UNPARSEABLE_YML }]);
+    });
+
+    it('agrees with the Save button when the user types back the unparseable text that was saved', () => {
+      initializeBitriseYmlDocument({ ymlString: UNPARSEABLE_YML, version: '' });
+      updateBitriseYmlDocumentByString(YML);
+      updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
+
+      expect(hasYmlChanges(bitriseYmlStore.getState())).toBe(false);
+      expect(getUnsavedConfigFiles()).toEqual([]);
     });
   });
 
   describe('modular config', () => {
-    it('offers every file by its path, none flagged, when nothing changed', () => {
+    it('offers nothing when nothing changed', () => {
       initModular();
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: ROOT_YML, hasUnsavedChanges: false },
-        { path: 'modules/a.yml', content: A_YML, hasUnsavedChanges: false },
-        { path: 'modules/b.yml', content: B_YML, hasUnsavedChanges: false },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([]);
     });
 
-    it('flags only the edited file, with its edited content, when it is not the active tab', () => {
+    it('offers only the edited file, by its path, when it is not the active tab', () => {
       initModular();
       updateFileDocumentByString('b', `${B_YML}  deploy: {}\n`);
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: ROOT_YML, hasUnsavedChanges: false },
-        { path: 'modules/a.yml', content: A_YML, hasUnsavedChanges: false },
-        { path: 'modules/b.yml', content: `${B_YML}  deploy: {}\n`, hasUnsavedChanges: true },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'modules/b.yml', content: `${B_YML}  deploy: {}\n` }]);
     });
 
-    it('flags edits in several files at once', () => {
+    it('offers every edited file', () => {
       initModular();
       updateFileDocumentByString('a', `${A_YML}  deploy: {}\n`);
       updateFileDocumentByString('b', `${B_YML}  deploy: {}\n`);
 
-      expect(getConfigFilesForDownload().map((file) => [file.path, file.hasUnsavedChanges])).toEqual([
-        ['bitrise.yml', false],
-        ['modules/a.yml', true],
-        ['modules/b.yml', true],
-      ]);
+      expect(getUnsavedConfigFiles().map((file) => file.path)).toEqual(['modules/a.yml', 'modules/b.yml']);
     });
 
-    it('offers the active file at its latest parseable version, flagged, while its pending edit does not parse', () => {
+    it('offers the active file at its latest parseable version while its pending edit does not parse', () => {
       initModular();
-      openTab('a', { preview: false });
       selectNode('a');
       updateBitriseYmlDocumentByString(`${A_YML}  deploy: {}\n`);
       updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: ROOT_YML, hasUnsavedChanges: false },
-        { path: 'modules/a.yml', content: `${A_YML}  deploy: {}\n`, hasUnsavedChanges: true },
-        { path: 'modules/b.yml', content: B_YML, hasUnsavedChanges: false },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'modules/a.yml', content: `${A_YML}  deploy: {}\n` }]);
     });
 
-    it('flags an unparseable edit only on the active file, even before anything in it parsed differently', () => {
+    it('counts an unparseable edit against the active file only', () => {
       initModular();
-      openTab('b', { preview: false });
       selectNode('b');
       updateBitriseYmlDocumentByString(UNPARSEABLE_YML);
 
-      expect(getConfigFilesForDownload().map((file) => [file.path, file.hasUnsavedChanges])).toEqual([
-        ['bitrise.yml', false],
-        ['modules/a.yml', false],
-        ['modules/b.yml', true],
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'modules/b.yml', content: B_YML }]);
     });
 
-    it('offers the pending text, flagged, for a module that never parsed and got another edit', () => {
-      const otherUnparseable = 'workflows:\n  deploy: {\n';
-      initializeModularConfig({
-        root: node('root', 'bitrise.yml', ROOT_YML, {
-          includes: [node('a', 'modules/a.yml', A_YML), node('b', 'modules/b.yml', UNPARSEABLE_YML)],
-        }),
-        mergedYml: A_YML,
-      });
-      openTab('b', { preview: false });
+    it('offers the pending text for a module that never parsed and got another edit', () => {
+      initModular(UNPARSEABLE_YML);
       selectNode('b');
-      updateBitriseYmlDocumentByString(otherUnparseable);
+      updateBitriseYmlDocumentByString(OTHER_UNPARSEABLE_YML);
 
-      expect(getConfigFilesForDownload()).toEqual([
-        { path: 'bitrise.yml', content: ROOT_YML, hasUnsavedChanges: false },
-        { path: 'modules/a.yml', content: A_YML, hasUnsavedChanges: false },
-        { path: 'modules/b.yml', content: otherUnparseable, hasUnsavedChanges: true },
-      ]);
+      expect(getUnsavedConfigFiles()).toEqual([{ path: 'modules/b.yml', content: OTHER_UNPARSEABLE_YML }]);
     });
   });
 });

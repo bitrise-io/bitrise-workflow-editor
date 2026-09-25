@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BaseSearchHook } from 'wouter';
 
-const getSearchStringFromLocationHash = (): string => {
+export const getSearchStringFromLocationHash = (): string => {
   const search = window.parent.location.hash.split('?')[1] || '';
   return search ? `?${search}` : '';
 };

@@ -5,14 +5,15 @@ import { composeStories } from '@storybook/react-vite';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { PropsWithChildren, ReactNode } from 'react';
 
-import { download } from '@/core/utils/CommonUtils';
+import { downloadYml } from '@/core/utils/CommonUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 
 import * as stories from './RootErrorBoundary.stories';
-import { EDITED_ROOT_YML, EDITED_YML, OTHER_UNPARSEABLE_YML } from './RootErrorBoundary.stories';
+
+const { EDITED_ROOT_YML, EDITED_YML, OTHER_UNPARSEABLE_YML } = stories;
 
 jest.mock('@chakra-ui/react/box', () => ({
-  Box: ({ children, role }: { children?: ReactNode; role?: string }) => <div role={role}>{children}</div>,
+  Box: ({ children }: PropsWithChildren) => <div>{children}</div>,
 }));
 jest.mock('@chakra-ui/react/text', () => ({ Text: ({ children }: PropsWithChildren) => <span>{children}</span> }));
 jest.mock('@chakra-ui/react/image', () => ({ Image: () => <img alt="" /> }));
@@ -22,13 +23,12 @@ jest.mock('@chakra-ui/react/stack', () => ({
 }));
 jest.mock('@/core/utils/CommonUtils', () => ({
   ...jest.requireActual('@/core/utils/CommonUtils'),
-  download: jest.fn(),
+  downloadYml: jest.fn(),
 }));
 jest.mock('@/core/utils/WindowUtils', () => {
   const actual = jest.requireActual('@/core/utils/WindowUtils').default;
   return { __esModule: true, default: { ...actual, reloadEditor: jest.fn() } };
 });
-jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn() } }));
 jest.mock('@bitrise/bitkit-v2', () => ({
   BitkitProvider: ({ children }: PropsWithChildren) => <>{children}</>,
   BitkitBadge: ({ children }: PropsWithChildren) => <span>{children}</span>,
@@ -41,8 +41,6 @@ jest.mock('@bitrise/bitkit-v2', () => ({
   BitkitLink: ({ children, href }: { children?: ReactNode; href?: string }) => <a href={href}>{children}</a>,
   IconDownload: () => null,
 }));
-
-const MIME = 'application/yaml;charset=utf-8';
 
 const composed = composeStories(stories);
 const {
@@ -69,19 +67,16 @@ async function renderStory(Story: (typeof composed)[keyof typeof composed]) {
 const buttonLabels = () => screen.queryAllByRole('button').map((button) => button.textContent);
 
 describe('RootErrorBoundary', () => {
-  let consoleError: jest.SpyInstance;
   let confirm: jest.SpyInstance;
 
   beforeEach(() => {
-    (download as jest.Mock).mockClear();
-    (WindowUtils.reloadEditor as jest.Mock).mockClear();
-    consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.clearAllMocks();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     confirm = jest.spyOn(window, 'confirm');
   });
 
   afterEach(() => {
-    consoleError.mockRestore();
-    confirm.mockRestore();
+    jest.restoreAllMocks();
   });
 
   it('renders the error page straight away, with the error for support', async () => {
@@ -181,7 +176,7 @@ describe('RootErrorBoundary', () => {
       expect(buttonLabels()).toEqual(['Download bitrise.yml', 'Edit as YAML']);
       fireEvent.click(screen.getByText('Download bitrise.yml'));
 
-      expect(download).toHaveBeenCalledWith(EDITED_YML, 'bitrise.yml', MIME);
+      expect(downloadYml).toHaveBeenCalledWith(EDITED_YML, 'bitrise.yml');
       expect(WindowUtils.reloadEditor).not.toHaveBeenCalled();
     });
 
@@ -192,7 +187,7 @@ describe('RootErrorBoundary', () => {
       expect(buttonLabels()).toEqual(['Download bitrise.yml']);
       fireEvent.click(screen.getByText('Download bitrise.yml'));
 
-      expect(download).toHaveBeenCalledWith(EDITED_YML, 'bitrise.yml', MIME);
+      expect(downloadYml).toHaveBeenCalledWith(EDITED_YML, 'bitrise.yml');
     });
 
     it('downloads the pending text when the config never parsed, and asks before Edit as YAML discards it', async () => {
@@ -201,20 +196,20 @@ describe('RootErrorBoundary', () => {
 
       expect(screen.getByText('Unsaved changes')).toBeDefined();
       fireEvent.click(screen.getByText('Download bitrise.yml'));
-      expect(download).toHaveBeenCalledWith(OTHER_UNPARSEABLE_YML, 'bitrise.yml', MIME);
+      expect(downloadYml).toHaveBeenCalledWith(OTHER_UNPARSEABLE_YML, 'bitrise.yml');
 
       fireEvent.click(screen.getByText('Edit as YAML'));
       expect(confirm).toHaveBeenCalledTimes(1);
       expect(WindowUtils.reloadEditor).not.toHaveBeenCalled();
     });
 
-    it('offers only the modular files with unsaved changes, with folders flattened into the file name', async () => {
+    it('offers only the modular files with unsaved changes, under their paths', async () => {
       await renderStory(ModularOneFileUnsaved);
 
       expect(buttonLabels()).toEqual(['Download modules/workflows.yml', 'Edit as YAML']);
       fireEvent.click(screen.getByText('Download modules/workflows.yml'));
 
-      expect(download).toHaveBeenCalledWith(EDITED_YML, 'modules-workflows.yml', MIME);
+      expect(downloadYml).toHaveBeenCalledWith(EDITED_YML, 'modules/workflows.yml');
     });
 
     it('gives every unsaved modular file its own button, each downloading that file', async () => {
@@ -222,11 +217,11 @@ describe('RootErrorBoundary', () => {
 
       expect(buttonLabels()).toEqual(['Download bitrise.yml', 'Download modules/workflows.yml', 'Edit as YAML']);
       fireEvent.click(screen.getByText('Download bitrise.yml'));
-      expect(download).toHaveBeenLastCalledWith(EDITED_ROOT_YML, 'bitrise.yml', MIME);
+      expect(downloadYml).toHaveBeenLastCalledWith(EDITED_ROOT_YML, 'bitrise.yml');
 
       fireEvent.click(screen.getByText('Download modules/workflows.yml'));
-      expect(download).toHaveBeenLastCalledWith(EDITED_YML, 'modules-workflows.yml', MIME);
-      expect(download).toHaveBeenCalledTimes(2);
+      expect(downloadYml).toHaveBeenLastCalledWith(EDITED_YML, 'modules/workflows.yml');
+      expect(downloadYml).toHaveBeenCalledTimes(2);
     });
   });
 });

@@ -340,45 +340,42 @@ export function getModularConfigTree(): TreeNode | undefined {
   return TreeService.serializeTree(tree, live);
 }
 
-export type ConfigFileForDownload = { path: string; content: string; hasUnsavedChanges: boolean };
+/** The Save button's rule: an unparseable text counts as a change only if it isn't what was saved. */
+export function hasYmlChanges(state: BitriseYmlStoreState) {
+  if (state.__invalidYmlString && state.__savedInvalidYmlString) {
+    return state.__invalidYmlString !== state.__savedInvalidYmlString;
+  }
+  return !!state.__invalidYmlString || state.hasChanges;
+}
+
+export type UnsavedConfigFile = { path: string; content: string };
 
 /**
- * Every config file's latest valid document, for rescuing work when the editor can't continue.
- * A pending edit that doesn't parse isn't in the content (that would download a broken file), but
- * it still counts as unsaved, because a reload throws it away. The exception is a config that never
- * parsed: there is no valid version, so the pending text is the only copy of the work. Files that
- * can't be serialized are skipped rather than failing the whole list.
+ * Every config file with unsaved changes, at its latest valid version, for rescuing work when the
+ * editor can't continue. A pending edit that doesn't parse isn't in the content (that would download
+ * a broken file), but it still makes its file unsaved, because a reload throws it away. The exception
+ * is a file that never parsed: there is no valid version, so the pending text is the only copy.
  */
-export function getConfigFilesForDownload(): ConfigFileForDownload[] {
+export function getUnsavedConfigFiles(): UnsavedConfigFile[] {
   const state = bitriseYmlStore.getState();
-  // Same rule as useYmlHasChanges: an unparseable text counts only if it isn't what was saved.
-  const hasPendingUnparseableEdit =
-    state.__invalidYmlString !== undefined && state.__invalidYmlString !== state.__savedInvalidYmlString;
+  const pendingText =
+    state.__invalidYmlString && state.__invalidYmlString !== state.__savedInvalidYmlString
+      ? state.__invalidYmlString
+      : undefined;
 
-  const toFile = (path: string, doc: Document, isDirty: boolean): ConfigFileForDownload[] => {
-    try {
-      return [{ path, content: YmlUtils.toYml(doc), hasUnsavedChanges: isDirty }];
-    } catch {
-      return [];
-    }
-  };
+  const files = state.tree
+    ? Object.values(state.files).map((slice) => {
+        const pending = slice.nodeId === state.selectedNodeId ? pendingText : undefined;
+        return { path: slice.path, doc: slice.ymlDocument, pending, isDirty: !!pending || isFileDirty(slice) };
+      })
+    : [{ path: 'bitrise.yml', doc: state.ymlDocument, pending: pendingText, isDirty: hasYmlChanges(state) }];
 
-  if (!state.tree) {
-    if (state.ymlDocument.contents == null) {
-      return hasPendingUnparseableEdit && state.__invalidYmlString
-        ? [{ path: 'bitrise.yml', content: state.__invalidYmlString, hasUnsavedChanges: true }]
-        : [];
-    }
-    return toFile('bitrise.yml', state.ymlDocument, hasPendingUnparseableEdit || state.hasChanges);
-  }
-
-  return Object.values(state.files).flatMap((slice) => {
-    const hasPendingEdit = hasPendingUnparseableEdit && slice.nodeId === state.selectedNodeId;
-    if (hasPendingEdit && slice.ymlDocument.errors.length > 0 && state.__invalidYmlString) {
-      return [{ path: slice.path, content: state.__invalidYmlString, hasUnsavedChanges: true }];
-    }
-    return toFile(slice.path, slice.ymlDocument, isFileDirty(slice) || hasPendingEdit);
-  });
+  return files
+    .filter((file) => file.isDirty)
+    .map(({ path, doc, pending }) => {
+      const neverParsed = doc.contents == null || doc.errors.length > 0;
+      return { path, content: pending && neverParsed ? pending : YmlUtils.toYml(doc) };
+    });
 }
 
 /** Apply a full YAML string to a file's slice (the global diff dialog's per-file "Apply changes"). */
