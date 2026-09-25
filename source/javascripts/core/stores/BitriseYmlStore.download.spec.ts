@@ -92,6 +92,22 @@ describe('getConfigFilesForDownload', () => {
 
       expect(getConfigFilesForDownload()).toEqual([{ path: 'bitrise.yml', content: YML, hasUnsavedChanges: true }]);
     });
+
+    it('offers nothing when the config never parsed and nothing was typed since', () => {
+      initializeBitriseYmlDocument({ ymlString: UNPARSEABLE_YML, version: '' });
+
+      expect(getConfigFilesForDownload()).toEqual([]);
+    });
+
+    it('offers the pending text, flagged, when the config never parsed and the user typed another edit', () => {
+      const otherUnparseable = 'workflows:\n  deploy: {\n';
+      initializeBitriseYmlDocument({ ymlString: UNPARSEABLE_YML, version: '' });
+      updateBitriseYmlDocumentByString(otherUnparseable);
+
+      expect(getConfigFilesForDownload()).toEqual([
+        { path: 'bitrise.yml', content: otherUnparseable, hasUnsavedChanges: true },
+      ]);
+    });
   });
 
   describe('modular config', () => {

@@ -345,8 +345,9 @@ export type ConfigFileForDownload = { path: string; content: string; hasUnsavedC
 /**
  * Every config file's latest valid document, for rescuing work when the editor can't continue.
  * A pending edit that doesn't parse isn't in the content (that would download a broken file), but
- * it still counts as unsaved, because a reload throws it away. Files that can't be serialized are
- * skipped rather than failing the whole list.
+ * it still counts as unsaved, because a reload throws it away. The exception is a config that never
+ * parsed: there is no valid version, so the pending text is the only copy of the work. Files that
+ * can't be serialized are skipped rather than failing the whole list.
  */
 export function getConfigFilesForDownload(): ConfigFileForDownload[] {
   const state = bitriseYmlStore.getState();
@@ -364,7 +365,9 @@ export function getConfigFilesForDownload(): ConfigFileForDownload[] {
 
   if (!state.tree) {
     if (state.ymlDocument.contents == null) {
-      return [];
+      return hasPendingUnparseableEdit && state.__invalidYmlString
+        ? [{ path: 'bitrise.yml', content: state.__invalidYmlString, hasUnsavedChanges: true }]
+        : [];
     }
     return toFile('bitrise.yml', state.ymlDocument, hasPendingUnparseableEdit || state.hasChanges);
   }

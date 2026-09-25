@@ -25,11 +25,14 @@ function openYmlEditor(hasUnsavedChanges: boolean) {
   WindowUtils.reloadEditor();
 }
 
+// Never throws, and never returns an empty string: this runs in the last fallback there is.
 function messageOf(thrown: unknown) {
-  if (thrown instanceof Error) {
-    return thrown.message;
+  try {
+    const message = thrown instanceof Error ? thrown.message || thrown.name : String(thrown ?? '');
+    return message || 'An unknown error was thrown';
+  } catch {
+    return 'An unknown error was thrown';
   }
-  return thrown === undefined || thrown === null ? 'An unknown error was thrown' : String(thrown);
 }
 
 function readConfigFiles(): ConfigFileForDownload[] {
@@ -59,7 +62,7 @@ const ErrorPageFallback = ({ error }: { error: unknown }) => {
           <Text textStyle="body/lg/regular">
             The editor stopped because this page hit an error. If it keeps happening, send the error to Bitrise support.
           </Text>
-          {message && <BitkitCodeSnippet variant="multi">{message}</BitkitCodeSnippet>}
+          <BitkitCodeSnippet variant="multi">{message}</BitkitCodeSnippet>
         </Stack>
         {hasUnsavedChanges && (
           <Stack gap="8" alignItems="flex-start">
