@@ -190,6 +190,10 @@ as a parse error, because the parser accepts it and every later serialization th
 Only the open file is checked, so code that reads every file of a modular config must use
 `readMapIn`/`readSeqIn` and `toJS(doc)`, which follow aliases. They're read-only by design.
 
+"Expand…" is the way out, and it's opt-in because it rewrites a file people review: one shared step
+list used by five workflows becomes five copies. It keeps comments, drops the anchors, and leaves
+anchor-only blocks like `_shared` for the user to delete.
+
 ## Start from the symptom
 
 Debugging arrives holding an error, not a subsystem.
