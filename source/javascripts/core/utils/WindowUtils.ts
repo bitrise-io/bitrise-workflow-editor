@@ -10,6 +10,11 @@ function location() {
   return instance().location;
 }
 
+/** Reloads the editor itself, which is the iframe in website mode, not the page around it. */
+function reloadEditor() {
+  window.location.reload();
+}
+
 function postMessageToParent<T = unknown>(type: string, payload?: T) {
   instance().postMessage({ type, payload }, window.location.origin);
 }
@@ -33,6 +38,7 @@ export default {
   dataLayer,
   instance,
   location,
+  reloadEditor,
   postMessageToParent,
   onMessageFromParent,
 };

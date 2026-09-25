@@ -6,6 +6,7 @@ import { PropsWithChildren } from 'react';
 
 import { ConfigFileForDownload, getConfigFilesForDownload, isYmlPageLocation } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 import ErrorPage from '@/layouts/ErrorPage';
 import { paths } from '@/routes';
 
@@ -21,7 +22,7 @@ function openYmlEditor(hasUnsavedChanges: boolean) {
   // Keep the hash query: `?branch=` lives there, and dropping it loads the default branch.
   const query = window.parent.location.hash.split('?')[1];
   window.parent.location.hash = query ? `${YML_ROUTE_IN_PARENT_HASH}?${query}` : YML_ROUTE_IN_PARENT_HASH;
-  window.location.reload();
+  WindowUtils.reloadEditor();
 }
 
 function messageOf(thrown: unknown) {

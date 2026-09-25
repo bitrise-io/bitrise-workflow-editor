@@ -33,7 +33,6 @@ const ErrorPage = ({ eyebrow, headline, children }: ErrorPageProps) => (
         <Text textStyle="code/lg" textTransform="uppercase" marginBlockEnd="16">
           {eyebrow}
         </Text>
-        {/* `display/lg` (48px bold): BitkitHeading takes its size from its level and tops out at 30px. */}
         <Text textStyle="display/lg">{headline}</Text>
       </Box>
       {children}
