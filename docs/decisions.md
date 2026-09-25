@@ -82,11 +82,9 @@ Datadog's `ErrorBoundary` at the root reports the error and shows a full error p
 retries: that re-renders the tree that just threw, which is how the alias crash reached ~3.9k
 Datadog events per session.
 
-"Edit as YAML" reloads the page rather than resetting the boundary. A reset remounts the config
-loader, whose "already loaded" check lives in a ref, so it would load the saved file over the edits;
-and a crash in shared chrome would just throw again on the YAML page. So with unsaved changes the
-download leads, and Edit as YAML asks first. The download is every unsaved file as the user last
-typed it, parseable or not, zipped with its folders when there is more than one.
+"Edit as YAML" reloads the editor onto the YAML page, where most crashes can be fixed, and drops
+unsaved changes without asking: the editor crashed, so keeping them isn't expected. It reloads
+rather than resetting the boundary, because a crash in shared chrome would throw again.
 
 ## Things that fail somewhere else
 
