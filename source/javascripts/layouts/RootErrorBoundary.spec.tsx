@@ -3,14 +3,16 @@
  */
 import { composeStories } from '@storybook/react-vite';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { strFromU8, unzipSync } from 'fflate';
 import { PropsWithChildren, ReactNode } from 'react';
 
+import { initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 
 import * as stories from './RootErrorBoundary.stories';
 
-const { EDITED_ROOT_YML, EDITED_YML, OTHER_UNPARSEABLE_YML, YML } = stories;
+const { EDITED_ROOT_YML, EDITED_YML, OTHER_UNPARSEABLE_YML, UNPARSEABLE_YML, YML } = stories;
 
 jest.mock('@chakra-ui/react/box', () => ({
   Box: ({ children }: PropsWithChildren) => <div>{children}</div>,
@@ -34,6 +36,19 @@ jest.mock('@bitrise/bitkit-v2', () => ({
     </button>
   ),
   BitkitCodeSnippet: ({ children }: PropsWithChildren) => <pre>{children}</pre>,
+  BitkitDialog: ({
+    open,
+    title,
+    children,
+    footerButtons,
+  }: PropsWithChildren<{ open: boolean; title: string; footerButtons: ReactNode }>) =>
+    open ? (
+      <div role="dialog">
+        <h2>{title}</h2>
+        {children}
+        {footerButtons}
+      </div>
+    ) : null,
   BitkitLink: ({ children, href }: { children?: ReactNode; href?: string }) => <a href={href}>{children}</a>,
   IconDownload: () => null,
 }));
@@ -67,11 +82,12 @@ async function renderStory(Story: (typeof composed)[keyof typeof composed]) {
 const buttonLabels = () => screen.queryAllByRole('button').map((button) => button.textContent);
 
 type Download = { fileName: string; type: string; content: string };
-let downloads: Promise<Download>[];
+type SavedFile = { fileName: string; blob: Blob };
+let saved: SavedFile[];
 
-// Captures what the browser would save: the real download helper runs, only the click is stubbed.
+// Captures what the browser would save: the real download helpers run, only the click is stubbed.
 function captureDownloads() {
-  downloads = [];
+  saved = [];
   const blobs = new Map<string, Blob>();
   URL.createObjectURL = jest.fn((blob: Blob) => {
     const url = `blob:${blobs.size}`;
@@ -79,28 +95,48 @@ function captureDownloads() {
     return url;
   });
   jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function click(this: HTMLAnchorElement) {
-    const blob = blobs.get(this.href) as Blob;
-    const { download: fileName } = this;
-    downloads.push(
-      new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({ fileName, type: blob.type, content: reader.result as string });
-        reader.readAsText(blob);
-      }),
-    );
+    saved.push({ fileName: this.download, blob: blobs.get(this.href) as Blob });
   });
 }
 
+// jsdom's Blob has no `text()` or `arrayBuffer()`.
+function readBytes(blob: Blob) {
+  return new Promise<Uint8Array>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
+const downloaded = (): Promise<Download[]> =>
+  Promise.all(
+    saved.map(async ({ fileName, blob }) => ({ fileName, type: blob.type, content: strFromU8(await readBytes(blob)) })),
+  );
+
+/** The one zip that was saved, as its file name and `{ path: content }`. */
+async function downloadedZip() {
+  expect(saved).toHaveLength(1);
+  const [{ fileName, blob }] = saved;
+  const entries = unzipSync(await readBytes(blob));
+  return {
+    fileName,
+    type: blob.type,
+    files: Object.fromEntries(Object.entries(entries).map(([path, bytes]) => [path, strFromU8(bytes)])),
+  };
+}
+
 const YAML_TYPE = 'application/yaml;charset=utf-8';
-const downloaded = () => Promise.all(downloads);
+
+function leave() {
+  const event = new Event('beforeunload', { cancelable: true });
+  window.dispatchEvent(event);
+  return event;
+}
 
 describe('RootErrorBoundary', () => {
-  let confirm: jest.SpyInstance;
-
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    confirm = jest.spyOn(window, 'confirm');
     captureDownloads();
   });
 
@@ -135,12 +171,6 @@ describe('RootErrorBoundary', () => {
   });
 
   describe('leaving the page', () => {
-    const leave = () => {
-      const event = new Event('beforeunload', { cancelable: true });
-      window.dispatchEvent(event);
-      return event;
-    };
-
     beforeEach(() => {
       jest.spyOn(RuntimeUtils, 'isProduction').mockReturnValue(true);
     });
@@ -172,7 +202,7 @@ describe('RootErrorBoundary', () => {
       expect(screen.queryByText('Unsaved changes')).toBeNull();
       fireEvent.click(screen.getByText('Edit as YAML'));
 
-      expect(confirm).not.toHaveBeenCalled();
+      expect(screen.queryByText('Discard unsaved changes?')).toBeNull();
       expect(window.parent.location.hash).toBe('#!/yml');
       expect(WindowUtils.reloadEditor).toHaveBeenCalledTimes(1);
     });
@@ -192,26 +222,28 @@ describe('RootErrorBoundary', () => {
       expect(buttonLabels()).toEqual([]);
     });
 
-    it('asks before discarding unsaved changes, and stays put when the user declines', async () => {
-      confirm.mockReturnValue(false);
+    it('asks before discarding unsaved changes, and stays put when the user cancels', async () => {
       await renderStory(UnsavedChanges);
 
       fireEvent.click(screen.getByText('Edit as YAML'));
+      expect(screen.getByText('Discard unsaved changes?')).toBeDefined();
+      fireEvent.click(screen.getByText('Cancel'));
 
-      expect(confirm).toHaveBeenCalledWith(expect.stringContaining('discards your unsaved changes'));
+      expect(screen.queryByText('Discard unsaved changes?')).toBeNull();
       expect(window.parent.location.hash).toBe('#!/workflows');
       expect(WindowUtils.reloadEditor).not.toHaveBeenCalled();
     });
 
-    it('opens the YAML editor once the user accepts discarding unsaved changes', async () => {
-      confirm.mockReturnValue(true);
+    it('opens the YAML editor once the user agrees to discard, without a second leave-page prompt', async () => {
+      jest.spyOn(RuntimeUtils, 'isProduction').mockReturnValue(true);
       await renderStory(UnsavedChanges);
 
       fireEvent.click(screen.getByText('Edit as YAML'));
+      fireEvent.click(screen.getByText('Discard and edit as YAML'));
 
-      expect(confirm).toHaveBeenCalledTimes(1);
       expect(window.parent.location.hash).toBe('#!/yml');
       expect(WindowUtils.reloadEditor).toHaveBeenCalledTimes(1);
+      expect(leave().defaultPrevented).toBe(false);
     });
   });
 
@@ -243,18 +275,17 @@ describe('RootErrorBoundary', () => {
       ]);
     });
 
-    it('downloads the latest valid YAML while the pending edit does not parse', async () => {
+    it('downloads a pending edit as typed, even when it does not parse, so nothing typed is lost', async () => {
       await renderStory(UnsavedEditThatDoesNotParse);
 
       expect(screen.getByText('Unsaved changes')).toBeDefined();
       expect(buttonLabels()).toEqual(['Download bitrise.yml']);
       fireEvent.click(screen.getByText('Download bitrise.yml'));
 
-      expect(await downloaded()).toEqual([{ fileName: 'bitrise.yml', type: YAML_TYPE, content: EDITED_YML }]);
+      expect(await downloaded()).toEqual([{ fileName: 'bitrise.yml', type: YAML_TYPE, content: UNPARSEABLE_YML }]);
     });
 
     it('downloads the pending text when the config never parsed, and asks before Edit as YAML discards it', async () => {
-      confirm.mockReturnValue(false);
       await renderStory(UnsavedEditToAConfigThatNeverParsed);
 
       expect(screen.getByText('Unsaved changes')).toBeDefined();
@@ -264,7 +295,7 @@ describe('RootErrorBoundary', () => {
       ]);
 
       fireEvent.click(screen.getByText('Edit as YAML'));
-      expect(confirm).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('Discard unsaved changes?')).toBeDefined();
       expect(WindowUtils.reloadEditor).not.toHaveBeenCalled();
     });
 
@@ -284,26 +315,38 @@ describe('RootErrorBoundary', () => {
       expect(await downloaded()).toEqual([{ fileName: 'modules-workflows.yml', type: YAML_TYPE, content: EDITED_YML }]);
     });
 
-    it('gives every unsaved modular file its own button, each downloading that file', async () => {
+    it('downloads several unsaved modular files as one zip that keeps their folders', async () => {
       await renderStory(ModularEveryFileUnsaved);
 
-      expect(buttonLabels()).toEqual(['Download bitrise.yml', 'Download modules/workflows.yml', 'Edit as YAML']);
-      fireEvent.click(screen.getByText('Download bitrise.yml'));
-      fireEvent.click(screen.getByText('Download modules/workflows.yml'));
+      expect(buttonLabels()).toEqual(['Download 2 changed files (.zip)', 'Edit as YAML']);
+      fireEvent.click(screen.getByText('Download 2 changed files (.zip)'));
 
-      expect(await downloaded()).toEqual([
-        { fileName: 'bitrise.yml', type: YAML_TYPE, content: EDITED_ROOT_YML },
-        { fileName: 'modules-workflows.yml', type: YAML_TYPE, content: EDITED_YML },
-      ]);
+      expect(await downloadedZip()).toEqual({
+        fileName: 'bitrise-configuration.zip',
+        type: 'application/zip',
+        files: { 'bitrise.yml': EDITED_ROOT_YML, 'modules/workflows.yml': EDITED_YML },
+      });
     });
 
-    it('counts a modular edit that does not parse against the active file only, at its latest valid version', async () => {
+    it('keeps offering the files it warned about, even if the store changes while the page shows', async () => {
+      await renderStory(ModularEveryFileUnsaved);
+      initializeBitriseYmlDocument({ ymlString: '', version: '' });
+
+      fireEvent.click(screen.getByText('Edit as YAML'));
+      fireEvent.click(screen.getByText('Cancel'));
+
+      expect(buttonLabels()).toEqual(['Download 2 changed files (.zip)', 'Edit as YAML']);
+    });
+
+    it('counts a modular edit that does not parse against the active file only, as typed', async () => {
       await renderStory(ModularEditThatDoesNotParse);
 
       expect(buttonLabels()).toEqual(['Download modules/workflows.yml']);
       fireEvent.click(screen.getByText('Download modules/workflows.yml'));
 
-      expect(await downloaded()).toEqual([{ fileName: 'modules-workflows.yml', type: YAML_TYPE, content: YML }]);
+      expect(await downloaded()).toEqual([
+        { fileName: 'modules-workflows.yml', type: YAML_TYPE, content: UNPARSEABLE_YML },
+      ]);
     });
 
     it('downloads the pending text for a module that never parsed', async () => {

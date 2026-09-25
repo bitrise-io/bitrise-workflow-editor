@@ -14,7 +14,7 @@ import RootErrorBoundary from './RootErrorBoundary';
 
 export const YML = 'workflows:\n  primary:\n    steps:\n    - git-clone@8: {}\n';
 const ROOT_YML = 'include:\n- path: modules/workflows.yml\n';
-const UNPARSEABLE_YML = 'workflows:\n  primary: {\n';
+export const UNPARSEABLE_YML = 'workflows:\n  primary: {\n';
 export const EDITED_YML = `${YML}  deploy: {}\n`;
 export const EDITED_ROOT_YML = `${ROOT_YML}format_version: "13"\n`;
 export const OTHER_UNPARSEABLE_YML = 'workflows:\n  deploy: {\n';

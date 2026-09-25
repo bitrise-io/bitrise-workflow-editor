@@ -351,10 +351,9 @@ export function hasYmlChanges(state: BitriseYmlStoreState) {
 export type UnsavedConfigFile = { path: string; content: string };
 
 /**
- * Every config file with unsaved changes, at its latest valid version, for rescuing work when the
- * editor can't continue. A pending edit that doesn't parse isn't in the content (that would download
- * a broken file), but it still makes its file unsaved, because a reload throws it away. The exception
- * is a file that never parsed: there is no valid version, so the pending text is the only copy.
+ * Every config file with unsaved changes, as the user last typed it, for rescuing work when the
+ * editor can't continue. A pending edit that doesn't parse is included as typed: a reload throws it
+ * away, and the last version that parsed would silently drop what came after it.
  */
 export function getUnsavedConfigFiles(): UnsavedConfigFile[] {
   const state = bitriseYmlStore.getState();
@@ -372,10 +371,7 @@ export function getUnsavedConfigFiles(): UnsavedConfigFile[] {
 
   return files
     .filter((file) => file.isDirty)
-    .map(({ path, doc, pending }) => {
-      const neverParsed = doc.contents == null || doc.errors.length > 0;
-      return { path, content: pending && neverParsed ? pending : YmlUtils.toYml(doc) };
-    });
+    .map(({ path, doc, pending }) => ({ path, content: pending ?? YmlUtils.toYml(doc) }));
 }
 
 /** Apply a full YAML string to a file's slice (the global diff dialog's per-file "Apply changes"). */

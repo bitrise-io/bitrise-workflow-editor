@@ -85,8 +85,8 @@ Datadog events per session.
 "Edit as YAML" reloads the page rather than resetting the boundary. A reset remounts the config
 loader, whose "already loaded" check lives in a ref, so it would load the saved file over the edits;
 and a crash in shared chrome would just throw again on the YAML page. So with unsaved changes the
-download leads and Edit as YAML confirms first. The download is the latest version that parses,
-except for a file that never parsed, where the pending text is the only copy of the work.
+download leads, and Edit as YAML asks first. The download is every unsaved file as the user last
+typed it, parseable or not, zipped with its folders when there is more than one.
 
 ## Things that fail somewhere else
 

@@ -1,3 +1,5 @@
+import { strToU8, zipSync } from 'fflate';
+
 function generateUniqueEntityId(existingIds: string[], prefix: string, i = 0) {
   const potentialId = i === 0 ? prefix : `${prefix}_${i}`;
   if (existingIds?.includes(potentialId)) {
@@ -46,7 +48,7 @@ function findScrollContainer(element?: HTMLElement | null) {
   return document.documentElement;
 }
 
-function download(content: string, fileName: string, type: string) {
+function download(content: BlobPart, fileName: string, type: string) {
   const blob = new Blob([content], { type });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
@@ -62,6 +64,12 @@ function download(content: string, fileName: string, type: string) {
  */
 function downloadYml(content: string, path: string) {
   download(content, path.replace(/\//g, '-'), 'application/yaml;charset=utf-8');
+}
+
+/** Downloads config files as one zip, each under its path, so the folders survive. */
+function downloadYmlZip(files: { path: string; content: string }[], fileName: string) {
+  const zip = zipSync(Object.fromEntries(files.map(({ path, content }) => [path, strToU8(content)])));
+  download(zip, fileName, 'application/zip');
 }
 
 function getFormattedDate(date: Date): string {
@@ -104,6 +112,7 @@ function getCookie(cname: string): string {
 export {
   download,
   downloadYml,
+  downloadYmlZip,
   findScrollContainer,
   generateUniqueEntityId,
   getCookie,
