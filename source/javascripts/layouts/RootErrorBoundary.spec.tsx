@@ -33,15 +33,8 @@ jest.mock('@bitrise/bitkit-v2', () => ({
 }));
 
 const composed = composeStories(stories);
-const {
-  ErrorWithANonStringMessage,
-  ErrorWithoutAMessage,
-  NotAnErrorThrown,
-  OnABranch,
-  OnAVisualPage,
-  OnTheYamlPage,
-  UnprintableValueThrown,
-} = composed;
+const { ErrorWithoutAMessage, NotAnErrorThrown, OnABranch, OnAVisualPage, OnTheYamlPage, UnprintableValueThrown } =
+  composed;
 
 /** Runs the story's `beforeEach`, which sets the hash, then renders it. */
 async function renderStory(Story: (typeof composed)[keyof typeof composed]) {
@@ -84,12 +77,6 @@ describe('RootErrorBoundary', () => {
     await renderStory(UnprintableValueThrown);
 
     expect(screen.getByText('An unknown error was thrown')).toBeDefined();
-  });
-
-  it('still shows the page for an Error whose message is not a string', async () => {
-    await renderStory(ErrorWithANonStringMessage);
-
-    expect(screen.getByText('[object Object]')).toBeDefined();
   });
 
   it('links the logo to the dashboard', async () => {

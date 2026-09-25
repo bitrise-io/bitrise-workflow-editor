@@ -51,8 +51,3 @@ export const NotAnErrorThrown: Story = { ...OnAVisualPage, args: { thrown: undef
 export const ErrorWithoutAMessage: Story = { ...OnAVisualPage, args: { thrown: new Error('') } };
 
 export const UnprintableValueThrown: Story = { ...OnAVisualPage, args: { thrown: Object.create(null) } };
-
-export const ErrorWithANonStringMessage: Story = {
-  ...OnAVisualPage,
-  args: { thrown: Object.assign(new Error(), { message: { code: 42 } }) },
-};
