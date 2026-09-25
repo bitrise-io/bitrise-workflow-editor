@@ -5,7 +5,7 @@ type Options = {
   state?: Record<string, unknown>;
 };
 
-const navigate = (to: Path, { state }: Options = {}): void => {
+export const navigate = (to: Path, { state }: Options = {}): void => {
   const hash = to.replace(/^\/?#?!?\/?/, '');
   const targetUrl = new URL(window.parent.location.href);
 

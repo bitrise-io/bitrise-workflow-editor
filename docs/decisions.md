@@ -76,6 +76,16 @@ stages, which is faithful but not what anyone would write. Neither converts back
 A delete's cascade (triggers, env vars, pipeline edges) is sequenced by the caller. An orchestrator
 would have to know every cascade in the domain, and it would go stale silently.
 
+## Render errors show a page instead of retrying
+
+Datadog's `ErrorBoundary` at the root reports the error and shows a full error page. It never
+retries: that re-renders the tree that just threw, which is how the alias crash reached ~3.9k
+Datadog events per session.
+
+"Edit as YAML" reloads the editor onto the YAML page, where most crashes can be fixed, and drops
+unsaved changes without asking: the editor crashed, so keeping them isn't expected. It reloads
+rather than resetting the boundary, because a crash in shared chrome would throw again.
+
 ## Things that fail somewhere else
 
 - **A new YAML key fails at save**, not at compile time: the Go server validates with the `bitrise`

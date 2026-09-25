@@ -16,7 +16,7 @@ import { useCopyToClipboard } from 'usehooks-ts';
 
 import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
 import { getFileYmlString, getYmlString } from '@/core/stores/BitriseYmlStore';
-import { download } from '@/core/utils/CommonUtils';
+import { downloadYml } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useChangedModules, { moduleCountLabel } from '@/hooks/useChangedModules';
@@ -31,7 +31,6 @@ type Props = {
 type ChangedFileRow = {
   key: string;
   name: string;
-  downloadName: string;
   getContent: () => string;
 };
 
@@ -53,17 +52,14 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
   const rows: ChangedFileRow[] = isModular
     ? changedModules.map(({ nodeId, path }) => ({
         key: nodeId,
-        // Show the full module path; download it flattened (slashes → dashes) so same-named modules
-        // in different folders don't collide as downloaded files.
         name: path,
-        downloadName: path.replace(/\//g, '-'),
         getContent: () => getFileYmlString(nodeId),
       }))
-    : [{ key: 'bitrise.yml', name: 'bitrise.yml', downloadName: 'bitrise.yml', getContent: getYmlString }];
+    : [{ key: 'bitrise.yml', name: 'bitrise.yml', getContent: getYmlString }];
 
   const handleDownload = (row: ChangedFileRow) => {
     trackDownloadYmlClicked('git', 'update_configuration_yml_modal');
-    download(row.getContent(), row.downloadName, 'application/yaml;charset=utf-8');
+    downloadYml(row.getContent(), row.name);
     setIsCopiedOrDownloaded(true);
   };
 

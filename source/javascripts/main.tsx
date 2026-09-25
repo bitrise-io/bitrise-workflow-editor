@@ -3,16 +3,16 @@ import '@/monaco-workers';
 
 import { Provider } from '@bitrise/bitkit';
 import { BitkitProvider } from '@bitrise/bitkit-v2';
-import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
-import { ComponentProps, StrictMode, useEffect } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import Client from '@/core/api/client';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import InitialDataLoader from '@/layouts/InitialDataLoader';
 import MainLayout from '@/layouts/MainLayout';
+import RootErrorBoundary from '@/layouts/RootErrorBoundary';
 
 const loaders = [];
 if (import.meta.env.CLARITY === 'true') {
@@ -65,18 +65,10 @@ const DefaultQueryClient = new QueryClient({
   },
 });
 
-const PassThroughFallback: ComponentProps<typeof ErrorBoundary>['fallback'] = ({ resetError }) => {
-  useEffect(() => {
-    resetError();
-  }, [resetError]);
-
-  return null;
-};
-
 const App = () => {
   return (
     <StrictMode>
-      <ErrorBoundary fallback={PassThroughFallback}>
+      <RootErrorBoundary>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
             <Provider resetCSS={false}>
@@ -88,7 +80,7 @@ const App = () => {
             </Provider>
           </ReactFlowProvider>
         </QueryClientProvider>
-      </ErrorBoundary>
+      </RootErrorBoundary>
     </StrictMode>
   );
 };

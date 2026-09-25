@@ -1,7 +1,4 @@
-import { BitkitButton, BitkitLink, createBitkitToast } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
-import { Image } from '@chakra-ui/react/image';
-import { Text } from '@chakra-ui/react/text';
+import { BitkitButton, createBitkitToast } from '@bitrise/bitkit-v2';
 import { datadogRum } from '@datadog/browser-rum';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -21,10 +18,8 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
 import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
+import ErrorPage from '@/layouts/ErrorPage';
 import { preloadRoutes } from '@/routes';
-
-import bitriseLogo from '../../images/bitrise-logo.svg';
-import errorImg from '../../images/error-hairball.svg';
 
 /**
  * Owns the bootstrap: resolves which config endpoint to hit, loads it into `BitriseYmlStore`, and
@@ -232,47 +227,21 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   }, [data, ymlSettings?.usesRepositoryYml, configBranch]);
 
   if (error) {
-    let detailedErrorMessage = 'Error - Failed to load the bitrise.yml';
+    let detailedErrorMessage = 'Error – Failed to load the bitrise.yml';
     if (error.status) {
       if (error.data?.error_msg) {
-        detailedErrorMessage = `${error.status} - ${error.data.error_msg}`;
+        detailedErrorMessage = `${error.status} – ${error.data.error_msg}`;
       } else if (error.statusText) {
-        detailedErrorMessage = `${error.status} - ${error.statusText}`;
+        detailedErrorMessage = `${error.status} – ${error.statusText}`;
       }
     }
 
     return (
-      <Box
-        gap="48"
-        width="100vw"
-        height="100vh"
-        display="flex"
-        alignItems="center"
-        marginInline="auto"
-        paddingInline="5%"
-        backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
-      >
-        <Box display="flex" flexDirection="column" gap="32" color="text/on-color" maxWidth="50%">
-          <BitkitLink href="/" title="Go to Dashboard">
-            <Image src={bitriseLogo} />
-          </BitkitLink>
-          <Box>
-            <Text textStyle="code/lg" textTransform="uppercase" marginBlockEnd="16">
-              {detailedErrorMessage}
-            </Text>
-            {/* `display/lg` is the 48px bold token this headline already used. BitkitHeading can't
-                express it — it takes the size from its level, topping out at 30px — so keeping the
-                hero at its current size means the display token rather than that component. */}
-            <Text textStyle="display/lg">{error?.message}</Text>
-          </Box>
-          <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
-            Try again
-          </BitkitButton>
-        </Box>
-        <Box>
-          <Image src={errorImg} />
-        </Box>
-      </Box>
+      <ErrorPage eyebrow={detailedErrorMessage} headline={error.message}>
+        <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
+          Try again
+        </BitkitButton>
+      </ErrorPage>
     );
   }
 
