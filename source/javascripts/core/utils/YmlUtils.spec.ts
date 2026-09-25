@@ -2014,4 +2014,82 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+  describe('toDoc with an alias whose anchor does not exist', () => {
+    it('reports a parse error instead of a document that throws when serialized', () => {
+      const doc = YmlUtils.toDoc('a: &shared 1\nb: *shar\n');
+
+      expect(doc.errors.map(({ code }) => code)).toEqual(['BAD_ALIAS']);
+      expect(() => YmlUtils.toDoc('a: &shared 1\nb: *shared\n').toString()).not.toThrow();
+    });
+  });
+
+  describe('findVisualEditorUnsupportedFeatures', () => {
+    const textAt = (raw: string, { start, end }: { start: number; end: number }) => raw.slice(start, end);
+
+    it('points at each alias, and reports a merge key once rather than also the alias it merges', () => {
+      const raw = ['base: &base', '  a: 1', 'copy: *base', 'merged:', '  <<: *base', ''].join('\n');
+
+      const found = YmlUtils.findVisualEditorUnsupportedFeatures(raw);
+
+      expect(found.map((feature) => [feature.kind, textAt(raw, feature)])).toEqual([
+        ['alias', '*base'],
+        ['merge-key', '<<'],
+      ]);
+    });
+
+    it('ignores an anchor nothing refers to, and unparseable YAML', () => {
+      expect(YmlUtils.findVisualEditorUnsupportedFeatures('a: &unused 1\nb: 2\n')).toEqual([]);
+      expect(YmlUtils.findVisualEditorUnsupportedFeatures('a: *\n  : [')).toEqual([]);
+    });
+  });
+
+  describe('summarizeYamlSharing', () => {
+    it('reports an unused anchor on its own', () => {
+      expect(YmlUtils.summarizeYamlSharing(YmlUtils.toDoc('a: &x 1\nb: 2\n'))).toEqual({
+        hasAliases: false,
+        hasMergeKeys: false,
+        hasAnchors: true,
+      });
+    });
+
+    it('counts the alias a merge key merges as the merge key only', () => {
+      expect(YmlUtils.summarizeYamlSharing(YmlUtils.toDoc('a: &x\n  k: 1\nb:\n  <<: *x\n'))).toEqual({
+        hasAliases: false,
+        hasMergeKeys: true,
+        hasAnchors: true,
+      });
+    });
+  });
+
+  describe('readMapIn and readSeqIn', () => {
+    const doc = YmlUtils.toDoc(
+      ['shared: &shared', '  envs: &envs', '  - A: 1', 'workflows: *shared', 'app:', '  envs: *envs', ''].join('\n'),
+    );
+
+    it('follows aliases at the end and in the middle of the path', () => {
+      expect(YmlUtils.readSeqIn(doc, ['app', 'envs'])?.items).toHaveLength(1);
+      expect(YmlUtils.readMapIn(doc, ['app', 'envs', 0])?.get('A')).toBe(1);
+      expect(YmlUtils.readSeqIn(doc, ['workflows', 'envs'])?.items).toHaveLength(1);
+    });
+
+    it('returns undefined for a missing path or the wrong type', () => {
+      expect(YmlUtils.readMapIn(doc, ['missing', 'path'])).toBeUndefined();
+      expect(YmlUtils.readSeqIn(doc, ['workflows'])).toBeUndefined();
+    });
+  });
+
+  describe('merge keys', () => {
+    const doc = YmlUtils.toDoc(['base: &base', '  A: 1', 'env:', '  <<: *base', '  "<<": 2', '  B: 3', ''].join('\n'));
+
+    it('are applied by toJS, and a quoted "<<" is an ordinary key', () => {
+      expect(YmlUtils.readMapIn(doc, ['env'])?.toJS(doc)).toEqual({ A: 1, '<<': 2, B: 3 });
+      expect(YmlUtils.keysOf(doc, YmlUtils.readMapIn(doc, ['env']))).toEqual(['A', '<<', 'B']);
+    });
+
+    it('leave the source untouched on save', () => {
+      expect(YmlUtils.toYml(doc)).toBe(
+        ['base: &base', '  A: 1', 'env:', '  <<: *base', '  "<<": 2', '  B: 3', ''].join('\n'),
+      );
+    });
+  });
 });

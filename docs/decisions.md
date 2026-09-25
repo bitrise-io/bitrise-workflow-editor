@@ -53,10 +53,23 @@ when its file leaves the tree and no editor has it open.
 Validation status watches the **root model only**. The whole-config schema matches every model, so
 an include fragment reports errors for keys it was never meant to have.
 
-The forced YAML view fires only when the YAML can't be parsed, never on schema errors: the visual
+The forced YAML view fires only when the visual editor can't read the YAML (a parse error, or
+[aliases](#aliases-and-merge-keys-switch-off-the-visual-editor)), never on schema errors: the visual
 editor renders those fine, and the redirect is one-way, so it would strand people on the YAML view.
 
 In dev website mode the schema layer is skipped for cross-origin reasons, so there are no markers.
+
+## Aliases and merge keys switch off the visual editor
+
+`getMapIn`/`getSeqIn` throw on an alias at the end of a path and return nothing for one in the
+middle, and writing through an alias would change every place that shares the anchor. So a document
+with an alias or a `<<` merge key is YAML-only, and `MainLayout` doesn't mount a visual page at all:
+it would throw before the redirect runs. Unused anchors block nothing. An alias with no anchor is a
+parse error, because the parser accepts it and every later serialization throws.
+
+Only the open file is checked, so code that reads every file of a modular config must use
+`readMapIn`/`readSeqIn`, `keysOf` and `toJS(doc)`, which follow aliases and apply merge keys. They're
+read-only by design.
 
 ## Capability is expressed by absence
 

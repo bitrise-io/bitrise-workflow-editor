@@ -147,6 +147,40 @@ describe('EntityIndexService', () => {
       expect(result.appEnvs?.MODULE_ONLY).toEqual([{ nodeId: 'n_module' }]);
     });
 
+    it('reads sections and env vars through aliases and merge keys', () => {
+      const tree = node('n_root');
+      const files = {
+        n_root: file(
+          [
+            '_shared_env: &shared_env',
+            '  SHARED: 1',
+            '_workflows: &workflows',
+            '  build: {}',
+            'workflows: *workflows',
+            'pipelines:',
+            '  <<: [{ merged: {} }, *workflows]',
+            '  ship: {}',
+            'app:',
+            '  envs:',
+            '  - *shared_env',
+            '  - <<: *shared_env',
+            '    opts: {}',
+            '',
+          ].join('\n'),
+        ),
+      };
+
+      const result = EntityIndexService.buildFromFiles(tree, files);
+
+      expect(result.workflows).toEqual({ build: [{ nodeId: 'n_root' }] });
+      expect(result.pipelines).toEqual({
+        merged: [{ nodeId: 'n_root' }],
+        build: [{ nodeId: 'n_root' }],
+        ship: [{ nodeId: 'n_root' }],
+      });
+      expect(result.appEnvs).toEqual({ SHARED: [{ nodeId: 'n_root' }, { nodeId: 'n_root' }] });
+    });
+
     it('skips nodes without a loaded document and tolerates docs without entity sections', () => {
       const tree = node('n_root', [node('n_not_loaded')]);
       const files = {

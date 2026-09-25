@@ -51,7 +51,9 @@ const useAppLevelEnvVars = () => {
       const collect = (node: TreeNode) => {
         node.includes.forEach(collect);
         const slice = s.files[node.nodeId];
-        const rawEnvs = slice ? YmlUtils.getSeqIn(slice.ymlDocument, ['app', 'envs'])?.toJSON() : undefined;
+        const rawEnvs = slice
+          ? YmlUtils.readSeqIn(slice.ymlDocument, ['app', 'envs'])?.toJS(slice.ymlDocument)
+          : undefined;
         addEnvs(rawEnvs, `Project env vars • defined in ${slice?.path ?? node.path}`);
       };
       collect(s.tree);

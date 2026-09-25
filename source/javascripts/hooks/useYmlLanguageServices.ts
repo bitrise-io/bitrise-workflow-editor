@@ -107,6 +107,7 @@ function useYmlLanguageServices() {
     // Configure Monaco language services (idempotent — safe to call multiple times)
     MonacoUtils.configureForYaml(monaco);
     MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+    MonacoUtils.configureUnsupportedFeatureWarnings(monaco);
     // The Bitrise LSP integration runs a Monaco worker that queries Algolia (steplib_steps)
     // on every document change for diagnostics/completion/hover. Gate it behind a flag so it
     // can be disabled without a deploy. When off, editing falls back to plain monaco-yaml.
@@ -165,7 +166,7 @@ function useYmlLanguageServices() {
     reconcile(true);
 
     // Global validation status (drives Save gating + the validation badge — NOT the editor-view
-    // redirect, which keys off a genuine parse failure via useIsYmlParseError) tracks the ROOT config
+    // redirect, which keys off useVisualEditorBlocker) tracks the ROOT config
     // model only. Aggregating markers across every include model would trap the user: an include fragment
     // (e.g. a workflows-only module) has no format_version/include, so monaco-yaml's whole-config
     // schema — registered with fileMatch ['*'], so it hits every bitrise:// model — reports an

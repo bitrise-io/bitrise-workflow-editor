@@ -30,7 +30,7 @@ export function useProjectEnvVarFileGroups(): ProjectEnvVarFileGroup[] {
         return;
       }
       // Read just the `app.envs` subtree, not the whole document.
-      const rawEnvs = YmlUtils.getSeqIn(doc, ['app', 'envs'])?.toJSON() as unknown[] | undefined;
+      const rawEnvs = YmlUtils.readSeqIn(doc, ['app', 'envs'])?.toJS(doc) as unknown[] | undefined;
       const envs = Array.isArray(rawEnvs)
         ? rawEnvs.map((env) => EnvVarService.fromYml(env as FromYmlEnv, 'Project envs'))
         : [];
@@ -64,7 +64,7 @@ export function useWorkflowEnvVarFileGroups(): WorkflowEnvVarFileGroup[] {
         return;
       }
       // Read just the `workflows` subtree, not the whole document.
-      const workflows = YmlUtils.getMapIn(doc, ['workflows'])?.toJSON() as
+      const workflows = YmlUtils.readMapIn(doc, ['workflows'])?.toJS(doc) as
         Record<string, { envs?: unknown[] }> | undefined;
       if (!workflows) {
         return;
