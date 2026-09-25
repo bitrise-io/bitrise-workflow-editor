@@ -11,6 +11,7 @@ import {
   initializeBitriseYmlDocument,
   initializeModularConfig,
   updateBitriseYmlDocumentByString,
+  updateFileDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
 
@@ -97,28 +98,40 @@ describe('RootErrorBoundary', () => {
     expect(screen.getByText('An unknown error was thrown')).toBeDefined();
   });
 
-  it('offers Edit as YAML outside the YAML page, on the route scheme useHashLocation expects', () => {
+  it('offers only Edit as YAML when nothing is unsaved, on the route scheme useHashLocation expects', () => {
+    initializeBitriseYmlDocument({ ymlString: YML, version: '' });
     renderRoot(new Error('boom'));
 
-    expect(buttonLabels()).toEqual(['Edit as YAML', 'Reload the editor']);
+    expect(buttonLabels()).toEqual(['Edit as YAML']);
+    expect(screen.queryByText('Unsaved changes')).toBeNull();
     fireEvent.click(screen.getByText('Edit as YAML'));
     expect(window.parent.location.hash).toBe('#!/yml');
   });
 
-  it('offers only Reload on the YAML page, because Edit as YAML would reload into it', () => {
+  it('keeps the hash query, where the branch lives, when opening the YAML editor', () => {
+    window.location.hash = '#!/workflows?branch=feature-x';
+    renderRoot(new Error('boom'));
+
+    fireEvent.click(screen.getByText('Edit as YAML'));
+
+    expect(window.parent.location.hash).toBe('#!/yml?branch=feature-x');
+  });
+
+  it('offers no actions on the YAML page with nothing unsaved, because Edit as YAML would reload into it', () => {
     window.location.hash = '#!/yml';
     renderRoot(new Error('the YAML page broke'));
 
-    expect(buttonLabels()).toEqual(['Reload the editor']);
+    expect(buttonLabels()).toEqual([]);
   });
 
-  it('asks before a reload discards unsaved changes, and stays put when the user declines', () => {
+  it('leads with the download when there are unsaved changes, and asks before Edit as YAML discards them', () => {
     initializeBitriseYmlDocument({ ymlString: YML, version: '' });
     updateBitriseYmlDocumentByString(`${YML}  deploy: {}\n`);
     const confirm = jest.spyOn(window, 'confirm').mockReturnValue(false);
     renderRoot(new Error('boom'));
 
-    expect(buttonLabels()).toEqual(['bitrise.yml', 'Edit as YAML', 'Reload the editor']);
+    expect(screen.getByText('Unsaved changes')).toBeDefined();
+    expect(buttonLabels()).toEqual(['Download bitrise.yml', 'Edit as YAML']);
     fireEvent.click(screen.getByText('Edit as YAML'));
 
     expect(confirm).toHaveBeenCalledWith(expect.stringContaining('discards your unsaved changes'));
@@ -126,48 +139,30 @@ describe('RootErrorBoundary', () => {
     confirm.mockRestore();
   });
 
-  it('offers no download before a configuration has loaded', () => {
-    renderRoot(new Error('boom'));
-
-    expect(screen.queryByText('Download your configuration')).toBeNull();
-  });
-
-  it('downloads the configuration in memory, not flagged when nothing changed', () => {
-    initializeBitriseYmlDocument({ ymlString: YML, version: '' });
-    renderRoot(new Error('boom'));
-
-    fireEvent.click(screen.getByText('bitrise.yml'));
-
-    expect(download).toHaveBeenCalledWith(YML, 'bitrise.yml', MIME);
-    expect(screen.queryByText('Unsaved changes')).toBeNull();
-  });
-
-  it('downloads the latest valid YAML and flags a pending edit that does not parse as unsaved', () => {
+  it('downloads the latest valid YAML and counts a pending edit that does not parse as unsaved', () => {
     initializeBitriseYmlDocument({ ymlString: YML, version: '' });
     updateBitriseYmlDocumentByString(`${YML}  deploy: {}\n`);
     updateBitriseYmlDocumentByString(`${YML}  deploy: {\n`);
     renderRoot(new Error('boom'));
 
-    expect(screen.getByText('Unsaved changes')).toBeDefined();
-    expect(screen.getByRole('alert').textContent).toContain('reloading discards them');
-
-    fireEvent.click(screen.getByText('bitrise.yml'));
+    fireEvent.click(screen.getByText('Download bitrise.yml'));
 
     expect(download).toHaveBeenCalledWith(`${YML}  deploy: {}\n`, 'bitrise.yml', MIME);
   });
 
-  it('offers every file of a modular configuration, with folders flattened so names cannot collide', () => {
+  it('offers only the modular files with unsaved changes, with folders flattened into the file name', () => {
     initializeModularConfig({
       root: node('n_root', 'bitrise.yml', 'include:\n- path: modules/workflows.yml\n', [
         node('n_wf', 'modules/workflows.yml', YML),
       ]),
       mergedYml: YML,
     });
+    updateFileDocumentByString('n_wf', `${YML}  deploy: {}\n`);
     renderRoot(new Error('boom'));
 
-    fireEvent.click(screen.getByText('modules/workflows.yml'));
+    expect(buttonLabels()).toEqual(['Download modules/workflows.yml', 'Edit as YAML']);
+    fireEvent.click(screen.getByText('Download modules/workflows.yml'));
 
-    expect(screen.getByText('bitrise.yml')).toBeDefined();
-    expect(download).toHaveBeenCalledWith(YML, 'modules-workflows.yml', MIME);
+    expect(download).toHaveBeenCalledWith(`${YML}  deploy: {}\n`, 'modules-workflows.yml', MIME);
   });
 });

@@ -12,15 +12,15 @@ import { paths } from '@/routes';
 const YML_ROUTE_IN_PARENT_HASH = `#!${paths.yml}`;
 
 const DISCARD_UNSAVED_CHANGES_PROMPT =
-  'Reloading discards your unsaved changes. Download them first if you want to keep them. Reload anyway?';
+  'Opening the YAML editor reloads the page and discards your unsaved changes. Download them first if you want to keep them. Continue anyway?';
 
-function reload(hasUnsavedChanges: boolean, hash?: string) {
+function openYmlEditor(hasUnsavedChanges: boolean) {
   if (hasUnsavedChanges && !window.confirm(DISCARD_UNSAVED_CHANGES_PROMPT)) {
     return;
   }
-  if (hash) {
-    window.parent.location.hash = hash;
-  }
+  // Keep the hash query: `?branch=` lives there, and dropping it loads the default branch.
+  const query = window.parent.location.hash.split('?')[1];
+  window.parent.location.hash = query ? `${YML_ROUTE_IN_PARENT_HASH}?${query}` : YML_ROUTE_IN_PARENT_HASH;
   window.location.reload();
 }
 
@@ -43,62 +43,55 @@ function downloadConfigFile({ path, content }: ConfigFileForDownload) {
   download(content, path.replace(/\//g, '-'), 'application/yaml;charset=utf-8');
 }
 
-const DownloadConfiguration = ({ files }: { files: ConfigFileForDownload[] }) => (
-  <Stack gap="8" alignItems="flex-start">
-    <Text textStyle="body/md/semibold">Download your configuration</Text>
-    {files.map((file) => (
-      <HStack key={file.path} gap="8">
-        <BitkitButton variant="secondary" size="md" icon={IconDownload} onClick={() => downloadConfigFile(file)}>
-          {file.path}
-        </BitkitButton>
-        {file.hasUnsavedChanges && <BitkitBadge colorVariant="yellow">Unsaved changes</BitkitBadge>}
-      </HStack>
-    ))}
-  </Stack>
-);
-
 // Datadog's boundary reports the error and, unlike a check on the error value, also catches a thrown
 // `undefined`. The fallback never calls `resetError`: retrying re-renders the tree that just threw.
 const ErrorPageFallback = ({ error }: { error: unknown }) => {
-  const files = readConfigFiles();
+  const unsavedFiles = readConfigFiles().filter((file) => file.hasUnsavedChanges);
+  const hasUnsavedChanges = unsavedFiles.length > 0;
   const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
   const message = messageOf(error);
-  const hasUnsavedChanges = files.some((file) => file.hasUnsavedChanges);
-  const savedState = hasUnsavedChanges
-    ? 'You have unsaved changes, and they only exist in this tab. Download them first: reloading discards them.'
-    : 'Your configuration is unchanged and nothing has been saved.';
-  const nextStep = offerYmlEditor
-    ? 'Keep working on the configuration as YAML, or reload to try again.'
-    : 'Reload to try again.';
-  const downloadSection = files.length > 0 && <DownloadConfiguration files={files} />;
 
   return (
     <BitkitProvider>
       <ErrorPage eyebrow="Error – This page couldn't render" headline="This page couldn't be displayed">
-        <Text textStyle="body/lg/regular">
-          {`${savedState} ${nextStep} If this keeps happening, send the error below to Bitrise support.`}
-        </Text>
-        {hasUnsavedChanges && downloadSection}
-        <HStack gap="12">
-          {offerYmlEditor && (
-            <BitkitButton
-              variant="primary"
-              size="lg"
-              onClick={() => reload(hasUnsavedChanges, YML_ROUTE_IN_PARENT_HASH)}
-            >
-              Edit as YAML
-            </BitkitButton>
-          )}
-          <BitkitButton
-            variant={offerYmlEditor ? 'secondary' : 'primary'}
-            size="lg"
-            onClick={() => reload(hasUnsavedChanges)}
-          >
-            Reload the editor
-          </BitkitButton>
-        </HStack>
-        {!hasUnsavedChanges && downloadSection}
-        {message && <BitkitCodeSnippet variant="multi">{message}</BitkitCodeSnippet>}
+        <Stack gap="12">
+          <Text textStyle="body/lg/regular">
+            The editor stopped because this page hit an error. If it keeps happening, send the error to Bitrise support.
+          </Text>
+          {message && <BitkitCodeSnippet variant="multi">{message}</BitkitCodeSnippet>}
+        </Stack>
+        {hasUnsavedChanges && (
+          <Stack gap="8" alignItems="flex-start">
+            <BitkitBadge colorVariant="yellow">Unsaved changes</BitkitBadge>
+            <Text textStyle="body/lg/regular">
+              Your changes only exist in this tab. Download them before you refresh or leave the page.
+            </Text>
+          </Stack>
+        )}
+        {(hasUnsavedChanges || offerYmlEditor) && (
+          <HStack gap="12" flexWrap="wrap">
+            {unsavedFiles.map((file) => (
+              <BitkitButton
+                key={file.path}
+                variant="primary"
+                size="lg"
+                icon={IconDownload}
+                onClick={() => downloadConfigFile(file)}
+              >
+                {`Download ${file.path}`}
+              </BitkitButton>
+            ))}
+            {offerYmlEditor && (
+              <BitkitButton
+                variant={hasUnsavedChanges ? 'secondary' : 'primary'}
+                size="lg"
+                onClick={() => openYmlEditor(hasUnsavedChanges)}
+              >
+                Edit as YAML
+              </BitkitButton>
+            )}
+          </HStack>
+        )}
       </ErrorPage>
     </BitkitProvider>
   );
