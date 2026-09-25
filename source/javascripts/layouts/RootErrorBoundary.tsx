@@ -1,8 +1,8 @@
 import { BitkitBadge, BitkitButton, BitkitCodeSnippet, BitkitProvider, IconDownload } from '@bitrise/bitkit-v2';
 import { HStack, Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
-import { addReactError } from '@datadog/browser-rum-react';
-import { Component, ErrorInfo, PropsWithChildren } from 'react';
+import { ErrorBoundary } from '@datadog/browser-rum-react';
+import { PropsWithChildren } from 'react';
 
 import { ConfigFileForDownload, getConfigFilesForDownload, isYmlPageLocation } from '@/core/stores/BitriseYmlStore';
 import { download } from '@/core/utils/CommonUtils';
@@ -24,11 +24,11 @@ function reload(hasUnsavedChanges: boolean, hash?: string) {
   window.location.reload();
 }
 
-function toError(thrown: unknown) {
+function messageOf(thrown: unknown) {
   if (thrown instanceof Error) {
-    return thrown;
+    return thrown.message;
   }
-  return new Error(thrown === undefined || thrown === null ? 'An unknown error was thrown' : String(thrown));
+  return thrown === undefined || thrown === null ? 'An unknown error was thrown' : String(thrown);
 }
 
 function readConfigFiles(): ConfigFileForDownload[] {
@@ -43,9 +43,7 @@ function downloadConfigFile({ path, content }: ConfigFileForDownload) {
   download(content, path.replace(/\//g, '-'), 'application/yaml;charset=utf-8');
 }
 
-type ErrorPageContentProps = { files: ConfigFileForDownload[]; offerYmlEditor: boolean };
-
-const DownloadConfiguration = ({ files }: Pick<ErrorPageContentProps, 'files'>) => (
+const DownloadConfiguration = ({ files }: { files: ConfigFileForDownload[] }) => (
   <Stack gap="8" alignItems="flex-start">
     <Text textStyle="body/md/semibold">Download your configuration</Text>
     {files.map((file) => (
@@ -59,7 +57,12 @@ const DownloadConfiguration = ({ files }: Pick<ErrorPageContentProps, 'files'>) 
   </Stack>
 );
 
-const FullErrorPage = ({ error, files, offerYmlEditor }: ErrorPageContentProps & { error: Error }) => {
+// Datadog's boundary reports the error and, unlike a check on the error value, also catches a thrown
+// `undefined`. The fallback never calls `resetError`: retrying re-renders the tree that just threw.
+const ErrorPageFallback = ({ error }: { error: unknown }) => {
+  const files = readConfigFiles();
+  const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
+  const message = messageOf(error);
   const hasUnsavedChanges = files.some((file) => file.hasUnsavedChanges);
   const savedState = hasUnsavedChanges
     ? 'You have unsaved changes, and they only exist in this tab. Download them first: reloading discards them.'
@@ -67,65 +70,42 @@ const FullErrorPage = ({ error, files, offerYmlEditor }: ErrorPageContentProps &
   const nextStep = offerYmlEditor
     ? 'Keep working on the configuration as YAML, or reload to try again.'
     : 'Reload to try again.';
-  const download = files.length > 0 && <DownloadConfiguration files={files} />;
+  const downloadSection = files.length > 0 && <DownloadConfiguration files={files} />;
 
   return (
-    <ErrorPage eyebrow="Error – This page couldn't render" headline="This page couldn't be displayed">
-      <Text textStyle="body/lg/regular">
-        {`${savedState} ${nextStep} If this keeps happening, send the error below to Bitrise support.`}
-      </Text>
-      {hasUnsavedChanges && download}
-      <HStack gap="12">
-        {offerYmlEditor && (
-          <BitkitButton variant="primary" size="lg" onClick={() => reload(hasUnsavedChanges, YML_ROUTE_IN_PARENT_HASH)}>
-            Edit as YAML
+    <BitkitProvider>
+      <ErrorPage eyebrow="Error – This page couldn't render" headline="This page couldn't be displayed">
+        <Text textStyle="body/lg/regular">
+          {`${savedState} ${nextStep} If this keeps happening, send the error below to Bitrise support.`}
+        </Text>
+        {hasUnsavedChanges && downloadSection}
+        <HStack gap="12">
+          {offerYmlEditor && (
+            <BitkitButton
+              variant="primary"
+              size="lg"
+              onClick={() => reload(hasUnsavedChanges, YML_ROUTE_IN_PARENT_HASH)}
+            >
+              Edit as YAML
+            </BitkitButton>
+          )}
+          <BitkitButton
+            variant={offerYmlEditor ? 'secondary' : 'primary'}
+            size="lg"
+            onClick={() => reload(hasUnsavedChanges)}
+          >
+            Reload the editor
           </BitkitButton>
-        )}
-        <BitkitButton
-          variant={offerYmlEditor ? 'secondary' : 'primary'}
-          size="lg"
-          onClick={() => reload(hasUnsavedChanges)}
-        >
-          Reload the editor
-        </BitkitButton>
-      </HStack>
-      {!hasUnsavedChanges && download}
-      {error.message && <BitkitCodeSnippet variant="multi">{error.message}</BitkitCodeSnippet>}
-    </ErrorPage>
+        </HStack>
+        {!hasUnsavedChanges && downloadSection}
+        {message && <BitkitCodeSnippet variant="multi">{message}</BitkitCodeSnippet>}
+      </ErrorPage>
+    </BitkitProvider>
   );
 };
 
-class RootErrorBoundary extends Component<PropsWithChildren, { error: Error | null }> {
-  constructor(props: PropsWithChildren) {
-    super(props);
-    this.state = { error: null };
-  }
-
-  static getDerivedStateFromError(thrown: unknown) {
-    return { error: toError(thrown) };
-  }
-
-  componentDidCatch(thrown: unknown, errorInfo: ErrorInfo) {
-    addReactError(toError(thrown), errorInfo);
-  }
-
-  render() {
-    const { error } = this.state;
-    const { children } = this.props;
-
-    if (!error) {
-      return children;
-    }
-
-    const files = readConfigFiles();
-    const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
-
-    return (
-      <BitkitProvider>
-        <FullErrorPage error={error} files={files} offerYmlEditor={offerYmlEditor} />
-      </BitkitProvider>
-    );
-  }
-}
+const RootErrorBoundary = ({ children }: PropsWithChildren) => (
+  <ErrorBoundary fallback={ErrorPageFallback}>{children}</ErrorBoundary>
+);
 
 export default RootErrorBoundary;

@@ -18,7 +18,7 @@ const ErrorPage = ({ eyebrow, headline, children }: ErrorPageProps) => (
     role="alert"
     gap="48"
     width="100vw"
-    height="100vh"
+    minHeight="100vh"
     display="flex"
     alignItems="center"
     marginInline="auto"
@@ -33,9 +33,7 @@ const ErrorPage = ({ eyebrow, headline, children }: ErrorPageProps) => (
         <Text textStyle="code/lg" textTransform="uppercase" marginBlockEnd="16">
           {eyebrow}
         </Text>
-        {/* `display/lg` is the 48px bold token this headline already used. BitkitHeading can't
-            express it — it takes the size from its level, topping out at 30px — so keeping the
-            hero at its current size means the display token rather than that component. */}
+        {/* `display/lg` (48px bold): BitkitHeading takes its size from its level and tops out at 30px. */}
         <Text textStyle="display/lg">{headline}</Text>
       </Box>
       {children}

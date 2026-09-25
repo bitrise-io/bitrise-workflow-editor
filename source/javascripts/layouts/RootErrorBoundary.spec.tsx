@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-import { addReactError } from '@datadog/browser-rum-react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { PropsWithChildren, ReactNode } from 'react';
 import { Document } from 'yaml';
@@ -31,7 +30,6 @@ jest.mock('@/core/utils/CommonUtils', () => ({
   download: jest.fn(),
 }));
 jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn() } }));
-jest.mock('@datadog/browser-rum-react', () => ({ addReactError: jest.fn() }));
 jest.mock('@bitrise/bitkit-v2', () => ({
   BitkitProvider: ({ children }: PropsWithChildren) => <>{children}</>,
   BitkitBadge: ({ children }: PropsWithChildren) => <span>{children}</span>,
@@ -70,7 +68,6 @@ describe('RootErrorBoundary', () => {
 
   beforeEach(() => {
     window.location.hash = '#!/workflows';
-    (addReactError as jest.Mock).mockClear();
     (download as jest.Mock).mockClear();
     bitriseYmlStore.setState({
       ymlDocument: new Document(),
@@ -87,12 +84,11 @@ describe('RootErrorBoundary', () => {
     consoleError.mockRestore();
   });
 
-  it('renders the error page straight away and reports the error once', () => {
+  it('renders the error page straight away', () => {
     renderRoot(new Error('store exploded'));
 
     expect(screen.getByText("This page couldn't be displayed")).toBeDefined();
     expect(screen.getByText('store exploded')).toBeDefined();
-    expect(addReactError).toHaveBeenCalledTimes(1);
   });
 
   it('shows the error page for a thrown value that is not an Error, even undefined', () => {

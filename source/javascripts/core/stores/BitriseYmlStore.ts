@@ -350,7 +350,9 @@ export type ConfigFileForDownload = { path: string; content: string; hasUnsavedC
  */
 export function getConfigFilesForDownload(): ConfigFileForDownload[] {
   const state = bitriseYmlStore.getState();
-  const hasPendingUnparseableEdit = state.__invalidYmlString !== undefined;
+  // Same rule as useYmlHasChanges: an unparseable text counts only if it isn't what was saved.
+  const hasPendingUnparseableEdit =
+    state.__invalidYmlString !== undefined && state.__invalidYmlString !== state.__savedInvalidYmlString;
 
   const toFile = (path: string, doc: Document, isDirty: boolean): ConfigFileForDownload[] => {
     try {
@@ -364,8 +366,7 @@ export function getConfigFilesForDownload(): ConfigFileForDownload[] {
     if (state.ymlDocument.contents == null) {
       return [];
     }
-    const isDirty = hasPendingUnparseableEdit || !YmlUtils.isEquals(state.ymlDocument, state.savedYmlDocument);
-    return toFile('bitrise.yml', state.ymlDocument, isDirty);
+    return toFile('bitrise.yml', state.ymlDocument, hasPendingUnparseableEdit || state.hasChanges);
   }
 
   return Object.values(state.files).flatMap((slice) =>
