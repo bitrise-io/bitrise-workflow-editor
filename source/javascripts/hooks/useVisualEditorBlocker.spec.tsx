@@ -27,10 +27,10 @@ describe('useVisualEditorBlocker', () => {
 
   it('blocks on an alias or a merge key', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
-    expect(blocker()).toBe('yaml-sharing');
+    expect(blocker()).toBe('yaml-alias');
 
     initializeBitriseYmlDocument({ ymlString: 'a: &x\n  k: 1\nb:\n  <<: *x\n', version: '1' });
-    expect(blocker()).toBe('yaml-sharing');
+    expect(blocker()).toBe('yaml-alias');
   });
 
   it('reports a parse error first, and unblocks once the aliases are gone', () => {
