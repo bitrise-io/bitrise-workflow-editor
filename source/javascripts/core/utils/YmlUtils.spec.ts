@@ -2077,4 +2077,19 @@ describe('YmlUtils', () => {
       expect(YmlUtils.readSeqIn(doc, ['workflows'])).toBeUndefined();
     });
   });
+
+  describe('merge keys', () => {
+    const doc = YmlUtils.toDoc(['base: &base', '  A: 1', 'env:', '  <<: *base', '  "<<": 2', '  B: 3', ''].join('\n'));
+
+    it('are applied by toJS, and a quoted "<<" is an ordinary key', () => {
+      expect(YmlUtils.readMapIn(doc, ['env'])?.toJS(doc)).toEqual({ A: 1, '<<': 2, B: 3 });
+      expect(YmlUtils.keysOf(doc, YmlUtils.readMapIn(doc, ['env']))).toEqual(['A', '<<', 'B']);
+    });
+
+    it('leave the source untouched on save', () => {
+      expect(YmlUtils.toYml(doc)).toBe(
+        ['base: &base', '  A: 1', 'env:', '  <<: *base', '  "<<": 2', '  B: 3', ''].join('\n'),
+      );
+    });
+  });
 });

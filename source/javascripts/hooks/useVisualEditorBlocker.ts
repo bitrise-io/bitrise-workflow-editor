@@ -2,12 +2,12 @@ import YmlUtils from '@/core/utils/YmlUtils';
 
 import useBitriseYmlStore from './useBitriseYmlStore';
 
-export type VisualEditorBlocker = 'parse-error' | 'yaml-alias';
+type VisualEditorBlocker = 'parse-error' | 'yaml-alias';
 
 export const VISUAL_EDITOR_BLOCKERS: Record<VisualEditorBlocker, { title: string; message: string }> = {
   'parse-error': {
     title: 'Invalid YAML',
-    message: "YAML can't be parsed, please fix it before switching to the Visual editor.",
+    message: "YAML can't be parsed, please fix it before using the Visual editor.",
   },
   'yaml-alias': {
     title: 'The Visual editor is off for this configuration',

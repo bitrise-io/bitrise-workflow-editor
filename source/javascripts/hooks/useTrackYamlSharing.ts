@@ -4,18 +4,19 @@ import { useEffect } from 'react';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 import useBitriseYmlStore from './useBitriseYmlStore';
+import { useSelectedNodeId } from './useTree';
 
 const tracked = new Set<string>();
 
 /** Reports each distinct use of YAML sharing once per page load, so users and sessions can be counted. */
 function useTrackYamlSharing() {
-  const { ymlDocument, selectedNodeId } = useBitriseYmlStore((s) => ({
-    ymlDocument: s.ymlDocument,
-    selectedNodeId: s.selectedNodeId,
-  }));
+  // The cached summary, not the document: `useShallow` would deep-compare a whole `Document`.
+  const { hasAliases, hasMergeKeys, hasAnchors } = useBitriseYmlStore((s) =>
+    YmlUtils.summarizeYamlSharing(s.ymlDocument),
+  );
+  const selectedNodeId = useSelectedNodeId();
 
   useEffect(() => {
-    const { hasAliases, hasMergeKeys, hasAnchors } = YmlUtils.summarizeYamlSharing(ymlDocument);
     if (!hasAliases && !hasMergeKeys && !hasAnchors) {
       return;
     }
@@ -32,7 +33,7 @@ function useTrackYamlSharing() {
       hasAnchors,
       visualEditorDisabled: hasAliases || hasMergeKeys,
     });
-  }, [ymlDocument, selectedNodeId]);
+  }, [hasAliases, hasMergeKeys, hasAnchors, selectedNodeId]);
 }
 
 export default useTrackYamlSharing;

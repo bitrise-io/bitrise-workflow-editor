@@ -68,7 +68,8 @@ it would throw before the redirect runs. Unused anchors block nothing. An alias 
 parse error, because the parser accepts it and every later serialization throws.
 
 Only the open file is checked, so code that reads every file of a modular config must use
-`readMapIn`/`readSeqIn` and `toJS(doc)`, which follow aliases. They're read-only by design.
+`readMapIn`/`readSeqIn`, `keysOf` and `toJS(doc)`, which follow aliases and apply merge keys. They're
+read-only by design.
 
 ## Capability is expressed by absence
 

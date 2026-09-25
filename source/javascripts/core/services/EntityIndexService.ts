@@ -44,10 +44,8 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
     const doc = files[node.nodeId]?.ymlDocument;
     if (doc) {
       KIND_SECTIONS.forEach(({ section, key }) => {
-        const map = YmlUtils.readMapIn(doc, [section]);
-        map?.items.forEach((pair) => {
-          const entityId = String(pair.key);
-          if (!entityId || YmlUtils.isMergeKey(pair)) {
+        YmlUtils.keysOf(doc, YmlUtils.readMapIn(doc, [section])).forEach((entityId) => {
+          if (!entityId) {
             return;
           }
           ((index[key] ??= {})[entityId] ||= []).push({ nodeId: node.nodeId });
@@ -55,13 +53,10 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
       });
 
       // Project env vars are array-shaped (`app.envs: [{ KEY: value, opts? }]`), keyed by var name.
-      const envs = YmlUtils.readSeqIn(doc, ['app', 'envs']);
-      envs?.items.forEach((_item, i) => {
-        const envMap = YmlUtils.readMapIn(doc, ['app', 'envs', i]);
-        envMap?.items.forEach((pair) => {
-          const envKey = String(pair.key);
+      YmlUtils.readSeqIn(doc, ['app', 'envs'])?.items.forEach((item) => {
+        YmlUtils.keysOf(doc, item).forEach((envKey) => {
           // The var name is the single non-`opts` key of the entry.
-          if (!envKey || envKey === 'opts' || YmlUtils.isMergeKey(pair)) {
+          if (!envKey || envKey === 'opts') {
             return;
           }
           ((index.appEnvs ??= {})[envKey] ||= []).push({ nodeId: node.nodeId });

@@ -67,10 +67,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
       toast({
         status: 'error',
         title: VISUAL_EDITOR_BLOCKERS[visualEditorBlocker].title,
-        description:
-          visualEditorBlocker === 'parse-error'
-            ? 'Please fix the errors in your YAML configuration before navigating.'
-            : VISUAL_EDITOR_BLOCKERS[visualEditorBlocker].message,
+        description: VISUAL_EDITOR_BLOCKERS[visualEditorBlocker].message,
         duration: null,
         isClosable: true,
       });
