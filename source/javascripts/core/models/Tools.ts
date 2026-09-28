@@ -1,7 +1,7 @@
 export type VersionStrategy = 'latest-of' | 'exact' | 'unset';
 
 export type ParsedToolVersion =
-  /** The newest version in `prefix`'s line, or the newest overall when `prefix` is empty. */
+  /** The newest version in `prefix`'s line, or what bare `latest` resolves to when `prefix` is empty. */
   | { strategy: 'latest-of'; prefix: string; preferInstalled: boolean }
   | { strategy: 'exact'; version: string }
   | { strategy: 'unset' };
