@@ -41,7 +41,9 @@ export function getVisualEditorBlockerTooltip(blocker: VisualEditorBlocker | nul
  */
 function useVisualEditorBlocker(): VisualEditorBlocker | null {
   return useBitriseYmlStore((s) => {
-    if (s.__invalidYmlString !== undefined) {
+    // A modular file loaded from the tree keeps its parse errors on the document itself. Any of them
+    // blocks: an edit clones the document, and the clone of one with errors can't be serialized.
+    if (s.__invalidYmlString !== undefined || s.ymlDocument.errors.length > 0) {
       return 'parse-error';
     }
     const docs = s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];

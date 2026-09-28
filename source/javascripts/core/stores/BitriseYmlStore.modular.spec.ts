@@ -94,6 +94,19 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('initializeModularConfig', () => {
+    it('opens a file loaded with an unresolved alias without throwing, and leaves yml empty', () => {
+      initializeModularConfig({
+        root: node('root', {
+          path: 'bitrise.yml',
+          includes: [node('broken', { contents: 'workflows: *missing\n' })],
+        }),
+        mergedYml: MERGED_YML,
+      });
+
+      expect(() => openTab('broken')).not.toThrow();
+      expect(bitriseYmlStore.getState().yml).toEqual({});
+    });
+
     it('flattens the tree into file slices keyed by node_id', () => {
       const { files } = bitriseYmlStore.getState();
       expect(Object.keys(files).sort()).toEqual(['child-a', 'child-b', 'readonly', 'root']);

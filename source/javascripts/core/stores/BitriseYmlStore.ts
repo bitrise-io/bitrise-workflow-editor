@@ -650,7 +650,9 @@ bitriseYmlStore.subscribe(
       : !YmlUtils.isEquals(ymlDocument, savedYmlDocument);
 
     bitriseYmlStore.setState({
-      yml: YmlUtils.toJSON(ymlDocument),
+      // A modular file loaded with an unresolved alias can be the active document, and converting it
+      // throws. Only the YAML view is open for it, and that reads the raw text, so `yml` stays empty.
+      yml: YmlUtils.hasUnresolvedAliases(ymlDocument) ? ({} as BitriseYml) : YmlUtils.toJSON(ymlDocument),
       hasChanges,
     });
   },

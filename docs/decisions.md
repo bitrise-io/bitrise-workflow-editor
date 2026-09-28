@@ -64,12 +64,29 @@ In dev website mode the schema layer is skipped for cross-origin reasons, so the
 `getMapIn`/`getSeqIn` throw on an alias at the end of a path and return nothing for one in the
 middle, and writing through an alias would change every place that shares the anchor. So a document
 with an alias or a `<<` merge key is YAML-only, and `MainLayout` doesn't mount a visual page at all:
-it would throw before the redirect runs. Unused anchors block nothing.
+it would throw before the redirect runs. Unused anchors block nothing. An alias with no anchor is a
+parse error, because the parser accepts it and every later serialization throws.
 
 In a modular config one file with an alias or merge key makes the whole config YAML-only, because
 the visual pages read every file with the same path helpers. The alert names the files. The entity
 index skips those files, since it's built on load whatever the view. Editing in the YAML view keeps
 them: the document holds aliases and merge keys as nodes and writes them back as they were.
+
+## The editor reads YAML differently from the CLI
+
+Builds use the Bitrise CLI, which parses with Go's `yaml.v2` (YAML 1.1). The editor parses with
+`yaml` 2.x as YAML 1.2, so the same text can mean different things:
+
+| Input | CLI (build) | Editor |
+|---|---|---|
+| `yes`, `on` | `true` | the string `"yes"` |
+| `010` | `8` | `10` |
+| `<<: *x`, `<<: {k: v}` | merged | a key named `<<` |
+| a duplicate key | the last one wins | a parse error |
+| `a: &x [*x]` | an error | a circular value, which `toDoc` reports as an error |
+
+An anchor never crosses files in either: the CLI parses each included file on its own. Moving the
+editor to the CLI's reading is its own change; until then, trust the build over what the form shows.
 
 ## Capability is expressed by absence
 

@@ -2014,6 +2014,21 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+  describe('toDoc with an alias whose anchor does not exist', () => {
+    it('reports a parse error instead of a document that throws when serialized', () => {
+      const doc = YmlUtils.toDoc('a: &shared 1\nb: *shar\n');
+
+      expect(doc.errors.map(({ code }) => code)).toEqual(['UNRESOLVED_ALIAS']);
+      expect(() => YmlUtils.toDoc('a: &shared 1\nb: *shared\n').toString()).not.toThrow();
+    });
+
+    it('reports an alias inside the node it refers to, which the CLI rejects', () => {
+      const doc = YmlUtils.toDoc('a: &x [1, *x]\n');
+
+      expect(doc.errors.map(({ code }) => code)).toEqual(['UNRESOLVED_ALIAS']);
+      expect(YmlUtils.hasUnresolvedAliases(doc)).toBe(true);
+    });
+  });
 
   describe('summarizeYamlSharing', () => {
     it('ignores an anchor nothing refers to', () => {
@@ -2028,6 +2043,18 @@ describe('YmlUtils', () => {
         hasAliases: false,
         hasMergeKeys: true,
       });
+    });
+  });
+
+  describe('hasUnresolvedAliases', () => {
+    it('is true for an alias with no anchor, also next to another error such as a duplicate key', () => {
+      expect(YmlUtils.hasUnresolvedAliases(YmlUtils.toDoc('a: *missing\n'))).toBe(true);
+      expect(YmlUtils.hasUnresolvedAliases(YmlUtils.toDoc('a: 1\na: 2\nb: *missing\n'))).toBe(true);
+    });
+
+    it('is false for a resolved alias and for other errors', () => {
+      expect(YmlUtils.hasUnresolvedAliases(YmlUtils.toDoc('a: &x 1\nb: *x\n'))).toBe(false);
+      expect(YmlUtils.hasUnresolvedAliases(YmlUtils.toDoc('a: 1\na: 2\n'))).toBe(false);
     });
   });
 });

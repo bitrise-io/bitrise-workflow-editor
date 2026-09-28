@@ -61,5 +61,23 @@ describe('useVisualEditorBlocker', () => {
 
       expect(result.current).toEqual({ blocker: 'yaml-alias', paths: ['m.yml'] });
     });
+
+    it('reports a parse error for a file loaded with one, such as an alias with no anchor', () => {
+      load('workflows: *missing\n');
+      const { result } = renderHook(() => useVisualEditorBlocker());
+
+      act(() => openTab('n_mod'));
+
+      expect(result.current).toBe('parse-error');
+    });
+
+    it('also blocks an open file with an error the CLI accepts, such as a duplicate key', () => {
+      load('workflows:\n  a: {}\n  a: {}\n');
+      const { result } = renderHook(() => useVisualEditorBlocker());
+
+      act(() => openTab('n_mod'));
+
+      expect(result.current).toBe('parse-error');
+    });
   });
 });
