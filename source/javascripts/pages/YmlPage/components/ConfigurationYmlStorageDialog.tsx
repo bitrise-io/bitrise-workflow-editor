@@ -155,7 +155,7 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
         label="Complete the following tasks"
         helperText="Make sure to complete all the mandatory tasks before updating. A missing or invalid configuration file can lead to failed builds."
       />
-      <BitkitList variant="explainer" gap="24">
+      <BitkitList variant="explainer">
         <BitkitList.Item>
           <Box display="flex" flexDirection="column" gap="8">
             <Box display="flex" flexDirection="column">
