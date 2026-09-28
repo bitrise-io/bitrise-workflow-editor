@@ -19,6 +19,7 @@ import { useController, useForm } from 'react-hook-form';
 
 import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
+import ToolVersionUtils from '@/core/utils/ToolVersionUtils';
 import { useToolVersions } from '@/hooks/useTools';
 
 type ToolRowFormValues = {
@@ -130,7 +131,7 @@ const ToolRow = ({
   const versionError = strategy === 'exact' && trimmedVersion === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
   const resolvedVersion = useMemo(
-    () => (hasPrefixDropdown ? ToolsService.getLatestVersion(toolVersions, trimmedVersion) : undefined),
+    () => (hasPrefixDropdown ? ToolVersionUtils.getLatestVersion(toolVersions, trimmedVersion) : undefined),
     [hasPrefixDropdown, toolVersions, trimmedVersion],
   );
   // The configured value is not in the catalog, likely a leftover from hand written YAML, or mise
@@ -145,7 +146,7 @@ const ToolRow = ({
       return `${trimmedVersion} is not a known version, use at your own risk`;
     }
 
-    if (hasPrefixDropdown && !ToolsService.isPrefixInCatalog(toolVersions, trimmedVersion)) {
+    if (hasPrefixDropdown && !ToolVersionUtils.isPrefixInCatalog(toolVersions, trimmedVersion)) {
       return `No known version of ${toolId} is in the ${trimmedVersion} line, use at your own risk`;
     }
 
