@@ -129,8 +129,13 @@ const ToolRow = ({
   // version overall, which serializes to bare `latest` or `installed`.
   const versionError = strategy === 'exact' && trimmedVersion === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
-  // The configured value is not in the catalog, likely a leftover from hand written YAML. It is
-  // Warn rather than error, and wait for real data, since `toolVersions` is undefined while loading.
+  const resolvedVersion = useMemo(
+    () => (hasPrefixDropdown ? ToolsService.getLatestVersion(toolVersions, trimmedVersion) : undefined),
+    [hasPrefixDropdown, toolVersions, trimmedVersion],
+  );
+  // The configured value is not in the catalog, likely a leftover from hand written YAML, or mise
+  // cannot resolve it. Warn rather than error, and wait for real data, since `toolVersions` is
+  // undefined while loading.
   const catalogWarning = useMemo(() => {
     if (!toolVersions || trimmedVersion === '') {
       return undefined;
@@ -144,17 +149,16 @@ const ToolRow = ({
       return `No known version of ${toolId} is in the ${trimmedVersion} line, use at your own risk`;
     }
 
-    return undefined;
-  }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
-  // Only the prefix dropdown resolves, and the catalog has no preinstalled versions to offer.
-  const resolvedVersionHint = useMemo(() => {
-    if (!hasPrefixDropdown || preferInstalled) {
-      return undefined;
+    // `installed` falls back to the newest release when nothing installed matches, so it fails too.
+    if (hasPrefixDropdown && !resolvedVersion) {
+      return `The ${trimmedVersion} line of ${toolId} holds only prereleases, which mise does not resolve`;
     }
 
-    const latestVersion = ToolsService.getLatestVersion(toolVersions, trimmedVersion);
-    return latestVersion ? `Currently resolves to ${latestVersion}` : undefined;
-  }, [hasPrefixDropdown, preferInstalled, toolVersions, trimmedVersion]);
+    return undefined;
+  }, [isExactKnownTool, hasPrefixDropdown, resolvedVersion, toolVersions, toolId, trimmedVersion]);
+  // The catalog has no preinstalled versions to offer, so only `latest` gets a hint.
+  const resolvedVersionHint =
+    resolvedVersion && !preferInstalled ? `Currently resolves to ${resolvedVersion}` : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
