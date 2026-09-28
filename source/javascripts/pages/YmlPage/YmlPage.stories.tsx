@@ -1,9 +1,12 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
+import * as monaco from 'monaco-editor';
 import { http, HttpResponse } from 'msw';
 
 import ConfigSettingsMenu from '@/components/unified-editor/ConfigSettingsMenu/ConfigSettingsMenu';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import YmlUtils from '@/core/utils/YmlUtils';
+import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
 
 import YmlPage from './YmlPage';
 
@@ -12,6 +15,9 @@ type StoryType = StoryObj<typeof YmlPage>;
 export default {
   component: YmlPage,
   beforeEach: () => {
+    // The editor keeps its model across unmounts, and in the app the language services keep it in
+    // sync with the store. Stories don't mount those, so without this a story shows the last one's YAML.
+    monaco.editor.getModel(BACKGROUND_MODEL_URI)?.dispose();
     window.parent.pageProps = {
       ...window.parent.pageProps,
       limits: { isRepositoryYmlAvailable: true },
@@ -87,3 +93,64 @@ export const YmlStoredOnGit: StoryType = {
 };
 
 export const YmlStoredOnBitrise: StoryType = {};
+
+const ALIASES = `format_version: "13"
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: android
+
+workflows:
+  primary:
+    steps:
+    - &clone
+      git-clone@8: {}
+    - &unit_tests
+      script@1:
+        title: Unit tests
+        inputs:
+        - content: ./gradlew testDebugUnitTest
+  nightly:
+    steps:
+    - *clone
+    - *unit_tests
+`;
+
+const ALIASES_AND_MERGE_KEYS = `format_version: "13"
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: android
+
+workflows:
+  primary:
+    envs:
+    - &gradle_opts
+      GRADLE_OPTS: -Xmx4g
+    steps:
+    - &clone
+      git-clone@8: {}
+    - script@1: &unit_tests
+        title: Unit tests
+        inputs:
+        - content: ./gradlew testDebugUnitTest
+  release:
+    envs:
+    - *gradle_opts
+    steps:
+    - *clone
+    - script@1:
+        <<: *unit_tests
+        title: Unit tests before release
+`;
+
+/** `bitriseYmlStore` story parameters for a config the visual editor refuses. */
+function storeState(yml: string) {
+  const doc = YmlUtils.toDoc(yml);
+  return { ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined };
+}
+
+// The visual editor is off for these, and the alert says why.
+export const WithAliases: StoryType = {
+  parameters: { bitriseYmlStore: storeState(ALIASES) },
+};
+
+export const WithAliasesAndMergeKeys: StoryType = {
+  parameters: { bitriseYmlStore: storeState(ALIASES_AND_MERGE_KEYS) },
+};
