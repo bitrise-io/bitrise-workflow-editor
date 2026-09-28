@@ -147,6 +147,34 @@ describe('EntityIndexService', () => {
       expect(result.appEnvs?.MODULE_ONLY).toEqual([{ nodeId: 'n_module' }]);
     });
 
+    it('skips a file that uses aliases or merge keys, and still indexes the others', () => {
+      const tree = node('n_root', [node('n_aliased'), node('n_merged')]);
+      const files = {
+        n_root: file('workflows:\n  root_wf: {}\n'),
+        // Each shape here throws in the path helpers or would index `<<` as an entity.
+        n_aliased: file(
+          [
+            '_shared: &shared',
+            '  build: {}',
+            '_env: &env',
+            '  A: "1"',
+            'workflows: *shared',
+            'app:',
+            '  envs:',
+            '  - *env',
+            '',
+          ].join('\n'),
+        ),
+        n_merged: file(['_base: &base', '  a: {}', 'pipelines:', '  <<: *base', '  ship: {}', ''].join('\n')),
+      };
+
+      const result = EntityIndexService.buildFromFiles(tree, files);
+
+      expect(result.workflows).toEqual({ root_wf: [{ nodeId: 'n_root' }] });
+      expect(result.pipelines ?? {}).toEqual({});
+      expect(result.appEnvs ?? {}).toEqual({});
+    });
+
     it('skips nodes without a loaded document and tolerates docs without entity sections', () => {
       const tree = node('n_root', [node('n_not_loaded')]);
       const files = {

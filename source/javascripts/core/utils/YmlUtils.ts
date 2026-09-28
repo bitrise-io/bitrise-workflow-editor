@@ -12,6 +12,7 @@ import {
   isScalar,
   isSeq,
   Node,
+  Pair,
   parseDocument,
   Scalar,
   stringify,
@@ -655,6 +656,45 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
   }
 }
 
+// A quoted `"<<"` is an ordinary key.
+const isMergeKey = (pair: Pair) =>
+  isScalar(pair.key) && pair.key.value === '<<' && (!pair.key.type || pair.key.type === Scalar.PLAIN);
+
+type YamlSharing = { hasAliases: boolean; hasMergeKeys: boolean };
+
+const yamlSharingCache = new WeakMap<Document, YamlSharing>();
+
+/** Whether the document uses aliases or merge keys. The alias a merge key merges counts as the merge key. */
+function summarizeYamlSharing(doc: Document): YamlSharing {
+  const cached = yamlSharingCache.get(doc);
+  if (cached) {
+    return cached;
+  }
+
+  const sharing: YamlSharing = { hasAliases: false, hasMergeKeys: false };
+  visit(doc, {
+    Pair(_, pair) {
+      if (isMergeKey(pair)) {
+        sharing.hasMergeKeys = true;
+        return visit.SKIP;
+      }
+      return undefined;
+    },
+    Alias() {
+      sharing.hasAliases = true;
+    },
+  });
+
+  yamlSharingCache.set(doc, sharing);
+  return sharing;
+}
+
+/** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
+function usesYamlSharing(doc: Document) {
+  const { hasAliases, hasMergeKeys } = summarizeYamlSharing(doc);
+  return hasAliases || hasMergeKeys;
+}
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -682,4 +722,6 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  summarizeYamlSharing,
+  usesYamlSharing,
 };

@@ -2014,4 +2014,20 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+
+  describe('summarizeYamlSharing', () => {
+    it('ignores an anchor nothing refers to', () => {
+      expect(YmlUtils.summarizeYamlSharing(YmlUtils.toDoc('a: &x 1\nb: 2\n'))).toEqual({
+        hasAliases: false,
+        hasMergeKeys: false,
+      });
+    });
+
+    it('counts the alias a merge key merges as the merge key only', () => {
+      expect(YmlUtils.summarizeYamlSharing(YmlUtils.toDoc('a: &x\n  k: 1\nb:\n  <<: *x\n'))).toEqual({
+        hasAliases: false,
+        hasMergeKeys: true,
+      });
+    });
+  });
 });

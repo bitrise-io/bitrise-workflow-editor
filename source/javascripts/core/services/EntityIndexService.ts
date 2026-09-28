@@ -42,7 +42,9 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
     seen.add(node.nodeId);
 
     const doc = files[node.nodeId]?.ymlDocument;
-    if (doc) {
+    // A file with aliases or merge keys is skipped: the path helpers throw on an alias, and while any
+    // file has them the whole config is YAML-only, so nothing reads the index for it.
+    if (doc && !YmlUtils.usesYamlSharing(doc)) {
       KIND_SECTIONS.forEach(({ section, key }) => {
         const map = YmlUtils.getMapIn(doc, [section]);
         map?.items.forEach((pair) => {
