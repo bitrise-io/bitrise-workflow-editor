@@ -186,10 +186,9 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
             </Box>
           </Box>
         </BitkitList.Item>
-        <BitkitList.Item>
-          <Box display="flex" flexDirection="column">
-            <Text textStyle="body/lg/regular">Provide repository access</Text>
-            <Text textStyle="body/md/regular" color="text/secondary">
+        <BitkitList.Item
+          helperText={
+            <>
               Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-platform/integrations/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html"
@@ -199,18 +198,14 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
               >
                 Learn more
               </BitkitLink>
-            </Text>
-          </Box>
+            </>
+          }
+        >
+          Provide repository access
         </BitkitList.Item>
-        <BitkitList.Item>
-          <Box display="flex" flexDirection="column">
-            <Text textStyle="body/lg/regular">
-              Split up your configuration{' '}
-              <Text as="span" color="text/secondary">
-                (optional)
-              </Text>
-            </Text>
-            <Text textStyle="body/md/regular" color="text/secondary">
+        <BitkitList.Item
+          helperText={
+            <>
               <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
                 colorVariant="purple"
@@ -220,8 +215,13 @@ const BitriseToGitSection = ({ initialYmlRootPath }: BitriseToGitSectionProps) =
               </BitkitLink>{' '}
               to split up your configuration into smaller, more manageable files. This feature is only available for
               Workspaces on Enterprise plan.
-            </Text>
-          </Box>
+            </>
+          }
+        >
+          Split up your configuration{' '}
+          <Text as="span" color="text/secondary">
+            (optional)
+          </Text>
         </BitkitList.Item>
       </BitkitList>
     </>
