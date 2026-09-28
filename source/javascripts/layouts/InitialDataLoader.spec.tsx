@@ -216,7 +216,7 @@ describe('InitialDataLoader', () => {
 
     renderApp();
 
-    expect(screen.getByText('500 - Server Error')).toBeDefined();
+    expect(screen.getByText('500 – Server Error')).toBeDefined();
     expect(screen.getByText('Boom')).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(refetch).toHaveBeenCalled();

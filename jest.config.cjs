@@ -28,7 +28,8 @@ module.exports = {
   // tests can render real bitkit components — bitkit v1 ships raw TS from `src/`, bitkit-v2 ships an
   // ESM dist. Both barrels re-export a markdown component; a test that renders them should
   // `jest.mock('react-markdown', ...)` rather than pull in that ESM dependency tree.
-  transformIgnorePatterns: ['/node_modules/(?!@bitrise/(languageserver|bitkit(-v2)?)/)', '\\.pnp\\.[^\\/]+$'],
+  // Storybook ships ESM only; it is compiled too so a spec can render stories with `composeStories`.
+  transformIgnorePatterns: ['/node_modules/(?!(@bitrise/(languageserver|bitkit(-v2)?)|@storybook|storybook)/)', '\\.pnp\\.[^\\/]+$'],
   setupFiles: ['<rootDir>/spec/set-node-env.ts'],
   setupFilesAfterEnv: ['<rootDir>/spec/setup-jest.ts'],
   moduleDirectories: ['node_modules', '<rootDir>/spec/__mocks__'],

@@ -38,11 +38,7 @@ const MainLayout = () => {
       {tabsUnderHeader && <OpenFileTabs />}
       <Box display="flex" flex="1" minHeight={0}>
         {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
-        <Navigation
-          borderRight="1px solid"
-          borderColor="border/regular"
-          style={{ display: isYmlPage ? 'none' : undefined }}
-        />
+        <Navigation style={{ display: isYmlPage ? 'none' : undefined }} />
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">

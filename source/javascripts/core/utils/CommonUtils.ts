@@ -56,6 +56,14 @@ function download(content: string, fileName: string, type: string) {
   document.body.removeChild(link);
 }
 
+/**
+ * Downloads a config file under its path, flattened (slashes → dashes) so same-named modules in
+ * different folders don't collide as downloaded files.
+ */
+function downloadYml(content: string, path: string) {
+  download(content, path.replace(/\//g, '-'), 'application/yaml;charset=utf-8');
+}
+
 function getFormattedDate(date: Date): string {
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -95,6 +103,7 @@ function getCookie(cname: string): string {
 
 export {
   download,
+  downloadYml,
   findScrollContainer,
   generateUniqueEntityId,
   getCookie,

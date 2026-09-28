@@ -16,7 +16,7 @@ const UNSET_KEYWORD = 'unset';
 const LATEST_KEYWORD = 'latest';
 const INSTALLED_KEYWORD = 'installed';
 
-/** The keywords `latest-of` can carry. Matched ignoring case, unlike the CLI. See `docs/domain.md`. */
+/** The keywords `latest-of` can carry. Matched ignoring case, unlike the CLI, because that matches intent. */
 const LATEST_OF_KEYWORDS = [
   { keyword: INSTALLED_KEYWORD, preferInstalled: true },
   { keyword: LATEST_KEYWORD, preferInstalled: false },

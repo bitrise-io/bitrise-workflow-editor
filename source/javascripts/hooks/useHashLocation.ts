@@ -5,7 +5,7 @@ type Options = {
   state?: Record<string, unknown>;
 };
 
-const navigate = (to: Path, { state }: Options = {}): void => {
+export const navigate = (to: Path, { state }: Options = {}): void => {
   const hash = to.replace(/^\/?#?!?\/?/, '');
   const targetUrl = new URL(window.parent.location.href);
 
@@ -25,6 +25,9 @@ const useHashLocation: BaseLocationHook = () => {
     };
 
     window.parent.addEventListener('hashchange', listener);
+    // A navigation between render and subscribing (e.g. the layout-effect `<Redirect>` in
+    // MainLayout) fires its `hashchange` before this listener exists, so re-read once now.
+    listener();
 
     return () => {
       window.parent.removeEventListener('hashchange', listener);
