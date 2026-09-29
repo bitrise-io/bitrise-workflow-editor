@@ -15,10 +15,71 @@ import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
+import YmlUtils from './YmlUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
 loader.config({ monaco });
+
+const YAML_SHARING_OWNER = 'wfe-yaml-sharing';
+
+const YAML_SHARING_MARKERS = {
+  alias: {
+    severity: monaco.MarkerSeverity.Warning,
+    message:
+      "The Visual editor doesn't support YAML aliases, so it's off for this configuration. Builds aren't affected: the Bitrise CLI expands aliases.",
+  },
+  'merge-key': {
+    severity: monaco.MarkerSeverity.Warning,
+    message:
+      "The Visual editor doesn't support YAML merge keys (`<<`), so it's off for this configuration. Builds aren't affected: the Bitrise CLI applies them.",
+  },
+  anchor: {
+    severity: monaco.MarkerSeverity.Info,
+    message:
+      "A YAML anchor, which aliases (`*name`) can reuse. An anchor on its own doesn't turn the Visual editor off; an alias that uses it does.",
+  },
+  'unresolved-alias': {
+    severity: monaco.MarkerSeverity.Error,
+    message: "This alias doesn't match any anchor above it in this file, so the YAML is invalid.",
+  },
+} as const;
+
+function yamlSharingMarkers(model: monaco.editor.ITextModel): monaco.editor.IMarkerData[] {
+  return YmlUtils.findYamlSharingMarks(model.getValue()).map(({ kind, start, end, message }) => {
+    const from = model.getPositionAt(start);
+    const to = model.getPositionAt(end);
+    return {
+      severity: YAML_SHARING_MARKERS[kind].severity,
+      message: message ?? YAML_SHARING_MARKERS[kind].message,
+      source: 'Workflow Editor',
+      startLineNumber: from.lineNumber,
+      startColumn: from.column,
+      endLineNumber: to.lineNumber,
+      endColumn: to.column,
+    };
+  });
+}
+
+/** Marks aliases, anchors, merge keys and unresolved aliases in every editable YAML model. */
+function watchYamlSharing(monacoInstance: Parameters<BeforeMountHandler>[0]) {
+  const watch = (model: monaco.editor.ITextModel) => {
+    if (model.getLanguageId() !== 'yaml' || model.uri.scheme === MERGED_MODEL_SCHEME) {
+      return;
+    }
+    const update = () => monacoInstance.editor.setModelMarkers(model, YAML_SHARING_OWNER, yamlSharingMarkers(model));
+    const updateSoon = debounce(update, 300);
+    const contentSubscription = model.onDidChangeContent(updateSoon);
+    model.onWillDispose(() => {
+      updateSoon.cancel();
+      contentSubscription.dispose();
+    });
+    update();
+  };
+
+  monacoInstance.editor.getModels().forEach(watch);
+  monacoInstance.editor.onDidCreateModel(watch);
+}
 
 let isConfiguredForYaml = false;
 const configureForYaml: BeforeMountHandler = (monacoInstance) => {
@@ -39,6 +100,7 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
     });
   }
 
+  watchYamlSharing(monacoInstance);
   isConfiguredForYaml = true;
 };
 

@@ -4,6 +4,7 @@ import * as monaco from 'monaco-editor';
 import { http, HttpResponse } from 'msw';
 
 import ConfigSettingsMenu from '@/components/unified-editor/ConfigSettingsMenu/ConfigSettingsMenu';
+import MonacoUtils from '@/core/utils/MonacoUtils';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
 import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
@@ -146,11 +147,16 @@ function storeState(yml: string) {
   return { ymlDocument: doc, savedYmlDocument: doc, __invalidYmlString: undefined };
 }
 
-// The visual editor is off for these, and the alert says why.
+// The visual editor is off for these: the alert says why, and each alias, anchor and merge key is
+// marked. The app wires the markers up in InitialDataLoader, which a page story doesn't mount.
+const withYamlSharingMarkers = () => MonacoUtils.configureForYaml(monaco);
+
 export const WithAliases: StoryType = {
+  beforeEach: withYamlSharingMarkers,
   parameters: { bitriseYmlStore: storeState(ALIASES) },
 };
 
 export const WithAliasesAndMergeKeys: StoryType = {
+  beforeEach: withYamlSharingMarkers,
   parameters: { bitriseYmlStore: storeState(ALIASES_AND_MERGE_KEYS) },
 };

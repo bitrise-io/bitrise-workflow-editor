@@ -14,6 +14,7 @@ import {
   Node,
   Pair,
   parseDocument,
+  Parser,
   Scalar,
   stringify,
   visit,
@@ -720,6 +721,63 @@ function summarizeYamlSharing(doc: Document): YamlSharing {
   return sharing;
 }
 
+type YamlSharingMark = {
+  kind: 'alias' | 'anchor' | 'merge-key' | 'unresolved-alias';
+  start: number;
+  end: number;
+  // An unresolved alias carries the parse error's own message, which says why it can't be resolved.
+  message?: string;
+};
+
+/** Where the YAML editor marks aliases, anchors, merge keys and unresolved aliases, by source offset. */
+function findYamlSharingMarks(raw: string): YamlSharingMark[] {
+  if (!raw.includes('*') && !raw.includes('&') && !raw.includes('<<')) {
+    return [];
+  }
+  const doc = toDoc(raw);
+  const marks: YamlSharingMark[] = doc.errors
+    .filter(({ code }) => code === 'BAD_ALIAS')
+    .map(({ pos: [start, end], message }) => ({ kind: 'unresolved-alias', start, end, message }));
+  const unresolvedStarts = new Set(marks.map(({ start }) => start));
+  const add = (kind: YamlSharingMark['kind'], range?: [number, number, number] | null) => {
+    if (range && !unresolvedStarts.has(range[0])) {
+      marks.push({ kind, start: range[0], end: range[1] });
+    }
+  };
+  let hasAnchors = false;
+  visit(doc, {
+    Pair(_, pair) {
+      if (isMergeKey(pair)) {
+        add('merge-key', (pair.key as Scalar).range);
+      }
+    },
+    Alias(_, alias) {
+      add('alias', alias.range);
+    },
+    Node(_, node) {
+      hasAnchors ||= Boolean(node.anchor);
+    },
+  });
+  // The document keeps an anchor's name but not its position, so anchors come from the parser's tokens.
+  // That second parse is skipped when no node has an anchor, unless the document is broken enough to
+  // have lost one.
+  const collectAnchors = (value: unknown) => {
+    if (Array.isArray(value)) {
+      value.forEach(collectAnchors);
+    } else if (value && typeof value === 'object') {
+      const token = value as { type?: string; offset?: number; source?: string };
+      if (token.type === 'anchor' && typeof token.offset === 'number' && token.source) {
+        marks.push({ kind: 'anchor', start: token.offset, end: token.offset + token.source.length });
+      }
+      Object.values(value).forEach(collectAnchors);
+    }
+  };
+  if (hasAnchors || doc.errors.length > 0) {
+    collectAnchors([...new Parser().parse(raw)]);
+  }
+  return marks.sort((a, b) => a.start - b.start);
+}
+
 /** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
 function usesYamlSharing(doc: Document) {
   const { hasAliases, hasMergeKeys } = summarizeYamlSharing(doc);
@@ -753,6 +811,7 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  findYamlSharingMarks,
   isMergeKey,
   summarizeYamlSharing,
   usesYamlSharing,
