@@ -12,6 +12,7 @@ import {
   isScalar,
   isSeq,
   Node,
+  Pair,
   parseDocument,
   Scalar,
   stringify,
@@ -121,6 +122,8 @@ function toYml(root: Root) {
     flowCollectionPadding: paddings >= 0,
   });
 }
+
+/** Whether the document has an alias that can't be resolved, which throws once anything serializes it. */
 
 function toJSON(root: Root) {
   return (root.toJSON() ?? {}) as BitriseYml;
@@ -655,6 +658,41 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
   }
 }
 
+// A quoted `"<<"` is an ordinary key.
+const isMergeKey = (pair: Pair) =>
+  isScalar(pair.key) && pair.key.value === '<<' && (!pair.key.type || pair.key.type === Scalar.PLAIN);
+
+type YamlSharing = { hasAliases: boolean; hasMergeKeys: boolean };
+
+const yamlSharingCache = new WeakMap<Document, YamlSharing>();
+
+/** Whether the document uses aliases or merge keys. The alias under a merge key counts as both. */
+function summarizeYamlSharing(doc: Document): YamlSharing {
+  const cached = yamlSharingCache.get(doc);
+  if (cached) {
+    return cached;
+  }
+
+  const sharing: YamlSharing = { hasAliases: false, hasMergeKeys: false };
+  visit(doc, {
+    Pair(_, pair) {
+      sharing.hasMergeKeys ||= isMergeKey(pair);
+    },
+    Alias() {
+      sharing.hasAliases = true;
+    },
+  });
+
+  yamlSharingCache.set(doc, sharing);
+  return sharing;
+}
+
+/** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
+function usesYamlSharing(doc: Document) {
+  const { hasAliases, hasMergeKeys } = summarizeYamlSharing(doc);
+  return hasAliases || hasMergeKeys;
+}
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -682,4 +720,7 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  isMergeKey,
+  summarizeYamlSharing,
+  usesYamlSharing,
 };

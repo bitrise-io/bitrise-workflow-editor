@@ -54,6 +54,14 @@ describe('InvalidYmlRedirect', () => {
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
   });
 
+  it('redirects to /yml when the YAML uses aliases, which the visual editor does not support', () => {
+    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+
+    render(<InvalidYmlRedirect />);
+
+    expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
+  });
+
   it('preserves the current query string when redirecting', () => {
     setPath('/workflows?workflow_id=primary');
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });

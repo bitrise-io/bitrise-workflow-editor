@@ -147,6 +147,61 @@ describe('EntityIndexService', () => {
       expect(result.appEnvs?.MODULE_ONLY).toEqual([{ nodeId: 'n_module' }]);
     });
 
+    it('skips only the aliased or merged entries of a file and indexes the rest', () => {
+      const tree = node('n_root');
+      const files = {
+        n_root: file(
+          [
+            'workflows:',
+            '  primary: &primary',
+            '    envs: &shared_envs',
+            '    - GRADLE_OPTS: -Xmx4g',
+            '    - &java_opts',
+            '      JAVA_OPTS: -Xmx2g',
+            '  nightly: *primary', // an aliased entity: only its key is read, so it's indexed
+            '  release:',
+            '    <<: *primary', // a merge key inside an entity doesn't matter to the index
+            'pipelines:',
+            '  <<: {}', // a merge key directly under a section isn't an entity
+            '  ship: {}',
+            'app:',
+            '  envs:',
+            '  - *java_opts', // an aliased env entry is skipped
+            '  - OTHER: "1"',
+            '',
+          ].join('\n'),
+        ),
+      };
+
+      const result = EntityIndexService.buildFromFiles(tree, files);
+
+      expect(Object.keys(result.workflows)).toEqual(['primary', 'nightly', 'release']);
+      expect(Object.keys(result.pipelines)).toEqual(['ship']);
+      expect(Object.keys(result.appEnvs ?? {})).toEqual(['OTHER']);
+    });
+
+    it('skips a whole section or env list that is an alias, without throwing', () => {
+      const tree = node('n_root');
+      const files = {
+        n_root: file(
+          [
+            'workflows:',
+            '  primary:',
+            '    envs: &shared_envs',
+            '    - A: "1"',
+            'app:',
+            '  envs: *shared_envs',
+            '',
+          ].join('\n'),
+        ),
+      };
+
+      const result = EntityIndexService.buildFromFiles(tree, files);
+
+      expect(Object.keys(result.workflows)).toEqual(['primary']);
+      expect(result.appEnvs ?? {}).toEqual({});
+    });
+
     it('skips nodes without a loaded document and tolerates docs without entity sections', () => {
       const tree = node('n_root', [node('n_not_loaded')]);
       const files = {

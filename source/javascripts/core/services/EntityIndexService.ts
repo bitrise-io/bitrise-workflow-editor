@@ -1,4 +1,4 @@
-import { Document } from 'yaml';
+import { Document, isMap, isSeq } from 'yaml';
 
 import { EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
 import YmlUtils from '@/core/utils/YmlUtils';
@@ -43,11 +43,18 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
 
     const doc = files[node.nodeId]?.ymlDocument;
     if (doc) {
+      // yaml's own `getIn` returns an alias node instead of following it, where `getMapIn` would throw.
+      // So an aliased section, env list or env entry is skipped, and so is a merge key, while the rest
+      // of the file is indexed. Nothing reads what's skipped: any alias or merge key makes the whole
+      // config YAML-only.
       KIND_SECTIONS.forEach(({ section, key }) => {
-        const map = YmlUtils.getMapIn(doc, [section]);
-        map?.items.forEach((pair) => {
+        const map = doc.getIn([section], true);
+        if (!isMap(map)) {
+          return;
+        }
+        map.items.forEach((pair) => {
           const entityId = String(pair.key);
-          if (!entityId) {
+          if (!entityId || YmlUtils.isMergeKey(pair)) {
             return;
           }
           ((index[key] ??= {})[entityId] ||= []).push({ nodeId: node.nodeId });
@@ -55,18 +62,22 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
       });
 
       // Project env vars are array-shaped (`app.envs: [{ KEY: value, opts? }]`), keyed by var name.
-      const envs = YmlUtils.getSeqIn(doc, ['app', 'envs']);
-      envs?.items.forEach((_item, i) => {
-        const envMap = YmlUtils.getMapIn(doc, ['app', 'envs', i]);
-        envMap?.items.forEach((pair) => {
-          const envKey = String(pair.key);
-          // The var name is the single non-`opts` key of the entry.
-          if (!envKey || envKey === 'opts') {
+      const envs = doc.getIn(['app', 'envs'], true);
+      if (isSeq(envs)) {
+        envs.items.forEach((envMap) => {
+          if (!isMap(envMap)) {
             return;
           }
-          ((index.appEnvs ??= {})[envKey] ||= []).push({ nodeId: node.nodeId });
+          envMap.items.forEach((pair) => {
+            const envKey = String(pair.key);
+            // The var name is the single non-`opts` key of the entry.
+            if (!envKey || envKey === 'opts' || YmlUtils.isMergeKey(pair)) {
+              return;
+            }
+            ((index.appEnvs ??= {})[envKey] ||= []).push({ nodeId: node.nodeId });
+          });
         });
-      });
+      }
     }
 
     for (let i = node.includes.length - 1; i >= 0; i -= 1) {

@@ -9,7 +9,9 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
+import useTrackYamlSharing from '@/hooks/useTrackYamlSharing';
 import { useTree } from '@/hooks/useTree';
+import useVisualEditorBlocker from '@/hooks/useVisualEditorBlocker';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import InvalidYmlRedirect from '@/layouts/InvalidYmlRedirect';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
@@ -30,7 +32,11 @@ const MainLayout = () => {
   // shows the loading state (settings check + tree/legacy fetch).
   const isConfigLoading = useIsConfigLoading();
 
+  // A blocked visual page must not render even once: it would throw before the redirect's effect runs.
+  const isVisualPageBlocked = Boolean(useVisualEditorBlocker()) && !isYmlPage;
+
   useMergedConfigSync();
+  useTrackYamlSharing();
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column">
@@ -47,12 +53,14 @@ const MainLayout = () => {
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>
                 <InvalidYmlRedirect />
-                <Switch>
-                  {routes.map(({ path, component }) => (
-                    <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
-                  ))}
-                  <Redirect to={paths.workflows} replace />
-                </Switch>
+                {!isVisualPageBlocked && (
+                  <Switch>
+                    {routes.map(({ path, component }) => (
+                      <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
+                    ))}
+                    <Redirect to={paths.workflows} replace />
+                  </Switch>
+                )}
               </Router>
             )}
           </Box>

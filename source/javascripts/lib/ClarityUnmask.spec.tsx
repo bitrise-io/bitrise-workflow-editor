@@ -295,6 +295,7 @@ describe('Clarity unmasking', () => {
       'pages/TriggersPage/components/LegacyTriggers/OrderOfTriggersNotification.tsx': 1,
       'pages/TriggersPage/components/TargetBasedTriggers/AddTriggerButton.tsx': 2,
       'pages/TriggersPage/components/TargetBasedTriggers/TargetBasedTriggers.tsx': 2,
+      'pages/YmlPage/components/YamlSharingNotification.tsx': 1,
       'pages/YmlPage/components/YourCiConfigIsSplitNotification.tsx': 1,
     };
 
