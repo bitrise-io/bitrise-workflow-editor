@@ -2057,4 +2057,29 @@ describe('YmlUtils', () => {
       expect(YmlUtils.hasUnresolvedAliases(YmlUtils.toDoc('a: 1\na: 2\n'))).toBe(false);
     });
   });
+
+  describe('findYamlSharingMarks', () => {
+    const marked = (raw: string) =>
+      YmlUtils.findYamlSharingMarks(raw).map(({ kind, start, end }) => [kind, raw.slice(start, end)]);
+
+    it('marks each anchor, alias and merge key by its position', () => {
+      expect(marked(['base: &base', '  a: 1', 'copy: *base', 'merged:', '  <<: *base', ''].join('\n'))).toEqual([
+        ['anchor', '&base'],
+        ['alias', '*base'],
+        ['merge-key', '<<'],
+        ['alias', '*base'],
+      ]);
+    });
+
+    it('marks an alias with no anchor as unresolved, once', () => {
+      expect(marked('a: &shared 1\nb: *shar\n')).toEqual([
+        ['anchor', '&shared'],
+        ['unresolved-alias', '*shar'],
+      ]);
+    });
+
+    it('finds nothing in a config without sharing', () => {
+      expect(YmlUtils.findYamlSharingMarks('workflows:\n  a: {}\n')).toEqual([]);
+    });
+  });
 });

@@ -21,8 +21,8 @@ const YamlSharingNotification = () => {
       titleText={getVisualEditorBlockerMessage('yaml-alias').title}
       messageText={
         paths.length > 0
-          ? `${paths.join(', ')} ${paths.length === 1 ? 'uses' : 'use'} ${unsupported}. You can keep editing every file here.`
-          : `It uses ${unsupported}. You can keep editing it here.`
+          ? `${paths.join(', ')} ${paths.length === 1 ? 'uses' : 'use'} ${unsupported}. You can keep editing every file here, and the marked lines show where they are.`
+          : `It uses ${unsupported}. You can keep editing it here, and the marked lines show where they are.`
       }
     />
   );

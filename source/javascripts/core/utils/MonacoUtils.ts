@@ -15,6 +15,7 @@ import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
+import YmlUtils from './YmlUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
@@ -238,6 +239,71 @@ const configureBitriseLanguageServer: BeforeMountHandler = (monacoInstance) => {
   isConfiguredForBitriseLanguageServer = true;
 };
 
+const YAML_SHARING_OWNER = 'wfe-yaml-sharing';
+
+const YAML_SHARING_MARKERS = {
+  alias: {
+    severity: monaco.MarkerSeverity.Warning,
+    message:
+      "YAML alias. The Visual editor doesn't support aliases yet, so it's off for this configuration. Builds aren't affected: the Bitrise CLI resolves aliases.",
+  },
+  'merge-key': {
+    severity: monaco.MarkerSeverity.Warning,
+    message:
+      "YAML merge key. The Visual editor doesn't support merge keys yet, so it's off for this configuration. Builds aren't affected: the Bitrise CLI applies them.",
+  },
+  anchor: {
+    severity: monaco.MarkerSeverity.Info,
+    message: 'YAML anchor. On its own it changes nothing; the aliases that use it turn the Visual editor off.',
+  },
+  'unresolved-alias': {
+    severity: monaco.MarkerSeverity.Error,
+    message:
+      "This alias has no anchor before it in this file, so the YAML is invalid. Anchors don't carry across included files.",
+  },
+} as const;
+
+function yamlSharingMarkers(model: monaco.editor.ITextModel): monaco.editor.IMarkerData[] {
+  return YmlUtils.findYamlSharingMarks(model.getValue()).map(({ kind, start, end }) => {
+    const from = model.getPositionAt(start);
+    const to = model.getPositionAt(end);
+    return {
+      ...YAML_SHARING_MARKERS[kind],
+      source: 'Workflow Editor',
+      startLineNumber: from.lineNumber,
+      startColumn: from.column,
+      endLineNumber: to.lineNumber,
+      endColumn: to.column,
+    };
+  });
+}
+
+let isMarkingYamlSharing = false;
+/** Marks aliases, anchors, merge keys and unresolved aliases in every editable YAML model. */
+const configureYamlSharingMarkers: BeforeMountHandler = (monacoInstance) => {
+  if (isMarkingYamlSharing) {
+    return;
+  }
+  isMarkingYamlSharing = true;
+
+  const watch = (model: monaco.editor.ITextModel) => {
+    if (model.getLanguageId() !== 'yaml' || model.uri.scheme === MERGED_MODEL_SCHEME) {
+      return;
+    }
+    const update = () => monacoInstance.editor.setModelMarkers(model, YAML_SHARING_OWNER, yamlSharingMarkers(model));
+    const updateSoon = debounce(update, 300);
+    const contentSubscription = model.onDidChangeContent(updateSoon);
+    model.onWillDispose(() => {
+      updateSoon.cancel();
+      contentSubscription.dispose();
+    });
+    update();
+  };
+
+  monacoInstance.editor.getModels().forEach(watch);
+  monacoInstance.editor.onDidCreateModel(watch);
+};
+
 export type ValidationStatus = 'valid' | 'invalid' | 'warnings';
 
 /**
@@ -306,6 +372,7 @@ function onModelMarkerStatusChange(
 
 export default {
   configureForYaml,
+  configureYamlSharingMarkers,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
   onModelMarkerStatusChange,

@@ -15,6 +15,7 @@ import {
   Node,
   Pair,
   parseDocument,
+  Parser,
   Scalar,
   stringify,
   visit,
@@ -736,6 +737,49 @@ function summarizeYamlSharing(doc: Document): YamlSharing {
   return sharing;
 }
 
+type YamlSharingMark = { kind: 'alias' | 'anchor' | 'merge-key' | 'unresolved-alias'; start: number; end: number };
+
+/** Where the YAML editor marks aliases, anchors, merge keys and unresolved aliases, by source offset. */
+function findYamlSharingMarks(raw: string): YamlSharingMark[] {
+  if (!raw.includes('*') && !raw.includes('&') && !raw.includes('<<')) {
+    return [];
+  }
+  const doc = toDoc(raw);
+  const marks: YamlSharingMark[] = doc.errors
+    .filter(isUnresolvedAliasError)
+    .map(({ pos: [start, end] }) => ({ kind: 'unresolved-alias', start, end }));
+  const unresolvedStarts = new Set(marks.map(({ start }) => start));
+  const add = (kind: YamlSharingMark['kind'], range?: [number, number, number] | null) => {
+    if (range && !unresolvedStarts.has(range[0])) {
+      marks.push({ kind, start: range[0], end: range[1] });
+    }
+  };
+  visit(doc, {
+    Pair(_, pair) {
+      if (isMergeKey(pair)) {
+        add('merge-key', (pair.key as Scalar).range);
+      }
+    },
+    Alias(_, alias) {
+      add('alias', alias.range);
+    },
+  });
+  // The document keeps an anchor's name but not its position, so anchors come from the parser's tokens.
+  const collectAnchors = (value: unknown) => {
+    if (Array.isArray(value)) {
+      value.forEach(collectAnchors);
+    } else if (value && typeof value === 'object') {
+      const token = value as { type?: string; offset?: number; source?: string };
+      if (token.type === 'anchor' && typeof token.offset === 'number' && token.source) {
+        marks.push({ kind: 'anchor', start: token.offset, end: token.offset + token.source.length });
+      }
+      Object.values(value).forEach(collectAnchors);
+    }
+  };
+  collectAnchors([...new Parser().parse(raw)]);
+  return marks.sort((a, b) => a.start - b.start);
+}
+
 /** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
 function usesYamlSharing(doc: Document) {
   const { hasAliases, hasMergeKeys } = summarizeYamlSharing(doc);
@@ -769,6 +813,7 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  findYamlSharingMarks,
   hasUnresolvedAliases,
   summarizeYamlSharing,
   usesYamlSharing,
