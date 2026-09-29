@@ -2014,6 +2014,23 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+  describe('toDoc with an alias that has no anchor', () => {
+    const codes = (raw: string) => YmlUtils.toDoc(raw).errors.map(({ code }) => code);
+
+    it('reports it when parsing, rather than when the document is written out later', () => {
+      expect(codes('a: &shared 1\nb: *shar\n')).toEqual(['BAD_ALIAS']);
+      expect(() => YmlUtils.toDoc('a: &shared 1\nb: *shared\n').toString()).not.toThrow();
+    });
+
+    it('reports an alias inside its own anchor, which the CLI rejects', () => {
+      expect(codes('a: &x [1, *x]\n')).toEqual(['BAD_ALIAS']);
+    });
+
+    it('reports it next to another error, such as a duplicate key', () => {
+      expect(codes('a: 1\na: 2\nb: *missing\n')).toEqual(['DUPLICATE_KEY', 'BAD_ALIAS']);
+    });
+  });
+
   describe('summarizeYamlSharing', () => {
     it('ignores an anchor nothing refers to', () => {
       expect(YmlUtils.summarizeYamlSharing(YmlUtils.toDoc('a: &x 1\nb: 2\n'))).toEqual({

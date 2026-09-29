@@ -273,6 +273,20 @@ export function isFileDirty(slice?: FileSlice) {
 
 /** State patch binding a document as the single active `ymlDocument` the whole WFE reads/writes. */
 function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, savedYmlDocument = ymlDocument) {
+  // A file loaded with parse errors opens like invalid YAML typed into the editor: its raw text is
+  // kept as the invalid string and an empty document stands in. Its own document stays in `files`,
+  // so saving writes the raw text back.
+  if (ymlDocument.errors.length > 0) {
+    const raw = YmlUtils.toYml(ymlDocument);
+    return {
+      selectedNodeId,
+      version: '',
+      ymlDocument: new Document(),
+      savedYmlDocument: new Document(),
+      __invalidYmlString: raw,
+      __savedInvalidYmlString: raw,
+    };
+  }
   return {
     selectedNodeId,
     // `version` is unused in modular mode (conflict detection keys off commit_sha).
@@ -280,6 +294,7 @@ function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, save
     ymlDocument,
     savedYmlDocument,
     __invalidYmlString: undefined,
+    __savedInvalidYmlString: undefined,
   };
 }
 
@@ -364,11 +379,9 @@ function modularTreePatch(
     tree: root,
     files,
     entityIndex,
-    version: '',
-    ymlDocument: activeSlice.ymlDocument,
-    savedYmlDocument: activeSlice.savedYmlDocument,
-    __invalidYmlString: undefined,
-    __savedInvalidYmlString: undefined,
+    // Binds the active file the one way every binding does, so a file with parse errors opens as
+    // invalid YAML here too. It selects `activeSlice`; callers override that when they select another.
+    ...activeDocumentPatch(activeSlice.nodeId, activeSlice.ymlDocument, activeSlice.savedYmlDocument),
   };
 }
 
@@ -396,15 +409,10 @@ export function initializeModularConfig({
   // it under the merged tab would be worse than not selecting that tab: a module's entity would
   // resolve there against the root document and the page would rewrite the URL — the very bug the
   // merged default fixes. The merged tab stays stale, so re-selecting it retries the merge.
-  const rootSlice = files[root.nodeId];
-  const activePatch =
-    merge !== undefined
-      ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(merge))
-      : activeDocumentPatch(root.nodeId, rootSlice.ymlDocument, rootSlice.savedYmlDocument);
-
+  // The tree patch binds the root file; with a merge, the merged tab is bound over it.
   bitriseYmlStore.setState({
-    ...modularTreePatch(root, files, entityIndex, rootSlice),
-    ...activePatch,
+    ...modularTreePatch(root, files, entityIndex, files[root.nodeId]),
+    ...(merge !== undefined ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(merge)) : {}),
     openTabs: [{ nodeId: root.nodeId, isPreview: false }],
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
     mergedYml: merge,

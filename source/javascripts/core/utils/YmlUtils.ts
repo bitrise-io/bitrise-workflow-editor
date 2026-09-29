@@ -18,6 +18,7 @@ import {
   stringify,
   visit,
   YAMLMap,
+  YAMLParseError,
   YAMLSeq,
 } from 'yaml';
 
@@ -66,11 +67,45 @@ function rawErrorSource(root: Root): string | undefined {
   return isDocument(root) && root.errors.length > 0 ? rawSourceByErrorDoc.get(root) : undefined;
 }
 
+/**
+ * The parser accepts an alias whose anchor doesn't exist (yet, while the user is typing `*na…`), and
+ * every later serialization throws. It also accepts an alias inside the node it refers to
+ * (`a: &x [*x]`), which the CLI rejects ("anchor 'x' value contains itself"). Report both as the
+ * parse error they are.
+ */
+function addUnresolvedAliasErrors(doc: Document, raw: string) {
+  if (!raw.includes('*')) {
+    return;
+  }
+  // One pass in document order, the order `Alias.resolve` searches in. Calling `resolve` per alias
+  // walks the whole document each time, which is quadratic on configs that alias heavily.
+  const anchors = new Set<string>();
+  visit(doc, {
+    Alias(_, alias, path) {
+      const containsItself = path.some((ancestor) => isNode(ancestor) && ancestor.anchor === alias.source);
+      if (!anchors.has(alias.source) || containsItself) {
+        const [start, end] = alias.range ?? [0, 0];
+        const message = containsItself
+          ? `The alias *${alias.source} is inside its own anchor &${alias.source}, so it can't be resolved.`
+          : `There's no anchor &${alias.source} above the alias *${alias.source} in this file. An anchor can't be used from another file.`;
+        // BAD_ALIAS is yaml's own code for an alias it can't use, such as an empty one.
+        doc.errors.push(new YAMLParseError([start, end], 'BAD_ALIAS', message));
+      }
+    },
+    Node(_, node) {
+      if (node.anchor) {
+        anchors.add(node.anchor);
+      }
+    },
+  });
+}
+
 function toDoc(raw: string) {
   const doc = parseDocument(raw, {
     stringKeys: true,
     keepSourceTokens: true,
   });
+  addUnresolvedAliasErrors(doc, raw);
   if (doc.errors.length > 0) {
     rawSourceByErrorDoc.set(doc, raw);
   }
@@ -122,8 +157,6 @@ function toYml(root: Root) {
     flowCollectionPadding: paddings >= 0,
   });
 }
-
-/** Whether the document has an alias that can't be resolved, which throws once anything serializes it. */
 
 function toJSON(root: Root) {
   return (root.toJSON() ?? {}) as BitriseYml;

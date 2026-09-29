@@ -8,6 +8,7 @@ import {
   discardBitriseYmlDocument,
   discardFile,
   getModularConfigTree,
+  getYmlString,
   initializeBitriseYmlDocument,
   initializeModularConfig,
   isFileDirty,
@@ -94,6 +95,36 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('initializeModularConfig', () => {
+    it('opens a file loaded with parse errors the way invalid YAML typed into the editor opens', () => {
+      const brokenContents = 'workflows: *missing\n';
+      initializeModularConfig({
+        root: node('root', {
+          path: 'bitrise.yml',
+          includes: [node('broken', { contents: brokenContents })],
+        }),
+        mergedYml: MERGED_YML,
+      });
+
+      openTab('broken');
+
+      // The raw text is the invalid string, unchanged, so the YAML view shows it and nothing counts as edited.
+      const state = bitriseYmlStore.getState();
+      expect(state.__invalidYmlString).toBe(brokenContents);
+      expect(state.__savedInvalidYmlString).toBe(brokenContents);
+      expect(getYmlString()).toBe(brokenContents);
+      expect(state.hasChanges).toBe(false);
+
+      // Fixing the text makes it a normal document again.
+      updateBitriseYmlDocumentByString('workflows:\n  fixed: {}\n');
+      expect(bitriseYmlStore.getState().__invalidYmlString).toBeUndefined();
+      expect(YmlUtils.toYml(bitriseYmlStore.getState().files.broken.ymlDocument)).toBe('workflows:\n  fixed: {}\n');
+
+      // A clean file opens as usual.
+      openTab('root');
+      expect(bitriseYmlStore.getState().__invalidYmlString).toBeUndefined();
+      expect(bitriseYmlStore.getState().__savedInvalidYmlString).toBeUndefined();
+    });
+
     it('flattens the tree into file slices keyed by node_id', () => {
       const { files } = bitriseYmlStore.getState();
       expect(Object.keys(files).sort()).toEqual(['child-a', 'child-b', 'readonly', 'root']);
@@ -602,6 +633,21 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('applyModularSaveResult', () => {
+    it('keeps a selected file that reloads with parse errors after a save as invalid YAML', () => {
+      initializeModularConfig({
+        root: node('root', { path: 'bitrise.yml', includes: [node('child-a')] }),
+        mergedYml: MERGED_YML,
+      });
+      openTab('child-a');
+
+      applyModularSaveResult({
+        root: node('root', { path: 'bitrise.yml', includes: [node('child-a', { contents: 'workflows: *missing\n' })] }),
+      });
+
+      expect(bitriseYmlStore.getState().selectedNodeId).toBe('child-a');
+      expect(bitriseYmlStore.getState().__invalidYmlString).toBe('workflows: *missing\n');
+    });
+
     it('refreshes files + index while preserving valid tabs and selection', () => {
       openTab('child-a', { preview: false });
       selectNode('child-a');
