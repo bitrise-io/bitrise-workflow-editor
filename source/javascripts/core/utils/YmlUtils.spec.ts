@@ -2029,4 +2029,13 @@ describe('YmlUtils', () => {
       expect(YmlUtils.toDoc(raw).errors.map(({ code }) => code)).toEqual(codes);
     });
   });
+
+  it.each([
+    ['an alias', 'a: &x 1\nb: *x\n', true],
+    ['a merge key', 'b:\n  <<: {k: 1}\n', true],
+    ['only an unused anchor', 'a: &x 1\n', false],
+    ['a quoted "<<" key', 'b:\n  "<<": 1\n', false],
+  ])('hasAliasesOrMergeKeys is right for %s', (_, raw, expected) => {
+    expect(YmlUtils.hasAliasesOrMergeKeys(YmlUtils.toDoc(raw))).toBe(expected);
+  });
 });

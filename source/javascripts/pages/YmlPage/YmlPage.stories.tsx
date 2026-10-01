@@ -1,9 +1,12 @@
 import { Box } from '@bitrise/bitkit';
 import { Meta, StoryObj } from '@storybook/react-vite';
+import * as monaco from 'monaco-editor';
 import { http, HttpResponse } from 'msw';
 
 import ConfigSettingsMenu from '@/components/unified-editor/ConfigSettingsMenu/ConfigSettingsMenu';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import YmlUtils from '@/core/utils/YmlUtils';
+import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
 
 import YmlPage from './YmlPage';
 
@@ -12,6 +15,9 @@ type StoryType = StoryObj<typeof YmlPage>;
 export default {
   component: YmlPage,
   beforeEach: () => {
+    // The editor keeps its model across unmounts, and in the app the language services keep it in
+    // sync with the store. Stories don't mount those, so without this a story shows the last one's YAML.
+    monaco.editor.getModel(BACKGROUND_MODEL_URI)?.dispose();
     window.parent.pageProps = {
       ...window.parent.pageProps,
       limits: { isRepositoryYmlAvailable: true },
@@ -87,3 +93,33 @@ export const YmlStoredOnGit: StoryType = {
 };
 
 export const YmlStoredOnBitrise: StoryType = {};
+
+// Aliases and a merge key: the alert says why the visual editor is off.
+const YAML_ALIASES = `format_version: "13"
+workflows:
+  primary:
+    envs:
+    - &gradle_opts
+      GRADLE_OPTS: -Xmx4g
+    steps:
+    - script@1: &unit_tests
+        title: Unit tests
+  release:
+    envs:
+    - *gradle_opts
+    steps:
+    - script@1:
+        <<: *unit_tests
+        title: Unit tests before release
+`;
+const YAML_ALIASES_DOC = YmlUtils.toDoc(YAML_ALIASES);
+
+export const WithAliasesAndMergeKeys: StoryType = {
+  parameters: {
+    bitriseYmlStore: {
+      ymlDocument: YAML_ALIASES_DOC,
+      savedYmlDocument: YAML_ALIASES_DOC,
+      __invalidYmlString: undefined,
+    },
+  },
+};
