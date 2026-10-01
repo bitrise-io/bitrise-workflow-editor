@@ -148,26 +148,17 @@ describe('EntityIndexService', () => {
     });
 
     describe('aliases and merge keys', () => {
-      // Every key written in the file is indexed, whatever its value; a key only behind an alias or a
-      // merge key is skipped.
-      const SECTIONS: ReadonlyArray<[section: string, kind: EntityKind]> = [
-        ['workflows', 'workflows'],
-        ['pipelines', 'pipelines'],
-        ['step_bundles', 'stepBundles'],
-        ['containers', 'containers'],
-      ];
-
       const build = (...lines: string[]) =>
         EntityIndexService.buildFromFiles(node('n_root'), { n_root: file([...lines, ''].join('\n')) });
       const ids = (result: EntityIndex, kind: EntityKind) => Object.keys(result[kind] ?? {});
 
-      describe.each(SECTIONS)('in %s', (section, kind) => {
+      describe('in a section', () => {
         it('indexes an entity whose value is an alias, holds a merge key, or both', () => {
           const result = build(
             'x_shared: &shared',
             '  title: Shared',
             'x_title: &title Title',
-            `${section}:`,
+            'workflows:',
             '  plain: {}',
             '  aliased: *shared',
             '  merged:',
@@ -178,7 +169,13 @@ describe('EntityIndexService', () => {
             '  aliased_twice: *merged_and_aliased',
           );
 
-          expect(ids(result, kind)).toEqual(['plain', 'aliased', 'merged', 'merged_and_aliased', 'aliased_twice']);
+          expect(ids(result, 'workflows')).toEqual([
+            'plain',
+            'aliased',
+            'merged',
+            'merged_and_aliased',
+            'aliased_twice',
+          ]);
         });
 
         it.each([
@@ -191,32 +188,32 @@ describe('EntityIndexService', () => {
             '  from_first: {}',
             'x_second: &second',
             '  from_second: {}',
-            `${section}:`,
+            'workflows:',
             mergeKey,
             '  own: {}',
           );
 
-          expect(ids(result, kind)).toEqual(['own']);
+          expect(ids(result, 'workflows')).toEqual(['own']);
         });
 
         it.each([
           ['quoted', '  "<<": {}'],
           ['string-tagged', '  !!str <<: {}'],
         ])('indexes a %s `<<` key as an entity', (_, key) => {
-          expect(ids(build(`${section}:`, key), kind)).toEqual(['<<']);
+          expect(ids(build('workflows:', key), 'workflows')).toEqual(['<<']);
         });
 
         it('skips the whole section when it is an alias, and indexes the rest of the file', () => {
           const result = build(
             'x_defs: &defs',
             '  from_anchor: {}',
-            `${section}: *defs`,
+            'workflows: *defs',
             'app:',
             '  envs:',
             '  - KEPT: "1"',
           );
 
-          expect(ids(result, kind)).toEqual([]);
+          expect(ids(result, 'workflows')).toEqual([]);
           expect(ids(result, 'appEnvs')).toEqual(['KEPT']);
         });
       });

@@ -115,7 +115,7 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('initializeModularConfig', () => {
-    it('opens a file loaded with parse errors the way an invalid single-file config opens', () => {
+    it('opens a modular file loaded with parse errors the way an invalid single-file config opens', () => {
       initWithBrokenFile();
 
       openTab('broken');
@@ -700,7 +700,7 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.mergedYmlStale).toBe(true);
     });
 
-    it('binds an empty document on the merged tab while the saved root file does not parse', () => {
+    it('keeps the merged tab readable after a save whose root file does not parse', () => {
       selectMergedConfig();
 
       applyModularSaveResult({ root: { ...buildRoot(), contents: 'workflows: *shared\n' } });

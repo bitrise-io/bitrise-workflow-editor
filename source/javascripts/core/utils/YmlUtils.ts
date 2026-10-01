@@ -67,29 +67,23 @@ function rawErrorSource(root: Root): string | undefined {
   return isDocument(root) && root.errors.length > 0 ? rawSourceByErrorDoc.get(root) : undefined;
 }
 
-// Where an alias can start: a line start, whitespace or a flow indicator, never mid-word. An
-// asterisk mid-word (`build/*.ipa`) or after a quote (`"*x"`) doesn't match. One after a space, as
-// in a script (`ls *.txt`), matches and only costs the extra pass.
+// An alias starts after a line start, whitespace or a flow indicator, never mid-word.
 const ALIAS_SYNTAX = /(?:^|[\s[{,:])\*/m;
 
 /**
- * The parser accepts an alias whose anchor doesn't exist (yet, while the user is typing `*na…`), and
- * every later serialization throws. It also accepts an alias inside the node it refers to
- * (`a: &x [*x]`), which the CLI rejects ("anchor 'x' value contains itself"). Report both as the
- * parse error they are.
+ * yaml accepts an alias with no anchor before it, as while the user types `*na…`, and then every
+ * store update throws on it. It also accepts an alias inside its own anchor (`a: &x [*x]`), which the
+ * CLI rejects. Reporting both as parse errors makes the editor treat the text as invalid YAML.
  */
 function addUnresolvedAliasErrors(doc: Document, raw: string) {
   if (!ALIAS_SYNTAX.test(raw)) {
     return;
   }
-  // One pass in document order, the order `Alias.resolve` searches in: an alias uses the last node
-  // with its anchor before it, which is its own ancestor only when nothing inside redefines it.
-  // Calling `resolve` per alias walks the whole document each time, which is quadratic on configs
-  // that alias heavily.
+  // One pass finds the anchor `Alias.resolve` would, without walking the document once per alias.
   const anchors = new Map<string, Node>();
   visit(doc, {
     Alias(_, alias, path) {
-      // yaml already reports an empty alias (`a: *`).
+      // yaml already reports an empty alias (`a: *`) as an error.
       if (!alias.source) {
         return;
       }
@@ -101,7 +95,6 @@ function addUnresolvedAliasErrors(doc: Document, raw: string) {
       const message = target
         ? `The alias *${alias.source} is inside its own anchor &${alias.source}, so it can't be resolved.`
         : `There's no anchor &${alias.source} above the alias *${alias.source} in this file. An anchor can't be used from another file.`;
-      // BAD_ALIAS is yaml's own code for an alias it can't use, such as an empty one.
       doc.errors.push(new YAMLParseError([start, end], 'BAD_ALIAS', message));
     },
     Node(_, node) {
