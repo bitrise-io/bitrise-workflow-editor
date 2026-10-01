@@ -710,4 +710,24 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(() => YmlUtils.toJSON(ymlDocument)).not.toThrow();
     });
   });
+
+  // The YAML editors place alias markers from the returned document, so its offsets must be into exactly this text.
+  describe('updateBitriseYmlDocumentByString returns its parse of the text', () => {
+    const text = 'a: &x 1\nb: *x\n';
+    const invalidText = 'a: &x 1\nb: *x\nc: [\n';
+    const aliasOffset = (doc: ReturnType<typeof updateBitriseYmlDocumentByString>) =>
+      YmlUtils.findAliasesAndMergeKeys(doc).map(({ start, end }) => [start, end]);
+
+    it.each([
+      ['a single-file config', () => initializeBitriseYmlDocument({ ymlString: 'a: 1\n', version: '1' })],
+      ['an editable file', () => (init(), selectNode('child-a'))],
+      ['a read-only file', () => (init(), selectNode('readonly'))],
+    ])('for %s, valid or not', (_, setUp) => {
+      setUp();
+      const expected = [[text.indexOf('*x'), text.indexOf('*x') + 2]];
+
+      expect(aliasOffset(updateBitriseYmlDocumentByString(text))).toEqual(expected);
+      expect(aliasOffset(updateBitriseYmlDocumentByString(invalidText))).toEqual(expected);
+    });
+  });
 });

@@ -700,29 +700,45 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
 const isMergeKey = (pair: Pair): pair is Pair<Scalar> =>
   isScalar(pair.key) && pair.key.value === '<<' && (!pair.key.type || pair.key.type === Scalar.PLAIN) && !pair.key.tag;
 
-const aliasesOrMergeKeysCache = new WeakMap<Document, boolean>();
+type AliasOrMergeKey = { kind: 'alias' | 'merge-key'; start: number; end: number; error?: string };
 
-/** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
-function hasAliasesOrMergeKeys(doc: Document) {
-  const cached = aliasesOrMergeKeysCache.get(doc);
-  if (cached !== undefined) {
+const aliasesAndMergeKeysCache = new WeakMap<Document, AliasOrMergeKey[]>();
+
+/**
+ * Every alias and merge key, by offset into the text `doc` was parsed from, in document order. An alias
+ * that can't be resolved carries its parse error's message. Cached, so the visual editor blocker, the
+ * YAML editor's markers and the RUM tracking share one walk per document.
+ */
+function findAliasesAndMergeKeys(doc: Document): AliasOrMergeKey[] {
+  const cached = aliasesAndMergeKeysCache.get(doc);
+  if (cached) {
     return cached;
   }
 
-  let found = false;
+  const errors = new Map(
+    doc.errors.filter(({ code }) => code === 'BAD_ALIAS').map(({ pos, message }) => [pos[0], message]),
+  );
+  const found: AliasOrMergeKey[] = [];
   visit(doc, {
     Pair(_, pair) {
-      found = isMergeKey(pair);
-      return found ? visit.BREAK : undefined;
+      if (isMergeKey(pair) && pair.key.range) {
+        found.push({ kind: 'merge-key', start: pair.key.range[0], end: pair.key.range[1] });
+      }
     },
-    Alias() {
-      found = true;
-      return visit.BREAK;
+    Alias(_, alias) {
+      if (alias.range) {
+        found.push({ kind: 'alias', start: alias.range[0], end: alias.range[1], error: errors.get(alias.range[0]) });
+      }
     },
   });
 
-  aliasesOrMergeKeysCache.set(doc, found);
+  aliasesAndMergeKeysCache.set(doc, found);
   return found;
+}
+
+/** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
+function hasAliasesOrMergeKeys(doc: Document) {
+  return findAliasesAndMergeKeys(doc).length > 0;
 }
 
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
@@ -752,6 +768,7 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  findAliasesAndMergeKeys,
   isMergeKey,
   hasAliasesOrMergeKeys,
 };

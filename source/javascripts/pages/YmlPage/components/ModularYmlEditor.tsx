@@ -1,5 +1,6 @@
 import { Box } from '@bitrise/bitkit';
 import Editor from '@monaco-editor/react';
+import { useEffect } from 'react';
 import { useStore } from 'zustand';
 
 import LoadingState from '@/components/LoadingState';
@@ -11,6 +12,7 @@ import {
   updateBitriseYmlDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
 import { MERGED_MODEL_URI } from '@/core/utils/lspModelUris';
+import MonacoUtils from '@/core/utils/MonacoUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
 import { useFile } from '@/hooks/useFile';
 import { useNodeModelUri, useSelectedNodeId } from '@/hooks/useTree';
@@ -38,11 +40,40 @@ const EditableFileEditor = ({ file, path }: { file: FileSlice; path: string }) =
       defaultValue={YmlUtils.toYml(file.ymlDocument)}
       onChange={(value) => {
         if (typeof value === 'string') {
-          updateBitriseYmlDocumentByString(value);
+          MonacoUtils.setAliasMarkers(path, updateBitriseYmlDocumentByString(value));
         }
       }}
+      onMount={() => MonacoUtils.setAliasMarkers(path)}
       options={{ minimap: { enabled: false } }}
     />
+  );
+};
+
+/**
+ * Read-only source view. `markAliases` is off for the merged config, a synthetic flattening. The effect
+ * re-marks when a file's text or path changes; onMount covers the first mount, when the model may not
+ * exist yet for the effect.
+ */
+const ReadOnlyEditor = ({ path, value, markAliases }: { path: string; value: string; markAliases: boolean }) => {
+  useEffect(() => {
+    if (markAliases) {
+      MonacoUtils.setAliasMarkers(path);
+    }
+  }, [markAliases, path, value]);
+
+  return (
+    <Box position="relative" height="100%">
+      <ReadOnlyViewNotification />
+      <Editor
+        theme="vs-dark"
+        language="yaml"
+        keepCurrentModel
+        path={path}
+        value={value}
+        onMount={markAliases ? () => MonacoUtils.setAliasMarkers(path) : undefined}
+        options={{ readOnly: true, minimap: { enabled: false } }}
+      />
+    </Box>
   );
 };
 
@@ -72,19 +103,7 @@ const ModularYmlEditor = () => {
   // merged one — so its content can't pollute the merged tab.
   const path = isMerged ? MERGED_CONFIG_PATH : (nodeUri ?? `file:///modular/${file?.nodeId ?? 'unknown.yml'}`);
 
-  return (
-    <Box position="relative" height="100%">
-      <ReadOnlyViewNotification />
-      <Editor
-        theme="vs-dark"
-        language="yaml"
-        keepCurrentModel
-        path={path}
-        value={value}
-        options={{ readOnly: true, minimap: { enabled: false } }}
-      />
-    </Box>
-  );
+  return <ReadOnlyEditor path={path} value={value} markAliases={!isMerged} />;
 };
 
 export default ModularYmlEditor;

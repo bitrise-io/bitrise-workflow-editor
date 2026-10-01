@@ -3,6 +3,8 @@ import { useRef } from 'react';
 
 import LoadingState from '@/components/LoadingState';
 import { getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { ROOT_MODEL_URI } from '@/core/utils/lspModelUris';
+import MonacoUtils from '@/core/utils/MonacoUtils';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
@@ -26,11 +28,12 @@ const YmlEditor = () => {
       return;
     }
 
-    updateBitriseYmlDocumentByString(modifiedYmlString);
+    MonacoUtils.setAliasMarkers(ROOT_MODEL_URI, updateBitriseYmlDocumentByString(modifiedYmlString));
   };
 
   const handleEditorDidMount: OnMount = (editor) => {
     monacoEditorRef.current = editor;
+    MonacoUtils.setAliasMarkers(ROOT_MODEL_URI);
   };
 
   return (
