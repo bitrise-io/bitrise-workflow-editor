@@ -12,11 +12,13 @@ import {
   isScalar,
   isSeq,
   Node,
+  Pair,
   parseDocument,
   Scalar,
   stringify,
   visit,
   YAMLMap,
+  YAMLParseError,
   YAMLSeq,
 } from 'yaml';
 
@@ -65,11 +67,50 @@ function rawErrorSource(root: Root): string | undefined {
   return isDocument(root) && root.errors.length > 0 ? rawSourceByErrorDoc.get(root) : undefined;
 }
 
+// An alias starts after a line start, whitespace or a flow indicator, never mid-word.
+const ALIAS_SYNTAX = /(?:^|[\s[{,:])\*/m;
+
+/**
+ * yaml accepts an alias with no anchor before it, as while the user types `*na…`, and then every
+ * store update throws on it. It also accepts an alias inside its own anchor (`a: &x [*x]`), which the
+ * CLI rejects. Reporting both as parse errors makes the editor treat the text as invalid YAML.
+ */
+function addUnresolvedAliasErrors(doc: Document, raw: string) {
+  if (!ALIAS_SYNTAX.test(raw)) {
+    return;
+  }
+  // One pass finds the anchor `Alias.resolve` would, without walking the document once per alias.
+  const anchors = new Map<string, Node>();
+  visit(doc, {
+    Alias(_, alias, path) {
+      // yaml already reports an empty alias (`a: *`) as an error.
+      if (!alias.source) {
+        return;
+      }
+      const target = anchors.get(alias.source);
+      if (target && !path.includes(target)) {
+        return;
+      }
+      const [start, end] = alias.range ?? [0, 0];
+      const message = target
+        ? `The alias *${alias.source} is inside its own anchor &${alias.source}, so it can't be resolved.`
+        : `There's no anchor &${alias.source} above the alias *${alias.source} in this file. An anchor can't be used from another file.`;
+      doc.errors.push(new YAMLParseError([start, end], 'BAD_ALIAS', message));
+    },
+    Node(_, node) {
+      if (node.anchor) {
+        anchors.set(node.anchor, node);
+      }
+    },
+  });
+}
+
 function toDoc(raw: string) {
   const doc = parseDocument(raw, {
     stringKeys: true,
     keepSourceTokens: true,
   });
+  addUnresolvedAliasErrors(doc, raw);
   if (doc.errors.length > 0) {
     rawSourceByErrorDoc.set(doc, raw);
   }
@@ -655,6 +696,10 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
   }
 }
 
+// A quoted `"<<"` or a `!!str <<` is an ordinary key.
+const isMergeKey = (pair: Pair): pair is Pair<Scalar> =>
+  isScalar(pair.key) && pair.key.value === '<<' && (!pair.key.type || pair.key.type === Scalar.PLAIN) && !pair.key.tag;
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -682,4 +727,5 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  isMergeKey,
 };

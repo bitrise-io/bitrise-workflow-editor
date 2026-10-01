@@ -58,6 +58,38 @@ editor renders those fine, and the redirect is one-way, so it would strand peopl
 
 In dev website mode the schema layer is skipped for cross-origin reasons, so there are no markers.
 
+## An alias with no anchor is a parse error
+
+The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it
+is. A file loaded with parse errors opens like an invalid single-file config: by its raw text, with
+an empty document standing in.
+
+## The entity index reads around aliases
+
+The store rebuilds the index on every file change, whatever the view, so it can't throw on an alias.
+It indexes every key written in a file and skips a key that exists only behind an alias or a merge
+key, so for such a file it's partial. A file that doesn't parse is read as far as yaml parsed it,
+since the visual pages still mount while it isn't the open one.
+
+Skipping a file that uses aliases, or the whole index, instead makes the index claim a readable file
+defines nothing. Skipping it on the YAML view needs the store to know the view, and a router flag
+flips after the first visual render, which then sees an empty index.
+
+## The editor reads YAML differently from the CLI
+
+Builds parse with Go's `yaml.v2` (YAML 1.1), the editor with `yaml` 2.x (YAML 1.2):
+
+| Input | CLI (build) | Editor |
+|---|---|---|
+| `yes`, `on` | `true` | the string `"yes"` |
+| `010` | `8` | `10` |
+| `<<: *x`, `<<: {k: v}` | merged | a key named `<<` |
+| a duplicate key | the last one wins | a parse error |
+| `a: &x [*x]` | an error | a circular value, which `toDoc` reports as an error |
+
+An anchor never crosses files in either. Until the editor reads like the CLI, trust the build over
+the form.
+
 ## Capability is expressed by absence
 
 Cards show mutating controls only when they receive the callback. To make a subtree read-only,

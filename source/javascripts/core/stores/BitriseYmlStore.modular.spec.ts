@@ -58,6 +58,27 @@ function init() {
   initializeModularConfig({ root: buildRoot(), mergedYml: MERGED_YML, branch: 'main', commitSha: 'abc' });
 }
 
+/**
+ * A module that aliases an anchor defined in another file. An anchor never crosses files, so the
+ * alias has no anchor and the file doesn't parse.
+ */
+const BROKEN_MODULE_YML = yaml`
+  workflows:
+    test:
+      envs: *shared_envs
+      steps:
+      - script@1:
+          title: Run tests
+`;
+
+/** A config whose one included file, `broken`, is {@link BROKEN_MODULE_YML}. */
+function initWithBrokenFile() {
+  initializeModularConfig({
+    root: node('root', { path: 'bitrise.yml', includes: [node('broken', { contents: BROKEN_MODULE_YML })] }),
+    mergedYml: MERGED_YML,
+  });
+}
+
 describe('BitriseYmlStore — modular tree', () => {
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -94,6 +115,30 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('initializeModularConfig', () => {
+    it('opens a modular file loaded with parse errors the way an invalid single-file config opens', () => {
+      initWithBrokenFile();
+
+      openTab('broken');
+
+      expect(bitriseYmlStore.getState()).toMatchObject({
+        __invalidYmlString: BROKEN_MODULE_YML,
+        __savedInvalidYmlString: BROKEN_MODULE_YML,
+        hasChanges: false,
+      });
+
+      openTab('root');
+      expect(bitriseYmlStore.getState()).toMatchObject({
+        __invalidYmlString: undefined,
+        __savedInvalidYmlString: undefined,
+      });
+
+      // The fix must land in the file's slice, which is what saving writes; the active document was
+      // only a stand-in.
+      openTab('broken');
+      updateBitriseYmlDocumentByString('workflows:\n  fixed: {}\n');
+      expect(YmlUtils.toYml(bitriseYmlStore.getState().files.broken.ymlDocument)).toBe('workflows:\n  fixed: {}\n');
+    });
+
     it('flattens the tree into file slices keyed by node_id', () => {
       const { files } = bitriseYmlStore.getState();
       expect(Object.keys(files).sort()).toEqual(['child-a', 'child-b', 'readonly', 'root']);
@@ -653,6 +698,16 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.configCommitSha).toBe('pushed-sha');
       // Stale so useMergedConfigSync refetches + rebinds the merged view.
       expect(state.mergedYmlStale).toBe(true);
+    });
+
+    it('keeps the merged tab readable after a save whose root file does not parse', () => {
+      selectMergedConfig();
+
+      applyModularSaveResult({ root: { ...buildRoot(), contents: 'workflows: *shared\n' } });
+
+      const { ymlDocument } = bitriseYmlStore.getState();
+      expect(ymlDocument.errors).toEqual([]);
+      expect(() => YmlUtils.toJSON(ymlDocument)).not.toThrow();
     });
   });
 });
