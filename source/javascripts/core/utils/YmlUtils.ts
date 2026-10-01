@@ -57,9 +57,9 @@ const PLACEHOLDER_DOC = new Document('', { stringKeys: true, keepSourceTokens: t
 // "Document with errors cannot be stringified" once a document has parse errors, and node
 // `.toString()` in `isEquals` throws the same way. A malformed module would then crash every
 // serialization/equality path that touches it (e.g. the multi-file language service serializing
-// every include file on load). Documents can only be parse-invalid at load time — edits route
-// invalid YAML to `__invalidYmlString`, never into a stored document — so the raw source stashed
-// here at parse time is a lossless, throw-free fallback for that exact document.
+// every include file on load). The store keeps YAML that doesn't parse as such a document, loaded or
+// typed, so the raw source stashed here at parse time is a lossless, throw-free fallback for that
+// exact document. It's keyed by identity: a clone loses it, and serializing the clone throws.
 const rawSourceByErrorDoc = new WeakMap<Document, string>();
 
 /** The raw source for a parse-error document (stashed in `toDoc`), or undefined for a valid one. */

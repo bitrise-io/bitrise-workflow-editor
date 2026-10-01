@@ -11,7 +11,7 @@ import useVisualEditorBlocker, { YAML_ALIAS_BLOCKER } from '@/hooks/useVisualEdi
  */
 const VisualEditorBlockedNotification = () => {
   const visualEditorBlocker = useVisualEditorBlocker();
-  const loadedInvalid = useBitriseYmlStore((s) => s.__savedInvalidYmlString !== undefined);
+  const loadedInvalid = useBitriseYmlStore((s) => s.savedYmlDocument.errors.length > 0);
   // In a modular config the aliases can be in a file other than the open one.
   const aliasedFiles = useBitriseYmlStore((s) =>
     Object.values(s.files)

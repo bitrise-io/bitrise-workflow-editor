@@ -8,6 +8,7 @@ import {
   discardBitriseYmlDocument,
   discardFile,
   getModularConfigTree,
+  getYmlString,
   initializeBitriseYmlDocument,
   initializeModularConfig,
   isFileDirty,
@@ -120,20 +121,14 @@ describe('BitriseYmlStore — modular tree', () => {
 
       openTab('broken');
 
-      expect(bitriseYmlStore.getState()).toMatchObject({
-        __invalidYmlString: BROKEN_MODULE_YML,
-        __savedInvalidYmlString: BROKEN_MODULE_YML,
-        hasChanges: false,
-      });
+      expect(getYmlString()).toBe(BROKEN_MODULE_YML);
+      expect(bitriseYmlStore.getState().ymlDocument.errors).not.toHaveLength(0);
+      expect(bitriseYmlStore.getState().hasChanges).toBe(false);
 
       openTab('root');
-      expect(bitriseYmlStore.getState()).toMatchObject({
-        __invalidYmlString: undefined,
-        __savedInvalidYmlString: undefined,
-      });
+      expect(bitriseYmlStore.getState().ymlDocument.errors).toHaveLength(0);
 
-      // The fix must land in the file's slice, which is what saving writes; the active document was
-      // only a stand-in.
+      // The fix must land in the file's slice, which is what saving writes.
       openTab('broken');
       updateBitriseYmlDocumentByString('workflows:\n  fixed: {}\n');
       expect(YmlUtils.toYml(bitriseYmlStore.getState().files.broken.ymlDocument)).toBe('workflows:\n  fixed: {}\n');
@@ -227,6 +222,33 @@ describe('BitriseYmlStore — modular tree', () => {
     });
   });
 
+  describe('YAML that does not parse', () => {
+    const typed = 'workflows:\n  child-a: [\n';
+
+    it('counts as a change after its tab is left', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+
+      openTab('child-b');
+
+      expect(bitriseYmlStore.getState().hasChanges).toBe(true);
+    });
+
+    it('leaves the pages on the last version that parsed while typing', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+
+      expect(bitriseYmlStore.getState().yml).toEqual({ workflows: { 'child-a': {} } });
+    });
+
+    it('reads as empty for the pages when the open file was loaded with parse errors', () => {
+      initWithBrokenFile();
+      openTab('broken');
+
+      expect(bitriseYmlStore.getState().yml).toEqual({});
+    });
+  });
+
   describe('updateFileDocument', () => {
     it('mutates only the targeted file document', () => {
       updateFileDocument('child-a', ({ doc }) => {
@@ -315,6 +337,18 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('tabs', () => {
+    it('keeps typed YAML that does not parse across a tab switch', () => {
+      const typed = 'workflows:\n  child-a: [\n';
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+
+      openTab('child-b');
+      openTab('child-a');
+
+      expect(getYmlString()).toBe(typed);
+      expect(YmlUtils.toYml(bitriseYmlStore.getState().files['child-a'].ymlDocument)).toBe(typed);
+    });
+
     it('opens a file as a preview tab that replaces a previous non-dirty preview', () => {
       openTab('child-a');
       openTab('child-b');
