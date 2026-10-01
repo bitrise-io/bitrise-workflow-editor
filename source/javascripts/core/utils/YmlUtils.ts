@@ -700,6 +700,31 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
 const isMergeKey = (pair: Pair): pair is Pair<Scalar> =>
   isScalar(pair.key) && pair.key.value === '<<' && (!pair.key.type || pair.key.type === Scalar.PLAIN) && !pair.key.tag;
 
+const aliasesOrMergeKeysCache = new WeakMap<Document, boolean>();
+
+/** Whether the document uses aliases or merge keys, which the visual editor can't walk. */
+function hasAliasesOrMergeKeys(doc: Document) {
+  const cached = aliasesOrMergeKeysCache.get(doc);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  let found = false;
+  visit(doc, {
+    Pair(_, pair) {
+      found = isMergeKey(pair);
+      return found ? visit.BREAK : undefined;
+    },
+    Alias() {
+      found = true;
+      return visit.BREAK;
+    },
+  });
+
+  aliasesOrMergeKeysCache.set(doc, found);
+  return found;
+}
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -728,4 +753,5 @@ export default {
   collectPaths,
   unflowEmptyCollection,
   isMergeKey,
+  hasAliasesOrMergeKeys,
 };

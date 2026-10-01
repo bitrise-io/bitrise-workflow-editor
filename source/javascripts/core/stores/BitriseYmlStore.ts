@@ -264,6 +264,11 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
   commitActiveFileDocument(active.nodeId, active.slice, mutator({ doc: state.ymlDocument.clone() }));
 }
 
+/** Every document of the config: each file of a modular config, or the one document otherwise. */
+export function configDocuments(s: BitriseYmlStoreState) {
+  return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
+}
+
 export function isFileDirty(slice?: FileSlice) {
   if (!slice) {
     return false;
