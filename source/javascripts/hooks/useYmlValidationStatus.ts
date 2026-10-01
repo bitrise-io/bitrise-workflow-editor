@@ -1,10 +1,13 @@
+import { configDocuments } from '@/core/stores/BitriseYmlStore';
+
 import useBitriseYmlStore from './useBitriseYmlStore';
 
 function useYmlValidationStatus() {
   return useBitriseYmlStore((s) => {
-    // YAML that doesn't parse makes the config invalid whatever the markers say, and Monaco would
-    // only report it after a flicker.
-    if (s.ymlDocument.errors.length > 0) {
+    // YAML that doesn't parse, in the open file or any other, makes the config invalid whatever the
+    // markers say. Monaco would report it only after a flicker, and only for the root file, so saving
+    // could write another file's broken text.
+    if (configDocuments(s).some((doc) => doc.errors.length > 0)) {
       return 'invalid' as const;
     }
 
