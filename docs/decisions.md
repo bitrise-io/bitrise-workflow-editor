@@ -53,10 +53,19 @@ when its file leaves the tree and no editor has it open.
 Validation status watches the **root model only**. The whole-config schema matches every model, so
 an include fragment reports errors for keys it was never meant to have.
 
-The forced YAML view fires only when the YAML can't be parsed, never on schema errors: the visual
+The forced YAML view fires only when the visual editor can't read the YAML (a parse error, or
+[aliases](#aliases-and-merge-keys-switch-off-the-visual-editor)), never on schema errors: the visual
 editor renders those fine, and the redirect is one-way, so it would strand people on the YAML view.
 
 In dev website mode the schema layer is skipped for cross-origin reasons, so there are no markers.
+
+## Aliases and merge keys switch off the visual editor
+
+`getMapIn`/`getSeqIn` throw on an alias at the end of a path and return nothing past one, and
+writing through an alias would change every place that shares the anchor. So a config with an alias
+or a `<<` merge key in any file is YAML-only, and `MainLayout` doesn't mount a visual page, which
+would throw before the redirect runs. Unused anchors block nothing. The YAML view keeps aliases and
+merge keys as written.
 
 ## An alias with no anchor is a parse error
 

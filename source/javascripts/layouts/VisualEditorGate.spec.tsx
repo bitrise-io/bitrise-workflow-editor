@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 
 import { bitriseYmlStore, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 
-import InvalidYmlRedirect from './InvalidYmlRedirect';
+import VisualEditorGate from './VisualEditorGate';
 
 // Capture what path (if any) the redirect would send the user to. `wouter`'s <Redirect> reaches for
 // a Router context we don't set up here; a marker component keeps the assertion focused on the one
@@ -25,7 +25,7 @@ const setPath = (path: string) => {
   currentPathMock = path;
 };
 
-describe('InvalidYmlRedirect', () => {
+describe('VisualEditorGate', () => {
   beforeEach(() => {
     setPath('/workflows');
     // Fresh store between cases so a previous parse failure doesn't leak into the next test.
@@ -39,7 +39,7 @@ describe('InvalidYmlRedirect', () => {
     });
     bitriseYmlStore.setState({ validationStatus: 'invalid' });
 
-    render(<InvalidYmlRedirect />);
+    render(<VisualEditorGate />);
 
     expect(screen.queryByTestId('redirect')).toBeNull();
   });
@@ -49,16 +49,51 @@ describe('InvalidYmlRedirect', () => {
     // for an unparseable YAML string, without depending on the yaml library's error semantics.
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
 
-    render(<InvalidYmlRedirect />);
+    render(<VisualEditorGate />);
 
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
+  });
+
+  it('redirects to /yml when the YAML uses aliases, which the visual editor does not support', () => {
+    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+
+    render(<VisualEditorGate />);
+
+    expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
+  });
+
+  it('never mounts its children while redirecting, so a visual page cannot throw before the redirect', () => {
+    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+    const VisualPage = () => {
+      throw new Error('A visual page mounted for a blocked config');
+    };
+
+    render(
+      <VisualEditorGate>
+        <VisualPage />
+      </VisualEditorGate>,
+    );
+
+    expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
+  });
+
+  it('renders its children on the YAML view and when nothing blocks the visual editor', () => {
+    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+    setPath('/yml');
+    const { rerender } = render(<VisualEditorGate>page</VisualEditorGate>);
+    expect(screen.getByText('page')).toBeTruthy();
+
+    initializeBitriseYmlDocument({ ymlString: 'a: 1\n', version: '1' });
+    setPath('/workflows');
+    rerender(<VisualEditorGate>page</VisualEditorGate>);
+    expect(screen.getByText('page')).toBeTruthy();
   });
 
   it('preserves the current query string when redirecting', () => {
     setPath('/workflows?workflow_id=primary');
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
 
-    render(<InvalidYmlRedirect />);
+    render(<VisualEditorGate />);
 
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml?workflow_id=primary');
   });
@@ -67,7 +102,7 @@ describe('InvalidYmlRedirect', () => {
     setPath('/yml');
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
 
-    render(<InvalidYmlRedirect />);
+    render(<VisualEditorGate />);
 
     expect(screen.queryByTestId('redirect')).toBeNull();
   });
