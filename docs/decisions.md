@@ -58,6 +58,26 @@ editor renders those fine, and the redirect is one-way, so it would strand peopl
 
 In dev website mode the schema layer is skipped for cross-origin reasons, so there are no markers.
 
+## An alias with no anchor is a parse error
+
+The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it
+is.
+
+## The editor reads YAML differently from the CLI
+
+Builds parse with Go's `yaml.v2` (YAML 1.1), the editor with `yaml` 2.x (YAML 1.2):
+
+| Input | CLI (build) | Editor |
+|---|---|---|
+| `yes`, `on` | `true` | the string `"yes"` |
+| `010` | `8` | `10` |
+| `<<: *x`, `<<: {k: v}` | merged | a key named `<<` |
+| a duplicate key | the last one wins | a parse error |
+| `a: &x [*x]` | an error | a circular value, which `toDoc` reports as an error |
+
+An anchor never crosses files in either. Until the editor reads like the CLI, trust the build over
+the form.
+
 ## Capability is expressed by absence
 
 Cards show mutating controls only when they receive the callback. To make a subtree read-only,
