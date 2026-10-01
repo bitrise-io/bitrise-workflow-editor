@@ -29,6 +29,9 @@ Service writes wait until the text parses: `updateBitriseYmlDocument` ignores th
 would be built on a partial parse. Don't clone a document with errors. The raw text is keyed by
 identity, so serializing the clone throws. Save stays off while any file doesn't parse.
 
+`configStatus` reads all of this in one place. The visual editor, its alert, Save and service writes
+decide from it, so a new check belongs there.
+
 ## `useShallow` is deep
 
 `useSyncExternalStore` compares snapshots by identity, so a selector that builds a fresh object

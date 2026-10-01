@@ -1,5 +1,4 @@
-import { BitriseYmlStoreState, configDocuments } from '@/core/stores/BitriseYmlStore';
-import YmlUtils from '@/core/utils/YmlUtils';
+import { BitriseYmlStoreState, configStatus } from '@/core/stores/BitriseYmlStore';
 
 import useBitriseYmlStore from './useBitriseYmlStore';
 
@@ -27,14 +26,14 @@ export const PARSE_ERROR_BLOCKER: VisualEditorBlocker = {
 // every invalid keystroke. A document that was already broken when it loaded can still hold aliases,
 // so it's checked first.
 function selectVisualEditorBlocker(s: BitriseYmlStoreState): VisualEditorBlocker | null {
-  const doesNotParse = s.ymlDocument.errors.length > 0;
-  if (doesNotParse && s.savedYmlDocument.errors.length > 0) {
+  const { openYmlParses, openYmlLoadedBroken, usesAliases } = configStatus(s);
+  if (openYmlLoadedBroken) {
     return PARSE_ERROR_BLOCKER;
   }
-  if (configDocuments(s).some(YmlUtils.hasAliasesOrMergeKeys)) {
+  if (usesAliases) {
     return YAML_ALIAS_BLOCKER;
   }
-  return doesNotParse ? PARSE_ERROR_BLOCKER : null;
+  return openYmlParses ? null : PARSE_ERROR_BLOCKER;
 }
 
 /**

@@ -2,6 +2,7 @@ import YmlUtils from '@/core/utils/YmlUtils';
 
 import {
   bitriseYmlStore,
+  configStatus,
   discardBitriseYmlDocument,
   getYmlString,
   initializeBitriseYmlDocument,
@@ -23,6 +24,38 @@ describe('BitriseYmlStore — single file', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('configStatus', () => {
+    const status = () => configStatus(bitriseYmlStore.getState());
+
+    it('reports a config that parses and uses no aliases', () => {
+      expect(status()).toEqual({
+        openYmlParses: true,
+        openYmlLoadedBroken: false,
+        everyFileParses: true,
+        usesAliases: false,
+      });
+    });
+
+    it('tells YAML that stopped parsing while typing from YAML that loaded broken', () => {
+      updateBitriseYmlDocumentByString('workflows:\n  kept: [\n');
+      expect(status()).toMatchObject({ openYmlParses: false, openYmlLoadedBroken: false, everyFileParses: false });
+
+      initializeBitriseYmlDocument({ ymlString: 'workflows:\n  kept: [\n', version: '1' });
+      expect(status()).toMatchObject({ openYmlParses: false, openYmlLoadedBroken: true, everyFileParses: false });
+    });
+
+    it('reports aliases and merge keys, but not an unused anchor', () => {
+      initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+      expect(status().usesAliases).toBe(true);
+
+      initializeBitriseYmlDocument({ ymlString: 'b:\n  <<: {k: 1}\n', version: '1' });
+      expect(status().usesAliases).toBe(true);
+
+      initializeBitriseYmlDocument({ ymlString: 'a: &x 1\n', version: '1' });
+      expect(status().usesAliases).toBe(false);
+    });
   });
 
   describe('YAML that does not parse', () => {

@@ -5,6 +5,7 @@ import {
   applyModularSaveResult,
   bitriseYmlStore,
   closeTab,
+  configStatus,
   discardBitriseYmlDocument,
   discardFile,
   getModularConfigTree,
@@ -225,6 +226,36 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(state.savedMergedYml).toBeUndefined();
       // The single-file document is now the one the editor reads.
       expect(YmlUtils.toYml(state.ymlDocument)).toContain('legacy');
+    });
+  });
+
+  describe('configStatus', () => {
+    const status = () => configStatus(bitriseYmlStore.getState());
+
+    it('reports every file, not only the open one', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a: [\n');
+
+      openTab('child-b');
+
+      expect(status()).toMatchObject({ openYmlParses: true, everyFileParses: false });
+    });
+
+    it('reports aliases in any file', () => {
+      initializeModularConfig({
+        root: node('root', { includes: [node('aliased', { contents: 'a: &x 1\nb: *x\n' })] }),
+        mergedYml: MERGED_YML,
+      });
+      openTab('root');
+
+      expect(status().usesAliases).toBe(true);
+    });
+
+    it('reports an open file loaded with parse errors as loaded broken', () => {
+      initWithBrokenFile();
+      openTab('broken');
+
+      expect(status()).toMatchObject({ openYmlParses: false, openYmlLoadedBroken: true });
     });
   });
 

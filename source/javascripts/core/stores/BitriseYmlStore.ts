@@ -217,11 +217,35 @@ export function initializeBitriseYmlDocument({
   });
 }
 
+/** Every document of the config: each file of a modular config, or the one document otherwise. */
+export function configDocuments(s: BitriseYmlStoreState) {
+  return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
+}
+
+/**
+ * What the editor can do with the config, read from its documents in one place. The visual editor,
+ * its alert, Save and service writes all decide from this.
+ */
+export function configStatus(s: BitriseYmlStoreState) {
+  const documents = configDocuments(s);
+  const openYmlParses = s.ymlDocument.errors.length === 0;
+  return {
+    /** The open YAML parses. The visual editor and service writes need it. */
+    openYmlParses,
+    /** The open YAML already didn't parse when it loaded, rather than while the user types. */
+    openYmlLoadedBroken: !openYmlParses && s.savedYmlDocument.errors.length > 0,
+    /** Every file parses. Saving needs it, because the save validates the whole config. */
+    everyFileParses: documents.every((doc) => doc.errors.length === 0),
+    /** Some file uses aliases or merge keys, which the visual editor can't walk. */
+    usesAliases: documents.some(YmlUtils.hasAliasesOrMergeKeys),
+  };
+}
+
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
   const state = bitriseYmlStore.getState();
 
   // The document holds what the user typed, so a write can't be built on it until it parses.
-  if (state.ymlDocument.errors.length > 0) {
+  if (!configStatus(state).openYmlParses) {
     warnInDev("updateBitriseYmlDocument: the open YAML doesn't parse; mutation ignored");
     return;
   }
@@ -239,11 +263,6 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
   }
 
   commitActiveFileDocument(active.nodeId, active.slice, mutator({ doc: state.ymlDocument.clone() }));
-}
-
-/** Every document of the config: each file of a modular config, or the one document otherwise. */
-export function configDocuments(s: BitriseYmlStoreState) {
-  return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
 }
 
 export function isFileDirty(slice?: FileSlice) {
