@@ -220,6 +220,12 @@ export function initializeBitriseYmlDocument({
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
   const state = bitriseYmlStore.getState();
 
+  // The document holds what the user typed, so a write can't be built on it until it parses.
+  if (state.ymlDocument.errors.length > 0) {
+    warnInDev("updateBitriseYmlDocument: the open YAML doesn't parse; mutation ignored");
+    return;
+  }
+
   if (!state.tree) {
     bitriseYmlStore.setState({ ymlDocument: mutator({ doc: state.ymlDocument.clone() }) });
     return;

@@ -22,6 +22,7 @@ import {
   updateBitriseYmlDocumentByString,
   updateFileDocument,
   updateFileDocumentByString,
+  YamlMutator,
 } from './BitriseYmlStore';
 
 function node(nodeId: string, overrides: Partial<TreeNode> = {}): TreeNode {
@@ -79,6 +80,11 @@ function initWithBrokenFile() {
     mergedYml: MERGED_YML,
   });
 }
+
+const addWorkflow: YamlMutator = ({ doc }) => {
+  YmlUtils.setIn(doc, ['workflows', 'added'], {});
+  return doc;
+};
 
 describe('BitriseYmlStore — modular tree', () => {
   beforeEach(() => {
@@ -246,6 +252,45 @@ describe('BitriseYmlStore — modular tree', () => {
       openTab('broken');
 
       expect(bitriseYmlStore.getState().yml).toEqual({});
+    });
+  });
+
+  describe('updateBitriseYmlDocument', () => {
+    it('refuses a service write while typed YAML does not parse, so the typed text is kept', () => {
+      const typed = 'workflows:\n  child-a: [\n';
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+      const before = bitriseYmlStore.getState().files['child-a'].ymlDocument;
+
+      updateBitriseYmlDocument(addWorkflow);
+
+      expect(getYmlString()).toBe(typed);
+      expect(bitriseYmlStore.getState().files['child-a'].ymlDocument).toBe(before);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("doesn't parse"));
+    });
+
+    it('refuses a service write to a file loaded with parse errors, so its text is kept', () => {
+      initWithBrokenFile();
+      openTab('broken');
+      const before = bitriseYmlStore.getState().files.broken.ymlDocument;
+
+      updateBitriseYmlDocument(addWorkflow);
+
+      expect(getYmlString()).toBe(BROKEN_MODULE_YML);
+      expect(bitriseYmlStore.getState().files.broken.ymlDocument).toBe(before);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("doesn't parse"));
+    });
+
+    it('writes once the YAML parses again', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a: [\n');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a: {}\n');
+
+      updateBitriseYmlDocument(addWorkflow);
+
+      expect(YmlUtils.toJSON(bitriseYmlStore.getState().files['child-a'].ymlDocument)).toEqual({
+        workflows: { 'child-a': {}, added: {} },
+      });
     });
   });
 
