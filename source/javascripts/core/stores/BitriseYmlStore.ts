@@ -271,15 +271,32 @@ export function isFileDirty(slice?: FileSlice) {
   return !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument);
 }
 
+/**
+ * State patch binding `ymlDocument` as the active document. A file loaded with parse errors
+ * opens like invalid YAML typed into the editor, by its raw text, with an empty document standing in
+ * since the pages can't read it. Its own document stays in `files`, so saving writes that text back.
+ */
+function documentPatch(ymlDocument: Document, savedYmlDocument = ymlDocument) {
+  if (ymlDocument.errors.length > 0) {
+    const ymlString = YmlUtils.toYml(ymlDocument);
+    const emptyDocument = new Document();
+    return {
+      ymlDocument: emptyDocument,
+      savedYmlDocument: emptyDocument,
+      __invalidYmlString: ymlString,
+      __savedInvalidYmlString: ymlString,
+    };
+  }
+  return { ymlDocument, savedYmlDocument, __invalidYmlString: undefined, __savedInvalidYmlString: undefined };
+}
+
 /** State patch binding a document as the single active `ymlDocument` the whole WFE reads/writes. */
 function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, savedYmlDocument = ymlDocument) {
   return {
     selectedNodeId,
     // `version` is unused in modular mode (conflict detection keys off commit_sha).
     version: '',
-    ymlDocument,
-    savedYmlDocument,
-    __invalidYmlString: undefined,
+    ...documentPatch(ymlDocument, savedYmlDocument),
   };
 }
 
@@ -365,10 +382,7 @@ function modularTreePatch(
     files,
     entityIndex,
     version: '',
-    ymlDocument: activeSlice.ymlDocument,
-    savedYmlDocument: activeSlice.savedYmlDocument,
-    __invalidYmlString: undefined,
-    __savedInvalidYmlString: undefined,
+    ...documentPatch(activeSlice.ymlDocument, activeSlice.savedYmlDocument),
   };
 }
 

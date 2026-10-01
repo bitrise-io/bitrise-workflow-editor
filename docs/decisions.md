@@ -61,7 +61,8 @@ In dev website mode the schema layer is skipped for cross-origin reasons, so the
 ## An alias with no anchor is a parse error
 
 The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it
-is.
+is. A file loaded with parse errors opens like invalid YAML typed into the editor: an empty document
+stands in for it.
 
 ## The entity index reads around aliases
 
