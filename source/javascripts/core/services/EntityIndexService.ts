@@ -38,12 +38,6 @@ function entryKey(pair: Pair): string | undefined {
   return String(pair.key);
 }
 
-/**
- * Index the entity keys one file defines. yaml's own `getIn` returns an alias node instead of
- * following it, where `getMapIn` would throw, so an aliased section, `app`, env list or env entry
- * fails the `isMap`/`isSeq` checks and is skipped. Why: docs/decisions.md, "The entity index reads
- * around aliases".
- */
 function indexDocument(index: EntityIndex, doc: Document, nodeId: string) {
   for (const { section, key } of KIND_SECTIONS) {
     const map = doc.getIn([section]);
