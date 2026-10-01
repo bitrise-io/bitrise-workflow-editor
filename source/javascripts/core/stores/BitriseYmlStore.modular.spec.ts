@@ -115,19 +115,17 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('initializeModularConfig', () => {
-    it('opens a file loaded with parse errors the way invalid YAML typed into the editor opens', () => {
+    it('opens a file loaded with parse errors the way an invalid single-file config opens', () => {
       initWithBrokenFile();
 
       openTab('broken');
 
-      // The raw text is the invalid string, unchanged, and nothing counts as edited.
       expect(bitriseYmlStore.getState()).toMatchObject({
         __invalidYmlString: BROKEN_MODULE_YML,
         __savedInvalidYmlString: BROKEN_MODULE_YML,
         hasChanges: false,
       });
 
-      // A clean file opens as usual, without the broken one's invalid strings.
       openTab('root');
       expect(bitriseYmlStore.getState()).toMatchObject({
         __invalidYmlString: undefined,

@@ -273,10 +273,10 @@ export function isFileDirty(slice?: FileSlice) {
 
 /**
  * State patch binding `ymlDocument` as the active document. A file loaded with parse errors
- * opens like invalid YAML typed into the editor, by its raw text, with an empty document standing in
+ * opens like an invalid single-file config, by its raw text, with an empty document standing in
  * since the pages can't read it. Its own document stays in `files`, so saving writes that text back.
  */
-function documentPatch(ymlDocument: Document, savedYmlDocument = ymlDocument) {
+function documentPatch(ymlDocument: Document, savedYmlDocument: Document) {
   if (ymlDocument.errors.length > 0) {
     const ymlString = YmlUtils.toYml(ymlDocument);
     const emptyDocument = new Document();

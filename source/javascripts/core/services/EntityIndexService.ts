@@ -35,7 +35,7 @@ function entryKey(pair: Pair): string | undefined {
   if (YmlUtils.isMergeKey(pair) || isAlias(pair.key) || isCollection(pair.key)) {
     return undefined;
   }
-  return String(pair.key) || undefined;
+  return String(pair.key);
 }
 
 /**

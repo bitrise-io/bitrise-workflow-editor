@@ -67,9 +67,9 @@ function rawErrorSource(root: Root): string | undefined {
   return isDocument(root) && root.errors.length > 0 ? rawSourceByErrorDoc.get(root) : undefined;
 }
 
-// Where an alias can start: a line start, whitespace or a flow indicator, never mid-word. A glob
-// (`build/*.ipa`) doesn't match, so most configs skip the extra pass. A match in a script or a
-// quoted string only costs that pass.
+// Where an alias can start: a line start, whitespace or a flow indicator, never mid-word. An
+// asterisk mid-word (`build/*.ipa`) or after a quote (`"*x"`) doesn't match. One after a space, as
+// in a script (`ls *.txt`), matches and only costs the extra pass.
 const ALIAS_SYNTAX = /(?:^|[\s[{,:])\*/m;
 
 /**
@@ -94,15 +94,15 @@ function addUnresolvedAliasErrors(doc: Document, raw: string) {
         return;
       }
       const target = anchors.get(alias.source);
-      const containsItself = target !== undefined && path.includes(target);
-      if (!target || containsItself) {
-        const [start, end] = alias.range ?? [0, 0];
-        const message = containsItself
-          ? `The alias *${alias.source} is inside its own anchor &${alias.source}, so it can't be resolved.`
-          : `There's no anchor &${alias.source} above the alias *${alias.source} in this file. An anchor can't be used from another file.`;
-        // BAD_ALIAS is yaml's own code for an alias it can't use, such as an empty one.
-        doc.errors.push(new YAMLParseError([start, end], 'BAD_ALIAS', message));
+      if (target && !path.includes(target)) {
+        return;
       }
+      const [start, end] = alias.range ?? [0, 0];
+      const message = target
+        ? `The alias *${alias.source} is inside its own anchor &${alias.source}, so it can't be resolved.`
+        : `There's no anchor &${alias.source} above the alias *${alias.source} in this file. An anchor can't be used from another file.`;
+      // BAD_ALIAS is yaml's own code for an alias it can't use, such as an empty one.
+      doc.errors.push(new YAMLParseError([start, end], 'BAD_ALIAS', message));
     },
     Node(_, node) {
       if (node.anchor) {
