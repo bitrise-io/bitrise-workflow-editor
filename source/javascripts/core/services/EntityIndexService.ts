@@ -1,4 +1,4 @@
-import { Document } from 'yaml';
+import { Document, isAlias, isCollection, isMap, isSeq, Pair } from 'yaml';
 
 import { EntityDefinition, EntityIndex, EntityKind, TreeNode } from '@/core/models/Tree';
 import YmlUtils from '@/core/utils/YmlUtils';
@@ -27,6 +27,56 @@ function definingNodeId(index: EntityIndex, kind: EntityKind, id: string): strin
   return definitionsOf(index, kind, id)[0]?.nodeId;
 }
 
+/**
+ * The key of an entry, or `undefined` for a merge key or a key that isn't a plain value, such as an
+ * alias, which only a file that doesn't parse can hold. A key a service set is a plain string.
+ */
+function entryKey(pair: Pair): string | undefined {
+  if (YmlUtils.isMergeKey(pair) || isAlias(pair.key) || isCollection(pair.key)) {
+    return undefined;
+  }
+  return String(pair.key) || undefined;
+}
+
+/**
+ * Index the entity keys one file defines. yaml's own `getIn` returns an alias node instead of
+ * following it, where `getMapIn` would throw, so an aliased section, `app`, env list or env entry
+ * fails the `isMap`/`isSeq` checks and is skipped. Why: docs/decisions.md, "The entity index reads
+ * around aliases".
+ */
+function indexDocument(index: EntityIndex, doc: Document, nodeId: string) {
+  for (const { section, key } of KIND_SECTIONS) {
+    const map = doc.getIn([section]);
+    if (!isMap(map)) {
+      continue;
+    }
+    for (const pair of map.items) {
+      const entityId = entryKey(pair);
+      if (entityId) {
+        ((index[key] ??= {})[entityId] ||= []).push({ nodeId });
+      }
+    }
+  }
+
+  // Project env vars are array-shaped (`app.envs: [{ KEY: value, opts? }]`), keyed by var name.
+  const envs = doc.getIn(['app', 'envs']);
+  if (!isSeq(envs)) {
+    return;
+  }
+  for (const envMap of envs.items) {
+    if (!isMap(envMap)) {
+      continue;
+    }
+    for (const pair of envMap.items) {
+      const envKey = entryKey(pair);
+      // The var name is the single non-`opts` key of the entry.
+      if (envKey && envKey !== 'opts') {
+        ((index.appEnvs ??= {})[envKey] ||= []).push({ nodeId });
+      }
+    }
+  }
+}
+
 /** Build the entity index live from open file documents (mirrors the BE builder) so cross-file detection stays correct before save. */
 function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlDocument: Document }>): EntityIndex {
   const index = emptyEntityIndex();
@@ -43,30 +93,7 @@ function buildFromFiles(tree: TreeNode | undefined, files: Record<string, { ymlD
 
     const doc = files[node.nodeId]?.ymlDocument;
     if (doc) {
-      KIND_SECTIONS.forEach(({ section, key }) => {
-        const map = YmlUtils.getMapIn(doc, [section]);
-        map?.items.forEach((pair) => {
-          const entityId = String(pair.key);
-          if (!entityId) {
-            return;
-          }
-          ((index[key] ??= {})[entityId] ||= []).push({ nodeId: node.nodeId });
-        });
-      });
-
-      // Project env vars are array-shaped (`app.envs: [{ KEY: value, opts? }]`), keyed by var name.
-      const envs = YmlUtils.getSeqIn(doc, ['app', 'envs']);
-      envs?.items.forEach((_item, i) => {
-        const envMap = YmlUtils.getMapIn(doc, ['app', 'envs', i]);
-        envMap?.items.forEach((pair) => {
-          const envKey = String(pair.key);
-          // The var name is the single non-`opts` key of the entry.
-          if (!envKey || envKey === 'opts') {
-            return;
-          }
-          ((index.appEnvs ??= {})[envKey] ||= []).push({ nodeId: node.nodeId });
-        });
-      });
+      indexDocument(index, doc, node.nodeId);
     }
 
     for (let i = node.includes.length - 1; i >= 0; i -= 1) {

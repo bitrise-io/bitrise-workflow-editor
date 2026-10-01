@@ -63,6 +63,17 @@ In dev website mode the schema layer is skipped for cross-origin reasons, so the
 The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it
 is.
 
+## The entity index reads around aliases
+
+The store rebuilds the index on every file change, whatever the view, so it can't throw on an alias.
+It indexes every key written in a file and skips a key that exists only behind an alias or a merge
+key, so for such a file it's partial. A file that doesn't parse is read as far as yaml parsed it,
+since the visual pages still mount while it isn't the open one.
+
+Skipping a file that uses aliases, or the whole index, instead makes the index claim a readable file
+defines nothing. Skipping it on the YAML view needs the store to know the view, and a router flag
+flips after the first visual render, which then sees an empty index.
+
 ## The editor reads YAML differently from the CLI
 
 Builds parse with Go's `yaml.v2` (YAML 1.1), the editor with `yaml` 2.x (YAML 1.2):

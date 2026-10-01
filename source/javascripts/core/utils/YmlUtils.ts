@@ -12,6 +12,7 @@ import {
   isScalar,
   isSeq,
   Node,
+  Pair,
   parseDocument,
   Scalar,
   stringify,
@@ -698,6 +699,10 @@ function updateValueByPredicate(root: Root, path: WildcardPath, where: Where, ne
   }
 }
 
+// A quoted `"<<"` or a `!!str <<` is an ordinary key.
+const isMergeKey = (pair: Pair): pair is Pair<Scalar> =>
+  isScalar(pair.key) && pair.key.value === '<<' && (!pair.key.type || pair.key.type === Scalar.PLAIN) && !pair.key.tag;
+
 function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, newValue: unknown, cb?: Callback) {
   return updateValueByPredicate(root, path, (node) => isEqualValues(node, oldValue), newValue, cb);
 }
@@ -725,4 +730,5 @@ export default {
   getMatchingPaths,
   collectPaths,
   unflowEmptyCollection,
+  isMergeKey,
 };
