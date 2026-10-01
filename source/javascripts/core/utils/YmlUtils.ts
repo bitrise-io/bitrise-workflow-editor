@@ -89,6 +89,10 @@ function addUnresolvedAliasErrors(doc: Document, raw: string) {
   const anchors = new Map<string, Node>();
   visit(doc, {
     Alias(_, alias, path) {
+      // yaml already reports an empty alias (`a: *`).
+      if (!alias.source) {
+        return;
+      }
       const target = anchors.get(alias.source);
       const containsItself = target !== undefined && path.includes(target);
       if (!target || containsItself) {

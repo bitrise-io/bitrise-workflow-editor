@@ -2027,6 +2027,7 @@ describe('YmlUtils', () => {
       ['nothing for an alias with an anchor', 'a: &x 1\nb: *x\n', []],
       ['nothing for an anchor redefined inside its namesake, which the alias uses', 'a: &x [&x 1, *x]\n', []],
       ['an alias inside its anchor redefined around it', 'a: &x 1\nb: &x [*x]\n', ['BAD_ALIAS']],
+      ['only yaml’s own error for an empty alias', 'a: *\n', ['BAD_ALIAS']],
       ['nothing for a glob or a quoted asterisk', 'a: build/*.ipa\nb: "*x"\nc: |\n  ls *.txt\n', []],
     ])('reports %s', (_, raw, codes) => {
       expect(YmlUtils.toDoc(raw).errors.map(({ code }) => code)).toEqual(codes);
