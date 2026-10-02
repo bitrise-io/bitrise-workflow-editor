@@ -39,6 +39,14 @@ makes the page hang on mount. `@/hooks/useShallow` returns the previous referenc
 is deeply equal, which is what makes object-building selectors safe in `useBitriseYmlStore`. Fix a
 slow selector by selecting less, not with `useMemo`.
 
+## A single-file config is a tree with one file
+
+The store has one shape. A config without includes loads as a tree whose one file is bound and
+open, so every write, discard and dirty check takes the same path. Ask `isModularConfig` whether a
+config is multi-file (tabs, the merged view, save routing, analytics). `tree` exists for every config,
+so testing it says nothing. The single file keeps `version` as its conflict token and path
+`bitrise.yml`, which keeps its editor model at `ROOT_MODEL_URI`.
+
 ## Cross-file operations stop at the active file
 
 Multi-file editing works by pointing the document at the active file, so every service kept
