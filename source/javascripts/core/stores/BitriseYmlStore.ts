@@ -50,6 +50,8 @@ export const bitriseYmlStore = createStore(
     validationStatus: 'pending' as 'valid' | 'invalid' | 'warnings' | 'pending',
     configBranch: undefined as string | undefined,
     configCommitSha: undefined as string | undefined,
+    // Set by every save, in the same update as the saved documents. Loads and branch switches leave it.
+    lastSavedAt: undefined as number | undefined,
 
     // Modular YAML tree state. `tree` is the structural skeleton (for traversal);
     // `files` is the source of truth for live contents.
@@ -210,20 +212,12 @@ function clearedModularState() {
   };
 }
 
-export function initializeBitriseYmlDocument({
-  ymlString,
-  version,
-  branch,
-  commitSha,
-}: {
-  ymlString: string;
-  version: string;
-  branch?: string;
-  commitSha?: string;
-}) {
+type LoadedConfig = { ymlString: string; version: string; branch?: string; commitSha?: string };
+
+function loadedConfigPatch({ ymlString, version, branch, commitSha }: LoadedConfig) {
   const doc = YmlUtils.toDoc(ymlString);
 
-  bitriseYmlStore.setState({
+  return {
     version,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
@@ -242,7 +236,19 @@ export function initializeBitriseYmlDocument({
           __invalidYmlString: ymlString,
           __savedInvalidYmlString: ymlString,
         }),
-  });
+  };
+}
+
+export function initializeBitriseYmlDocument(config: LoadedConfig) {
+  bitriseYmlStore.setState(loadedConfigPatch(config));
+}
+
+/**
+ * {@link initializeBitriseYmlDocument} for the config a save just wrote. It sets `lastSavedAt` in the same
+ * update as the saved document, so a subscriber can tell a save from a load or a branch switch.
+ */
+export function applySaveResult(config: LoadedConfig) {
+  bitriseYmlStore.setState({ ...loadedConfigPatch(config), lastSavedAt: Date.now() });
 }
 
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
@@ -269,6 +275,11 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
 /** Every document of the config: each file of a modular config, or the one document otherwise. */
 export function configDocuments(s: BitriseYmlStoreState) {
   return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
+}
+
+/** {@link configDocuments} as last loaded or saved. */
+export function savedConfigDocuments(s: BitriseYmlStoreState) {
+  return s.tree ? Object.values(s.files).map((file) => file.savedYmlDocument) : [s.savedYmlDocument];
 }
 
 export function isFileDirty(slice?: FileSlice) {
@@ -469,6 +480,7 @@ export function applyModularSaveResult({
     selectedNodeId: nextSelected,
     mergedYml: undefined,
     mergedYmlStale: true,
+    lastSavedAt: Date.now(),
     ...(branch !== undefined ? { configBranch: branch || undefined } : {}),
     ...(commitSha !== undefined ? { configCommitSha: commitSha || undefined } : {}),
   });

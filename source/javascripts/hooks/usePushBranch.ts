@@ -13,9 +13,9 @@ import BranchesApi, { PushBranchConflict } from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
   applyModularSaveResult,
+  applySaveResult,
   getModularConfigTree,
   getYmlString,
-  initializeBitriseYmlDocument,
 } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -110,7 +110,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
         queryClient.setQueriesData({ queryKey: [CI_CONFIG_TREE_QUERY_KEY, appSlug, branch] }, config);
       } else {
         const newConfig = await BitriseYmlApi.getCiConfig({ projectSlug: appSlug, branch });
-        initializeBitriseYmlDocument(newConfig);
+        applySaveResult(newConfig);
       }
       onSuccess?.();
     },
