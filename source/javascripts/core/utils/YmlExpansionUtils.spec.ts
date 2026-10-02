@@ -1,9 +1,8 @@
 import { parseDocument } from 'yaml';
 
-import YmlExpansionUtils, { type TextEdit } from './YmlExpansionUtils';
-import YmlUtils from './YmlUtils';
+import YmlExpansionUtils, { type Expansion, type TextEdit } from './YmlExpansionUtils';
 
-const expandAt = (text: string, offset: number) => YmlExpansionUtils.expander(text)?.at(offset);
+const expandAt = (text: string, search: string) => YmlExpansionUtils.expander(text)?.at(text.indexOf(search));
 
 const expandAll = (text: string) => YmlExpansionUtils.expander(text)?.all();
 
@@ -17,23 +16,16 @@ const resolved = (text: string) => parseDocument(text, { merge: true }).toJS();
 // Throws on any alias and keeps `<<` as a plain key, so it only equals `resolved` once neither is left.
 const literal = (text: string) => parseDocument(text, { merge: false }).toJS({ maxAliasCount: 0 });
 
-const remaining = (text: string) => YmlUtils.findAliasesAndMergeKeys(YmlUtils.toDoc(text));
-
-function expandAllText(text: string) {
-  const result = expandAll(text);
+function edited(text: string, result: Expansion | undefined) {
   if (!result || 'error' in result) {
     throw new Error(`Expected edits, got ${JSON.stringify(result)}`);
   }
   return applyEdits(text, result.edits);
 }
 
-function expandAtText(text: string, search: string) {
-  const result = expandAt(text, text.indexOf(search));
-  if (!result || 'error' in result) {
-    throw new Error(`Expected edits, got ${JSON.stringify(result)}`);
-  }
-  return applyEdits(text, result.edits);
-}
+const expandAllText = (text: string) => edited(text, expandAll(text));
+
+const expandAtText = (text: string, search: string) => edited(text, expandAt(text, search));
 
 // Odd quoting and spacing, padded and unpadded flow collections, both sequence indents, comments and
 // block scalars, so a reformatted line shows up as a diff.
@@ -186,16 +178,6 @@ describe('YmlExpansionUtils', () => {
   });
 
   describe('expandAll', () => {
-    it('leaves no alias, merge key or anchor, and resolves to the same values', () => {
-      const expanded = expandAllText(CORPUS);
-
-      expect(literal(expanded)).toEqual(resolved(CORPUS));
-      expect(remaining(expanded)).toEqual([]);
-      expect(YmlUtils.toDoc(expanded).errors).toEqual([]);
-      expect(expanded).not.toMatch(/&\w/);
-      expect(expandAll(expanded)).toEqual({ edits: [] });
-    });
-
     it('only edits the lines that have an alias, a merge key or an anchor', () => {
       const result = expandAll(CORPUS) as { edits: { start: number; end: number }[] };
 
@@ -206,8 +188,12 @@ describe('YmlExpansionUtils', () => {
       });
     });
 
-    it('keeps the expanded file readable', () => {
-      expect(expandAllText(CORPUS)).toBe(`format_version: '11'
+    it('leaves a readable file with nothing left to expand, which resolves to the same values', () => {
+      const expanded = expandAllText(CORPUS);
+
+      expect(literal(expanded)).toEqual(resolved(CORPUS));
+      expect(expandAll(expanded)).toEqual({ edits: [] });
+      expect(expanded).toBe(`format_version: '11'
 # top comment
 app:
   envs:
@@ -292,10 +278,6 @@ workflows:
       expect(parseDocument(expandAllText(text)).toJS()).toEqual({ x: 1, t: [1], y: 2, u: [1] });
     });
 
-    it('refuses a merge key that does not point at a map, rather than guessing', () => {
-      expect(expandAll('a: &a 1\nb:\n  <<: *a\n')).toEqual({ error: 'A merge key (<<) must point at a map.' });
-    });
-
     it('offers nothing for YAML that does not parse', () => {
       expect(expandAll('a: *missing\n')).toBeUndefined();
     });
@@ -320,7 +302,7 @@ workflows:
 
       expect(expandAtText(text, '<<')).toBe(expanded);
       expect(expandAtText(text, '*b]')).toBe(expanded);
-      expect(expandAt(text, text.indexOf('*b]'))?.kind).toBe('merge-key');
+      expect(expandAt(text, '*b]')?.kind).toBe('merge-key');
     });
 
     it('expands a merge key of a map written in place, with no alias', () => {
@@ -332,7 +314,6 @@ workflows:
         "a: &a { k: 1 }\nwf:\n  title: 'asd'\n  k: 1\n",
       );
       expect(expandAtText("wf: { <<: { title: 'asd' }, x: 1 }\n", '<<')).toBe("wf: { title: 'asd', x: 1 }\n");
-      expect(remaining(expandAllText(text))).toEqual([]);
     });
 
     it('expands an alias in a map or a list of either style, whatever it points at', () => {
@@ -396,18 +377,13 @@ workflows:
       expect(expandAllText(text)).toBe('a: { k: 1, j: 1 }\nb: 2\nc: { k: 1, j: 2 } # note\n');
     });
 
-    it('refuses what it would have to guess at', () => {
-      expect(expandAt('a: &a 1\nb:\n  <<: *a\n', 13)).toEqual({
-        kind: 'merge-key',
-        error: 'A merge key (<<) must point at a map.',
-      });
-    });
+    // A sequence of maps too, as the CLI does. "Expand all" can't skip it, so it refuses the whole file.
+    it.each(['1', '[a, b]', '[{ k: 1 }]'])('refuses a merge key that points at %s, rather than guessing', (value) => {
+      const text = `a: &a ${value}\nb:\n  <<: *a\n`;
+      const error = 'A merge key (<<) must point at a map.';
 
-    it('refuses a merge key that points at a sequence, even one of maps, as the CLI does', () => {
-      const error = { kind: 'merge-key', error: 'A merge key (<<) must point at a map.' };
-
-      expect(expandAt('l: &l [a, b]\nm:\n  <<: *l\n', 'l: &l [a, b]\nm:\n  '.length)).toEqual(error);
-      expect(expandAt('l: &l [{ k: 1 }]\nm:\n  <<: *l\n', 'l: &l [{ k: 1 }]\nm:\n  '.length)).toEqual(error);
+      expect(expandAt(text, '<<')).toEqual({ kind: 'merge-key', error });
+      expect(expandAll(text)).toEqual({ error });
     });
 
     it('copies the key an anchor is on, since an anchor marks a node and a key is one', () => {
@@ -418,7 +394,7 @@ workflows:
     });
 
     it('offers nothing where there is no alias or merge key', () => {
-      expect(expandAt('a: &a 1\nb: *a\n', 0)).toBeUndefined();
+      expect(expandAt('a: &a 1\nb: *a\n', 'a:')).toBeUndefined();
     });
   });
 });

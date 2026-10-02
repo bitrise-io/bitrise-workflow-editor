@@ -118,9 +118,16 @@ class Expander {
    */
   at(offset: number): SiteExpansion | undefined {
     const site = this.sites.get(offset);
-    if (!site) {
-      return undefined;
-    }
+    return site && this.expand(site);
+  }
+
+  /** The edits that expand every alias and merge key and drop every anchor. */
+  all(): Expansion {
+    this.allExpansion ??= this.expandAll();
+    return this.allExpansion;
+  }
+
+  private expand(site: Site) {
     let expansion = this.expansions.get(site);
     if (!expansion) {
       try {
@@ -133,20 +140,14 @@ class Expander {
     return expansion;
   }
 
-  /** The edits that expand every alias and merge key and drop every anchor. */
-  all(): Expansion {
-    this.allExpansion ??= this.expandAll();
-    return this.allExpansion;
-  }
-
   private expandAll(): Expansion {
     const siteEdits: TextEdit[] = [];
     for (const site of new Set(this.sites.values())) {
-      try {
-        siteEdits.push(site.edit());
-      } catch (error) {
-        return { error: (error as Error).message };
+      const expansion = this.expand(site);
+      if ('error' in expansion) {
+        return { error: expansion.error };
       }
+      siteEdits.push(...expansion.edits);
     }
     // A merge key's `{ … }` already expands the aliases inside it.
     const edits = siteEdits.filter(
@@ -265,29 +266,27 @@ class Expander {
   }
 
   /** The pairs a merge key adds that `seen` doesn't have yet, in order. Adds their keys to `seen`. */
-  private mergedPairs(pair: Pair, stack: Node[], seen: Set<string>) {
-    return this.mergeSources(pair, stack).flatMap((source) => {
-      const key = keyOf(source);
-      if (seen.has(key)) {
-        return [];
-      }
-      seen.add(key);
-      return [source];
-    });
-  }
-
-  private mergeSources(pair: Pair, stack: Node[]): Pair<Scalar>[] {
+  private mergedPairs(pair: Pair, stack: Node[], seen: Set<string>): Pair<Scalar>[] {
     const sources = isSeq(pair.value) ? pair.value.items : [pair.value];
-    return sources.flatMap((source) => {
-      const map = isAlias(source) ? this.target(source, stack) : source;
-      if (!isMap(map)) {
-        throw new Error('A merge key (<<) must point at a map.');
-      }
-      if (stack.includes(map)) {
-        throw new Error("A merge key that merges the map it's in can't be expanded.");
-      }
-      return this.copyPairs(map, [...stack, map]);
-    });
+    return sources
+      .flatMap((source) => {
+        const map = isAlias(source) ? this.target(source, stack) : source;
+        if (!isMap(map)) {
+          throw new Error('A merge key (<<) must point at a map.');
+        }
+        if (stack.includes(map)) {
+          throw new Error("A merge key that merges the map it's in can't be expanded.");
+        }
+        return this.copyPairs(map, [...stack, map]);
+      })
+      .filter((source) => {
+        const key = keyOf(source);
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
   }
 
   /** The pairs of `map` once its merge keys are expanded, each a full copy. */
