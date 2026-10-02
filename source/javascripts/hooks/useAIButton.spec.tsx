@@ -36,7 +36,17 @@ const ROOT: TreeNode = {
   source: null,
   commitSha: SHA,
   editable: true,
-  includes: [],
+  includes: [
+    {
+      nodeId: 'module',
+      path: 'module.yml',
+      contents: 'workflows: {}\n',
+      source: null,
+      commitSha: SHA,
+      editable: true,
+      includes: [],
+    },
+  ],
 };
 
 const renderAIButton = () => renderHook(() => useAIButton({ action: 'explain_workflow' })).result.current;

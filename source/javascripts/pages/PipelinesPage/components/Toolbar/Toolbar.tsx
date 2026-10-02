@@ -5,7 +5,7 @@ import { useDebounceValue } from 'usehooks-ts';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useAIButton from '@/hooks/useAIButton';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useIsMergedConfigSelected, useIsReadOnlyView, useTree } from '@/hooks/useTree';
+import { useIsMergedConfigSelected, useIsModularConfig, useIsReadOnlyView } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
@@ -19,9 +19,9 @@ type Props = BoxProps & {
 
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
-  const tree = useTree();
+  const isModular = useIsModularConfig();
   const isMergedConfigSelected = useIsMergedConfigSelected();
-  const isModularFileTab = !!tree && !isMergedConfigSelected;
+  const isModularFileTab = isModular && !isMergedConfigSelected;
   const isReadOnlyView = useIsReadOnlyView();
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();

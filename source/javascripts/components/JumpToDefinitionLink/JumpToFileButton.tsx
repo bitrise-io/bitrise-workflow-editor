@@ -1,7 +1,7 @@
 import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 
 import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
-import { useTree } from '@/hooks/useTree';
+import { useModularTree } from '@/hooks/useTree';
 
 import FilePickerMenu from './FilePickerMenu';
 
@@ -16,7 +16,7 @@ type Props = {
  * they'll jump to (and can decide) before committing.
  */
 const JumpToFileButton = ({ nodeId }: Props) => {
-  const tree = useTree();
+  const tree = useModularTree();
   if (!tree) {
     return null;
   }

@@ -5,7 +5,7 @@ import { EntityKind } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
-import { useTree } from '@/hooks/useTree';
+import { useModularTree } from '@/hooks/useTree';
 
 import FilePickerMenu from './FilePickerMenu';
 
@@ -24,7 +24,7 @@ type Props = {
  * there. The explicit `nodeId`-driven counterpart is {@link JumpToFileButton}.
  */
 const JumpToDefinitionLink = ({ kind, id, nodeIds, trigger, onOpenChange }: Props) => {
-  const tree = useTree();
+  const tree = useModularTree();
   const entityIndex = useEntityIndex();
   const jumpToDefinition = useJumpToDefinition();
 

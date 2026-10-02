@@ -5,6 +5,7 @@ import { useEventListener } from 'usehooks-ts';
 
 import { trackConfigBranchLoaded } from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import TreeService from '@/core/services/TreeService';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 import { isBrowserExtensionError } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
@@ -48,8 +49,8 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   // Modular editing only makes sense for repo-stored configs (where includes/modules can exist);
   // a Bitrise-stored config can't have modules, so it stays on the legacy single-file flow even
   // with the flag on. In website mode it's ramped behind the LD flag. CLI mode has no LaunchDarkly
-  // (and no Bitrise storage), so it's simply on — a non-modular config resolves to a single-node
-  // tree, which the editor drives exactly like the single-file flow.
+  // (and no Bitrise storage), so it's simply on. A config without includes still loads as a
+  // single-file config.
   const isModularFlagEnabled = useFeatureFlag('enable-wfe-modular-yaml-editing');
   const canBeModular = !isWebsiteMode || ymlSettings?.usesRepositoryYml === true;
   const isModularEnabled = canBeModular && (isWebsiteMode ? isModularFlagEnabled : true);
@@ -154,7 +155,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
     const config = isModularEnabled ? treeConfig.data : undefined;
 
-    if (config && config.root.includes.length > 0) {
+    if (config && TreeService.hasIncludes(config.root)) {
       const initModular = (mergedYml?: string) => {
         if (cancelled) {
           return;

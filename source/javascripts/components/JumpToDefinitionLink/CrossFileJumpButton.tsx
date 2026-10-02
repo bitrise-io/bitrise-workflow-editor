@@ -2,7 +2,7 @@ import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import { EntityKind } from '@/core/models/Tree';
-import { useTree } from '@/hooks/useTree';
+import { useModularTree } from '@/hooks/useTree';
 
 import JumpToDefinitionLink from './JumpToDefinitionLink';
 
@@ -19,7 +19,7 @@ type Props = {
 const CrossFileJumpButton = ({ kind, id, nodeIds, label = 'Edit definition', onOpenChange }: Props) => {
   // Single-file mode has no cross-file definitions to jump to; render nothing rather than an empty
   // wrapper, which would still consume a slot (and `gap`) in flex layouts.
-  const tree = useTree();
+  const tree = useModularTree();
   if (!tree) {
     return null;
   }

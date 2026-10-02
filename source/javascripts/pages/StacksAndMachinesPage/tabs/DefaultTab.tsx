@@ -8,12 +8,11 @@ import {
   ROOT_META_STACK_FIELDS,
   useDefaultStackDefinitions,
   useIsMergedConfigSelected,
-  useTree,
+  useIsModularConfig,
 } from '@/hooks/useTree';
 
 const DefaultTab = () => {
-  const tree = useTree();
-  const isModular = Boolean(tree);
+  const isModular = useIsModularConfig();
   const isMergedView = useIsMergedConfigSelected();
   const defaultDefinitions = useDefaultStackDefinitions();
   // The effective inherited default for a module that doesn't define its own: the top-most (winning)

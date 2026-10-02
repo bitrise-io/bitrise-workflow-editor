@@ -27,6 +27,7 @@ import {
   getTabLastLocation,
   getYmlString,
   initializeBitriseYmlDocument,
+  isModularConfig,
   recordActiveTabLocation,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -68,7 +69,7 @@ const Header = () => {
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
-  const isModular = useBitriseYmlStore((s) => !!s.tree);
+  const isModular = useBitriseYmlStore(isModularConfig);
   // `ymlStatus` gates saving and the validation badge; the narrower `visualEditorBlocker` gates only
   // the view switch (see useVisualEditorBlocker).
   const ymlStatus = useYmlValidationStatus();

@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
 import { trackCopyYmlClicked, trackDownloadYmlClicked } from '@/core/analytics/ConfigManagementAnalytics';
-import { getFileYmlString, getYmlString } from '@/core/stores/BitriseYmlStore';
+import { getFileYmlString, getYmlString, isModularConfig } from '@/core/stores/BitriseYmlStore';
 import { downloadYml } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -45,7 +45,7 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
     }
   }, [isOpen]);
 
-  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
+  const isModular = useBitriseYmlStore(isModularConfig);
   const changedModules = useChangedModules();
 
   // Single config → one synthetic "bitrise.yml" row (the whole config); modular → one row per changed module file.

@@ -6,7 +6,7 @@ import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
-import { useTree } from '@/hooks/useTree';
+import { useIsModularConfig } from '@/hooks/useTree';
 
 type OpenCiConfigExpertPayload = {
   action: string;
@@ -54,7 +54,7 @@ const useAIButton = (options: UseAIButtonOptions): UseAIButtonResult => {
 
   // The CI config expert operates on the whole bitrise.yml; modular configs aren't handled yet, so
   // hide every AI entry point while a modular config is open rather than offer a broken action (BIVS-3735).
-  const isModular = Boolean(useTree());
+  const isModular = useIsModularConfig();
 
   // The monolith folds the plan entitlement and the workspace- and project-level opt-in into this
   // one value, so every AI entry point on both sides of the iframe reads the same verdict. Only a

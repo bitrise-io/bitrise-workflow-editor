@@ -1,7 +1,7 @@
 import { Box } from '@bitrise/bitkit';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import { useTree } from '@/hooks/useTree';
+import { useIsModularConfig } from '@/hooks/useTree';
 import OptimizeYouCiConfigBySplittingNotification from '@/pages/YmlPage/components/OptimizeYouCiConfigBySplittingNotification'; // TODO: implement onConfigSourceChangeSaved function
 import VisualEditorBlockedNotification from '@/pages/YmlPage/components/VisualEditorBlockedNotification';
 import YourCiConfigIsSplitNotification from '@/pages/YmlPage/components/YourCiConfigIsSplitNotification';
@@ -11,7 +11,7 @@ import YmlEditor from './components/YmlEditor';
 
 const YmlPage = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-  const isModular = Boolean(useTree());
+  const isModular = useIsModularConfig();
 
   return (
     <Box height="100%" display="flex" flexDirection="column">

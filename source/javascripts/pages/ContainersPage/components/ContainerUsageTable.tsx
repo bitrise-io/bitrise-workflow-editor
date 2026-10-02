@@ -4,7 +4,7 @@ import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { useContainerUsageByWorkflow } from '@/hooks/useContainerWorkflowUsage';
 import useNavigation from '@/hooks/useNavigation';
-import { useTree } from '@/hooks/useTree';
+import { useIsModularConfig } from '@/hooks/useTree';
 
 type Props = {
   containerId: string;
@@ -16,7 +16,7 @@ const ContainerUsageTable = ({ containerId, workflows }: Props) => {
   // Modular: usage can span modules, so jump to the using workflow's definition — but only to the
   // modules where that workflow actually references this container, not every module that happens to
   // define a same-named workflow. Non-modular: plain navigation to the Workflows page.
-  const isModular = Boolean(useTree());
+  const isModular = useIsModularConfig();
   const usageByWorkflow = useContainerUsageByWorkflow(containerId);
 
   return (
