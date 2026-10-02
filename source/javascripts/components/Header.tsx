@@ -69,8 +69,8 @@ const Header = () => {
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
   const isModular = useBitriseYmlStore((s) => !!s.tree);
-  // `ymlStatus` gates saving and the validation badge; the narrower `visualEditorNotice` gates only
-  // the view switch (see useVisualEditorNotice).
+  // `ymlStatus` gates saving and the validation badge; the narrower `visualEditorNotice.disabled` gates
+  // only the view switch, and the notice explains it in the switch's tooltip (see useVisualEditorNotice).
   const ymlStatus = useYmlValidationStatus();
   const visualEditorNotice = useVisualEditorNotice();
 

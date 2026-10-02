@@ -28,6 +28,11 @@ export const PARSE_ERROR_NOTICE: VisualEditorNotice = {
   description: "YAML can't be parsed, please fix it before using the Visual editor.",
 };
 
+/** Whether any file of the config uses aliases or merge keys, read from each document's last parse. */
+export function selectHasAliases(s: BitriseYmlStoreState) {
+  return configDocuments(s).some(YmlUtils.hasAliasesOrMergeKeys);
+}
+
 // YAML that doesn't parse comes first, since it's the one that disables the Visual editor. A file
 // loaded with parse errors keeps its broken document, which can still hold aliases.
 function selectVisualEditorNotice(s: BitriseYmlStoreState): VisualEditorNotice | null {
@@ -35,7 +40,7 @@ function selectVisualEditorNotice(s: BitriseYmlStoreState): VisualEditorNotice |
   if ((openFile && openFile.ymlDocument.errors.length > 0) || s.__invalidYmlString !== undefined) {
     return PARSE_ERROR_NOTICE;
   }
-  return configDocuments(s).some(YmlUtils.hasAliasesOrMergeKeys) ? YAML_ALIAS_NOTICE : null;
+  return selectHasAliases(s) ? YAML_ALIAS_NOTICE : null;
 }
 
 /**

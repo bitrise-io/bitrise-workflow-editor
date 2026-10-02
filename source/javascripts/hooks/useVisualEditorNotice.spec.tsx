@@ -27,7 +27,7 @@ const file = (nodeId: string, path: string, contents: string, includes: TreeNode
 });
 
 describe('useVisualEditorNotice', () => {
-  it('does not block schema-invalid markers (SSW-3087) or an unused anchor', () => {
+  it('gives no notice for schema-invalid markers (SSW-3087) or an unused anchor', () => {
     initializeBitriseYmlDocument({ ymlString: 'format_version: "13"\na: &x 1\n', version: '1' });
     bitriseYmlStore.setState({ validationStatus: 'invalid' });
 

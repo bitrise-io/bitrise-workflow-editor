@@ -10,7 +10,7 @@ import { paths } from '@/routes';
  * disabled. The redirect is one-way, so it must not key off schema errors, which would
  * strand users on the YAML view.
  *
- * Renders its children (the routes) only when it doesn't redirect: a blocked visual page must not
+ * Renders its children (the routes) only when it doesn't redirect: a disabled visual page must not
  * render even once, since it would throw before the redirect's effect runs.
  */
 const VisualEditorDisabledRedirect = ({ children }: PropsWithChildren) => {

@@ -65,7 +65,7 @@ describe('VisualEditorDisabledRedirect', () => {
   it('never mounts its children while redirecting, so a visual page cannot throw before the redirect', () => {
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
     const VisualPage = () => {
-      throw new Error('A visual page mounted for a blocked config');
+      throw new Error('A visual page mounted while the visual editor is disabled');
     };
 
     render(
@@ -77,8 +77,8 @@ describe('VisualEditorDisabledRedirect', () => {
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
   });
 
-  it('renders its children on the YAML view and when nothing blocks the visual editor', () => {
-    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+  it('renders its children on the YAML view while disabled, and on a visual page once it parses', () => {
+    bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
     setPath('/yml');
     const { rerender } = render(<VisualEditorDisabledRedirect>page</VisualEditorDisabledRedirect>);
     expect(screen.getByText('page')).toBeTruthy();
