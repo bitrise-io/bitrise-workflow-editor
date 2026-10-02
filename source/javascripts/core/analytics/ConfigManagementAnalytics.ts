@@ -1,5 +1,5 @@
 import { EntityKind, TreeNode } from '@/core/models/Tree';
-import { bitriseYmlStore, isFileDirty } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, isFileDirty, isModularConfig } from '@/core/stores/BitriseYmlStore';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 
@@ -27,8 +27,9 @@ const ENTITY_TYPE_BY_KIND: Record<EntityKind, string> = {
  * them on every event, and a missing key reads as lost data instead of "no includes".
  */
 function modularConfigProps() {
-  const { tree } = bitriseYmlStore.getState();
-  if (!tree) {
+  const state = bitriseYmlStore.getState();
+  const { tree } = state;
+  if (!tree || !isModularConfig(state)) {
     return {
       is_modular_config: false as const,
       number_of_includes_in_bitrise_yml: 0,
@@ -68,11 +69,11 @@ function modularConfigProps() {
  * module (a push only happens when there are changes).
  */
 function changedModulesCount() {
-  const { tree, files } = bitriseYmlStore.getState();
-  if (!tree) {
+  const state = bitriseYmlStore.getState();
+  if (!isModularConfig(state)) {
     return 1;
   }
-  return Object.values(files).filter((file) => isFileDirty(file)).length;
+  return Object.values(state.files).filter((file) => isFileDirty(file)).length;
 }
 
 export function trackSaveButtonClicked(

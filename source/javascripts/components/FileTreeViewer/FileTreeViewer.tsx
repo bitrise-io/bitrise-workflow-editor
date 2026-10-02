@@ -3,7 +3,7 @@ import { BitkitPopover } from '@bitrise/bitkit-v2';
 import { trackWorkflowEditorYmlModuleOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import { useFileTabs } from '@/hooks/useFileTabs';
-import { useSelectedNodeId, useTree } from '@/hooks/useTree';
+import { useIsModularConfig, useSelectedNodeId, useTree } from '@/hooks/useTree';
 
 import FileTreeView from './FileTreeView';
 
@@ -16,10 +16,11 @@ type Props = {
 
 const FileTreeViewer = ({ open, onOpenChange, getAnchor }: Props) => {
   const tree = useTree();
+  const isModular = useIsModularConfig();
   const selectedNodeId = useSelectedNodeId();
   const { openFile } = useFileTabs();
 
-  if (!tree) {
+  if (!isModular || !tree) {
     return null;
   }
 

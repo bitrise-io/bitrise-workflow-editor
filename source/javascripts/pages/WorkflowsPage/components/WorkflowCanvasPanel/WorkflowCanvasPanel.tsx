@@ -16,7 +16,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
-import { useIsMergedConfigSelected, useTree } from '@/hooks/useTree';
+import { useIsMergedConfigSelected, useIsModularConfig } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
@@ -33,9 +33,9 @@ const containerProps: CardProps = {
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
-  const tree = useTree();
+  const isModular = useIsModularConfig();
   const isMergedConfigSelected = useIsMergedConfigSelected();
-  const isModularFileTab = !!tree && !isMergedConfigSelected;
+  const isModularFileTab = isModular && !isMergedConfigSelected;
 
   const stepBundles = useStepBundles((s) => {
     return Object.fromEntries(

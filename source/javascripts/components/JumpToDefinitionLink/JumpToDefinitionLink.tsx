@@ -5,7 +5,7 @@ import { EntityKind } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
 import useJumpToDefinition from '@/hooks/useJumpToDefinition';
-import { useTree } from '@/hooks/useTree';
+import { useIsModularConfig, useTree } from '@/hooks/useTree';
 
 import FilePickerMenu from './FilePickerMenu';
 
@@ -25,6 +25,7 @@ type Props = {
  */
 const JumpToDefinitionLink = ({ kind, id, nodeIds, trigger, onOpenChange }: Props) => {
   const tree = useTree();
+  const isModular = useIsModularConfig();
   const entityIndex = useEntityIndex();
   const jumpToDefinition = useJumpToDefinition();
 
@@ -38,7 +39,7 @@ const JumpToDefinitionLink = ({ kind, id, nodeIds, trigger, onOpenChange }: Prop
     [jumpToDefinition, kind, id],
   );
 
-  if (!tree) {
+  if (!isModular || !tree) {
     return null;
   }
 

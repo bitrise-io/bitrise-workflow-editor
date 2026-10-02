@@ -9,7 +9,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
-import { useTree } from '@/hooks/useTree';
+import { useIsModularConfig } from '@/hooks/useTree';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import VisualEditorGate from '@/layouts/VisualEditorGate';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
@@ -21,7 +21,7 @@ const MainLayout = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   // Modular configs get a global file-tab strip directly under the header.
-  const isModular = Boolean(useTree());
+  const isModular = useIsModularConfig();
   // In website mode that strip spans the full width under the header (above the
   // nav + content row); in CLI mode the tabs live inside the content column instead.
   const tabsUnderHeader = isModular && isWebsiteMode;

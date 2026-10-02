@@ -16,6 +16,7 @@ import {
   getModularConfigTree,
   getYmlString,
   initializeBitriseYmlDocument,
+  isModularConfig,
 } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -50,7 +51,7 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
   const appSlug = PageProps.appSlug();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const configCommitSha = useBitriseYmlStore((s) => s.configCommitSha);
-  const isModular = useBitriseYmlStore((s) => Boolean(s.tree));
+  const isModular = useBitriseYmlStore(isModularConfig);
 
   const [pushError, setPushError] = useState<string | undefined>();
   const clearPushError = () => setPushError(undefined);
