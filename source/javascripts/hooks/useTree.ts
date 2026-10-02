@@ -181,7 +181,7 @@ export type EntityDefinitionPath = { nodeId: string; path: string };
  * Every file that defines the entity, in precedence order (top-most first), with paths resolved.
  * Unlike {@link useCrossFileEntity}, this doesn't short-circuit when the entity is also defined
  * locally — so it can surface the full "defined in module A, module B" set for a multi-module entity.
- * Empty in single-file mode (the entity index only tracks modular configs).
+ * In a single-file config, that's the one file.
  */
 export function useEntityDefinitionPaths(kind: EntityKind, id: string): EntityDefinitionPath[] {
   return useBitriseYmlStore((s) =>

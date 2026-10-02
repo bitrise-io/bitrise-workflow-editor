@@ -1,4 +1,4 @@
-import { isFileDirty } from '@/core/stores/BitriseYmlStore';
+import { isFileDirty, isModularConfig } from '@/core/stores/BitriseYmlStore';
 
 import useBitriseYmlStore from './useBitriseYmlStore';
 
@@ -11,7 +11,7 @@ export default function useChangedModules(): ChangedModule[] {
   // { nodeId, path } (the fields consumers use) to keep that comparison bounded — returning full
   // FileSlice objects would make dequal deep-walk each slice's YAML document on every change.
   return useBitriseYmlStore((s) =>
-    s.tree
+    isModularConfig(s)
       ? Object.values(s.files)
           .filter((slice) => isFileDirty(slice))
           .map((slice) => ({ nodeId: slice.nodeId, path: slice.path }))

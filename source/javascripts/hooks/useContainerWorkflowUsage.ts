@@ -40,23 +40,13 @@ function useContainerWorkflowUsage(id?: string) {
  * workflow id. Unlike jumping by the entity index (which lists every module that *defines* a
  * same-named workflow), this points only at the files where that workflow really uses the container,
  * so the usage jump-to-definition doesn't offer an unrelated same-named workflow from another module.
- * Empty node-id lists in single-file mode (there are no modules to jump between).
+ * In a single-file config, that's always the one file.
  */
 function useContainerUsageByWorkflow(containerId: string): Map<string, string[]> {
   return useBitriseYmlStore((state) => {
     const usage = new Map<string, string[]>();
-    const slices = state.tree ? Object.values(state.files) : [];
 
-    if (slices.length === 0) {
-      ContainerService.getWorkflowsUsingContainer(state.ymlDocument, containerId).forEach((workflowId) => {
-        if (!usage.has(workflowId)) {
-          usage.set(workflowId, []);
-        }
-      });
-      return usage;
-    }
-
-    slices.forEach((slice) => {
+    Object.values(state.files).forEach((slice) => {
       ContainerService.getWorkflowsUsingContainer(slice.ymlDocument, containerId).forEach((workflowId) => {
         const nodeIds = usage.get(workflowId) ?? [];
         if (!nodeIds.includes(slice.nodeId)) {

@@ -119,7 +119,6 @@ export const WithAliasesAndMergeKeys: StoryType = {
     bitriseYmlStore: {
       ymlDocument: YAML_ALIASES_DOC,
       savedYmlDocument: YAML_ALIASES_DOC,
-      __invalidYmlString: undefined,
     },
   },
 };

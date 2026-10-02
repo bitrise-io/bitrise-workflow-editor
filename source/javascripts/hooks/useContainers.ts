@@ -39,13 +39,11 @@ function collectContainers(node: TreeNode, files: Record<string, FileSlice>, acc
  */
 function useContainers(): ReturnValue {
   return useBitriseYmlStore((s) => {
-    // Modular: containers can be defined in any module file (all are part of the merged config), so
-    // aggregate across every file — the active doc's `yml.containers` only holds the current file's.
+    // Containers can be defined in any module file (all are part of the merged config), so aggregate
+    // across every file — the active doc's `yml.containers` only holds the current file's.
     const merged: Containers = {};
     if (s.tree) {
       collectContainers(s.tree, s.files, merged);
-    } else {
-      Object.assign(merged, s.yml.containers ?? {});
     }
 
     return groupByType(merged);

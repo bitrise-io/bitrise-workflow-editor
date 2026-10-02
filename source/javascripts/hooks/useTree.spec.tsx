@@ -4,7 +4,11 @@
 import { renderHook } from '@testing-library/react';
 
 import { TreeNode } from '@/core/models/Tree';
-import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import {
+  initializeBitriseYmlDocument,
+  initializeModularConfig,
+  SINGLE_FILE_NODE_ID,
+} from '@/core/stores/BitriseYmlStore';
 
 import { useEntityDefinitionPaths } from './useTree';
 
@@ -33,7 +37,7 @@ const modularRoot = (rootContents: string, moduleContents: string): TreeNode => 
 });
 
 describe('useEntityDefinitionPaths', () => {
-  it('is empty in single-file mode (no entity index)', () => {
+  it('lists the one file in a single-file config', () => {
     initializeBitriseYmlDocument({
       ymlString: 'containers:\n  a:\n    type: execution\n    image: ubuntu:22.04\n',
       version: '1',
@@ -41,7 +45,7 @@ describe('useEntityDefinitionPaths', () => {
 
     const { result } = renderHook(() => useEntityDefinitionPaths('containers', 'a'));
 
-    expect(result.current).toEqual([]);
+    expect(result.current).toEqual([{ nodeId: SINGLE_FILE_NODE_ID, path: 'bitrise.yml' }]);
   });
 
   it('returns a single entry when the container is defined in only one module', () => {

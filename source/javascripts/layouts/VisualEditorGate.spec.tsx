@@ -25,11 +25,14 @@ const setPath = (path: string) => {
   currentPathMock = path;
 };
 
+const INVALID_YML = 'workflows: {{{ invalid';
+
 describe('VisualEditorGate', () => {
   beforeEach(() => {
     setPath('/workflows');
     // Fresh store between cases so a previous parse failure doesn't leak into the next test.
-    bitriseYmlStore.setState({ __invalidYmlString: undefined, validationStatus: 'pending' });
+    initializeBitriseYmlDocument({ ymlString: 'workflows: {}\n', version: '1' });
+    bitriseYmlStore.setState({ validationStatus: 'pending' });
   });
 
   it('does NOT redirect for a parses-fine config with schema-invalid markers (SSW-3087)', () => {
@@ -45,9 +48,7 @@ describe('VisualEditorGate', () => {
   });
 
   it('redirects to /yml when the YAML cannot be parsed', () => {
-    // Set the parse-failure sentinel directly — mirrors what initializeBitriseYmlDocument does
-    // for an unparseable YAML string, without depending on the yaml library's error semantics.
-    bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
+    initializeBitriseYmlDocument({ ymlString: INVALID_YML, version: '1' });
 
     render(<VisualEditorGate />);
 
@@ -91,7 +92,7 @@ describe('VisualEditorGate', () => {
 
   it('preserves the current query string when redirecting', () => {
     setPath('/workflows?workflow_id=primary');
-    bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
+    initializeBitriseYmlDocument({ ymlString: INVALID_YML, version: '1' });
 
     render(<VisualEditorGate />);
 
@@ -100,7 +101,7 @@ describe('VisualEditorGate', () => {
 
   it('does not loop when already on the YAML page', () => {
     setPath('/yml');
-    bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
+    initializeBitriseYmlDocument({ ymlString: INVALID_YML, version: '1' });
 
     render(<VisualEditorGate />);
 

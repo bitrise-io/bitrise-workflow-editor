@@ -204,7 +204,7 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
 
     if (config) {
       // No includes → no modules: even with modular enabled, present it as a plain single-file
-      // config (no tree/tabs/merged view). Saving still works — it's repo-stored, so the push
+      // config (a tree of one file, with no tabs or merged view). Saving still works — it's repo-stored, so the push
       // flow handles the single-file case (`bitriseYml`), and the mode is re-decided per branch.
       initializeBitriseYmlDocument({
         ymlString: config.root.contents,

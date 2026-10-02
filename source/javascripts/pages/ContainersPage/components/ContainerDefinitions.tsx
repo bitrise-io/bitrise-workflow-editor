@@ -9,8 +9,8 @@ type Props = {
 
 // The "Also defined in <module>" line under a container row in the entity list: names the module(s)
 // that define it other than the one currently open, with a jump-to-definition picker. Renders nothing
-// when the container is defined only in the current module (and in single-file mode, where the entity
-// index is empty). — BIVS-3706
+// when the container is defined only in the current module, which is always the case for a
+// single-file config. — BIVS-3706
 const ContainerDefinitions = ({ id }: Props) => {
   const { nodeIds } = useOtherDefiningModules('containers', id);
 
