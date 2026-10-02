@@ -6,7 +6,7 @@ import { renderHook } from '@testing-library/react';
 import { TreeNode } from '@/core/models/Tree';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
-import { useEntityDefinitionPaths } from './useTree';
+import { useEntityDefinitionPaths, useModularTree } from './useTree';
 
 const SHA = 'a1b2c3d4e5f6789012345678901234567890abcd';
 
@@ -30,6 +30,16 @@ const modularRoot = (rootContents: string, moduleContents: string): TreeNode => 
   commitSha: SHA,
   editable: true,
   includes: [leaf('n_mod', 'mod.yml', moduleContents)],
+});
+
+describe('useModularTree', () => {
+  it('is the tree of a modular config, and undefined for a single-file one', () => {
+    initializeModularConfig({ root: modularRoot('format_version: "13"\n', 'workflows: {}\n') });
+    expect(renderHook(() => useModularTree()).result.current?.nodeId).toBe('root');
+
+    initializeBitriseYmlDocument({ ymlString: 'workflows: {}\n', version: '1' });
+    expect(renderHook(() => useModularTree()).result.current).toBeUndefined();
+  });
 });
 
 describe('useEntityDefinitionPaths', () => {

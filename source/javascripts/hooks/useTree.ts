@@ -32,6 +32,11 @@ export function useIsModularConfig(): boolean {
   return useStore(bitriseYmlStore, isModularConfig);
 }
 
+/** The tree of a modular config, or `undefined` for a single-file one. For UI that only multi-file configs have. */
+export function useModularTree(): TreeNode | undefined {
+  return useStore(bitriseYmlStore, (s) => (isModularConfig(s) ? s.tree : undefined));
+}
+
 export function useSelectedNodeId(): string | undefined {
   return useStore(bitriseYmlStore, (s) => s.selectedNodeId);
 }
