@@ -168,6 +168,7 @@ function commitActiveFileDocument(nodeId: string, slice: FileSlice, doc: Documen
   });
 }
 
+/** Returns its parse of `ymlString`, even when that has errors. */
 export function updateBitriseYmlDocumentByString(ymlString: string) {
   const state = bitriseYmlStore.getState();
   const doc = YmlUtils.toDoc(ymlString);
@@ -178,12 +179,12 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
     } else {
       bitriseYmlStore.setState({ __invalidYmlString: ymlString });
     }
-    return;
+    return doc;
   }
 
   const active = editableActiveSlice('updateBitriseYmlDocumentByString');
   if (!active) {
-    return;
+    return doc;
   }
 
   if (doc.errors.length === 0) {
@@ -191,6 +192,7 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
   } else {
     bitriseYmlStore.setState({ __invalidYmlString: ymlString });
   }
+  return doc;
 }
 
 /** Modular tree state reset to its initial (empty) values — see the store's initial state. */

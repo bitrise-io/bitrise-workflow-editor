@@ -2038,4 +2038,30 @@ describe('YmlUtils', () => {
   ])('hasAliasesOrMergeKeys is right for %s', (_, raw, expected) => {
     expect(YmlUtils.hasAliasesOrMergeKeys(YmlUtils.toDoc(raw))).toBe(expected);
   });
+
+  describe('findAliasesAndMergeKeys', () => {
+    const found = (raw: string) =>
+      YmlUtils.findAliasesAndMergeKeys(YmlUtils.toDoc(raw)).map(({ start, end }) => raw.slice(start, end));
+
+    it('finds each alias and merge key, in flow collections too, and no anchor', () => {
+      expect(found('base: &base\n  a: 1\ncopy: *base\nmerged:\n  <<: *base\nlist:\n- [&s x]\n&key k: *s\n')).toEqual([
+        '*base',
+        '<<',
+        '*base',
+        '*s',
+      ]);
+    });
+
+    it('gives an alias with no anchor its parse error, and only that alias', () => {
+      const raw = 'a: &x 1\nb: *x\nc: *missing\n';
+      expect(YmlUtils.findAliasesAndMergeKeys(YmlUtils.toDoc(raw)).map(({ error }) => error)).toEqual([
+        undefined,
+        expect.stringContaining('no anchor &missing'),
+      ]);
+    });
+
+    it('finds nothing in a glob, a heredoc or an unused anchor', () => {
+      expect(found('a: &unused build/*.ipa\nscript: |\n  make && cat <<EOF\n  x\n  EOF\n')).toEqual([]);
+    });
+  });
 });
