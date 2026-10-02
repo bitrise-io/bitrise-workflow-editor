@@ -706,7 +706,7 @@ const aliasesAndMergeKeysCache = new WeakMap<Document, AliasOrMergeKey[]>();
 
 /**
  * Every alias and merge key, by offset into the text `doc` was parsed from, in document order. An alias
- * that can't be resolved carries its parse error's message. Cached, so the visual editor blocker, the
+ * that can't be resolved carries its parse error's message. Cached, so the visual editor notice, the
  * YAML editor's markers and the RUM tracking share one walk per document.
  */
 function findAliasesAndMergeKeys(doc: Document): AliasOrMergeKey[] {

@@ -12,7 +12,7 @@ import useMergedConfigSync from '@/hooks/useMergedConfigSync';
 import useTrackYamlAliases from '@/hooks/useTrackYamlAliases';
 import { useTree } from '@/hooks/useTree';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
-import VisualEditorGate from '@/layouts/VisualEditorGate';
+import VisualEditorDisabledRedirect from '@/layouts/VisualEditorDisabledRedirect';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
@@ -48,14 +48,14 @@ const MainLayout = () => {
               <LoadingState />
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>
-                <VisualEditorGate>
+                <VisualEditorDisabledRedirect>
                   <Switch>
                     {routes.map(({ path, component }) => (
                       <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
                     ))}
                     <Redirect to={paths.workflows} replace />
                   </Switch>
-                </VisualEditorGate>
+                </VisualEditorDisabledRedirect>
               </Router>
             )}
           </Box>

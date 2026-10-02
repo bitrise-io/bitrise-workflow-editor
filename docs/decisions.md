@@ -53,19 +53,22 @@ when its file leaves the tree and no editor has it open.
 Validation status watches the **root model only**. The whole-config schema matches every model, so
 an include fragment reports errors for keys it was never meant to have.
 
-The forced YAML view fires only when the visual editor can't read the YAML (a parse error, or
-[aliases](#aliases-and-merge-keys-switch-off-the-visual-editor)), never on schema errors: the visual
-editor renders those fine, and the redirect is one-way, so it would strand people on the YAML view.
+The forced YAML view fires only when the YAML doesn't parse, never on schema errors or
+[aliases](#aliases-and-merge-keys-only-warn): the visual editor renders those, and the redirect is
+one-way, so it would strand people on the YAML view.
 
 In dev website mode the schema layer is skipped for cross-origin reasons, so there are no markers.
 
-## Aliases and merge keys switch off the visual editor
+## Aliases and merge keys only warn
 
 `getMapIn`/`getSeqIn` throw on an alias at the end of a path and return nothing past one, and
-writing through an alias would change every place that shares the anchor. So a config with an alias
-or a `<<` merge key in any file is YAML-only, and `MainLayout` doesn't mount a visual page, which
-would throw before the redirect runs. Unused anchors block nothing. The YAML view keeps aliases and
-merge keys as written.
+writing through an alias changes every place that shares the anchor. The Visual editor doesn't
+support them, but a config with an alias or a `<<` merge key in any file still opens there: the YAML
+page's alert and the view switch's tooltip say it's unsupported, and a page that can't show one
+throws to the [error page](#render-errors-show-a-page-instead-of-retrying). An edit that throws from
+an event handler leaves the document as it was, and the global error handler shows its toast. Unused
+anchors warn about nothing. The YAML view keeps
+aliases and merge keys as written.
 
 ## An alias with no anchor is a parse error
 
@@ -125,7 +128,9 @@ Datadog events per session.
 
 "Edit as YAML" reloads the editor onto the YAML page, where most crashes can be fixed, and drops
 unsaved changes without asking: the editor crashed, so keeping them isn't expected. It reloads
-rather than resetting the boundary, because a crash in shared chrome would throw again.
+rather than resetting the boundary, because a crash in shared chrome would throw again. It keeps only
+`?branch=` of the query, so switching back to Visual opens the default page, not the entity that
+crashed.
 
 ## Things that fail somewhere else
 

@@ -30,7 +30,7 @@ import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
-import useVisualEditorBlocker from '@/hooks/useVisualEditorBlocker';
+import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
 
 type Props = Omit<BitkitPageSidebarProps, 'children'>;
@@ -60,14 +60,14 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   // Schema/marker errors don't block navigation: the visual pages render any config they can read.
   // Blocking on the broader validation status trapped users on the current page whenever the YAML
   // was merely schema-invalid (SSW-3087).
-  const visualEditorBlocker = useVisualEditorBlocker();
+  const visualEditorNotice = useVisualEditorNotice();
 
   const handleNavigation = useCallback(() => {
-    if (visualEditorBlocker && !path.startsWith(paths.yml)) {
+    if (visualEditorNotice?.disabled && !path.startsWith(paths.yml)) {
       toast({
-        status: visualEditorBlocker.severity === 'critical' ? 'error' : 'warning',
-        title: visualEditorBlocker.title,
-        description: visualEditorBlocker.description,
+        status: visualEditorNotice.severity === 'critical' ? 'error' : 'warning',
+        title: visualEditorNotice.title,
+        description: visualEditorNotice.description,
         duration: null,
         isClosable: true,
       });
@@ -75,7 +75,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
     }
 
     navigate(path);
-  }, [visualEditorBlocker, navigate, path, toast]);
+  }, [visualEditorNotice, navigate, path, toast]);
 
   return (
     <BitkitPageSidebar.Item

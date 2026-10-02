@@ -41,7 +41,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useHashLocation from '@/hooks/useHashLocation';
 import usePushBranch, { PushBranchPayload } from '@/hooks/usePushBranch';
 import useSearchParams from '@/hooks/useSearchParams';
-import useVisualEditorBlocker from '@/hooks/useVisualEditorBlocker';
+import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -69,10 +69,10 @@ const Header = () => {
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
   const isModular = useBitriseYmlStore((s) => !!s.tree);
-  // `ymlStatus` gates saving and the validation badge; the narrower `visualEditorBlocker` gates only
-  // the view switch (see useVisualEditorBlocker).
+  // `ymlStatus` gates saving and the validation badge; the narrower `visualEditorNotice.disabled` gates
+  // only the view switch, and the notice explains it in the switch's tooltip (see useVisualEditorNotice).
   const ymlStatus = useYmlValidationStatus();
-  const visualEditorBlocker = useVisualEditorBlocker();
+  const visualEditorNotice = useVisualEditorNotice();
 
   const [path, navigate] = useHashLocation();
   const [searchParams] = useSearchParams();
@@ -100,7 +100,7 @@ const Header = () => {
       }
 
       if (value === 'visual') {
-        if (visualEditorBlocker) {
+        if (visualEditorNotice?.disabled) {
           return;
         }
 
@@ -119,7 +119,7 @@ const Header = () => {
         );
       }
     },
-    [searchParams, navigate, visualEditorBlocker],
+    [searchParams, navigate, visualEditorNotice],
   );
 
   const conversationId = useCiConfigExpertStore((s) => s.conversationId);
@@ -394,9 +394,9 @@ const Header = () => {
         breadcrumb={trail}
         controls={
           <BitkitTooltip
-            disabled={!visualEditorBlocker}
+            disabled={!visualEditorNotice}
             placement={isMobile ? 'bottom' : 'bottom-start'}
-            text={visualEditorBlocker?.description ?? ''}
+            text={visualEditorNotice?.description ?? ''}
           >
             <BitkitSegmentedControl
               size="sm"
@@ -405,7 +405,7 @@ const Header = () => {
               data-clarity-unmask="true"
               onValueChange={(details) => handleEditorViewChange(details.value)}
             >
-              <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={Boolean(visualEditorBlocker)}>
+              <BitkitSegmentedControl.Item icon={IconWebUi} value="visual" disabled={visualEditorNotice?.disabled}>
                 Visual
               </BitkitSegmentedControl.Item>
               <BitkitSegmentedControl.Item icon={IconCode} value="yaml">
