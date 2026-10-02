@@ -25,7 +25,7 @@ import {
 } from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { ClientError } from '@/core/api/client';
-import { forceRefreshStates, getYmlString, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
+import { applySaveResult, forceRefreshStates, getYmlString } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
@@ -87,7 +87,7 @@ const ConfigMergeDialogContent = ({
     isPending: isSaving,
   } = useSaveCiConfig({
     onSuccess: (result) => {
-      initializeBitriseYmlDocument(result);
+      applySaveResult(result);
       forceRefreshStates();
       onClose();
     },

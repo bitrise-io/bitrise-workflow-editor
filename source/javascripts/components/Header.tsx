@@ -22,11 +22,11 @@ import { PushBranchConflict } from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
 import {
   applyModularSaveResult,
+  applySaveResult,
   bitriseYmlStore,
   discardBitriseYmlDocument,
   getTabLastLocation,
   getYmlString,
-  initializeBitriseYmlDocument,
   recordActiveTabLocation,
 } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -189,7 +189,7 @@ const Header = () => {
   }, [currentPage, closePushBranchDialog, openMergeDialog]);
 
   const { isPending: isSaving, mutate: save } = useSaveCiConfig({
-    onSuccess: initializeBitriseYmlDocument,
+    onSuccess: applySaveResult,
   });
 
   // Local modular save: write changed module files to disk + reload the tree (no branch/PR locally).

@@ -6,7 +6,13 @@ import { act, renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';
-import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import {
+  applyModularSaveResult,
+  applySaveResult,
+  initializeBitriseYmlDocument,
+  initializeModularConfig,
+  updateBitriseYmlDocumentByString,
+} from '@/core/stores/BitriseYmlStore';
 import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
 
 import useTrackYamlAliases from './useTrackYamlAliases';
@@ -14,6 +20,10 @@ import useTrackYamlAliases from './useTrackYamlAliases';
 jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addAction: jest.fn() } }));
 
 const addAction = jest.mocked(datadogRum.addAction);
+
+// Saves run back to back, and the store outlives each test, so every save needs its own `lastSavedAt`.
+let now = 0;
+jest.spyOn(Date, 'now').mockImplementation(() => (now += 1));
 
 const NO_ALIASES = 'a: 1\n';
 const TWO_ALIASES_ONE_MERGE_KEY = 'a: &x 1\nb:\n  <<: {k: 1}\n  c: *x\n  d: *x\n';
@@ -33,6 +43,22 @@ const mountWhileLoading = () => {
     rerender();
   };
 };
+
+const loadConfig = (ymlString: string) => {
+  const finishLoading = mountWhileLoading();
+  act(() => initializeBitriseYmlDocument({ ymlString, version: '1' }));
+  finishLoading();
+  addAction.mockClear();
+};
+
+const loadModularConfig = (root: TreeNode) => {
+  const finishLoading = mountWhileLoading();
+  act(() => initializeModularConfig({ root, mergedYml: 'a: 1\n' }));
+  finishLoading();
+  addAction.mockClear();
+};
+
+const save = (ymlString: string) => act(() => applySaveResult({ ymlString, version: '2' }));
 
 describe('useTrackYamlAliases', () => {
   beforeEach(() => {
@@ -64,6 +90,68 @@ describe('useTrackYamlAliases', () => {
         expect(addAction).not.toHaveBeenCalled();
       });
     });
+
+    describe('on save', () => {
+      it('records the counts before and after a save that adds the first aliases or merge keys', () => {
+        loadConfig(NO_ALIASES);
+        save(TWO_ALIASES_ONE_MERGE_KEY);
+
+        expect(addAction).toHaveBeenCalledTimes(1);
+        expect(addAction).toHaveBeenCalledWith('yaml_aliases_changed', {
+          before: { aliases: 0, mergeKeys: 0 },
+          after: { aliases: 2, mergeKeys: 1 },
+        });
+      });
+
+      it('records the counts before and after a save that changes how many there are', () => {
+        loadConfig(TWO_ALIASES_ONE_MERGE_KEY);
+        save('a: &x 1\nb: *x\n');
+
+        expect(addAction).toHaveBeenCalledTimes(1);
+        expect(addAction).toHaveBeenCalledWith('yaml_aliases_changed', {
+          before: { aliases: 2, mergeKeys: 1 },
+          after: { aliases: 1, mergeKeys: 0 },
+        });
+      });
+
+      it('records the counts before and after a save that removes the last aliases and merge keys', () => {
+        loadConfig(TWO_ALIASES_ONE_MERGE_KEY);
+        save(NO_ALIASES);
+
+        expect(addAction).toHaveBeenCalledTimes(1);
+        expect(addAction).toHaveBeenCalledWith('yaml_aliases_changed', {
+          before: { aliases: 2, mergeKeys: 1 },
+          after: { aliases: 0, mergeKeys: 0 },
+        });
+      });
+
+      it('records nothing for a save that keeps the counts', () => {
+        loadConfig(TWO_ALIASES_ONE_MERGE_KEY);
+        save(`${TWO_ALIASES_ONE_MERGE_KEY}e: 3\n`);
+
+        expect(addAction).not.toHaveBeenCalled();
+      });
+
+      it('records nothing for edits that are not saved', () => {
+        loadConfig(NO_ALIASES);
+        act(() => updateBitriseYmlDocumentByString(TWO_ALIASES_ONE_MERGE_KEY));
+
+        expect(addAction).not.toHaveBeenCalled();
+      });
+
+      it('compares a save with the config a branch switch loaded, not the one before it', () => {
+        loadConfig(NO_ALIASES);
+        act(() => initializeBitriseYmlDocument({ ymlString: TWO_ALIASES_ONE_MERGE_KEY, version: '1' }));
+        expect(addAction).not.toHaveBeenCalled();
+
+        save(NO_ALIASES);
+        expect(addAction).toHaveBeenCalledTimes(1);
+        expect(addAction).toHaveBeenCalledWith('yaml_aliases_changed', {
+          before: { aliases: 2, mergeKeys: 1 },
+          after: { aliases: 0, mergeKeys: 0 },
+        });
+      });
+    });
   });
 
   describe('modular config', () => {
@@ -80,6 +168,28 @@ describe('useTrackYamlAliases', () => {
         finishLoading();
         expect(addAction).toHaveBeenCalledTimes(1);
         expect(addAction).toHaveBeenCalledWith('yaml_aliases_loaded', { aliases: 2, mergeKeys: 1 });
+      });
+    });
+
+    describe('on save', () => {
+      it('compares every file on a modular save', () => {
+        loadModularConfig(node('root', 'a: 1\n', [node('module', 'b: 2\n')]));
+        act(() => applyModularSaveResult({ root: node('root', 'a: 1\n', [node('module', 'b: &x 2\nc: *x\n')]) }));
+        expect(addAction).toHaveBeenCalledWith('yaml_aliases_changed', {
+          before: { aliases: 0, mergeKeys: 0 },
+          after: { aliases: 1, mergeKeys: 0 },
+        });
+      });
+
+      it('records the removed counts when a save drops an include file that had them', () => {
+        loadModularConfig(node('root', 'a: 1\n', [node('plain', 'b: 2\n'), node('aliased', 'c: &x 3\nd: *x\n')]));
+        act(() => applyModularSaveResult({ root: node('root', 'a: 1\n', [node('plain', 'b: 2\n')]) }));
+
+        expect(addAction).toHaveBeenCalledTimes(1);
+        expect(addAction).toHaveBeenCalledWith('yaml_aliases_changed', {
+          before: { aliases: 1, mergeKeys: 0 },
+          after: { aliases: 0, mergeKeys: 0 },
+        });
       });
     });
   });
