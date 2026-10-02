@@ -7,7 +7,7 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
-import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
+import { memo, MouseEvent, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
@@ -26,7 +26,8 @@ import ChainedWorkflowList from './components/ChainedWorkflowList';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 import WorkflowStepList from './components/WorkflowStepList';
 import { useSelection, useWorkflowActions, WorkflowCardContextProvider } from './contexts/WorkflowCardContext';
-import { SelectionParent, StepActions, WorkflowActions } from './WorkflowCard.types';
+import { INTERACTIVE_CARD_HEADER_SELECTOR } from './WorkflowCard.const';
+import { SelectedWorkflow, SelectionParent, StepActions, WorkflowActions } from './WorkflowCard.types';
 
 type ContentProps = {
   id: string;
@@ -97,15 +98,37 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
   const isGhost = isCrossFile || isReadOnlyView;
 
-  const { isOpen, onOpen, onToggle } = useDisclosure({
+  const { isOpen, onOpen, onClose, onToggle } = useDisclosure({
     defaultIsOpen: !isCollapsable,
   });
-  const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
+  const { onCreateWorkflow, onSelectWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } =
+    useWorkflowActions();
 
   const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
 
-  const { isSelected } = useSelection();
-  const isHighlighted = isSelected({ workflowId: id });
+  const { isWorkflowSelected } = useSelection();
+  const isHighlighted = isWorkflowSelected({ workflowId: id });
+
+  // Cross-file refs have no nested content to show here, so there's nothing to expand.
+  const isClickable = Boolean(onSelectWorkflow) && !isCrossFile;
+  const handleCardClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target instanceof Element && event.target.closest(INTERACTIVE_CARD_HEADER_SELECTOR)) {
+      return;
+    }
+
+    // A click always expands and selects, so the two states can't drift apart. Only a card that is
+    // already both expanded and selected collapses — never the inverse of what the user just saw.
+    const isDeselecting = isOpen && isHighlighted;
+
+    if (isDeselecting) {
+      onClose();
+    } else {
+      onOpen();
+    }
+
+    onSelectWorkflow?.({ workflowId: id, isSelected: !isDeselecting });
+  };
+
   const cardProps = useMemo(
     () => ({
       ...containerProps,
@@ -136,7 +159,16 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   return (
     <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
-      <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
+      <Box
+        display="flex"
+        alignItems="center"
+        px="8"
+        py="6"
+        gap="4"
+        className="group"
+        cursor={isClickable ? 'pointer' : undefined}
+        onClick={isClickable ? handleCardClick : undefined}
+      >
         {/* No expand/collapse for cross-file refs — their nested content lives in another file
             and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
         {isCollapsable && !isCrossFile && (
@@ -225,6 +257,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 type Selection = {
   selectedStepIndices?: number[];
   selectionParent?: SelectionParent;
+  selectedWorkflow?: SelectedWorkflow;
 };
 type Props = ContentProps & WorkflowActions & StepActions & Selection;
 
@@ -236,9 +269,15 @@ const WorkflowCard = ({
   containerProps,
   selectedStepIndices = [],
   selectionParent,
+  selectedWorkflow,
   ...actions
 }: Props) => (
-  <WorkflowCardContextProvider selectedStepIndices={selectedStepIndices} selectionParent={selectionParent} {...actions}>
+  <WorkflowCardContextProvider
+    selectedStepIndices={selectedStepIndices}
+    selectionParent={selectionParent}
+    selectedWorkflow={selectedWorkflow}
+    {...actions}
+  >
     <WorkflowCardContent
       id={id}
       uses={uses}

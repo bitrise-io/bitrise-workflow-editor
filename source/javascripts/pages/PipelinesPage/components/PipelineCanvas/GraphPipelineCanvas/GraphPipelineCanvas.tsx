@@ -135,6 +135,12 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
     <>
       <ReactFlow
         panOnScroll
+        // React Flow defaults `nodeClickDistance` to 0, which it hands to d3-drag: any pointer movement
+        // at all between mousedown and mouseup then makes d3 swallow the click, so clicking a workflow
+        // card would silently do nothing after the slightest jitter. Matching `nodeDragThreshold` keeps
+        // click and drag mutually exclusive: ≤4px is a click, >4px is a drag.
+        nodeClickDistance={4}
+        nodeDragThreshold={4}
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}

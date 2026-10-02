@@ -38,6 +38,28 @@ type DialogParams = {
   selectionParent?: SelectionParent;
 };
 
+/**
+ * Which workflow the Edit Workflow drawer currently targets, or `undefined` if it isn't the active dialog.
+ * A queued dialog wins: `openDialog` defers behind an already-open drawer via `_nextDialog`, and during that
+ * window `openedDialogType` is NONE and `workflowId` isn't set yet.
+ */
+export const selectWorkflowConfigTarget = (state: State) => {
+  const target = state._nextDialog ?? {
+    type: state.openedDialogType,
+    workflowId: state.workflowId,
+    parentWorkflowId: state.parentWorkflowId,
+  };
+
+  if (target.type !== PipelinesPageDialogType.WORKFLOW_CONFIG) {
+    return undefined;
+  }
+
+  return {
+    workflowId: target.workflowId ?? '',
+    parentWorkflowId: target.parentWorkflowId ?? '',
+  };
+};
+
 type Action = {
   setPipelineId: (pipelineId?: string) => void;
   setWorkflowId: (workflowId?: string) => void;
@@ -48,6 +70,7 @@ type Action = {
   isDialogMounted: (type: PipelinesPageDialogType) => boolean;
   openDialog: (params: DialogParams) => () => void;
   closeDialog: () => void;
+  closeWorkflowConfigDialog: (workflowId: string, parentWorkflowId?: string) => void;
   unmountDialog: () => void;
 };
 
@@ -134,6 +157,36 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     return set(() => ({
       openedDialogType: PipelinesPageDialogType.NONE,
     }));
+  },
+  closeWorkflowConfigDialog: (workflowId, parentWorkflowId) => {
+    return set((state) => {
+      const matches = (dialog: Pick<DialogParams, 'type' | 'workflowId' | 'parentWorkflowId'>) =>
+        dialog.type === PipelinesPageDialogType.WORKFLOW_CONFIG &&
+        (dialog.workflowId ?? '') === workflowId &&
+        (dialog.parentWorkflowId ?? '') === (parentWorkflowId ?? '');
+
+      const patch: Partial<State> = {};
+
+      // Match on both ids: a chained card for `wfX` under `wfP` and a top-level card for `wfX`
+      // are different drawer targets, and neither may close the other's drawer.
+      if (
+        matches({
+          type: state.openedDialogType,
+          workflowId: state.workflowId,
+          parentWorkflowId: state.parentWorkflowId,
+        })
+      ) {
+        patch.openedDialogType = PipelinesPageDialogType.NONE;
+      }
+
+      // A deferred open has to be cancelled too, otherwise `unmountDialog`'s replay pops the drawer
+      // open for a card the user has already deselected.
+      if (state._nextDialog && matches(state._nextDialog)) {
+        patch._nextDialog = undefined;
+      }
+
+      return patch;
+    });
   },
   unmountDialog: () => {
     return set(({ _nextDialog, openDialog, selectedStepIndices }) => {

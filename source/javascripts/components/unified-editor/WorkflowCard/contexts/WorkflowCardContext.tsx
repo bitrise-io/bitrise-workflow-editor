@@ -2,6 +2,7 @@ import { pick } from 'es-toolkit';
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 
 import {
+  SelectedWorkflow,
   SelectionParent,
   StepActions,
   WorkflowActions,
@@ -11,6 +12,7 @@ import { useIsReadOnlyView } from '@/hooks/useTree';
 type State = {
   selectedStepIndices?: number[];
   selectionParent?: SelectionParent;
+  selectedWorkflow?: SelectedWorkflow;
 };
 type Actions = StepActions & WorkflowActions;
 type ContextState = State & Actions;
@@ -21,6 +23,7 @@ const WorkflowCardContextProvider = ({
   children,
   selectedStepIndices = [],
   selectionParent,
+  selectedWorkflow,
   ...methods
 }: PropsWithChildren<ContextState>) => {
   const state = useMemo(
@@ -28,8 +31,9 @@ const WorkflowCardContextProvider = ({
       ...methods,
       selectedStepIndices,
       selectionParent,
+      selectedWorkflow,
     }),
-    [methods, selectedStepIndices, selectionParent],
+    [methods, selectedStepIndices, selectionParent, selectedWorkflow],
   );
 
   return <WorkflowCardContext.Provider value={state}>{children}</WorkflowCardContext.Provider>;
@@ -45,6 +49,18 @@ function useSelection() {
   return useMemo(
     () => ({
       selectedStepIndices: state.selectedStepIndices,
+      // Whether this card is the one whose config is currently open. Deliberately independent of
+      // `isSelected` below, which is about step selection and needs a step index.
+      isWorkflowSelected: ({ workflowId, parentWorkflowId }: { workflowId: string; parentWorkflowId?: string }) => {
+        if (!state.selectedWorkflow) {
+          return false;
+        }
+
+        return (
+          state.selectedWorkflow.workflowId === workflowId &&
+          (state.selectedWorkflow.parentWorkflowId ?? '') === (parentWorkflowId ?? '')
+        );
+      },
       isSelected: ({
         stepBundleId,
         stepIndex = -1,
@@ -79,11 +95,12 @@ function useWorkflowActions(): WorkflowActions {
     // Cards render mutating controls based on callback presence, so dropping the callbacks in a
     // read-only view removes those controls everywhere; only the inspection actions are kept.
     if (isReadOnlyView) {
-      return pick(methods, ['onEditWorkflow', 'onEditChainedWorkflow']);
+      return pick(methods, ['onSelectWorkflow', 'onEditWorkflow', 'onEditChainedWorkflow']);
     }
 
     return pick(methods, [
       'onCreateWorkflow',
+      'onSelectWorkflow',
       'onEditWorkflow',
       'onEditChainedWorkflow',
       'onChainWorkflow',

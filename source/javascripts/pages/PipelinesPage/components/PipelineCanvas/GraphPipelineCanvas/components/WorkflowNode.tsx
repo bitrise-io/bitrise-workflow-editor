@@ -12,10 +12,15 @@ import StepBundleService from '@/core/services/StepBundleService';
 import StepService, { moveStepIndices } from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
+import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 import usePipelineSelector from '../../../../hooks/usePipelineSelector';
-import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
+import {
+  PipelinesPageDialogType,
+  selectWorkflowConfigTarget,
+  usePipelinesPageStore,
+} from '../../../../PipelinesPage.store';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
 import { LeftHandle, RightHandle } from './Handles';
@@ -90,6 +95,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
+  const closeWorkflowConfigDialog = usePipelinesPageStore((s) => s.closeWorkflowConfigDialog);
+  const selectedWorkflow = usePipelinesPageStore(useShallow(selectWorkflowConfigTarget));
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
@@ -112,6 +119,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     handleGroupStepsToStepBundle,
     handleMoveStepInStepBundle,
     handleUpgradeStepInStepBundle,
+    handleSelectWorkflow,
     handleEditWorkflow,
     handleChainWorkflow,
     handleRemoveWorkflow,
@@ -383,6 +391,27 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
       handleUpgradeStepInStepBundle: (stepBundleId: string, stepIndex: number, version: string) => {
         StepService.changeStepVersion('step_bundles', stepBundleId, stepIndex, version);
       },
+      handleSelectWorkflow: ({
+        workflowId,
+        parentWorkflowId,
+        isSelected,
+      }: {
+        workflowId: string;
+        parentWorkflowId?: string;
+        isSelected: boolean;
+      }) => {
+        if (isSelected) {
+          openDialog({
+            type: PipelinesPageDialogType.WORKFLOW_CONFIG,
+            pipelineId: selectedPipeline,
+            workflowId,
+            parentWorkflowId,
+          })();
+        } else {
+          // Closes this card's Edit Workflow drawer only — never an unrelated Step or Chain drawer.
+          closeWorkflowConfigDialog(workflowId, parentWorkflowId);
+        }
+      },
       handleEditWorkflow: (workflowId: string, parentWorkflowId?: string) =>
         openDialog({
           type: PipelinesPageDialogType.WORKFLOW_CONFIG,
@@ -427,6 +456,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     stepBundles,
     deleteElements,
     openDialog,
+    closeWorkflowConfigDialog,
     selectedPipeline,
   ]);
 
@@ -464,6 +494,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         containerProps={containerProps}
         selectedStepIndices={selectedStepIndices}
         selectionParent={selectionParent}
+        selectedWorkflow={selectedWorkflow}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}
@@ -477,6 +508,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         onMoveStepInStepBundle={handleMoveStepInStepBundle}
         onUpgradeStepInStepBundle={handleUpgradeStepInStepBundle}
         onCreateWorkflow={undefined}
+        onSelectWorkflow={handleSelectWorkflow}
         onEditWorkflow={handleEditWorkflow}
         onChainWorkflow={handleChainWorkflow}
         onRemoveWorkflow={handleRemoveWorkflow}

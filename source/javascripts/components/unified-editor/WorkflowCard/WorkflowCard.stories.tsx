@@ -10,6 +10,7 @@ export default {
   argTypes: {
     // Workflow actions
     onCreateWorkflow: { type: 'function' },
+    onSelectWorkflow: { type: 'function' },
     onChainWorkflow: { type: 'function' },
     onChainChainedWorkflow: { type: 'function' },
     onEditWorkflow: { type: 'function' },
