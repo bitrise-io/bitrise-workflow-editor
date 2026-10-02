@@ -1,3 +1,4 @@
+import { buildNodeUris, ROOT_MODEL_URI } from '@/core/utils/lspModelUris';
 import YmlUtils from '@/core/utils/YmlUtils';
 
 import {
@@ -6,6 +7,8 @@ import {
   discardBitriseYmlDocument,
   getYmlString,
   initializeBitriseYmlDocument,
+  isModularConfig,
+  SINGLE_FILE_NODE_ID,
   updateBitriseYmlDocument,
   updateBitriseYmlDocumentByString,
   YamlMutator,
@@ -24,6 +27,16 @@ describe('BitriseYmlStore — single file', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe('initializeBitriseYmlDocument', () => {
+    it('loads the config as a tree with one file, on the same editor model as before', () => {
+      const state = bitriseYmlStore.getState();
+
+      expect(isModularConfig(state)).toBe(false);
+      expect(state.selectedNodeId).toBe(SINGLE_FILE_NODE_ID);
+      expect(state.tree && buildNodeUris(state.tree).get(SINGLE_FILE_NODE_ID)).toBe(ROOT_MODEL_URI);
+    });
   });
 
   describe('configStatus', () => {

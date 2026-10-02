@@ -2,7 +2,7 @@ import * as monaco from 'monaco-editor';
 import { useEffect } from 'react';
 import { Document } from 'yaml';
 
-import { bitriseYmlStore, getYmlString, openTab, setValidationStatus } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, openTab, setValidationStatus } from '@/core/stores/BitriseYmlStore';
 import { buildNodeUris, ROOT_MODEL_URI } from '@/core/utils/lspModelUris';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
@@ -29,14 +29,14 @@ function toYmlCached(doc: Document): string {
 }
 
 /**
- * The files the language service should see as one workspace: every include-tree file (modular
- * config), or the single root document (non-modular). URIs are bitrise:// so include links and
- * cross-file symbols resolve by exact-string match against the targets core computes.
+ * The files the language service should see as one workspace: every file of the include tree (one
+ * for a single-file config, whose root resolves to `ROOT_MODEL_URI`). URIs are bitrise:// so include
+ * links and cross-file symbols resolve by exact-string match against the targets core computes.
  */
 function desiredModels(state = bitriseYmlStore.getState()): DesiredModel[] {
   const { tree, files } = state;
   if (!tree) {
-    return [{ uri: ROOT_MODEL_URI, content: getYmlString() }];
+    return [];
   }
 
   const uriByNode = buildNodeUris(tree);

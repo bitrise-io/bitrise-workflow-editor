@@ -74,15 +74,12 @@ function addContainerReference(
   containerType: ContainerType,
 ) {
   // The container definition may live in a different module file than the step being edited, so
-  // validate existence against the aggregated entity index (modular) or the active document
-  // (single-file) — not the active file's `containers` — and fail fast on an unknown id rather than
+  // validate existence against the aggregated entity index — not the active file's `containers` —
+  // and fail fast on an unknown id rather than
   // writing a dangling reference. The reference itself is added to the active file (where the step
   // lives), and the caller supplies the type from the aggregated container list.
   const state = bitriseYmlStore.getState();
-  const containerExists = state.tree
-    ? Boolean(state.entityIndex.containers?.[containerId])
-    : Boolean(YmlUtils.getMapIn(state.ymlDocument, ['containers', containerId]));
-  if (!containerExists) {
+  if (!state.entityIndex.containers?.[containerId]) {
     throw new Error(
       `Container ${containerId} not found. Ensure that the container exists in the 'containers' section.`,
     );
