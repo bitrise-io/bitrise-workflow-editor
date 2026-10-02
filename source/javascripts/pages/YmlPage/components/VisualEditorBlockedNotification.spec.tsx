@@ -4,14 +4,27 @@
 import { act, render, screen } from '@testing-library/react';
 import { ReactNode } from 'react';
 
-import { initializeBitriseYmlDocument, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { TreeNode } from '@/core/models/Tree';
+import {
+  initializeBitriseYmlDocument,
+  initializeModularConfig,
+  updateBitriseYmlDocumentByString,
+} from '@/core/stores/BitriseYmlStore';
 
 import VisualEditorBlockedNotification from './VisualEditorBlockedNotification';
 
 jest.mock('@bitrise/bitkit-v2', () => ({
-  BitkitAlert: ({ titleText, variant }: { titleText: ReactNode; variant: string }) => (
+  BitkitAlert: ({
+    titleText,
+    messageText,
+    variant,
+  }: {
+    titleText: ReactNode;
+    messageText: ReactNode;
+    variant: string;
+  }) => (
     <div role="alert" data-variant={variant}>
-      {titleText}
+      {titleText} {messageText}
     </div>
   ),
 }));
@@ -55,5 +68,27 @@ describe('VisualEditorBlockedNotification', () => {
     act(() => updateBitriseYmlDocumentByString('a: [\n'));
 
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('names the files that use aliases in a modular config', () => {
+    const file = (nodeId: string, path: string, contents: string): TreeNode => ({
+      nodeId,
+      path,
+      contents,
+      source: null,
+      commitSha: 'sha',
+      editable: true,
+      includes: [],
+    });
+    initializeModularConfig({
+      root: {
+        ...file('root', 'bitrise.yml', 'format_version: "13"\n'),
+        includes: [file('a', 'ci/a.yml', 'x: &e 1\ny: *e\n'), file('b', 'ci/b.yml', 'z:\n  <<: {k: 1}\n')],
+      },
+    });
+    render(<VisualEditorBlockedNotification />);
+
+    expect(screen.getByRole('alert').textContent).toContain('Found in ci/a.yml, ci/b.yml.');
+    expect(screen.getByText('ci/a.yml, ci/b.yml').dataset.clarityMask).toBe('true');
   });
 });
