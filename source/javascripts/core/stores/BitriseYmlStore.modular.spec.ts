@@ -5,6 +5,7 @@ import {
   applyModularSaveResult,
   bitriseYmlStore,
   closeTab,
+  configStatus,
   discardBitriseYmlDocument,
   discardFile,
   getModularConfigTree,
@@ -23,6 +24,7 @@ import {
   updateBitriseYmlDocumentByString,
   updateFileDocument,
   updateFileDocumentByString,
+  YamlMutator,
 } from './BitriseYmlStore';
 
 function node(nodeId: string, overrides: Partial<TreeNode> = {}): TreeNode {
@@ -81,6 +83,11 @@ function initWithBrokenFile() {
   });
 }
 
+const addWorkflow: YamlMutator = ({ doc }) => {
+  YmlUtils.setIn(doc, ['workflows', 'added'], {});
+  return doc;
+};
+
 describe('BitriseYmlStore — modular tree', () => {
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -122,20 +129,14 @@ describe('BitriseYmlStore — modular tree', () => {
 
       openTab('broken');
 
-      expect(bitriseYmlStore.getState()).toMatchObject({
-        __invalidYmlString: BROKEN_MODULE_YML,
-        __savedInvalidYmlString: BROKEN_MODULE_YML,
-        hasChanges: false,
-      });
+      expect(getYmlString()).toBe(BROKEN_MODULE_YML);
+      expect(bitriseYmlStore.getState().ymlDocument.errors).not.toHaveLength(0);
+      expect(bitriseYmlStore.getState().hasChanges).toBe(false);
 
       openTab('root');
-      expect(bitriseYmlStore.getState()).toMatchObject({
-        __invalidYmlString: undefined,
-        __savedInvalidYmlString: undefined,
-      });
+      expect(bitriseYmlStore.getState().ymlDocument.errors).toHaveLength(0);
 
-      // The fix must land in the file's slice, which is what saving writes; the active document was
-      // only a stand-in.
+      // The fix must land in the file's slice, which is what saving writes.
       openTab('broken');
       updateBitriseYmlDocumentByString('workflows:\n  fixed: {}\n');
       expect(YmlUtils.toYml(bitriseYmlStore.getState().files.broken.ymlDocument)).toBe('workflows:\n  fixed: {}\n');
@@ -229,6 +230,102 @@ describe('BitriseYmlStore — modular tree', () => {
     });
   });
 
+  describe('configStatus', () => {
+    const status = () => configStatus(bitriseYmlStore.getState());
+
+    it('reports every file, not only the open one', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a: [\n');
+
+      openTab('child-b');
+
+      expect(status()).toMatchObject({ openYmlParses: true, everyFileParses: false });
+    });
+
+    it('reports aliases in any file', () => {
+      initializeModularConfig({
+        root: node('root', { includes: [node('aliased', { contents: 'a: &x 1\nb: *x\n' })] }),
+        mergedYml: MERGED_YML,
+      });
+      openTab('root');
+
+      expect(status().usesAliases).toBe(true);
+    });
+
+    it('reports an open file loaded with parse errors as loaded broken', () => {
+      initWithBrokenFile();
+      openTab('broken');
+
+      expect(status()).toMatchObject({ openYmlParses: false, openYmlLoadedBroken: true });
+    });
+  });
+
+  describe('YAML that does not parse', () => {
+    const typed = 'workflows:\n  child-a: [\n';
+
+    it('counts as a change after its tab is left', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+
+      openTab('child-b');
+
+      expect(bitriseYmlStore.getState().hasChanges).toBe(true);
+    });
+
+    it('leaves the pages on the last version that parsed while typing', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+
+      expect(bitriseYmlStore.getState().yml).toEqual({ workflows: { 'child-a': {} } });
+    });
+
+    it('reads as empty for the pages when the open file was loaded with parse errors', () => {
+      initWithBrokenFile();
+      openTab('broken');
+
+      expect(bitriseYmlStore.getState().yml).toEqual({});
+    });
+  });
+
+  describe('updateBitriseYmlDocument', () => {
+    it('refuses a service write while typed YAML does not parse, so the typed text is kept', () => {
+      const typed = 'workflows:\n  child-a: [\n';
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+      const before = bitriseYmlStore.getState().files['child-a'].ymlDocument;
+
+      updateBitriseYmlDocument(addWorkflow);
+
+      expect(getYmlString()).toBe(typed);
+      expect(bitriseYmlStore.getState().files['child-a'].ymlDocument).toBe(before);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("doesn't parse"));
+    });
+
+    it('refuses a service write to a file loaded with parse errors, so its text is kept', () => {
+      initWithBrokenFile();
+      openTab('broken');
+      const before = bitriseYmlStore.getState().files.broken.ymlDocument;
+
+      updateBitriseYmlDocument(addWorkflow);
+
+      expect(getYmlString()).toBe(BROKEN_MODULE_YML);
+      expect(bitriseYmlStore.getState().files.broken.ymlDocument).toBe(before);
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("doesn't parse"));
+    });
+
+    it('writes once the YAML parses again', () => {
+      openTab('child-a');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a: [\n');
+      updateBitriseYmlDocumentByString('workflows:\n  child-a: {}\n');
+
+      updateBitriseYmlDocument(addWorkflow);
+
+      expect(YmlUtils.toJSON(bitriseYmlStore.getState().files['child-a'].ymlDocument)).toEqual({
+        workflows: { 'child-a': {}, added: {} },
+      });
+    });
+  });
+
   describe('updateFileDocument', () => {
     it('mutates only the targeted file document', () => {
       updateFileDocument('child-a', ({ doc }) => {
@@ -317,6 +414,18 @@ describe('BitriseYmlStore — modular tree', () => {
   });
 
   describe('tabs', () => {
+    it('keeps typed YAML that does not parse across a tab switch', () => {
+      const typed = 'workflows:\n  child-a: [\n';
+      openTab('child-a');
+      updateBitriseYmlDocumentByString(typed);
+
+      openTab('child-b');
+      openTab('child-a');
+
+      expect(getYmlString()).toBe(typed);
+      expect(YmlUtils.toYml(bitriseYmlStore.getState().files['child-a'].ymlDocument)).toBe(typed);
+    });
+
     it('opens a file as a preview tab that replaces a previous non-dirty preview', () => {
       openTab('child-a');
       openTab('child-b');

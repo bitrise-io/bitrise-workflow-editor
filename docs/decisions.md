@@ -18,6 +18,20 @@ edit in a mixed-style file reformats the minority style, including lines nobody 
 re-render, silently and only sometimes. In modular mode only the touched file is cloned, so the
 other files keep their caches.
 
+## A document is its text, even when the text doesn't parse
+
+YAML that doesn't parse, loaded or typed, is stored as the `Document` `toDoc` returns, errors and
+all, in the file it belongs to. `toYml` and `isEquals` read its raw text, so the text survives a tab
+switch and counts as a change. `yml` keeps the last version that parsed while you type, because
+such a document has no reliable JSON.
+
+Service writes wait until the text parses: `updateBitriseYmlDocument` ignores them, since the edit
+would be built on a partial parse. Don't clone a document with errors. The raw text is keyed by
+identity, so serializing the clone throws. Save stays off while any file doesn't parse.
+
+`configStatus` reads all of this in one place. The visual editor, its alert, Save and service writes
+decide from it, so a new check belongs there.
+
 ## `useShallow` is deep
 
 `useSyncExternalStore` compares snapshots by identity, so a selector that builds a fresh object
@@ -70,8 +84,7 @@ merge keys as written.
 ## An alias with no anchor is a parse error
 
 The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it
-is. A file loaded with parse errors opens like an invalid single-file config: by its raw text, with
-an empty document standing in.
+is.
 
 ## The entity index reads around aliases
 
