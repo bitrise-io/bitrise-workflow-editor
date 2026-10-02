@@ -67,6 +67,13 @@ or a `<<` merge key in any file is YAML-only, and `MainLayout` doesn't mount a v
 would throw before the redirect runs. Unused anchors block nothing. The YAML view keeps aliases and
 merge keys as written.
 
+The way out is the quick fix on their warnings: expand one, or every one in the file. It's opt-in
+because one shared step list used by five workflows becomes five copies. It's the one structured edit
+that doesn't go through a service: it edits the Monaco model as text, so it's a single undo step,
+reaches the store through `onChange` like typing, and leaves every line it doesn't expand
+byte-for-byte as it was. Serializing the expanded document instead would re-quote and re-indent the
+whole file.
+
 ## An alias with no anchor is a parse error
 
 The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it
