@@ -20,6 +20,7 @@ import {
   selectMergedConfig,
   selectNode,
   setMergedConfig,
+  SINGLE_FILE_NODE_ID,
   updateBitriseYmlDocument,
   updateBitriseYmlDocumentByString,
   updateFileDocument,
@@ -210,23 +211,19 @@ describe('BitriseYmlStore — modular tree', () => {
     });
   });
 
-  describe('initializeBitriseYmlDocument (legacy init clears modular state)', () => {
-    it('drops the tree, files, tabs and entity index when the legacy single-file init runs', () => {
-      // Sanity: modular state is populated by the beforeEach init().
-      expect(bitriseYmlStore.getState().tree).toBeDefined();
-
+  describe('initializeBitriseYmlDocument', () => {
+    it('replaces a modular tree with a tree of one file, bound and open, keeping its version', () => {
       initializeBitriseYmlDocument({ ymlString: 'workflows:\n  legacy: {}\n', version: '14', branch: 'main' });
 
       const state = bitriseYmlStore.getState();
-      expect(state.tree).toBeUndefined();
-      expect(state.files).toEqual({});
-      expect(state.openTabs).toEqual([]);
-      expect(state.selectedNodeId).toBeUndefined();
-      expect(state.entityIndex).toEqual({ workflows: {}, pipelines: {}, stepBundles: {}, containers: {}, appEnvs: {} });
-      expect(state.mergedYml).toBeUndefined();
-      expect(state.savedMergedYml).toBeUndefined();
-      // The single-file document is now the one the editor reads.
-      expect(YmlUtils.toYml(state.ymlDocument)).toContain('legacy');
+      expect(isModularConfig(state)).toBe(false);
+      expect(state.tree).toMatchObject({ nodeId: SINGLE_FILE_NODE_ID, path: 'bitrise.yml', includes: [] });
+      expect(Object.keys(state.files)).toEqual([SINGLE_FILE_NODE_ID]);
+      expect(state.selectedNodeId).toBe(SINGLE_FILE_NODE_ID);
+      expect(state.openTabs).toEqual([{ nodeId: SINGLE_FILE_NODE_ID, isPreview: false }]);
+      expect(state.entityIndex.workflows).toEqual({ legacy: [{ nodeId: SINGLE_FILE_NODE_ID }] });
+      expect(state).toMatchObject({ version: '14', mergedYml: undefined, savedMergedYml: undefined });
+      expect(getYmlString()).toBe('workflows:\n  legacy: {}\n');
     });
   });
 
@@ -775,8 +772,7 @@ describe('BitriseYmlStore — modular tree', () => {
 
       const state = bitriseYmlStore.getState();
       expect(isModularConfig(state)).toBe(false);
-      expect(state.tree).toBeUndefined();
-      expect(state.openTabs).toEqual([]);
+      expect(state.selectedNodeId).toBe(SINGLE_FILE_NODE_ID);
       expect(getYmlString()).toBe('workflows: {}\n');
       expect(state).toMatchObject({ configBranch: 'main', configCommitSha: 'abc' });
     });

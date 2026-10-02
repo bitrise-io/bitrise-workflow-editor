@@ -3,7 +3,7 @@ import { createStore, ExtractState, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 import { BitriseYml } from '../models/BitriseYml';
-import { EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
+import { TreeNode, TreeNodeSource } from '../models/Tree';
 import EntityIndexService from '../services/EntityIndexService';
 import TreeService from '../services/TreeService';
 import RuntimeUtils from '../utils/RuntimeUtils';
@@ -36,25 +36,94 @@ export type OpenTab = {
 /** Reserved id for the always-present Merged Config tab (no `n_` prefix ⇒ can't collide with a BE id). */
 export const MERGED_CONFIG_NODE_ID = '__merged_config__';
 
+/** Node id of a single-file config's one file. A single-file config is a tree with one file. */
+export const SINGLE_FILE_NODE_ID = 'n_single_file';
+
+function buildFileSlices(root: TreeNode): Record<string, FileSlice> {
+  const files: Record<string, FileSlice> = {};
+
+  TreeService.walk(root, (node) => {
+    const doc = YmlUtils.toDoc(node.contents);
+    files[node.nodeId] = {
+      nodeId: node.nodeId,
+      path: node.path,
+      source: node.source,
+      commitSha: node.commitSha,
+      editable: node.editable,
+      ymlDocument: doc,
+      // Same object as ymlDocument until the first edit clones it ⇒ isEquals ⇒ not dirty.
+      savedYmlDocument: doc,
+    };
+  });
+
+  return files;
+}
+
+/** State patch loading a whole tree: its structure, its files and their entity index. */
+function treeState(root: TreeNode, files: Record<string, FileSlice>) {
+  return { tree: root, files, entityIndex: EntityIndexService.buildFromFiles(root, files) };
+}
+
+/** State patch binding a file as the document the whole editor reads and writes. */
+function bindFile(slice: FileSlice) {
+  return { selectedNodeId: slice.nodeId, ymlDocument: slice.ymlDocument, savedYmlDocument: slice.savedYmlDocument };
+}
+
+/**
+ * State patch binding the merged config instead. Every entity resolves there (no ghosts), and no file
+ * backs it, so writes no-op.
+ */
+function bindMerged(doc: Document) {
+  return { selectedNodeId: MERGED_CONFIG_NODE_ID, ymlDocument: doc, savedYmlDocument: doc };
+}
+
+/** The store state of a single-file config: a tree with one file, bound and open, with no merged view. */
+function singleFileState({ ymlString, commitSha }: { ymlString: string; commitSha?: string }) {
+  // `bitrise.yml` keeps the file on the same editor model as before (`ROOT_MODEL_URI`).
+  const root: TreeNode = {
+    nodeId: SINGLE_FILE_NODE_ID,
+    path: 'bitrise.yml',
+    contents: ymlString,
+    source: null,
+    commitSha: commitSha ?? '',
+    editable: true,
+    includes: [],
+  };
+  const files = buildFileSlices(root);
+
+  return {
+    ...treeState(root, files),
+    ...bindFile(files[root.nodeId]),
+    openTabs: [{ nodeId: root.nodeId, isPreview: false }],
+    mergedTabLastLocation: undefined,
+    mergedYml: undefined,
+    mergedYmlStale: true,
+    savedMergedYml: undefined,
+  };
+}
+
+/** An empty single-file config, until one loads. */
+const emptyConfig = singleFileState({ ymlString: '' });
+
 export const bitriseYmlStore = createStore(
   subscribeWithSelector(() => ({
     version: '',
     yml: {} as BitriseYml,
     hasChanges: false,
     discardKey: Date.now(),
-    ymlDocument: new Document(),
-    savedYmlDocument: new Document(),
+    ymlDocument: emptyConfig.ymlDocument,
+    savedYmlDocument: emptyConfig.savedYmlDocument,
     validationStatus: 'pending' as 'valid' | 'invalid' | 'warnings' | 'pending',
     configBranch: undefined as string | undefined,
     configCommitSha: undefined as string | undefined,
 
     // Modular YAML tree state. `tree` is the structural skeleton (for traversal);
     // `files` is the source of truth for live contents.
-    tree: undefined as TreeNode | undefined,
-    files: {} as Record<string, FileSlice>,
-    entityIndex: EntityIndexService.emptyEntityIndex(),
-    selectedNodeId: undefined as string | undefined,
-    openTabs: [] as OpenTab[],
+    tree: emptyConfig.tree as TreeNode | undefined,
+    files: emptyConfig.files as Record<string, FileSlice>,
+    entityIndex: emptyConfig.entityIndex,
+    selectedNodeId: emptyConfig.selectedNodeId as string | undefined,
+    openTabs: emptyConfig.openTabs as OpenTab[],
     // The merged tab lives outside `openTabs`, so its page memory is held here.
     mergedTabLastLocation: undefined as string | undefined,
     mergedYml: undefined as string | undefined,
@@ -101,14 +170,6 @@ export function setValidationStatus(status: 'valid' | 'invalid' | 'warnings') {
 export function discardBitriseYmlDocument() {
   const state = bitriseYmlStore.getState();
 
-  if (!state.tree) {
-    bitriseYmlStore.setState({
-      discardKey: Date.now(),
-      ymlDocument: state.savedYmlDocument,
-    });
-    return;
-  }
-
   // Revert every file to its saved document; the tree and open tabs are unchanged.
   const files: Record<string, FileSlice> = {};
   Object.values(state.files).forEach((slice) => {
@@ -116,17 +177,11 @@ export function discardBitriseYmlDocument() {
   });
 
   const activeSlice = state.selectedNodeId ? files[state.selectedNodeId] : undefined;
-  const selectionPatch = activeDocumentPatch(
-    state.selectedNodeId ?? MERGED_CONFIG_NODE_ID,
-    activeSlice ? activeSlice.savedYmlDocument : state.savedYmlDocument,
-  );
 
   bitriseYmlStore.setState({
     discardKey: Date.now(),
     files,
-    tree: state.tree,
-    openTabs: state.openTabs,
-    ...selectionPatch,
+    ...(activeSlice ? bindFile(activeSlice) : bindMerged(state.savedYmlDocument)),
     mergedYmlStale: true,
   });
 }
@@ -160,34 +215,13 @@ function commitActiveFileDocument(nodeId: string, slice: FileSlice, doc: Documen
 
 /** Returns its parse of `ymlString`, even when that has errors. */
 export function updateBitriseYmlDocumentByString(ymlString: string) {
-  const state = bitriseYmlStore.getState();
   const doc = YmlUtils.toDoc(ymlString);
-
-  if (!state.tree) {
-    bitriseYmlStore.setState({ ymlDocument: doc });
-    return doc;
-  }
 
   const active = editableActiveSlice('updateBitriseYmlDocumentByString');
   if (active) {
     commitActiveFileDocument(active.nodeId, active.slice, doc);
   }
   return doc;
-}
-
-/** Modular tree state reset to its initial (empty) values — see the store's initial state. */
-function clearedModularState() {
-  return {
-    tree: undefined,
-    files: {},
-    entityIndex: EntityIndexService.emptyEntityIndex(),
-    selectedNodeId: undefined,
-    openTabs: [],
-    mergedTabLastLocation: undefined,
-    mergedYml: undefined,
-    mergedYmlStale: true,
-    savedMergedYml: undefined,
-  };
 }
 
 export function initializeBitriseYmlDocument({
@@ -201,25 +235,18 @@ export function initializeBitriseYmlDocument({
   branch?: string;
   commitSha?: string;
 }) {
-  const doc = YmlUtils.toDoc(ymlString);
-
   bitriseYmlStore.setState({
+    ...singleFileState({ ymlString, commitSha }),
+    // Single-file conflict detection keys off `version`; a modular config's off the commit SHA.
     version,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
-    // The legacy (single-file) init owns the whole store, so clear any modular
-    // tree state. A no-op in pure legacy mode (fields are already empty); guards
-    // against a stale tree/files/tabs leaking in if a modular session ever routes
-    // through a legacy path (branch switch, repository-YAML save, manual update).
-    ...clearedModularState(),
-    ymlDocument: doc,
-    savedYmlDocument: doc,
   });
 }
 
-/** Every document of the config: each file of a modular config, or the one document otherwise. */
+/** Every document of the config, one per file. */
 export function configDocuments(s: BitriseYmlStoreState) {
-  return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
+  return Object.values(s.files).map((file) => file.ymlDocument);
 }
 
 /**
@@ -250,12 +277,7 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
     return;
   }
 
-  if (!state.tree) {
-    bitriseYmlStore.setState({ ymlDocument: mutator({ doc: state.ymlDocument.clone() }) });
-    return;
-  }
-
-  // Modular mode: the active tab's file IS the document the whole WFE edits.
+  // The active tab's file IS the document the whole WFE edits.
   // Read-only (cross-ref) files no-op (defense-in-depth — UI should already gate this).
   const active = editableActiveSlice('updateBitriseYmlDocument');
   if (!active) {
@@ -272,45 +294,20 @@ export function isFileDirty(slice?: FileSlice) {
   return !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument);
 }
 
-/** State patch binding a document as the single active `ymlDocument` the whole WFE reads/writes. */
-function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, savedYmlDocument = ymlDocument) {
-  return {
-    selectedNodeId,
-    // `version` is unused in modular mode (conflict detection keys off commit_sha).
-    version: '',
-    ymlDocument,
-    savedYmlDocument,
-  };
-}
-
-/** State patch binding a file's slice as the active document. */
-function activeFilePatch(nodeId: string) {
+/** {@link bindFile} for a node id, or `null` after a dev warning when there's no such file. */
+function bindFileById(nodeId: string) {
   const slice = bitriseYmlStore.getState().files[nodeId];
   if (!slice) {
-    warnInDev(`activeFile: no file with node_id "${nodeId}"`);
+    warnInDev(`bindFile: no file with node_id "${nodeId}"`);
     return null;
   }
-  return activeDocumentPatch(nodeId, slice.ymlDocument, slice.savedYmlDocument);
+  return bindFile(slice);
 }
 
-function buildFileSlices(root: TreeNode): Record<string, FileSlice> {
-  const files: Record<string, FileSlice> = {};
-
-  TreeService.walk(root, (node) => {
-    const doc = YmlUtils.toDoc(node.contents);
-    files[node.nodeId] = {
-      nodeId: node.nodeId,
-      path: node.path,
-      source: node.source,
-      commitSha: node.commitSha,
-      editable: node.editable,
-      ymlDocument: doc,
-      // Same object as ymlDocument until the first edit clones it ⇒ isEquals ⇒ not dirty.
-      savedYmlDocument: doc,
-    };
-  });
-
-  return files;
+/** The merged config as a document, or an empty one while there's no merge. */
+function mergedDocument() {
+  const { mergedYml } = bitriseYmlStore.getState();
+  return mergedYml !== undefined ? YmlUtils.toDoc(mergedYml) : new Document();
 }
 
 export function getFileSlice(nodeId: string): FileSlice | undefined {
@@ -361,23 +358,6 @@ export function updateFileDocumentByString(nodeId: string, ymlString: string) {
   }
 }
 
-/** Shared state patch for (re)binding a whole modular tree with `activeSlice` as the active document. */
-function modularTreePatch(
-  root: TreeNode,
-  files: Record<string, FileSlice>,
-  entityIndex: EntityIndex,
-  activeSlice: Pick<FileSlice, 'ymlDocument' | 'savedYmlDocument'>,
-) {
-  return {
-    tree: root,
-    files,
-    entityIndex,
-    version: '',
-    ymlDocument: activeSlice.ymlDocument,
-    savedYmlDocument: activeSlice.savedYmlDocument,
-  };
-}
-
 export function initializeModularConfig({
   root,
   mergedYml,
@@ -390,7 +370,6 @@ export function initializeModularConfig({
   commitSha?: string;
 }) {
   const files = buildFileSlices(root);
-  const entityIndex = EntityIndexService.buildFromFiles(root, files);
   // Same rule as `setMergedConfig`: an empty merge counts as no merge.
   const merge = mergedYml || undefined;
 
@@ -402,20 +381,16 @@ export function initializeModularConfig({
   // it under the merged tab would be worse than not selecting that tab: a module's entity would
   // resolve there against the root document and the page would rewrite the URL — the very bug the
   // merged default fixes. The merged tab stays stale, so re-selecting it retries the merge.
-  const rootSlice = files[root.nodeId];
-  const activePatch =
-    merge !== undefined
-      ? activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(merge))
-      : activeDocumentPatch(root.nodeId, rootSlice.ymlDocument, rootSlice.savedYmlDocument);
-
   bitriseYmlStore.setState({
-    ...modularTreePatch(root, files, entityIndex, rootSlice),
-    ...activePatch,
+    ...treeState(root, files),
+    ...(merge !== undefined ? bindMerged(YmlUtils.toDoc(merge)) : bindFile(files[root.nodeId])),
     openTabs: [{ nodeId: root.nodeId, isPreview: false }],
     // Seed the merged tab from the bootstrap merge; if absent, leave stale so it fetches on first open.
     mergedYml: merge,
     mergedYmlStale: merge === undefined,
     savedMergedYml: merge,
+    // `version` is unused in modular mode (conflict detection keys off commit_sha).
+    version: '',
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
   });
@@ -448,7 +423,6 @@ export function applyModularSaveResult({
   }
 
   const files = buildFileSlices(root);
-  const entityIndex = EntityIndexService.buildFromFiles(root, files);
   const { openTabs, selectedNodeId, ymlDocument } = bitriseYmlStore.getState();
 
   const nextTabs = openTabs.filter((tab) => files[tab.nodeId]);
@@ -458,13 +432,10 @@ export function applyModularSaveResult({
 
   // On the merged tab there's no file slice to bind, so the merge on screen stays bound until
   // `useMergedConfigSync` refetches it (stale below) and rebinds.
-  const activeSlice =
-    nextSelected === MERGED_CONFIG_NODE_ID ? { ymlDocument, savedYmlDocument: ymlDocument } : files[nextSelected];
-
   bitriseYmlStore.setState({
-    ...modularTreePatch(root, files, entityIndex, activeSlice),
+    ...treeState(root, files),
+    ...(nextSelected === MERGED_CONFIG_NODE_ID ? bindMerged(ymlDocument) : bindFile(files[nextSelected])),
     openTabs: nextTabs,
-    selectedNodeId: nextSelected,
     mergedYml: undefined,
     mergedYmlStale: true,
     ...(branch !== undefined ? { configBranch: branch || undefined } : {}),
@@ -502,24 +473,14 @@ export function updateFileDocument(nodeId: string, mutator: YamlMutator) {
 }
 
 export function selectNode(nodeId: string) {
-  const patch = activeFilePatch(nodeId);
+  const patch = bindFileById(nodeId);
   if (patch) {
     bitriseYmlStore.setState(patch);
   }
 }
 
-/**
- * Read-only active-document patch bound to the merged config. Binding `ymlDocument` to the merged
- * config makes every entity resolve locally (no ghosts); no file slice backs it, so mutations no-op.
- */
-function mergedConfigPatch() {
-  const { mergedYml } = bitriseYmlStore.getState();
-  const doc = mergedYml !== undefined ? YmlUtils.toDoc(mergedYml) : new Document();
-  return activeDocumentPatch(MERGED_CONFIG_NODE_ID, doc);
-}
-
 export function selectMergedConfig() {
-  bitriseYmlStore.setState(mergedConfigPatch());
+  bitriseYmlStore.setState(bindMerged(mergedDocument()));
 }
 
 /** True when a raw hash location points at the YAML page (matches `paths.yml`, which core can't import). */
@@ -559,7 +520,7 @@ export function getTabLastLocation(nodeId: string) {
 export function openTab(nodeId: string, { preview = true }: { preview?: boolean } = {}) {
   const { files, openTabs } = bitriseYmlStore.getState();
 
-  const patch = activeFilePatch(nodeId);
+  const patch = bindFileById(nodeId);
   if (!patch) {
     return;
   }
@@ -600,10 +561,10 @@ export function closeTab(nodeId: string) {
   // Active tab closed: rebind the active document to a neighbor (the tab that slid into this slot,
   // else the previous one), or the merged config when no tabs remain.
   const neighborNodeId = (nextTabs[index] ?? nextTabs[index - 1])?.nodeId;
-  const patch = neighborNodeId ? activeFilePatch(neighborNodeId) : null;
+  const patch = neighborNodeId ? bindFileById(neighborNodeId) : null;
 
   bitriseYmlStore.setState({
-    ...(patch ?? mergedConfigPatch()),
+    ...(patch ?? bindMerged(mergedDocument())),
     openTabs: nextTabs,
   });
 }
@@ -646,7 +607,7 @@ export function setMergedConfig(mergedYml: string) {
       mergedYml,
       mergedYmlStale: false,
       savedMergedYml,
-      ...activeDocumentPatch(MERGED_CONFIG_NODE_ID, YmlUtils.toDoc(mergedYml)),
+      ...bindMerged(YmlUtils.toDoc(mergedYml)),
     });
     return;
   }
@@ -663,10 +624,8 @@ bitriseYmlStore.subscribe(
   },
   ({ ymlDocument, savedYmlDocument }, prev) => {
     const state = bitriseYmlStore.getState();
-    // In modular mode `hasChanges` is tree-wide (any file dirty), not just the active document.
-    const hasChanges = state.tree
-      ? Object.values(state.files).some((slice) => isFileDirty(slice))
-      : !YmlUtils.isEquals(ymlDocument, savedYmlDocument);
+    // `hasChanges` is tree-wide (any file dirty), not just the active document.
+    const hasChanges = Object.values(state.files).some((slice) => isFileDirty(slice));
 
     // A document that doesn't parse has no reliable JSON (an alias with no anchor throws). While the
     // user types, the pages keep the last version that parsed; a newly bound one reads as empty.
