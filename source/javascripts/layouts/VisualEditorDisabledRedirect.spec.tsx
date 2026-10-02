@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 
 import { bitriseYmlStore, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 
-import VisualEditorGate from './VisualEditorGate';
+import VisualEditorDisabledRedirect from './VisualEditorDisabledRedirect';
 
 // Capture what path (if any) the redirect would send the user to. `wouter`'s <Redirect> reaches for
 // a Router context we don't set up here; a marker component keeps the assertion focused on the one
@@ -25,7 +25,7 @@ const setPath = (path: string) => {
   currentPathMock = path;
 };
 
-describe('VisualEditorGate', () => {
+describe('VisualEditorDisabledRedirect', () => {
   beforeEach(() => {
     setPath('/workflows');
     // Fresh store between cases so a previous parse failure doesn't leak into the next test.
@@ -39,7 +39,7 @@ describe('VisualEditorGate', () => {
     });
     bitriseYmlStore.setState({ validationStatus: 'invalid' });
 
-    render(<VisualEditorGate />);
+    render(<VisualEditorDisabledRedirect />);
 
     expect(screen.queryByTestId('redirect')).toBeNull();
   });
@@ -49,29 +49,29 @@ describe('VisualEditorGate', () => {
     // for an unparseable YAML string, without depending on the yaml library's error semantics.
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
 
-    render(<VisualEditorGate />);
+    render(<VisualEditorDisabledRedirect />);
 
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
   });
 
-  it('redirects to /yml when the YAML uses aliases, which the visual editor does not support', () => {
+  it('does NOT redirect when the YAML uses aliases: the error page catches a page that cannot show them', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
 
-    render(<VisualEditorGate />);
+    render(<VisualEditorDisabledRedirect />);
 
-    expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
+    expect(screen.queryByTestId('redirect')).toBeNull();
   });
 
   it('never mounts its children while redirecting, so a visual page cannot throw before the redirect', () => {
-    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+    bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
     const VisualPage = () => {
       throw new Error('A visual page mounted for a blocked config');
     };
 
     render(
-      <VisualEditorGate>
+      <VisualEditorDisabledRedirect>
         <VisualPage />
-      </VisualEditorGate>,
+      </VisualEditorDisabledRedirect>,
     );
 
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml');
@@ -80,12 +80,12 @@ describe('VisualEditorGate', () => {
   it('renders its children on the YAML view and when nothing blocks the visual editor', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
     setPath('/yml');
-    const { rerender } = render(<VisualEditorGate>page</VisualEditorGate>);
+    const { rerender } = render(<VisualEditorDisabledRedirect>page</VisualEditorDisabledRedirect>);
     expect(screen.getByText('page')).toBeTruthy();
 
     initializeBitriseYmlDocument({ ymlString: 'a: 1\n', version: '1' });
     setPath('/workflows');
-    rerender(<VisualEditorGate>page</VisualEditorGate>);
+    rerender(<VisualEditorDisabledRedirect>page</VisualEditorDisabledRedirect>);
     expect(screen.getByText('page')).toBeTruthy();
   });
 
@@ -93,7 +93,7 @@ describe('VisualEditorGate', () => {
     setPath('/workflows?workflow_id=primary');
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
 
-    render(<VisualEditorGate />);
+    render(<VisualEditorDisabledRedirect />);
 
     expect(screen.getByTestId('redirect').getAttribute('data-to')).toBe('/yml?workflow_id=primary');
   });
@@ -102,7 +102,7 @@ describe('VisualEditorGate', () => {
     setPath('/yml');
     bitriseYmlStore.setState({ __invalidYmlString: 'workflows: {{{ invalid' });
 
-    render(<VisualEditorGate />);
+    render(<VisualEditorDisabledRedirect />);
 
     expect(screen.queryByTestId('redirect')).toBeNull();
   });

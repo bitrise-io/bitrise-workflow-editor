@@ -11,7 +11,7 @@ import {
   updateBitriseYmlDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
 
-import VisualEditorBlockedNotification from './VisualEditorBlockedNotification';
+import VisualEditorNotification from './VisualEditorNotification';
 
 jest.mock('@bitrise/bitkit-v2', () => ({
   BitkitAlert: ({
@@ -29,12 +29,12 @@ jest.mock('@bitrise/bitkit-v2', () => ({
   ),
 }));
 
-describe('VisualEditorBlockedNotification', () => {
-  it('says the Visual editor is disabled because of aliases, and keeps saying it while the user types', () => {
+describe('VisualEditorNotification', () => {
+  it('warns that the Visual editor does not support aliases, and keeps saying it while the user types', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
-    render(<VisualEditorBlockedNotification />);
+    render(<VisualEditorNotification />);
 
-    expect(screen.getByRole('alert').textContent).toContain('The Visual editor is disabled because of YAML aliases');
+    expect(screen.getByRole('alert').textContent).toContain("The Visual editor doesn't support YAML aliases");
     expect(screen.getByRole('alert').dataset.variant).toBe('warning');
 
     act(() => updateBitriseYmlDocumentByString('a: &x 1\nb: *x\nc: [\n'));
@@ -43,7 +43,7 @@ describe('VisualEditorBlockedNotification', () => {
 
   it('says YAML loaded invalid does not parse, as a critical alert, and keeps saying it while the user edits', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: [\n', version: '1' });
-    render(<VisualEditorBlockedNotification />);
+    render(<VisualEditorNotification />);
 
     expect(screen.getByRole('alert').textContent).toContain('Invalid YAML');
     expect(screen.getByRole('alert').dataset.variant).toBe('critical');
@@ -54,7 +54,7 @@ describe('VisualEditorBlockedNotification', () => {
 
   it('shows nothing once YAML loaded invalid parses and uses no aliases', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: [\n', version: '1' });
-    render(<VisualEditorBlockedNotification />);
+    render(<VisualEditorNotification />);
 
     act(() => updateBitriseYmlDocumentByString('a: 1\n'));
 
@@ -63,7 +63,7 @@ describe('VisualEditorBlockedNotification', () => {
 
   it('shows nothing while typed YAML does not parse, so the editor does not shift on every keystroke', () => {
     initializeBitriseYmlDocument({ ymlString: 'a: 1\n', version: '1' });
-    render(<VisualEditorBlockedNotification />);
+    render(<VisualEditorNotification />);
 
     act(() => updateBitriseYmlDocumentByString('a: [\n'));
 
@@ -86,7 +86,7 @@ describe('VisualEditorBlockedNotification', () => {
         includes: [file('a', 'ci/a.yml', 'x: &e 1\ny: *e\n'), file('b', 'ci/b.yml', 'z:\n  <<: {k: 1}\n')],
       },
     });
-    render(<VisualEditorBlockedNotification />);
+    render(<VisualEditorNotification />);
 
     expect(screen.getByRole('alert').textContent).toContain('Found in ci/a.yml, ci/b.yml.');
     expect(screen.getByText('ci/a.yml, ci/b.yml').dataset.clarityMask).toBe('true');

@@ -7,15 +7,19 @@ import { PropsWithChildren } from 'react';
 import { isYmlPageLocation } from '@/core/stores/BitriseYmlStore';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { navigate } from '@/hooks/useHashLocation';
-import { getSearchStringFromLocationHash } from '@/hooks/useHashSearch';
+import { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
 import ErrorPage from '@/layouts/ErrorPage';
 import { paths } from '@/routes';
 
 // A reload, not a reset: a reset remounts the config loader, which would load the saved file over
 // the edits anyway, and a crash in shared chrome would throw again on the YAML page.
 function openYmlEditor() {
-  // Keep the hash query: `?branch=` lives there, and dropping it loads the default branch.
-  navigate(`${paths.yml}${getSearchStringFromLocationHash()}`);
+  // Keep only `?branch=`: dropping it loads the default branch. The rest (`workflow_id`, `pipeline`, …)
+  // picks what the visual page shows, so keeping it would reopen the entity that crashed when the user
+  // switches back to the Visual editor. The default page can still crash, e.g. when the first workflow
+  // uses an alias; that lands on this page again, so it's never a loop the user can't leave.
+  const { branch } = getSearchParamsFromLocationHash();
+  navigate(branch ? `${paths.yml}?${new URLSearchParams({ branch })}` : paths.yml);
   WindowUtils.reloadEditor();
 }
 
