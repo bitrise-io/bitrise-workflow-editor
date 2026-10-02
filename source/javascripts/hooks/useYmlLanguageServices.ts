@@ -209,24 +209,19 @@ function useYmlLanguageServices() {
       (state) => ({
         ymlDocument: state.ymlDocument,
         savedYmlDocument: state.savedYmlDocument,
-        invalidYmlString: state.__invalidYmlString,
-        savedInvalidYmlString: state.__savedInvalidYmlString,
         discardKey: state.discardKey,
         tree: state.tree,
         files: state.files,
       }),
       (curr, prev) => {
         const isDiscard = curr.discardKey !== prev.discardKey;
-        const isExternalInit =
-          curr.savedYmlDocument !== prev.savedYmlDocument || curr.savedInvalidYmlString !== prev.savedInvalidYmlString;
+        const isExternalInit = curr.savedYmlDocument !== prev.savedYmlDocument;
         reconcile(isDiscard || isExternalInit);
       },
       {
         equalityFn: (a, b) =>
           a.ymlDocument === b.ymlDocument &&
           a.savedYmlDocument === b.savedYmlDocument &&
-          a.invalidYmlString === b.invalidYmlString &&
-          a.savedInvalidYmlString === b.savedInvalidYmlString &&
           a.discardKey === b.discardKey &&
           a.tree === b.tree &&
           a.files === b.files,

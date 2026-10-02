@@ -1,5 +1,6 @@
 import { BitkitAlert } from '@bitrise/bitkit-v2';
 
+import { configStatus } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useVisualEditorBlocker, { YAML_ALIAS_BLOCKER } from '@/hooks/useVisualEditorBlocker';
@@ -11,7 +12,7 @@ import useVisualEditorBlocker, { YAML_ALIAS_BLOCKER } from '@/hooks/useVisualEdi
  */
 const VisualEditorBlockedNotification = () => {
   const visualEditorBlocker = useVisualEditorBlocker();
-  const loadedInvalid = useBitriseYmlStore((s) => s.__savedInvalidYmlString !== undefined);
+  const loadedInvalid = useBitriseYmlStore((s) => configStatus(s).openYmlLoadedBroken);
   // In a modular config the aliases can be in a file other than the open one.
   const aliasedFiles = useBitriseYmlStore((s) =>
     Object.values(s.files)

@@ -1,5 +1,4 @@
-import { BitriseYmlStoreState, configDocuments } from '@/core/stores/BitriseYmlStore';
-import YmlUtils from '@/core/utils/YmlUtils';
+import { BitriseYmlStoreState, configStatus } from '@/core/stores/BitriseYmlStore';
 
 import useBitriseYmlStore from './useBitriseYmlStore';
 
@@ -23,18 +22,18 @@ export const PARSE_ERROR_BLOCKER: VisualEditorBlocker = {
   description: "YAML can't be parsed, please fix it before using the Visual editor.",
 };
 
-// Aliases come before typed YAML that doesn't parse: typing leaves the documents at their last parse,
-// so the reason stays put instead of switching on every invalid keystroke. A file loaded with parse
-// errors keeps its broken document, which can still hold aliases, so it's checked first.
+// Aliases come before typed YAML that doesn't parse, so the reason stays put instead of switching on
+// every invalid keystroke. A document that was already broken when it loaded can still hold aliases,
+// so it's checked first.
 function selectVisualEditorBlocker(s: BitriseYmlStoreState): VisualEditorBlocker | null {
-  const openFile = s.selectedNodeId ? s.files[s.selectedNodeId] : undefined;
-  if (openFile && openFile.ymlDocument.errors.length > 0) {
+  const { openYmlParses, openYmlLoadedBroken, usesAliases } = configStatus(s);
+  if (openYmlLoadedBroken) {
     return PARSE_ERROR_BLOCKER;
   }
-  if (configDocuments(s).some(YmlUtils.hasAliasesOrMergeKeys)) {
+  if (usesAliases) {
     return YAML_ALIAS_BLOCKER;
   }
-  return s.__invalidYmlString !== undefined ? PARSE_ERROR_BLOCKER : null;
+  return openYmlParses ? null : PARSE_ERROR_BLOCKER;
 }
 
 /**
