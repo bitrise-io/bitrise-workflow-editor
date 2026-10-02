@@ -80,7 +80,7 @@ function useTriggersGroupedByFile(triggers: TargetBasedTrigger[]): TriggerFileGr
  * target. Unlike the entity index (which lists every file *defining* a workflow/pipeline), this only
  * counts files whose `triggers` block yields at least one push/pull_request/tag trigger — so the
  * merged view's jump-to-definition can point at the modules that really carry a trigger, not every
- * module that happens to define the target. Empty in single-file mode. Only the merged view renders
+ * module that happens to define the target. Only the merged view renders
  * the jump, so callers pass `enabled = isMergedView` to skip the per-file scan everywhere else.
  */
 function useTriggerDefiningNodeIds(enabled = true): Map<string, string[]> {

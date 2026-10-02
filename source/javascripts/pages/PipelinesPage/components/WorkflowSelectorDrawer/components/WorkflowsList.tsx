@@ -15,8 +15,8 @@ type Props = {
 
 const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const [search, setSearch] = useState('');
-  // Active-file workflows unioned with the entity index (other module files); the index
-  // is empty in single-file mode, so this stays just the active file's workflows.
+  // Active-file workflows unioned with the entity index (other module files). In a single-file
+  // config the index holds only that file, so this stays just its workflows.
   const allWorkflowIds = useBitriseYmlStore((s) => [
     ...new Set([...Object.keys(s.yml.workflows || {}), ...Object.keys(s.entityIndex.workflows)]),
   ]);

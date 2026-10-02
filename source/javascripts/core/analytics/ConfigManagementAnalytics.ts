@@ -22,8 +22,8 @@ const ENTITY_TYPE_BY_KIND: Record<EntityKind, string> = {
 /**
  * Modular-config properties shared by several events: whether the config is modular (has any
  * include), how many includes it has in total and how many of those are cross-repo. Derived from
- * the loaded tree. In single-file mode (no tree — either modular is off, or the root yml has no
- * includes) both counts are sent as an explicit 0 rather than omitted: the tracking plan requires
+ * the loaded tree. For a single-file config (modular is off, or the root yml has no includes) both
+ * counts are sent as an explicit 0 rather than omitted: the tracking plan requires
  * them on every event, and a missing key reads as lost data instead of "no includes".
  */
 function modularConfigProps() {
