@@ -70,6 +70,13 @@ describe('VisualEditorBlockedNotification', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
+  it('names no file in a single-file config', () => {
+    initializeBitriseYmlDocument({ ymlString: 'a: &x 1\nb: *x\n', version: '1' });
+    render(<VisualEditorBlockedNotification />);
+
+    expect(screen.getByRole('alert').textContent).not.toContain('Found in');
+  });
+
   it('names the files that use aliases in a modular config', () => {
     const file = (nodeId: string, path: string, contents: string): TreeNode => ({
       nodeId,
