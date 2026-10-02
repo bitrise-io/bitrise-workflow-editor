@@ -346,6 +346,14 @@ export function getFileYmlString(nodeId: string): string {
   return slice ? YmlUtils.toYml(slice.ymlDocument) : '';
 }
 
+/**
+ * Whether the open config is modular, meaning it has includes. Ask this for what the user sees (tabs,
+ * the merged view, save routing), and leave `tree` to code that walks the files.
+ */
+export function isModularConfig(s: BitriseYmlStoreState) {
+  return Boolean(s.tree && TreeService.hasIncludes(s.tree));
+}
+
 /** Build a wire-ready tree from live file state (every node), for the save / merged-config payloads. */
 export function getModularConfigTree(): TreeNode | undefined {
   const { tree, files } = bitriseYmlStore.getState();
@@ -450,6 +458,18 @@ export function applyModularSaveResult({
   branch?: string;
   commitSha?: string;
 }) {
+  // A save that removed every include leaves a single-file config, so it opens like one.
+  if (!TreeService.hasIncludes(root)) {
+    const { configBranch, configCommitSha } = bitriseYmlStore.getState();
+    initializeBitriseYmlDocument({
+      ymlString: root.contents,
+      version: '',
+      branch: branch ?? configBranch,
+      commitSha: commitSha ?? configCommitSha,
+    });
+    return;
+  }
+
   const files = buildFileSlices(root);
   const entityIndex = EntityIndexService.buildFromFiles(root, files);
   const { openTabs, selectedNodeId } = bitriseYmlStore.getState();

@@ -8,9 +8,11 @@ import {
   discardBitriseYmlDocument,
   discardFile,
   getModularConfigTree,
+  getYmlString,
   initializeBitriseYmlDocument,
   initializeModularConfig,
   isFileDirty,
+  isModularConfig,
   MERGED_CONFIG_NODE_ID,
   openTab,
   recordActiveTabLocation,
@@ -646,7 +648,30 @@ describe('BitriseYmlStore — modular tree', () => {
     });
   });
 
+  describe('isModularConfig', () => {
+    it('is true for a config with includes, and false once it loads as a single file', () => {
+      expect(isModularConfig(bitriseYmlStore.getState())).toBe(true);
+
+      initializeBitriseYmlDocument({ ymlString: 'workflows: {}\n', version: '1' });
+
+      expect(isModularConfig(bitriseYmlStore.getState())).toBe(false);
+    });
+  });
+
   describe('applyModularSaveResult', () => {
+    it('opens a single-file config when the save removed every include, keeping the branch', () => {
+      bitriseYmlStore.setState({ configBranch: 'main', configCommitSha: 'abc' });
+
+      applyModularSaveResult({ root: node('root', { path: 'bitrise.yml', contents: 'workflows: {}\n' }) });
+
+      const state = bitriseYmlStore.getState();
+      expect(isModularConfig(state)).toBe(false);
+      expect(state.tree).toBeUndefined();
+      expect(state.openTabs).toEqual([]);
+      expect(getYmlString()).toBe('workflows: {}\n');
+      expect(state).toMatchObject({ configBranch: 'main', configCommitSha: 'abc' });
+    });
+
     it('refreshes files + index while preserving valid tabs and selection', () => {
       openTab('child-a', { preview: false });
       selectNode('child-a');
@@ -673,7 +698,7 @@ describe('BitriseYmlStore — modular tree', () => {
       selectNode('child-b');
 
       applyModularSaveResult({
-        root: node('root', { path: 'bitrise.yml', includes: [] }),
+        root: node('root', { path: 'bitrise.yml', includes: [node('child-a')] }),
       });
 
       const state = bitriseYmlStore.getState();

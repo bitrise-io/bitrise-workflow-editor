@@ -5,6 +5,11 @@ type LiveContents = Record<string, { contents: string; modified: boolean }>;
 
 type Visitor = (node: TreeNode, parent: TreeNode | undefined, depth: number) => void;
 
+/** Whether a config tree has includes: the one rule for when a config counts as modular. */
+function hasIncludes(root: TreeNode): boolean {
+  return root.includes.length > 0;
+}
+
 /** Pre-order traversal of the include tree; cycle-guarded so a malformed payload can't hang. */
 function walk(root: TreeNode | undefined, visitor: Visitor): void {
   if (!root) {
@@ -133,6 +138,7 @@ function effectiveSourceLabel(root: TreeNode | undefined, nodeId: string): strin
 }
 
 export default {
+  hasIncludes,
   walk,
   findNode,
   flatten,

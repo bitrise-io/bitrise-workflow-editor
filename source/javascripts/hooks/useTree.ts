@@ -3,7 +3,7 @@ import { useStore } from 'zustand';
 import { EntityKind, TreeNode } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import TreeService from '@/core/services/TreeService';
-import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, isFileDirty, isModularConfig, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import { buildNodeUris } from '@/core/utils/lspModelUris';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -25,6 +25,11 @@ const SECTION_BY_KIND: Record<
 /** The tree root, by reference. Walk it via `TreeService`. */
 export function useTree(): TreeNode | undefined {
   return useStore(bitriseYmlStore, (s) => s.tree);
+}
+
+/** Whether the open config is modular (has includes). Use it for what the user sees, not `useTree`. */
+export function useIsModularConfig(): boolean {
+  return useStore(bitriseYmlStore, isModularConfig);
 }
 
 export function useSelectedNodeId(): string | undefined {
