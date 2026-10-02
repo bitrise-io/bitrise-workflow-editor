@@ -9,6 +9,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
+import useTrackYamlAliases from '@/hooks/useTrackYamlAliases';
 import { useTree } from '@/hooks/useTree';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import VisualEditorGate from '@/layouts/VisualEditorGate';
@@ -31,6 +32,7 @@ const MainLayout = () => {
   const isConfigLoading = useIsConfigLoading();
 
   useMergedConfigSync();
+  useTrackYamlAliases();
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column">
