@@ -132,6 +132,14 @@ rather than resetting the boundary, because a crash in shared chrome would throw
 `?branch=` of the query, so switching back to Visual opens the default page, not the entity that
 crashed.
 
+## Tool versions resolve the way mise does
+
+The CLI passes a `tools:` prefix to `mise latest`, so `ToolVersionUtils` mirrors mise, java's own
+matcher included. Check it against the mise the CLI pins, not a local one.
+
+The first catalog match wins, which assumes the catalog is mise's list reversed. Where it is not,
+as for flutter and elixir, fix the catalog rather than sorting here: mise does not sort.
+
 ## Things that fail somewhere else
 
 - **A new YAML key fails at save**, not at compile time: the Go server validates with the `bitrise`
