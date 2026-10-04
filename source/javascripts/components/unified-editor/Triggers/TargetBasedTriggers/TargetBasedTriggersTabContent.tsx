@@ -1,4 +1,5 @@
-import { Card, Toggle, useDisclosure } from '@bitrise/bitkit';
+import { Card, Toggle } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
 import { trackTargetBasedTriggersEnabledToggled, trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
@@ -28,7 +29,7 @@ const TargetBasedTriggersTabContent = (props: Props) => {
   const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTrigger } | undefined>(undefined);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure();
 
   const changeToEditMode = (trigger: TargetBasedTrigger) => {
     setEditedItem({ trigger, index: trigger.index });

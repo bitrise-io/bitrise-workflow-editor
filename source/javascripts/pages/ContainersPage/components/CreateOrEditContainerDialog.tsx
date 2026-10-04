@@ -12,9 +12,9 @@ import {
   Link,
   Text,
   Textarea,
-  useDisclosure,
 } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
@@ -47,10 +47,10 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   const { editedContainer, isOpen, onClose, onCloseComplete, type, readOnly = false } = props;
 
   const containerIds = useContainers().all.map((container) => container.id);
-  const { isOpen: isShowMore, onToggle, onOpen: expandShowMore } = useDisclosure();
+  const { open: isShowMore, onToggle, onOpen: expandShowMore } = useDisclosure();
 
   // In read-only "view details" mode, expand the extra options on open so everything is visible at a
-  // glance. Done on each open (not via defaultIsOpen, which only applies on first mount) because the
+  // glance. Done on each open (not via defaultOpen, which only applies on first mount) because the
   // dialog stays mounted while `readOnly` can flip between editable and merged/cross-file views.
   useEffect(() => {
     if (isOpen && readOnly) {

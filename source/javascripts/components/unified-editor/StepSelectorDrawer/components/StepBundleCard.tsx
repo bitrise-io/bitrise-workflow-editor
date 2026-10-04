@@ -1,5 +1,6 @@
-import { Box, Card, CardProps, Collapse, Dot, Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
 import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
@@ -47,7 +48,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     workflowId,
   } = props;
 
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
+  const { open: isOpen, onToggle } = useDisclosure({ defaultOpen: !isCollapsable });
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 

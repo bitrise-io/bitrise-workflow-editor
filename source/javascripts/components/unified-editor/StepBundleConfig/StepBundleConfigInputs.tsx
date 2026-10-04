@@ -1,4 +1,5 @@
-import { Button, EmptyState, useDisclosure } from '@bitrise/bitkit';
+import { Button, EmptyState } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useEffect, useState } from 'react';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
@@ -15,7 +16,7 @@ const StepBundleConfigInputs = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const [preselectedCategory, setPreselectedCategory] = useState<string>();
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
-  const { isOpen: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
+  const { open: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
   const { stepBundle, ...context } = useStepBundleConfigContext();
 
   const categories = useStepBundleInputs({

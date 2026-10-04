@@ -1,4 +1,5 @@
-import { Box, Button, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
 import DiffEditorDialog from '@/components/DiffEditor/DiffEditorDialog';
@@ -33,7 +34,7 @@ const meta: Meta<typeof DiffEditorDialog> = {
   },
   render: (args) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { open: isOpen, onOpen, onClose } = useDisclosure();
 
     return (
       <Box padding="25">

@@ -1,4 +1,5 @@
-import { Box, Button, Divider, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Divider, Textarea } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { ChangeEventHandler } from 'react';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
@@ -99,7 +100,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   // stale ?tab=properties URL. (`useWorkflowConfigContext(s => s?.id)` returns '' there.)
   const workflowId = useWorkflowConfigId();
   const isReadOnlyView = useIsReadOnlyView();
-  const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
+  const { open: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
   const isDeleteable = variant === 'panel';
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflowId);

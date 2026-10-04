@@ -1,4 +1,4 @@
-import { useDisclosure } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback, useState } from 'react';
 
 import useFilterableActionList, { FilterableActionListResult } from './useFilterableActionList';
@@ -52,10 +52,10 @@ const useMultiModePopover = <TActionItem>({
   onSelect,
 }: UseMultiModePopoverProps<TActionItem>): UseMultiModePopoverResult<TActionItem> => {
   const {
-    isOpen,
+    open: isOpen,
     onOpen: onOpenDiscosure,
     onClose: onCloseDisclosure,
-  } = useDisclosure({ defaultIsOpen: initialIsOpen });
+  } = useDisclosure({ defaultOpen: initialIsOpen });
   const [mode, switchTo] = useState<Mode>(initialMode);
 
   const isMode = useCallback((m: Mode) => mode === m, [mode]);

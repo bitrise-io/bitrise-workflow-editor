@@ -1,4 +1,5 @@
-import { Box, Button, IconButton, Input, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, IconButton, Input, Textarea } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -28,7 +29,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
     stepIndex: contextData.stepIndex,
   };
 
-  const { isOpen: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
+  const { open: isDeleteDialogOpen, onOpen: openDeleteDialog, onClose: closeDeleteDialog } = useDisclosure();
 
   const rename = useChangeStepBundleId(id, onChangeId);
 

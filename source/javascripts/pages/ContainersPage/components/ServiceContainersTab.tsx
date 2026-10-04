@@ -1,4 +1,5 @@
-import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -18,7 +19,7 @@ const ServiceContainersTab = () => {
   const { [ContainerType.Service]: containers } = useModuleContainers();
 
   const [editedContainer, setEditedContainer] = useState<Container | null>(null);
-  const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
+  const { open: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
 
   return (
     <>
