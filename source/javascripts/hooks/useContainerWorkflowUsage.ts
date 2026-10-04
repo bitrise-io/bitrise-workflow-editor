@@ -1,6 +1,7 @@
 import { uniq } from 'es-toolkit';
 
 import ContainerService from '@/core/services/ContainerService';
+import { configDocuments } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 function useContainerWorkflowUsage(): Map<string, string[]>;
@@ -12,7 +13,7 @@ function useContainerWorkflowUsage(id?: string) {
     // workflow in another. Scan every module file (not just the active document) and union the
     // results, so a per-module view reports the same usage as the merged view — and each using
     // workflow is listed once.
-    const documents = state.tree ? Object.values(state.files).map((slice) => slice.ymlDocument) : [state.ymlDocument];
+    const documents = configDocuments(state);
 
     if (id) {
       return uniq(documents.flatMap((doc) => ContainerService.getWorkflowsUsingContainer(doc, id)));

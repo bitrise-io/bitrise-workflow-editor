@@ -9,9 +9,10 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useHashLocation from '@/hooks/useHashLocation';
 import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
+import useTrackYamlAliases from '@/hooks/useTrackYamlAliases';
 import { useTree } from '@/hooks/useTree';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
-import InvalidYmlRedirect from '@/layouts/InvalidYmlRedirect';
+import VisualEditorDisabledRedirect from '@/layouts/VisualEditorDisabledRedirect';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
@@ -31,6 +32,7 @@ const MainLayout = () => {
   const isConfigLoading = useIsConfigLoading();
 
   useMergedConfigSync();
+  useTrackYamlAliases();
 
   return (
     <Box height="100dvh" display="flex" flexDirection="column">
@@ -46,13 +48,14 @@ const MainLayout = () => {
               <LoadingState />
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>
-                <InvalidYmlRedirect />
-                <Switch>
-                  {routes.map(({ path, component }) => (
-                    <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
-                  ))}
-                  <Redirect to={paths.workflows} replace />
-                </Switch>
+                <VisualEditorDisabledRedirect>
+                  <Switch>
+                    {routes.map(({ path, component }) => (
+                      <LazyRoute key={path} path={new RegExp(`^\\${path}`)} component={component} />
+                    ))}
+                    <Redirect to={paths.workflows} replace />
+                  </Switch>
+                </VisualEditorDisabledRedirect>
               </Router>
             )}
           </Box>

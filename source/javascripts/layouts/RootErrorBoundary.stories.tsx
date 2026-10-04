@@ -39,7 +39,11 @@ export const OnAVisualPage: Story = {
 };
 
 export const OnABranch: Story = {
-  beforeEach: onPage('#!/workflows?branch=feature-x'),
+  beforeEach: onPage('#!/workflows?branch=feature-x&workflow_id=primary'),
+};
+
+export const OnASelectedWorkflow: Story = {
+  beforeEach: onPage('#!/workflows?workflow_id=primary'),
 };
 
 export const OnTheYamlPage: Story = {

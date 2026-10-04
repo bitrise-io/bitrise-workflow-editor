@@ -78,7 +78,7 @@ jest.mock('@bitrise/bitkit', () => ({
   Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
 }));
 
-jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn() } }));
+jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn(), addAction: jest.fn() } }));
 jest.mock('@/core/analytics/ConfigManagementAnalytics', () => ({ trackConfigBranchLoaded: jest.fn() }));
 jest.mock('@/hooks/useYmlLanguageServices', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('@/hooks/useCloseAIDrawer', () => ({ __esModule: true, default: jest.fn() }));

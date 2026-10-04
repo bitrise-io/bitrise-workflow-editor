@@ -165,7 +165,7 @@ function useYmlLanguageServices() {
     reconcile(true);
 
     // Global validation status (drives Save gating + the validation badge — NOT the editor-view
-    // redirect, which keys off a genuine parse failure via useIsYmlParseError) tracks the ROOT config
+    // redirect, which keys off useVisualEditorNotice) tracks the ROOT config
     // model only. Aggregating markers across every include model would trap the user: an include fragment
     // (e.g. a workflows-only module) has no format_version/include, so monaco-yaml's whole-config
     // schema — registered with fileMatch ['*'], so it hits every bitrise:// model — reports an

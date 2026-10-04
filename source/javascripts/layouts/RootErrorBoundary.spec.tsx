@@ -33,8 +33,15 @@ jest.mock('@bitrise/bitkit-v2', () => ({
 }));
 
 const composed = composeStories(stories);
-const { ErrorWithoutAMessage, NotAnErrorThrown, OnABranch, OnAVisualPage, OnTheYamlPage, UnprintableValueThrown } =
-  composed;
+const {
+  ErrorWithoutAMessage,
+  NotAnErrorThrown,
+  OnABranch,
+  OnASelectedWorkflow,
+  OnAVisualPage,
+  OnTheYamlPage,
+  UnprintableValueThrown,
+} = composed;
 
 /** Runs the story's `beforeEach`, which sets the hash, then renders it. */
 async function renderStory(Story: (typeof composed)[keyof typeof composed]) {
@@ -96,13 +103,21 @@ describe('RootErrorBoundary', () => {
       expect(WindowUtils.reloadEditor).toHaveBeenCalledTimes(1);
     });
 
-    it('keeps the hash query, where the branch lives', async () => {
+    it('keeps the branch but drops the rest of the query, so switching back to Visual opens the default page, not the entity that crashed', async () => {
       await renderStory(OnABranch);
 
       fireEvent.click(screen.getByText('Edit as YAML'));
 
       expect(window.parent.location.hash).toBe('#!/yml?branch=feature-x');
       expect(WindowUtils.reloadEditor).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops the query entirely when there is no branch in it', async () => {
+      await renderStory(OnASelectedWorkflow);
+
+      fireEvent.click(screen.getByText('Edit as YAML'));
+
+      expect(window.parent.location.hash).toBe('#!/yml');
     });
 
     it('is not offered on the YAML page, because it would reload into the same place', async () => {

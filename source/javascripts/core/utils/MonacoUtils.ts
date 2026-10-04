@@ -4,6 +4,7 @@ import { debounce } from 'es-toolkit';
 import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
 import { configureMonacoYaml } from 'monaco-yaml';
+import { type Document } from 'yaml';
 
 import AlgoliaApi from '../api/AlgoliaApi';
 import EnvVarsApi from '../api/EnvVarsApi';
@@ -15,10 +16,45 @@ import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
+import YmlUtils from './YmlUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
 loader.config({ monaco });
+
+/**
+ * Aliases and merge keys warn rather than error: an error marker disables Save, and these are valid YAML
+ * the CLI builds with. An alias with no anchor is an error, since that YAML doesn't parse anyway.
+ * Offsets need a parse of the model's own text, `textDoc` when the caller has one: the store's document
+ * is the text re-serialized, or its last parse that worked.
+ */
+function setAliasMarkers(uri: string, textDoc?: Document) {
+  const model = monaco.editor.getModel(monaco.Uri.parse(uri));
+  if (!model) {
+    return;
+  }
+  const doc = textDoc ?? YmlUtils.toDoc(model.getValue());
+  const found = YmlUtils.findAliasesAndMergeKeys(doc);
+  monaco.editor.setModelMarkers(
+    model,
+    'wfe-yaml-aliases',
+    found.map(({ start, end, error }) => {
+      const from = model.getPositionAt(start);
+      const to = model.getPositionAt(end);
+      return {
+        severity: error ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
+        message:
+          error ??
+          "The Visual editor doesn't support YAML aliases or merge keys, so it's disabled for this configuration.",
+        source: 'Workflow Editor',
+        startLineNumber: from.lineNumber,
+        startColumn: from.column,
+        endLineNumber: to.lineNumber,
+        endColumn: to.column,
+      };
+    }),
+  );
+}
 
 let isConfiguredForYaml = false;
 const configureForYaml: BeforeMountHandler = (monacoInstance) => {
@@ -310,4 +346,5 @@ export default {
   configureEnvVarsCompletionProvider,
   onModelMarkerStatusChange,
   onWorkspaceMarkerStatusChange,
+  setAliasMarkers,
 };

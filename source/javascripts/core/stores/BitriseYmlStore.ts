@@ -50,6 +50,8 @@ export const bitriseYmlStore = createStore(
     validationStatus: 'pending' as 'valid' | 'invalid' | 'warnings' | 'pending',
     configBranch: undefined as string | undefined,
     configCommitSha: undefined as string | undefined,
+    // Set by every save, in the same update as the saved documents. Loads and branch switches leave it.
+    lastSavedAt: undefined as number | undefined,
 
     // Modular YAML tree state. `tree` is the structural skeleton (for traversal);
     // `files` is the source of truth for live contents.
@@ -168,6 +170,7 @@ function commitActiveFileDocument(nodeId: string, slice: FileSlice, doc: Documen
   });
 }
 
+/** Returns its parse of `ymlString`, even when that has errors. */
 export function updateBitriseYmlDocumentByString(ymlString: string) {
   const state = bitriseYmlStore.getState();
   const doc = YmlUtils.toDoc(ymlString);
@@ -178,12 +181,12 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
     } else {
       bitriseYmlStore.setState({ __invalidYmlString: ymlString });
     }
-    return;
+    return doc;
   }
 
   const active = editableActiveSlice('updateBitriseYmlDocumentByString');
   if (!active) {
-    return;
+    return doc;
   }
 
   if (doc.errors.length === 0) {
@@ -191,6 +194,7 @@ export function updateBitriseYmlDocumentByString(ymlString: string) {
   } else {
     bitriseYmlStore.setState({ __invalidYmlString: ymlString });
   }
+  return doc;
 }
 
 /** Modular tree state reset to its initial (empty) values — see the store's initial state. */
@@ -208,20 +212,12 @@ function clearedModularState() {
   };
 }
 
-export function initializeBitriseYmlDocument({
-  ymlString,
-  version,
-  branch,
-  commitSha,
-}: {
-  ymlString: string;
-  version: string;
-  branch?: string;
-  commitSha?: string;
-}) {
+type LoadedConfig = { ymlString: string; version: string; branch?: string; commitSha?: string };
+
+function loadedConfigPatch({ ymlString, version, branch, commitSha }: LoadedConfig) {
   const doc = YmlUtils.toDoc(ymlString);
 
-  bitriseYmlStore.setState({
+  return {
     version,
     configBranch: branch || undefined,
     configCommitSha: commitSha || undefined,
@@ -240,7 +236,19 @@ export function initializeBitriseYmlDocument({
           __invalidYmlString: ymlString,
           __savedInvalidYmlString: ymlString,
         }),
-  });
+  };
+}
+
+export function initializeBitriseYmlDocument(config: LoadedConfig) {
+  bitriseYmlStore.setState(loadedConfigPatch(config));
+}
+
+/**
+ * {@link initializeBitriseYmlDocument} for the config a save just wrote. It sets `lastSavedAt` in the same
+ * update as the saved document, so a subscriber can tell a save from a load or a branch switch.
+ */
+export function applySaveResult(config: LoadedConfig) {
+  bitriseYmlStore.setState({ ...loadedConfigPatch(config), lastSavedAt: Date.now() });
 }
 
 export function updateBitriseYmlDocument(mutator: YamlMutator) {
@@ -264,11 +272,40 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
   commitActiveFileDocument(active.nodeId, active.slice, mutator({ doc: state.ymlDocument.clone() }));
 }
 
+/** Every document of the config: each file of a modular config, or the one document otherwise. */
+export function configDocuments(s: BitriseYmlStoreState) {
+  return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
+}
+
+/** {@link configDocuments} as last loaded or saved. */
+export function savedConfigDocuments(s: BitriseYmlStoreState) {
+  return s.tree ? Object.values(s.files).map((file) => file.savedYmlDocument) : [s.savedYmlDocument];
+}
+
 export function isFileDirty(slice?: FileSlice) {
   if (!slice) {
     return false;
   }
   return !YmlUtils.isEquals(slice.ymlDocument, slice.savedYmlDocument);
+}
+
+/**
+ * State patch binding `ymlDocument` as the active document. A file loaded with parse errors
+ * opens like an invalid single-file config, by its raw text, with an empty document standing in
+ * since the pages can't read it. Its own document stays in `files`, so saving writes that text back.
+ */
+function documentPatch(ymlDocument: Document, savedYmlDocument: Document) {
+  if (ymlDocument.errors.length > 0) {
+    const ymlString = YmlUtils.toYml(ymlDocument);
+    const emptyDocument = new Document();
+    return {
+      ymlDocument: emptyDocument,
+      savedYmlDocument: emptyDocument,
+      __invalidYmlString: ymlString,
+      __savedInvalidYmlString: ymlString,
+    };
+  }
+  return { ymlDocument, savedYmlDocument, __invalidYmlString: undefined, __savedInvalidYmlString: undefined };
 }
 
 /** State patch binding a document as the single active `ymlDocument` the whole WFE reads/writes. */
@@ -277,9 +314,7 @@ function activeDocumentPatch(selectedNodeId: string, ymlDocument: Document, save
     selectedNodeId,
     // `version` is unused in modular mode (conflict detection keys off commit_sha).
     version: '',
-    ymlDocument,
-    savedYmlDocument,
-    __invalidYmlString: undefined,
+    ...documentPatch(ymlDocument, savedYmlDocument),
   };
 }
 
@@ -365,10 +400,7 @@ function modularTreePatch(
     files,
     entityIndex,
     version: '',
-    ymlDocument: activeSlice.ymlDocument,
-    savedYmlDocument: activeSlice.savedYmlDocument,
-    __invalidYmlString: undefined,
-    __savedInvalidYmlString: undefined,
+    ...documentPatch(activeSlice.ymlDocument, activeSlice.savedYmlDocument),
   };
 }
 
@@ -448,6 +480,7 @@ export function applyModularSaveResult({
     selectedNodeId: nextSelected,
     mergedYml: undefined,
     mergedYmlStale: true,
+    lastSavedAt: Date.now(),
     ...(branch !== undefined ? { configBranch: branch || undefined } : {}),
     ...(commitSha !== undefined ? { configCommitSha: commitSha || undefined } : {}),
   });

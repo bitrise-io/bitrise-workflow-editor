@@ -2014,4 +2014,54 @@ describe('YmlUtils', () => {
       expect(YmlUtils.isEquals(invalid, YmlUtils.toDoc(INVALID_YML))).toBe(true);
     });
   });
+  describe('toDoc with an alias it cannot resolve', () => {
+    it.each([
+      ['an alias with no anchor', 'a: &shared 1\nb: *shar\n', ['BAD_ALIAS']],
+      ['an alias inside its own anchor, which the CLI rejects', 'a: &x [1, *x]\n', ['BAD_ALIAS']],
+      ['it next to another error', 'a: 1\na: 2\nb: *missing\n', ['DUPLICATE_KEY', 'BAD_ALIAS']],
+      ['it in a flow sequence', 'a: [1,*x]\n', ['BAD_ALIAS']],
+      ['nothing for an alias with an anchor', 'a: &x 1\nb: *x\n', []],
+      ['nothing for an anchor redefined inside its namesake, which the alias uses', 'a: &x [&x 1, *x]\n', []],
+      ['an alias inside its anchor redefined around it', 'a: &x 1\nb: &x [*x]\n', ['BAD_ALIAS']],
+      ['only yaml’s own error for an empty alias', 'a: *\n', ['BAD_ALIAS']],
+      ['nothing for a glob or a quoted asterisk', 'a: build/*.ipa\nb: "*x"\nc: |\n  ls *.txt\n', []],
+    ])('reports %s', (_, raw, codes) => {
+      expect(YmlUtils.toDoc(raw).errors.map(({ code }) => code)).toEqual(codes);
+    });
+  });
+
+  it.each([
+    ['an alias', 'a: &x 1\nb: *x\n', true],
+    ['a merge key', 'b:\n  <<: {k: 1}\n', true],
+    ['only an unused anchor', 'a: &x 1\n', false],
+    ['a quoted "<<" key', 'b:\n  "<<": 1\n', false],
+  ])('hasAliasesOrMergeKeys is right for %s', (_, raw, expected) => {
+    expect(YmlUtils.hasAliasesOrMergeKeys(YmlUtils.toDoc(raw))).toBe(expected);
+  });
+
+  describe('findAliasesAndMergeKeys', () => {
+    const found = (raw: string) =>
+      YmlUtils.findAliasesAndMergeKeys(YmlUtils.toDoc(raw)).map(({ start, end }) => raw.slice(start, end));
+
+    it('finds each alias and merge key, in flow collections too, and no anchor', () => {
+      expect(found('base: &base\n  a: 1\ncopy: *base\nmerged:\n  <<: *base\nlist:\n- [&s x]\n&key k: *s\n')).toEqual([
+        '*base',
+        '<<',
+        '*base',
+        '*s',
+      ]);
+    });
+
+    it('gives an alias with no anchor its parse error, and only that alias', () => {
+      const raw = 'a: &x 1\nb: *x\nc: *missing\n';
+      expect(YmlUtils.findAliasesAndMergeKeys(YmlUtils.toDoc(raw)).map(({ error }) => error)).toEqual([
+        undefined,
+        expect.stringContaining('no anchor &missing'),
+      ]);
+    });
+
+    it('finds nothing in a glob, a heredoc or an unused anchor', () => {
+      expect(found('a: &unused build/*.ipa\nscript: |\n  make && cat <<EOF\n  x\n  EOF\n')).toEqual([]);
+    });
+  });
 });
