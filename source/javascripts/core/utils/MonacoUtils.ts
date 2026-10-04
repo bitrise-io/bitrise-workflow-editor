@@ -45,7 +45,7 @@ function setAliasMarkers(uri: string, textDoc?: Document) {
         severity: error ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
         message:
           error ??
-          "The Visual editor doesn't support YAML aliases or merge keys, so it's disabled for this configuration.",
+          "The Visual editor doesn't support YAML aliases or merge keys. Edit the parts that use them as YAML.",
         source: 'Workflow Editor',
         startLineNumber: from.lineNumber,
         startColumn: from.column,
