@@ -1,4 +1,5 @@
-import { Box, Button, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { http, HttpResponse } from 'msw';
 import { useState } from 'react';
@@ -15,8 +16,8 @@ import usePushBranch from '@/hooks/usePushBranch';
 import { pushBranch, pushBranchMergeConflict } from './PushBranchDialog.mswMocks';
 
 function StoryWrapper({ onMergeConflict }: { onMergeConflict?: (branch: string) => void }) {
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
-  const { isOpen: isUpdateConfigOpen, onOpen: openUpdateConfig, onClose: closeUpdateConfig } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure({ defaultOpen: true });
+  const { open: isUpdateConfigOpen, onOpen: openUpdateConfig, onClose: closeUpdateConfig } = useDisclosure();
 
   const {
     isPushPending,
@@ -52,7 +53,7 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: (branch: string) 
 
 function MergeConflictStory() {
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
-  const { isOpen: isMergeOpen, onOpen: openMerge, onClose: closeMerge } = useDisclosure();
+  const { open: isMergeOpen, onOpen: openMerge, onClose: closeMerge } = useDisclosure();
   const [mergeContext, setMergeContext] = useState<{ targetBranch: string; isNewTargetBranch: boolean }>();
 
   return (

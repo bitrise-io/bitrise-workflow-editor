@@ -1,15 +1,5 @@
-import {
-  Box,
-  Collapse,
-  Divider,
-  Icon,
-  Input,
-  Link,
-  MarkdownContent,
-  Select,
-  Text,
-  useDisclosure,
-} from '@bitrise/bitkit';
+import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
@@ -84,7 +74,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 const PropertiesTab = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
+  const { open: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
   const [title, setTitle] = useState(data?.mergedValues?.title);

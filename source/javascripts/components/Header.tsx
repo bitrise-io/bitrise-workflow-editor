@@ -1,4 +1,4 @@
-import { useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
+import { useToast } from '@bitrise/bitkit';
 import {
   BitkitBreadcrumb,
   BitkitButton,
@@ -7,8 +7,10 @@ import {
   BitkitTooltip,
   IconCode,
   IconWebUi,
+  useResponsive,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -139,7 +141,7 @@ const Header = () => {
   const lastPushPayload = useRef<PushBranchPayload>();
 
   const {
-    isOpen: isDiffViewerOpen,
+    open: isDiffViewerOpen,
     onOpen: openDiffViewer,
     onClose: closeDiffViewer,
   } = useDisclosure({
@@ -153,15 +155,15 @@ const Header = () => {
     },
   });
 
-  const { isOpen: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
+  const { open: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
   const {
-    isOpen: isModularMergeDialogOpen,
+    open: isModularMergeDialogOpen,
     onOpen: openModularMergeDialog,
     onClose: closeModularMergeDialog,
   } = useDisclosure();
 
   const {
-    isOpen: isUpdateConfigDialogOpen,
+    open: isUpdateConfigDialogOpen,
     onOpen: openUpdateConfigDialog,
     onClose: closeUpdateConfigDialog,
   } = useDisclosure({
@@ -171,7 +173,7 @@ const Header = () => {
   });
 
   const {
-    isOpen: isPushBranchDialogOpen,
+    open: isPushBranchDialogOpen,
     onOpen: openPushBranchDialog,
     onClose: closePushBranchDialog,
   } = useDisclosure({

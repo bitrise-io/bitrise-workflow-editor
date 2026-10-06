@@ -1,4 +1,5 @@
-import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@bitrise/bitkit';
+import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
 import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
@@ -32,7 +33,7 @@ const LegacyTriggers = () => {
     TriggerService.updateTriggerMap(newTriggersMap);
   };
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure();
 
   const onOpenDialog = (trigger: LegacyTrigger) => {
     setEditedItem(trigger);
