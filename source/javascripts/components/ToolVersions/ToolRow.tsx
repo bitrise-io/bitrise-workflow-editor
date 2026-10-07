@@ -19,6 +19,7 @@ import { useController, useForm } from 'react-hook-form';
 
 import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
+import ToolVersionUtils from '@/core/utils/ToolVersionUtils';
 import { useToolVersions } from '@/hooks/useTools';
 
 type ToolRowFormValues = {
@@ -129,8 +130,13 @@ const ToolRow = ({
   // version overall, which serializes to bare `latest` or `installed`.
   const versionError = strategy === 'exact' && trimmedVersion === '' ? 'Tool version is required' : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
-  // The configured value is not in the catalog, likely a leftover from hand written YAML. It is
-  // Warn rather than error, and wait for real data, since `toolVersions` is undefined while loading.
+  const resolvedVersion = useMemo(
+    () => (hasPrefixDropdown ? ToolVersionUtils.getLatestVersion(toolVersions, trimmedVersion) : undefined),
+    [hasPrefixDropdown, toolVersions, trimmedVersion],
+  );
+  // The configured value is not in the catalog, likely a leftover from hand written YAML, or mise
+  // cannot resolve it. Warn rather than error, and wait for real data, since `toolVersions` is
+  // undefined while loading.
   const catalogWarning = useMemo(() => {
     if (!toolVersions || trimmedVersion === '') {
       return undefined;
@@ -140,12 +146,20 @@ const ToolRow = ({
       return `${trimmedVersion} is not a known version, use at your own risk`;
     }
 
-    if (hasPrefixDropdown && !ToolsService.isPrefixInCatalog(toolVersions, trimmedVersion)) {
+    if (hasPrefixDropdown && !ToolVersionUtils.isPrefixInCatalog(toolVersions, trimmedVersion)) {
       return `No known version of ${toolId} is in the ${trimmedVersion} line, use at your own risk`;
     }
 
+    // `installed` falls back to the newest release when nothing installed matches, so it fails too.
+    if (hasPrefixDropdown && !resolvedVersion) {
+      return `The ${trimmedVersion} line of ${toolId} holds only prereleases, which mise does not resolve`;
+    }
+
     return undefined;
-  }, [isExactKnownTool, hasPrefixDropdown, toolVersions, toolId, trimmedVersion]);
+  }, [isExactKnownTool, hasPrefixDropdown, resolvedVersion, toolVersions, toolId, trimmedVersion]);
+  // The catalog has no preinstalled versions to offer, so only `latest` gets a hint.
+  const resolvedVersionHint =
+    resolvedVersion && !preferInstalled ? `Currently resolves to ${resolvedVersion}` : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -295,6 +309,7 @@ const ToolRow = ({
                   items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...versionOptions]}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  helperText={resolvedVersionHint}
                   warningText={catalogWarning}
                   value={version || ANY_PREFIX_VALUE}
                   onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}

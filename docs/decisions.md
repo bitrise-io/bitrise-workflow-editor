@@ -132,6 +132,16 @@ rather than resetting the boundary, because a crash in shared chrome would throw
 `?branch=` of the query, so switching back to Visual opens the default page, not the entity that
 crashed.
 
+## Tool versions resolve the way mise does
+
+The CLI passes a `tools:` prefix to `mise latest`, so `ToolVersionUtils` mirrors mise, including
+java's own matcher and python's PEP 440 prereleases. Check it against the mise the CLI pins, not a
+local one: a newer mise can list a tool's versions differently even where it matches the same way.
+
+The first catalog match wins, which assumes the catalog is mise's list reversed. The CLI sorts the
+catalog instead, so elixir's `-otp-` builds and some java, python, ruby and erlang lines are out of
+mise's order (BE-2245). Fix that in the catalog rather than sorting here: mise does not sort.
+
 ## Things that fail somewhere else
 
 - **A new YAML key fails at save**, not at compile time: the Go server validates with the `bitrise`
