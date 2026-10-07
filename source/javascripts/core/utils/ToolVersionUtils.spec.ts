@@ -65,7 +65,13 @@ describe('ToolVersionUtils', () => {
         'zulu-musl-8',
         'zulu-musl-8.96',
       ]);
-      expect(ToolVersionUtils.getPrefixes(versionCatalog('python', ['3.15.0rc1', '3.15-dev']))).toEqual(['3', '3.15']);
+    });
+
+    it('does not offer a line of nothing but prereleases', () => {
+      const python = versionCatalog('python', ['3.16-dev', '3.15.0rc1', '3.15-dev', '3.14.7']);
+      expect(ToolVersionUtils.getPrefixes(python)).toEqual(['3', '3.14']);
+      // A ruby patch level is stable to mise, whatever semver makes of it.
+      expect(ToolVersionUtils.getPrefixes(versionCatalog('ruby', ['2.0.0-p648']))).toEqual(['2', '2.0']);
     });
 
     it('offers only cuts that mise can resolve', () => {

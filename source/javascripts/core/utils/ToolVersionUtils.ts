@@ -163,19 +163,24 @@ function compareNumericPrefixes(a: string, b: string): number {
   return 0;
 }
 
-/** Prefixes cut from each version, since catalogs are rarely semver. Newest first. */
+/**
+ * Prefixes cut from each version, since catalogs are rarely semver. Newest first. Only the versions
+ * mise keeps are cut, so a line of nothing but prereleases is not offered.
+ */
 function getPrefixes(toolVersions: ToolVersions | undefined): string[] {
   const prefixes: string[] = [];
   const seen = new Set<string>();
 
-  (toolVersions?.versions ?? []).forEach(({ version }) => {
-    toPrefixes(version, toolVersions?.toolId ?? '').forEach((prefix) => {
-      if (prefix && !seen.has(prefix)) {
-        seen.add(prefix);
-        prefixes.push(prefix);
-      }
+  (toolVersions?.versions ?? [])
+    .filter(({ version }) => !PRERELEASE_MARKER.test(version))
+    .forEach(({ version }) => {
+      toPrefixes(version, toolVersions?.toolId ?? '').forEach((prefix) => {
+        if (prefix && !seen.has(prefix)) {
+          seen.add(prefix);
+          prefixes.push(prefix);
+        }
+      });
     });
-  });
 
   return [
     ...prefixes.filter((prefix) => NUMERIC_PREFIX.test(prefix)).sort(compareNumericPrefixes),
