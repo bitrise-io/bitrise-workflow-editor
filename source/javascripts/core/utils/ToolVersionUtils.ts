@@ -9,7 +9,7 @@ const LINE_SEPARATORS = { numeric: '.-+', named: '.-' };
 /** A prefix is numeric once a leading `v` or `V` is dropped, so `v1.12` is one. */
 const NUMERIC_START = /^[vV]?\d/;
 
-/** The line bare `latest` searches, which leaves out names such as `graalpython-22.2.0`. Only a lowercase `v`. */
+/** The line bare `latest` searches, which leaves out names such as `graalpython-22.2.0`. */
 const LATEST_LINE = /^v?\d/;
 
 /** A prefix of `latest`, as in `latest:latest`, which the CLI and mise both read as bare `latest`. */
@@ -31,7 +31,7 @@ const NODE_LTS_LINES = {
 
 /**
  * The aliases mise swaps in before it matches, transcribed from `get_aliases` in its node and java
- * plugins. Like `PRERELEASE_MARKER`, check them against the mise the CLI pins.
+ * plugins.
  */
 const ALIASES: Record<string, Record<string, string>> = {
   nodejs: {
@@ -130,13 +130,13 @@ function toPrefixes(version: string, toolId: string): string[] {
       continue;
     }
 
-    if (major === -1 && NUMERIC_PART.test(version.slice(partStart, index))) {
-      major = cuts.length;
-    }
-
     const cut = version.slice(0, index);
     // Walks the widest separator set and keeps only the cuts mise can resolve.
     if (matchesPrefix(version, cut, toolId)) {
+      if (major === -1 && NUMERIC_PART.test(version.slice(partStart, index))) {
+        major = cuts.length;
+      }
+
       cuts.push(cut);
     }
 
@@ -220,9 +220,14 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, configuredPref
 
 /** Whether the catalog has any version in `prefix`'s line. */
 function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
-  return toolVersions.versions.some(({ version }) =>
-    matchesPrefix(version, toQuery(prefix, toolVersions.toolId), toolVersions.toolId),
-  );
+  const query = toQuery(prefix, toolVersions.toolId);
+
+  // Bare `latest` falls back to the whole list, so any nonempty catalog answers it.
+  if (query === '') {
+    return toolVersions.versions.length > 0;
+  }
+
+  return toolVersions.versions.some(({ version }) => matchesPrefix(version, query, toolVersions.toolId));
 }
 
 export default {

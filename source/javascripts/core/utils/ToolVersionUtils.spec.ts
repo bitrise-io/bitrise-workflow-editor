@@ -95,6 +95,16 @@ describe('ToolVersionUtils', () => {
       ]);
     });
 
+    it('counts major and minor from the first number a line can end on', () => {
+      // `foo-1` is not a line, since a plus ends only a line that starts with a number, so the version starts at 2.
+      expect(ToolVersionUtils.getPrefixes(versionCatalog('ruby', ['foo-1+bar.2.3.4']))).toEqual([
+        'foo',
+        'foo-1+bar',
+        'foo-1+bar.2',
+        'foo-1+bar.2.3',
+      ]);
+    });
+
     it('stands in for a value that has no separator to cut at', () => {
       expect(ToolVersionUtils.getPrefixes(versionCatalog('elixir', ['nightly', 'stable']))).toEqual([
         'nightly',
@@ -286,6 +296,11 @@ describe('ToolVersionUtils', () => {
 
     it('accepts an empty prefix, which is what bare `latest` means', () => {
       expect(ToolVersionUtils.isPrefixInCatalog(catalog, '')).toBe(true);
+    });
+
+    it('accepts bare `latest` on a catalog of names, which mise answers from the whole list', () => {
+      expect(ToolVersionUtils.isPrefixInCatalog(versionCatalog('elixir', ['nightly', 'stable']), 'latest')).toBe(true);
+      expect(ToolVersionUtils.isPrefixInCatalog(versionCatalog('elixir', []), 'latest')).toBe(false);
     });
 
     it('accepts a prefix that names a whole version', () => {
