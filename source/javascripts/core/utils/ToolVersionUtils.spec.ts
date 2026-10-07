@@ -74,6 +74,11 @@ describe('ToolVersionUtils', () => {
       expect(ToolVersionUtils.getPrefixes(versionCatalog('ruby', ['2.0.0-p648']))).toEqual(['2', '2.0']);
     });
 
+    it('does not offer a python line of nothing but alphas and betas', () => {
+      const python = versionCatalog('python', ['3.16.0b1', '3.16.0a1', '3.15.0']);
+      expect(ToolVersionUtils.getPrefixes(python)).toEqual(['3', '3.15']);
+    });
+
     it('offers only cuts that mise can resolve', () => {
       // An underscore never ends a line, and a plus ends one only after a number.
       expect(ToolVersionUtils.getPrefixes(versionCatalog('java', ['semeru-openj9-8u472_b08-0.56.0']))).toEqual([
@@ -181,6 +186,13 @@ describe('ToolVersionUtils', () => {
       const python = versionCatalog('python', ['3.16-dev', '3.15.0rc2', '3.15-dev', '3.14.7']);
       expect(ToolVersionUtils.getLatestVersion(python, '3.16')).toBeUndefined();
       expect(ToolVersionUtils.getLatestVersion(python, '3.15')).toBeUndefined();
+    });
+
+    it('passes over python alphas and betas, as mise does for python only', () => {
+      const python = versionCatalog('python', ['3.16.0b1', '3.16.0a1', '3.15.0']);
+      expect(ToolVersionUtils.getLatestVersion(python, '3.16')).toBeUndefined();
+      expect(ToolVersionUtils.getLatestVersion(python, '3.16.0a1')).toBe('3.16.0a1');
+      expect(ToolVersionUtils.getLatestVersion(versionCatalog('nodejs', ['1.0.0a1']), '1')).toBe('1.0.0a1');
     });
 
     it('falls back to the whole catalog for an empty prefix, and only there', () => {

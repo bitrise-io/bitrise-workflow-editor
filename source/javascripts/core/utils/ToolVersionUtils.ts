@@ -49,6 +49,8 @@ const ALIASES: Record<string, Record<string, string>> = {
 /** java replaces mise's matcher: `+` ends any line, and there are no `v` spellings. */
 const JAVA_TOOL_ID = 'java';
 
+const PYTHON_TOOL_ID = 'python';
+
 /** The line java's bare `latest` searches, and where a prefix gains a `v` spelling. */
 const DIGIT_START = /^\d/;
 
@@ -65,6 +67,13 @@ const NUMERIC_PREFIX = /^\d+(\.\d+)*$/;
  */
 const PRERELEASE_MARKER =
   /-src|[-.]dev|-latest|-stm|[-.]rc|-milestone|-alpha|-beta|[-.]pre|-next|-test|-nightly|-canary|-experimental|-insider|-edge|snapshot|master|\d(?:alpha|beta|rc)\d*\b/i;
+
+/** mise's `PEP440_PRERELEASE_REGEX`, which python applies on top, so `3.16.0a1` is a prerelease too. */
+const PEP440_PRERELEASE_MARKER = /\d(?:a|b|c|rc)\d+(?:$|[^a-z0-9])/i;
+
+function isPrerelease(version: string, toolId: string): boolean {
+  return PRERELEASE_MARKER.test(version) || (toolId === PYTHON_TOOL_ID && PEP440_PRERELEASE_MARKER.test(version));
+}
 
 /** What mise matches for a configured prefix, once aliases and a literal `latest` are read. */
 function toQuery(prefix: string, toolId: string): string {
@@ -172,7 +181,7 @@ function getPrefixes(toolVersions: ToolVersions | undefined): string[] {
   const seen = new Set<string>();
 
   (toolVersions?.versions ?? [])
-    .filter(({ version }) => !PRERELEASE_MARKER.test(version))
+    .filter(({ version }) => !isPrerelease(version, toolVersions?.toolId ?? ''))
     .forEach(({ version }) => {
       toPrefixes(version, toolVersions?.toolId ?? '').forEach((prefix) => {
         if (prefix && !seen.has(prefix)) {
@@ -204,7 +213,7 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, configuredPref
     return prefix;
   }
 
-  const stable = versions.find((version) => matchesPrefix(version, prefix, toolId) && !PRERELEASE_MARKER.test(version));
+  const stable = versions.find((version) => matchesPrefix(version, prefix, toolId) && !isPrerelease(version, toolId));
 
   return stable ?? (prefix === '' ? versions[0] : undefined);
 }
