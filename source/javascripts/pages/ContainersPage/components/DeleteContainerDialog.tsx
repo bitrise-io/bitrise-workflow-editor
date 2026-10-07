@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Divider, Text } from '@bitrise/bitkit';
+import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ContainerType } from '@/core/models/Container';
@@ -77,7 +78,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
         {type === 'definition' && workflowsUsedByContainer.length > 0 && (
           <>
             <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
-            <Divider color="border/regular" />
+            <Separator />
           </>
         )}
       </DialogBody>

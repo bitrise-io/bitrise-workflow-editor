@@ -1,4 +1,5 @@
-import { Box, Divider, EmptyState, Text } from '@bitrise/bitkit';
+import { Box, EmptyState, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -37,7 +38,7 @@ const MergedWorkflowsTab = ({ groups }: { groups: WorkflowEnvVarFileGroup[] }) =
             emptyText="No Environment Variables defined."
             renderJumpButton={(_env) => <JumpToFileButton nodeId={group.nodeId} />}
           />
-          {groups.length - 1 > index && <Divider />}
+          {groups.length - 1 > index && <Separator />}
         </Fragment>
       ))}
     </>
@@ -55,7 +56,7 @@ const EditableWorkflowsTab = () => {
             {workflowId}
           </Text>
           <EnvVarsTable source={EnvVarSource.Workflows} sourceId={workflowId} />
-          {workflowIds.length - 1 > index && <Divider />}
+          {workflowIds.length - 1 > index && <Separator />}
         </Fragment>
       ))}
     </>

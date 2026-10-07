@@ -1,4 +1,5 @@
-import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Card, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react';
 
 import { EnvModel } from '@/core/models/BitriseYml';
@@ -32,7 +33,7 @@ const StepInputGroup = ({ title, stepId, defaults, inputs, onChange }: Props) =>
 
         return (
           <Fragment key={name}>
-            {index > 0 && <Divider my={24} />}
+            {index > 0 && <Separator marginBlock="24" />}
 
             {useCodeEditor && (
               <StepCodeEditor
