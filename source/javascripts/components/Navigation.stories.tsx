@@ -6,10 +6,9 @@ import Navigation from './Navigation';
 
 export default {
   component: Navigation,
-  parameters: {
-    msw: {
-      handlers: [getYmlSettings()],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(getYmlSettings());
   },
 } as Meta<typeof Navigation>;
 

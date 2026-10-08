@@ -19,9 +19,11 @@ const withTools = (tools: Record<string, string>, workflowId?: string) => {
 
 const meta: Meta<typeof ToolVersions> = {
   component: ToolVersions,
+
   args: {
     stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-26.6.x#languages-and-runtimes',
   },
+
   // One decorator owns both layouts, so the padding is not applied twice.
   decorators: [
     (Story, { parameters }) =>
@@ -38,10 +40,9 @@ const meta: Meta<typeof ToolVersions> = {
         </Box>
       ),
   ],
-  parameters: {
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions()],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions());
   },
 };
 
@@ -100,21 +101,25 @@ export const Empty: Story = {};
 
 export const CatalogLoading: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalogPending());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalogPending()],
-    },
   },
 };
 
 export const CatalogError: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalogError());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalogError()],
-    },
   },
 };
 
@@ -122,9 +127,6 @@ export const RealApi: Story = {
   ...RootScope,
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [],
-    },
   },
 };
 
@@ -148,21 +150,25 @@ export const EmptyExactVersion: Story = {
 
 export const VersionsLoading: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsPending());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsPending()],
-    },
   },
 };
 
 export const VersionsError: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsError());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsError()],
-    },
   },
 };
 

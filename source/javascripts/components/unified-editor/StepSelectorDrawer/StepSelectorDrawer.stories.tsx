@@ -71,35 +71,40 @@ const withStepLimit = (storyObj: Story, limit = 3) => {
 
 export default {
   component: StepSelectorDrawer,
+
   args: {
     isOpen: true,
   },
+
   argTypes: {
     onOpen: { type: 'function' },
     onClose: { type: 'function' },
     onSelectStep: { type: 'function' },
   },
-  parameters: {
-    msw: {
-      handlers: [StepApiMocks.getAlgoliaSteps({ status: 'success' })],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(StepApiMocks.getAlgoliaSteps({ status: 'success' }));
   },
 } as Meta<typeof StepSelectorDrawer>;
 
 export const Default: Story = {};
 
 export const Error: Story = {
-  parameters: {
-    msw: {
-      handlers: [StepApiMocks.getAlgoliaSteps({ status: 'error' })],
-    },
+  beforeEach({ msw }) {
+    msw.use(StepApiMocks.getAlgoliaSteps({ status: 'error' }));
   },
 };
 
 export const WithStepLimit: Story = withStepLimit(Default);
 
 export const OnlyBitriseSteps: Story = {
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(
+      StepApiMocks.getAlgoliaSteps({
+        status: 'success',
+        maintainers: [Maintainer.Bitrise],
+      }),
+    );
     const original = window.parent?.pageProps?.limits?.allowNonBitriseSteps;
     set(window, 'parent.pageProps.limits.allowNonBitriseSteps', false);
     initializeSearchDefaults();
@@ -107,10 +112,5 @@ export const OnlyBitriseSteps: Story = {
       set(window, 'parent.pageProps.limits.allowNonBitriseSteps', original);
       initializeSearchDefaults();
     };
-  },
-  parameters: {
-    msw: {
-      handlers: [StepApiMocks.getAlgoliaSteps({ status: 'success', maintainers: [Maintainer.Bitrise] })],
-    },
   },
 };

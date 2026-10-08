@@ -61,10 +61,9 @@ const makeNotificationMetadataEndpoint = () => {
 
 export default {
   component: TriggersPage,
-  parameters: {
-    msw: {
-      handlers: [...makeNotificationMetadataEndpoint()],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(...makeNotificationMetadataEndpoint());
   },
 } as Meta<typeof TriggersPage>;
 

@@ -11,23 +11,27 @@ type Story = StoryObj<typeof ConfigMergeDialog>;
 
 const meta: Meta<typeof ConfigMergeDialog> = {
   component: ConfigMergeDialog,
+
   args: {
     isOpen: true,
   },
+
   argTypes: {
     onClose: {
       type: 'function',
     },
   },
+
+  beforeEach({ msw }) {
+    msw.use(
+      http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
+        await delay();
+        return HttpResponse.text(remoteYaml);
+      }),
+    );
+  },
+
   parameters: {
-    msw: {
-      handlers: [
-        http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
-          await delay();
-          return HttpResponse.text(remoteYaml);
-        }),
-      ],
-    },
     bitriseYmlStore: {
       yml: TEST_BITRISE_YML,
       ymlDocument: YmlUtils.toDoc(yourYaml),
@@ -40,15 +44,13 @@ const meta: Meta<typeof ConfigMergeDialog> = {
 export const Default: Story = {};
 
 export const WithError: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
-          await delay();
-          return HttpResponse.json({ error_msg: 'Error message' }, { status: 422 });
-        }),
-      ],
-    },
+  beforeEach({ msw }) {
+    msw.use(
+      http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), async () => {
+        await delay();
+        return HttpResponse.json({ error_msg: 'Error message' }, { status: 422 });
+      }),
+    );
   },
 };
 
