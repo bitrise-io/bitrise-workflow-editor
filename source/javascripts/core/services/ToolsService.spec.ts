@@ -1,6 +1,6 @@
 import ToolsService from '@/core/services/ToolsService';
 
-import { ToolVersions } from '../models/Tools';
+import { ParsedToolVersion, ToolVersions } from '../models/Tools';
 import { getYmlString, updateBitriseYmlDocumentByString } from '../stores/BitriseYmlStore';
 
 function versionCatalog(toolId: string, versions: string[], isSemver = true): ToolVersions {
@@ -30,17 +30,9 @@ describe('ToolsService', () => {
       });
     });
 
-    it('parses the bare keywords as latest-of with no prefix', () => {
-      expect(ToolsService.parseToolVersion('latest')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
-      expect(ToolsService.parseToolVersion('installed')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: true,
-      });
+    it('parses the bare keywords as the absolute strategies', () => {
+      expect(ToolsService.parseToolVersion('latest')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('installed')).toEqual({ strategy: 'absolute-latest-installed' });
     });
 
     it('parses bare partial versions as exact', () => {
@@ -77,12 +69,14 @@ describe('ToolsService', () => {
 
     it('reads a leading-colon value as the bare keyword, as the CLI does', () => {
       // The capture group may be empty, so `:latest` is bare `latest` and serializes back as such.
-      expect(ToolsService.parseToolVersion(':latest')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
+      expect(ToolsService.parseToolVersion(':latest')).toEqual({ strategy: 'absolute-latest-released' });
       expect(ToolsService.serializeToolVersion(ToolsService.parseToolVersion(':latest'))).toBe('latest');
+      expect(ToolsService.parseToolVersion(':installed')).toEqual({ strategy: 'absolute-latest-installed' });
+    });
+
+    it('reads a keyword prefix as that bare keyword, whichever keyword follows, as the CLI with mise does', () => {
+      expect(ToolsService.parseToolVersion('latest:installed')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('installed:latest')).toEqual({ strategy: 'absolute-latest-installed' });
     });
 
     it('trims surrounding whitespace, the way the CLI does before it parses', () => {
@@ -102,26 +96,10 @@ describe('ToolsService', () => {
     });
 
     it('parses keywords case-insensitively', () => {
-      expect(ToolsService.parseToolVersion('Latest')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
-      expect(ToolsService.parseToolVersion('LATEST')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: false,
-      });
-      expect(ToolsService.parseToolVersion('Installed')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: true,
-      });
-      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({
-        strategy: 'latest-of',
-        prefix: '',
-        preferInstalled: true,
-      });
+      expect(ToolsService.parseToolVersion('Latest')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('LATEST')).toEqual({ strategy: 'absolute-latest-released' });
+      expect(ToolsService.parseToolVersion('Installed')).toEqual({ strategy: 'absolute-latest-installed' });
+      expect(ToolsService.parseToolVersion('INSTALLED')).toEqual({ strategy: 'absolute-latest-installed' });
       expect(ToolsService.parseToolVersion('Unset')).toEqual({ strategy: 'unset' });
       expect(ToolsService.parseToolVersion('22:Latest')).toEqual({
         strategy: 'latest-of',
@@ -133,20 +111,54 @@ describe('ToolsService', () => {
         prefix: '3.3',
         preferInstalled: true,
       });
+      expect(ToolsService.parseToolVersion('Latest:LATEST')).toEqual({ strategy: 'absolute-latest-released' });
     });
 
     // A committed row renders from what setTool wrote, so a lossy round trip would change the
     // controls under the user.
     it.each([
-      ['22:latest', '22', false],
-      ['22:installed', '22', true],
-      ['latest', '', false],
-      ['installed', '', true],
-    ])('round-trips %s', (raw, prefix, preferInstalled) => {
+      ['22:latest', { strategy: 'latest-of', prefix: '22', preferInstalled: false }],
+      ['22:installed', { strategy: 'latest-of', prefix: '22', preferInstalled: true }],
+      ['latest', { strategy: 'absolute-latest-released' }],
+      ['installed', { strategy: 'absolute-latest-installed' }],
+      ['unset', { strategy: 'unset' }],
+      ['24.7.0', { strategy: 'exact', version: '24.7.0' }],
+    ])('round-trips %s', (raw, expected) => {
       const parsed = ToolsService.parseToolVersion(raw);
 
-      expect(parsed).toEqual({ strategy: 'latest-of', prefix, preferInstalled });
+      expect(parsed).toEqual(expected);
       expect(ToolsService.serializeToolVersion(parsed)).toBe(raw);
+    });
+  });
+
+  describe('serializeToolVersion', () => {
+    it('refuses a latest-of without a prefix, which would read back as the absolute strategy', () => {
+      const blank = (prefix: string): ParsedToolVersion => ({ strategy: 'latest-of', prefix, preferInstalled: true });
+
+      expect(() => ToolsService.serializeToolVersion(blank(''))).toThrow();
+      expect(() => ToolsService.serializeToolVersion(blank('  '))).toThrow();
+    });
+
+    it('refuses a keyword for a prefix, which would read back as that bare keyword', () => {
+      const keyword = (prefix: string): ParsedToolVersion => ({ strategy: 'latest-of', prefix, preferInstalled: true });
+
+      expect(() => ToolsService.serializeToolVersion(keyword('latest'))).toThrow();
+      expect(() => ToolsService.serializeToolVersion(keyword(' Installed '))).toThrow();
+    });
+
+    it('trims the prefix, since the CLI trims only the ends of the whole value', () => {
+      const parsed: ParsedToolVersion = { strategy: 'latest-of', prefix: ' 22 ', preferInstalled: false };
+
+      expect(ToolsService.serializeToolVersion(parsed)).toBe('22:latest');
+    });
+  });
+
+  describe('isKeywordStart', () => {
+    it('tells the start of a keyword apart from a prefix that only shares a letter', () => {
+      expect(ToolsService.isKeywordStart('lat')).toBe(true);
+      expect(ToolsService.isKeywordStart(' INST ')).toBe(true);
+      expect(ToolsService.isKeywordStart('lts')).toBe(false);
+      expect(ToolsService.isKeywordStart('')).toBe(false);
     });
   });
 
@@ -427,7 +439,7 @@ describe('ToolsService', () => {
             python: "3.13.4"
         `);
 
-        ToolsService.setTool('node', { strategy: 'latest-of', prefix: '', preferInstalled: false }, { type: 'root' });
+        ToolsService.setTool('node', { strategy: 'absolute-latest-released' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           tools:
@@ -448,10 +460,10 @@ describe('ToolsService', () => {
         `);
       });
 
-      it('sets the installed variant without a prefix', () => {
+      it('sets the absolute installed strategy', () => {
         updateBitriseYmlDocumentByString(yaml`format_version: '13'`);
 
-        ToolsService.setTool('ruby', { strategy: 'latest-of', prefix: '', preferInstalled: true }, { type: 'root' });
+        ToolsService.setTool('ruby', { strategy: 'absolute-latest-installed' }, { type: 'root' });
 
         expect(getYmlString()).toEqual(yaml`
           format_version: '13'
@@ -658,6 +670,20 @@ describe('ToolsService', () => {
           tools:
             ruby: latest
             python: "3.13.4"
+        `);
+      });
+
+      it('keeps the installed choice while dropping the stale prefix', () => {
+        updateBitriseYmlDocumentByString(yaml`
+          tools:
+            ruby: 3.3:installed
+        `);
+
+        ToolsService.renameTool('ruby', 'node', { type: 'root' });
+
+        expect(getYmlString()).toEqual(yaml`
+          tools:
+            node: installed
         `);
       });
 
