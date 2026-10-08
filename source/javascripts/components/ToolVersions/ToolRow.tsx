@@ -79,7 +79,7 @@ const ToolRow = ({
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
   // A `latest-of` the YAML cannot hold yet. It stands in only for the document it was started on,
-  // so a discard, an undo or any other edit drops it. See `docs/decisions.md`.
+  // so a discard or any other edit drops it. See `docs/decisions.md`.
   const ymlDocument = useStore(bitriseYmlStore, (s) => s.ymlDocument);
   const [heldDraft, setHeldDraft] = useState<{ parsed: ParsedToolVersion; document: Document } | null>(null);
   const draft = heldDraft?.document === ymlDocument ? heldDraft.parsed : null;
@@ -127,8 +127,9 @@ const ToolRow = ({
   // arrives the dropdown shows it is loading, rather than a field that turns into one. A list that
   // failed to load has nothing to pick, so the prefix is typed.
   const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
-  const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && (toolVersions ? hasVersionNumbers : !isVersionsError);
-  const hasPrefixInput = isLatestOf && !hasPrefixDropdown;
+  const hasPrefixOptions = isKnownCatalogTool && (toolVersions ? hasVersionNumbers : !isVersionsError);
+  const hasPrefixDropdown = isLatestOf && hasPrefixOptions;
+  const hasPrefixInput = isLatestOf && !hasPrefixOptions;
 
   // Only one branch renders, so build one list, and keep the catalog half out of the pick memo.
   const catalogOptions = useMemo(() => {
@@ -237,11 +238,12 @@ const ToolRow = ({
   };
 
   const applyChange = (next: ParsedToolVersion) => {
-    // A typed `l`, `la` and so on could still become a refused keyword, so they are held as well, or
-    // the YAML would keep `lates:latest` once `latest` is typed.
-    const isTypingKeyword = hasPrefixInput && next.strategy === 'latest-of' && ToolsService.isKeywordStart(next.prefix);
+    // A prefix for the text field that starts a keyword, typed or seeded, such as `l` or `lat`, could
+    // still become a refused one, so it is held as well, or the YAML would keep `lates:latest`.
+    const couldBecomeKeyword =
+      next.strategy === 'latest-of' && !hasPrefixOptions && ToolsService.isKeywordStart(next.prefix);
 
-    if (ToolsService.isWritable(next) && !isTypingKeyword) {
+    if (ToolsService.isWritable(next) && !couldBecomeKeyword) {
       setHeldDraft(null);
       onChange(next);
     } else {

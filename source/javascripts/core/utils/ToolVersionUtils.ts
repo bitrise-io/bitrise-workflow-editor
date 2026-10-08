@@ -230,29 +230,33 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, configuredPref
 }
 
 /**
- * The prefix to select when a row switches onto `latest-of`, so the row keeps its line. Prefers the
- * minor of the version it is switching away from, so `22.12.0` and `22.12` offer `22.12`, `v22.12.0`
- * offers `v22.12` and `zulu-musl-8.96.0.19` offers `zulu-musl-8.96`, and only a newer patch can
- * resolve. Then its major, as `zulu-musl-8` and `openjdk-21` offer themselves. A value with no version
- * number names its own line, as `lts-iron` and `nightly` do. Each is kept only if it resolves along
- * its line, else the newest suggestion is used, and without a catalog the first of them. This
- * assumes the catalog is in mise's order, which flutter's is not yet (BE-2245). Lives here because it
- * cuts the current version the way mise reads it.
+ * The prefix to select when a row switches onto `latest-of`, so the row keeps its line. Tries the
+ * minor of the version it is switching away from, then its major, so `22.12.0` and `22.12` offer
+ * `22.12`, `v22.12.0` offers `v22.12` and `zulu-musl-8.96.0.19` offers `zulu-musl-8.96`, and a
+ * value with no version number names its own line, as `lts-iron` does. A candidate is kept only if
+ * it resolves along its line rather than to a catalog entry of the same name, which mise answers
+ * first. Where every minor is an entry of its own, as in erlang's and golang's catalogs, that
+ * leaves the major, so a newer minor can resolve too, as golang `1.20` widening to `1` does.
+ * Failing that, the current value itself is kept if it resolves, as `openjdk-21` and `nightly` do,
+ * then the newest suggestion, and without a catalog the first candidate. This assumes the catalog
+ * is in mise's order, which flutter's is not yet (BE-2245). Lives here because it cuts the current
+ * version the way mise reads it.
  */
 function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
   const toolId = toolVersions?.toolId ?? '';
   const { cuts, major } = currentValue ? cutLines(currentValue, toolId, true) : { cuts: [], major: -1 };
   // A cut above the major would drop the vendor's variant, as `zulu` does for `zulu-musl-8`.
   const ownPrefixes = major === -1 ? cuts.slice(-1) : cuts.slice(major, major + 2).reverse();
-  // mise answers an exact catalog hit first, so a shorter cut that is an entry of its own, as erlang's
-  // `28.5` is beside `28.5.0.7`, resolves to that older entry rather than along its line.
-  const keepsLine = (prefix: string) => {
+  // Erlang's `28.5` is an entry of its own, so `28.5:latest` would never move past it.
+  const resolvesAlongLine = (prefix: string) => {
     const resolved = getLatestVersion(toolVersions, prefix);
 
-    return resolved !== undefined && (resolved !== prefix || prefix === currentValue);
+    return resolved !== undefined && resolved !== prefix;
   };
+  const keptCurrent =
+    currentValue && getLatestVersion(toolVersions, currentValue) !== undefined ? currentValue : undefined;
 
-  return ownPrefixes.find(keepsLine) ?? getPrefixes(toolVersions)[0] ?? ownPrefixes[0] ?? '';
+  return ownPrefixes.find(resolvesAlongLine) ?? keptCurrent ?? getPrefixes(toolVersions)[0] ?? ownPrefixes[0] ?? '';
 }
 
 /** Whether the catalog has any version in `prefix`'s line. */

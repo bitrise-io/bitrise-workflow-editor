@@ -146,9 +146,15 @@ describe('ToolVersionUtils', () => {
       expect(ToolVersionUtils.getSeedPrefix(catalog, '22.99.0')).toBe('22');
     });
 
-    it('passes over a minor that is a catalog entry of its own, which would resolve to that older entry', () => {
+    it('passes over a cut that is a catalog entry of its own, which would never resolve past itself', () => {
       const erlang = versionCatalog('erlang', ['28.5.0.7', '28.5', '28.4.3']);
       expect(ToolVersionUtils.getSeedPrefix(erlang, '28.5.0.7')).toBe('28');
+      expect(ToolVersionUtils.getSeedPrefix(erlang, '28.5')).toBe('28');
+    });
+
+    it('keeps the current value when every cut of it is a catalog entry of its own', () => {
+      const erlang = versionCatalog('erlang', ['28.5.0.7', '28.5', '28', '27.3']);
+      expect(ToolVersionUtils.getSeedPrefix(erlang, '28.5.0.7')).toBe('28.5.0.7');
     });
 
     it('keeps the vendor variant and minor of a version that is not semver', () => {

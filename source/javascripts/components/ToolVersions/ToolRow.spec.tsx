@@ -96,10 +96,10 @@ describe('ToolRow', () => {
     mockVersions(NODE_VERSIONS);
   });
 
-  it('shows what the latest released version resolves to under the strategy', () => {
+  it('shows what the latest released version resolves to under the strategy', async () => {
     renderToolRow({ strategy: 'absolute-latest-released' });
 
-    expect(screen.getByText('Currently resolves to 24.0.0')).not.toBeNull();
+    expect(await screen.findByText('Currently resolves to 24.0.0')).not.toBeNull();
   });
 
   describe('latest-of', () => {
@@ -200,6 +200,19 @@ describe('ToolRow', () => {
       await user.tab();
       expect(onChange).not.toHaveBeenCalled();
       expect(screen.getAllByRole('combobox')[1].textContent).toContain('Latest version of');
+      expect(screen.getByText('A prefix cannot be latest or installed, or the start of either')).not.toBeNull();
+    });
+
+    it('holds a seeded prefix that starts a keyword as well', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      mockVersions(undefined);
+      renderToolRow({ strategy: 'exact', version: 'lat' }, { ...CUSTOM_TOOL, onChange });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Latest version of');
+      await user.click(prefixInput());
+      await user.tab();
+      expect(onChange).not.toHaveBeenCalled();
       expect(screen.getByText('A prefix cannot be latest or installed, or the start of either')).not.toBeNull();
     });
 
