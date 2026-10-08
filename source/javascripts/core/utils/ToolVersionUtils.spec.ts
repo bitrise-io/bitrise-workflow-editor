@@ -124,6 +124,36 @@ describe('ToolVersionUtils', () => {
     });
   });
 
+  describe('getSeedPrefix', () => {
+    // Newest first, as the catalog API publishes it.
+    const catalog = versionCatalog('nodejs', ['24.2.0', '22.12.0', '22.4.1']);
+
+    it('keeps the major of the version being switched away from', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.12.0')).toBe('22');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22')).toBe('22');
+    });
+
+    it('keeps the vendor variant and major of a version that is not semver', () => {
+      const java = versionCatalog('java', ['zulu-musl-8.96.0.19', 'zulu-17.0.1', '26.0.2']);
+      expect(ToolVersionUtils.getSeedPrefix(java, 'zulu-musl-8.96.0.19')).toBe('zulu-musl-8');
+    });
+
+    it('falls back to the newest suggestion when the current value shares no prefix', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '')).toBe('24');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, 'lts-iron')).toBe('24');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '18.9.9')).toBe('24');
+    });
+
+    it("falls back to the current version's own prefix when there are no suggestions", () => {
+      expect(ToolVersionUtils.getSeedPrefix(undefined, '2.90.0')).toBe('2');
+      expect(ToolVersionUtils.getSeedPrefix(undefined, 'nightly')).toBe('nightly');
+    });
+
+    it('returns an empty prefix with neither suggestions nor a current version', () => {
+      expect(ToolVersionUtils.getSeedPrefix(undefined, '')).toBe('');
+    });
+  });
+
   describe('getLatestVersion', () => {
     // Published newest first, the way the catalog API serves it.
     const nodeVersions = versionCatalog('nodejs', ['24.2.0', '22.12.0', '22.4.1', '20.9.0']);

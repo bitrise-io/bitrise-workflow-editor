@@ -118,8 +118,8 @@ function matchesPrefix(version: string, prefix: string, toolId: string): boolean
   );
 }
 
-/** Where `version` can be cut to name a line: the whole name, then at most major and minor. */
-function toPrefixes(version: string, toolId: string): string[] {
+/** The cuts of `version` that mise matches back to it, and the index of the one ending on the major, or `-1`. */
+function cutLines(version: string, toolId: string): { cuts: string[]; major: number } {
   const cuts: string[] = [];
   // Anchored, or a name carrying digits of its own such as `miniconda3` would end the name early.
   let major = -1;
@@ -143,9 +143,12 @@ function toPrefixes(version: string, toolId: string): string[] {
     partStart = index + 1;
   }
 
-  if (cuts.length === 0) {
-    return [version];
-  }
+  return cuts.length === 0 ? { cuts: [version], major: -1 } : { cuts, major };
+}
+
+/** Where `version` can be cut to name a line: the whole name, then at most major and minor. */
+function toPrefixes(version: string, toolId: string): string[] {
+  const { cuts, major } = cutLines(version, toolId);
 
   return major === -1 ? cuts : cuts.slice(0, major + 2);
 }
@@ -198,6 +201,21 @@ function getPrefixes(toolVersions: ToolVersions | undefined): string[] {
 }
 
 /**
+ * The prefix to select when a row switches onto `latest-of`. Prefers the major of the version it
+ * is switching away from, so `22.12.0` offers `22` and `zulu-musl-8.96.0.19` offers
+ * `zulu-musl-8`, rather than upgrading. Falls back to the newest suggestion, then to the current
+ * version's own prefix. Lives here because it cuts the current version the way mise reads it.
+ */
+function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
+  const prefixes = getPrefixes(toolVersions);
+  const { cuts, major } = currentValue ? cutLines(currentValue, toolVersions?.toolId ?? '') : { cuts: [], major: -1 };
+  // A cut above the major would drop the vendor's variant, as `zulu` does for `zulu-musl-8`.
+  const ownPrefixes = major === -1 ? cuts : cuts.slice(major, major + 2);
+
+  return ownPrefixes.find((prefix) => prefixes.includes(prefix)) ?? prefixes[0] ?? ownPrefixes[0] ?? '';
+}
+
+/**
  * What `prefix` resolves to, mirroring mise's `find_match_in_list`: the first stable catalog
  * version in its line, assuming the catalog lists newest first. Undefined where mise finds nothing.
  * See `docs/decisions.md`.
@@ -232,6 +250,7 @@ function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean 
 
 export default {
   getPrefixes,
+  getSeedPrefix,
   getLatestVersion,
   isPrefixInCatalog,
 };
