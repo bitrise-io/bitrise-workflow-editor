@@ -1,7 +1,6 @@
 import {
   BitkitAlert,
   BitkitCheckbox,
-  BitkitCombobox,
   BitkitIconButton,
   BitkitLink,
   BitkitSelect,
@@ -83,6 +82,8 @@ const ToolRow = ({
   const ymlDocument = useStore(bitriseYmlStore, (s) => s.ymlDocument);
   const [heldDraft, setHeldDraft] = useState<{ parsed: ParsedToolVersion; document: Document } | null>(null);
   const draft = heldDraft?.document === ymlDocument ? heldDraft.parsed : null;
+  // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
+  const [versionSearch, setVersionSearch] = useState('');
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -143,6 +144,14 @@ const ToolRow = ({
     () => ToolsService.withConfiguredValue(catalogOptions, version),
     [catalogOptions, version],
   );
+  // The selected option stays listed while searching, as Bitkit's own search pattern keeps it.
+  const searchedVersionOptions = useMemo(() => {
+    const query = versionSearch.toLowerCase();
+
+    return query
+      ? versionOptions.filter(({ label, value }) => value === shownVersion || label.toLowerCase().includes(query))
+      : versionOptions;
+  }, [versionOptions, versionSearch, shownVersion]);
 
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
   const trimmedVersion = shownVersion.trim();
@@ -276,6 +285,14 @@ const ToolRow = ({
     applyChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 
+  // Closing a menu counts as visiting the field, and its search starts over on the next open.
+  const handleVersionMenuOpenChange = ({ open }: { open: boolean }) => {
+    if (!open) {
+      setVersionTouched(true);
+      setVersionSearch('');
+    }
+  };
+
   const handleVersionChange = (newVersion: string) => {
     applyChange(ToolsService.toParsedToolVersion(effectiveStrategy, newVersion, effectivePreferInstalled));
   };
@@ -353,35 +370,36 @@ const ToolRow = ({
               {/* An exact version of a tool the catalog knows is always picked from its list, a
                   prefix only when the list has version numbers. */}
               {isExactKnownTool ? (
-                <BitkitCombobox
+                <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  emptyLabel="No matches"
-                  items={versionOptions}
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   // With no version list there is nothing to pick from. Read-only rather than
                   // disabled, so the configured version stays legible and reachable by keyboard
                   // and screen readers; the alert below points to the YAML editor instead.
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  // Leaving the field counts as visiting it, so the error can surface.
-                  comboboxProps={{
-                    onBlur: () => setVersionTouched(true),
-                  }}
+                  selectProps={{ onOpenChange: handleVersionMenuOpenChange }}
                   errorText={displayedVersionError}
                   warningText={catalogWarning}
-                  value={version || undefined}
-                  onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
+                  value={shownVersion}
+                  onValueChange={handleVersionChange}
                 />
               ) : hasPrefixDropdown ? (
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={versionOptions}
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  selectProps={{ onOpenChange: handleVersionMenuOpenChange }}
                   helperText={versionHint}
                   warningText={catalogWarning}
-                  value={shownVersion || undefined}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
+                  value={shownVersion}
                   onValueChange={handleVersionChange}
                 />
               ) : (

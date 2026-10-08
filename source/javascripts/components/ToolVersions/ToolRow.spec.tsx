@@ -10,7 +10,7 @@ import { ParsedToolVersion, ToolCatalog, ToolVersions } from '@/core/models/Tool
 import ToolsService from '@/core/services/ToolsService';
 import { updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
-import { selectOption } from '../../../../spec/bitkit-select-helper';
+import { openSelect, selectOption } from '../../../../spec/bitkit-select-helper';
 import ToolRow from './ToolRow';
 
 // The bitkit barrel also exports a markdown component, and `react-markdown`'s ESM dependency tree is
@@ -100,6 +100,53 @@ describe('ToolRow', () => {
     renderToolRow({ strategy: 'absolute-latest-released' });
 
     expect(await screen.findByText('Currently resolves to 24.0.0')).not.toBeNull();
+  });
+
+  describe('searching the version list', () => {
+    const searchBox = () => screen.getByRole('textbox', { name: 'Search' });
+
+    const SEARCH_CASES: {
+      field: string;
+      initial: ParsedToolVersion;
+      match: string;
+      selected: string;
+      other: string;
+    }[] = [
+      {
+        field: 'version',
+        initial: { strategy: 'exact', version: '24.0.0' },
+        match: '22.11.0',
+        selected: '24.0.0',
+        other: '20.9.0',
+      },
+      {
+        field: 'prefix',
+        initial: { strategy: 'latest-of', prefix: '24', preferInstalled: false },
+        match: '22',
+        selected: '24',
+        other: '20',
+      },
+    ];
+
+    it.each(SEARCH_CASES)(
+      'keeps the selected $field listed and starts over when the menu closes',
+      async ({ initial, match, selected, other }) => {
+        const user = userEvent.setup();
+        renderToolRow(initial);
+        const select = screen.getAllByRole('combobox')[2];
+
+        await openSelect(user, select);
+        await user.type(searchBox(), '22');
+        expect(screen.getByRole('option', { name: match })).not.toBeNull();
+        expect(screen.getByRole('option', { name: selected })).not.toBeNull();
+        expect(screen.queryByRole('option', { name: other })).toBeNull();
+
+        await user.keyboard('{Escape}');
+        await openSelect(user, select);
+        expect(searchBox()).toHaveProperty('value', '');
+        expect(screen.getByRole('option', { name: other })).not.toBeNull();
+      },
+    );
   });
 
   describe('latest-of', () => {
