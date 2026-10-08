@@ -3,7 +3,7 @@ import { useStore } from 'zustand';
 import { EntityKind, TreeNode } from '@/core/models/Tree';
 import EntityIndexService from '@/core/services/EntityIndexService';
 import TreeService from '@/core/services/TreeService';
-import { bitriseYmlStore, isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import { buildNodeUris } from '@/core/utils/lspModelUris';
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -272,13 +272,4 @@ export function useDefaultStackDefinitions(): DefaultStackDefinition[] {
     visit(s.tree);
     return result;
   });
-}
-
-/** node_ids of files with unsaved edits. */
-export function useDirtyNodeIds(): string[] {
-  return useBitriseYmlStore((s) =>
-    Object.values(s.files)
-      .filter((file) => isFileDirty(file))
-      .map((file) => file.nodeId),
-  );
 }
