@@ -57,7 +57,7 @@ const UNMASK_SELECTOR = `[${UNMASK}]`;
 const SOURCE_ROOT = path.join(__dirname, '..');
 const SELF = path.relative(SOURCE_ROOT, __filename);
 
-// jsdom implements none of these; Chakra v3's recipe layer and the responsive/motion hooks need them.
+// jsdom has no `structuredClone`, which Chakra v3's recipe layer needs.
 const deepClone = (value: unknown): unknown => {
   if (value === null || typeof value !== 'object') {
     return value;
@@ -67,24 +67,6 @@ const deepClone = (value: unknown): unknown => {
     : Object.fromEntries(Object.entries(value).map(([k, v]) => [k, deepClone(v)]));
 };
 globalThis.structuredClone ??= deepClone as typeof structuredClone;
-window.ResizeObserver ??= class {
-  observe() {}
-
-  unobserve() {}
-
-  disconnect() {}
-} as unknown as typeof ResizeObserver;
-window.matchMedia ??= ((query: string) =>
-  ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  }) as unknown as MediaQueryList) as typeof window.matchMedia;
 
 function tsxFiles(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

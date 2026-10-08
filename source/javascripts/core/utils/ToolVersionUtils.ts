@@ -201,16 +201,17 @@ function getPrefixes(toolVersions: ToolVersions | undefined): string[] {
 }
 
 /**
- * The prefix to select when a row switches onto `latest-of`. Prefers the major of the version it
- * is switching away from, so `22.12.0` offers `22` and `zulu-musl-8.96.0.19` offers
- * `zulu-musl-8`, rather than upgrading. Falls back to the newest suggestion, then to the current
- * version's own prefix. Lives here because it cuts the current version the way mise reads it.
+ * The prefix to select when a row switches onto `latest-of`. Prefers the minor of the version it
+ * is switching away from, so `22.12.0` offers `22.12` and `zulu-musl-8.96.0.19` offers
+ * `zulu-musl-8.96`, and only a newer patch can resolve. Falls back to its major when the catalog
+ * has no such minor, then to the newest suggestion, then to the current version's own prefix.
+ * Lives here because it cuts the current version the way mise reads it.
  */
 function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
   const prefixes = getPrefixes(toolVersions);
   const { cuts, major } = currentValue ? cutLines(currentValue, toolVersions?.toolId ?? '') : { cuts: [], major: -1 };
   // A cut above the major would drop the vendor's variant, as `zulu` does for `zulu-musl-8`.
-  const ownPrefixes = major === -1 ? cuts : cuts.slice(major, major + 2);
+  const ownPrefixes = major === -1 ? cuts : cuts.slice(major, major + 2).reverse();
 
   return ownPrefixes.find((prefix) => prefixes.includes(prefix)) ?? prefixes[0] ?? ownPrefixes[0] ?? '';
 }

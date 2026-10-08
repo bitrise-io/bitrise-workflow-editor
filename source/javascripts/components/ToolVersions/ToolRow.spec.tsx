@@ -19,28 +19,6 @@ jest.mock('@/hooks/useTools', () => ({
   useToolVersions: jest.fn(),
 }));
 
-// jsdom implements neither, but BitkitProvider's responsive machinery reads both on mount.
-window.ResizeObserver ??= class {
-  observe() {}
-
-  unobserve() {}
-
-  disconnect() {}
-} as unknown as typeof ResizeObserver;
-window.matchMedia ??= ((query: string) =>
-  ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  }) as unknown as MediaQueryList) as typeof window.matchMedia;
-// The select scrolls its highlighted option into view, but jsdom has no layout engine.
-Element.prototype.scrollIntoView ??= () => {};
-
 import { useToolVersions } from '@/hooks/useTools';
 
 const mockUseToolVersions = useToolVersions as jest.Mock;
@@ -111,13 +89,17 @@ const mockVersions = (data: ToolVersions | undefined, { isLoading = false, isErr
 
 const lastWritten = (onChange: jest.Mock) => ToolsService.serializeToolVersion(onChange.mock.lastCall[0]);
 
-// Bitkit's Select is a compound Ark UI listbox. Opening it and clicking an option occasionally
-// doesn't register in a single pass under jsdom, so each selection is retried until it takes.
+// One click each, so a click that gets dropped fails the test instead of being retried away. The
+// select hands focus back to its trigger a frame after it closes, so that is awaited too, or it
+// would blur whatever the test focuses next.
 const selectOption = async (user: UserEvent, select: HTMLElement, label: string) => {
-  await waitFor(async () => {
-    await user.click(select);
-    await user.click(screen.getByRole('option', { name: label }));
+  await user.click(select);
+  await user.click(await screen.findByRole('option', { name: label }));
+  await waitFor(() => {
     expect(select.textContent).toContain(label);
+    // Testing Library has no query for focus, so it is read off the document.
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(document.activeElement).toBe(select);
   });
 };
 

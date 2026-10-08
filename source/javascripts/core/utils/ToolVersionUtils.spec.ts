@@ -128,14 +128,18 @@ describe('ToolVersionUtils', () => {
     // Newest first, as the catalog API publishes it.
     const catalog = versionCatalog('nodejs', ['24.2.0', '22.12.0', '22.4.1']);
 
-    it('keeps the major of the version being switched away from', () => {
-      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.12.0')).toBe('22');
+    it('keeps the minor of the version being switched away from', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.12.0')).toBe('22.12');
       expect(ToolVersionUtils.getSeedPrefix(catalog, '22')).toBe('22');
     });
 
-    it('keeps the vendor variant and major of a version that is not semver', () => {
+    it('keeps the major when the catalog has no such minor', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.99.0')).toBe('22');
+    });
+
+    it('keeps the vendor variant and minor of a version that is not semver', () => {
       const java = versionCatalog('java', ['zulu-musl-8.96.0.19', 'zulu-17.0.1', '26.0.2']);
-      expect(ToolVersionUtils.getSeedPrefix(java, 'zulu-musl-8.96.0.19')).toBe('zulu-musl-8');
+      expect(ToolVersionUtils.getSeedPrefix(java, 'zulu-musl-8.96.0.19')).toBe('zulu-musl-8.96');
     });
 
     it('falls back to the newest suggestion when the current value shares no prefix', () => {
@@ -145,7 +149,7 @@ describe('ToolVersionUtils', () => {
     });
 
     it("falls back to the current version's own prefix when there are no suggestions", () => {
-      expect(ToolVersionUtils.getSeedPrefix(undefined, '2.90.0')).toBe('2');
+      expect(ToolVersionUtils.getSeedPrefix(undefined, '2.90.0')).toBe('2.90');
       expect(ToolVersionUtils.getSeedPrefix(undefined, 'nightly')).toBe('nightly');
     });
 
