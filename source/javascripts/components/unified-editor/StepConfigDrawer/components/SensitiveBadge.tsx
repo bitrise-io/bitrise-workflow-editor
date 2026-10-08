@@ -1,4 +1,5 @@
-import { Badge, Tooltip } from '@bitrise/bitkit';
+import { Tooltip } from '@bitrise/bitkit';
+import { BitkitBadge } from '@bitrise/bitkit-v2';
 
 const SensitiveBadge = () => {
   return (
@@ -6,9 +7,9 @@ const SensitiveBadge = () => {
       shouldWrapChildren
       label="This input holds sensitive information. You can only use secrets to securely reference it."
     >
-      <Badge variant="subtle" colorScheme="warning">
+      <BitkitBadge variant="subtle" colorVariant="yellow">
         SENSITIVE
-      </Badge>
+      </BitkitBadge>
     </Tooltip>
   );
 };
