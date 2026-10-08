@@ -2,6 +2,7 @@ import semver from 'semver';
 
 import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import ToolVersionUtils from '../utils/ToolVersionUtils';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
@@ -151,97 +152,9 @@ function getVersionOptions(toolVersions: ToolVersions | undefined): VersionOptio
   ].map((version) => ({ value: version, label: version }));
 }
 
-/** Version separators, as characters so a single one is tested with `includes`. */
-const SEPARATORS = '.-_+';
-
-/** A part of nothing but digits, as the `8` in `zulu-musl-8.96.0.19`, where a version begins. */
-const NUMERIC_PART = /^\d+$/;
-
-/** Whether `version` is in `prefix`'s line, the way mise reads it: `24.2` covers `24.2.0`, not `24.20.0`. */
-function matchesPrefix(version: string, prefix: string): boolean {
-  if (prefix === '' || version === prefix) {
-    return true;
-  }
-
-  // Length checked first, or `includes` would match a character past the end of the string.
-  return version.length > prefix.length && version.startsWith(prefix) && SEPARATORS.includes(version[prefix.length]);
-}
-
-/** Where `version` can be cut to name a line: the whole name, then at most major and minor. */
-function toPrefixes(version: string): string[] {
-  const cuts: string[] = [];
-  // Anchored, or a name carrying digits of its own such as `miniconda3` would end the name early.
-  let major = -1;
-  let partStart = 0;
-
-  for (let index = 0; index < version.length; index += 1) {
-    if (!SEPARATORS.includes(version[index])) {
-      continue;
-    }
-
-    if (major === -1 && NUMERIC_PART.test(version.slice(partStart, index))) {
-      major = cuts.length;
-    }
-
-    cuts.push(version.slice(0, index));
-    partStart = index + 1;
-  }
-
-  if (cuts.length === 0) {
-    return [version];
-  }
-
-  return major === -1 ? cuts : cuts.slice(0, major + 2);
-}
-
-/** A prefix that is nothing but numbers and dots, like `24` or `24.2`, so it can be ordered. */
-const NUMERIC_PREFIX = /^\d+(\.\d+)*$/;
-
-/** Newest first, part by part so `24.11` beats `24.2`, and a prefix sorts above what it contains. */
-function compareNumericPrefixes(a: string, b: string): number {
-  const aParts = a.split('.').map(Number);
-  const bParts = b.split('.').map(Number);
-
-  for (let index = 0; index < Math.max(aParts.length, bParts.length); index += 1) {
-    if (aParts[index] === undefined) {
-      return -1;
-    }
-
-    if (bParts[index] === undefined) {
-      return 1;
-    }
-
-    if (aParts[index] !== bParts[index]) {
-      return bParts[index] - aParts[index];
-    }
-  }
-
-  return 0;
-}
-
-/** Prefix suggestions cut from each version, since catalogs are rarely semver. Newest first. */
+/** Options for the prefix dropdown, offering only lines mise can resolve. */
 function getPrefixOptions(toolVersions: ToolVersions | undefined): VersionOption[] {
-  const prefixes: string[] = [];
-  const seen = new Set<string>();
-
-  (toolVersions?.versions ?? []).forEach(({ version }) => {
-    toPrefixes(version).forEach((prefix) => {
-      if (prefix && !seen.has(prefix)) {
-        seen.add(prefix);
-        prefixes.push(prefix);
-      }
-    });
-  });
-
-  return [
-    ...prefixes.filter((prefix) => NUMERIC_PREFIX.test(prefix)).sort(compareNumericPrefixes),
-    ...prefixes.filter((prefix) => !NUMERIC_PREFIX.test(prefix)),
-  ].map((prefix) => ({ value: prefix, label: prefix }));
-}
-
-/** Whether the catalog has any version in `prefix`'s line. */
-function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
-  return toolVersions.versions.some(({ version }) => matchesPrefix(version, prefix));
+  return ToolVersionUtils.getPrefixes(toolVersions).map((prefix) => ({ value: prefix, label: prefix }));
 }
 
 function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
@@ -373,7 +286,6 @@ export default {
   getPrefixOptions,
   withConfiguredValue,
   isVersionInCatalog,
-  isPrefixInCatalog,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,
