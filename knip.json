@@ -4,5 +4,6 @@
     "source/javascripts/main.tsx",
     "source/javascripts/lib/*.js",
     ".storybook/**/*.{js,ts,tsx}"
-  ]
+  ],
+  "ignoreDependencies": ["jest-junit"]
 }

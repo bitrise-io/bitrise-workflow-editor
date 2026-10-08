@@ -125,8 +125,9 @@ export const CatalogError: Story = {
 
 export const RealApi: Story = {
   ...RootScope,
-  parameters: {
-    ...RootScope.parameters,
+  // Drop the meta's tool catalog mocks so the story hits the real API.
+  beforeEach({ msw }) {
+    msw.resetHandlers();
   },
 };
 
