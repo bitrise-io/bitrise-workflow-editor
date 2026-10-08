@@ -57,6 +57,9 @@ const DIGIT_START = /^\d/;
 /** A part of nothing but digits, as the `8` in `zulu-musl-8.96.0.19`, where a version begins. */
 const NUMERIC_PART = /^\d+$/;
 
+/** The same for a version's first part, which may carry a `v`, as in `v1.12.13`. */
+const LEADING_NUMERIC_PART = /^[vV]?\d+$/;
+
 /** A prefix that is nothing but numbers and dots, like `24` or `24.2`, so it can be ordered. */
 const NUMERIC_PREFIX = /^\d+(\.\d+)*$/;
 
@@ -118,22 +121,27 @@ function matchesPrefix(version: string, prefix: string, toolId: string): boolean
   );
 }
 
-/** The cuts of `version` that mise matches back to it, and the index of the one ending on the major, or `-1`. */
-function cutLines(version: string, toolId: string): { cuts: string[]; major: number } {
+/**
+ * The cuts of `version` that mise matches back to it, and the index of the one ending on the major, or
+ * `-1`. With `withWhole` the whole value counts as its last cut, so `3.13` cuts to `3.13` as well.
+ */
+function cutLines(version: string, toolId: string, withWhole = false): { cuts: string[]; major: number } {
   const cuts: string[] = [];
   // Anchored, or a name carrying digits of its own such as `miniconda3` would end the name early.
   let major = -1;
   let partStart = 0;
 
-  for (let index = 0; index < version.length; index += 1) {
-    if (!LINE_SEPARATORS.numeric.includes(version[index])) {
+  for (let index = 0; index <= version.length; index += 1) {
+    const isEnd = index === version.length;
+    if (isEnd ? !withWhole : !LINE_SEPARATORS.numeric.includes(version[index])) {
       continue;
     }
 
     const cut = version.slice(0, index);
+    const part = version.slice(partStart, index);
     // Walks the widest separator set and keeps only the cuts mise can resolve.
     if (matchesPrefix(version, cut, toolId)) {
-      if (major === -1 && NUMERIC_PART.test(version.slice(partStart, index))) {
+      if (major === -1 && (partStart === 0 ? LEADING_NUMERIC_PART : NUMERIC_PART).test(part)) {
         major = cuts.length;
       }
 
@@ -201,22 +209,6 @@ function getPrefixes(toolVersions: ToolVersions | undefined): string[] {
 }
 
 /**
- * The prefix to select when a row switches onto `latest-of`. Prefers the minor of the version it
- * is switching away from, so `22.12.0` offers `22.12` and `zulu-musl-8.96.0.19` offers
- * `zulu-musl-8.96`, and only a newer patch can resolve. Falls back to its major when the catalog
- * has no such minor, then to the newest suggestion, then to the current version's own prefix.
- * Lives here because it cuts the current version the way mise reads it.
- */
-function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
-  const prefixes = getPrefixes(toolVersions);
-  const { cuts, major } = currentValue ? cutLines(currentValue, toolVersions?.toolId ?? '') : { cuts: [], major: -1 };
-  // A cut above the major would drop the vendor's variant, as `zulu` does for `zulu-musl-8`.
-  const ownPrefixes = major === -1 ? cuts : cuts.slice(major, major + 2).reverse();
-
-  return ownPrefixes.find((prefix) => prefixes.includes(prefix)) ?? prefixes[0] ?? ownPrefixes[0] ?? '';
-}
-
-/**
  * What `prefix` resolves to, mirroring mise's `find_match_in_list`: the first stable catalog
  * version in its line, assuming the catalog lists newest first. Undefined where mise finds nothing.
  * See `docs/decisions.md`.
@@ -235,6 +227,32 @@ function getLatestVersion(toolVersions: ToolVersions | undefined, configuredPref
   const stable = versions.find((version) => matchesPrefix(version, prefix, toolId) && !isPrerelease(version, toolId));
 
   return stable ?? (prefix === '' ? versions[0] : undefined);
+}
+
+/**
+ * The prefix to select when a row switches onto `latest-of`, so the row keeps its line. Prefers the
+ * minor of the version it is switching away from, so `22.12.0` and `22.12` offer `22.12`, `v22.12.0`
+ * offers `v22.12` and `zulu-musl-8.96.0.19` offers `zulu-musl-8.96`, and only a newer patch can
+ * resolve. Then its major, as `zulu-musl-8` and `openjdk-21` offer themselves. A value with no version
+ * number names its own line, as `lts-iron` and `nightly` do. Each is kept only if it resolves along
+ * its line, else the newest suggestion is used, and without a catalog the first of them. This
+ * assumes the catalog is in mise's order, which flutter's is not yet (BE-2245). Lives here because it
+ * cuts the current version the way mise reads it.
+ */
+function getSeedPrefix(toolVersions: ToolVersions | undefined, currentValue: string): string {
+  const toolId = toolVersions?.toolId ?? '';
+  const { cuts, major } = currentValue ? cutLines(currentValue, toolId, true) : { cuts: [], major: -1 };
+  // A cut above the major would drop the vendor's variant, as `zulu` does for `zulu-musl-8`.
+  const ownPrefixes = major === -1 ? cuts.slice(-1) : cuts.slice(major, major + 2).reverse();
+  // mise answers an exact catalog hit first, so a shorter cut that is an entry of its own, as erlang's
+  // `28.5` is beside `28.5.0.7`, resolves to that older entry rather than along its line.
+  const keepsLine = (prefix: string) => {
+    const resolved = getLatestVersion(toolVersions, prefix);
+
+    return resolved !== undefined && (resolved !== prefix || prefix === currentValue);
+  };
+
+  return ownPrefixes.find(keepsLine) ?? getPrefixes(toolVersions)[0] ?? ownPrefixes[0] ?? '';
 }
 
 /** Whether the catalog has any version in `prefix`'s line. */

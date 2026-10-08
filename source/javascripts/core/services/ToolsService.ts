@@ -29,6 +29,13 @@ const LATEST_OF_SUFFIXES = LATEST_OF_KEYWORDS.map(({ keyword, preferInstalled })
   preferInstalled,
 }));
 
+/** The keyword `value` spells, ignoring case. Untrimmed, since the CLI trims only the whole value. */
+function findKeyword(value: string) {
+  const lower = value.toLowerCase();
+
+  return LATEST_OF_KEYWORDS.find(({ keyword }) => keyword === lower);
+}
+
 /** The strategy a keyword means on its own, with no prefix to narrow it. */
 function toAbsoluteStrategy(preferInstalled: boolean): ParsedToolVersion {
   return { strategy: preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
@@ -44,7 +51,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     return { strategy: 'unset' };
   }
 
-  const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
+  const bare = findKeyword(raw);
   if (bare) {
     return toAbsoluteStrategy(bare.preferInstalled);
   }
@@ -56,9 +63,9 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
 
   if (suffixed) {
     const prefix = raw.slice(0, raw.length - suffixed.suffix.length);
-    // The CLI reads a `latest` or `installed` prefix as that bare keyword, whichever keyword
-    // follows, so `latest:installed` is the newest release.
-    const keywordPrefix = LATEST_OF_KEYWORDS.find(({ keyword }) => prefix.toLowerCase() === keyword);
+    // With its default mise provider the CLI reads a `latest` or `installed` prefix as that bare
+    // keyword, whichever keyword follows, so `latest:installed` is the newest release.
+    const keywordPrefix = findKeyword(prefix);
 
     if (keywordPrefix) {
       return toAbsoluteStrategy(keywordPrefix.preferInstalled);
@@ -73,9 +80,21 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   return { strategy: 'exact', version: raw };
 }
 
+/** Whether `prefix` is a keyword, which reads back as that bare keyword rather than as a prefix. */
+function isKeywordPrefix(prefix: string): boolean {
+  return findKeyword(prefix.trim()) !== undefined;
+}
+
+/** Whether typing could still turn `prefix` into a keyword, as `lat` could. */
+function isKeywordStart(prefix: string): boolean {
+  const lower = prefix.trim().toLowerCase();
+
+  return lower !== '' && LATEST_OF_KEYWORDS.some(({ keyword }) => keyword.startsWith(lower));
+}
+
 /** Whether the YAML can hold `parsed`. See `docs/decisions.md`. */
 function isWritable(parsed: ParsedToolVersion): boolean {
-  return parsed.strategy !== 'latest-of' || parsed.prefix.trim() !== '';
+  return parsed.strategy !== 'latest-of' || (parsed.prefix.trim() !== '' && !isKeywordPrefix(parsed.prefix));
 }
 
 function serializeToolVersion(parsed: ParsedToolVersion): string {
@@ -88,7 +107,7 @@ function serializeToolVersion(parsed: ParsedToolVersion): string {
       return INSTALLED_KEYWORD;
     case 'latest-of': {
       if (!isWritable(parsed)) {
-        throw new Error('latest-of requires a non-empty prefix, use an absolute strategy instead');
+        throw new Error('latest-of requires a prefix that is not empty or a keyword, use an absolute strategy instead');
       }
 
       const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
@@ -307,6 +326,7 @@ export default {
   parseToolVersion,
   serializeToolVersion,
   isWritable,
+  isKeywordStart,
   toParsedToolVersion,
   getVersionInputValue,
   setTool,

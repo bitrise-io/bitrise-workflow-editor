@@ -74,7 +74,7 @@ describe('ToolsService', () => {
       expect(ToolsService.parseToolVersion(':installed')).toEqual({ strategy: 'absolute-latest-installed' });
     });
 
-    it('reads a keyword prefix as that bare keyword, whichever keyword follows, as the CLI does', () => {
+    it('reads a keyword prefix as that bare keyword, whichever keyword follows, as the CLI with mise does', () => {
       expect(ToolsService.parseToolVersion('latest:installed')).toEqual({ strategy: 'absolute-latest-released' });
       expect(ToolsService.parseToolVersion('installed:latest')).toEqual({ strategy: 'absolute-latest-installed' });
     });
@@ -139,10 +139,26 @@ describe('ToolsService', () => {
       expect(() => ToolsService.serializeToolVersion(blank('  '))).toThrow();
     });
 
+    it('refuses a keyword for a prefix, which would read back as that bare keyword', () => {
+      const keyword = (prefix: string): ParsedToolVersion => ({ strategy: 'latest-of', prefix, preferInstalled: true });
+
+      expect(() => ToolsService.serializeToolVersion(keyword('latest'))).toThrow();
+      expect(() => ToolsService.serializeToolVersion(keyword(' Installed '))).toThrow();
+    });
+
     it('trims the prefix, since the CLI trims only the ends of the whole value', () => {
       const parsed: ParsedToolVersion = { strategy: 'latest-of', prefix: ' 22 ', preferInstalled: false };
 
       expect(ToolsService.serializeToolVersion(parsed)).toBe('22:latest');
+    });
+  });
+
+  describe('isKeywordStart', () => {
+    it('tells the start of a keyword apart from a prefix that only shares a letter', () => {
+      expect(ToolsService.isKeywordStart('lat')).toBe(true);
+      expect(ToolsService.isKeywordStart(' INST ')).toBe(true);
+      expect(ToolsService.isKeywordStart('lts')).toBe(false);
+      expect(ToolsService.isKeywordStart('')).toBe(false);
     });
   });
 

@@ -97,7 +97,8 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
           const parsed = ToolsService.parseToolVersion(versionString);
           return (
             <ToolRow
-              key={toolId}
+              // A row belongs to its scope too, so switching workflow remounts it with nothing held over.
+              key={`${scope.type === 'workflow' ? scope.workflowId : ''}/${toolId}`}
               toolId={toolId}
               strategy={parsed.strategy}
               version={ToolsService.getVersionInputValue(parsed)}

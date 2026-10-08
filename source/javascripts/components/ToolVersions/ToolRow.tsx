@@ -16,9 +16,12 @@ import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useMemo, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
+import { Document } from 'yaml';
+import { useStore } from 'zustand';
 
 import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
+import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import ToolVersionUtils from '@/core/utils/ToolVersionUtils';
 import { useToolVersions } from '@/hooks/useTools';
 
@@ -75,8 +78,11 @@ const ToolRow = ({
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
-  // A `latest-of` with no prefix yet, which the YAML cannot hold. See `docs/decisions.md`.
-  const [draft, setDraft] = useState<ParsedToolVersion | null>(null);
+  // A `latest-of` the YAML cannot hold yet. It stands in only for the document it was started on,
+  // so a discard, an undo or any other edit drops it. See `docs/decisions.md`.
+  const ymlDocument = useStore(bitriseYmlStore, (s) => s.ymlDocument);
+  const [heldDraft, setHeldDraft] = useState<{ parsed: ParsedToolVersion; document: Document } | null>(null);
+  const draft = heldDraft?.document === ymlDocument ? heldDraft.parsed : null;
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -139,11 +145,18 @@ const ToolRow = ({
 
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
   const trimmedVersion = shownVersion.trim();
-  // Both fields need a value, so an empty prefix is held in the field rather than written.
-  const versionError =
-    (effectiveStrategy === 'exact' || hasPrefixInput) && trimmedVersion === ''
-      ? `Tool version ${hasPrefixInput ? 'prefix ' : ''}is required`
+  // Both fields need a value, so an empty prefix is held in the field rather than written, and so is
+  // a keyword, which would read back as the absolute strategy, or the start of one.
+  const getVersionError = () => {
+    if ((effectiveStrategy === 'exact' || hasPrefixInput) && trimmedVersion === '') {
+      return `Tool version ${hasPrefixInput ? 'prefix ' : ''}is required`;
+    }
+
+    return hasPrefixInput && ToolsService.isKeywordStart(trimmedVersion)
+      ? 'A prefix cannot be latest or installed, or the start of either'
       : undefined;
+  };
+  const versionError = getVersionError();
   const displayedVersionError = versionTouched ? versionError : undefined;
   // `latest-of` resolves along its prefix and the absolute `latest` along the whole list.
   const resolvesAgainstCatalog = isLatestOf || effectiveStrategy === 'absolute-latest-released';
@@ -181,7 +194,8 @@ const ToolRow = ({
     resolvedVersion && !effectivePreferInstalled ? `Currently resolves to ${resolvedVersion}` : undefined;
   // `latest-of` explains itself under its prefix, the absolute strategy under the picker.
   const strategyHint = isLatestOf ? undefined : resolvedVersionHint;
-  const versionHint = isLatestOf ? resolvedVersionHint : undefined;
+  // A prefix that cannot be written resolves to nothing, whatever the catalog says about it.
+  const versionHint = isLatestOf && !versionError ? resolvedVersionHint : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -223,11 +237,15 @@ const ToolRow = ({
   };
 
   const applyChange = (next: ParsedToolVersion) => {
-    if (ToolsService.isWritable(next)) {
-      setDraft(null);
+    // A typed `l`, `la` and so on could still become a refused keyword, so they are held as well, or
+    // the YAML would keep `lates:latest` once `latest` is typed.
+    const isTypingKeyword = hasPrefixInput && next.strategy === 'latest-of' && ToolsService.isKeywordStart(next.prefix);
+
+    if (ToolsService.isWritable(next) && !isTypingKeyword) {
+      setHeldDraft(null);
       onChange(next);
     } else {
-      setDraft(next);
+      setHeldDraft({ parsed: next, document: ymlDocument });
     }
   };
 

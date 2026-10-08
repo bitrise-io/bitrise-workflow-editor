@@ -2,13 +2,15 @@
  * @jest-environment jsdom
  */
 import { BitkitProvider } from '@bitrise/bitkit-v2';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent, { UserEvent } from '@testing-library/user-event';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ComponentProps, useState } from 'react';
 
 import { ParsedToolVersion, ToolCatalog, ToolVersions } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
+import { updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
+import { selectOption } from '../../../../spec/bitkit-select-helper';
 import ToolRow from './ToolRow';
 
 // The bitkit barrel also exports a markdown component, and `react-markdown`'s ESM dependency tree is
@@ -40,9 +42,9 @@ type ControlledToolRowProps = Partial<
   onChange?: (parsed: ParsedToolVersion) => void;
 };
 
-// ToolRow is a controlled component: the strategy/version props only change once the owner feeds
-// `onChange`'s result back in, exactly as ToolVersions.tsx does. A test that keeps the props static
-// would never see a strategy switch take effect.
+// ToolRow is a controlled component: the strategy/version props only change once the owner writes
+// `onChange`'s result and reads it back, as ToolVersions.tsx does through the YAML, so a lossy write
+// shows up here too. A test that keeps the props static would never see a strategy switch take effect.
 const ControlledToolRow = ({ initial, onChange, ...overrides }: ControlledToolRowProps) => {
   const [parsed, setParsed] = useState<ParsedToolVersion>(initial);
 
@@ -59,7 +61,7 @@ const ControlledToolRow = ({ initial, onChange, ...overrides }: ControlledToolRo
       version={ToolsService.getVersionInputValue(parsed)}
       preferInstalled={parsed.strategy === 'latest-of' && parsed.preferInstalled}
       onChange={(next) => {
-        setParsed(next);
+        setParsed(ToolsService.parseToolVersion(ToolsService.serializeToolVersion(next)));
         onChange?.(next);
       }}
     />
@@ -89,23 +91,15 @@ const mockVersions = (data: ToolVersions | undefined, { isLoading = false, isErr
 
 const lastWritten = (onChange: jest.Mock) => ToolsService.serializeToolVersion(onChange.mock.lastCall[0]);
 
-// One click each, so a click that gets dropped fails the test instead of being retried away. The
-// select hands focus back to its trigger a frame after it closes, so that is awaited too, or it
-// would blur whatever the test focuses next.
-const selectOption = async (user: UserEvent, select: HTMLElement, label: string) => {
-  await user.click(select);
-  await user.click(await screen.findByRole('option', { name: label }));
-  await waitFor(() => {
-    expect(select.textContent).toContain(label);
-    // Testing Library has no query for focus, so it is read off the document.
-    // eslint-disable-next-line testing-library/no-node-access
-    expect(document.activeElement).toBe(select);
-  });
-};
-
 describe('ToolRow', () => {
   beforeEach(() => {
     mockVersions(NODE_VERSIONS);
+  });
+
+  it('shows what the latest released version resolves to under the strategy', () => {
+    renderToolRow({ strategy: 'absolute-latest-released' });
+
+    expect(screen.getByText('Currently resolves to 24.0.0')).not.toBeNull();
   });
 
   describe('latest-of', () => {
@@ -180,9 +174,46 @@ describe('ToolRow', () => {
       renderToolRow({ strategy: 'absolute-latest-released' }, { onChange });
 
       await selectOption(user, screen.getAllByRole('combobox')[1], 'Latest version of');
-      // Typing straight after the select closes drops keystrokes under jsdom now and then.
-      fireEvent.change(prefixInput(), { target: { value: '22' } });
+      await user.type(prefixInput(), '22');
       expect(lastWritten(onChange)).toBe('22:latest');
+    });
+
+    it('seeds the minor of the exact version it switches away from, in the same write', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      mockVersions(undefined);
+      renderToolRow({ strategy: 'exact', version: '2.90.1' }, { ...CUSTOM_TOOL, onChange });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Latest version of');
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(lastWritten(onChange)).toBe('2.90:latest');
+    });
+
+    it('holds a keyword typed as the prefix, writing none of it on the way, and says why', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      mockVersions(undefined);
+      renderToolRow({ strategy: 'latest-of', prefix: '2', preferInstalled: true }, { ...CUSTOM_TOOL, onChange });
+
+      await user.clear(prefixInput());
+      await user.type(prefixInput(), 'latest');
+      await user.tab();
+      expect(onChange).not.toHaveBeenCalled();
+      expect(screen.getAllByRole('combobox')[1].textContent).toContain('Latest version of');
+      expect(screen.getByText('A prefix cannot be latest or installed, or the start of either')).not.toBeNull();
+    });
+
+    it('drops a draft once the YAML changes under it', async () => {
+      const user = userEvent.setup();
+      mockVersions(undefined);
+      renderToolRow({ strategy: 'absolute-latest-released' }, CUSTOM_TOOL);
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Latest version of');
+      expect(screen.getByPlaceholderText(PREFIX_PLACEHOLDER)).not.toBeNull();
+
+      act(() => updateBitriseYmlDocumentByString('tools:\n  deno: latest\n'));
+      expect(screen.queryByPlaceholderText(PREFIX_PLACEHOLDER)).toBeNull();
+      expect(screen.getAllByRole('combobox')[1].textContent).toContain('Latest released version');
     });
 
     it('warns when no known version is in the typed prefix line', async () => {
