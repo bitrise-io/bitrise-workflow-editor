@@ -272,16 +272,20 @@ const ToolRow = ({
       return;
     }
 
-    // Every other switch empties the version field, because an exact version and a prefix are not
-    // interchangeable and the remaining strategies have no version at all.
-    if (shownVersion !== '') {
-      // The switch emptied the field for the user, so let them fill it before it is flagged.
-      setVersionTouched(false);
-    } else if (newStrategy === 'exact') {
-      // The field was already empty, so it won't hit the branch above. It is already invalid, so
-      // flag it immediately.
-      setVersionTouched(true);
+    if (newStrategy === 'exact') {
+      // Seeded like `latest-of`, so the switch lands on a version rather than on a required field.
+      // A `latest-of` row keeps the newest release on its line, installed preferred or not, so
+      // `22:latest` stays on `22`. Any other row, or a line with no release, gets the newest
+      // release overall. With nothing to seed from, the field stays empty and is flagged straight
+      // away unless the catalog or the version list is still loading.
+      const seededVersion = resolvedVersion ?? ToolVersionUtils.getLatestVersion(toolVersions) ?? '';
+      setVersionTouched(seededVersion === '' && !isCatalogLoading && !isVersionsLoading);
+      applyChange({ strategy: 'exact', version: seededVersion });
+      return;
     }
+
+    // The remaining strategies have no version at all, so the field goes with them.
+    setVersionTouched(false);
     applyChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 

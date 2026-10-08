@@ -149,6 +149,72 @@ describe('ToolRow', () => {
     );
   });
 
+  describe('switching to exact', () => {
+    const REQUIRED_ERROR = 'Tool version is required';
+
+    it("seeds the newest release when the catalog can't tell what the row resolves to", async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      renderToolRow({ strategy: 'absolute-latest-installed' }, { onChange });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      expect(lastWritten(onChange)).toBe('24.0.0');
+    });
+
+    it.each([false, true])(
+      'keeps the line a latest-of row resolves in, rather than upgrading (prefer installed: %s)',
+      async (preferInstalled) => {
+        const user = userEvent.setup();
+        const onChange = jest.fn();
+        renderToolRow({ strategy: 'latest-of', prefix: '22', preferInstalled }, { onChange });
+
+        await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+        expect(lastWritten(onChange)).toBe('22.11.0');
+      },
+    );
+
+    it('flags a tool outside the catalog straight away', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      mockVersions(undefined);
+      renderToolRow({ strategy: 'absolute-latest-released' }, { toolId: 'deno', existingToolIds: ['deno'], onChange });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      expect(onChange.mock.lastCall[0]).toEqual({ strategy: 'exact', version: '' });
+      expect(screen.getByText(REQUIRED_ERROR)).not.toBeNull();
+    });
+
+    it.each([
+      [
+        'version list',
+        () => {
+          mockVersions(undefined, { isLoading: true });
+          return {};
+        },
+      ],
+      ['catalog', () => ({ catalog: undefined, isCatalogLoading: true })],
+    ])('does not flag while the %s is still loading', async (_, setup) => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      renderToolRow({ strategy: 'absolute-latest-released' }, { onChange, ...setup() });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      expect(onChange.mock.lastCall[0]).toEqual({ strategy: 'exact', version: '' });
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeNull();
+    });
+
+    it('flags the empty version once its menu has been visited', async () => {
+      const user = userEvent.setup();
+      mockVersions(undefined, { isLoading: true });
+      renderToolRow({ strategy: 'absolute-latest-released' });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      await openSelect(user, screen.getAllByRole('combobox')[2]);
+      await user.keyboard('{Escape}');
+      expect(await screen.findByText(REQUIRED_ERROR)).not.toBeNull();
+    });
+  });
+
   describe('latest-of', () => {
     const CUSTOM_TOOL = { toolId: 'deno', existingToolIds: ['deno'] };
     const PREFIX_PLACEHOLDER = 'prefix, e.g. 22';
