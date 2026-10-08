@@ -29,6 +29,11 @@ const LATEST_OF_SUFFIXES = LATEST_OF_KEYWORDS.map(({ keyword, preferInstalled })
   preferInstalled,
 }));
 
+/** The strategy a keyword means on its own, with no prefix to narrow it. */
+function toAbsoluteStrategy(preferInstalled: boolean): ParsedToolVersion {
+  return { strategy: preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
+}
+
 function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
   // Trimmed, mirroring the `strings.TrimSpace` that opens the CLI's `ParseVersionString`.
@@ -41,7 +46,7 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
 
   const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
   if (bare) {
-    return { strategy: 'latest-of', prefix: '', preferInstalled: bare.preferInstalled };
+    return toAbsoluteStrategy(bare.preferInstalled);
   }
 
   // Mirrors the CLI's greedy, end anchored `(.*):latest$`, so `a:b:latest` has prefix `a:b`.
@@ -50,24 +55,46 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   );
 
   if (suffixed) {
-    return {
-      strategy: 'latest-of',
-      prefix: raw.slice(0, raw.length - suffixed.suffix.length),
-      preferInstalled: suffixed.preferInstalled,
-    };
+    const prefix = raw.slice(0, raw.length - suffixed.suffix.length);
+    // The CLI reads a `latest` or `installed` prefix as that bare keyword, whichever keyword
+    // follows, so `latest:installed` is the newest release.
+    const keywordPrefix = LATEST_OF_KEYWORDS.find(({ keyword }) => prefix.toLowerCase() === keyword);
+
+    if (keywordPrefix) {
+      return toAbsoluteStrategy(keywordPrefix.preferInstalled);
+    }
+
+    // `:latest` carries no prefix, so it means the same as bare `latest`, and `latest-of` needs one.
+    return prefix === ''
+      ? toAbsoluteStrategy(suffixed.preferInstalled)
+      : { strategy: 'latest-of', prefix, preferInstalled: suffixed.preferInstalled };
   }
 
   return { strategy: 'exact', version: raw };
+}
+
+/** Whether the YAML can hold `parsed`. See `docs/decisions.md`. */
+function isWritable(parsed: ParsedToolVersion): boolean {
+  return parsed.strategy !== 'latest-of' || parsed.prefix.trim() !== '';
 }
 
 function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return UNSET_KEYWORD;
+    case 'absolute-latest-released':
+      return LATEST_KEYWORD;
+    case 'absolute-latest-installed':
+      return INSTALLED_KEYWORD;
     case 'latest-of': {
+      if (!isWritable(parsed)) {
+        throw new Error('latest-of requires a non-empty prefix, use an absolute strategy instead');
+      }
+
       const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
 
-      return parsed.prefix ? `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}` : keyword;
+      // The CLI trims only the ends of the whole value, so a space before the colon would reach mise.
+      return `${parsed.prefix.trim()}${KEYWORD_SEPARATOR}${keyword}`;
     }
     case 'exact':
       return parsed.version;
@@ -84,6 +111,8 @@ function toParsedToolVersion(
     case 'exact':
       return { strategy, version: inputValue };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return { strategy };
     case 'latest-of':
       return { strategy, prefix: inputValue, preferInstalled };
@@ -96,6 +125,8 @@ function getVersionInputValue(parsed: ParsedToolVersion): string {
     case 'exact':
       return parsed.version;
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return '';
     case 'latest-of':
       return parsed.prefix;
@@ -241,11 +272,12 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
     case 'exact':
       return { strategy: 'exact', version: '' };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return parsed;
     case 'latest-of':
-      // The installed preference is about how a version is resolved, not about which tool, so it
-      // survives the rename even though the prefix does not.
-      return { strategy: 'latest-of', prefix: '', preferInstalled: parsed.preferInstalled };
+      // The prefix belonged to the old tool, and the new one has no candidates yet.
+      return toAbsoluteStrategy(parsed.preferInstalled);
   }
 }
 
@@ -274,6 +306,7 @@ export type { ToolScope };
 export default {
   parseToolVersion,
   serializeToolVersion,
+  isWritable,
   toParsedToolVersion,
   getVersionInputValue,
   setTool,

@@ -28,13 +28,13 @@ type ToolRowFormValues = {
 
 const STRATEGY_LABELS: Record<VersionStrategy, string> = {
   'latest-of': 'Latest version of',
+  'absolute-latest-released': 'Latest released version',
+  'absolute-latest-installed': 'Latest preinstalled version',
   exact: 'Exact version',
   unset: 'Do nothing (unset global setting)',
 };
 
 const OTHER_VALUE = '__other__';
-/** No prefix, i.e. the newest version overall. A sentinel, because '' means "nothing selected". */
-const ANY_PREFIX_VALUE = '__any__';
 
 const READ_ONLY_TOOLTIP_TEXT = 'To edit, switch to the module file that defines it.';
 const PREFER_INSTALLED_TOOLTIP_TEXT =
@@ -75,6 +75,8 @@ const ToolRow = ({
 }: ToolRowProps) => {
   // Whether the user has explicitly picked "Other" from the tool ID dropdown.
   const [manualOther, setManualOther] = useState(false);
+  // A `latest-of` with no prefix yet, which the YAML cannot hold. See `docs/decisions.md`.
+  const [draft, setDraft] = useState<ParsedToolVersion | null>(null);
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -100,16 +102,27 @@ const ToolRow = ({
   // still loading, or if it failed to load, an unknown toolId isn't proof it's custom.
   const showCustomInput = manualOther || (isCatalogReady && toolId !== '' && !isToolIdKnown);
 
-  // A tool the catalog knows has a version list, so both controls can be picked rather than typed.
+  // A tool the catalog knows has a version list to pick from or check against.
   const isKnownCatalogTool = isToolIdKnown && !showCustomInput;
-  const isExactKnownTool = strategy === 'exact' && isKnownCatalogTool;
-  const hasPrefixDropdown = strategy === 'latest-of' && isKnownCatalogTool;
+  const effectiveStrategy = draft?.strategy ?? strategy;
+  const effectivePreferInstalled = draft?.strategy === 'latest-of' ? draft.preferInstalled : !!preferInstalled;
+  const shownVersion = draft ? ToolsService.getVersionInputValue(draft) : version;
+  const isLatestOf = effectiveStrategy === 'latest-of';
+  const isExactKnownTool = effectiveStrategy === 'exact' && isKnownCatalogTool;
   const canonicalToolId = ToolsService.resolveToolName(catalog, toolId);
+  // Fetched for every tool the catalog knows: picking `latest-of` seeds a prefix from the candidates.
   const {
     data: toolVersions,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-  } = useToolVersions(canonicalToolId, isExactKnownTool || hasPrefixDropdown);
+  } = useToolVersions(canonicalToolId, isKnownCatalogTool);
+
+  // A dropdown is only worth it when the catalog publishes version numbers. Until the list
+  // arrives the dropdown shows it is loading, rather than a field that turns into one. A list that
+  // failed to load has nothing to pick, so the prefix is typed.
+  const hasVersionNumbers = !!toolVersions?.versions.some(({ isSemver }) => isSemver);
+  const hasPrefixDropdown = isLatestOf && isKnownCatalogTool && (toolVersions ? hasVersionNumbers : !isVersionsError);
+  const hasPrefixInput = isLatestOf && !hasPrefixDropdown;
 
   // Only one branch renders, so build one list, and keep the catalog half out of the pick memo.
   const catalogOptions = useMemo(() => {
@@ -125,14 +138,18 @@ const ToolRow = ({
   );
 
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
-  const trimmedVersion = version.trim();
-  // An exact strategy needs a concrete version. An empty prefix is valid and means the newest
-  // version overall, which serializes to bare `latest` or `installed`.
-  const versionError = strategy === 'exact' && trimmedVersion === '' ? 'Tool version is required' : undefined;
+  const trimmedVersion = shownVersion.trim();
+  // Both fields need a value, so an empty prefix is held in the field rather than written.
+  const versionError =
+    (effectiveStrategy === 'exact' || hasPrefixInput) && trimmedVersion === ''
+      ? `Tool version ${hasPrefixInput ? 'prefix ' : ''}is required`
+      : undefined;
   const displayedVersionError = versionTouched ? versionError : undefined;
+  // `latest-of` resolves along its prefix and the absolute `latest` along the whole list.
+  const resolvesAgainstCatalog = isLatestOf || effectiveStrategy === 'absolute-latest-released';
   const resolvedVersion = useMemo(
-    () => (hasPrefixDropdown ? ToolVersionUtils.getLatestVersion(toolVersions, trimmedVersion) : undefined),
-    [hasPrefixDropdown, toolVersions, trimmedVersion],
+    () => (resolvesAgainstCatalog ? ToolVersionUtils.getLatestVersion(toolVersions, trimmedVersion) : undefined),
+    [resolvesAgainstCatalog, toolVersions, trimmedVersion],
   );
   // The configured value is not in the catalog, likely a leftover from hand written YAML, or mise
   // cannot resolve it. Warn rather than error, and wait for real data, since `toolVersions` is
@@ -146,20 +163,25 @@ const ToolRow = ({
       return `${trimmedVersion} is not a known version, use at your own risk`;
     }
 
-    if (hasPrefixDropdown && !ToolVersionUtils.isPrefixInCatalog(toolVersions, trimmedVersion)) {
+    const checksPrefix = isLatestOf && isKnownCatalogTool;
+
+    if (checksPrefix && !ToolVersionUtils.isPrefixInCatalog(toolVersions, trimmedVersion)) {
       return `No known version of ${toolId} is in the ${trimmedVersion} line, use at your own risk`;
     }
 
     // `installed` falls back to the newest release when nothing installed matches, so it fails too.
-    if (hasPrefixDropdown && !resolvedVersion) {
+    if (checksPrefix && !resolvedVersion) {
       return `The ${trimmedVersion} line of ${toolId} holds only prereleases, which mise does not resolve`;
     }
 
     return undefined;
-  }, [isExactKnownTool, hasPrefixDropdown, resolvedVersion, toolVersions, toolId, trimmedVersion]);
-  // The catalog has no preinstalled versions to offer, so only `latest` gets a hint.
+  }, [isExactKnownTool, isLatestOf, isKnownCatalogTool, resolvedVersion, toolVersions, toolId, trimmedVersion]);
+  // The installed variants get no hint, because the catalog lists released versions only.
   const resolvedVersionHint =
-    resolvedVersion && !preferInstalled ? `Currently resolves to ${resolvedVersion}` : undefined;
+    resolvedVersion && !effectivePreferInstalled ? `Currently resolves to ${resolvedVersion}` : undefined;
+  // `latest-of` explains itself under its prefix, the absolute strategy under the picker.
+  const strategyHint = isLatestOf ? undefined : resolvedVersionHint;
+  const versionHint = isLatestOf ? resolvedVersionHint : undefined;
 
   const dropdownItems = [
     ...dropdownOptions,
@@ -167,6 +189,15 @@ const ToolRow = ({
     ...(!showCustomInput && toolId !== '' && !isToolIdKnown ? [{ value: toolId, label: toolId }] : []),
     { value: OTHER_VALUE, label: 'Other' },
   ];
+
+  const hiddenStrategies: string[] = [
+    ...(allowUnset ? [] : ['unset']),
+    // A new row does not offer `latest-of`. See `docs/decisions.md`.
+    ...(toolId === '' ? ['latest-of'] : []),
+  ];
+  const strategyItems = Object.entries(STRATEGY_LABELS)
+    .filter(([value]) => !hiddenStrategies.includes(value))
+    .map(([value, label]) => ({ value, label }));
 
   const handleDropdownChange = (newValue: string) => {
     if (newValue === OTHER_VALUE) {
@@ -191,26 +222,46 @@ const ToolRow = ({
     }
   };
 
+  const applyChange = (next: ParsedToolVersion) => {
+    if (ToolsService.isWritable(next)) {
+      setDraft(null);
+      onChange(next);
+    } else {
+      setDraft(next);
+    }
+  };
+
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
-    // Every switch empties the version field, because an exact version and a prefix are not
+    if (newStrategy === 'latest-of') {
+      // Seeded in the same write, so the strategy never lands without its prefix.
+      setVersionTouched(false);
+      applyChange({
+        strategy: 'latest-of',
+        prefix: ToolVersionUtils.getSeedPrefix(toolVersions, shownVersion),
+        preferInstalled: effectiveStrategy === 'absolute-latest-installed',
+      });
+      return;
+    }
+
+    // Every other switch empties the version field, because an exact version and a prefix are not
     // interchangeable and the remaining strategies have no version at all.
-    if (version !== '') {
+    if (shownVersion !== '') {
       // The switch emptied the field for the user, so let them fill it before it is flagged.
       setVersionTouched(false);
     } else if (newStrategy === 'exact') {
-      // The field was already empty, so it won't hit the branch above -> flag it immediately
-      // since it's already invalid.
+      // The field was already empty, so it won't hit the branch above. It is already invalid, so
+      // flag it immediately.
       setVersionTouched(true);
     }
-    onChange(ToolsService.toParsedToolVersion(newStrategy, '', preferInstalled));
+    applyChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 
   const handleVersionChange = (newVersion: string) => {
-    onChange(ToolsService.toParsedToolVersion(strategy, newVersion, preferInstalled));
+    applyChange(ToolsService.toParsedToolVersion(effectiveStrategy, newVersion, effectivePreferInstalled));
   };
 
   const handlePreferInstalledChange = (newPreferInstalled: boolean) => {
-    onChange(ToolsService.toParsedToolVersion(strategy, version, newPreferInstalled));
+    applyChange(ToolsService.toParsedToolVersion('latest-of', shownVersion, newPreferInstalled));
   };
 
   return (
@@ -246,30 +297,29 @@ const ToolRow = ({
           <Box display="flex" flexDirection="column" gap="8" flex="1">
             <BitkitSelect
               size="lg"
-              items={Object.entries(STRATEGY_LABELS)
-                .filter(([value]) => allowUnset || value !== 'unset')
-                .map(([value, label]) => ({ value, label }))}
-              value={strategy}
+              items={strategyItems}
+              value={effectiveStrategy}
               state={isReadOnly ? 'readOnly' : undefined}
+              helperText={strategyHint}
               onValueChange={(v) => handleStrategyChange(v as VersionStrategy)}
             />
-            {strategy === 'latest-of' && (
+            {isLatestOf && (
               <BitkitCheckbox
                 labelText={
                   <>
-                    Prefer pre-installed version{' '}
+                    Prefer preinstalled version{' '}
                     <BitkitTooltip text={PREFER_INSTALLED_TOOLTIP_TEXT}>
                       <IconQuestionCircle
                         size="16"
                         color="icon/tertiary"
                         tabIndex={0}
                         role="img"
-                        aria-label="Prefer pre-installed version details"
+                        aria-label="Prefer preinstalled version details"
                       />
                     </BitkitTooltip>
                   </>
                 }
-                checked={!!preferInstalled}
+                checked={effectivePreferInstalled}
                 state={isReadOnly ? 'readOnly' : undefined}
                 onCheckedChange={({ checked }) => handlePreferInstalledChange(checked === true)}
               />
@@ -277,11 +327,11 @@ const ToolRow = ({
           </Box>
         </BitkitTooltip>
 
-        {strategy !== 'unset' && (
+        {(effectiveStrategy === 'exact' || isLatestOf) && (
           <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
             <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
-              {/* A catalog-known tool always has at least one version to offer, so the dropdown
-                  applies whenever one is possible at all. */}
+              {/* An exact version of a tool the catalog knows is always picked from its list, a
+                  prefix only when the list has version numbers. */}
               {isExactKnownTool ? (
                 <BitkitCombobox
                   size="lg"
@@ -306,22 +356,24 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={[{ value: ANY_PREFIX_VALUE, label: 'Any' }, ...versionOptions]}
+                  items={versionOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  helperText={resolvedVersionHint}
+                  helperText={versionHint}
                   warningText={catalogWarning}
-                  value={version || ANY_PREFIX_VALUE}
-                  onValueChange={(newPrefix) => handleVersionChange(newPrefix === ANY_PREFIX_VALUE ? '' : newPrefix)}
+                  value={shownVersion || undefined}
+                  onValueChange={handleVersionChange}
                 />
               ) : (
                 <BitkitTextInput
                   size="lg"
-                  placeholder={strategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
+                  placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                   errorText={displayedVersionError}
+                  helperText={versionHint}
+                  warningText={catalogWarning}
                   state={isReadOnly ? 'readOnly' : undefined}
                   inputProps={{
-                    value: version,
+                    value: shownVersion,
                     onChange: (e) => handleVersionChange(e.target.value),
                     onBlur: () => setVersionTouched(true),
                   }}
