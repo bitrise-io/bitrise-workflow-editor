@@ -7,7 +7,6 @@ import {
   DialogBody,
   DialogFooter,
   DialogProps,
-  Divider,
   Input,
   Link,
   Text,
@@ -15,6 +14,7 @@ import {
 } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Separator } from '@chakra-ui/react/separator';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
@@ -305,7 +305,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                 <StepInput label="Password" isSensitive size="lg" isDisabled={readOnly} {...field} />
               )}
             />
-            <Divider mt="8" />
+            <Separator marginBlockStart="8" />
             {fields.map((item, index) => (
               <Box key={item.id} display="flex" alignItems="flex-end" gap="10">
                 <Controller
@@ -359,7 +359,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                 Add Env Var
               </Button>
             )}
-            <Divider />
+            <Separator />
             <Controller
               control={control}
               name="userValues.options"

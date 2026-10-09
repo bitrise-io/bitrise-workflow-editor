@@ -1,4 +1,5 @@
-import { Box, Divider, ExpandableCard, IconButton, Text, Toggle } from '@bitrise/bitkit';
+import { Box, ExpandableCard, IconButton, Text, Toggle } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler } from 'react';
 
 import { useIsReadOnlyView } from '@/hooks/useTree';
@@ -45,14 +46,14 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
         )}
         <Toggle defaultChecked={isAlwaysRun} isDisabled={isReadOnlyView} onChange={onIsAlwaysRunChange} />
       </Box>
-      <Divider my="24" />
+      <Separator marginBlock="24" />
       {!!onIsSkippableChange && (
         <>
           <Box display="flex">
             <Text flex="1">Continue build even if this Step fails</Text>
             <Toggle defaultChecked={isSkippable} isDisabled={isReadOnlyView} onChange={onIsSkippableChange} />
           </Box>
-          <Divider my="24" />
+          <Separator marginBlock="24" />
         </>
       )}
       <StepInput
