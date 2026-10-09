@@ -10,13 +10,12 @@ import {
   Icon,
   IconButton,
   Input,
-  Skeleton,
-  SkeletonBox,
   Text,
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitBadge } from '@bitrise/bitkit-v2';
+import { Skeleton } from '@chakra-ui/react/skeleton';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -133,11 +132,7 @@ const SecretCard = (props: SecretCardProps) => {
 
   const secretValueElement = () => {
     if (isSecretValueLoading) {
-      return (
-        <Skeleton height="40">
-          <SkeletonBox width="100%" height="100%" borderRadius="4" />
-        </Skeleton>
-      );
+      return <Skeleton height="40" borderRadius="4" />;
     }
     if (secret.isEditing) {
       return (
