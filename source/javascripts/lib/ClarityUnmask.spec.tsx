@@ -24,7 +24,6 @@ import {
   MenuItem,
   MenuList,
   Provider,
-  Ribbon,
   Sidebar,
   Tab,
   Table,
@@ -42,6 +41,7 @@ import {
   BitkitButton,
   BitkitEmptyState,
   BitkitProvider,
+  BitkitRibbon,
   BitkitSegmentedControl,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
@@ -127,9 +127,6 @@ describe('Clarity unmasking', () => {
           <Text data-clarity-unmask="true">text</Text>
           <Button data-clarity-unmask="true">button</Button>
           <Card data-clarity-unmask="true">card</Card>
-          <Ribbon colorScheme="blue" data-clarity-unmask="true">
-            ribbon
-          </Ribbon>
           <List data-clarity-unmask="true">
             <ListItem>list item</ListItem>
           </List>
@@ -166,7 +163,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(13);
+      expect(unmasked()).toHaveLength(12);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
       ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
@@ -194,6 +191,7 @@ describe('Clarity unmasking', () => {
             icon={IconInfoCircle}
             data-clarity-unmask="true"
           />
+          <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
           {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
               their remaining props onto the link they render, so the attribute reaches the DOM. That
               forwarding is what this asserts — a release that stopped doing it would silently
@@ -209,13 +207,14 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(7);
+      expect(unmasked()).toHaveLength(8);
       [
         'alert message',
         'segment label',
         'action menu item',
         'bitkit button',
         'empty state',
+        'ribbon message',
         'breadcrumb item',
         'breadcrumb current item',
       ].forEach((label) => {
