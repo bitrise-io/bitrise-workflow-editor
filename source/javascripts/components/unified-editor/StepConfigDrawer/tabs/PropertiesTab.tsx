@@ -1,5 +1,6 @@
-import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { Box, Collapse, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
@@ -119,13 +120,13 @@ const PropertiesTab = () => {
         onChange={handleTitleChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
       />
-      <Divider />
+      <Separator />
       <StepVersion
         variant={StepService.isBitriseLibraryStep(cvs, defaultStepLibrary) ? 'select' : 'input'}
         canChangeVersion={StepService.canUpdateVersion(cvs, defaultStepLibrary)}
         selectableVersions={StepService.getSelectableVersions(data)}
       />
-      <Divider />
+      <Separator />
       <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
         <Text size="2" fontWeight="600">
           Summary

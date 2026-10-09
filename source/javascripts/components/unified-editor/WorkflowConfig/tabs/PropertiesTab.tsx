@@ -1,5 +1,6 @@
-import { Box, Button, Divider, Textarea } from '@bitrise/bitkit';
+import { Box, Button, Textarea } from '@bitrise/bitkit';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler } from 'react';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
@@ -106,14 +107,14 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   const isUtilityWorkflow = WorkflowService.isUtilityWorkflow(workflowId);
   const isPriorityEnabled = variant === 'panel' && !isUtilityWorkflow;
   const isGitStatusNameEnabled = variant === 'panel' && !isUtilityWorkflow;
-  const shouldShowDivider = isPriorityEnabled || isGitStatusNameEnabled;
+  const shouldShowSeparator = isPriorityEnabled || isGitStatusNameEnabled;
 
   return (
     <Box gap="16" display="flex" flexDir="column">
       <NameInput onRename={onRename} isDisabled={isReadOnlyView} />
       <SummaryInput workflowId={workflowId} isDisabled={isReadOnlyView} />
       <DescriptionInput workflowId={workflowId} isDisabled={isReadOnlyView} />
-      {shouldShowDivider && <Divider marginBlock="8" />}
+      {shouldShowSeparator && <Separator marginBlock="8" />}
       {isPriorityEnabled && <Priority workflowId={workflowId} isDisabled={isReadOnlyView} />}
       {isGitStatusNameEnabled && <GitStatusName workflowId={workflowId} isDisabled={isReadOnlyView} />}
 

@@ -1,4 +1,5 @@
-import { Button, Divider, Menu, MenuButton, MenuItem, MenuList, Text } from '@bitrise/bitkit';
+import { Button, Menu, MenuButton, MenuItem, MenuList, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
@@ -73,7 +74,7 @@ const ContainersMenu = (props: ContainersMenuProps) => {
             <Text color="text/helper">{container.userValues.image}</Text>
           </MenuItem>
         ))}
-        {containers.length > 0 && <Divider color="border/minimal" mb="8" />}
+        {containers.length > 0 && <Separator borderColor="border/minimal" marginBlockEnd="8" />}
         <MenuItem onClick={handleManageContainers}>Manage containers</MenuItem>
       </MenuList>
     </Menu>
