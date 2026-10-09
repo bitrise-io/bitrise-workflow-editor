@@ -1,5 +1,4 @@
 import {
-  Badge,
   Box,
   Button,
   Card,
@@ -17,7 +16,7 @@ import {
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitBadge } from '@bitrise/bitkit-v2';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -201,9 +200,7 @@ const SecretCard = (props: SecretCardProps) => {
                 learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
                 button={{ href: secretSettingsUrl, label: 'Go to settings' }}
               >
-                <Badge background="sys/neutral/subtle" color="text/secondary">
-                  Shared
-                </Badge>
+                <BitkitBadge>Shared</BitkitBadge>
               </Toggletip>
             </Box>
           ) : (

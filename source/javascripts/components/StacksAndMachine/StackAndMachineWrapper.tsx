@@ -1,4 +1,5 @@
-import { Badge, Box, Card, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Box, Card, ExpandableCard, Text } from '@bitrise/bitkit';
+import { BitkitBadge } from '@bitrise/bitkit-v2';
 import { ReactNode } from 'react';
 
 type ButtonContentProps = {
@@ -17,9 +18,9 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
         </Text>
       </Box>
       {isDefault && (
-        <Badge variant="subtle" colorScheme="info" mr="16">
+        <BitkitBadge colorVariant="blue" marginInlineEnd="16">
           Default
-        </Badge>
+        </BitkitBadge>
       )}
     </Box>
   );
