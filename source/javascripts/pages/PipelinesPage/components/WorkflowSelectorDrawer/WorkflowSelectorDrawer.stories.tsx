@@ -8,18 +8,19 @@ type Story = StoryObj<typeof WorkflowSelectorDrawer>;
 
 const meta: Meta<typeof WorkflowSelectorDrawer> = {
   component: WorkflowSelectorDrawer,
+
   args: {
     isOpen: true,
     pipelineId: 'graph-pipeline',
   },
+
   argTypes: {
     onClose: { type: 'function' },
     onSelectWorkflow: { type: 'function' },
   },
-  parameters: {
-    msw: {
-      handlers: [getStacksAndMachines()],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines());
   },
 };
 
