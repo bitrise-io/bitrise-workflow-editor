@@ -58,16 +58,12 @@ const StepBundlesPage = () => {
       <StepBundleConfigPanel stepBundleId={stepBundleId} />
     </Box>
   ) : (
-    // The v2 recipe leaves `display` unset, so a stretched empty state centres its own content.
     <BitkitEmptyState
       data-clarity-unmask="true"
       icon={IconStep}
       headingText="Your Step bundles will appear here"
       bodyText="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."
       height="100%"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no action. */}
       {!isReadOnlyView && (

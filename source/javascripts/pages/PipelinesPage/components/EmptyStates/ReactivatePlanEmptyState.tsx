@@ -7,12 +7,8 @@ type Props = {
 
 const ReactivatePlanEmptyState = ({ onReactivate }: Props) => {
   return (
-    // The v2 recipe leaves `display` unset, so a stretched empty state centres its own content.
     <BitkitEmptyState
       flex="1"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
       data-clarity-unmask="true"
       icon={IconWorkflowFlow}
       headingText="Reactivate your Pipelines"

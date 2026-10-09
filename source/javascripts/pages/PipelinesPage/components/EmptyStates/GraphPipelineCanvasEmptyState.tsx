@@ -11,13 +11,9 @@ const GraphPipelineCanvasEmptyState = ({ onAddWorkflow, ...props }: Props) => {
   const isReadOnlyView = useIsReadOnlyView();
 
   return (
-    // The v2 recipe leaves `display` unset, so a stretched empty state centres its own content.
     <BitkitEmptyState
       {...props}
       data-clarity-unmask="true"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
       icon={IconWorkflowFlow}
       headingText="Welcome to the Pipeline canvas"
       bodyText="Start building your graph by adding Workflow nodes to the canvas."

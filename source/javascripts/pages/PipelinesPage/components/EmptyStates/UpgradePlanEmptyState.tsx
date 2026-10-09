@@ -6,12 +6,8 @@ type Props = {
 };
 const UpgradePlanEmptyState = ({ onUpgrade }: Props) => {
   return (
-    // The v2 recipe leaves `display` unset, so a stretched empty state centres its own content.
     <BitkitEmptyState
       flex="1"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
       data-clarity-unmask="true"
       icon={IconWorkflowFlow}
       headingText="Upgrade your plan to use Pipelines"
