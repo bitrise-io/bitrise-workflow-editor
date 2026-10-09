@@ -76,9 +76,8 @@ const WorkflowsTab = () => {
         <BitkitEmptyState
           data-clarity-unmask="true"
           icon={IconDollar}
-          headingText="No Environment Variables created in any modules."
-          // TODO: body copy for this empty state is still open; bitkit-v2 requires the prop.
-          bodyText=""
+          headingText="No Environment Variables yet"
+          bodyText="Environment Variables created in any modules will appear here."
         />
       </TabContainer>
     );
