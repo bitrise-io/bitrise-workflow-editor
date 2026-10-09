@@ -54,8 +54,8 @@ Validation status watches the **root model only**. The whole-config schema match
 an include fragment reports errors for keys it was never meant to have.
 
 The forced YAML view fires only when the YAML doesn't parse, never on schema errors or
-[aliases](#aliases-and-merge-keys-only-warn): the visual editor renders those, and the redirect is
-one-way, so it would strand people on the YAML view.
+[aliases](#aliases-and-merge-keys-only-warn): the visual editor renders schema errors, many pages
+render aliases, and the redirect is one-way, so it would strand people on the YAML view.
 
 In dev website mode the schema layer is skipped for cross-origin reasons, so there are no markers.
 
