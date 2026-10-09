@@ -16,7 +16,7 @@ import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
-import YmlExpansionUtils, { type Expansion, type TextEdit } from './YmlExpansionUtils';
+import YmlExpansionUtils, { type Expansion } from './YmlExpansionUtils';
 import YmlUtils from './YmlUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
@@ -102,9 +102,8 @@ function expanderFor(model: monaco.editor.ITextModel) {
 }
 
 /**
- * Quick fixes on the alias and merge key warnings. They edit the model, so each is one undo step and
- * reaches the store through the editor's onChange like typing. "Expand all" is the one that brings the
- * Visual editor back, once no file has aliases or merge keys left.
+ * A quick fix on each alias and merge key warning that expands it. It edits the model, so it's one undo
+ * step and reaches the store through the editor's onChange like typing.
  */
 const configureAliasQuickFixes: BeforeMountHandler = (monacoInstance) => {
   if (isConfiguredForAliasQuickFixes) {
@@ -128,42 +127,40 @@ const configureAliasQuickFixes: BeforeMountHandler = (monacoInstance) => {
           return { actions: [], dispose: () => {} };
         }
 
-        const toEdit = (edits: TextEdit[]): languages.WorkspaceEdit => ({
-          edits: edits.map(({ start, end, text }) => ({
-            resource: model.uri,
-            versionId: model.getVersionId(),
-            textEdit: {
-              range: monaco.Range.fromPositions(model.getPositionAt(start), model.getPositionAt(end)),
-              text,
-            },
-          })),
-        });
-        const toAction = (title: string, diagnostics: monaco.editor.IMarkerData[], expansion: Expansion) => ({
-          title,
-          kind: 'quickfix',
-          diagnostics,
-          // Monaco leaves disabled actions out of its menus, so a refusal shows as no quick fix.
-          ...('error' in expansion ? { disabled: expansion.error } : { edit: toEdit(expansion.edits) }),
-        });
-
         // `<<` and the alias it points at are two markers for one merge key, with one expansion.
         const offered = new Set<Expansion>();
-        const actions = markers.flatMap((marker) => {
+        const actions = markers.flatMap((marker): languages.CodeAction[] => {
           const expansion = expander.at(
             model.getOffsetAt({ lineNumber: marker.startLineNumber, column: marker.startColumn }),
           );
-          if (!expansion || offered.has(expansion)) {
+          // What can't be expanded gets no quick fix.
+          if (!expansion || 'error' in expansion || offered.has(expansion)) {
             return [];
           }
           offered.add(expansion);
-          const title = expansion.kind === 'merge-key' ? 'Expand this merge key' : 'Expand this alias';
-          return [toAction(title, [marker], expansion)];
+          const { start, end, text } = expansion.edit;
+          return [
+            {
+              title: expansion.kind === 'merge-key' ? 'Expand this merge key' : 'Expand this alias',
+              kind: 'quickfix',
+              diagnostics: [marker],
+              edit: {
+                edits: [
+                  {
+                    resource: model.uri,
+                    versionId: model.getVersionId(),
+                    textEdit: {
+                      range: monaco.Range.fromPositions(model.getPositionAt(start), model.getPositionAt(end)),
+                      text,
+                    },
+                  },
+                ],
+              },
+            },
+          ];
         });
 
-        return {
-          actions: [...actions, toAction('Expand all in this file (copies shared blocks)', markers, expander.all())],
-          dispose: () => {},
-        };
+        return { actions, dispose: () => {} };
       },
     },
     { providedCodeActionKinds: ['quickfix'] },

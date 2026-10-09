@@ -1,6 +1,5 @@
 import {
   Alias,
-  CST,
   Document,
   isAlias,
   isCollection,
@@ -11,7 +10,6 @@ import {
   isSeq,
   Node,
   Pair,
-  Parser,
   Range,
   Scalar,
   visit,
@@ -24,11 +22,11 @@ import YmlUtils from './YmlUtils';
 /** Replace `text.slice(start, end)` with `text`. */
 export type TextEdit = { start: number; end: number; text: string };
 
-export type Expansion = { edits: TextEdit[] } | { error: string };
+type Kind = 'alias' | 'merge-key';
 
-type Site = { kind: 'alias' | 'merge-key'; edit: () => TextEdit };
+export type Expansion = { kind: Kind } & ({ edit: TextEdit } | { error: string });
 
-type SiteExpansion = Expansion & { kind: Site['kind'] };
+type Site = { kind: Kind; edit: () => TextEdit };
 
 const joinComments = (...comments: (string | null | undefined)[]) => comments.filter(Boolean).join('\n') || undefined;
 
@@ -38,23 +36,7 @@ const ownKeys = (map: YAMLMap) => new Set(map.items.filter((item) => !YmlUtils.i
 
 const isBlank = (char: string | undefined) => char === ' ' || char === '\t' || char === '\n' || char === '\r';
 
-const isAnchor = (token: CST.Token): token is CST.SourceToken => token.type === 'anchor';
-
 const lineStart = (text: string, offset: number) => text.lastIndexOf('\n', offset - 1) + 1;
-
-/** Comments make no sense inside `[…]` or `{…}`, so a copy that goes there is plain and forced to flow style. */
-function toFlow(node: unknown) {
-  visit(node as Node, {
-    Node(_, child) {
-      if (isCollection(child)) {
-        child.flow = true;
-      }
-      child.commentBefore = undefined;
-      child.comment = undefined;
-      child.spaceBefore = false;
-    },
-  });
-}
 
 /**
  * Rewrites the YAML aliases and merge keys of one file as text edits. Each edit replaces the lines of one
@@ -68,9 +50,7 @@ function toFlow(node: unknown) {
 class Expander {
   private readonly sites = new Map<number, Site>();
 
-  private readonly expansions = new Map<Site, SiteExpansion>();
-
-  private allExpansion?: Expansion;
+  private readonly expansions = new Map<Site, Expansion>();
 
   // Keyed by offset, since a cloned alias keeps its range and the original is what it resolves from.
   private readonly targets: ReadonlyMap<number, Node>;
@@ -116,22 +96,16 @@ class Expander {
    * stay, even one this leaves unused. `undefined` if nothing there can be expanded. A merge key and the
    * aliases it points at share one expansion, the same object.
    */
-  at(offset: number): SiteExpansion | undefined {
+  at(offset: number): Expansion | undefined {
     const site = this.sites.get(offset);
     return site && this.expand(site);
-  }
-
-  /** The edits that expand every alias and merge key and drop every anchor. */
-  all(): Expansion {
-    this.allExpansion ??= this.expandAll();
-    return this.allExpansion;
   }
 
   private expand(site: Site) {
     let expansion = this.expansions.get(site);
     if (!expansion) {
       try {
-        expansion = { kind: site.kind, edits: [site.edit()] };
+        expansion = { kind: site.kind, edit: site.edit() };
       } catch (error) {
         expansion = { kind: site.kind, error: (error as Error).message };
       }
@@ -140,61 +114,13 @@ class Expander {
     return expansion;
   }
 
-  private expandAll(): Expansion {
-    const siteEdits: TextEdit[] = [];
-    for (const site of new Set(this.sites.values())) {
-      const expansion = this.expand(site);
-      if ('error' in expansion) {
-        return { error: expansion.error };
-      }
-      siteEdits.push(...expansion.edits);
+  private aliasEdit(alias: Alias, [start, , nodeEnd]: Range, path: readonly unknown[]) {
+    // Inside `[ … ]` or `{ … }` a copy would have to drop its comments and turn into one long line.
+    if (path.some((node) => isCollection(node) && node.flow)) {
+      throw new Error("An alias inside [ … ] or { … } can't be expanded.");
     }
-    // A merge key's `{ … }` already expands the aliases inside it.
-    const edits = siteEdits.filter(
-      (edit) => !siteEdits.some((other) => other !== edit && other.start <= edit.start && edit.end <= other.end),
-    );
-
-    // With every alias gone, every anchor is unused.
-    const inEdit = (offset: number) => edits.some(({ start, end }) => offset >= start && offset < end);
-    for (const token of new Parser().parse(this.text)) {
-      if (token.type !== 'document') {
-        continue;
-      }
-      const anchors = token.start.filter(isAnchor);
-      CST.visit(token, (item) => {
-        anchors.push(...item.start.filter(isAnchor), ...(item.sep ?? []).filter(isAnchor));
-      });
-      anchors.filter(({ offset }) => !inEdit(offset)).forEach((anchor) => edits.push(this.anchorEdit(anchor)));
-    }
-
-    return { edits: edits.sort((a, b) => a.start - b.start) };
-  }
-
-  /** Deletes an anchor and the blanks that would be left dangling, or its line if it was alone on one. */
-  private anchorEdit({ offset, source }: CST.SourceToken): TextEdit {
-    let start = offset;
-    let end = offset + source.length;
-    while (this.text[end] === ' ' || this.text[end] === '\t') {
-      end += 1;
-    }
-    if (end === this.text.length || this.text[end] === '\n' || this.text[end] === '\r') {
-      while (this.text[start - 1] === ' ' || this.text[start - 1] === '\t') {
-        start -= 1;
-      }
-      if (start === lineStart(this.text, start) && end < this.text.length) {
-        end = this.text.indexOf('\n', end) + 1;
-      }
-    }
-    return { start, end, text: '' };
-  }
-
-  private aliasEdit(alias: Alias, [start, end, nodeEnd]: Range, path: readonly unknown[]) {
     const parent = path[path.length - 1];
     const copy = this.copy(alias, []);
-
-    if (path.some((node) => isCollection(node) && node.flow)) {
-      return { start, end, text: this.renderFlow(copy) };
-    }
 
     if (isPair(parent)) {
       // With `stringKeys`, an alias used as a key is a parse error.
@@ -224,9 +150,8 @@ class Expander {
 
   private mergeKeyEdit(pair: Pair<Scalar>, [keyStart, , keyEnd]: Range, path: readonly unknown[]) {
     const map = path[path.length - 1] as YAMLMap;
-    // In `{ <<: *a, k: v }` the whole `{ … }` is rewritten, with everything in it expanded.
-    if (map.flow && map.range) {
-      return { start: map.range[0], end: map.range[1], text: this.renderFlow(this.copy(map, [])) };
+    if (map.flow) {
+      throw new Error("A merge key inside { … } can't be expanded.");
     }
 
     // The map's own keys win. A second merge key in the same map is a duplicate key, so a parse error.
@@ -363,19 +288,11 @@ class Expander {
     }
   }
 
-  private renderFlow(copy: unknown) {
-    toFlow(copy);
-    const seq = new YAMLSeq();
-    seq.flow = true;
-    seq.items = [copy];
-    return this.render(seq, { lineWidth: 0 }).trim().slice(1, -1).trim();
-  }
-
-  private render(node: Node, options: { lineWidth?: number } = {}) {
+  private render(node: Node) {
     const doc = new Document();
     doc.contents = node;
     // The copy's aliases are expanded, but the ones a single expansion leaves around it aren't in `doc`.
-    return doc.toString({ ...this.options, verifyAliasOrder: false, ...options }).replace(/\n+$/, '');
+    return doc.toString({ ...this.options, verifyAliasOrder: false }).replace(/\n+$/, '');
   }
 
   /** Replaces `start` up to the end of `nodeEnd`'s line with `node`, rendered at `start`'s column. */
