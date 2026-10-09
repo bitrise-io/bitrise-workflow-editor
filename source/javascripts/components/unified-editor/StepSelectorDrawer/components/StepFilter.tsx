@@ -69,7 +69,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
             {capitalize(startCase(category))}
           </SelectableTag>
         ))}
-        {allowNonBitriseSteps && <Separator orientation="vertical" minHeight="0" />}
+        {allowNonBitriseSteps && <Separator orientation="vertical" />}
         {allowNonBitriseSteps &&
           MAINTAINERS.map(({ key, icon, label }) => (
             <SelectableTag key={key} value={key}>
