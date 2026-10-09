@@ -123,9 +123,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         padding="16"
         icon={IconStep}
         headingText={workflowId ? 'Empty Workflow' : 'Empty Step bundle'}
-        // TODO: read-only views showed no description in v1; their copy is still open and
-        // bitkit-v2 requires the prop.
-        bodyText={onAdd ? 'Add Steps from the library.' : ''}
+        bodyText="Add Steps from the library."
       >
         {onAdd && (
           <Button
