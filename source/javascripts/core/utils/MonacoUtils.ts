@@ -16,11 +16,15 @@ import { getBitriseYml } from '../stores/BitriseYmlStore';
 import { MERGED_MODEL_SCHEME } from './lspModelUris';
 import PageProps from './PageProps';
 import VersionUtils from './VersionUtils';
+import YmlExpansionUtils, { type Expansion } from './YmlExpansionUtils';
 import YmlUtils from './YmlUtils';
 
 type BeforeMountHandler = Exclude<EditorProps['beforeMount'], undefined>;
 
 loader.config({ monaco });
+
+// Marks the alias and merge key markers for their quick fixes. `source` is only the label the hover shows.
+const ALIAS_MARKER_CODE = 'yaml-alias';
 
 /**
  * Aliases and merge keys warn rather than error: an error marker disables Save, and these are valid YAML
@@ -47,6 +51,7 @@ function setAliasMarkers(uri: string, textDoc?: Document) {
           error ??
           "The Visual editor doesn't support YAML aliases or merge keys, so it's disabled for this configuration.",
         source: 'Workflow Editor',
+        code: ALIAS_MARKER_CODE,
         startLineNumber: from.lineNumber,
         startColumn: from.column,
         endLineNumber: to.lineNumber,
@@ -76,6 +81,92 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
   }
 
   isConfiguredForYaml = true;
+};
+
+let isConfiguredForAliasQuickFixes = false;
+const expanders = new WeakMap<
+  monaco.editor.ITextModel,
+  { versionId: number; expander: ReturnType<typeof YmlExpansionUtils.expander> }
+>();
+
+/** One expander per model version: Monaco asks again on every hover and cursor move over a warning. */
+function expanderFor(model: monaco.editor.ITextModel) {
+  const versionId = model.getVersionId();
+  const cached = expanders.get(model);
+  if (cached?.versionId === versionId) {
+    return cached.expander;
+  }
+  const expander = YmlExpansionUtils.expander(model.getValue());
+  expanders.set(model, { versionId, expander });
+  return expander;
+}
+
+/**
+ * A quick fix on each alias and merge key warning that expands it. It edits the model, so it's one undo
+ * step and reaches the store through the editor's onChange like typing.
+ */
+const configureAliasQuickFixes: BeforeMountHandler = (monacoInstance) => {
+  if (isConfiguredForAliasQuickFixes) {
+    return;
+  }
+
+  monacoInstance.languages.registerCodeActionProvider(
+    'yaml',
+    {
+      provideCodeActions(model, _range, context) {
+        // An alias with no anchor is the one error marker, and there's nothing to expand it to.
+        const markers = context.markers.filter(
+          ({ code, severity }) => code === ALIAS_MARKER_CODE && severity === monaco.MarkerSeverity.Warning,
+        );
+        // Monaco checks `readOnly` only when an editor mounts, and the YAML editor turns it on later.
+        const isReadOnly = monacoInstance.editor
+          .getEditors()
+          .some((editor) => editor.getModel() === model && editor.getOption(monaco.editor.EditorOption.readOnly));
+        const expander = markers.length > 0 && !isReadOnly ? expanderFor(model) : undefined;
+        if (!expander) {
+          return { actions: [], dispose: () => {} };
+        }
+
+        // `<<` and the alias it points at are two markers for one merge key, with one expansion.
+        const offered = new Set<Expansion>();
+        const actions = markers.flatMap((marker): languages.CodeAction[] => {
+          const expansion = expander.at(
+            model.getOffsetAt({ lineNumber: marker.startLineNumber, column: marker.startColumn }),
+          );
+          // What can't be expanded gets no quick fix.
+          if (!expansion || 'error' in expansion || offered.has(expansion)) {
+            return [];
+          }
+          offered.add(expansion);
+          const { start, end, text } = expansion.edit;
+          return [
+            {
+              title: expansion.kind === 'merge-key' ? 'Expand this merge key' : 'Expand this alias',
+              kind: 'quickfix',
+              diagnostics: [marker],
+              edit: {
+                edits: [
+                  {
+                    resource: model.uri,
+                    versionId: model.getVersionId(),
+                    textEdit: {
+                      range: monaco.Range.fromPositions(model.getPositionAt(start), model.getPositionAt(end)),
+                      text,
+                    },
+                  },
+                ],
+              },
+            },
+          ];
+        });
+
+        return { actions, dispose: () => {} };
+      },
+    },
+    { providedCodeActionKinds: ['quickfix'] },
+  );
+
+  isConfiguredForAliasQuickFixes = true;
 };
 
 let isConfiguredForEnvVarsCompletionProvider = false;
@@ -342,6 +433,7 @@ function onModelMarkerStatusChange(
 
 export default {
   configureForYaml,
+  configureAliasQuickFixes,
   configureBitriseLanguageServer,
   configureEnvVarsCompletionProvider,
   onModelMarkerStatusChange,
