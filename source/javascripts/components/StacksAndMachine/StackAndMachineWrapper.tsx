@@ -18,7 +18,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
         </Text>
       </Box>
       {isDefault && (
-        <BitkitBadge variant="subtle" colorVariant="blue" marginInlineEnd="16">
+        <BitkitBadge colorVariant="blue" marginInlineEnd="16">
           Default
         </BitkitBadge>
       )}

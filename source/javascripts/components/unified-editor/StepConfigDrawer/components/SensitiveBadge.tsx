@@ -7,9 +7,7 @@ const SensitiveBadge = () => {
       shouldWrapChildren
       label="This input holds sensitive information. You can only use secrets to securely reference it."
     >
-      <BitkitBadge variant="subtle" colorVariant="yellow">
-        SENSITIVE
-      </BitkitBadge>
+      <BitkitBadge colorVariant="yellow">SENSITIVE</BitkitBadge>
     </Tooltip>
   );
 };
