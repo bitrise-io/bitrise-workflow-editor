@@ -28,7 +28,8 @@ const DOCS_URL =
   'https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/configuring-tool-versions';
 const CLI_DOCS_URL = `${DOCS_URL}#tool-setup-during-workflow-execution`;
 
-const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'latest-of', prefix: '', preferInstalled: false };
+// A new row has no tool yet, so no prefix candidates either.
+const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'absolute-latest-released' };
 
 const HeaderLinkSeparator = () => (
   <Text as="span" color="text/tertiary" aria-hidden="true">
@@ -96,7 +97,8 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
           const parsed = ToolsService.parseToolVersion(versionString);
           return (
             <ToolRow
-              key={toolId}
+              // A row belongs to its scope too, so switching workflow remounts it with nothing held over.
+              key={`${scope.type === 'workflow' ? scope.workflowId : ''}/${toolId}`}
               toolId={toolId}
               strategy={parsed.strategy}
               version={ToolsService.getVersionInputValue(parsed)}
