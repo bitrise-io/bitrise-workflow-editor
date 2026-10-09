@@ -51,13 +51,9 @@ export default {
     onClose: { type: 'function' },
   },
   // Stories share the module-level store; start each one from a single (non-modular) config.
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(formatYml(), getCiConfig());
     bitriseYmlStore.setState({ tree: undefined, files: {} });
-  },
-  parameters: {
-    msw: {
-      handlers: [formatYml(), getCiConfig()],
-    },
   },
 } as Meta<typeof UpdateConfigurationDialog>;
 
@@ -66,21 +62,23 @@ type Story = StoryObj<typeof UpdateConfigurationDialog>;
 export const Default: Story = {};
 
 export const Failed: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        formatYml(),
-        getCiConfig(
-          'config (/tmp/config20241207-26-5782vz.yaml) is not valid: trigger item #1: non-existent workflow defined as trigger target: primary',
-        ),
-      ],
-    },
+  beforeEach({ msw }) {
+    msw.use(
+      formatYml(),
+      getCiConfig(
+        'config (/tmp/config20241207-26-5782vz.yaml) is not valid: trigger item #1: non-existent workflow defined as trigger target: primary',
+      ),
+    );
   },
 };
 
 export const Modular: Story = {
   beforeEach: () => {
-    initializeModularConfig({ root: MODULAR_ROOT, branch: 'main', commitSha: SHA });
+    initializeModularConfig({
+      root: MODULAR_ROOT,
+      branch: 'main',
+      commitSha: SHA,
+    });
     // Make both module files dirty so they show up as changed modules.
     updateFileDocument('n_pipelines', ({ doc }) => {
       YmlUtils.setIn(doc, ['pipelines', 'pl-1'], {});

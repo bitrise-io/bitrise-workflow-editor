@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react-vite';
+import { Meta, StoryObj } from '@storybook/react-vite';
 
 import BuildApiMocks from '@/core/api/BuildApi.mswMocks';
 
@@ -18,30 +18,27 @@ export default {
   },
 } as Meta<typeof StartBuildDialog>;
 
-export const Pipeline = {
+type Story = StoryObj<typeof StartBuildDialog>;
+
+export const Pipeline: Story = {
   args: {
     pipelineId: 'pipeline-1',
     workflowId: undefined,
   },
-  parameters: {
-    msw: {
-      handlers: [BuildApiMocks.startBuild('success')],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(BuildApiMocks.startBuild('success'));
   },
 };
 
-export const Workflow = {
-  parameters: {
-    msw: {
-      handlers: [BuildApiMocks.startBuild('success')],
-    },
+export const Workflow: Story = {
+  beforeEach({ msw }) {
+    msw.use(BuildApiMocks.startBuild('success'));
   },
 };
 
-export const Error = {
-  parameters: {
-    msw: {
-      handlers: [BuildApiMocks.startBuild('error')],
-    },
+export const Error: Story = {
+  beforeEach({ msw }) {
+    msw.use(BuildApiMocks.startBuild('error'));
   },
 };

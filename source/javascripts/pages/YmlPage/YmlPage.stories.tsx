@@ -14,7 +14,19 @@ type StoryType = StoryObj<typeof YmlPage>;
 
 export default {
   component: YmlPage,
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(
+      http.get('app/:projectSlug/pipeline_config', () => {
+        return HttpResponse.json({
+          is_modular_yaml_supported: true,
+          is_yml_split: false,
+          last_modified: '2024-12-03',
+          lines: 5000,
+          uses_repository_yml: false,
+          yml_root_path: '',
+        });
+      }),
+    );
     // The editor keeps its model across unmounts, and in the app the language services keep it in
     // sync with the store. Stories don't mount those, so without this a story shows the last one's YAML.
     monaco.editor.getModel(BACKGROUND_MODEL_URI)?.dispose();
@@ -38,22 +50,6 @@ export default {
       </Box>
     ),
   ],
-  parameters: {
-    msw: {
-      handlers: [
-        http.get('app/:projectSlug/pipeline_config', () => {
-          return HttpResponse.json({
-            is_modular_yaml_supported: true,
-            is_yml_split: false,
-            last_modified: '2024-12-03',
-            lines: 5000,
-            uses_repository_yml: false,
-            yml_root_path: '',
-          });
-        }),
-      ],
-    },
-  },
 } as Meta<typeof YmlPage>;
 
 export const CliMode: StoryType = {
@@ -74,21 +70,19 @@ export const RepositoryYmlAvailableLimitIsFalse: StoryType = {
 };
 
 export const YmlStoredOnGit: StoryType = {
-  parameters: {
-    msw: {
-      handlers: [
-        http.get('app/:projectSlug/pipeline_config', () => {
-          return HttpResponse.json({
-            is_modular_yaml_supported: true,
-            is_yml_split: false,
-            last_modified: '2024-12-03',
-            lines: 5000,
-            uses_repository_yml: true,
-            yml_root_path: '',
-          });
-        }),
-      ],
-    },
+  beforeEach({ msw }) {
+    msw.use(
+      http.get('app/:projectSlug/pipeline_config', () => {
+        return HttpResponse.json({
+          is_modular_yaml_supported: true,
+          is_yml_split: false,
+          last_modified: '2024-12-03',
+          lines: 5000,
+          uses_repository_yml: true,
+          yml_root_path: '',
+        });
+      }),
+    );
   },
 };
 

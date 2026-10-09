@@ -142,6 +142,17 @@ The first catalog match wins, which assumes the catalog is mise's list reversed.
 catalog instead, so elixir's `-otp-` builds and some java, python, ruby and erlang lines are out of
 mise's order (BE-2245). Fix that in the catalog rather than sorting here: mise does not sort.
 
+## A `latest-of` prefix is never empty
+
+Bare `latest` and `:latest` read back as the absolute strategies, and so does a keyword prefix such
+as `latest:installed`, so `serializeToolVersion` throws on a `latest-of` whose prefix is empty or a
+keyword. Until it has a real one, `ToolRow` holds the value as a draft and the YAML keeps the last
+value it could write. While a prefix is typed or seeded into the text field, the start of a keyword
+such as `lat` is held too, so a refused keyword leaves nothing half written behind. The draft stands
+in only for the document it was started on, so a discard or any other edit drops it, and rows are
+keyed by workflow, so switching workflow drops it too. A new row does not offer `latest-of`, since
+its draft would not survive the row becoming a real one.
+
 ## Things that fail somewhere else
 
 - **A new YAML key fails at save**, not at compile time: the Go server validates with the `bitrise`

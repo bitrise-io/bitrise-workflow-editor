@@ -108,7 +108,7 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-export const toMachineTypeLabel = (machineType: MachineType) => {
+const toMachineTypeLabel = (machineType: MachineType) => {
   let label = `${machineType.name}`;
 
   if (machineType.creditPerMinute) {
