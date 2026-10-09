@@ -6,10 +6,10 @@ import {
   DropdownOption,
   DropdownProps,
   DropdownSearch,
-  EmptyState,
   Icon,
   Tooltip,
 } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
 import { useMemo, useRef, useState } from 'react';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -89,12 +89,12 @@ const EntitySelector = (props: EntitySelectorProps) => {
         </DropdownGroup>
       )}
       {hasNoSearchResults && (
-        <EmptyState
+        <BitkitEmptyState
           data-clarity-unmask="true"
-          iconName="Magnifier"
-          backgroundColor="background/primary"
-          title={`No ${entityName}s are matching your filter`}
-          description="Modify your search to get results"
+          icon={IconMagnifier}
+          colorVariant="white"
+          headingText={`No ${entityName}s are matching your filter`}
+          bodyText="Modify your search to get results"
         />
       )}
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no footer at all. */}

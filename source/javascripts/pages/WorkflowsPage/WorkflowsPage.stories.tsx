@@ -156,11 +156,8 @@ export const EmptyCreateWithAI: Story = {
   },
   parameters: {
     bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'workflows', {});
-      return {
-        yml: TEST_BITRISE_YML,
-        ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)),
-      };
+      const yml = set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },
 };
@@ -171,11 +168,8 @@ export const EmptyWithoutCreateWithAI: Story = {
   },
   parameters: {
     bitriseYmlStore: (() => {
-      set(TEST_BITRISE_YML, 'workflows', {});
-      return {
-        yml: TEST_BITRISE_YML,
-        ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)),
-      };
+      const yml = set(TEST_BITRISE_YML, 'workflows', {});
+      return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
   },
 };

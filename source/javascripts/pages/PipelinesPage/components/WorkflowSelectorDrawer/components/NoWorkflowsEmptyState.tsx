@@ -1,12 +1,12 @@
-import { EmptyState } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconWorkflowFlow } from '@bitrise/bitkit-v2';
 
 const NoWorkflowsEmptyState = () => {
   return (
-    <EmptyState
+    <BitkitEmptyState
       data-clarity-unmask="true"
-      iconName="WorkflowFlow"
-      title="There are no available Workflows"
-      description="Create Workflows to start building a Pipeline."
+      icon={IconWorkflowFlow}
+      headingText="There are no available Workflows"
+      bodyText="Create Workflows to start building a Pipeline."
     />
   );
 };

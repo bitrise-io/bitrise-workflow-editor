@@ -1,4 +1,5 @@
-import { Box, Button, EmptyState } from '@bitrise/bitkit';
+import { Box, Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
@@ -57,11 +58,11 @@ const StepBundlesPage = () => {
       <StepBundleConfigPanel stepBundleId={stepBundleId} />
     </Box>
   ) : (
-    <EmptyState
+    <BitkitEmptyState
       data-clarity-unmask="true"
-      iconName="Steps"
-      title="Your Step bundles will appear here"
-      description="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."
+      icon={IconStep}
+      headingText="Your Step bundles will appear here"
+      bodyText="With Step bundles, you can create reusable chunks of configuration. You can also create Step bundles in your Workflows."
       height="100%"
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no action. */}
@@ -76,7 +77,7 @@ const StepBundlesPage = () => {
           Create Step bundle
         </Button>
       )}
-    </EmptyState>
+    </BitkitEmptyState>
   );
   return (
     <>
