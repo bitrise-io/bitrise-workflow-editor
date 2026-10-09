@@ -1,7 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
-    "source/javascripts/main.tsx",
     "source/javascripts/lib/*.js",
     ".storybook/**/*.{js,ts,tsx}"
   ],

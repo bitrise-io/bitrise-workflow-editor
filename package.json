@@ -22,7 +22,6 @@
     "step",
     "editor"
   ],
-  "main": "index.js",
   "scripts": {
     "lint": "eslint source/javascripts --cache",
     "lint:fix": "eslint source/javascripts --cache --quiet --fix",
