@@ -6,11 +6,11 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ComponentProps, useState } from 'react';
 
-import { ParsedToolVersion, ToolCatalog, ToolVersions } from '@/core/models/Tools';
+import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
 import { updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 
-import { selectOption } from '../../../../spec/bitkit-select-helper';
+import { openSelect, selectOption } from '../../../../spec/bitkit-select-helper';
 import ToolRow from './ToolRow';
 
 // The bitkit barrel also exports a markdown component, and `react-markdown`'s ESM dependency tree is
@@ -35,6 +35,16 @@ const NODE_VERSIONS: ToolVersions = {
   ],
 };
 
+// What every row here has in common: a nodejs row with the catalog loaded.
+const ROW_PROPS = {
+  toolId: 'nodejs',
+  existingToolIds: ['nodejs'],
+  catalog: CATALOG,
+  isCatalogLoading: false,
+  onIdChange: jest.fn(),
+  onRemove: jest.fn(),
+};
+
 type ControlledToolRowProps = Partial<
   Omit<ComponentProps<typeof ToolRow>, 'strategy' | 'version' | 'preferInstalled' | 'onChange'>
 > & {
@@ -50,12 +60,7 @@ const ControlledToolRow = ({ initial, onChange, ...overrides }: ControlledToolRo
 
   return (
     <ToolRow
-      toolId="nodejs"
-      existingToolIds={['nodejs']}
-      catalog={CATALOG}
-      isCatalogLoading={false}
-      onIdChange={jest.fn()}
-      onRemove={jest.fn()}
+      {...ROW_PROPS}
       {...overrides}
       strategy={parsed.strategy}
       version={ToolsService.getVersionInputValue(parsed)}
@@ -68,16 +73,18 @@ const ControlledToolRow = ({ initial, onChange, ...overrides }: ControlledToolRo
   );
 };
 
-const renderToolRow = (initial: ParsedToolVersion, overrides: Omit<ControlledToolRowProps, 'initial'> = {}) => {
+type ToolRowOverrides = Omit<ControlledToolRowProps, 'initial'>;
+
+const renderToolRow = (initial: ParsedToolVersion, overrides: ToolRowOverrides = {}) => {
   // A fresh element each time, since React skips rendering an element it has already seen.
-  const tree = () => (
+  const tree = (laterOverrides: ToolRowOverrides = {}) => (
     <BitkitProvider>
-      <ControlledToolRow initial={initial} {...overrides} />
+      <ControlledToolRow initial={initial} {...overrides} {...laterOverrides} />
     </BitkitProvider>
   );
   const { rerender } = render(tree());
 
-  return { rerender: () => rerender(tree()) };
+  return { rerender: (laterOverrides?: ToolRowOverrides) => rerender(tree(laterOverrides)) };
 };
 
 // Like the real hook, a disabled query has no data, so a tool outside the catalog gets none.
@@ -100,6 +107,229 @@ describe('ToolRow', () => {
     renderToolRow({ strategy: 'absolute-latest-released' });
 
     expect(await screen.findByText('Currently resolves to 24.0.0')).not.toBeNull();
+  });
+
+  describe('searching the version list', () => {
+    const searchBox = () => screen.getByRole('textbox', { name: 'Search' });
+
+    const SEARCH_CASES: {
+      field: string;
+      initial: ParsedToolVersion;
+      match: string;
+      selected: string;
+      other: string;
+    }[] = [
+      {
+        field: 'version',
+        initial: { strategy: 'exact', version: '24.0.0' },
+        match: '22.11.0',
+        selected: '24.0.0',
+        other: '20.9.0',
+      },
+      {
+        field: 'prefix',
+        initial: { strategy: 'latest-of', prefix: '24', preferInstalled: false },
+        match: '22',
+        selected: '24',
+        other: '20',
+      },
+    ];
+
+    it.each(SEARCH_CASES)(
+      'keeps the selected $field listed and starts over when the menu closes',
+      async ({ initial, match, selected, other }) => {
+        const user = userEvent.setup();
+        renderToolRow(initial);
+        const select = screen.getAllByRole('combobox')[2];
+
+        await openSelect(user, select);
+        await user.type(searchBox(), '22');
+        expect(screen.getByRole('option', { name: match })).not.toBeNull();
+        expect(screen.getByRole('option', { name: selected })).not.toBeNull();
+        expect(screen.queryByRole('option', { name: other })).toBeNull();
+
+        await user.keyboard('{Escape}');
+        await openSelect(user, select);
+        expect(searchBox()).toHaveProperty('value', '');
+        expect(screen.getByRole('option', { name: other })).not.toBeNull();
+      },
+    );
+  });
+
+  describe('switching to exact', () => {
+    const REQUIRED_ERROR = 'Tool version is required';
+
+    it("seeds the newest release when the catalog can't tell what the row resolves to", async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      renderToolRow({ strategy: 'absolute-latest-installed' }, { onChange });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      expect(lastWritten(onChange)).toBe('24.0.0');
+    });
+
+    it.each([false, true])(
+      'keeps the line a latest-of row resolves in, rather than upgrading (prefer installed: %s)',
+      async (preferInstalled) => {
+        const user = userEvent.setup();
+        const onChange = jest.fn();
+        renderToolRow({ strategy: 'latest-of', prefix: '22', preferInstalled }, { onChange });
+
+        await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+        expect(lastWritten(onChange)).toBe('22.11.0');
+      },
+    );
+
+    it('flags a tool outside the catalog straight away', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      mockVersions(undefined);
+      renderToolRow({ strategy: 'absolute-latest-released' }, { toolId: 'deno', existingToolIds: ['deno'], onChange });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      expect(onChange.mock.lastCall[0]).toEqual({ strategy: 'exact', version: '' });
+      expect(screen.getByText(REQUIRED_ERROR)).not.toBeNull();
+    });
+
+    it.each([
+      [
+        'version list',
+        (): ToolRowOverrides => {
+          mockVersions(undefined, { isLoading: true });
+          return {};
+        },
+      ],
+      ['catalog', (): ToolRowOverrides => ({ catalog: undefined, isCatalogLoading: true })],
+    ])('seeds once the %s arrives, and flags nothing before', async (_, startLoading) => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const { rerender } = renderToolRow({ strategy: 'absolute-latest-released' }, { onChange, ...startLoading() });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      expect(onChange.mock.lastCall[0]).toEqual({ strategy: 'exact', version: '' });
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeNull();
+
+      mockVersions(NODE_VERSIONS);
+      rerender({ catalog: CATALOG, isCatalogLoading: false });
+      expect(lastWritten(onChange)).toBe('24.0.0');
+      expect(screen.queryByText(REQUIRED_ERROR)).toBeNull();
+    });
+
+    describe('while the version list is still loading', () => {
+      beforeEach(() => {
+        mockVersions(undefined, { isLoading: true });
+      });
+
+      it('keeps the line a latest-of row resolves in once the list arrives', async () => {
+        const user = userEvent.setup();
+        const onChange = jest.fn();
+        const { rerender } = renderToolRow(
+          { strategy: 'latest-of', prefix: '22', preferInstalled: false },
+          { onChange },
+        );
+
+        await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+        mockVersions(NODE_VERSIONS);
+        rerender();
+        expect(lastWritten(onChange)).toBe('22.11.0');
+      });
+
+      it.each([
+        ['is empty', { toolId: 'nodejs', versions: [] }, false],
+        ['fails', undefined, true],
+      ])('flags the field once the list %s, with nothing to seed from', async (_, data, isError) => {
+        const user = userEvent.setup();
+        const onChange = jest.fn();
+        const { rerender } = renderToolRow({ strategy: 'absolute-latest-released' }, { onChange });
+
+        await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+        const writes = onChange.mock.calls.length;
+        mockVersions(data, { isError });
+        rerender();
+        expect(onChange).toHaveBeenCalledTimes(writes);
+        expect(await screen.findByText(REQUIRED_ERROR)).not.toBeNull();
+      });
+
+      it('leaves the row alone when the strategy changed before the list arrived', async () => {
+        const user = userEvent.setup();
+        const onChange = jest.fn();
+        const { rerender } = renderToolRow({ strategy: 'absolute-latest-released' }, { onChange });
+
+        await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+        await selectOption(user, screen.getAllByRole('combobox')[1], 'Latest preinstalled version');
+        const writes = onChange.mock.calls.length;
+        mockVersions(NODE_VERSIONS);
+        rerender();
+        expect(onChange).toHaveBeenCalledTimes(writes);
+        expect(lastWritten(onChange)).toBe('installed');
+      });
+    });
+
+    it('keeps a version typed before the catalog arrived', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const { rerender } = renderToolRow(
+        { strategy: 'absolute-latest-released' },
+        { onChange, catalog: undefined, isCatalogLoading: true },
+      );
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      await user.type(screen.getByPlaceholderText('e.g. 24.7.0'), '20.9.0');
+      rerender({ catalog: CATALOG, isCatalogLoading: false });
+      expect(lastWritten(onChange)).toBe('20.9.0');
+    });
+
+    describe('with the test playing the YAML', () => {
+      // Rendered bare with a fresh `onChange` each time, as a parent that renders again would pass.
+      const row = (strategy: VersionStrategy, onChange: jest.Mock) => (
+        <BitkitProvider>
+          <ToolRow {...ROW_PROPS} strategy={strategy} version="" onChange={(next) => onChange(next)} />
+        </BitkitProvider>
+      );
+      const switchToExact = async (rerender: ReturnType<typeof render>['rerender'], onChange: jest.Mock) => {
+        const user = userEvent.setup();
+        await openSelect(user, screen.getAllByRole('combobox')[1]);
+        await user.click(screen.getByRole('option', { name: 'Exact version' }));
+        rerender(row('exact', onChange));
+      };
+
+      it('leaves the row alone when the YAML moved off exact before the list arrived', async () => {
+        const onChange = jest.fn();
+        mockVersions(undefined, { isLoading: true });
+        const { rerender } = render(row('absolute-latest-released', onChange));
+
+        await switchToExact(rerender, onChange);
+        rerender(row('absolute-latest-released', onChange));
+        const writes = onChange.mock.calls.length;
+        mockVersions(NODE_VERSIONS);
+        rerender(row('absolute-latest-released', onChange));
+        expect(await screen.findByText('Currently resolves to 24.0.0')).not.toBeNull();
+        expect(onChange).toHaveBeenCalledTimes(writes);
+      });
+
+      it('writes the seed once, even when the YAML does not take it', async () => {
+        const onChange = jest.fn();
+        mockVersions(undefined, { isLoading: true });
+        const { rerender } = render(row('absolute-latest-released', onChange));
+
+        await switchToExact(rerender, onChange);
+        mockVersions(NODE_VERSIONS);
+        rerender(row('exact', onChange));
+        rerender(row('exact', onChange));
+        expect(onChange.mock.calls.filter(([next]) => next.version === '24.0.0')).toHaveLength(1);
+      });
+    });
+
+    it('flags the empty version once its menu has been visited', async () => {
+      const user = userEvent.setup();
+      mockVersions(undefined, { isLoading: true });
+      renderToolRow({ strategy: 'absolute-latest-released' });
+
+      await selectOption(user, screen.getAllByRole('combobox')[1], 'Exact version');
+      await openSelect(user, screen.getAllByRole('combobox')[2]);
+      await user.keyboard('{Escape}');
+      expect(await screen.findByText(REQUIRED_ERROR)).not.toBeNull();
+    });
   });
 
   describe('latest-of', () => {

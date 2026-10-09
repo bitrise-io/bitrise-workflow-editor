@@ -1,7 +1,6 @@
 import {
   BitkitAlert,
   BitkitCheckbox,
-  BitkitCombobox,
   BitkitIconButton,
   BitkitLink,
   BitkitSelect,
@@ -14,12 +13,12 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import { Document } from 'yaml';
 import { useStore } from 'zustand';
 
-import { ParsedToolVersion, ToolCatalog, VersionStrategy } from '@/core/models/Tools';
+import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import ToolVersionUtils from '@/core/utils/ToolVersionUtils';
@@ -45,6 +44,10 @@ const PREFER_INSTALLED_TOOLTIP_TEXT =
 
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
+
+// The newest release on `line`, or overall when the line has none.
+const getExactSeed = (toolVersions: ToolVersions | undefined, line: string) =>
+  ToolVersionUtils.getLatestVersion(toolVersions, line) ?? ToolVersionUtils.getLatestVersion(toolVersions) ?? '';
 
 type ToolRowProps = {
   toolId: string;
@@ -83,6 +86,11 @@ const ToolRow = ({
   const ymlDocument = useStore(bitriseYmlStore, (s) => s.ymlDocument);
   const [heldDraft, setHeldDraft] = useState<{ parsed: ParsedToolVersion; document: Document } | null>(null);
   const draft = heldDraft?.document === ymlDocument ? heldDraft.parsed : null;
+  // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
+  const [versionSearch, setVersionSearch] = useState('');
+  // The line a switch to exact seeds along, held while the list it seeds from is still on its way.
+  const [pendingSeed, setPendingSeed] = useState<{ line: string } | null>(null);
+  const writtenSeed = useRef<{ line: string } | null>(null);
 
   const { control } = useForm<ToolRowFormValues>({
     mode: 'onChange',
@@ -123,6 +131,8 @@ const ToolRow = ({
     isError: isVersionsError,
   } = useToolVersions(canonicalToolId, isKnownCatalogTool);
 
+  const isVersionListPending = isCatalogLoading || isVersionsLoading;
+
   // A dropdown is only worth it when the catalog publishes version numbers. Until the list
   // arrives the dropdown shows it is loading, rather than a field that turns into one. A list that
   // failed to load has nothing to pick, so the prefix is typed.
@@ -143,6 +153,14 @@ const ToolRow = ({
     () => ToolsService.withConfiguredValue(catalogOptions, version),
     [catalogOptions, version],
   );
+  // The selected option stays listed while searching, as Bitkit's own search pattern keeps it.
+  const searchedVersionOptions = useMemo(() => {
+    const query = versionSearch.toLowerCase();
+
+    return query
+      ? versionOptions.filter(({ label, value }) => value === shownVersion || label.toLowerCase().includes(query))
+      : versionOptions;
+  }, [versionOptions, versionSearch, shownVersion]);
 
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
   const trimmedVersion = shownVersion.trim();
@@ -158,7 +176,9 @@ const ToolRow = ({
       : undefined;
   };
   const versionError = getVersionError();
-  const displayedVersionError = versionTouched ? versionError : undefined;
+  const isSeedDue = pendingSeed !== null && !isVersionListPending && effectiveStrategy === 'exact' && version === '';
+  const dueSeed = isSeedDue ? getExactSeed(toolVersions, pendingSeed.line) : '';
+  const displayedVersionError = versionTouched || (isSeedDue && dueSeed === '') ? versionError : undefined;
   // `latest-of` resolves along its prefix and the absolute `latest` along the whole list.
   const resolvesAgainstCatalog = isLatestOf || effectiveStrategy === 'absolute-latest-released';
   const resolvedVersion = useMemo(
@@ -251,7 +271,18 @@ const ToolRow = ({
     }
   };
 
+  // Writes a seed that was waiting on the list. An event handler cannot do it, as the list arrives
+  // on its own. Each switch writes once, so a write the YAML does not take cannot repeat.
+  useEffect(() => {
+    if (dueSeed !== '' && writtenSeed.current !== pendingSeed) {
+      writtenSeed.current = pendingSeed;
+      onChange({ strategy: 'exact', version: dueSeed });
+    }
+  }, [dueSeed, pendingSeed, onChange]);
+
   const handleStrategyChange = (newStrategy: VersionStrategy) => {
+    setPendingSeed(null);
+
     if (newStrategy === 'latest-of') {
       // Seeded in the same write, so the strategy never lands without its prefix.
       setVersionTouched(false);
@@ -263,17 +294,33 @@ const ToolRow = ({
       return;
     }
 
-    // Every other switch empties the version field, because an exact version and a prefix are not
-    // interchangeable and the remaining strategies have no version at all.
-    if (shownVersion !== '') {
-      // The switch emptied the field for the user, so let them fill it before it is flagged.
-      setVersionTouched(false);
-    } else if (newStrategy === 'exact') {
-      // The field was already empty, so it won't hit the branch above. It is already invalid, so
-      // flag it immediately.
-      setVersionTouched(true);
+    if (newStrategy === 'exact') {
+      // Seeded like `latest-of`, so the switch lands on a version rather than on a required field.
+      // A `latest-of` row keeps the newest release on its line, installed preferred or not, so
+      // `22:latest` stays on `22`. Any other row, or a line with no release, gets the newest
+      // release overall. A list still on its way seeds once it arrives, and with nothing to seed
+      // from the field stays empty and is flagged.
+      const seedLine = isLatestOf ? trimmedVersion : '';
+      const seededVersion = getExactSeed(toolVersions, seedLine);
+      if (seededVersion === '' && isVersionListPending) {
+        setPendingSeed({ line: seedLine });
+      }
+      setVersionTouched(seededVersion === '' && !isVersionListPending);
+      applyChange({ strategy: 'exact', version: seededVersion });
+      return;
     }
+
+    // The remaining strategies have no version at all, so the field goes with them.
+    setVersionTouched(false);
     applyChange(ToolsService.toParsedToolVersion(newStrategy, ''));
+  };
+
+  // Closing a menu counts as visiting the field, and its search starts over on the next open.
+  const handleVersionMenuOpenChange = ({ open }: { open: boolean }) => {
+    if (!open) {
+      setVersionTouched(true);
+      setVersionSearch('');
+    }
   };
 
   const handleVersionChange = (newVersion: string) => {
@@ -353,35 +400,36 @@ const ToolRow = ({
               {/* An exact version of a tool the catalog knows is always picked from its list, a
                   prefix only when the list has version numbers. */}
               {isExactKnownTool ? (
-                <BitkitCombobox
+                <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  emptyLabel="No matches"
-                  items={versionOptions}
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   // With no version list there is nothing to pick from. Read-only rather than
                   // disabled, so the configured version stays legible and reachable by keyboard
                   // and screen readers; the alert below points to the YAML editor instead.
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  // Leaving the field counts as visiting it, so the error can surface.
-                  comboboxProps={{
-                    onBlur: () => setVersionTouched(true),
-                  }}
+                  selectProps={{ onOpenChange: handleVersionMenuOpenChange }}
                   errorText={displayedVersionError}
                   warningText={catalogWarning}
-                  value={version || undefined}
-                  onValueChange={(newVersion) => handleVersionChange(newVersion ?? '')}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
+                  value={shownVersion}
+                  onValueChange={handleVersionChange}
                 />
               ) : hasPrefixDropdown ? (
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={versionOptions}
+                  items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
+                  selectProps={{ onOpenChange: handleVersionMenuOpenChange }}
                   helperText={versionHint}
                   warningText={catalogWarning}
-                  value={shownVersion || undefined}
+                  searchValue={versionSearch}
+                  onSearchChange={setVersionSearch}
+                  value={shownVersion}
                   onValueChange={handleVersionChange}
                 />
               ) : (
