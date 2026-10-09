@@ -11,9 +11,6 @@ export default {
   component: PipelinesPage,
   parameters: {
     layout: 'fullscreen',
-    msw: {
-      handlers: [getStacksAndMachines()],
-    },
   },
   decorators: [
     (Story) => {
@@ -24,7 +21,8 @@ export default {
       );
     },
   ],
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(getStacksAndMachines());
     set(window, 'parent.pageProps.limits.isPipelinesAvailable', true);
     window.parent.pageProps = aiButtonEnabled();
   },

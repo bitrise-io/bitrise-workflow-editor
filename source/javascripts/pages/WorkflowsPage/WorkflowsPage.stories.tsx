@@ -22,19 +22,22 @@ type Story = StoryObj<typeof WorkflowsPage>;
 
 const meta: Meta<typeof WorkflowsPage> = {
   component: WorkflowsPage,
+
+  beforeEach({ msw }) {
+    msw.use(
+      StepApiMocks.getLocalStep({ status: 'success' }),
+      getCertificates(),
+      getProvProfiles(),
+      getStacksAndMachines(),
+      getFileStorageDocuments(),
+      getDefaultOutputs(':appSlug'),
+    );
+  },
+
   parameters: {
     layout: 'fullscreen',
-    msw: {
-      handlers: [
-        StepApiMocks.getLocalStep({ status: 'success' }),
-        getCertificates(),
-        getProvProfiles(),
-        getStacksAndMachines(),
-        getFileStorageDocuments(),
-        getDefaultOutputs(':appSlug'),
-      ],
-    },
   },
+
   decorators: (Story) => (
     <Box h="100dvh">
       <Story />
@@ -43,21 +46,19 @@ const meta: Meta<typeof WorkflowsPage> = {
 };
 
 const cliStory: Story = {
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(
+      StepApiMocks.getLocalStep({ status: 'success' }),
+      getSecretsFromLocal(),
+      getDefaultOutputs(),
+      getStacksAndMachines(),
+    );
     window.env.MODE = 'CLI';
     window.parent.pageProps = undefined;
     window.parent.globalProps = undefined;
   },
   parameters: {
     layout: 'fullscreen',
-    msw: {
-      handlers: [
-        StepApiMocks.getLocalStep({ status: 'success' }),
-        getSecretsFromLocal(),
-        getDefaultOutputs(),
-        getStacksAndMachines(),
-      ],
-    },
   },
 };
 
@@ -66,18 +67,16 @@ export const CliMode: Story = {
 };
 
 export const WebsiteMode: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        StepApiMocks.getLocalStep({ status: 'success' }),
-        getSecrets(),
-        getCertificates(),
-        getProvProfiles(),
-        getStacksAndMachines(),
-        getFileStorageDocuments(),
-        getDefaultOutputs(':appSlug'),
-      ],
-    },
+  beforeEach({ msw }) {
+    msw.use(
+      StepApiMocks.getLocalStep({ status: 'success' }),
+      getSecrets(),
+      getCertificates(),
+      getProvProfiles(),
+      getStacksAndMachines(),
+      getFileStorageDocuments(),
+      getDefaultOutputs(':appSlug'),
+    );
   },
 };
 
@@ -91,20 +90,20 @@ export const UniqueStepLimit: Story = {
 };
 
 export const DedicatedWithMachines: Story = {
-  parameters: {
-    msw: { handlers: [getStacksAndMachines({ privateCloud: 'machine-overrides' })] },
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines({ privateCloud: 'machine-overrides' }));
   },
 };
 
 export const LegacyDedicated: Story = {
-  parameters: {
-    msw: { handlers: [getStacksAndMachines({ privateCloud: 'no-machines' })] },
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines({ privateCloud: 'no-machines' }));
   },
 };
 
 export const SelfHostedRunner: Story = {
-  parameters: {
-    msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines({ hasSelfHostedRunner: true }));
   },
 };
 
@@ -143,7 +142,10 @@ export const WithContainerDefinitions: Story = {
             '--health-cmd "mongosh --eval \'db.adminCommand({ping:1})\'" --health-interval 10s --health-timeout 5s --health-retries 5',
         },
       });
-      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+      return {
+        yml: TEST_BITRISE_YML,
+        ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)),
+      };
     })(),
   },
 };
@@ -155,7 +157,10 @@ export const EmptyCreateWithAI: Story = {
   parameters: {
     bitriseYmlStore: (() => {
       set(TEST_BITRISE_YML, 'workflows', {});
-      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+      return {
+        yml: TEST_BITRISE_YML,
+        ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)),
+      };
     })(),
   },
 };
@@ -167,7 +172,10 @@ export const EmptyWithoutCreateWithAI: Story = {
   parameters: {
     bitriseYmlStore: (() => {
       set(TEST_BITRISE_YML, 'workflows', {});
-      return { yml: TEST_BITRISE_YML, ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)) };
+      return {
+        yml: TEST_BITRISE_YML,
+        ymlDocument: YmlUtils.toDoc(stringify(TEST_BITRISE_YML)),
+      };
     })(),
   },
 };

@@ -5,13 +5,12 @@ import { BitkitProvider } from '@bitrise/bitkit-v2';
 import type { Preview } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
-import { initialize, mswLoader } from 'msw-storybook-addon';
+import { setupWorker } from 'msw/browser';
+import { mswLoader } from 'msw-storybook-addon/csf3';
 import { useEffect } from 'react';
 
 import { bitriseYmlStore } from '../source/javascripts/core/stores/BitriseYmlStore';
 import YmlUtils from '../source/javascripts/core/utils/YmlUtils';
-
-initialize({ serviceWorker: { url: './mockServiceWorker.js' } });
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 3 } },
@@ -75,7 +74,13 @@ const preview: Preview = {
       );
     },
   ],
-  loaders: [mswLoader],
+  loaders: [
+    mswLoader(async () => {
+      const worker = setupWorker();
+      await worker.start({ serviceWorker: { url: './mockServiceWorker.js' } });
+      return worker;
+    }),
+  ],
 };
 
 export default preview;

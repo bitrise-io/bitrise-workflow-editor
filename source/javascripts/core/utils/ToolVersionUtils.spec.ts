@@ -43,6 +43,10 @@ describe('ToolVersionUtils', () => {
       expect(ToolVersionUtils.getPrefixes(versionCatalog('java', ['26.0.2.1']))).toEqual(['26', '26.0']);
     });
 
+    it('stops at the minor of a version spelled with a `v` too', () => {
+      expect(ToolVersionUtils.getPrefixes(versionCatalog('flutter', ['v1.12.13+hotfix.9']))).toEqual(['v1', 'v1.12']);
+    });
+
     it('does not mistake a number inside the name for the version', () => {
       // Only an all digit part starts the version, so the `3` in `miniconda3` must not end the name.
       expect(ToolVersionUtils.getPrefixes(versionCatalog('python', ['miniconda3-3.9-25.11.1']))).toEqual([
@@ -121,6 +125,66 @@ describe('ToolVersionUtils', () => {
 
     it('returns nothing when the version list is missing', () => {
       expect(ToolVersionUtils.getPrefixes(undefined)).toEqual([]);
+    });
+  });
+
+  describe('getSeedPrefix', () => {
+    // Newest first, as the catalog API publishes it.
+    const catalog = versionCatalog('nodejs', ['24.2.0', '22.12.0', '22.4.1']);
+
+    it('keeps the minor of the version being switched away from', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.12.0')).toBe('22.12');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22')).toBe('22');
+    });
+
+    it('keeps a version that is its own minor, rather than widening it to the major', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.12')).toBe('22.12');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, 'v22.12.0')).toBe('v22.12');
+    });
+
+    it('keeps the major when the catalog has no such minor', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '22.99.0')).toBe('22');
+    });
+
+    it('passes over a cut that is a catalog entry of its own, which would never resolve past itself', () => {
+      const erlang = versionCatalog('erlang', ['28.5.0.7', '28.5', '28.4.3']);
+      expect(ToolVersionUtils.getSeedPrefix(erlang, '28.5.0.7')).toBe('28');
+      expect(ToolVersionUtils.getSeedPrefix(erlang, '28.5')).toBe('28');
+    });
+
+    it('keeps the current value when every cut of it is a catalog entry of its own', () => {
+      const erlang = versionCatalog('erlang', ['28.5.0.7', '28.5', '28', '27.3']);
+      expect(ToolVersionUtils.getSeedPrefix(erlang, '28.5.0.7')).toBe('28.5.0.7');
+    });
+
+    it('keeps the vendor variant and minor of a version that is not semver', () => {
+      const java = versionCatalog('java', ['zulu-musl-8.96.0.19', 'zulu-17.0.1', 'openjdk-21', '26.0.2']);
+      expect(ToolVersionUtils.getSeedPrefix(java, 'zulu-musl-8.96.0.19')).toBe('zulu-musl-8.96');
+      expect(ToolVersionUtils.getSeedPrefix(java, 'zulu-musl-8')).toBe('zulu-musl-8');
+      expect(ToolVersionUtils.getSeedPrefix(java, 'openjdk-21')).toBe('openjdk-21');
+    });
+
+    it('keeps a value with no version number as its own line', () => {
+      const withIron = versionCatalog('nodejs', ['24.2.0', '20.9.0']);
+      expect(ToolVersionUtils.getSeedPrefix(withIron, 'lts-iron')).toBe('lts-iron');
+      expect(ToolVersionUtils.getSeedPrefix(versionCatalog('channels', ['nightly', 'stable']), 'nightly')).toBe(
+        'nightly',
+      );
+    });
+
+    it('falls back to the newest suggestion when the current value shares no prefix', () => {
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '')).toBe('24');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, 'lts-iron')).toBe('24');
+      expect(ToolVersionUtils.getSeedPrefix(catalog, '18.9.9')).toBe('24');
+    });
+
+    it("falls back to the current version's own prefix when there are no suggestions", () => {
+      expect(ToolVersionUtils.getSeedPrefix(undefined, '2.90.0')).toBe('2.90');
+      expect(ToolVersionUtils.getSeedPrefix(undefined, 'nightly')).toBe('nightly');
+    });
+
+    it('returns an empty prefix with neither suggestions nor a current version', () => {
+      expect(ToolVersionUtils.getSeedPrefix(undefined, '')).toBe('');
     });
   });
 

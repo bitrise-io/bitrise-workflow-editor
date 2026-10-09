@@ -6,13 +6,11 @@ import {
   DrawerCloseButton,
   DrawerContent,
   DrawerContentProps,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   DrawerProps,
   HTMLChakraProps,
   ModalBodyProps,
-  ModalFooterProps,
   ModalHeaderProps,
   ModalOverlayProps,
   useBreakpointValue,
@@ -112,17 +110,11 @@ const FloatingDrawerBody = (props: ModalBodyProps) => {
   return <DrawerBody p="24" flex="1" overflowY="auto" {...props} />;
 };
 
-const FloatingDrawerFooter = (props: ModalFooterProps) => {
-  return <DrawerFooter {...props} />;
-};
-
 export {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
-  FloatingDrawerFooter,
   FloatingDrawerHeader,
-  FloatingDrawerOverlay,
   FloatingDrawerProps,
 };
 
