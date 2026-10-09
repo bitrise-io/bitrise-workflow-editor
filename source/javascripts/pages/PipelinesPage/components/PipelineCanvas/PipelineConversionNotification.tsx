@@ -1,4 +1,4 @@
-import { Ribbon } from '@bitrise/bitkit';
+import { BitkitRibbon } from '@bitrise/bitkit-v2';
 
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
@@ -14,13 +14,13 @@ const PipelineConversionNotification = () => {
   }
 
   return (
-    <Ribbon
-      colorScheme="blue"
+    <BitkitRibbon
+      role="alert"
       data-clarity-unmask="true"
-      onClose={() => hidePipelineConversionNotificationFor(selectedPipeline)}
+      onDismiss={() => hidePipelineConversionNotificationFor(selectedPipeline)}
     >
       This Pipeline is based on a staged setup. Review artifact sharing and run conditions before running.
-    </Ribbon>
+    </BitkitRibbon>
   );
 };
 
