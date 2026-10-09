@@ -1,23 +1,28 @@
-import { Button, EmptyState } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconWorkflowFlow } from '@bitrise/bitkit-v2';
 
 type Props = {
   onUpgrade?: VoidFunction;
 };
 const UpgradePlanEmptyState = ({ onUpgrade }: Props) => {
   return (
-    <EmptyState
+    // The v2 recipe leaves `display` unset, so a stretched empty state centres its own content.
+    <BitkitEmptyState
       flex="1"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
       data-clarity-unmask="true"
-      iconName="WorkflowFlow"
-      title="Upgrade your plan to use Pipelines"
-      description="Experience enhanced automation and faster builds. Upgrade your plan to create Pipelines using a visual editor."
+      icon={IconWorkflowFlow}
+      headingText="Upgrade your plan to use Pipelines"
+      bodyText="Experience enhanced automation and faster builds. Upgrade your plan to create Pipelines using a visual editor."
     >
       {onUpgrade && (
         <Button size="md" onClick={onUpgrade}>
           Upgrade plan
         </Button>
       )}
-    </EmptyState>
+    </BitkitEmptyState>
   );
 };
 

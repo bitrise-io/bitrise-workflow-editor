@@ -1,7 +1,6 @@
 import {
   Box,
   Checkbox,
-  EmptyState,
   IconButton,
   Link,
   SearchInput,
@@ -14,6 +13,7 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconTrigger } from '@bitrise/bitkit-v2';
 import { AriaAttributes, useMemo, useState } from 'react';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
@@ -240,25 +240,27 @@ const TargetBasedTriggers = () => {
             : renderTable(sortedFilteredTriggers, false)}
         </>
       ) : (
-        <EmptyState
+        <BitkitEmptyState
           data-clarity-unmask="true"
-          iconName="Trigger"
-          title="Target based triggers will appear here"
+          icon={IconTrigger}
+          headingText="Target based triggers will appear here"
           maxHeight="208"
           marginBlockEnd="24"
+          bodyText={
+            <>
+              Target-based triggers let you run multiple Workflows or Pipelines from a single Git event. You can set
+              them up here or directly in the Workflow or Pipeline settings.{' '}
+              <Link
+                colorScheme="purple"
+                href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
+              >
+                Learn more
+              </Link>
+            </>
+          }
         >
-          <Text marginBlockStart="8" marginBlockEnd="24">
-            Target-based triggers let you run multiple Workflows or Pipelines from a single Git event. You can set them
-            up here or directly in the Workflow or Pipeline settings.{' '}
-            <Link
-              colorScheme="purple"
-              href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
-            >
-              Learn more
-            </Link>
-          </Text>
           <AddTriggerButton onAddTrigger={setTriggerType} />
-        </EmptyState>
+        </BitkitEmptyState>
       )}
       {triggerType && (
         <AddOrEditTriggerDialog

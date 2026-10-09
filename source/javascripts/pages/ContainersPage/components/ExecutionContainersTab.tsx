@@ -1,4 +1,5 @@
-import { Box, Button, EmptyState, Text } from '@bitrise/bitkit';
+import { Box, Button, Text } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconContainer } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
@@ -62,10 +63,10 @@ const ExecutionContainersTab = () => {
           source={ContainerType.Execution}
         />
       ) : (
-        <EmptyState
-          title="Your execution containers will appear here"
-          description="Add your first execution container to specify the tools, languages, and OS your Steps and Step bundles need to run."
-          iconName="Container"
+        <BitkitEmptyState
+          headingText="Your execution containers will appear here"
+          bodyText="Add your first execution container to specify the tools, languages, and OS your Steps and Step bundles need to run."
+          icon={IconContainer}
         />
       )}
       <CreateOrEditContainerDialog

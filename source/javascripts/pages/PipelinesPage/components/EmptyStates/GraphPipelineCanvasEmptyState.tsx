@@ -1,8 +1,9 @@
-import { Button, EmptyState, EmptyStateProps } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, BitkitEmptyStateProps, IconWorkflowFlow } from '@bitrise/bitkit-v2';
 
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
-type Props = Omit<EmptyStateProps, 'title'> & {
+type Props = Omit<BitkitEmptyStateProps, 'bodyText' | 'headingText' | 'icon'> & {
   onAddWorkflow: VoidFunction;
 };
 
@@ -10,12 +11,16 @@ const GraphPipelineCanvasEmptyState = ({ onAddWorkflow, ...props }: Props) => {
   const isReadOnlyView = useIsReadOnlyView();
 
   return (
-    <EmptyState
+    // The v2 recipe leaves `display` unset, so a stretched empty state centres its own content.
+    <BitkitEmptyState
       {...props}
       data-clarity-unmask="true"
-      iconName="WorkflowFlow"
-      title="Welcome to the Pipeline canvas"
-      description="Start building your graph by adding Workflow nodes to the canvas."
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      icon={IconWorkflowFlow}
+      headingText="Welcome to the Pipeline canvas"
+      bodyText="Start building your graph by adding Workflow nodes to the canvas."
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't add workflows — show no CTA. */}
       {!isReadOnlyView && (
@@ -23,7 +28,7 @@ const GraphPipelineCanvasEmptyState = ({ onAddWorkflow, ...props }: Props) => {
           Add Workflow
         </Button>
       )}
-    </EmptyState>
+    </BitkitEmptyState>
   );
 };
 

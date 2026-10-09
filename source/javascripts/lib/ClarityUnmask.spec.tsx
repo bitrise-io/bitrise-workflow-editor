@@ -17,7 +17,6 @@ import {
   Card,
   Dialog,
   DialogFooter,
-  EmptyState,
   List,
   ListItem,
   Menu,
@@ -41,8 +40,10 @@ import {
   BitkitAlert,
   BitkitBreadcrumb,
   BitkitButton,
+  BitkitEmptyState,
   BitkitProvider,
   BitkitSegmentedControl,
+  IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
@@ -126,7 +127,6 @@ describe('Clarity unmasking', () => {
           <Text data-clarity-unmask="true">text</Text>
           <Button data-clarity-unmask="true">button</Button>
           <Card data-clarity-unmask="true">card</Card>
-          <EmptyState title="empty state" data-clarity-unmask="true" />
           <Ribbon colorScheme="blue" data-clarity-unmask="true">
             ribbon
           </Ribbon>
@@ -166,7 +166,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(14);
+      expect(unmasked()).toHaveLength(13);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
       ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
@@ -188,6 +188,12 @@ describe('Clarity unmasking', () => {
             </BitkitActionMenu.Item>
           </BitkitActionMenu>
           <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
+          <BitkitEmptyState
+            bodyText="empty state body"
+            headingText="empty state"
+            icon={IconInfoCircle}
+            data-clarity-unmask="true"
+          />
           {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
               their remaining props onto the link they render, so the attribute reaches the DOM. That
               forwarding is what this asserts — a release that stopped doing it would silently
@@ -203,12 +209,13 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(6);
+      expect(unmasked()).toHaveLength(7);
       [
         'alert message',
         'segment label',
         'action menu item',
         'bitkit button',
+        'empty state',
         'breadcrumb item',
         'breadcrumb current item',
       ].forEach((label) => {
