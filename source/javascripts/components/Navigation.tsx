@@ -1,8 +1,8 @@
-import { useToast } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
   BitkitPageSidebar,
   BitkitPageSidebarProps,
+  createBitkitToast,
   IconArrowNortheast,
   IconBook,
   IconContainer,
@@ -54,7 +54,6 @@ function usePathWithSearchParams() {
 }
 
 const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItemProps) => {
-  const toast = useToast();
   const [hashPath, navigate] = useHashLocation();
   const isSelected = hashPath.startsWith(path);
   // Schema/marker errors don't block navigation: the visual pages render any config they can read.
@@ -64,18 +63,16 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
 
   const handleNavigation = useCallback(() => {
     if (visualEditorNotice?.disabled && !path.startsWith(paths.yml)) {
-      toast({
-        status: visualEditorNotice.severity === 'critical' ? 'error' : 'warning',
-        title: visualEditorNotice.title,
-        description: visualEditorNotice.description,
-        duration: null,
-        isClosable: true,
+      createBitkitToast({
+        variant: visualEditorNotice.severity,
+        titleText: visualEditorNotice.title,
+        messageText: visualEditorNotice.description,
       });
       return;
     }
 
     navigate(path);
-  }, [visualEditorNotice, navigate, path, toast]);
+  }, [visualEditorNotice, navigate, path]);
 
   return (
     <BitkitPageSidebar.Item

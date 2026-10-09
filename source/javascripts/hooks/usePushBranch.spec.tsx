@@ -13,8 +13,8 @@ import PageProps from '@/core/utils/PageProps';
 
 import usePushBranch from './usePushBranch';
 
-jest.mock('@bitrise/bitkit', () => ({
-  useToast: () => jest.fn(),
+jest.mock('@bitrise/bitkit-v2', () => ({
+  createBitkitToast: jest.fn(),
 }));
 
 jest.mock('@/core/analytics/ConfigManagementAnalytics', () => ({
