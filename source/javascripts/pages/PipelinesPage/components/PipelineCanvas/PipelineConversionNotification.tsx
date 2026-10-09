@@ -14,7 +14,11 @@ const PipelineConversionNotification = () => {
   }
 
   return (
-    <BitkitRibbon data-clarity-unmask="true" onDismiss={() => hidePipelineConversionNotificationFor(selectedPipeline)}>
+    <BitkitRibbon
+      role="alert"
+      data-clarity-unmask="true"
+      onDismiss={() => hidePipelineConversionNotificationFor(selectedPipeline)}
+    >
       This Pipeline is based on a staged setup. Review artifact sharing and run conditions before running.
     </BitkitRibbon>
   );
