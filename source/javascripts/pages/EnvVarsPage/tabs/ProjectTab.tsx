@@ -1,4 +1,5 @@
-import { EmptyState, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconDollar } from '@bitrise/bitkit-v2';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -20,10 +21,12 @@ const ProjectTab = () => {
   if (isMergedView && !hasAnyEnvs) {
     return (
       <TabContainer>
-        <EmptyState
+        <BitkitEmptyState
           data-clarity-unmask="true"
-          iconName="Dollars"
-          title="No Environment Variables created in any modules."
+          icon={IconDollar}
+          headingText="No Environment Variables created in any modules."
+          // TODO: body copy for this empty state is still open; bitkit-v2 requires the prop.
+          bodyText=""
         />
       </TabContainer>
     );

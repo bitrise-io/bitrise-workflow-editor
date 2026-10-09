@@ -1,4 +1,5 @@
-import { Box, EmptyState, Text } from '@bitrise/bitkit';
+import { Box, Text } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconDollar } from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react/jsx-runtime';
 
@@ -72,10 +73,12 @@ const WorkflowsTab = () => {
   if (isMergedView && !hasAnyEnvs) {
     return (
       <TabContainer>
-        <EmptyState
+        <BitkitEmptyState
           data-clarity-unmask="true"
-          iconName="Dollars"
-          title="No Environment Variables created in any modules."
+          icon={IconDollar}
+          headingText="No Environment Variables created in any modules."
+          // TODO: body copy for this empty state is still open; bitkit-v2 requires the prop.
+          bodyText=""
         />
       </TabContainer>
     );
