@@ -1,10 +1,12 @@
 /**
  * @jest-environment jsdom
  */
+import { createBitkitToast } from '@bitrise/bitkit-v2';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import React, { ReactNode } from 'react';
 
+import { trackOpenPrAttempted } from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import BranchesApi from '@/core/api/BranchesApi';
 import { ClientError } from '@/core/api/client';
@@ -79,6 +81,36 @@ describe('usePushBranch', () => {
     });
     expect(getCiConfigSpy).toHaveBeenCalledWith({ projectSlug: 'app-1', branch: 'feature' });
     expect(storeAtOnSuccess).toEqual({ version: '2', configCommitSha: 'new-sha' });
+  });
+
+  it('shows a success toast with an Open PR link when the push returns a PR URL', async () => {
+    const prUrl = 'https://github.com/org/repo/pull/1';
+    jest.spyOn(BranchesApi, 'pushBranch').mockResolvedValue({ status: 'ok', commit_sha: 'new-sha', pr_url: prUrl });
+    jest.spyOn(BitriseYmlApi, 'getCiConfig').mockResolvedValue({
+      ymlString: yaml`format_version: "17"`,
+      version: '2',
+      branch: 'feature',
+      commitSha: 'new-sha',
+    });
+
+    const onSuccess = jest.fn();
+    const { result } = renderHook(() => usePushBranch({ onSuccess }), { wrapper });
+
+    act(() => {
+      result.current.pushBranch({ branch: 'feature', message: 'push it' });
+    });
+
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
+
+    expect(createBitkitToast).toHaveBeenLastCalledWith({
+      titleText: 'Changes pushed successfully',
+      messageText: 'Continue in your Git provider and open a pull request.',
+      variant: 'success',
+      action: { label: 'Open PR', href: prUrl, isExternal: true, onClick: expect.any(Function) },
+    });
+
+    jest.mocked(createBitkitToast).mock.lastCall?.[0].action?.onClick?.();
+    expect(trackOpenPrAttempted).toHaveBeenCalledWith('feature');
   });
 
   it('on a modular 409 calls onMergeConflict with the parsed per-file conflict', async () => {
