@@ -2,6 +2,7 @@ import semver from 'semver';
 
 import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
+import ToolVersionUtils from '../utils/ToolVersionUtils';
 import YmlUtils from '../utils/YmlUtils';
 import WorkflowService from './WorkflowService';
 
@@ -28,6 +29,18 @@ const LATEST_OF_SUFFIXES = LATEST_OF_KEYWORDS.map(({ keyword, preferInstalled })
   preferInstalled,
 }));
 
+/** The keyword `value` spells, ignoring case. Untrimmed, since the CLI trims only the whole value. */
+function findKeyword(value: string) {
+  const lower = value.toLowerCase();
+
+  return LATEST_OF_KEYWORDS.find(({ keyword }) => keyword === lower);
+}
+
+/** The strategy a keyword means on its own, with no prefix to narrow it. */
+function toAbsoluteStrategy(preferInstalled: boolean): ParsedToolVersion {
+  return { strategy: preferInstalled ? 'absolute-latest-installed' : 'absolute-latest-released' };
+}
+
 function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   // A value written by hand can be a number (`python: 3.13`) or empty, not the declared string.
   // Trimmed, mirroring the `strings.TrimSpace` that opens the CLI's `ParseVersionString`.
@@ -38,9 +51,9 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
     return { strategy: 'unset' };
   }
 
-  const bare = LATEST_OF_KEYWORDS.find(({ keyword }) => lower === keyword);
+  const bare = findKeyword(raw);
   if (bare) {
-    return { strategy: 'latest-of', prefix: '', preferInstalled: bare.preferInstalled };
+    return toAbsoluteStrategy(bare.preferInstalled);
   }
 
   // Mirrors the CLI's greedy, end anchored `(.*):latest$`, so `a:b:latest` has prefix `a:b`.
@@ -49,24 +62,58 @@ function parseToolVersion(rawValue: unknown): ParsedToolVersion {
   );
 
   if (suffixed) {
-    return {
-      strategy: 'latest-of',
-      prefix: raw.slice(0, raw.length - suffixed.suffix.length),
-      preferInstalled: suffixed.preferInstalled,
-    };
+    const prefix = raw.slice(0, raw.length - suffixed.suffix.length);
+    // With its default mise provider the CLI reads a `latest` or `installed` prefix as that bare
+    // keyword, whichever keyword follows, so `latest:installed` is the newest release.
+    const keywordPrefix = findKeyword(prefix);
+
+    if (keywordPrefix) {
+      return toAbsoluteStrategy(keywordPrefix.preferInstalled);
+    }
+
+    // `:latest` carries no prefix, so it means the same as bare `latest`, and `latest-of` needs one.
+    return prefix === ''
+      ? toAbsoluteStrategy(suffixed.preferInstalled)
+      : { strategy: 'latest-of', prefix, preferInstalled: suffixed.preferInstalled };
   }
 
   return { strategy: 'exact', version: raw };
+}
+
+/** Whether `prefix` is a keyword, which reads back as that bare keyword rather than as a prefix. */
+function isKeywordPrefix(prefix: string): boolean {
+  return findKeyword(prefix.trim()) !== undefined;
+}
+
+/** Whether typing could still turn `prefix` into a keyword, as `lat` could. */
+function isKeywordStart(prefix: string): boolean {
+  const lower = prefix.trim().toLowerCase();
+
+  return lower !== '' && LATEST_OF_KEYWORDS.some(({ keyword }) => keyword.startsWith(lower));
+}
+
+/** Whether the YAML can hold `parsed`. See `docs/decisions.md`. */
+function isWritable(parsed: ParsedToolVersion): boolean {
+  return parsed.strategy !== 'latest-of' || (parsed.prefix.trim() !== '' && !isKeywordPrefix(parsed.prefix));
 }
 
 function serializeToolVersion(parsed: ParsedToolVersion): string {
   switch (parsed.strategy) {
     case 'unset':
       return UNSET_KEYWORD;
+    case 'absolute-latest-released':
+      return LATEST_KEYWORD;
+    case 'absolute-latest-installed':
+      return INSTALLED_KEYWORD;
     case 'latest-of': {
+      if (!isWritable(parsed)) {
+        throw new Error('latest-of requires a prefix that is not empty or a keyword, use an absolute strategy instead');
+      }
+
       const keyword = parsed.preferInstalled ? INSTALLED_KEYWORD : LATEST_KEYWORD;
 
-      return parsed.prefix ? `${parsed.prefix}${KEYWORD_SEPARATOR}${keyword}` : keyword;
+      // The CLI trims only the ends of the whole value, so a space before the colon would reach mise.
+      return `${parsed.prefix.trim()}${KEYWORD_SEPARATOR}${keyword}`;
     }
     case 'exact':
       return parsed.version;
@@ -83,6 +130,8 @@ function toParsedToolVersion(
     case 'exact':
       return { strategy, version: inputValue };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return { strategy };
     case 'latest-of':
       return { strategy, prefix: inputValue, preferInstalled };
@@ -95,6 +144,8 @@ function getVersionInputValue(parsed: ParsedToolVersion): string {
     case 'exact':
       return parsed.version;
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return '';
     case 'latest-of':
       return parsed.prefix;
@@ -151,97 +202,9 @@ function getVersionOptions(toolVersions: ToolVersions | undefined): VersionOptio
   ].map((version) => ({ value: version, label: version }));
 }
 
-/** Version separators, as characters so a single one is tested with `includes`. */
-const SEPARATORS = '.-_+';
-
-/** A part of nothing but digits, as the `8` in `zulu-musl-8.96.0.19`, where a version begins. */
-const NUMERIC_PART = /^\d+$/;
-
-/** Whether `version` is in `prefix`'s line, the way mise reads it: `24.2` covers `24.2.0`, not `24.20.0`. */
-function matchesPrefix(version: string, prefix: string): boolean {
-  if (prefix === '' || version === prefix) {
-    return true;
-  }
-
-  // Length checked first, or `includes` would match a character past the end of the string.
-  return version.length > prefix.length && version.startsWith(prefix) && SEPARATORS.includes(version[prefix.length]);
-}
-
-/** Where `version` can be cut to name a line: the whole name, then at most major and minor. */
-function toPrefixes(version: string): string[] {
-  const cuts: string[] = [];
-  // Anchored, or a name carrying digits of its own such as `miniconda3` would end the name early.
-  let major = -1;
-  let partStart = 0;
-
-  for (let index = 0; index < version.length; index += 1) {
-    if (!SEPARATORS.includes(version[index])) {
-      continue;
-    }
-
-    if (major === -1 && NUMERIC_PART.test(version.slice(partStart, index))) {
-      major = cuts.length;
-    }
-
-    cuts.push(version.slice(0, index));
-    partStart = index + 1;
-  }
-
-  if (cuts.length === 0) {
-    return [version];
-  }
-
-  return major === -1 ? cuts : cuts.slice(0, major + 2);
-}
-
-/** A prefix that is nothing but numbers and dots, like `24` or `24.2`, so it can be ordered. */
-const NUMERIC_PREFIX = /^\d+(\.\d+)*$/;
-
-/** Newest first, part by part so `24.11` beats `24.2`, and a prefix sorts above what it contains. */
-function compareNumericPrefixes(a: string, b: string): number {
-  const aParts = a.split('.').map(Number);
-  const bParts = b.split('.').map(Number);
-
-  for (let index = 0; index < Math.max(aParts.length, bParts.length); index += 1) {
-    if (aParts[index] === undefined) {
-      return -1;
-    }
-
-    if (bParts[index] === undefined) {
-      return 1;
-    }
-
-    if (aParts[index] !== bParts[index]) {
-      return bParts[index] - aParts[index];
-    }
-  }
-
-  return 0;
-}
-
-/** Prefix suggestions cut from each version, since catalogs are rarely semver. Newest first. */
+/** Options for the prefix dropdown, offering only lines mise can resolve. */
 function getPrefixOptions(toolVersions: ToolVersions | undefined): VersionOption[] {
-  const prefixes: string[] = [];
-  const seen = new Set<string>();
-
-  (toolVersions?.versions ?? []).forEach(({ version }) => {
-    toPrefixes(version).forEach((prefix) => {
-      if (prefix && !seen.has(prefix)) {
-        seen.add(prefix);
-        prefixes.push(prefix);
-      }
-    });
-  });
-
-  return [
-    ...prefixes.filter((prefix) => NUMERIC_PREFIX.test(prefix)).sort(compareNumericPrefixes),
-    ...prefixes.filter((prefix) => !NUMERIC_PREFIX.test(prefix)),
-  ].map((prefix) => ({ value: prefix, label: prefix }));
-}
-
-/** Whether the catalog has any version in `prefix`'s line. */
-function isPrefixInCatalog(toolVersions: ToolVersions, prefix: string): boolean {
-  return toolVersions.versions.some(({ version }) => matchesPrefix(version, prefix));
+  return ToolVersionUtils.getPrefixes(toolVersions).map((prefix) => ({ value: prefix, label: prefix }));
 }
 
 function isVersionInCatalog(toolVersions: ToolVersions, version: string): boolean {
@@ -328,11 +291,12 @@ function nextParsedVersionOnRename(parsed: ParsedToolVersion): ParsedToolVersion
     case 'exact':
       return { strategy: 'exact', version: '' };
     case 'unset':
+    case 'absolute-latest-released':
+    case 'absolute-latest-installed':
       return parsed;
     case 'latest-of':
-      // The installed preference is about how a version is resolved, not about which tool, so it
-      // survives the rename even though the prefix does not.
-      return { strategy: 'latest-of', prefix: '', preferInstalled: parsed.preferInstalled };
+      // The prefix belonged to the old tool, and the new one has no candidates yet.
+      return toAbsoluteStrategy(parsed.preferInstalled);
   }
 }
 
@@ -361,6 +325,8 @@ export type { ToolScope };
 export default {
   parseToolVersion,
   serializeToolVersion,
+  isWritable,
+  isKeywordStart,
   toParsedToolVersion,
   getVersionInputValue,
   setTool,
@@ -373,7 +339,6 @@ export default {
   getPrefixOptions,
   withConfiguredValue,
   isVersionInCatalog,
-  isPrefixInCatalog,
   getToolIdOptions,
   getAvailableToolIdOptions,
   validateToolId,

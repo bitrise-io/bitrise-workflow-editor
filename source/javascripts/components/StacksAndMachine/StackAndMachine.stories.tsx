@@ -110,11 +110,9 @@ const meta: Meta<typeof StackAndMachine> = {
   ],
   parameters: {
     bitriseYmlStore: singleFileStore,
-    msw: {
-      handlers: [getStacksAndMachines(), ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions()],
-    },
   },
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(getStacksAndMachines(), ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions());
     // Tool versions is the part of the card that renders differently in read-only mode.
     set(window, 'localFeatureFlags.enable-wfe-tool-versions', true);
     return () => set(window, 'localFeatureFlags.enable-wfe-tool-versions', false);

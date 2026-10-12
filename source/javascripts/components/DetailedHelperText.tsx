@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import { Box, Collapse, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
+import { Box, Collapse, Link, MarkdownContent } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 
 type Props = {
   summary: string;
@@ -7,7 +7,7 @@ type Props = {
 };
 
 const DetailedHelperText = ({ summary, details }: Props) => {
-  const { isOpen, onToggle } = useDisclosure();
+  const { open: isOpen, onToggle } = useDisclosure();
   const showMoreLabel = isOpen ? 'Show less' : 'Show more';
 
   return (

@@ -1,4 +1,5 @@
-import { Box, Button, Textarea, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Textarea } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback } from 'react';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
@@ -114,7 +115,7 @@ const GitStatusName = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
 const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
   const isReadOnlyView = useIsReadOnlyView();
   const { keys, onSelectPipeline } = usePipelineSelector();
-  const { isOpen: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
+  const { open: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
 
   const onDeletePipeline = useCallback(
     (deletedId: string) => {

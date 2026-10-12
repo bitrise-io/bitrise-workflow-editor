@@ -1,4 +1,5 @@
-import { EmptyState, Link, Text } from '@bitrise/bitkit';
+import { Link } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconTrigger } from '@bitrise/bitkit-v2';
 
 import { TriggerType } from '@/core/models/Trigger';
 
@@ -26,18 +27,24 @@ const LegacyEmptyState = ({ type }: Props) => {
   const { title, description } = TEXTS[type];
 
   return (
-    // `title`/`description` come from the static TEXTS map above, keyed by trigger type.
-    <EmptyState data-clarity-unmask="true" iconName="Trigger" title={title} maxHeight="208">
-      <Text marginTop="8">
-        {description}{' '}
-        <Link
-          colorScheme="purple"
-          href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
-        >
-          Learn more
-        </Link>
-      </Text>
-    </EmptyState>
+    // `headingText`/`bodyText` come from the static TEXTS map above, keyed by trigger type.
+    <BitkitEmptyState
+      data-clarity-unmask="true"
+      icon={IconTrigger}
+      headingText={title}
+      maxHeight="208"
+      bodyText={
+        <>
+          {description}{' '}
+          <Link
+            colorScheme="purple"
+            href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
+          >
+            Learn more
+          </Link>
+        </>
+      }
+    />
   );
 };
 

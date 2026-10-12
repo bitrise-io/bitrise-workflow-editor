@@ -1,4 +1,6 @@
-import { Box, Button, EmptyState, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Text } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconContainer } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -18,7 +20,7 @@ const ServiceContainersTab = () => {
   const { [ContainerType.Service]: containers } = useModuleContainers();
 
   const [editedContainer, setEditedContainer] = useState<Container | null>(null);
-  const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
+  const { open: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclosure();
 
   return (
     <>
@@ -61,10 +63,10 @@ const ServiceContainersTab = () => {
           source={ContainerType.Service}
         />
       ) : (
-        <EmptyState
-          title="Your service containers will appear here"
-          description="Add your first service container to provide database or message queue support to your Steps and Step bundles."
-          iconName="Container"
+        <BitkitEmptyState
+          headingText="Your service containers will appear here"
+          bodyText="Add your first service container to provide database or message queue support to your Steps and Step bundles."
+          icon={IconContainer}
         />
       )}
       <CreateOrEditContainerDialog

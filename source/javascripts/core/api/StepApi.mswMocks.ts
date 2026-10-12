@@ -4,7 +4,7 @@ import { Maintainer } from '@/core/models/Step';
 
 import { AlgoliaStepResponse } from './AlgoliaApi';
 
-export const AlgoliaSteps: AlgoliaStepResponse[] = [
+const AlgoliaSteps: AlgoliaStepResponse[] = [
   {
     info: {
       asset_urls: {

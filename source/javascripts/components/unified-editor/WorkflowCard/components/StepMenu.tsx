@@ -1,4 +1,5 @@
-import { Divider, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
+import { OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import { Step } from '@/core/models/Step';
@@ -96,7 +97,7 @@ const StepMenu = (props: StepMenuProps) => {
     );
   }
   if (menuItems.length > 0) {
-    menuItems.push(<Divider key="divider" my="8" />);
+    menuItems.push(<Separator key="divider" marginBlock="8" />);
   }
 
   if (isDeletable) {

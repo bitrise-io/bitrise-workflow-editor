@@ -1,4 +1,6 @@
-import { Box, Divider, EmptyState, Text } from '@bitrise/bitkit';
+import { Box, Text } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconDollar } from '@bitrise/bitkit-v2';
+import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -37,7 +39,7 @@ const MergedWorkflowsTab = ({ groups }: { groups: WorkflowEnvVarFileGroup[] }) =
             emptyText="No Environment Variables defined."
             renderJumpButton={(_env) => <JumpToFileButton nodeId={group.nodeId} />}
           />
-          {groups.length - 1 > index && <Divider />}
+          {groups.length - 1 > index && <Separator />}
         </Fragment>
       ))}
     </>
@@ -55,7 +57,7 @@ const EditableWorkflowsTab = () => {
             {workflowId}
           </Text>
           <EnvVarsTable source={EnvVarSource.Workflows} sourceId={workflowId} />
-          {workflowIds.length - 1 > index && <Divider />}
+          {workflowIds.length - 1 > index && <Separator />}
         </Fragment>
       ))}
     </>
@@ -71,10 +73,11 @@ const WorkflowsTab = () => {
   if (isMergedView && !hasAnyEnvs) {
     return (
       <TabContainer>
-        <EmptyState
+        <BitkitEmptyState
           data-clarity-unmask="true"
-          iconName="Dollars"
-          title="No Environment Variables created in any modules."
+          icon={IconDollar}
+          headingText="No Environment Variables yet"
+          bodyText="Environment Variables created in any modules will appear here."
         />
       </TabContainer>
     );

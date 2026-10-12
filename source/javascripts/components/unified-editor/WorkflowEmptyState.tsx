@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, EmptyState, Tooltip } from '@bitrise/bitkit';
+import { Button, ButtonGroup, Tooltip } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconWorkflow } from '@bitrise/bitkit-v2';
 
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
@@ -21,11 +22,11 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   return (
-    <EmptyState
+    <BitkitEmptyState
       data-clarity-unmask="true"
-      iconName="Workflow"
-      title="Your Workflow will appear here"
-      description="It looks like you haven't set up any Workflows. Create your first Workflow to automate your CI/CD pipeline."
+      icon={IconWorkflow}
+      headingText="Your Workflow will appear here"
+      bodyText="It looks like you haven't set up any Workflows. Create your first Workflow to automate your CI/CD pipeline."
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
       {!isReadOnlyView && (
@@ -48,7 +49,7 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
           </Button>
         </ButtonGroup>
       )}
-    </EmptyState>
+    </BitkitEmptyState>
   );
 };
 

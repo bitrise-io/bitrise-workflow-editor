@@ -1,4 +1,5 @@
-import { Box, EmptyState, Text } from '@bitrise/bitkit';
+import { Box, Text } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconWorkflow } from '@bitrise/bitkit-v2';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import WorkflowStackAndMachine from '@/components/StacksAndMachine/WorkflowStackAndMachine';
@@ -48,11 +49,11 @@ const WorkflowsTab = () => {
   if (workflowIds.length === 0) {
     return (
       <TabContainer>
-        <EmptyState
+        <BitkitEmptyState
           data-clarity-unmask="true"
-          iconName="Workflow"
-          title="No Workflows created yet"
-          description="You will see the list of your Workflows with the configured Stack and Machine type"
+          icon={IconWorkflow}
+          headingText="No Workflows created yet"
+          bodyText="You will see the list of your Workflows with the configured Stack and Machine type"
         />
       </TabContainer>
     );

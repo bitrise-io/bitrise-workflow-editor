@@ -1,13 +1,5 @@
-import {
-  Box,
-  BoxProps,
-  Divider,
-  Icon,
-  SearchInput,
-  SelectableTag,
-  SelectableTagGroup,
-  TypeIconName,
-} from '@bitrise/bitkit';
+import { Box, BoxProps, Icon, SearchInput, SelectableTag, SelectableTagGroup, TypeIconName } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { capitalize, startCase } from 'es-toolkit';
 import { memo, useCallback, useMemo } from 'react';
 
@@ -77,7 +69,7 @@ const StepFilterCategories = memo(function StepFilterCategories() {
             {capitalize(startCase(category))}
           </SelectableTag>
         ))}
-        {allowNonBitriseSteps && <Divider orientation="vertical" height="auto" />}
+        {allowNonBitriseSteps && <Separator orientation="vertical" />}
         {allowNonBitriseSteps &&
           MAINTAINERS.map(({ key, icon, label }) => (
             <SelectableTag key={key} value={key}>

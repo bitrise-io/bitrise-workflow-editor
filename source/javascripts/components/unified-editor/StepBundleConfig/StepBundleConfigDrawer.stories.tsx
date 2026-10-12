@@ -16,3 +16,9 @@ export default {
 } as Meta<typeof StepBundleConfigDrawer>;
 
 export const Drawer: StoryObj<typeof StepBundleConfigDrawer> = {};
+
+export const Empty: StoryObj<typeof StepBundleConfigDrawer> = {
+  args: {
+    stepIndex: 5,
+  },
+};

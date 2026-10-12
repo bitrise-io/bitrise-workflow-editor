@@ -1,4 +1,5 @@
-import { Box, Button, EmptyState } from '@bitrise/bitkit';
+import { Box, Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -118,12 +119,11 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
 
   if (isEmpty) {
     return (
-      <EmptyState
-        paddingY="16"
-        paddingX="16"
-        iconName="Steps"
-        title={workflowId ? 'Empty Workflow' : 'Empty Step bundle'}
-        description={onAdd ? 'Add Steps from the library.' : undefined}
+      <BitkitEmptyState
+        padding="16"
+        icon={IconStep}
+        headingText={workflowId ? 'Empty Workflow' : 'Empty Step bundle'}
+        bodyText="Add Steps from the library."
       >
         {onAdd && (
           <Button
@@ -138,7 +138,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
             Add Step or Step bundle
           </Button>
         )}
-      </EmptyState>
+      </BitkitEmptyState>
     );
   }
 

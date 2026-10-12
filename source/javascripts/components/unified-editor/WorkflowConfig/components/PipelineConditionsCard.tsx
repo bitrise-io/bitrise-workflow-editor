@@ -1,4 +1,5 @@
-import { Box, Divider, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+import { Box, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { uniq } from 'es-toolkit';
 import { ChangeEventHandler, useState } from 'react';
 
@@ -173,13 +174,13 @@ const PipelineConditionsCard = () => {
     <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
       <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
 
-      <Divider my="24" />
+      <Separator marginBlock="24" />
       <AlwaysRunSelect pipelineId={pipelineId} workflowId={workflowId} />
 
-      <Divider my="24" />
+      <Separator marginBlock="24" />
       <RunIfInput pipelineId={pipelineId} workflowId={workflowId} />
 
-      <Divider my="24" />
+      <Separator marginBlock="24" />
       <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
     </ExpandableCard>
   );

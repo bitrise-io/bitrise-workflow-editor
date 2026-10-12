@@ -40,13 +40,9 @@ const meta: Meta<typeof StacksAndMachinesPage> = {
   },
   parameters: {
     layout: 'fullscreen',
-    msw: {
-      handlers: {
-        story: [getStacksAndMachines({ hasSelfHostedRunner: true })],
-      },
-    },
   },
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(getStacksAndMachines({ hasSelfHostedRunner: true }));
     set(window, 'parent.pageProps.project.isOwnerPaying', true);
   },
 };
@@ -60,12 +56,8 @@ export const FreeUser: Story = {
 };
 
 export const RegionLockedUser: Story = {
-  parameters: {
-    msw: {
-      handlers: {
-        story: [getStacksAndMachines({ regionLocked: true })],
-      },
-    },
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines({ regionLocked: true }));
   },
 };
 
@@ -112,7 +104,8 @@ export const WithStackRollbackVersionNotAvailableForRollbackType: Story = {
 };
 
 export const WithDedicatedStackRollbackVersion: Story = {
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(getStacksAndMachines({ privateCloud: 'machine-overrides' }));
     set(window, 'parent.pageProps.project.isOwnerPaying', false);
     set(window, 'parent.globalProps.account.slug', 'account-dedicated');
     return () => {
@@ -128,11 +121,6 @@ export const WithDedicatedStackRollbackVersion: Story = {
       });
       return { yml, ymlDocument: YmlUtils.toDoc(stringify(yml)) };
     })(),
-    msw: {
-      handlers: {
-        story: [getStacksAndMachines({ privateCloud: 'machine-overrides' })],
-      },
-    },
   },
 };
 
@@ -160,24 +148,22 @@ export const WithDeprecatedMachines: Story = {
 };
 
 export const WithDedicatedMachines: Story = {
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines({ privateCloud: 'machine-overrides' }));
+  },
+
   parameters: {
     layout: 'fullscreen',
-    msw: {
-      handlers: {
-        story: [getStacksAndMachines({ privateCloud: 'machine-overrides' })],
-      },
-    },
   },
 };
 
 export const WithLegacyDedicated: Story = {
+  beforeEach({ msw }) {
+    msw.use(getStacksAndMachines({ privateCloud: 'no-machines' }));
+  },
+
   parameters: {
     layout: 'fullscreen',
-    msw: {
-      handlers: {
-        story: [getStacksAndMachines({ privateCloud: 'no-machines' })],
-      },
-    },
   },
 };
 
@@ -298,7 +284,13 @@ const modularTree = (rootContents: string, moduleContents: string): TreeNode => 
       nodeId: 'n_mod',
       path: 'ci/deploy.yml',
       contents: moduleContents,
-      source: { path: 'ci/deploy.yml', repository: null, branch: null, tag: null, commit: null },
+      source: {
+        path: 'ci/deploy.yml',
+        repository: null,
+        branch: null,
+        tag: null,
+        commit: null,
+      },
       commitSha: MODULAR_SHA,
       editable: true,
       includes: [],

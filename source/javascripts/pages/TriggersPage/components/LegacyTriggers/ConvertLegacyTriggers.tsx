@@ -1,5 +1,4 @@
-import { useToast } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, createBitkitToast } from '@bitrise/bitkit-v2';
 
 import { TriggerType } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
@@ -15,8 +14,6 @@ const canConvertSafely = (triggers: Props['triggers']): boolean => {
 };
 
 const ConvertLegacyTriggers = ({ triggers }: Props) => {
-  const toast = useToast();
-
   if (!canConvertSafely(triggers)) {
     return null;
   }
@@ -31,11 +28,10 @@ const ConvertLegacyTriggers = ({ triggers }: Props) => {
     // Remove legacy triggers
     TriggerService.updateTriggerMap(undefined);
 
-    toast({
-      isClosable: true,
-      status: 'success',
-      title: 'Successful conversion',
-      description: 'Legacy triggers converted to new format.',
+    createBitkitToast({
+      variant: 'success',
+      titleText: 'Successful conversion',
+      messageText: 'Legacy triggers converted to new format.',
     });
   };
 

@@ -11,8 +11,8 @@ import {
   Link,
   Text,
   Textarea,
-  useDisclosure,
 } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { ChangeEvent } from 'react';
 import { useController, useForm } from 'react-hook-form';
 
@@ -35,7 +35,7 @@ type StepBundleInputsDialogProps = {
 
 const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
   const { ids, index, input, isOpen, onCancel, onSubmit } = props;
-  const { isOpen: isShowMore, onToggle } = useDisclosure();
+  const { open: isShowMore, onToggle } = useDisclosure();
 
   const { opts, key, value } = expandInput(input);
 

@@ -1,5 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Text } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitEmptyState, IconLock } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
@@ -110,20 +110,16 @@ const SecretsPage = () => {
     return (
       <Box marginY="24">
         {workspaceSecretList.length === 0 && (
-          <EmptyState
-            title="Your shared secrets will appear here"
-            iconName="Lock"
+          <BitkitEmptyState
+            headingText="Your shared secrets will appear here"
+            icon={IconLock}
             data-clarity-unmask="true"
-            description={
-              <Text as="span" textStyle="body/md/regular" textColor="text/secondary">
-                Shared resources are managed at Workspace settings
-              </Text>
-            }
+            bodyText="Shared resources are managed at Workspace settings"
           >
             <Button size="md" variant="secondary" as="a" href={workspaceSecretsPath}>
               Go to Settings
             </Button>
-          </EmptyState>
+          </BitkitEmptyState>
         )}
         {workspaceSecretList.length > 0 &&
           workspaceSecretList.map((secret) => (

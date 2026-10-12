@@ -1,4 +1,5 @@
-import { Box, Button, Card, Divider, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import { Box, Button, Card, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
@@ -81,7 +82,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                     <OverflowMenuItem leftIconName="Pencil" onClick={() => onEdit(index)}>
                       Edit input
                     </OverflowMenuItem>
-                    <Divider />
+                    <Separator />
                     <OverflowMenuItem leftIconName="Trash" isDanger onClick={() => onDelete(index)}>
                       Delete
                     </OverflowMenuItem>
@@ -89,7 +90,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 )}
               </OverflowMenu>
             </Box>
-            <Divider my="16" />
+            <Separator marginBlock="16" />
           </Fragment>
         );
       })}

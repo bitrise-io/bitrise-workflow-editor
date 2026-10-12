@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
@@ -15,7 +16,7 @@ type Props = {
 
 const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) => {
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { isOpen, onOpen, onClose } = useDisclosure(props);
+  const { open: isOpen, onOpen, onClose } = useDisclosure(props);
 
   const { id } = StepService.parseStepCVS(cvs, defaultStepLibrary);
 

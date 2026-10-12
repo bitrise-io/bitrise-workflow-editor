@@ -1,4 +1,5 @@
-import { Button, EmptyState } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
 
 type Props = {
   onClickButton?: VoidFunction;
@@ -6,16 +7,16 @@ type Props = {
 
 const SearchResultEmptyState = ({ onClickButton }: Props) => {
   return (
-    <EmptyState
+    <BitkitEmptyState
       data-clarity-unmask="true"
-      iconName="Magnifier"
-      title="No Workflows are matching your filter"
-      description="Modify your filters to get results."
+      icon={IconMagnifier}
+      headingText="No Workflows are matching your filter"
+      bodyText="Modify your filters to get results."
     >
       <Button size="md" variant="secondary" onClick={onClickButton}>
         Clear filters
       </Button>
-    </EmptyState>
+    </BitkitEmptyState>
   );
 };
 

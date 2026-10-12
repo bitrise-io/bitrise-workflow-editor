@@ -19,9 +19,11 @@ const withTools = (tools: Record<string, string>, workflowId?: string) => {
 
 const meta: Meta<typeof ToolVersions> = {
   component: ToolVersions,
+
   args: {
     stackReportUrl: 'https://bitrise.io/stacks/stack_reports/osx-xcode-26.6.x#languages-and-runtimes',
   },
+
   // One decorator owns both layouts, so the padding is not applied twice.
   decorators: [
     (Story, { parameters }) =>
@@ -38,10 +40,9 @@ const meta: Meta<typeof ToolVersions> = {
         </Box>
       ),
   ],
-  parameters: {
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions()],
-    },
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersions());
   },
 };
 
@@ -69,16 +70,43 @@ export const WorkflowScope: Story = {
   },
 };
 
-/** Every latest-of combination at once: both keywords, with and without a prefix. */
-export const LatestOfStrategies: Story = {
+/** All five strategies at once, so each control combination is visible side by side. */
+export const AllStrategies: Story = {
+  args: { workflowId: 'generator' },
   parameters: {
-    bitriseYmlStore: withTools({
-      node: '22:latest',
-      ruby: '3.3:installed',
-      golang: 'latest',
-      python: 'installed',
-      deno: '2.90:latest',
-    }),
+    bitriseYmlStore: withTools(
+      {
+        node: '22:latest',
+        ruby: '3.3:installed',
+        golang: 'latest',
+        python: 'installed',
+        flutter: '3.32.0',
+        deno: 'latest',
+        elixir: 'unset',
+      },
+      'generator',
+    ),
+  },
+};
+
+/** A prefixed value on a tool the catalog does not know: no candidates, so the prefix is typed. */
+export const CatalogFreePrefix: Story = {
+  parameters: {
+    bitriseYmlStore: withTools({ deno: '2.90:latest' }),
+  },
+};
+
+/** A catalog that is mostly not semver: prefixes come from cutting the values at separators. */
+export const NonSemverTool: Story = {
+  parameters: {
+    bitriseYmlStore: withTools({ java: 'zulu-musl-8:latest' }),
+  },
+};
+
+/** A catalog with no version numbers: the prefix is typed, and `night` warns, since no channel is in its line. */
+export const ChannelNamesOnly: Story = {
+  parameters: {
+    bitriseYmlStore: withTools({ channels: 'night:latest' }),
   },
 };
 
@@ -100,31 +128,33 @@ export const Empty: Story = {};
 
 export const CatalogLoading: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalogPending());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalogPending()],
-    },
   },
 };
 
 export const CatalogError: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalogError());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalogError()],
-    },
   },
 };
 
 export const RealApi: Story = {
   ...RootScope,
-  parameters: {
-    ...RootScope.parameters,
-    msw: {
-      handlers: [],
-    },
+  // Drop the meta's tool catalog mocks so the story hits the real API.
+  beforeEach({ msw }) {
+    msw.resetHandlers();
   },
 };
 
@@ -148,21 +178,25 @@ export const EmptyExactVersion: Story = {
 
 export const VersionsLoading: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsPending());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsPending()],
-    },
   },
 };
 
 export const VersionsError: Story = {
   ...RootScope,
+
+  beforeEach({ msw }) {
+    msw.use(ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsError());
+  },
+
   parameters: {
     ...RootScope.parameters,
-    msw: {
-      handlers: [ToolCatalogApiMocks.getToolCatalog(), ToolCatalogApiMocks.getToolVersionsError()],
-    },
   },
 };
 

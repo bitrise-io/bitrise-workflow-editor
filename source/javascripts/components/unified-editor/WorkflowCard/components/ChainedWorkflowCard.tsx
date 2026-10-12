@@ -1,4 +1,4 @@
-import { Box, ButtonGroup, Card, CardProps, Collapse, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Card, CardProps, Collapse, Text } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef, useState } from 'react';
@@ -55,7 +56,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isOpen, onOpen, onToggle } = useDisclosure();
+  const { open: isOpen, onOpen, onToggle } = useDisclosure();
   const { onEditChainedWorkflow, onChainChainedWorkflow, onRemoveChainedWorkflow } = useWorkflowActions();
 
   const sortable = useSortable({

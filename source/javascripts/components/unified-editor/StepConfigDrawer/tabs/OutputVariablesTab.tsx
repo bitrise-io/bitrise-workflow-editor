@@ -1,4 +1,5 @@
-import { Box, Divider, IconButton, Input, Text } from '@bitrise/bitkit';
+import { Box, IconButton, Input, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 import { FormControl } from 'chakra-ui-2--react';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
@@ -42,7 +43,7 @@ const OutputVariablesTab = () => {
                 <StepHelperText summary={opts?.summary} details={opts?.description} />
               </FormControl>
             </Box>
-            {!isLast && <Divider />}
+            {!isLast && <Separator />}
           </Fragment>
         );
       })}

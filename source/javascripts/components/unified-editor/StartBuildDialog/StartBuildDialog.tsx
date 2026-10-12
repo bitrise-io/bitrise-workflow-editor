@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, useToast } from '@bitrise/bitkit';
+import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input } from '@bitrise/bitkit';
+import { createBitkitToast } from '@bitrise/bitkit-v2';
 import { useCallback, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
@@ -15,7 +16,6 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
   const initialBranch = configBranch || PageProps.app()?.defaultBranch || '';
   const [branch, setBranch] = useState(initialBranch);
-  const toast = useToast();
   const { mutate: startBuild, isPending } = useStartBuild();
 
   const { onClose, onCloseComplete } = dialogProps;
@@ -39,10 +39,10 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
           }
         },
         onError: async (error) => {
-          toast({
-            status: 'error',
-            title: 'Failed to start build',
-            description: error.response ? (await error.response.json()).message : error.message,
+          createBitkitToast({
+            variant: 'critical',
+            titleText: 'Failed to start build',
+            messageText: error.response ? (await error.response.json()).message : error.message,
           });
         },
       },

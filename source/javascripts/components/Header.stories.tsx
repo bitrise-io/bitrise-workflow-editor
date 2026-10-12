@@ -1,3 +1,5 @@
+import { Meta, StoryObj } from '@storybook/react-vite';
+
 import { getBranches, getCiConfig } from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
 import { getYmlSettings } from '@/pages/YmlPage/components/ConfigurationYmlStorage.mswMocks';
 
@@ -5,20 +7,21 @@ import Header from './Header';
 
 export default {
   component: Header,
-  parameters: {
-    msw: {
-      handlers: [getBranches(), getCiConfig(), getYmlSettings()],
-    },
-  },
-};
 
-export const Website = {};
+  beforeEach({ msw }) {
+    msw.use(getBranches(), getCiConfig(), getYmlSettings());
+  },
+} as Meta<typeof Header>;
+
+type Story = StoryObj<typeof Header>;
+
+export const Website: Story = {};
 
 // The case that stresses the trail. The Breadcrumb recipe hands `minWidth: 0` only to the crumb with
 // nothing after it — here the fixed "CI configuration" — so the project name cannot shrink or
 // truncate, and it pushes ConfigSettingsMenu towards the `overflow: hidden` edge of the header's
 // breadcrumb slot. Worth a look around 1280px.
-export const WebsiteWithLongProjectName = {
+export const WebsiteWithLongProjectName: Story = {
   beforeEach: () => {
     window.parent.pageProps = {
       abilities: { canRunBuilds: true },
@@ -33,7 +36,7 @@ export const WebsiteWithLongProjectName = {
   },
 };
 
-export const CLI = {
+export const CLI: Story = {
   beforeEach: () => {
     window.env.MODE = 'CLI';
     window.parent.pageProps = undefined;
@@ -41,7 +44,7 @@ export const CLI = {
   },
 };
 
-export const InvalidYml = {
+export const InvalidYml: Story = {
   parameters: {
     bitriseYmlStore: {
       validationStatus: 'invalid',

@@ -1,4 +1,6 @@
-import { Button, EmptyState, useDisclosure } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useEffect, useState } from 'react';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
@@ -15,7 +17,7 @@ const StepBundleConfigInputs = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const [preselectedCategory, setPreselectedCategory] = useState<string>();
   const [selectedInputIndex, setSelectedInputIndex] = useState<number>(-1);
-  const { isOpen: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
+  const { open: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
   const { stepBundle, ...context } = useStepBundleConfigContext();
 
   const categories = useStepBundleInputs({
@@ -94,10 +96,10 @@ const StepBundleConfigInputs = () => {
           />
         ))
       ) : (
-        <EmptyState
-          title="Bundle inputs"
-          description="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
-          p="48"
+        <BitkitEmptyState
+          icon={IconStep}
+          headingText="Bundle inputs"
+          bodyText="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
         >
           <Button
             leftIconName="Plus"
@@ -108,7 +110,7 @@ const StepBundleConfigInputs = () => {
           >
             Add input
           </Button>
-        </EmptyState>
+        </BitkitEmptyState>
       )}
       <StepBundleInputsDialog
         ids={Object.values(stepBundle?.mergedValues.inputs || []).map(({ opts: _, ...rest }) => Object.keys(rest)[0])}

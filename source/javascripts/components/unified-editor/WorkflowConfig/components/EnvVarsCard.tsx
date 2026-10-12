@@ -1,4 +1,5 @@
-import { Badge, Box, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Box, ExpandableCard, Text } from '@bitrise/bitkit';
+import { BitkitBadge } from '@bitrise/bitkit-v2';
 import { useState } from 'react';
 
 import SortableEnvVars from '@/components/SortableEnvVars/SortableEnvVars';
@@ -11,9 +12,9 @@ const ButtonContent = ({ numberOfErrors }: { numberOfErrors: number }) => {
     <Box display="flex" gap="8">
       <Text textStyle="body/lg/semibold">Env Vars</Text>
       {!!numberOfErrors && (
-        <Badge variant="bold" colorScheme="negative">
+        <BitkitBadge variant="bold" colorVariant="red">
           {numberOfErrors}
-        </Badge>
+        </BitkitBadge>
       )}
     </Box>
   );

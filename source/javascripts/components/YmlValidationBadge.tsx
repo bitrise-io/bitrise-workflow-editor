@@ -1,27 +1,27 @@
-import { Badge } from '@bitrise/bitkit';
+import { BitkitBadge, IconCheckCircle, IconErrorCircle, IconWarning } from '@bitrise/bitkit-v2';
 import { capitalize } from 'es-toolkit';
 
 type Props = {
   status: 'valid' | 'invalid' | 'warnings';
 };
 
-const ICON_NAMES = {
-  valid: 'CheckCircle',
-  invalid: 'ErrorCircle',
-  warnings: 'Warning',
+const ICONS = {
+  valid: IconCheckCircle,
+  invalid: IconErrorCircle,
+  warnings: IconWarning,
 } as const;
 
-const COLOR_SCHEMES = {
-  valid: 'positive',
-  invalid: 'negative',
-  warnings: 'warning',
+const COLOR_VARIANTS = {
+  valid: 'green',
+  invalid: 'red',
+  warnings: 'yellow',
 } as const;
 
 const YmlValidationBadge = ({ status }: Props) => {
   return (
-    <Badge iconName={ICON_NAMES[status]} colorScheme={COLOR_SCHEMES[status]}>
+    <BitkitBadge icon={ICONS[status]} colorVariant={COLOR_VARIANTS[status]}>
       {capitalize(status)}
-    </Badge>
+    </BitkitBadge>
   );
 };
 

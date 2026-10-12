@@ -1,4 +1,4 @@
-import { Ribbon } from '@bitrise/bitkit';
+import { BitkitRibbon } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useMemo } from 'react';
 
 import {
@@ -61,19 +61,17 @@ const PipelineConversionSignposting = () => {
   }
 
   return (
-    <Ribbon
-      colorScheme="blue"
+    <BitkitRibbon
       data-clarity-unmask="true"
-      onClose={handleDismiss}
+      onDismiss={handleDismiss}
       action={{
         label: 'Convert Pipeline',
         onClick: handleConvertClick,
-        alignSelf: 'center',
       }}
     >
       This Pipeline is read-only. To edit its contents and access more flexible configuration options, convert it to a
       Graph Pipeline.
-    </Ribbon>
+    </BitkitRibbon>
   );
 };
 

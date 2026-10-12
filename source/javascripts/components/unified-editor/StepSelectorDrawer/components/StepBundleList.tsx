@@ -1,4 +1,5 @@
-import { Button, EmptyState } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
+import { BitkitEmptyState, IconMagnifier, IconStep } from '@bitrise/bitkit-v2';
 
 import StepBundleService from '@/core/services/StepBundleService';
 import { useEntityIndex } from '@/hooks/useEntityIndex';
@@ -61,15 +62,15 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
 
   if (bundleIds.length === 0) {
     return (
-      <EmptyState
-        iconName="Steps"
-        title="Your Step bundles will appear here"
-        description="Create Step bundles directly in Workflows, or on the Step bundles page."
+      <BitkitEmptyState
+        icon={IconStep}
+        headingText="Your Step bundles will appear here"
+        bodyText="Create Step bundles directly in Workflows, or on the Step bundles page."
       >
         <Button variant="tertiary" rightIconName="ArrowNorthEast" onClick={() => replace('/step_bundles')}>
           Go to Step bundles
         </Button>
-      </EmptyState>
+      </BitkitEmptyState>
     );
   }
 
@@ -78,15 +79,15 @@ const StepBundleList = ({ onSelectStep, excludedStepBundleId }: StepBundleListPr
       <SelectableStepBundleCard key={id} id={id} onClick={() => handleClick(id)} title={stepBundles[id]?.title} />
     ))
   ) : (
-    <EmptyState
-      iconName="Magnifier"
-      title="No Step bundles are matching your filter"
-      description="Modify your filters to get results."
+    <BitkitEmptyState
+      icon={IconMagnifier}
+      headingText="No Step bundles are matching your filter"
+      bodyText="Modify your filters to get results."
     >
       <Button variant="secondary" onClick={() => reset()}>
         Clear filters
       </Button>
-    </EmptyState>
+    </BitkitEmptyState>
   );
 };
 

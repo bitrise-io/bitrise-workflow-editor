@@ -1,16 +1,6 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardProps,
-  Icon,
-  LinkButton,
-  MarkdownContent,
-  Text,
-  Tooltip,
-  useDisclosure,
-} from '@bitrise/bitkit';
+import { Avatar, Box, Card, CardProps, Icon, LinkButton, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitControlButton, IconPlus } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
 
@@ -45,7 +35,7 @@ const AlgoliaStepListItem = ({
 }: Props) => {
   const titleRef = useRef<HTMLParagraphElement>(null);
   const isTitleTruncated = useIsTruncated(titleRef);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure();
 
   let hoverProps: Props = {};
   if (!isDisabled) {

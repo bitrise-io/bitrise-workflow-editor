@@ -1,4 +1,5 @@
-import { Box, Button, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { http, HttpResponse } from 'msw';
 import { useState } from 'react';
@@ -15,8 +16,8 @@ import usePushBranch from '@/hooks/usePushBranch';
 import { pushBranch, pushBranchMergeConflict } from './PushBranchDialog.mswMocks';
 
 function StoryWrapper({ onMergeConflict }: { onMergeConflict?: (branch: string) => void }) {
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true });
-  const { isOpen: isUpdateConfigOpen, onOpen: openUpdateConfig, onClose: closeUpdateConfig } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure({ defaultOpen: true });
+  const { open: isUpdateConfigOpen, onOpen: openUpdateConfig, onClose: closeUpdateConfig } = useDisclosure();
 
   const {
     isPushPending,
@@ -52,14 +53,20 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: (branch: string) 
 
 function MergeConflictStory() {
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
-  const { isOpen: isMergeOpen, onOpen: openMerge, onClose: closeMerge } = useDisclosure();
-  const [mergeContext, setMergeContext] = useState<{ targetBranch: string; isNewTargetBranch: boolean }>();
+  const { open: isMergeOpen, onOpen: openMerge, onClose: closeMerge } = useDisclosure();
+  const [mergeContext, setMergeContext] = useState<{
+    targetBranch: string;
+    isNewTargetBranch: boolean;
+  }>();
 
   return (
     <>
       <StoryWrapper
         onMergeConflict={(branch) => {
-          setMergeContext({ targetBranch: branch, isNewTargetBranch: branch !== configBranch });
+          setMergeContext({
+            targetBranch: branch,
+            isNewTargetBranch: branch !== configBranch,
+          });
           openMerge();
         }}
       />
@@ -77,15 +84,18 @@ function MergeConflictStory() {
 
 const meta: Meta<typeof PushBranchDialog> = {
   component: PushBranchDialog,
+
+  beforeEach({ msw }) {
+    msw.use(pushBranch());
+  },
+
   parameters: {
     bitriseYmlStore: {
       configBranch: 'main',
       configCommitSha: 'abc123',
     },
-    msw: {
-      handlers: [pushBranch()],
-    },
   },
+
   render: () => <StoryWrapper />,
 };
 
@@ -96,30 +106,28 @@ type Story = StoryObj<typeof PushBranchDialog>;
 export const Default: Story = {};
 
 export const NewBranch: Story = {
-  parameters: {
-    msw: {
-      handlers: [pushBranch(undefined, 'https://github.com/owner/repo/compare/main...feature-x?expand=1')],
-    },
+  beforeEach({ msw }) {
+    msw.use(pushBranch(undefined, 'https://github.com/owner/repo/compare/main...feature-x?expand=1'));
   },
 };
 
 export const Error: Story = {
-  parameters: {
-    msw: {
-      handlers: [pushBranch('Failed to push changes to branch')],
-    },
+  beforeEach({ msw }) {
+    msw.use(pushBranch('Failed to push changes to branch'));
   },
 };
 
 export const MergeConflict: Story = {
   render: () => <MergeConflictStory />,
+
+  beforeEach({ msw }) {
+    msw.use(
+      pushBranchMergeConflict(),
+      http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), () => HttpResponse.text(remoteYaml)),
+    );
+  },
+
   parameters: {
-    msw: {
-      handlers: [
-        pushBranchMergeConflict(),
-        http.get(BitriseYmlApi.ciConfigPath({ projectSlug: ':slug' }), () => HttpResponse.text(remoteYaml)),
-      ],
-    },
     bitriseYmlStore: {
       configBranch: 'main',
       configCommitSha: 'abc123',

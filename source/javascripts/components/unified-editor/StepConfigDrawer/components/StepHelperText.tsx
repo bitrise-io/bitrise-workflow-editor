@@ -1,4 +1,5 @@
-import { Box, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
+import { Box, Link, MarkdownContent } from '@bitrise/bitkit';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Collapse } from 'chakra-ui-2--react';
 
 type Props = {
@@ -7,7 +8,7 @@ type Props = {
 };
 
 const StepHelperText = ({ summary, details }: Props) => {
-  const { isOpen, onToggle } = useDisclosure();
+  const { open: isOpen, onToggle } = useDisclosure();
   const showMoreLabel = isOpen ? 'Show less' : 'Show more';
   const detailsText = details?.trim() || '';
   const summaryText = summary?.trim() || detailsText?.split('\n')[0].trim() || '';

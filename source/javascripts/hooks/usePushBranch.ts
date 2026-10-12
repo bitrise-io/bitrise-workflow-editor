@@ -1,4 +1,4 @@
-import { useToast } from '@bitrise/bitkit';
+import { createBitkitToast } from '@bitrise/bitkit-v2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -45,7 +45,6 @@ type UsePushBranchOptions = {
 };
 
 function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}) {
-  const toast = useToast();
   const queryClient = useQueryClient();
   const appSlug = PageProps.appSlug();
   const configBranch = useBitriseYmlStore((s) => s.configBranch);
@@ -78,16 +77,15 @@ function usePushBranch({ onSuccess, onMergeConflict }: UsePushBranchOptions = {}
     },
     onSuccess: async (data, { branch }) => {
       trackPushConfigChangesSucceeded(configBranch, branch);
-      toast({
-        title: 'Changes pushed successfully',
-        description: 'Continue in your Git provider and open a pull request.',
-        status: 'success',
-        isClosable: true,
+      createBitkitToast({
+        titleText: 'Changes pushed successfully',
+        messageText: 'Continue in your Git provider and open a pull request.',
+        variant: 'success',
         action: data?.pr_url
           ? {
               label: 'Open PR',
               href: data.pr_url,
-              target: '_blank',
+              isExternal: true,
               onClick: () => trackOpenPrAttempted(branch),
             }
           : undefined,

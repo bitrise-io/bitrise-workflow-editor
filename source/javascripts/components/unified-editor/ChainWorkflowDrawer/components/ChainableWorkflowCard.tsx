@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Card, Divider, Text } from '@bitrise/bitkit';
+import { Box, Button, ButtonGroup, Card, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -50,7 +51,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
         >
           Add before
         </Button>
-        <Divider orientation="vertical" height="32px" />
+        <Separator orientation="vertical" height="32" />
         <Button
           variant="tertiary"
           size="sm"

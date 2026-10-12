@@ -1,4 +1,5 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Divider, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Text } from '@bitrise/bitkit';
+import { Separator } from '@chakra-ui/react/separator';
 
 import { Container } from '@/core/models/Container';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
@@ -21,7 +22,7 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
         </Text>{' '}
         is used in {workflowsUsedByContainer.length} Workflow{workflowsUsedByContainer.length !== 1 ? 's' : ''}.
         <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
-        <Divider color="border/regular" />
+        <Separator />
       </DialogBody>
       <DialogFooter />
     </Dialog>

@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react-vite';
+import { Meta, StoryObj } from '@storybook/react-vite';
 
 import LicensePoolsApiMswMocks from '@/core/api/LicensePoolsApi.mswMocks';
 
@@ -11,18 +11,16 @@ export default {
   },
 } as Meta<typeof LicensesPage>;
 
-export const WithoutLicenses = {
-  parameters: {
-    msw: {
-      handlers: [LicensePoolsApiMswMocks.getWorkspaceLicensePools(true)],
-    },
+type Story = StoryObj<typeof LicensesPage>;
+
+export const WithoutLicenses: Story = {
+  beforeEach({ msw }) {
+    msw.use(LicensePoolsApiMswMocks.getWorkspaceLicensePools(true));
   },
 };
 
-export const WithLicenses = {
-  parameters: {
-    msw: {
-      handlers: [LicensePoolsApiMswMocks.getWorkspaceLicensePools()],
-    },
+export const WithLicenses: Story = {
+  beforeEach({ msw }) {
+    msw.use(LicensePoolsApiMswMocks.getWorkspaceLicensePools());
   },
 };

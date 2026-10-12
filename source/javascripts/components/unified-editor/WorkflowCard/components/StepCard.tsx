@@ -1,16 +1,5 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardProps,
-  ColorButton,
-  Dot,
-  Icon,
-  Skeleton,
-  SkeletonBox,
-  Text,
-  Tooltip,
-} from '@bitrise/bitkit';
+import { Avatar, Box, Card, CardProps, ColorButton, Dot, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -252,13 +241,19 @@ const StepCard = ({
           )}
 
           {isLoading ? (
-            <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4}>
-              <SkeletonBox height="32" width="32" borderRadius="4" />
-              <Box display="flex" flexDir="column" gap="4">
-                <SkeletonBox height="14" width="150px" />
-                {showSecondary && <SkeletonBox height="14" width="75px" />}
-              </Box>
-            </Skeleton>
+            <BitkitSkeletonGroup
+              display="grid"
+              gridTemplateColumns="auto auto"
+              alignItems="center"
+              columnGap="8"
+              rowGap="4"
+              padding="4"
+              paddingInlineStart={isSortable ? '0' : '4'}
+            >
+              <Box gridRow={showSecondary ? 'span 2' : undefined} height="32" width="32" borderRadius="4" />
+              <Box height={rem(14)} width={rem(150)} />
+              {showSecondary && <Box height={rem(14)} width={rem(75)} />}
+            </BitkitSkeletonGroup>
           ) : (
             <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
               <PopoverAnchor>

@@ -13,7 +13,8 @@ export default {
   argTypes: {
     onClose: { type: 'function' },
   },
-  beforeEach: () => {
+  beforeEach: ({ msw }) => {
+    msw.use(...defaultMswHandlers);
     window.parent.pageProps = {
       ...window.parent.pageProps,
       project: {
@@ -25,11 +26,6 @@ export default {
       },
     };
   },
-  parameters: {
-    msw: {
-      handlers: [...defaultMswHandlers],
-    },
-  },
 } as Meta<typeof ConfigurationYmlSourceDialog>;
 
 type Story = StoryObj<typeof ConfigurationYmlSourceDialog>;
@@ -37,26 +33,20 @@ type Story = StoryObj<typeof ConfigurationYmlSourceDialog>;
 export const StoredOnBitrise: Story = {};
 
 export const StoredOnGitRepository: Story = {
-  parameters: {
-    msw: {
-      handlers: [getYmlSettings({ uses_repository_yml: true, yml_root_path: '' }), ...defaultMswHandlers],
-    },
+  beforeEach({ msw }) {
+    msw.use(getYmlSettings({ uses_repository_yml: true, yml_root_path: '' }), ...defaultMswHandlers);
   },
 };
 
 export const SaveCIConfigSettingsFailed: Story = {
-  parameters: {
-    msw: {
-      handlers: [putYmlSettings('Save CI config settings failed.'), ...defaultMswHandlers],
-    },
+  beforeEach({ msw }) {
+    msw.use(putYmlSettings('Save CI config settings failed.'), ...defaultMswHandlers);
   },
 };
 
 export const FetchCIConfigFailed: Story = {
-  parameters: {
-    msw: {
-      handlers: [getCiConfig('Get CI confit from Git repository failed.'), ...defaultMswHandlers],
-    },
+  beforeEach({ msw }) {
+    msw.use(getCiConfig('Get CI confit from Git repository failed.'), ...defaultMswHandlers);
   },
 };
 

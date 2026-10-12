@@ -1,14 +1,16 @@
-import { useDisclosure, useResponsive, useToast } from '@bitrise/bitkit';
 import {
   BitkitBreadcrumb,
   BitkitButton,
   BitkitPageHeader,
   BitkitSegmentedControl,
   BitkitTooltip,
+  createBitkitToast,
   IconCode,
   IconWebUi,
+  useResponsive,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -64,7 +66,6 @@ const Header = () => {
   const appPath = isWebsiteMode ? `/app/${appSlug}` : '';
   const { data: ciConfigSettings } = useCiConfigSettings();
 
-  const toast = useToast();
   const { isMobile } = useResponsive();
   const currentPage = useCurrentPage();
   const hasChanges = useYmlHasChanges();
@@ -139,7 +140,7 @@ const Header = () => {
   const lastPushPayload = useRef<PushBranchPayload>();
 
   const {
-    isOpen: isDiffViewerOpen,
+    open: isDiffViewerOpen,
     onOpen: openDiffViewer,
     onClose: closeDiffViewer,
   } = useDisclosure({
@@ -153,15 +154,15 @@ const Header = () => {
     },
   });
 
-  const { isOpen: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
+  const { open: isMergeDialogOpen, onOpen: openMergeDialog, onClose: closeMergeDialog } = useDisclosure();
   const {
-    isOpen: isModularMergeDialogOpen,
+    open: isModularMergeDialogOpen,
     onOpen: openModularMergeDialog,
     onClose: closeModularMergeDialog,
   } = useDisclosure();
 
   const {
-    isOpen: isUpdateConfigDialogOpen,
+    open: isUpdateConfigDialogOpen,
     onOpen: openUpdateConfigDialog,
     onClose: closeUpdateConfigDialog,
   } = useDisclosure({
@@ -171,7 +172,7 @@ const Header = () => {
   });
 
   const {
-    isOpen: isPushBranchDialogOpen,
+    open: isPushBranchDialogOpen,
     onOpen: openPushBranchDialog,
     onClose: closePushBranchDialog,
   } = useDisclosure({
@@ -197,15 +198,13 @@ const Header = () => {
     onSuccess: (config) => applyModularSaveResult({ root: config.root }),
     onError: (error: Error) => {
       segmentTrack('Workflow Editor Invalid Yml Popup Shown', { source: 'save', tab_name: currentPage });
-      toast({
-        title: 'Failed to save changes',
-        description:
+      createBitkitToast({
+        titleText: 'Failed to save changes',
+        messageText:
           (error instanceof ClientError ? error.getResponseErrorMessage() : undefined) ||
           error.message ||
           'Something went wrong',
-        status: 'error',
-        duration: null,
-        isClosable: true,
+        variant: 'critical',
       });
     },
   });
@@ -281,12 +280,10 @@ const Header = () => {
               source: 'save',
               tab_name: currentPage,
             });
-            toast({
-              title: 'Failed to save changes',
-              description: error.getResponseErrorMessage() || error.message || 'Something went wrong',
-              status: 'error',
-              duration: null,
-              isClosable: true,
+            createBitkitToast({
+              titleText: 'Failed to save changes',
+              messageText: error.getResponseErrorMessage() || error.message || 'Something went wrong',
+              variant: 'critical',
             });
           },
         },
@@ -306,7 +303,6 @@ const Header = () => {
       openPushBranchDialog,
       openUpdateConfigDialog,
       handleSaveMergeConflict,
-      toast,
     ],
   );
 
@@ -330,12 +326,10 @@ const Header = () => {
       e.preventDefault();
 
       if (ymlStatus === 'invalid') {
-        toast({
-          title: 'YAML is invalid',
-          description: 'Please fix the errors in your YAML configuration before saving.',
-          status: 'error',
-          duration: null,
-          isClosable: true,
+        createBitkitToast({
+          titleText: 'YAML is invalid',
+          messageText: 'Please fix the errors in your YAML configuration before saving.',
+          variant: 'critical',
         });
         return;
       }

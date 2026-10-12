@@ -1,4 +1,6 @@
-import { Box, Card, Skeleton, SkeletonBox } from '@bitrise/bitkit';
+import { Box, Card } from '@bitrise/bitkit';
+import { BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
+import { Skeleton } from '@chakra-ui/react/skeleton';
 import { range } from 'es-toolkit';
 import { useRef } from 'react';
 
@@ -10,28 +12,30 @@ const AlgoliaStepListLoadingState = () => {
   const columns = useCalculateColumns(ref);
 
   return (
-    <Skeleton ref={ref} display="flex" flexDirection="column" gap={GAP}>
-      <SkeletonBox height={CATEGORY_HEIGHT} width={150} />
+    <Box ref={ref} display="flex" flexDirection="column" gap={GAP}>
+      <Skeleton height={CATEGORY_HEIGHT} width={rem(150)} />
       {range(16 * columns).map((row) => (
         <Box key={row} display="grid" gap={GAP} height={STEP_HEIGHT} gridTemplateColumns={`repeat(${columns}, 1fr)`}>
           {range(columns).map((col) => (
             <Card key={col} p="8" gap="8" display="flex" variant="outline" flexDirection="column">
-              <Box display="flex" gap="8">
-                <SkeletonBox width={40} height={40} borderRadius="4" />
-                <Box flex="1" display="flex" flexDirection="column" gap="2">
-                  <SkeletonBox width="80%" height={18} />
-                  <SkeletonBox width="64" height={14} />
-                </Box>
-              </Box>
-              <Box display="flex" flexDirection="column" gap="2">
-                <SkeletonBox width="100%" height={14} />
-                <SkeletonBox width="75%" height={14} />
-              </Box>
+              <BitkitSkeletonGroup
+                display="grid"
+                gridTemplateColumns="auto 1fr"
+                gridTemplateRows={rem(18)}
+                columnGap="8"
+                rowGap="2"
+              >
+                <Box gridRow="span 2" width="40" height="40" borderRadius="4" />
+                <Box width="80%" height={rem(18)} />
+                <Box width="64" height={rem(14)} />
+                <Box gridColumn="1 / -1" marginBlockStart="6" width="100%" height={rem(14)} />
+                <Box gridColumn="1 / -1" width="75%" height={rem(14)} />
+              </BitkitSkeletonGroup>
             </Card>
           ))}
         </Box>
       ))}
-    </Skeleton>
+    </Box>
   );
 };
 

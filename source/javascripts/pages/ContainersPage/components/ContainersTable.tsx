@@ -1,5 +1,6 @@
-import { Box, Link, Table, Tbody, Td, Text, Th, Thead, Tr, useDisclosure, useResponsive } from '@bitrise/bitkit';
-import { BitkitControlButton, IconDetails, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
+import { Box, Link, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitControlButton, IconDetails, IconMinusCircle, IconPencil, useResponsive } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -31,12 +32,12 @@ const ContainersTable = ({
   const [selectedContainerId, setSelectedContainerId] = useState<Container['id']>('');
 
   const {
-    isOpen: isContainerUsageDialogOpen,
+    open: isContainerUsageDialogOpen,
     onOpen: onContainerUsageDialogOpen,
     onClose: onContainerUsageDialogClose,
   } = useDisclosure();
   const {
-    isOpen: isDeleteContainerDialogOpen,
+    open: isDeleteContainerDialogOpen,
     onOpen: onDeleteContainerDialogOpen,
     onClose: onDeleteContainerDialogClose,
   } = useDisclosure();

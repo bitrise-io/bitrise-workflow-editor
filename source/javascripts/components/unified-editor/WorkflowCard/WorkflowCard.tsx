@@ -1,4 +1,4 @@
-import { Box, Card, CardProps, Collapse, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { Box, Card, CardProps, Collapse, Text, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { useDisclosure } from '@chakra-ui/react/hooks';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
@@ -97,8 +98,12 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
   const isGhost = isCrossFile || isReadOnlyView;
 
-  const { isOpen, onOpen, onToggle } = useDisclosure({
-    defaultIsOpen: !isCollapsable,
+  const {
+    open: isOpen,
+    onOpen,
+    onToggle,
+  } = useDisclosure({
+    defaultOpen: !isCollapsable,
   });
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
