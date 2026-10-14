@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
+import { BitkitTag } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -74,9 +75,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
             <Text textStyle="body/lg/semibold">New inputs</Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {newInputs.map((input) => (
-                <Tag size="sm" colorScheme="green" key={input}>
-                  {input}
-                </Tag>
+                <BitkitTag key={input} colorVariant="green" labelText={input} size="sm" />
               ))}
             </Box>
           </>
@@ -86,9 +85,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
             <Text textStyle="body/lg/semibold">Removed inputs</Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {removedInputs.map((input) => (
-                <Tag size="sm" colorScheme="red" key={input}>
-                  {input}
-                </Tag>
+                <BitkitTag key={input} colorVariant="red" labelText={input} size="sm" />
               ))}
             </Box>
           </>
