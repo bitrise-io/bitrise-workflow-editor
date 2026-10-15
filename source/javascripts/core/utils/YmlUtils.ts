@@ -70,12 +70,18 @@ function rawErrorSource(root: Root): string | undefined {
 // An alias starts after a line start, whitespace or a flow indicator, never mid-word.
 const ALIAS_SYNTAX = /(?:^|[\s[{,:])\*/m;
 
+const aliasTargetsByDoc = new WeakMap<Document, Map<number, Node>>();
+
 /**
+ * Finds the node each alias resolves to, stashed for `aliasTargets`.
+ *
  * yaml accepts an alias with no anchor before it, as while the user types `*na…`, and then every
  * store update throws on it. It also accepts an alias inside its own anchor (`a: &x [*x]`), which the
  * CLI rejects. Reporting both as parse errors makes the editor treat the text as invalid YAML.
  */
-function addUnresolvedAliasErrors(doc: Document, raw: string) {
+function resolveAliases(doc: Document, raw: string) {
+  const targets = new Map<number, Node>();
+  aliasTargetsByDoc.set(doc, targets);
   if (!ALIAS_SYNTAX.test(raw)) {
     return;
   }
@@ -89,6 +95,9 @@ function addUnresolvedAliasErrors(doc: Document, raw: string) {
       }
       const target = anchors.get(alias.source);
       if (target && !path.includes(target)) {
+        if (alias.range) {
+          targets.set(alias.range[0], target);
+        }
         return;
       }
       const [start, end] = alias.range ?? [0, 0];
@@ -110,19 +119,18 @@ function toDoc(raw: string) {
     stringKeys: true,
     keepSourceTokens: true,
   });
-  addUnresolvedAliasErrors(doc, raw);
+  resolveAliases(doc, raw);
   if (doc.errors.length > 0) {
     rawSourceByErrorDoc.set(doc, raw);
   }
   return doc;
 }
 
-function toYml(root: Root) {
-  const rawError = rawErrorSource(root);
-  if (rawError !== undefined) {
-    return rawError;
-  }
-
+/**
+ * The options `toYml` stringifies `root` with: the sequence indent and flow collection padding most of
+ * its source uses, so the output keeps the file's style.
+ */
+function stringifyOptions(root: Root) {
   let indents = 0;
   let paddings = 0;
 
@@ -146,7 +154,30 @@ function toYml(root: Root) {
         });
       }
     },
-    Scalar(__, node) {
+  });
+
+  return {
+    version: '1.1',
+    schema: 'yaml-1.1',
+    indentSeq: indents > 0,
+    aliasDuplicateObjects: false,
+    flowCollectionPadding: paddings >= 0,
+  } as const;
+}
+
+/** The node each alias of a `toDoc` document resolves to, by the alias's start offset. */
+function aliasTargets(doc: Document): ReadonlyMap<number, Node> {
+  return aliasTargetsByDoc.get(doc) ?? new Map();
+}
+
+function toYml(root: Root) {
+  const rawError = rawErrorSource(root);
+  if (rawError !== undefined) {
+    return rawError;
+  }
+
+  visit(root, {
+    Scalar(_, node) {
       if (typeof node.value === 'string' && /\t/.test(node.value)) {
         node.type = 'BLOCK_LITERAL';
         node.value = node.value.replace(/\t/g, '  ');
@@ -154,13 +185,7 @@ function toYml(root: Root) {
     },
   });
 
-  return stringify(root, {
-    version: '1.1',
-    schema: 'yaml-1.1',
-    indentSeq: indents > 0,
-    aliasDuplicateObjects: false,
-    flowCollectionPadding: paddings >= 0,
-  });
+  return stringify(root, stringifyOptions(root));
 }
 
 function toJSON(root: Root) {
@@ -748,6 +773,8 @@ function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, n
 export default {
   toDoc,
   toYml,
+  stringifyOptions,
+  aliasTargets,
   toJSON,
   toScalar,
   isEquals,
