@@ -1,19 +1,5 @@
-import {
-  Button,
-  Card,
-  Icon,
-  Input,
-  Select,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  ToggleButton,
-  Toggletip,
-  Tr,
-} from '@bitrise/bitkit';
-import { BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
+import { Card, Icon, Input, Select, Table, Tbody, Td, Th, Thead, ToggleButton, Toggletip, Tr } from '@bitrise/bitkit';
+import { BitkitButton, BitkitControlButton, IconPlus, IconTrash } from '@bitrise/bitkit-v2';
 import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -155,15 +141,15 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
           <Tfoot>
             <Tr>
               <Td>
-                <Button
+                <BitkitButton
                   variant="tertiary"
                   size="md"
-                  leftIconName="Plus"
+                  icon={IconPlus}
                   onClick={append}
-                  isDisabled={fields.length >= Object.keys(optionsMap).length}
+                  state={fields.length >= Object.keys(optionsMap).length ? 'disabled' : undefined}
                 >
                   Add condition
-                </Button>
+                </BitkitButton>
               </Td>
               <Td />
               <Td />

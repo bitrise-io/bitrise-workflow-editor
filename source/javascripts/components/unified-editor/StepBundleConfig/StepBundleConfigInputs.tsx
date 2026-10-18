@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, IconPlus, IconStep } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useEffect, useState } from 'react';
 
@@ -101,15 +100,15 @@ const StepBundleConfigInputs = () => {
           headingText="Bundle inputs"
           bodyText="Define input variables to manage multiple Steps within a bundle. Reference their keys in Steps and assign custom values for each Workflow."
         >
-          <Button
-            leftIconName="Plus"
+          <BitkitButton
+            icon={IconPlus}
             variant="secondary"
             size="md"
-            isDisabled={isReadOnlyView}
+            state={isReadOnlyView ? 'disabled' : undefined}
             onClick={() => handleAddInput()}
           >
             Add input
-          </Button>
+          </BitkitButton>
         </BitkitEmptyState>
       )}
       <StepBundleInputsDialog

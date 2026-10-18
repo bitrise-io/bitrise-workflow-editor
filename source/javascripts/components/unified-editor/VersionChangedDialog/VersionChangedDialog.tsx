@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { Box, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -95,9 +96,9 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Close
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );

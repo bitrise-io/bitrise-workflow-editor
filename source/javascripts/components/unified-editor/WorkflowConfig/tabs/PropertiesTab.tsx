@@ -1,4 +1,5 @@
-import { Box, Button, Textarea } from '@bitrise/bitkit';
+import { Box, Textarea } from '@bitrise/bitkit';
+import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler } from 'react';
@@ -119,18 +120,17 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
       {isGitStatusNameEnabled && <GitStatusName workflowId={workflowId} isDisabled={isReadOnlyView} />}
 
       {isDeleteable && (
-        <Button
-          isDanger
+        <BitkitButton
           size="lg"
           alignSelf="start"
-          variant="secondary"
-          leftIconName="Trash"
-          isDisabled={isReadOnlyView}
+          variant="danger-secondary"
+          icon={IconTrash}
+          state={isReadOnlyView ? 'disabled' : undefined}
           aria-label={`Delete ${workflowId ? `"${workflowId}"` : 'Workflow'}`}
           onClick={openDeleteDialog}
         >
           Delete Workflow
-        </Button>
+        </BitkitButton>
       )}
 
       {isDeleteable && (
