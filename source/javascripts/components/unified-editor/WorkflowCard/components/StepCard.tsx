@@ -1,5 +1,6 @@
-import { Avatar, Box, Card, CardProps, ColorButton, Dot, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { Avatar, Card, CardProps, ColorButton, Dot, Icon, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -258,11 +259,11 @@ const StepCard = ({
             <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
               <PopoverAnchor>
                 <Box
-                  p="4"
-                  pl={isSortable ? 0 : 4}
+                  padding="4"
+                  paddingInlineStart={isSortable ? 0 : 4}
                   gap="8"
                   flex="1"
-                  minW={0}
+                  minWidth="0"
                   display="flex"
                   onClick={handleClick}
                   role={isButton ? 'button' : 'div'}
@@ -277,7 +278,7 @@ const StepCard = ({
                     backgroundColor="background/primary"
                   />
 
-                  <Box minW={0} textAlign="left" flex="1">
+                  <Box minWidth="0" textAlign="left" flex="1">
                     <Text textStyle="body/sm/regular" hasEllipsis>
                       {title}
                     </Text>

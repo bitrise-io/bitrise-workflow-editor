@@ -1,4 +1,5 @@
-import { Box, Button, ExpandableCard, Icon, Text, TypeIconName } from '@bitrise/bitkit';
+import { Button, ExpandableCard, Icon, Text, TypeIconName } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 
 import { TargetBasedTrigger, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 

@@ -1,15 +1,16 @@
-import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
+import { Icon, Tooltip } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { memo } from 'react';
 
 type Props = BoxProps;
 
 const AddStepButton = ({ onClick, ...props }: Props) => {
   return (
-    <Box h={8} cursor="pointer" position="relative" {...props} className="group">
+    <Box height="8" cursor="pointer" position="relative" {...props} className="group">
       <Box
-        h={2}
+        height="2"
         display="none"
-        bg="icon/interactive"
+        background="icon/interactive"
         top="calc(50% - 1px)"
         left={0}
         right={0}
@@ -20,8 +21,8 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
       />
       <Tooltip label="Add Step or Step bundle" aria-label="Add Step or Step bundle">
         <Box
-          w={20}
-          h={20}
+          width="20"
+          height="20"
           as="button"
           position="absolute"
           top="calc(50% - 10px)"
@@ -31,7 +32,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           display="none"
           alignItems="center"
           justifyContent="center"
-          bg="button/primary/bg"
+          background="button/primary/bg"
           color="button/primary/fg"
           borderRadius="4"
           _hover={{

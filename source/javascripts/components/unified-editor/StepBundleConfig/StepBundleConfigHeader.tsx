@@ -1,5 +1,6 @@
-import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
+import { Tab, TabList, Text } from '@bitrise/bitkit';
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { ReactNode } from 'react';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
@@ -66,7 +67,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
 
   return (
     <>
-      <Box p={variant === 'panel' ? '16px 24px 0px 24px' : '0'}>
+      <Box padding={variant === 'panel' ? '16px 24px 0px 24px' : '0'}>
         <Text as="h3" textStyle="heading/h3">
           {title}
         </Text>

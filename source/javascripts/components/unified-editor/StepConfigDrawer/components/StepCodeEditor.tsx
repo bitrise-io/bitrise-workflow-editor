@@ -1,4 +1,5 @@
-import { Box, Label } from '@bitrise/bitkit';
+import { Label } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Editor } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
@@ -49,7 +50,7 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
   }, [editorInstance, updateEditorHeight]);
 
   return (
-    <Box display="flex" flexDir="column" gap="8px">
+    <Box display="flex" flexDirection="column" gap="8px">
       {label && <Label>{label}</Label>}
       <Editor
         theme="vs-dark"

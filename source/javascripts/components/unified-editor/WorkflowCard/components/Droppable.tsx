@@ -1,4 +1,4 @@
-import { Box, BoxProps } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDroppable } from '@dnd-kit/core';
 import { memo } from 'react';
 

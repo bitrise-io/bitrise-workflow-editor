@@ -1,5 +1,6 @@
-import { Box, Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
 import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -220,7 +221,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               padding={cardPadding}
               gap="4"
               className="group"
-              minW={0}
+              minWidth="0"
               onClick={handleClick}
               role={isButton ? 'button' : 'div'}
             >
@@ -238,7 +239,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
                 />
               )}
-              <Box flex="1" minW={0}>
+              <Box flex="1" minWidth="0">
                 <Text textStyle="body/md/semibold" hasEllipsis>
                   {title}
                 </Text>
@@ -268,7 +269,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           {!isCrossFile && (
             <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-              <Box p="8" ref={containerRef}>
+              <Box padding="8" ref={containerRef}>
                 <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
               </Box>
             </Collapse>

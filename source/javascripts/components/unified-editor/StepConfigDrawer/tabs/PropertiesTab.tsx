@@ -1,4 +1,5 @@
-import { Box, Collapse, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { Collapse, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler, useEffect, useState } from 'react';

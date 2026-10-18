@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { ChangeEventHandler } from 'react';
 
 import StepBundleService from '@/core/services/StepBundleService';
@@ -50,7 +50,7 @@ const StepBundleConfigurationTab = () => {
   };
 
   return (
-    <Box display="flex" flexDir="column" gap="12">
+    <Box display="flex" flexDirection="column" gap="12">
       <WhenToRunCard
         defaultValuesRunIf={isDefaultMode ? undefined : defaultValues.run_if}
         isAlwaysRun={mergedValues.is_always_run}

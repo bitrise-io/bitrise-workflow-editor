@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { ChangeEventHandler } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
@@ -64,7 +64,7 @@ const ConfigurationTab = () => {
   };
 
   return (
-    <Box display="flex" flexDir="column" gap="12">
+    <Box display="flex" flexDirection="column" gap="12">
       <WhenToRunCard
         defaultValuesRunIf={defaultValues.run_if}
         isAlwaysRun={mergedValues.is_always_run}

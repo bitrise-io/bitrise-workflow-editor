@@ -1,5 +1,6 @@
-import { Box, ExpandableCard, Text } from '@bitrise/bitkit';
+import { ExpandableCard, Text } from '@bitrise/bitkit';
 import { BitkitBadge } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useState } from 'react';
 
 import SortableEnvVars from '@/components/SortableEnvVars/SortableEnvVars';
@@ -30,7 +31,7 @@ const EnvVarsCard = () => {
       buttonPadding="16px 24px"
       buttonContent={<ButtonContent numberOfErrors={errorCount} />}
     >
-      <Box m="-24px" width="auto">
+      <Box margin="-24px" width="auto">
         <SortableEnvVars
           source={EnvVarSource.Workflows}
           sourceId={sourceId}

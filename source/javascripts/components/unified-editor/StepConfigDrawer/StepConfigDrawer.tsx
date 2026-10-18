@@ -1,4 +1,5 @@
-import { Avatar, Box, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { Avatar, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -56,7 +57,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 backgroundColor="background/primary"
               />
 
-              <Box flex="1" minW={0}>
+              <Box flex="1" minWidth="0">
                 <Box display="flex" gap="4" alignItems="center">
                   <Text as="h3" textStyle="heading/h3" hasEllipsis>
                     {data?.mergedValues?.title || 'Loading...'}
@@ -89,7 +90,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 </Box>
               </Box>
             </Box>
-            <Box position="relative" mt="8" mx="-24">
+            <Box position="relative" marginBlockStart="8" marginInline="-24">
               <TabList paddingX="8" data-clarity-unmask="true">
                 <Tab>Configuration</Tab>
                 <Tab>Properties</Tab>

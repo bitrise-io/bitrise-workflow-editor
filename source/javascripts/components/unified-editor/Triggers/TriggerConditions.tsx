@@ -1,4 +1,5 @@
-import { Box, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
+import { Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Fragment } from 'react';
 
 import { TargetBasedCondition, TargetBasedConditionType, TriggerType } from '@/core/models/Trigger';

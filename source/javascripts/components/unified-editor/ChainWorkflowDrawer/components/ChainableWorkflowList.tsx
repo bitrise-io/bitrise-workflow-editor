@@ -1,5 +1,6 @@
-import { Box, Button } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useFormContext } from 'react-hook-form';
 
 import { useChainableWorkflows } from '@/hooks/useChainableWorkflows';
@@ -54,7 +55,7 @@ const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
   }
 
   return (
-    <Box display="flex" flexDir="column" gap="12" maxH="100%" overflow="auto">
+    <Box display="flex" flexDirection="column" gap="12" maxHeight="100%" overflow="auto">
       {workflows.map((chainableId) => (
         <ChainableWorkflowCard
           key={chainableId}

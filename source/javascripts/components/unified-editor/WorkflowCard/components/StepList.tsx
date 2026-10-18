@@ -1,5 +1,6 @@
-import { Box, Button } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -87,7 +88,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
 
   const content = useMemo(() => {
     return (
-      <Box display="flex" flexDir="column" gap="8">
+      <Box display="flex" flexDirection="column" gap="8">
         {sortableItems.map((item) => {
           const isLast = item.stepIndex === sortableItems.length - 1;
 

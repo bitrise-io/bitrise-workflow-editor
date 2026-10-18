@@ -1,4 +1,5 @@
-import { Box, Icon } from '@bitrise/bitkit';
+import { Icon } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
@@ -174,11 +175,11 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
       items={getSortableItemUniqueIds(sortableItems)}
     >
       <Box
-        gap={8}
+        gap="8"
         display="flex"
-        flexDir="column"
-        mt={isEmpty && isAfterRun ? -8 : 0}
-        mb={isEmpty && isBeforeRun ? -8 : 0}
+        flexDirection="column"
+        marginBlockStart={isEmpty && isAfterRun ? -8 : 0}
+        marginBlockEnd={isEmpty && isBeforeRun ? -8 : 0}
       >
         {isAfterRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
         {isAfterRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}

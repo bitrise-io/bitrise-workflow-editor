@@ -1,4 +1,5 @@
-import { Box, Button, IconButton, Input, Textarea } from '@bitrise/bitkit';
+import { Button, IconButton, Input, Textarea } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
