@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
 import StepBundlesPage from './StepBundlesPage';
@@ -9,7 +9,7 @@ export default {
     layout: 'fullscreen',
   },
   decorators: (Story) => (
-    <Box h="100dvh">
+    <Box height="100dvh">
       <Story />
     </Box>
   ),

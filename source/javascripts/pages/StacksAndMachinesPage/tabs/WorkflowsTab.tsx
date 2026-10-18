@@ -1,5 +1,6 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconWorkflow } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import WorkflowStackAndMachine from '@/components/StacksAndMachine/WorkflowStackAndMachine';
@@ -20,7 +21,7 @@ const WorkflowStackGroup = ({ workflowId, showDefinition }: GroupProps) => {
 
   return (
     <Box>
-      <Box mb="12">
+      <Box marginBlockEnd="12">
         <Text as="h4" textStyle="heading/h4">
           {workflowId}
         </Text>

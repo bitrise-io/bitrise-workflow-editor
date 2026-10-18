@@ -1,5 +1,6 @@
-import { Box, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { Checkbox, Input, Text } from '@bitrise/bitkit';
 import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode, useState } from 'react';
@@ -80,12 +81,12 @@ const SortableEnvVarItem = ({
         {...sortable.attributes}
       />
       <Box
-        p="16"
-        pl="8"
+        padding="16"
+        paddingInlineStart="8"
         gap="16"
         flex="1"
         display="flex"
-        flexDir="column"
+        flexDirection="column"
         visibility={sortable.isDragging ? 'hidden' : 'visible'}
       >
         <Box display="flex" alignItems="top" gap="8">
@@ -114,7 +115,7 @@ const SortableEnvVarItem = ({
           />
           {isReadOnlyView && jumpButton ? (
             // Center the small (xs) jump arrow against the value input rather than top-aligning it.
-            <Box ml="8" alignSelf="center">
+            <Box marginInlineStart="8" alignSelf="center">
               {jumpButton}
             </Box>
           ) : (

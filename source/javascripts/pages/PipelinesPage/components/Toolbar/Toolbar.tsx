@@ -1,4 +1,5 @@
-import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
+import { Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -97,12 +98,12 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
   return (
     <Box
-      sx={{ '--dropdown-floating-max': '359px' }}
+      css={{ '--dropdown-floating-max': '359px' }}
       {...props}
-      p="8"
+      padding="8"
       gap="8"
       display="flex"
-      boxShadow="large"
+      boxShadow="elevation/lg"
       borderRadius="12"
       justifyContent="space-between"
       backgroundColor="background/primary"
@@ -126,10 +127,10 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         {/* Create actions are hidden (not disabled) on the read-only merged/ghost view (BIVS-3721). */}
         {!isReadOnlyView && (
           <Box
-            w="100%"
-            mt="8"
-            py="12"
-            mb="-12"
+            width="100%"
+            marginBlockStart="8"
+            paddingBlock="12"
+            marginBlockEnd="-12"
             bottom="-12"
             position="sticky"
             borderTop="1px solid"

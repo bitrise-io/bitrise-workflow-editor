@@ -1,4 +1,5 @@
-import { Box, BoxProps, Button, Text } from '@bitrise/bitkit';
+import { Button, Text } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -91,7 +92,7 @@ const SortableEnvVars = ({
 
       {/* Read-only views (merged config, cross-repo/ref files) can't add — show no action. */}
       {!hideAddButton && !isReadOnlyView && (
-        <Box px="16" py="12">
+        <Box paddingInline="16" paddingBlock="12">
           <Button size="md" variant="tertiary" leftIconName="Plus" onClick={onAdd}>
             Add new
           </Button>

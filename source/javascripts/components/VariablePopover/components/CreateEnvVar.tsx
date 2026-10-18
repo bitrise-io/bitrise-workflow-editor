@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
@@ -31,7 +32,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
 
   return (
     <Box as="form" onSubmit={handleCreate} display="flex" flexDirection="column">
-      <Box display="flex" flexDir="column" gap="8" paddingTop="12" paddingBottom="24">
+      <Box display="flex" flexDirection="column" gap="8" paddingBlockStart="12" paddingBlockEnd="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
           <Input
             autoFocus

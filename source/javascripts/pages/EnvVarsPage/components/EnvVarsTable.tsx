@@ -1,4 +1,5 @@
-import { Box, Card, Text } from '@bitrise/bitkit';
+import { Card, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { ReactNode } from 'react';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';
@@ -8,8 +9,8 @@ import { EnvVar, EnvVarSource } from '@/core/models/EnvVar';
 const EnvVarsTableHeader = () => {
   return (
     <Box
-      pl="32"
-      pr="48"
+      paddingInlineStart="32"
+      paddingInlineEnd="48"
       as="header"
       height="48"
       display="flex"

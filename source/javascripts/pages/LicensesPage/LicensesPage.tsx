@@ -1,5 +1,6 @@
-import { Box, Button, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Button, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconKey } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -12,7 +13,7 @@ const LicensesPage = () => {
   const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
 
   return (
-    <Box p="32">
+    <Box padding="32">
       <Text as="h2" textStyle="heading/h2" marginBlockEnd="4" data-clarity-unmask="true">
         Licenses
       </Text>

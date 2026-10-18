@@ -1,7 +1,5 @@
 import {
   Avatar,
-  Box,
-  BoxProps,
   Checkbox,
   Dropdown,
   DropdownDetailedOption,
@@ -12,6 +10,7 @@ import {
   Tooltip,
   TypeIconName,
 } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
@@ -128,7 +127,7 @@ const StackSelector = ({
         label="Stack rollback is not available when your workspace is configured to use external hosts only."
         isDisabled={!disableRollbackOption}
       >
-        <Box display="inline-block" mt="16">
+        <Box display="inline-block" marginBlockStart="16">
           <Checkbox
             isDisabled={isRollbackDisabled || isDisabled}
             isChecked={!isRollbackDisabled && useRollbackVersion}

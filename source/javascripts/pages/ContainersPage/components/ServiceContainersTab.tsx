@@ -1,5 +1,6 @@
-import { Box, Button, Text } from '@bitrise/bitkit';
+import { Button, Text } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconContainer } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 

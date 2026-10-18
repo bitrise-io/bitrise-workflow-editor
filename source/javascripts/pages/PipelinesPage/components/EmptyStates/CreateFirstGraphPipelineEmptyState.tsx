@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
@@ -23,7 +24,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
 
   const actions = (
-    <Box display="flex" flexDir={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
+    <Box display="flex" flexDirection={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
       <ButtonGroup spacing="0" gap="24">
         {isAIButtonVisible && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
@@ -56,12 +57,12 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
 
   return (
     <Box
-      p="24"
+      padding="24"
       flex="1"
       display="flex"
       justifyContent="center"
       alignItems={['flex-start', 'center']}
-      bg="background/secondary"
+      background="background/secondary"
     >
       <Card
         p="24"
@@ -72,7 +73,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
         width="auto"
         data-clarity-unmask="true"
       >
-        <Box maxW="420" display="flex" flexDir="column" gap="16">
+        <Box maxWidth="420px" display="flex" flexDirection="column" gap="16">
           <Text as="h3" textStyle="heading/h3">
             Get started with Pipelines
           </Text>
@@ -93,12 +94,19 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
           )}
         </Box>
 
-        <Box p="8" maxW="436" display="flex" borderRadius="8" bg="background/secondary" alignItems="center">
+        <Box
+          padding="8"
+          maxWidth="436px"
+          display="flex"
+          borderRadius="8"
+          background="background/secondary"
+          alignItems="center"
+        >
           <Image src={graphPipelineImage} alt="Graph Pipeline" />
         </Box>
 
         {!isReadOnlyView && (
-          <Box display={['flex', 'none']} flexDir="column" gap="24" alignItems="center">
+          <Box display={['flex', 'none']} flexDirection="column" gap="24" alignItems="center">
             {actions}
           </Box>
         )}

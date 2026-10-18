@@ -1,5 +1,6 @@
-import { Box, Button } from '@bitrise/bitkit';
+import { Button } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
@@ -53,7 +54,7 @@ const StepBundlesPage = () => {
   });
 
   const content = hasStepBundles ? (
-    <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
+    <Box height="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
       <StepBundlesCanvasPanel stepBundleId={stepBundleId} />
       <StepBundleConfigPanel stepBundleId={stepBundleId} />
     </Box>

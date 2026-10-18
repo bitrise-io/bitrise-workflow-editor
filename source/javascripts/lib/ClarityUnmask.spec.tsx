@@ -10,7 +10,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import {
-  Box,
   Breadcrumb,
   BreadcrumbLink,
   Button,
@@ -45,6 +44,7 @@ import {
   BitkitSegmentedControl,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 

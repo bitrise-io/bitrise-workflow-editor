@@ -1,4 +1,4 @@
-import { Box, BoxProps } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
 import { Icon, IconProps } from 'chakra-ui-2--react';
 import { CSSProperties, useRef } from 'react';
@@ -81,8 +81,8 @@ const HandleButton = ({ style, position, isDragging, ...props }: HandleProps & {
 
   return (
     <Box
-      width={16}
-      height={16}
+      width="16"
+      height="16"
       style={style}
       role="button"
       position="absolute"
@@ -121,7 +121,7 @@ export const LeftHandle = (props: BoxProps) => {
 
   return (
     <Box
-      w={16}
+      width="16"
       {...props}
       cursor="grab"
       overflow="hidden"
@@ -156,7 +156,7 @@ export const RightHandle = (props: BoxProps) => {
 
   return (
     <Box
-      w={16}
+      width="16"
       ref={ref}
       {...props}
       cursor="grab"

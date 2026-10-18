@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Card,
   CardProps,
@@ -15,6 +14,7 @@ import {
   Toggletip,
 } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitBadge } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -170,7 +170,7 @@ const SecretCard = (props: SecretCardProps) => {
 
   return (
     <Card paddingY="16" paddingX="24" marginBottom="16">
-      <Box as="form" onSubmit={handleSubmit(onFormSubmit)} width="100%" display="flex" gap="12" flexDir="column">
+      <Box as="form" onSubmit={handleSubmit(onFormSubmit)} width="100%" display="flex" gap="12" flexDirection="column">
         <Box width="100%" display="flex" gap="8">
           <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
             <Input
@@ -241,7 +241,7 @@ const SecretCard = (props: SecretCardProps) => {
           </Text>
         )}
         {secret.isEditing && (
-          <Box display="flex" flexDirection="column" marginY="16" gap="16">
+          <Box display="flex" flexDirection="column" marginBlock="16" gap="16">
             <Checkbox
               isChecked={watch('isExpand')}
               {...register('isExpand')}

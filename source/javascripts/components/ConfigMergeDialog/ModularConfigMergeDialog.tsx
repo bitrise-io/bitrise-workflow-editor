@@ -1,5 +1,6 @@
-import { Box, Button, ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { Button, ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitTabs } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';
@@ -239,7 +240,7 @@ const ModularConfigMergeDialogBody = ({
           <Box display="flex" flex="1" gap="4" minHeight="0">
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Your changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
+              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
                 <DiffEditor
                   key={`${activeMerge.nodeId}-yours`}
                   theme="vs-dark"
@@ -259,7 +260,7 @@ const ModularConfigMergeDialogBody = ({
 
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Results</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
+              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)">
                 <DiffEditor
                   key={`${activeMerge.nodeId}-results`}
                   theme="vs-dark"
@@ -280,7 +281,7 @@ const ModularConfigMergeDialogBody = ({
 
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Remote changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
+              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
                 <DiffEditor
                   key={`${activeMerge.nodeId}-remote`}
                   theme="vs-dark"

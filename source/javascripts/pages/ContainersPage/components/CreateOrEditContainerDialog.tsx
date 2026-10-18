@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   ButtonGroup,
   Collapse,
@@ -13,6 +12,7 @@ import {
   Textarea,
 } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { useEffect } from 'react';
@@ -253,7 +253,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           )}
         />
         <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
-          <Box display="flex" flexDir="column" gap="16">
+          <Box display="flex" flexDirection="column" gap="16">
             <Text textStyle="heading/h3" mt="8">
               Authentication credentials
             </Text>
@@ -307,7 +307,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             />
             <Separator marginBlockStart="8" />
             {fields.map((item, index) => (
-              <Box key={item.id} display="flex" alignItems="flex-end" gap="10">
+              <Box key={item.id} display="flex" alignItems="flex-end" gap="10px">
                 <Controller
                   control={control}
                   name={`userValues.envs.${index}.key`}

@@ -1,5 +1,6 @@
-import { Box, Link, Tooltip } from '@bitrise/bitkit';
+import { Link, Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { ReactNode, RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -131,16 +132,16 @@ const StackAndMachine = ({
       machineTypeName={selectedMachineType.name}
       stackName={selectedStack.name}
     >
-      <Box display="flex" flexDir={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
+      <Box display="flex" flexDirection={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
         {/* Tooltip wraps only the selectors — not selectsTrailing, whose jump button has its own tooltip. */}
         <Tooltip label="To edit, switch to the module file that defines them." isDisabled={!isReadOnlyView}>
           <Box
             ref={ref}
             display="flex"
-            flexDir={orientation === 'horizontal' ? 'row' : 'column'}
+            flexDirection={orientation === 'horizontal' ? 'row' : 'column'}
             gap="24"
             flex={orientation === 'horizontal' ? '1' : undefined}
-            minW="0"
+            minWidth="0"
           >
             <StackSelector
               stack={selectedStack}
