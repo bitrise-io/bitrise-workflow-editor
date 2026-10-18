@@ -1,5 +1,5 @@
-import { Box, Button, Text } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconContainer } from '@bitrise/bitkit-v2';
+import { Box, Text } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, IconContainer, IconPlus } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
@@ -36,9 +36,9 @@ const ServiceContainersTab = () => {
           Use service containers to attach custom services you want to use during your Workflows.
         </Text>
         {!isReadOnlyView && (
-          <Button
+          <BitkitButton
             variant="secondary"
-            leftIconName="Plus"
+            icon={IconPlus}
             size="md"
             minW={['100%', 'auto']}
             onClick={() => {
@@ -51,7 +51,7 @@ const ServiceContainersTab = () => {
             }}
           >
             Add container
-          </Button>
+          </BitkitButton>
         )}
       </Box>
       {containers.length > 0 ? (

@@ -1,5 +1,5 @@
-import { Box, Button, ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitTabs } from '@bitrise/bitkit-v2';
+import { Box, ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, BitkitTabs } from '@bitrise/bitkit-v2';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';
@@ -305,17 +305,21 @@ const ModularConfigMergeDialogBody = ({
       </DialogBody>
       <DialogFooter>
         <ButtonGroup spacing={16}>
-          <Button variant="secondary" isDisabled={isPushPending} onClick={onClose}>
+          <BitkitButton variant="secondary" state={isPushPending ? 'disabled' : undefined} onClick={onClose}>
             Cancel
-          </Button>
+          </BitkitButton>
           <Tooltip
             placement="top-end"
             isDisabled={!isInvalid}
             label="YAML is invalid, please fix it before applying changes"
           >
-            <Button variant="primary" isLoading={isPushPending} isDisabled={isInvalid} onClick={handleApply}>
+            <BitkitButton
+              variant="primary"
+              state={isPushPending ? 'loading' : isInvalid ? 'disabled' : undefined}
+              onClick={handleApply}
+            >
               Apply changes
-            </Button>
+            </BitkitButton>
           </Tooltip>
         </ButtonGroup>
       </DialogFooter>

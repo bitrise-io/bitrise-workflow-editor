@@ -1,4 +1,5 @@
 import { Box, BoxProps, Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, IconPlay, IconPlus, IconSettings } from '@bitrise/bitkit-v2';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -181,27 +182,27 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
       {shouldShowGraphPipelineActions && (
         <>
-          <Button
+          <BitkitButton
             size="md"
             variant="secondary"
-            leftIconName="Settings"
+            icon={IconSettings}
             onClick={onPropertiesClick}
             data-clarity-unmask="true"
           >
             Properties
-          </Button>
+          </BitkitButton>
           {/* Adds workflows to the pipeline (a mutation) → hidden on the read-only merged/ghost view
               (BIVS-3721). Properties stays for inspection. */}
           {!isReadOnlyView && (
-            <Button
+            <BitkitButton
               size="md"
               variant="secondary"
-              leftIconName="Plus"
+              icon={IconPlus}
               onClick={onWorkflowsClick}
               data-clarity-unmask="true"
             >
               Workflows
-            </Button>
+            </BitkitButton>
           )}
         </>
       )}
@@ -212,17 +213,17 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           aria-label={runButtonAriaLabel}
           shouldWrapChildren={isEmpty || isModularFileTab || hasUnsavedChanges}
         >
-          <Button
+          <BitkitButton
             size="md"
             variant="secondary"
-            leftIconName="Play"
+            icon={IconPlay}
             aria-label={runButtonAriaLabel}
-            isDisabled={isEmpty || isModularFileTab || hasUnsavedChanges}
+            state={isEmpty || isModularFileTab || hasUnsavedChanges ? 'disabled' : undefined}
             onClick={onRunClick}
             data-clarity-unmask="true"
           >
             Run
-          </Button>
+          </BitkitButton>
         </Tooltip>
       )}
     </Box>
