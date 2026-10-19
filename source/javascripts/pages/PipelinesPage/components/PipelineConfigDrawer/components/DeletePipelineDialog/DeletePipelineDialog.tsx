@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { useCallback } from 'react';
 
 import PipelineService from '@/core/services/PipelineService';
@@ -35,12 +36,12 @@ const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props 
         <Text textStyle="body/lg/semibold">This action cannot be undone after the YML is saved.</Text>
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Cancel
-        </Button>
-        <Button variant="danger-primary" onClick={handleDeletePipeline}>
+        </BitkitButton>
+        <BitkitButton variant="danger-primary" onClick={handleDeletePipeline}>
           Delete
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );
