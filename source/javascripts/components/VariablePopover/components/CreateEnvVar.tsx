@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
@@ -60,12 +61,12 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
         </Checkbox>
       </Box>
       <ButtonGroup spacing="12">
-        <Button size="sm" type="submit">
+        <BitkitButton size="sm" type="submit">
           Create
-        </Button>
-        <Button size="sm" variant="tertiary" onClick={handleCancel}>
+        </BitkitButton>
+        <BitkitButton size="sm" variant="tertiary" onClick={handleCancel}>
           Cancel
-        </Button>
+        </BitkitButton>
       </ButtonGroup>
     </Box>
   );

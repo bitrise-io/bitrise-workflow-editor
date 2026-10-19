@@ -1,4 +1,5 @@
-import { Button, Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
@@ -72,13 +73,13 @@ const LegacyTriggers = () => {
       </Text>
       <Text color="text/secondary" data-clarity-unmask="true">
         A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
-        <Link
-          colorScheme="purple"
+        <BitkitLink
+          colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
           Learn more
-        </Link>
+        </BitkitLink>
       </Text>
       {!isReadOnlyView && <ConvertLegacyTriggers triggers={triggers} />}
       <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
@@ -90,9 +91,9 @@ const LegacyTriggers = () => {
         <TabPanels paddingTop="24">
           <TabPanel>
             {!isReadOnlyView && (
-              <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+              <BitkitButton marginBottom="24" variant="secondary" size="md" onClick={onOpen} icon={IconPlus}>
                 Add push trigger
-              </Button>
+              </BitkitButton>
             )}
             <SortableTriggerList
               type="push"
@@ -105,9 +106,9 @@ const LegacyTriggers = () => {
           </TabPanel>
           <TabPanel>
             {!isReadOnlyView && (
-              <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+              <BitkitButton marginBottom="24" variant="secondary" size="md" onClick={onOpen} icon={IconPlus}>
                 Add pull request trigger
-              </Button>
+              </BitkitButton>
             )}
             <SortableTriggerList
               type="pull_request"
@@ -120,9 +121,9 @@ const LegacyTriggers = () => {
           </TabPanel>
           <TabPanel>
             {!isReadOnlyView && (
-              <Button marginBottom="24" variant="secondary" size="md" onClick={onOpen} leftIconName="Plus">
+              <BitkitButton marginBottom="24" variant="secondary" size="md" onClick={onOpen} icon={IconPlus}>
                 Add tag trigger
-              </Button>
+              </BitkitButton>
             )}
             <SortableTriggerList
               type="tag"

@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   ButtonGroup,
   Collapse,
   Dialog,
@@ -8,11 +7,18 @@ import {
   DialogFooter,
   DialogProps,
   Input,
-  Link,
   Text,
   Textarea,
 } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
+import {
+  BitkitAlert,
+  BitkitButton,
+  BitkitControlButton,
+  BitkitLink,
+  BitkitLinkButton,
+  IconPlus,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { useEffect } from 'react';
@@ -267,13 +273,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                     runs docker login automatically) or use an OAuth Step.
                   </Text>
                   <Text textStyle="body/md/regular">
-                    <Link
+                    <BitkitLink
                       href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#docker-authentication-credentials"
                       isExternal
                       isUnderlined
                     >
                       Learn more
-                    </Link>
+                    </BitkitLink>
                   </Text>
                 </>
               }
@@ -349,15 +355,15 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               </Box>
             ))}
             {!readOnly && (
-              <Button
+              <BitkitButton
                 variant="tertiary"
-                leftIconName="Plus"
+                icon={IconPlus}
                 size="md"
                 width="fit-content"
                 onClick={() => append({ key: '', value: '', source: '' })}
               >
                 Add Env Var
-              </Button>
+              </BitkitButton>
             )}
             <Separator />
             <Controller
@@ -369,13 +375,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   helperText={
                     <>
                       Additional parameters passed to docker create command.{' '}
-                      <Link
-                        colorScheme="purple"
+                      <BitkitLink
+                        colorVariant="purple"
                         href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#container-resource-options"
                         isExternal
                       >
                         Learn more about not supported options
-                      </Link>
+                      </BitkitLink>
                     </>
                   }
                   placeholder='e.g. --privileged --health-cmd "redis-cli ping" --health-interval 1s --health-timeout 3s --health-retries 2'
@@ -386,23 +392,23 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             />
           </Box>
         </Collapse>
-        <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
+        <BitkitLinkButton alignSelf="start" onClick={onToggle}>
           {isShowMore ? 'Show less options' : 'Show more options'}
-        </Link>
+        </BitkitLinkButton>
       </DialogBody>
       <DialogFooter>
         {readOnly ? (
-          <Button variant="secondary" onClick={onClose}>
+          <BitkitButton variant="secondary" onClick={onClose}>
             Close
-          </Button>
+          </BitkitButton>
         ) : (
           <>
-            <Button variant="secondary" onClick={onClose}>
+            <BitkitButton variant="secondary" onClick={onClose}>
               Cancel
-            </Button>
-            <Button type="submit" isDisabled={!formState.isValid || !formState.isDirty}>
+            </BitkitButton>
+            <BitkitButton type="submit" state={!formState.isValid || !formState.isDirty ? 'disabled' : undefined}>
               {editedContainer ? 'Save' : 'Create container'}
-            </Button>
+            </BitkitButton>
           </>
         )}
       </DialogFooter>

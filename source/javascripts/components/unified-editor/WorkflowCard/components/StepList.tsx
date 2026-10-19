@@ -1,5 +1,5 @@
-import { Box, Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { Box } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, IconPlusCircle, IconStep } from '@bitrise/bitkit-v2';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -126,17 +126,17 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         bodyText="Add Steps from the library."
       >
         {onAdd && (
-          <Button
+          <BitkitButton
             size="md"
             variant="secondary"
             alignSelf="stretch"
-            leftIconName="PlusCircle"
+            icon={IconPlusCircle}
             onClick={() => {
               onAdd(id, 0);
             }}
           >
             Add Step or Step bundle
-          </Button>
+          </BitkitButton>
         )}
       </BitkitEmptyState>
     );

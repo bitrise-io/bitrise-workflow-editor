@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Card, Image, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, IconArrowNortheast, IconPlus, IconSparkleFilled } from '@bitrise/bitkit-v2';
 
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
@@ -27,30 +28,31 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
       <ButtonGroup spacing="0" gap="24">
         {isAIButtonVisible && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-            <Button
-              isDisabled={isAIButtonDisabled}
-              leftIconName="SparkleFilled"
+            <BitkitButton
+              state={isAIButtonDisabled ? 'disabled' : undefined}
+              icon={IconSparkleFilled}
               size="md"
               variant="ai-primary"
               onClick={onAIButtonClick}
             >
               Create Pipeline with AI
-            </Button>
+            </BitkitButton>
           </Tooltip>
         )}
-        <Button alignSelf={['stretch', 'center']} leftIconName="Plus" size="md" onClick={onCreate}>
+        <BitkitButton alignSelf={['stretch', 'center']} icon={IconPlus} size="md" onClick={onCreate}>
           Create Pipeline
-        </Button>
+        </BitkitButton>
       </ButtonGroup>
-      <Link
+      <BitkitLink
         isExternal
-        colorScheme="purple"
+        colorVariant="purple"
         textStyle="body/md/regular"
         href="https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/build-pipelines/about-pipelines.html"
+        suffixIcon={IconArrowNortheast}
+        suffixIconSize="16"
       >
         Read the docs
-        <Icon size="16" name="ArrowNorthEast" ml="4" />
-      </Link>
+      </BitkitLink>
     </Box>
   );
 

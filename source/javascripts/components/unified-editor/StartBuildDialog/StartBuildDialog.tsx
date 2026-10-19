@@ -1,5 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input } from '@bitrise/bitkit';
-import { createBitkitToast } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Input } from '@bitrise/bitkit';
+import { BitkitButton, createBitkitToast, IconOpenInNew } from '@bitrise/bitkit-v2';
 import { useCallback, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
@@ -64,18 +64,16 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
         />
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" aria-label="Cancel" isDisabled={isPending} onClick={onClose}>
+        <BitkitButton variant="secondary" state={isPending ? 'disabled' : undefined} onClick={onClose}>
           Cancel
-        </Button>
-        <Button
-          aria-label="Start build"
-          rightIconName="OpenInBrowser"
-          isDisabled={!branch}
-          isLoading={isPending}
+        </BitkitButton>
+        <BitkitButton
+          suffixIcon={IconOpenInNew}
+          state={isPending ? 'loading' : !branch ? 'disabled' : undefined}
           onClick={handleAction}
         >
           Start build
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );

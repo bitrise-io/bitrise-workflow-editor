@@ -1,5 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitEmptyState, IconLock } from '@bitrise/bitkit-v2';
+import { Box, Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, BitkitEmptyState, BitkitLink, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
@@ -100,11 +100,16 @@ const SecretsPage = () => {
   const sharedSecretsBlock = () => {
     if (!sharedSecretsAvailable) {
       return (
-        <Box marginBottom="24" marginTop="8">
-          <Link colorScheme="purple" textStyle="body/md/regular" href={planSelectorPath}>
-            Upgrade your plan
-          </Link>
-        </Box>
+        <BitkitLink
+          display="inline-block"
+          marginBlockStart="8"
+          marginBlockEnd="24"
+          colorVariant="purple"
+          textStyle="body/md/regular"
+          href={planSelectorPath}
+        >
+          Upgrade your plan
+        </BitkitLink>
       );
     }
     return (
@@ -116,9 +121,9 @@ const SecretsPage = () => {
             data-clarity-unmask="true"
             bodyText="Shared resources are managed at Workspace settings"
           >
-            <Button size="md" variant="secondary" as="a" href={workspaceSecretsPath}>
+            <BitkitButton size="md" variant="secondary" href={workspaceSecretsPath}>
               Go to Settings
-            </Button>
+            </BitkitButton>
           </BitkitEmptyState>
         )}
         {workspaceSecretList.length > 0 &&
@@ -147,9 +152,13 @@ const SecretsPage = () => {
       <Text data-clarity-unmask="true">
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
-        <Link href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446">
+        <BitkitLink
+          href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
+          isExternal
+          isUnderlined
+        >
           Learn more
-        </Link>
+        </BitkitLink>
       </Text>
       <BitkitAlert
         variant="info"
@@ -190,16 +199,16 @@ const SecretsPage = () => {
           />
         ))}
       </Box>
-      <Button
+      <BitkitButton
         variant="secondary"
-        leftIconName="PlusCircle"
+        icon={IconPlusCircle}
         size="md"
         marginBottom="24"
         onClick={onAddClick}
         data-clarity-unmask="true"
       >
         Add new
-      </Button>
+      </BitkitButton>
 
       {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
           step bundle dialogs: a future body addition then stays masked until reviewed. */}
@@ -214,12 +223,16 @@ const SecretsPage = () => {
           </Text>
         </DialogBody>
         <DialogFooter data-clarity-unmask="true">
-          <Button variant="secondary" onClick={() => setDeleteId(null)}>
+          <BitkitButton variant="secondary" onClick={() => setDeleteId(null)}>
             Cancel
-          </Button>
-          <Button isLoading={deleteLoading} isDanger onClick={() => handleDelete(deleteId)}>
+          </BitkitButton>
+          <BitkitButton
+            variant="danger-primary"
+            state={deleteLoading ? 'loading' : undefined}
+            onClick={() => handleDelete(deleteId)}
+          >
             Delete secret
-          </Button>
+          </BitkitButton>
         </DialogFooter>
       </Dialog>
     </Box>
