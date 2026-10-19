@@ -1,5 +1,5 @@
-import { Box, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitEmptyState, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
+import { Box, Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, BitkitEmptyState, BitkitLink, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
@@ -100,11 +100,16 @@ const SecretsPage = () => {
   const sharedSecretsBlock = () => {
     if (!sharedSecretsAvailable) {
       return (
-        <Box marginBottom="24" marginTop="8">
-          <Link colorScheme="purple" textStyle="body/md/regular" href={planSelectorPath}>
-            Upgrade your plan
-          </Link>
-        </Box>
+        <BitkitLink
+          display="inline-block"
+          marginBlockStart="8"
+          marginBlockEnd="24"
+          colorVariant="purple"
+          textStyle="body/md/regular"
+          href={planSelectorPath}
+        >
+          Upgrade your plan
+        </BitkitLink>
       );
     }
     return (
@@ -147,9 +152,13 @@ const SecretsPage = () => {
       <Text data-clarity-unmask="true">
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
-        <Link href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446">
+        <BitkitLink
+          href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
+          isExternal
+          isUnderlined
+        >
           Learn more
-        </Link>
+        </BitkitLink>
       </Text>
       <BitkitAlert
         variant="info"

@@ -1,5 +1,5 @@
-import { Box, Link, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitButton, BitkitEmptyState, IconKey } from '@bitrise/bitkit-v2';
+import { Box, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
 
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -19,13 +19,13 @@ const LicensesPage = () => {
       <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">
         You can run your builds on Bitrise machines relying on license pools. Your Workflow-specific builds will run
         utilizing the selected pool.{' '}
-        <Link
-          colorScheme="purple"
+        <BitkitLink
+          colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-ci/getting-started/unity-on-bitrise.html"
           isExternal
         >
           Learn more
-        </Link>
+        </BitkitLink>
       </Text>
       {!isPending && !licensePools?.length && (
         <BitkitEmptyState
