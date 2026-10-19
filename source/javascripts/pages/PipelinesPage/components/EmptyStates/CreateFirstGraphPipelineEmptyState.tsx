@@ -1,6 +1,7 @@
-import { ButtonGroup, Card, Image, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { ButtonGroup, Card, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitButton, BitkitLink, IconArrowNortheast, IconPlus, IconSparkleFilled, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Image } from '@chakra-ui/react/image';
 
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
