@@ -1,4 +1,5 @@
-import { Box, Button, ExpandableCard, Icon, Text, TypeIconName } from '@bitrise/bitkit';
+import { Box, ExpandableCard, Icon, Text, TypeIconName } from '@bitrise/bitkit';
+import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 
 import { TargetBasedTrigger, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 
@@ -56,9 +57,15 @@ const TriggerCard = ({
         />
       ))}
       {!isReadOnly && (
-        <Button margin="12" size="md" variant="tertiary" leftIconName="Plus" onClick={() => onAddTrigger(triggerType)}>
+        <BitkitButton
+          margin="12"
+          size="md"
+          variant="tertiary"
+          icon={IconPlus}
+          onClick={() => onAddTrigger(triggerType)}
+        >
           Add trigger
-        </Button>
+        </BitkitButton>
       )}
     </ExpandableCard>
   );

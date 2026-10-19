@@ -1,5 +1,5 @@
-import { Link, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ReactNode, RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
@@ -186,13 +186,13 @@ const StackAndMachine = ({
               Previous version is a rollback option we provide if your build is failing after a Stack Update. Please
               keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update.
               Once removed, your build will run on the latest Stable Stack.{' '}
-              <Link
+              <BitkitLink
                 href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack"
                 isExternal
                 isUnderlined
               >
                 Learn more
-              </Link>
+              </BitkitLink>
             </>
           }
         />

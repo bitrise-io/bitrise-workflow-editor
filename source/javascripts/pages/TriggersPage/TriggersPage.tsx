@@ -1,4 +1,5 @@
-import { Link, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
+import { BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
@@ -13,13 +14,13 @@ const TriggersPage = () => {
       </Text>
       <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">
         Triggers help you start builds automatically.{' '}
-        <Link
-          colorScheme="purple"
+        <BitkitLink
+          colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
           Learn more
-        </Link>
+        </BitkitLink>
       </Text>
       <SetupWebhookNotification />
       <TargetBasedTriggers />

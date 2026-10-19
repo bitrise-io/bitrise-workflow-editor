@@ -1,5 +1,5 @@
-import { Link, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
@@ -73,13 +73,13 @@ const LegacyTriggers = () => {
       </Text>
       <Text color="text/secondary" data-clarity-unmask="true">
         A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
-        <Link
-          colorScheme="purple"
+        <BitkitLink
+          colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
           Learn more
-        </Link>
+        </BitkitLink>
       </Text>
       {!isReadOnlyView && <ConvertLegacyTriggers triggers={triggers} />}
       <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>

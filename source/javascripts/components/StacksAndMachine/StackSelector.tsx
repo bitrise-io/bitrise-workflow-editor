@@ -5,11 +5,11 @@ import {
   DropdownDetailedOption,
   DropdownGroup,
   Icon,
-  Link,
   Text,
   Tooltip,
   TypeIconName,
 } from '@bitrise/bitkit';
+import { BitkitLink } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
@@ -25,18 +25,18 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
       )}
       <Text as="span" display="block">
         {descriptionUrl && (
-          <Link colorScheme="purple" href={descriptionUrl} isExternal>
+          <BitkitLink colorVariant="purple" href={descriptionUrl} isExternal>
             Pre-installed tools
-          </Link>
+          </BitkitLink>
         )}
         {descriptionUrl && ' • '}
-        <Link
-          colorScheme="purple"
+        <BitkitLink
+          colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/build-stacks/stack-update-policy.html"
           isExternal
         >
           Stack Update Policy
-        </Link>
+        </BitkitLink>
       </Text>
     </>
   );

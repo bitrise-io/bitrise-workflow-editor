@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { useCallback } from 'react';
 
 import WorkflowService from '@/core/services/WorkflowService';
@@ -37,12 +38,12 @@ const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, onClose, ...dialog
         </Text>
       </DialogBody>
       <DialogFooter data-clarity-unmask="true">
-        <Button variant="secondary" onClick={onClose}>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Cancel
-        </Button>
-        <Button isDanger onClick={handleDelete}>
+        </BitkitButton>
+        <BitkitButton variant="danger-primary" onClick={handleDelete}>
           Delete
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );

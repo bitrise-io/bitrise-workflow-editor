@@ -1,5 +1,5 @@
-import { ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus, IconSparkleFilled, rem } from '@bitrise/bitkit-v2';
+import { ButtonGroup, Card, Image, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, IconArrowNortheast, IconPlus, IconSparkleFilled, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -44,15 +44,16 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
           Create Pipeline
         </BitkitButton>
       </ButtonGroup>
-      <Link
+      <BitkitLink
         isExternal
-        colorScheme="purple"
+        colorVariant="purple"
         textStyle="body/md/regular"
         href="https://docs.bitrise.io/en/bitrise-ci/workflows-and-pipelines/build-pipelines/about-pipelines.html"
+        suffixIcon={IconArrowNortheast}
+        suffixIconSize="16"
       >
         Read the docs
-        <Icon size="16" name="ArrowNorthEast" ml="4" />
-      </Link>
+      </BitkitLink>
     </Box>
   );
 

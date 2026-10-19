@@ -1,5 +1,5 @@
-import { Avatar, Box, Card, CardProps, Icon, LinkButton, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitControlButton, IconPlus } from '@bitrise/bitkit-v2';
+import { Avatar, Box, Card, CardProps, Icon, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitControlButton, BitkitLinkButton, IconPlus } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
@@ -166,9 +166,16 @@ const AlgoliaStepListItem = ({
           borderBottomRadius="8"
           _groupHover={{ display: 'block' }}
         >
-          <LinkButton size="sm" px="12" pb="8" top="-5px" position="relative" onClick={handleReadMoreClick}>
+          <BitkitLinkButton
+            size="sm"
+            paddingInline="12"
+            paddingBlockEnd="8"
+            top="-5px"
+            position="relative"
+            onClick={handleReadMoreClick}
+          >
             Read more
-          </LinkButton>
+          </BitkitLinkButton>
         </Box>
       )}
     </Card>

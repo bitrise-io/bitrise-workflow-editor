@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Card, Text } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Card, Text } from '@bitrise/bitkit';
+import { BitkitButton, IconArrowBackAndUp, IconArrowForwardAndDown } from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
@@ -43,23 +44,23 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
         </Text>
       </Box>
       <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>
-        <Button
+        <BitkitButton
           variant="tertiary"
           size="sm"
-          leftIconName="ArrowQuit"
+          icon={IconArrowBackAndUp}
           onClick={() => onChainWorkflow(parentWorkflowId, 'before_run', chainableWorkflowId)}
         >
           Add before
-        </Button>
+        </BitkitButton>
         <Separator orientation="vertical" height="32" />
-        <Button
+        <BitkitButton
           variant="tertiary"
           size="sm"
-          leftIconName="ArrowForwardAndDown"
+          icon={IconArrowForwardAndDown}
           onClick={() => onChainWorkflow(parentWorkflowId, 'after_run', chainableWorkflowId)}
         >
           Add after
-        </Button>
+        </BitkitButton>
       </ButtonGroup>
     </Card>
   );

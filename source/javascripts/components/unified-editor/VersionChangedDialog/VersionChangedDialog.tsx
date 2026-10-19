@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { Box, Dialog, DialogBody, DialogFooter, Tag, Text } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
@@ -62,9 +63,9 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
           {sourceUrl && (
             <>
               {' Please check the '}
-              <Link href={sourceUrl} isExternal colorScheme="purple">
+              <BitkitLink href={sourceUrl} isExternal colorVariant="purple">
                 release notes
-              </Link>
+              </BitkitLink>
               .
             </>
           )}
@@ -95,9 +96,9 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Close
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );
