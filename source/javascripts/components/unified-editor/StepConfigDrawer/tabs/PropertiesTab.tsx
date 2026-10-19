@@ -1,4 +1,5 @@
-import { Collapse, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { Collapse, Input, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { BitkitLink, BitkitLinkButton, IconOpenInNew } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
@@ -98,19 +99,16 @@ const PropertiesTab = () => {
   return (
     <Box display="flex" flexDirection="column" gap="24">
       {(isLoading || sourceUrl) && ( // NOTE: Yes, isLoading because when step version is changed, the source code link will be removed what causes a layout shift
-        <Link
-          gap="4"
-          display="flex"
+        <BitkitLink
           alignSelf="start"
           className="source"
-          alignItems="center"
-          colorScheme="purple"
+          colorVariant="purple"
           href={sourceUrl}
           isExternal
+          suffixIcon={IconOpenInNew}
         >
-          <Text>View source code</Text>
-          <Icon name="OpenInBrowser" />
-        </Link>
+          View source code
+        </BitkitLink>
       )}
       <Input
         type="text"
@@ -138,16 +136,9 @@ const PropertiesTab = () => {
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            {}
-            <Link
-              as="button"
-              colorScheme="purple"
-              alignSelf="self-start"
-              onClick={toggleShowMore}
-              data-e2e-tag="step-description__toggle"
-            >
+            <BitkitLinkButton alignSelf="start" onClick={toggleShowMore} data-e2e-tag="step-description__toggle">
               {showMore ? 'Show less' : 'Show more'}
-            </Link>
+            </BitkitLinkButton>
           </>
         )}
       </Box>

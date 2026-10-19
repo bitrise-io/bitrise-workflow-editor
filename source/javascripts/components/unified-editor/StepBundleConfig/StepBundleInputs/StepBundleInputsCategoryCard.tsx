@@ -1,4 +1,5 @@
-import { Button, Card, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react';
@@ -96,9 +97,9 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
         );
       })}
       {!isReadOnlyView && (
-        <Button leftIconName="Plus" variant="tertiary" size="md" onClick={() => onAdd(category)}>
+        <BitkitButton icon={IconPlus} variant="tertiary" size="md" onClick={() => onAdd(category)}>
           Add input
-        </Button>
+        </BitkitButton>
       )}
     </>
   );

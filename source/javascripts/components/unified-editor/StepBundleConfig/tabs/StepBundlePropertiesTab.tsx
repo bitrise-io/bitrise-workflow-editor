@@ -1,4 +1,5 @@
-import { Button, IconButton, Input, Textarea } from '@bitrise/bitkit';
+import { IconButton, Input, Textarea } from '@bitrise/bitkit';
+import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
@@ -127,17 +128,16 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
       </Box>
       {!!onDelete && (
         <>
-          <Button
-            leftIconName="Trash"
+          <BitkitButton
+            icon={IconTrash}
             size="md"
-            variant="secondary"
-            isDanger
-            isDisabled={isReadOnlyView}
+            variant="danger-secondary"
+            state={isReadOnlyView ? 'disabled' : undefined}
             onClick={openDeleteDialog}
             width="fit-content"
           >
             Delete Step bundle
-          </Button>
+          </BitkitButton>
           <DeleteStepBundleDialog
             stepBundleId={contextData.stepBundle?.id || ''}
             isOpen={isDeleteDialogOpen}

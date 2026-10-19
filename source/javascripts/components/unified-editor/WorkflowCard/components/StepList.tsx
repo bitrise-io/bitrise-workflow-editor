@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, IconPlusCircle, IconStep } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -127,17 +126,17 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         bodyText="Add Steps from the library."
       >
         {onAdd && (
-          <Button
+          <BitkitButton
             size="md"
             variant="secondary"
             alignSelf="stretch"
-            leftIconName="PlusCircle"
+            icon={IconPlusCircle}
             onClick={() => {
               onAdd(id, 0);
             }}
           >
             Add Step or Step bundle
-          </Button>
+          </BitkitButton>
         )}
       </BitkitEmptyState>
     );

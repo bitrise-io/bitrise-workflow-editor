@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useFormContext } from 'react-hook-form';
 
@@ -37,9 +36,9 @@ const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
         headingText="No Workflows are matching your filter"
         bodyText="Modify your filters to get results."
       >
-        <Button variant="secondary" onClick={() => reset()}>
+        <BitkitButton variant="secondary" onClick={() => reset()}>
           Clear filters
-        </Button>
+        </BitkitButton>
       </BitkitEmptyState>
     );
   }

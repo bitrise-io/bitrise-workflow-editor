@@ -1,4 +1,5 @@
-import { Link, MarkdownContent } from '@bitrise/bitkit';
+import { MarkdownContent } from '@bitrise/bitkit';
+import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Collapse } from 'chakra-ui-2--react';
@@ -40,9 +41,9 @@ const StepHelperText = ({ summary, details }: Props) => {
           >
             <MarkdownContent md={detailsText} size="sm" gap="8" />
           </Collapse>
-          <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
+          <BitkitLinkButton alignSelf="start" onClick={onToggle}>
             {showMoreLabel}
-          </Link>
+          </BitkitLinkButton>
         </>
       )}
     </Box>

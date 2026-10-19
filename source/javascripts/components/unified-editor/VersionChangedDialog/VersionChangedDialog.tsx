@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLink, BitkitTag } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useQuery } from '@tanstack/react-query';
@@ -63,9 +64,9 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
           {sourceUrl && (
             <>
               {' Please check the '}
-              <Link href={sourceUrl} isExternal colorScheme="purple">
+              <BitkitLink href={sourceUrl} isExternal colorVariant="purple">
                 release notes
-              </Link>
+              </BitkitLink>
               .
             </>
           )}
@@ -75,9 +76,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
             <Text textStyle="body/lg/semibold">New inputs</Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {newInputs.map((input) => (
-                <Tag size="sm" colorScheme="green" key={input}>
-                  {input}
-                </Tag>
+                <BitkitTag key={input} colorVariant="green" labelText={input} size="sm" />
               ))}
             </Box>
           </>
@@ -87,18 +86,16 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion, ...props }: Props) 
             <Text textStyle="body/lg/semibold">Removed inputs</Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {removedInputs.map((input) => (
-                <Tag size="sm" colorScheme="red" key={input}>
-                  {input}
-                </Tag>
+                <BitkitTag key={input} colorVariant="red" labelText={input} size="sm" />
               ))}
             </Box>
           </>
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Close
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );
