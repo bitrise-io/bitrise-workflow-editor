@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -125,12 +126,12 @@ const CreateEntityDialog = <T,>({
         </Select>
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <BitkitButton variant="secondary" onClick={onClose}>
           Cancel
-        </Button>
-        <Button type="submit" onClick={handleCreate}>
-          Create {entityName}
-        </Button>
+        </BitkitButton>
+        <BitkitButton type="submit" onClick={handleCreate}>
+          {`Create ${entityName}`}
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );

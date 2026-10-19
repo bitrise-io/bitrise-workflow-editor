@@ -1,4 +1,5 @@
-import { Box, Button, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
+import { Box, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
@@ -70,15 +71,15 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
         </div>
         {isAIButtonVisible && variant === 'panel' && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-            <Button
-              isDisabled={isAIButtonDisabled}
-              leftIconName="SparkleFilled"
+            <BitkitButton
+              state={isAIButtonDisabled ? 'disabled' : undefined}
+              icon={IconSparkleFilled}
               size="sm"
               variant="ai-secondary"
               onClick={onAIButtonClick}
             >
               Explain
-            </Button>
+            </BitkitButton>
           </Tooltip>
         )}
       </Box>

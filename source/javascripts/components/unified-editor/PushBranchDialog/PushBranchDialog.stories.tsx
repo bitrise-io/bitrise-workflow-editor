@@ -1,4 +1,5 @@
-import { Box, Button } from '@bitrise/bitkit';
+import { Box } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { http, HttpResponse } from 'msw';
@@ -34,7 +35,7 @@ function StoryWrapper({ onMergeConflict }: { onMergeConflict?: (branch: string) 
 
   return (
     <Box padding="25">
-      <Button onClick={onOpen}>Save changes</Button>
+      <BitkitButton onClick={onOpen}>Save changes</BitkitButton>
       <PushBranchDialog
         isOpen={isOpen}
         onClose={() => {
