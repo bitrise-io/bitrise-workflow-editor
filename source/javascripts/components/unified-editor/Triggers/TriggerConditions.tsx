@@ -63,7 +63,7 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
       {(!conditions || conditions.length === 0) && <BitkitTag labelText="No conditions." size="sm" />}
       {conditions.map(({ type, value }, index) => (
         <Fragment key={type + value}>
-          <Tooltip label={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]} shouldWrapChildren>
+          <Tooltip label={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]}>
             <BitkitTag
               icon={ICON_MAP[type]}
               labelText={value}
