@@ -56,7 +56,7 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
         theme="vs-dark"
         onMount={setEditor}
         defaultLanguage="shell"
-        options={{ ...EDITOR_OPTIONS, readOnly: isReadOnlyView }}
+        options={{ ...EDITOR_OPTIONS, ariaLabel: label, readOnly: isReadOnlyView }}
         value={value || defaultValue}
         onChange={(changedValue) => onChange(changedValue || null)}
         beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}

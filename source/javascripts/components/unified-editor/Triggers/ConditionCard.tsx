@@ -117,9 +117,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                             label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
                             size="sm"
                             isSelected={isRegex}
-                            onClick={() => {
-                              setValue(`conditions.${index}.isRegex`, !isRegex);
-                            }}
+                            onSelectedChange={(selected) => setValue(`conditions.${index}.isRegex`, selected)}
                           />
                         }
                       />

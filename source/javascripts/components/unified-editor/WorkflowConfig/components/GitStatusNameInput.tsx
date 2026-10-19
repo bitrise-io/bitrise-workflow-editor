@@ -4,7 +4,7 @@ import { ChangeEventHandler, Fragment, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
 
-const TOOLTIP_MAP: Record<string, string> = {
+const VARIABLE_DESCRIPTIONS: Record<string, string> = {
   '<event_type>': 'PR / Push / Tag',
   '<project_slug>': 'The unique identifier of your project.',
   '<project_title>': 'Optional title of your project.',
@@ -96,7 +96,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
                   </BitkitCodeSnippet>
                 </Box>
                 <Text as="dd" color="input/text/helper" textStyle="body/sm/regular">
-                  {TOOLTIP_MAP[variable]}
+                  {VARIABLE_DESCRIPTIONS[variable]}
                 </Text>
               </Fragment>
             ))}
