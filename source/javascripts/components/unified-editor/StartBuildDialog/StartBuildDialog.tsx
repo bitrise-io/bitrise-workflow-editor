@@ -64,16 +64,10 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
         />
       </DialogBody>
       <DialogFooter>
-        <BitkitButton
-          variant="secondary"
-          aria-label="Cancel"
-          state={isPending ? 'disabled' : undefined}
-          onClick={onClose}
-        >
+        <BitkitButton variant="secondary" state={isPending ? 'disabled' : undefined} onClick={onClose}>
           Cancel
         </BitkitButton>
         <BitkitButton
-          aria-label="Start build"
           suffixIcon={IconOpenInNew}
           state={isPending ? 'loading' : !branch ? 'disabled' : undefined}
           onClick={handleAction}

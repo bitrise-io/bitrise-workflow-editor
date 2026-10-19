@@ -121,12 +121,10 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
 
       {isDeleteable && (
         <BitkitButton
-          size="lg"
           alignSelf="start"
           variant="danger-secondary"
           icon={IconTrash}
           state={isReadOnlyView ? 'disabled' : undefined}
-          aria-label={`Delete ${workflowId ? `"${workflowId}"` : 'Workflow'}`}
           onClick={openDeleteDialog}
         >
           Delete Workflow
