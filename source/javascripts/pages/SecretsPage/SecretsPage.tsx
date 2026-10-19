@@ -147,7 +147,10 @@ const SecretsPage = () => {
       <Text data-clarity-unmask="true">
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
-        <BitkitLink href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446">
+        <BitkitLink
+          href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
+          isExternal
+        >
           Learn more
         </BitkitLink>
       </Text>

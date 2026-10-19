@@ -28,6 +28,7 @@ const TargetBasedTriggerNotification = () => {
           targets.{' '}
           <BitkitLink
             href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
+            isExternal
             isUnderlined
           >
             Learn more

@@ -38,6 +38,7 @@ const LegacyEmptyState = ({ type }: Props) => {
           <BitkitLink
             colorVariant="purple"
             href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
+            isExternal
           >
             Learn more
           </BitkitLink>
