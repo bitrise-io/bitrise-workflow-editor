@@ -1,5 +1,6 @@
-import { Box, BoxProps, Dropdown, DropdownDetailedOption, DropdownGroup, Text, Toggletip } from '@bitrise/bitkit';
+import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Text, Toggletip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { ReactNode, useMemo } from 'react';
 
 import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
@@ -30,14 +31,14 @@ const renderFormLabel = (machineTypeOption: MachineTypeOption) => {
   const icon = getIcon(os);
 
   return (
-    <Box display="flex" gap={12} alignItems="center">
+    <Box display="flex" gap="12" alignItems="center">
       <BitkitAvatar variant="icon" icon={icon} size="24" />
       {title}
     </Box>
   );
 };
 
-type Props = Pick<BoxProps, 'width'> & {
+type Props = Pick<DropdownProps<string | null>, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled: boolean;
@@ -72,7 +73,7 @@ const MachineTypeSelector = ({
         label="Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales."
         button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
       >
-        <Box maxH="20px" mt="-4px">
+        <Box maxHeight="20px" marginBlockStart="-4px">
           {icon}
         </Box>
       </Toggletip>
@@ -82,7 +83,7 @@ const MachineTypeSelector = ({
   const helperText = () => {
     if (doesHardwareVaryByRegionForSelectedMachineType && !selectedRegion) {
       return (
-        <Box as="span" display="flex" flexDir="column" gap={8}>
+        <Box as="span" display="flex" flexDirection="column" gap="8">
           <Text as="span">Machine types may vary depending on high demand.</Text>
           {Object.entries(machineType.availableInRegions).map(([regionName, texts]) => {
             return (

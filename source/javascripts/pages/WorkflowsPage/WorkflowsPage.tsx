@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
 import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
@@ -54,7 +54,7 @@ const WorkflowsPage = () => {
 
   if (!selectedWorkflowId) {
     return (
-      <Box h="100%" display="grid" gridTemplateRows="100%">
+      <Box height="100%" display="grid" gridTemplateRows="100%">
         <WorkflowEmptyState
           onCreateWorkflow={openDialog({
             type: WorkflowsPageDialogType.CREATE_WORKFLOW,
@@ -66,7 +66,7 @@ const WorkflowsPage = () => {
   }
 
   return (
-    <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
+    <Box height="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
       <WorkflowCanvasPanel workflowId={selectedWorkflowId} />
       <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       <Drawers />

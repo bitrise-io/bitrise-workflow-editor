@@ -1,6 +1,6 @@
 import '@xyflow/react/dist/style.css';
 
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { Node, ReactFlow } from '@xyflow/react';
 
@@ -31,7 +31,7 @@ const meta: Meta<typeof PlaceholderNode> = {
   },
   decorators: [
     () => (
-      <Box height="100dvh" bg="background/secondary">
+      <Box height="100dvh" background="background/secondary">
         <ReactFlow nodes={nodes} nodeTypes={nodeTypes} proOptions={{ hideAttribution: true }} />
       </Box>
     ),

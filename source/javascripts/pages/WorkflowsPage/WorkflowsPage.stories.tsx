@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 import { stringify } from 'yaml';
@@ -39,7 +39,7 @@ const meta: Meta<typeof WorkflowsPage> = {
   },
 
   decorators: (Story) => (
-    <Box h="100dvh">
+    <Box height="100dvh">
       <Story />
     </Box>
   ),

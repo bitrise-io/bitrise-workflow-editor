@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Controls, MiniMap } from '@xyflow/react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -39,7 +39,7 @@ const PipelineCanvas = () => {
     <>
       <PipelineConversionSignposting />
       <PipelineConversionNotification />
-      <Box bg="background/secondary" flex="1" position="relative" userSelect="none">
+      <Box background="background/secondary" flex="1" position="relative" userSelect="none">
         <Toolbar
           top="16"
           left="50%"

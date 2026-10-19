@@ -1,4 +1,5 @@
-import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from '@bitrise/bitkit';
+import { CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -63,13 +64,13 @@ const TriggerCard = (props: TriggerCardProps) => {
       {...style}
       {...rest}
     >
-      <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
+      <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDirection="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
         <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} triggerType={triggerItem.triggerType} />
       </Box>
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
         <Icon name="ArrowRight" marginRight="16" />
-        <Box display="flex" flexDir="column" gap="4">
+        <Box display="flex" flexDirection="column" gap="4">
           <Text>{targetId}</Text>
           <Text textStyle="body/md/regular" color="text/secondary">
             {target === 'workflows' ? 'Workflow' : 'Pipeline'}
