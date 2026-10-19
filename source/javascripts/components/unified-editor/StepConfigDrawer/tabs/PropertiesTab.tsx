@@ -135,7 +135,6 @@ const PropertiesTab = () => {
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            {}
             <BitkitLinkButton alignSelf="start" onClick={toggleShowMore} data-e2e-tag="step-description__toggle">
               {showMore ? 'Show less' : 'Show more'}
             </BitkitLinkButton>

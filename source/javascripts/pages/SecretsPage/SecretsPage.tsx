@@ -100,11 +100,16 @@ const SecretsPage = () => {
   const sharedSecretsBlock = () => {
     if (!sharedSecretsAvailable) {
       return (
-        <Box marginBottom="24" marginTop="8">
-          <BitkitLink colorVariant="purple" textStyle="body/md/regular" href={planSelectorPath}>
-            Upgrade your plan
-          </BitkitLink>
-        </Box>
+        <BitkitLink
+          display="inline-block"
+          marginBlockStart="8"
+          marginBlockEnd="24"
+          colorVariant="purple"
+          textStyle="body/md/regular"
+          href={planSelectorPath}
+        >
+          Upgrade your plan
+        </BitkitLink>
       );
     }
     return (
@@ -150,6 +155,7 @@ const SecretsPage = () => {
         <BitkitLink
           href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
           isExternal
+          isUnderlined
         >
           Learn more
         </BitkitLink>

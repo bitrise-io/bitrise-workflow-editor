@@ -172,9 +172,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
             </Checkbox>
           </Box>
         </Collapse>
-        <BitkitLinkButton alignSelf="start" onClick={onToggle}>
-          {isShowMore ? 'Show less options' : 'Show more options'}
-        </BitkitLinkButton>
+        <BitkitLinkButton onClick={onToggle}>{isShowMore ? 'Show less options' : 'Show more options'}</BitkitLinkButton>
       </DialogBody>
       <DialogFooter>
         <ButtonGroup display="flex" gap="8">
