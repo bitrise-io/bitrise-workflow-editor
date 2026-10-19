@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, IconPlus, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -28,20 +29,20 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
       <ButtonGroup spacing="0" gap="24">
         {isAIButtonVisible && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-            <Button
-              isDisabled={isAIButtonDisabled}
-              leftIconName="SparkleFilled"
+            <BitkitButton
+              state={isAIButtonDisabled ? 'disabled' : undefined}
+              icon={IconSparkleFilled}
               size="md"
               variant="ai-primary"
               onClick={onAIButtonClick}
             >
               Create Pipeline with AI
-            </Button>
+            </BitkitButton>
           </Tooltip>
         )}
-        <Button alignSelf={['stretch', 'center']} leftIconName="Plus" size="md" onClick={onCreate}>
+        <BitkitButton alignSelf={['stretch', 'center']} icon={IconPlus} size="md" onClick={onCreate}>
           Create Pipeline
-        </Button>
+        </BitkitButton>
       </ButtonGroup>
       <Link
         isExternal

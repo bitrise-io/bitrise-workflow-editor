@@ -1,4 +1,5 @@
-import { Button, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip } from '@bitrise/bitkit';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import FloatingDrawer, {
@@ -41,15 +42,15 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
               </Text>
               {isAIButtonVisible && (
                 <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-                  <Button
-                    isDisabled={isAIButtonDisabled}
-                    leftIconName="SparkleFilled"
+                  <BitkitButton
+                    state={isAIButtonDisabled ? 'disabled' : undefined}
+                    icon={IconSparkleFilled}
                     size="sm"
                     variant="ai-secondary"
                     onClick={onAIButtonClick}
                   >
                     Explain
-                  </Button>
+                  </BitkitButton>
                 </Tooltip>
               )}
             </Box>

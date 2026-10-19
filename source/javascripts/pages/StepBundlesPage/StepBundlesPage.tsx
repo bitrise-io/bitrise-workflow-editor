@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, IconPlus, IconStep } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
@@ -68,15 +67,15 @@ const StepBundlesPage = () => {
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no action. */}
       {!isReadOnlyView && (
-        <Button
+        <BitkitButton
           size="md"
-          leftIconName="Plus"
+          icon={IconPlus}
           onClick={openDialog({
             type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
           })}
         >
           Create Step bundle
-        </Button>
+        </BitkitButton>
       )}
     </BitkitEmptyState>
   );

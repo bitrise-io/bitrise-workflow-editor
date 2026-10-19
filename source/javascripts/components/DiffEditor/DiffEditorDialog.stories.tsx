@@ -1,4 +1,4 @@
-import { Button } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Meta, StoryObj } from '@storybook/react-vite';
@@ -39,7 +39,7 @@ const meta: Meta<typeof DiffEditorDialog> = {
 
     return (
       <Box padding="24">
-        <Button onClick={onOpen}>Open Dialog</Button>
+        <BitkitButton onClick={onOpen}>Open Dialog</BitkitButton>
         <DiffEditorDialog {...args} isOpen={isOpen} onClose={onClose} />
       </Box>
     );

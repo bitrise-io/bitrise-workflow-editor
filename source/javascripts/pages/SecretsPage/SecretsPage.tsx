@@ -1,5 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitEmptyState, IconLock } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, BitkitEmptyState, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -117,9 +117,9 @@ const SecretsPage = () => {
             data-clarity-unmask="true"
             bodyText="Shared resources are managed at Workspace settings"
           >
-            <Button size="md" variant="secondary" as="a" href={workspaceSecretsPath}>
+            <BitkitButton size="md" variant="secondary" href={workspaceSecretsPath}>
               Go to Settings
-            </Button>
+            </BitkitButton>
           </BitkitEmptyState>
         )}
         {workspaceSecretList.length > 0 &&
@@ -191,16 +191,16 @@ const SecretsPage = () => {
           />
         ))}
       </Box>
-      <Button
+      <BitkitButton
         variant="secondary"
-        leftIconName="PlusCircle"
+        icon={IconPlusCircle}
         size="md"
         marginBottom="24"
         onClick={onAddClick}
         data-clarity-unmask="true"
       >
         Add new
-      </Button>
+      </BitkitButton>
 
       {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
           step bundle dialogs: a future body addition then stays masked until reviewed. */}
@@ -215,12 +215,16 @@ const SecretsPage = () => {
           </Text>
         </DialogBody>
         <DialogFooter data-clarity-unmask="true">
-          <Button variant="secondary" onClick={() => setDeleteId(null)}>
+          <BitkitButton variant="secondary" onClick={() => setDeleteId(null)}>
             Cancel
-          </Button>
-          <Button isLoading={deleteLoading} isDanger onClick={() => handleDelete(deleteId)}>
+          </BitkitButton>
+          <BitkitButton
+            variant="danger-primary"
+            state={deleteLoading ? 'loading' : undefined}
+            onClick={() => handleDelete(deleteId)}
+          >
             Delete secret
-          </Button>
+          </BitkitButton>
         </DialogFooter>
       </Dialog>
     </Box>

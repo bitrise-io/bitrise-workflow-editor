@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useForm } from 'react-hook-form';
 
@@ -74,12 +75,12 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
         </Box>
       </Box>
       <ButtonGroup spacing="12">
-        <Button size="sm" type="submit">
+        <BitkitButton size="sm" type="submit">
           Create
-        </Button>
-        <Button size="sm" variant="tertiary" onClick={handleCancel}>
+        </BitkitButton>
+        <BitkitButton size="sm" variant="tertiary" onClick={handleCancel}>
           Cancel
-        </Button>
+        </BitkitButton>
       </ButtonGroup>
     </Box>
   );

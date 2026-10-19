@@ -1,4 +1,5 @@
-import { Button, Textarea } from '@bitrise/bitkit';
+import { Textarea } from '@bitrise/bitkit';
+import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback } from 'react';
@@ -134,15 +135,15 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
         <DescriptionInput pipelineId={pipelineId} />
         <Priority pipelineId={pipelineId} />
         <GitStatusName pipelineId={pipelineId} />
-        <Button
-          leftIconName="Trash"
+        <BitkitButton
+          icon={IconTrash}
           alignSelf="flex-start"
           variant="danger-secondary"
-          isDisabled={isReadOnlyView}
+          state={isReadOnlyView ? 'disabled' : undefined}
           onClick={onOpenDeleteDialog}
         >
           Delete Pipeline
-        </Button>
+        </BitkitButton>
       </Box>
       <DeletePipelineDialog
         pipelineId={pipelineId}

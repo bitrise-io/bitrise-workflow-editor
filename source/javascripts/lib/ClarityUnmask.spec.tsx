@@ -125,7 +125,7 @@ describe('Clarity unmasking', () => {
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
-          <Button data-clarity-unmask="true">button</Button>
+          <BitkitButton data-clarity-unmask="true">button</BitkitButton>
           <Card data-clarity-unmask="true">card</Card>
           <List data-clarity-unmask="true">
             <ListItem>list item</ListItem>
@@ -157,7 +157,7 @@ describe('Clarity unmasking', () => {
           {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
           <Dialog isOpen title="dialog title" onClose={() => {}}>
             <DialogFooter data-clarity-unmask="true">
-              <Button>dialog action</Button>
+              <BitkitButton>dialog action</BitkitButton>
             </DialogFooter>
           </Dialog>
         </Wrapper>,

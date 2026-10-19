@@ -1,4 +1,5 @@
 import { Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, IconPlay, IconPlus, IconSettings } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
@@ -84,7 +85,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return [ids];
   }, [debouncedSearch, keys]);
 
-  const runButtonAriaLabel = useMemo(() => {
+  const runButtonTooltip = useMemo(() => {
     if (isModularFileTab) {
       return 'Only available in the Merged config tab';
     }
@@ -182,48 +183,47 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
 
       {shouldShowGraphPipelineActions && (
         <>
-          <Button
+          <BitkitButton
             size="md"
             variant="secondary"
-            leftIconName="Settings"
+            icon={IconSettings}
             onClick={onPropertiesClick}
             data-clarity-unmask="true"
           >
             Properties
-          </Button>
+          </BitkitButton>
           {/* Adds workflows to the pipeline (a mutation) → hidden on the read-only merged/ghost view
               (BIVS-3721). Properties stays for inspection. */}
           {!isReadOnlyView && (
-            <Button
+            <BitkitButton
               size="md"
               variant="secondary"
-              leftIconName="Plus"
+              icon={IconPlus}
               onClick={onWorkflowsClick}
               data-clarity-unmask="true"
             >
               Workflows
-            </Button>
+            </BitkitButton>
           )}
         </>
       )}
 
       {RuntimeUtils.isWebsiteMode() && (
         <Tooltip
-          label={runButtonAriaLabel}
-          aria-label={runButtonAriaLabel}
+          label={runButtonTooltip}
+          aria-label={runButtonTooltip}
           shouldWrapChildren={isEmpty || isModularFileTab || hasUnsavedChanges}
         >
-          <Button
+          <BitkitButton
             size="md"
             variant="secondary"
-            leftIconName="Play"
-            aria-label={runButtonAriaLabel}
-            isDisabled={isEmpty || isModularFileTab || hasUnsavedChanges}
+            icon={IconPlay}
+            state={isEmpty || isModularFileTab || hasUnsavedChanges ? 'disabled' : undefined}
             onClick={onRunClick}
             data-clarity-unmask="true"
           >
             Run
-          </Button>
+          </BitkitButton>
         </Tooltip>
       )}
     </Box>

@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconWorkflowFlow } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, IconWorkflowFlow } from '@bitrise/bitkit-v2';
 
 type Props = {
   onUpgrade?: VoidFunction;
@@ -14,9 +13,9 @@ const UpgradePlanEmptyState = ({ onUpgrade }: Props) => {
       bodyText="Experience enhanced automation and faster builds. Upgrade your plan to create Pipelines using a visual editor."
     >
       {onUpgrade && (
-        <Button size="md" onClick={onUpgrade}>
+        <BitkitButton size="md" onClick={onUpgrade}>
           Upgrade plan
-        </Button>
+        </BitkitButton>
       )}
     </BitkitEmptyState>
   );
