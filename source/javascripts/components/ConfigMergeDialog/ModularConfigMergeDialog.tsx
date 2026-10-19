@@ -313,11 +313,7 @@ const ModularConfigMergeDialogBody = ({
             isDisabled={!isInvalid}
             label="YAML is invalid, please fix it before applying changes"
           >
-            <BitkitButton
-              variant="primary"
-              state={isPushPending ? 'loading' : isInvalid ? 'disabled' : undefined}
-              onClick={handleApply}
-            >
+            <BitkitButton state={isPushPending ? 'loading' : isInvalid ? 'disabled' : undefined} onClick={handleApply}>
               Apply changes
             </BitkitButton>
           </Tooltip>

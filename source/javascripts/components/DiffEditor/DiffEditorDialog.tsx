@@ -146,11 +146,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
             isDisabled={ymlStatus !== 'invalid'}
             label="YAML is invalid, please fix it before applying changes"
           >
-            <BitkitButton
-              variant="primary"
-              state={isApplyChangesDisabled ? 'disabled' : undefined}
-              onClick={applyChanges}
-            >
+            <BitkitButton state={isApplyChangesDisabled ? 'disabled' : undefined} onClick={applyChanges}>
               Apply changes
             </BitkitButton>
           </Tooltip>

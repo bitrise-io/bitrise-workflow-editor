@@ -40,7 +40,7 @@ const ExecutionContainersTab = () => {
             variant="secondary"
             icon={IconPlus}
             size="md"
-            minW={['100%', 'auto']}
+            minWidth={['100%', 'auto']}
             onClick={() => {
               onDialogOpen();
               segmentTrack('Container Definition Creation Started', {

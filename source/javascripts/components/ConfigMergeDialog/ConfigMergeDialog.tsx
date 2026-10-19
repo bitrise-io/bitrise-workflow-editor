@@ -282,7 +282,6 @@ const ConfigMergeDialogContent = ({
             label="YAML is invalid, please fix it before applying changes"
           >
             <BitkitButton
-              variant="primary"
               state={isLoading ? 'loading' : ymlStatus === 'invalid' ? 'disabled' : undefined}
               onClick={handleSave}
             >
