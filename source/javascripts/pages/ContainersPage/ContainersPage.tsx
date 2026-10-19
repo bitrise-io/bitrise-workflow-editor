@@ -72,7 +72,7 @@ const ContainersPage = () => {
           isExternal
           href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html"
         >
-          Learn more about containers
+          Learn more
         </BitkitLink>
       </Text>
       <Tabs index={tabIndex} onChange={onTabChange}>
