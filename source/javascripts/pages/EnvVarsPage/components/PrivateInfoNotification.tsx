@@ -1,5 +1,4 @@
-import { Link } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 import { MouseEventHandler } from 'react';
 
 import useNavigation from '@/hooks/useNavigation';
@@ -13,9 +12,9 @@ const SecretsLink = () => {
   };
 
   return (
-    <Link href="/secrets" onClick={onClick} isUnderlined>
+    <BitkitLink href="/secrets" onClick={onClick} isUnderlined>
       Secrets
-    </Link>
+    </BitkitLink>
   );
 };
 

@@ -1,5 +1,12 @@
-import { Box, Link, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitControlButton, IconDetails, IconMinusCircle, IconPencil, useResponsive } from '@bitrise/bitkit-v2';
+import { Box, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import {
+  BitkitControlButton,
+  BitkitLinkButton,
+  IconDetails,
+  IconMinusCircle,
+  IconPencil,
+  useResponsive,
+} from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
@@ -76,9 +83,7 @@ const ContainersTable = ({
                   {workflowCount === 0 ? (
                     <Text color="text/tertiary">{usageLabel}</Text>
                   ) : (
-                    <Link
-                      as="button"
-                      colorScheme="purple"
+                    <BitkitLinkButton
                       onClick={() => {
                         onContainerUsageDialogOpen();
                         setSelectedContainerId(container.id);
@@ -94,7 +99,7 @@ const ContainersTable = ({
                       }}
                     >
                       {usageLabel}
-                    </Link>
+                    </BitkitLinkButton>
                   )}
                 </Td>
                 <Td textAlign="right">

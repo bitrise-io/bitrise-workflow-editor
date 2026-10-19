@@ -1,5 +1,4 @@
-import { Link } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 
@@ -39,13 +38,13 @@ const DeprecatedMachineNotification = (props: Props) => {
             Upgrading to newer generation AMD EPYC Zen4 Linux machines, with no extra costs. Standard machines will be
             deprecated and your Workflows will automatically run on newer generation AMD EPYC Zen4 Linux machines from{' '}
             {startDate.toLocaleDateString()}.{' '}
-            <Link
+            <BitkitLink
               href="https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE"
               isExternal
               isUnderlined
             >
               Read announcement
-            </Link>
+            </BitkitLink>
           </>
         }
       />
@@ -60,9 +59,9 @@ const DeprecatedMachineNotification = (props: Props) => {
             Your Workflows were automatically switched to newer generation AMD EPYC Zen4 Linux machines, with no extra
             costs. To continue using the deprecated Standard machine until {endDate.toLocaleDateString()}, opt to extend
             the transition period in the {startDate.toLocaleDateString()}.{' '}
-            <Link href={`/workspaces/${GlobalProps.workspaceSlug()}/settings/apps`} isExternal isUnderlined>
+            <BitkitLink href={`/workspaces/${GlobalProps.workspaceSlug()}/settings/apps`} isExternal isUnderlined>
               Workspace settings
-            </Link>
+            </BitkitLink>
           </>
         }
       />
@@ -76,13 +75,13 @@ const DeprecatedMachineNotification = (props: Props) => {
           <>
             Your Workflows are now running on newer generation AMD EPYC Zen4 Linux machines, with no extra costs. If
             you'd like to keep using the deprecated Standard Linux machine, reach out to support.{' '}
-            <Link
+            <BitkitLink
               href="https://docs.google.com/document/d/1DjttMcPHn4c76bVG6_jDQ4RfG08oLTMJ8rusHUA-0gE"
               isExternal
               isUnderlined
             >
               Read announcement
-            </Link>
+            </BitkitLink>
           </>
         }
       />

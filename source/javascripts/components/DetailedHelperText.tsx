@@ -1,4 +1,5 @@
-import { Box, Collapse, Link, MarkdownContent } from '@bitrise/bitkit';
+import { Box, Collapse, MarkdownContent } from '@bitrise/bitkit';
+import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
 type Props = {
@@ -18,9 +19,9 @@ const DetailedHelperText = ({ summary, details }: Props) => {
         <MarkdownContent md={details} size="sm" gap="8" />
       </Collapse>
 
-      <Link colorScheme="purple" cursor="pointer" fontSize="md" onClick={onToggle}>
+      <BitkitLinkButton alignSelf="start" onClick={onToggle}>
         {showMoreLabel}
-      </Link>
+      </BitkitLinkButton>
     </Box>
   );
 };

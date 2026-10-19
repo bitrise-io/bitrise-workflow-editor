@@ -1,4 +1,5 @@
-import { Box, CodeSnippet, Input, Link, Text } from '@bitrise/bitkit';
+import { Box, CodeSnippet, Input, Text } from '@bitrise/bitkit';
+import { BitkitLink } from '@bitrise/bitkit-v2';
 import { ChangeEventHandler, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
@@ -63,13 +64,13 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         helperText={
           <>
             {'Allowed characters: A-Za-z,.():/-_0-9 []|<> '}
-            <Link
+            <BitkitLink
               isExternal
               href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuring-build-settings/reporting-the-build-status-to-your-git-hosting-provider.html#custom-status-reports"
-              colorScheme="purple"
+              colorVariant="purple"
             >
               Learn more
-            </Link>
+            </BitkitLink>
           </>
         }
         errorText={error}

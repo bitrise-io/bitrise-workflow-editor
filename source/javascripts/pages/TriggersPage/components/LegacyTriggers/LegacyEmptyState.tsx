@@ -1,5 +1,4 @@
-import { Link } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconTrigger } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, BitkitLink, IconTrigger } from '@bitrise/bitkit-v2';
 
 import { TriggerType } from '@/core/models/Trigger';
 
@@ -36,12 +35,12 @@ const LegacyEmptyState = ({ type }: Props) => {
       bodyText={
         <>
           {description}{' '}
-          <Link
-            colorScheme="purple"
+          <BitkitLink
+            colorVariant="purple"
             href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
           >
             Learn more
-          </Link>
+          </BitkitLink>
         </>
       }
     />

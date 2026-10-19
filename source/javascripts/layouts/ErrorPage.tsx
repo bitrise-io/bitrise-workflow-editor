@@ -26,8 +26,8 @@ const ErrorPage = ({ eyebrow, headline, children }: ErrorPageProps) => (
     backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
   >
     <Box display="flex" flexDirection="column" gap="32" color="text/on-color" maxWidth="50%">
-      <BitkitLink href="/" title="Go to Dashboard">
-        <Image src={bitriseLogo} />
+      <BitkitLink href="/">
+        <Image src={bitriseLogo} alt="Go to Dashboard" />
       </BitkitLink>
       <Box>
         <Text textStyle="code/lg" textTransform="uppercase" marginBlockEnd="16">

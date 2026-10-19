@@ -1,5 +1,4 @@
-import { Link } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
@@ -27,12 +26,12 @@ const TargetBasedTriggerNotification = () => {
         <>
           Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
           targets.{' '}
-          <Link
+          <BitkitLink
             href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
             isUnderlined
           >
             Learn more
-          </Link>
+          </BitkitLink>
         </>
       }
     />

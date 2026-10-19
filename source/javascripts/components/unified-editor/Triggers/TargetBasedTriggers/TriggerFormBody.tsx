@@ -1,4 +1,5 @@
-import { Checkbox, Link, Select } from '@bitrise/bitkit';
+import { Checkbox, Select } from '@bitrise/bitkit';
+import { BitkitLink } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -110,13 +111,13 @@ const TriggerFormBody = (props: Props) => {
           helperText={
             <>
               Supported for GitHub and GitLab.{' '}
-              <Link
-                colorScheme="purple"
+              <BitkitLink
+                colorVariant="purple"
                 href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
                 isExternal
               >
                 Learn more
-              </Link>
+              </BitkitLink>
             </>
           }
           onChange={(e) => setValue(`isDraftPr`, e.target.checked)}

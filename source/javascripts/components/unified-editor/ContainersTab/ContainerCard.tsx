@@ -1,4 +1,5 @@
-import { Card, DefinitionTooltip, Link, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Card, DefinitionTooltip, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 
 import ContainerCardItem from '@/components/unified-editor/ContainersTab/ContainerCardItem';
 import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
@@ -121,9 +122,9 @@ const ContainerCard = (props: ContainerCardProps) => {
                 <Td colSpan={3}>
                   <Text textStyle="body/md/regular" color="text/secondary" pl="12">
                     No {type} containers available.{' '}
-                    <Link colorScheme="purple" onClick={() => replace('/containers', { tab: type })}>
-                      Manage {type} containers
-                    </Link>
+                    <BitkitLinkButton onClick={() => replace('/containers', { tab: type })}>
+                      {`Manage ${type} containers`}
+                    </BitkitLinkButton>
                   </Text>
                 </Td>
               ) : (

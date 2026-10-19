@@ -1,5 +1,5 @@
-import { Link, Text } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useUserMetaData from '@/hooks/useUserMetaData';
@@ -36,13 +36,13 @@ const OptimizeYouCiConfigBySplittingNotification = () => {
             {ymlSettings.lines}-lines
           </Text>{' '}
           YAML file into smaller chunks.{' '}
-          <Link
+          <BitkitLink
             href="https://docs.bitrise.io/en/bitrise-ci/configure-builds/configuration-yaml/modular-yaml-configuration.html"
             isExternal
             isUnderlined
           >
             Learn more
-          </Link>
+          </BitkitLink>
         </>
       }
     />

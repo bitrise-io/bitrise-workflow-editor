@@ -1,5 +1,4 @@
-import { Link } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useUserMetaData from '@/hooks/useUserMetaData';
@@ -30,12 +29,12 @@ const OrderOfTriggersNotification = () => {
         <>
           The first matching trigger is executed by the system, so make sure that the order of triggers is configured
           correctly.{' '}
-          <Link
+          <BitkitLink
             href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
             isUnderlined
           >
             Learn more
-          </Link>
+          </BitkitLink>
         </>
       }
     />

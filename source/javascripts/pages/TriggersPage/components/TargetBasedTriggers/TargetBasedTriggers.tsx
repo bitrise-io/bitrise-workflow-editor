@@ -2,7 +2,6 @@ import {
   Box,
   Checkbox,
   IconButton,
-  Link,
   SearchInput,
   Table,
   TableContainer,
@@ -13,7 +12,7 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconTrigger } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, BitkitLink, IconTrigger } from '@bitrise/bitkit-v2';
 import { AriaAttributes, useMemo, useState } from 'react';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
@@ -250,12 +249,12 @@ const TargetBasedTriggers = () => {
             <>
               Target-based triggers let you run multiple Workflows or Pipelines from a single Git event. You can set
               them up here or directly in the Workflow or Pipeline settings.{' '}
-              <Link
-                colorScheme="purple"
+              <BitkitLink
+                colorVariant="purple"
                 href="https://docs.bitrise.io/en/bitrise-ci/run-and-analyze-builds/starting-builds/triggering-builds-automatically.html"
               >
                 Learn more
-              </Link>
+              </BitkitLink>
             </>
           }
         >
