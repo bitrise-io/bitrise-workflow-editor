@@ -10,7 +10,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
       <Box
         height="2"
         display="none"
-        background="icon/interactive"
+        background="interactive/base"
         top="calc(50% - 1px)"
         left={0}
         right={0}
@@ -36,10 +36,10 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           color="button/primary/fg"
           borderRadius="4"
           _hover={{
-            bg: 'button/primary/bg-hover',
+            background: 'button/primary/bg-hover',
             color: 'button/primary/fg-hover',
             outline: '3px solid',
-            outlineColor: 'sys/interactive/moderate',
+            outlineColor: 'interactive/moderate',
           }}
           _groupHover={{
             display: 'flex',

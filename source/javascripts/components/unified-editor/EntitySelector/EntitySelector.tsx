@@ -102,8 +102,8 @@ const EntitySelector = (props: EntitySelectorProps) => {
         <Box
           paddingBlock="8"
           position="sticky"
-          bottom="-8px"
-          marginBlockEnd="-8px"
+          bottom="-8"
+          marginBlockEnd="-8"
           borderTop="1px solid"
           borderColor="border/regular"
           backgroundColor="background/primary"

@@ -31,7 +31,7 @@ const EnvVarsCard = () => {
       buttonPadding="16px 24px"
       buttonContent={<ButtonContent numberOfErrors={errorCount} />}
     >
-      <Box margin="-24px" width="auto">
+      <Box margin="-24" width="auto">
         <SortableEnvVars
           source={EnvVarSource.Workflows}
           sourceId={sourceId}

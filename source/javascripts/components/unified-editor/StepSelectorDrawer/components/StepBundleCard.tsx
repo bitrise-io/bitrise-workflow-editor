@@ -1,6 +1,6 @@
 import { Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
 import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -114,13 +114,13 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     ),
   };
 
-  let cardPadding;
+  let cardPadding: BoxProps = {};
   if (isCollapsable) {
     if (!isPreviewMode) {
-      cardPadding = '6px 8px 6px 4px';
+      cardPadding = { paddingBlock: '6', paddingInlineStart: '4', paddingInlineEnd: '8' };
     }
   } else {
-    cardPadding = '4px 8px';
+    cardPadding = { paddingBlock: '4', paddingInline: '8' };
   }
 
   const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
@@ -218,7 +218,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               display="flex"
               flexGrow={1}
               alignItems="center"
-              padding={cardPadding}
+              {...cardPadding}
               gap="4"
               className="group"
               minWidth="0"

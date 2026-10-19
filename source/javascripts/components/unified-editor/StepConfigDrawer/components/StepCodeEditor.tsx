@@ -50,7 +50,7 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
   }, [editorInstance, updateEditorHeight]);
 
   return (
-    <Box display="flex" flexDirection="column" gap="8px">
+    <Box display="flex" flexDirection="column" gap="8">
       {label && <Label>{label}</Label>}
       <Editor
         theme="vs-dark"

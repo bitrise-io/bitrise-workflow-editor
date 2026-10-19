@@ -67,7 +67,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
 
   return (
     <>
-      <Box padding={variant === 'panel' ? '16px 24px 0px 24px' : '0'}>
+      <Box paddingBlockStart={variant === 'panel' ? '16' : '0'} paddingInline={variant === 'panel' ? '24' : '0'}>
         <Text as="h3" textStyle="heading/h3">
           {title}
         </Text>

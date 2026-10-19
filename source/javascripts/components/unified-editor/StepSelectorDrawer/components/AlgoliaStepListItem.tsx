@@ -1,5 +1,5 @@
 import { Avatar, Card, CardProps, Icon, LinkButton, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitControlButton, IconPlus } from '@bitrise/bitkit-v2';
+import { BitkitControlButton, IconPlus, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { MouseEventHandler, useRef } from 'react';
@@ -169,7 +169,7 @@ const AlgoliaStepListItem = ({
           inset="0"
           background="background/primary"
           top="auto"
-          height="26px"
+          height={rem(26)}
           display="none"
           position="absolute"
           borderBottomRadius="8"
