@@ -1,4 +1,5 @@
-import { Box, CardProps, IconButton } from '@bitrise/bitkit';
+import { CardProps, IconButton } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
 
@@ -386,8 +387,15 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   }, []);
 
   return (
-    <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
-      <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
+    <Box height="100%" display="flex" flexDirection="column" minWidth={[256, 320, 400]}>
+      <Box
+        padding="12"
+        display="flex"
+        gap="12"
+        background="background/primary"
+        borderBottom="1px solid"
+        borderColor="border/regular"
+      >
         <WorkflowSelector />
         {RuntimeUtils.isWebsiteMode() && (
           <IconButton
@@ -403,7 +411,13 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           />
         )}
       </Box>
-      <Box flex="1" overflowY="auto" p="16" bg="background/secondary" data-intercom-target="Workflow Card Container">
+      <Box
+        flex="1"
+        overflowY="auto"
+        padding="16"
+        background="background/secondary"
+        data-intercom-target="Workflow Card Container"
+      >
         <WorkflowCard
           id={workflowId}
           isCollapsable={false}

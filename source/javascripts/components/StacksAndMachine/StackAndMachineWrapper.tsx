@@ -1,5 +1,6 @@
-import { Box, Card, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Card, ExpandableCard, Text } from '@bitrise/bitkit';
 import { BitkitBadge } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { ReactNode } from 'react';
 
 type ButtonContentProps = {
@@ -10,8 +11,8 @@ type ButtonContentProps = {
 
 const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentProps) => {
   return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minW={0}>
-      <Box display="flex" flexDir="column" alignItems="flex-start" minW={0}>
+    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minWidth="0">
+      <Box display="flex" flexDirection="column" alignItems="flex-start" minWidth="0">
         <Text textStyle="body/lg/semibold">Stack & Machine</Text>
         <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
           {[stackName, machineTypeName].filter(Boolean).join(' • ')}

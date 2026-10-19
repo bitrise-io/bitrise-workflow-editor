@@ -1,5 +1,6 @@
-import { Box, ButtonGroup, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { ButtonGroup, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitButton } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
@@ -175,7 +176,7 @@ const ConfigMergeDialogContent = ({
 
   if (initialError || !data) {
     return (
-      <Box px="32">
+      <Box paddingInline="32">
         <BitkitAlert
           variant="critical"
           titleText="Error fetching initial configs"
@@ -204,7 +205,7 @@ const ConfigMergeDialogContent = ({
         <Box display="flex" flex="1" gap="4">
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Your changes</Text>
-            <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
+            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
               <DiffEditor
                 theme="vs-dark"
                 language="yaml"
@@ -223,7 +224,7 @@ const ConfigMergeDialogContent = ({
 
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Results</Text>
-            <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)">
+            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)">
               <DiffEditor
                 theme="vs-dark"
                 language="yaml"
@@ -243,7 +244,7 @@ const ConfigMergeDialogContent = ({
 
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Remote changes</Text>
-            <Box flex="1" borderRadius="8" overflow="hidden" bg="rgb(30,30,30)" opacity="0.9">
+            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
               <DiffEditor
                 theme="vs-dark"
                 language="yaml"

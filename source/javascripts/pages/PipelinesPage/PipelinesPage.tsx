@@ -1,6 +1,6 @@
 import '@xyflow/react/dist/style.css';
 
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useEffect, useMemo } from 'react';
 
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
@@ -90,7 +90,7 @@ const PipelinesPage = () => {
   }, [canAccessPipelines, hasPipelines, openDialog]);
 
   return (
-    <Box display="flex" flexDir="column" h="100%">
+    <Box display="flex" flexDirection="column" height="100%">
       {content}
       <Drawers />
     </Box>

@@ -1,4 +1,5 @@
-import { Box, BoxProps, forwardRef } from '@bitrise/bitkit';
+import { forwardRef } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 
 import DragHandleIcon from './DragHandleIcon';
 
@@ -10,7 +11,7 @@ type Props = BoxProps & {
 const DragHandle = forwardRef(({ isDisabled, withGroupHover, _groupHover, ...props }: Props, ref) => {
   if (isDisabled) {
     return (
-      <Box display="flex" alignItems="center" p="8" ref={ref} color="text/disabled" {...props}>
+      <Box display="flex" alignItems="center" padding="8" ref={ref} color="icon/disabled" {...props}>
         <DragHandleIcon />
       </Box>
     );
@@ -18,7 +19,7 @@ const DragHandle = forwardRef(({ isDisabled, withGroupHover, _groupHover, ...pro
 
   return (
     <Box
-      p="8"
+      padding="8"
       ref={ref}
       as="button"
       cursor="grab"

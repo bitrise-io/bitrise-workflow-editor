@@ -1,4 +1,5 @@
-import { Box, CardProps } from '@bitrise/bitkit';
+import { CardProps } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
 import { memo, useEffect, useMemo, useRef } from 'react';
@@ -42,26 +43,26 @@ const ParallelWorkflowIndicator = memo(function ParallelWorkflowIndicator() {
   return (
     <>
       <Box
-        h="24"
+        height="24"
         left="24"
         right="24"
         zIndex={-1}
         bottom="-4"
         borderRadius="8"
-        boxShadow="small"
+        boxShadow="elevation/sm"
         position="absolute"
         border="1px solid"
         borderColor="border/regular"
         backgroundColor="background/primary"
       />
       <Box
-        h="24"
+        height="24"
         left="32"
         right="32"
         zIndex={-2}
         bottom="-8"
         borderRadius="8"
-        boxShadow="small"
+        boxShadow="elevation/sm"
         position="absolute"
         border="1px solid"
         borderColor="border/regular"
@@ -454,7 +455,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   }, [id, highlighted, setEdges]);
 
   return (
-    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" w={WORKFLOW_NODE_WIDTH} className="nopan">
+    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" width={WORKFLOW_NODE_WIDTH} className="nopan">
       <LeftHandle />
       <WorkflowCard
         id={id}

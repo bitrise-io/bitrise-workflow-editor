@@ -1,5 +1,6 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconDollar } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react/jsx-runtime';
 

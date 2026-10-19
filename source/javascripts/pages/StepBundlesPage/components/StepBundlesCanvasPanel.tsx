@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useCallback } from 'react';
 
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
@@ -175,18 +175,18 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   }, []);
 
   return (
-    <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
-      <Box p="12" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
+    <Box height="100%" display="flex" flexDirection="column" minWidth={[256, 320, 400]}>
+      <Box padding="12" gap="12" background="background/primary" borderBottom="1px solid" borderColor="border/regular">
         <StepBundlesSelector />
       </Box>
       <Box
         display="flex"
-        flexDir="column"
+        flexDirection="column"
         flex="1"
         alignItems="center"
         overflowY="auto"
-        p="16"
-        bg="background/secondary"
+        padding="16"
+        background="background/secondary"
       >
         <WorkflowCardContextProvider
           onAddStepToStepBundle={openStepSelectorDrawer}

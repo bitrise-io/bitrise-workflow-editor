@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
 import DiffEditor from './DiffEditor';
@@ -29,7 +29,7 @@ const meta: Meta<typeof DiffEditor> = {
     onChange: { action: 'onChange' },
   },
   render: (args) => (
-    <Box h="500px">
+    <Box height="500px">
       <DiffEditor {...args} />
     </Box>
   ),

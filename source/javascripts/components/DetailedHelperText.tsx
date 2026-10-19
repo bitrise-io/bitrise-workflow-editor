@@ -1,5 +1,6 @@
-import { Box, Collapse, MarkdownContent } from '@bitrise/bitkit';
+import { Collapse, MarkdownContent } from '@bitrise/bitkit';
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
 type Props = {

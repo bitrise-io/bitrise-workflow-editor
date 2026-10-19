@@ -1,5 +1,5 @@
-import { Box } from '@bitrise/bitkit';
 import { BitkitTabs } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { useRef, useState } from 'react';
 

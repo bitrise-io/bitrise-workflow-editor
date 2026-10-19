@@ -1,5 +1,6 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
 import { BitkitTooltip, BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useMemo } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';
@@ -125,7 +126,7 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
       {groups.map((group) => (
         <Box key={group.key} display="flex" flexDirection="column">
           {/* No `px`: header left-aligns with the title while the tree's own 8px inset indents file rows. */}
-          <Box display="flex" alignItems="center" gap="4" py="6">
+          <Box display="flex" alignItems="center" gap="4" paddingBlock="6">
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (
               <BitkitTooltip text="Modules included from another repository or ref are read-only.">

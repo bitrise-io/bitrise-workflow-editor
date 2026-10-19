@@ -1,5 +1,6 @@
-import { Box, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
@@ -40,7 +41,7 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
       display="flex"
       flexDirection="column"
     >
-      <Box display="flex" flexDir="column" gap="8" paddingTop="12" paddingBottom="24">
+      <Box display="flex" flexDirection="column" gap="8" paddingBlockStart="12" paddingBlockEnd="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
           <Input
             autoFocus
@@ -64,7 +65,7 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
             {...register('value')}
           />
         </Box>
-        <Box display="flex" gap="24" marginTop="16">
+        <Box display="flex" gap="24" marginBlockStart="16">
           <Checkbox {...register('isExpand')} flex="1">
             Replace variables in inputs
           </Checkbox>
