@@ -1,5 +1,5 @@
 import { ButtonGroup, Card, Icon, Image, Link, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { BitkitButton, IconPlus, IconSparkleFilled, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -74,7 +74,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
         width="auto"
         data-clarity-unmask="true"
       >
-        <Box maxWidth="420px" display="flex" flexDirection="column" gap="16">
+        <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
           <Text as="h3" textStyle="heading/h3">
             Get started with Pipelines
           </Text>
@@ -97,7 +97,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
 
         <Box
           padding="8"
-          maxWidth="436px"
+          maxWidth={rem(436)}
           display="flex"
           borderRadius="8"
           background="background/secondary"

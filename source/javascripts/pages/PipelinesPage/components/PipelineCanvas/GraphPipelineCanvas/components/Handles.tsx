@@ -1,6 +1,7 @@
 import { Box, type BoxProps } from '@chakra-ui/react/box';
+import { Icon } from '@chakra-ui/react/icon';
+import { useToken } from '@chakra-ui/react/styled-system';
 import { Handle, HandleProps, Position, useConnection, useEdges, useNodeId, useReactFlow } from '@xyflow/react';
-import { Icon, IconProps } from 'chakra-ui-2--react';
 import { CSSProperties, useRef } from 'react';
 import { useHover } from 'usehooks-ts';
 
@@ -12,7 +13,15 @@ import { PLACEHOLDER_NODE_ID, WORKFLOW_NODE_HEIGHT } from '../GraphPipelineCanva
 import createPlaceholderEdge from '../utils/createPlaceholderEdge';
 import createPlaceholderNode from '../utils/createPlaceholderNode';
 
-const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
+// React Flow's <Handle> takes a plain inline style, so the colours are resolved from the theme here.
+const HANDLE_COLOR_TOKENS = ['background/active', 'border/hover', 'interactive/base'];
+
+const useHandleColors = () => {
+  const [base, highlighted, selected] = useToken('colors', HANDLE_COLOR_TOKENS);
+  return { base, highlighted, selected };
+};
+
+const defaultHandleStyle = (background: string, overrides?: CSSProperties): CSSProperties => ({
   width: 12,
   height: 12,
   border: 'none',
@@ -20,7 +29,7 @@ const defaultHandleStyle = (overrides?: CSSProperties): CSSProperties => ({
   pointerEvents: 'none',
   top: WORKFLOW_NODE_HEIGHT / 2,
   transform: `translate(0, -50%)`,
-  background: 'var(--colors-background-active)',
+  background,
   ...overrides,
 });
 
@@ -33,24 +42,26 @@ const defaultHandleButtonStyle: CSSProperties = {
   backgroundColor: 'transparent',
 };
 
-const HandleIcon = ({ isDragging, ...props }: IconProps & { isDragging: boolean }) => {
+const HandleIcon = ({ isDragging }: { isDragging: boolean }) => {
   const hoverStyle = {
-    fill: 'var(--colors-button-primary-bg-hover)',
+    fill: 'icon/interactive-hover',
     outline: '2px solid',
-    outlineColor: 'sys/interactive/moderate',
+    outlineColor: 'interactive/moderate',
   };
 
   return (
     <Icon
-      {...props}
       display="block"
-      viewBox="0 0 16 17"
-      borderRadius="16px"
+      boxSize="1em"
+      borderRadius="16"
+      color="icon/on-color"
       _groupHover={hoverStyle}
-      {...(isDragging ? hoverStyle : { fill: 'var(--colors-icon-interactive)' })}
+      {...(isDragging ? hoverStyle : { fill: 'icon/interactive' })}
     >
-      <rect y="0.5" width="16" height="16" rx="8" fill="inherit" />
-      <path d="M8 4.5V12.5M4 8.5H12" stroke="white" strokeWidth="2" />
+      <svg viewBox="0 0 16 17">
+        <rect y="0.5" width="16" height="16" rx="8" fill="inherit" />
+        <path d="M8 4.5V12.5M4 8.5H12" stroke="currentColor" strokeWidth="2" />
+      </svg>
     </Icon>
   );
 };
@@ -112,11 +123,12 @@ export const LeftHandle = (props: BoxProps) => {
   const isConnectionSnapped = isValid && inProgress && toHandle?.nodeId === id;
   const isSelected = edges.some(({ target, selected }) => target === id && selected);
   const isHighlighted = edges.some(({ target, data }) => target === id && data?.highlighted);
+  const colors = useHandleColors();
 
-  const style = defaultHandleStyle({
+  const style = defaultHandleStyle(colors.base, {
     ...{ left: 8 },
-    ...(isHighlighted ? { background: 'var(--colors-border-hover)' } : {}),
-    ...(isConnectionSnapped || isSelected ? { background: 'var(--colors-border-selected)' } : {}),
+    ...(isHighlighted ? { background: colors.highlighted } : {}),
+    ...(isConnectionSnapped || isSelected ? { background: colors.selected } : {}),
   });
 
   return (
@@ -147,11 +159,12 @@ export const RightHandle = (props: BoxProps) => {
   const isInButtonState = !isReadOnly && (isDragging || (hover && !fromHandle));
   const isSelected = edges.some(({ source, selected }) => source === id && selected);
   const isHighlighted = edges.some(({ source, data }) => source === id && data?.highlighted);
+  const colors = useHandleColors();
 
-  const style = defaultHandleStyle({
+  const style = defaultHandleStyle(colors.base, {
     ...{ right: 8 },
-    ...(isHighlighted ? { background: 'var(--colors-border-hover)' } : {}),
-    ...(isSelected ? { background: 'var(--colors-border-selected)' } : {}),
+    ...(isHighlighted ? { background: colors.highlighted } : {}),
+    ...(isSelected ? { background: colors.selected } : {}),
   });
 
   return (

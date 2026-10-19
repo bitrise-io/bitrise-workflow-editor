@@ -1,4 +1,5 @@
 import { Text, Tooltip } from '@bitrise/bitkit';
+import { rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { NodeProps } from '@xyflow/react';
 
@@ -18,7 +19,7 @@ const GeneratedWorkflowsPlaceholderNode = ({ zIndex }: NodeProps) => {
           minHeight={WORKFLOW_NODE_HEIGHT}
           display="flex"
           alignItems="center"
-          paddingInlineStart="42px"
+          paddingInlineStart={rem(42)}
           paddingInlineEnd="8"
           paddingBlock="6"
           borderRadius="8"

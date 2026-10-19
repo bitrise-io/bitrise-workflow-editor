@@ -63,7 +63,7 @@ const SortableEnvVarItem = ({
       position="relative"
       borderBottom="1px solid"
       borderColor="border/minimal"
-      {...(isDragging ? { boxShadow: 'small' } : {})}
+      {...(isDragging ? { boxShadow: 'elevation/sm' } : {})}
       {...(sortable.isDragging
         ? { backgroundColor: 'background/secondary' }
         : { backgroundColor: 'background/primary' })}

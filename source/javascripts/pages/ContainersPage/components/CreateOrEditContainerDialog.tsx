@@ -10,7 +10,7 @@ import {
   Text,
   Textarea,
 } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitControlButton, IconPlus, IconTrash } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitControlButton, IconPlus, IconTrash, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
@@ -306,7 +306,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             />
             <Separator marginBlockStart="8" />
             {fields.map((item, index) => (
-              <Box key={item.id} display="flex" alignItems="flex-end" gap="10px">
+              <Box key={item.id} display="flex" alignItems="flex-end" gap={rem(10)}>
                 <Controller
                   control={control}
                   name={`userValues.envs.${index}.key`}

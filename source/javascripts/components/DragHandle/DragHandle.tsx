@@ -11,7 +11,7 @@ type Props = BoxProps & {
 const DragHandle = forwardRef(({ isDisabled, withGroupHover, _groupHover, ...props }: Props, ref) => {
   if (isDisabled) {
     return (
-      <Box display="flex" alignItems="center" padding="8" ref={ref} color="text/disabled" {...props}>
+      <Box display="flex" alignItems="center" padding="8" ref={ref} color="icon/disabled" {...props}>
         <DragHandleIcon />
       </Box>
     );
