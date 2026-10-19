@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
 import { TreeNode } from '@/core/models/Tree';

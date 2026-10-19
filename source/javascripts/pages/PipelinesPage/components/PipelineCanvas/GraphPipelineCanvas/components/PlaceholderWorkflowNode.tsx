@@ -1,4 +1,5 @@
-import { Box, Icon, Text } from '@bitrise/bitkit';
+import { Icon, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { NodeProps } from '@xyflow/react';
 
 import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
@@ -8,7 +9,7 @@ type Props = NodeProps;
 
 const PlaceholderNode = ({ zIndex }: Props) => {
   return (
-    <Box display="flex" alignItems="stretch" h={WORKFLOW_NODE_HEIGHT} w={WORKFLOW_NODE_WIDTH} zIndex={zIndex}>
+    <Box display="flex" alignItems="stretch" height={WORKFLOW_NODE_HEIGHT} width={WORKFLOW_NODE_WIDTH} zIndex={zIndex}>
       <LeftHandle />
       <Box
         gap="8"
@@ -26,7 +27,7 @@ const PlaceholderNode = ({ zIndex }: Props) => {
           Workflow
         </Text>
       </Box>
-      <Box w={16} />
+      <Box width="16" />
     </Box>
   );
 };

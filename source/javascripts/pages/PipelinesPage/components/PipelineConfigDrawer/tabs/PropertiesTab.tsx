@@ -1,5 +1,6 @@
-import { Box, Textarea } from '@bitrise/bitkit';
+import { Textarea } from '@bitrise/bitkit';
 import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback } from 'react';
 
@@ -128,7 +129,7 @@ const PropertiesTab = ({ onDelete, pipelineId }: Props) => {
 
   return (
     <>
-      <Box display="flex" flexDir="column" gap="24" pb="24">
+      <Box display="flex" flexDirection="column" gap="24" paddingBlockEnd="24">
         <NameInput pipelineId={pipelineId} />
         <SummaryInput pipelineId={pipelineId} />
         <DescriptionInput pipelineId={pipelineId} />

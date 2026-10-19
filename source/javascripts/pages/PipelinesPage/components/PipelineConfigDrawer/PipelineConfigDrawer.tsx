@@ -1,5 +1,6 @@
-import { Box, Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip } from '@bitrise/bitkit';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -53,7 +54,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
                 </Tooltip>
               )}
             </Box>
-            <Box mx="-24" mt="16">
+            <Box marginInline="-24" marginBlockStart="16">
               <TabList px="8" data-clarity-unmask="true">
                 <Tab>Properties</Tab>
                 <Tab>Triggers</Tab>

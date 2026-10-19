@@ -1,5 +1,4 @@
 import {
-  Box,
   Checkbox,
   IconButton,
   SearchInput,
@@ -13,6 +12,7 @@ import {
   Tr,
 } from '@bitrise/bitkit';
 import { BitkitEmptyState, BitkitLink, IconTrigger } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { AriaAttributes, useMemo, useState } from 'react';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
