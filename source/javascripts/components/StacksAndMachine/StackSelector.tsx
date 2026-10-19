@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   BoxProps,
   Checkbox,
@@ -9,9 +8,8 @@ import {
   Icon,
   Text,
   Tooltip,
-  TypeIconName,
 } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitIconComponent, BitkitLink, IconStack, IconUbuntu, IconXcode } from '@bitrise/bitkit-v2';
 
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
@@ -49,28 +47,28 @@ const PreviousStackVersionTip = () => (
   </Tooltip>
 );
 
-const getIconName = (osId?: string): TypeIconName | undefined => {
+const getIcon = (osId?: string): BitkitIconComponent => {
   switch (osId) {
     case 'linux':
-      return 'Ubuntu';
+      return IconUbuntu;
     case 'osx':
     case 'macos':
-      return 'Xcode';
+      return IconXcode;
     default:
-      return 'Stack';
+      return IconStack;
   }
 };
 
 const renderOptions = (stacks: StackOption[]) => {
   return stacks.map((stack) => {
-    const iconName = getIconName(stack.os);
+    const icon = getIcon(stack.os);
     return (
       <DropdownDetailedOption
         key={stack.value}
         value={stack.value}
         title={stack.label}
         subtitle=""
-        icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
+        icon={<BitkitAvatar variant="icon" icon={icon} />}
       />
     );
   });
