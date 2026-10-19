@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Tooltip } from '@bitrise/bitkit';
+import { ButtonGroup, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
@@ -41,9 +42,9 @@ const TriggerFormFooter = (props: Props) => {
 
   return (
     <ButtonGroup spacing="16">
-      <Button variant="secondary" onClick={handleCancel}>
+      <BitkitButton variant="secondary" onClick={handleCancel}>
         Cancel
-      </Button>
+      </BitkitButton>
       <Tooltip
         isDisabled={!isSameTriggerExist && !hasEmptyCondition}
         label={
@@ -52,9 +53,13 @@ const TriggerFormFooter = (props: Props) => {
             : 'Please fill all conditions.'
         }
       >
-        <Button type="submit" onClick={handleSubmit} isDisabled={isSameTriggerExist || hasEmptyCondition || !source}>
+        <BitkitButton
+          type="submit"
+          onClick={handleSubmit}
+          state={isSameTriggerExist || hasEmptyCondition || !source ? 'disabled' : undefined}
+        >
           {editedItem ? 'Apply changes' : 'Add trigger'}
-        </Button>
+        </BitkitButton>
       </Tooltip>
     </ButtonGroup>
   );

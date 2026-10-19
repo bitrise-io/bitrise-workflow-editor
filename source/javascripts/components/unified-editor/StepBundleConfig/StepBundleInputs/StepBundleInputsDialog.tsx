@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   ButtonGroup,
   Checkbox,
   Collapse,
@@ -11,7 +10,7 @@ import {
   Text,
   Textarea,
 } from '@bitrise/bitkit';
-import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { ChangeEvent } from 'react';
 import { useController, useForm } from 'react-hook-form';
@@ -176,12 +175,12 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
       </DialogBody>
       <DialogFooter>
         <ButtonGroup display="flex" gap="8">
-          <Button variant="secondary" onClick={onCancel}>
+          <BitkitButton variant="secondary" onClick={onCancel}>
             Cancel
-          </Button>
-          <Button isDisabled={isSubmitDisabled} type="submit">
+          </BitkitButton>
+          <BitkitButton state={isSubmitDisabled ? 'disabled' : undefined} type="submit">
             {mode === 'edit' ? 'Update' : 'Create'}
-          </Button>
+          </BitkitButton>
         </ButtonGroup>
       </DialogFooter>
     </Dialog>

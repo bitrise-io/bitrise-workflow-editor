@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
 
 import useSearch from '../hooks/useSearch';
 
@@ -13,9 +12,9 @@ const AlgoliaStepListEmptyState = () => {
       headingText="No Steps are matching your filter"
       bodyText="Modify your filters to get results."
     >
-      <Button variant="secondary" onClick={resetSearch}>
+      <BitkitButton variant="secondary" onClick={resetSearch}>
         Clear filters
-      </Button>
+      </BitkitButton>
     </BitkitEmptyState>
   );
 };
