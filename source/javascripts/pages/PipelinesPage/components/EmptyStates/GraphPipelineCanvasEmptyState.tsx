@@ -1,5 +1,4 @@
-import { Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, BitkitEmptyStateProps, IconWorkflowFlow } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitEmptyState, BitkitEmptyStateProps, IconPlus, IconWorkflowFlow } from '@bitrise/bitkit-v2';
 
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
@@ -20,9 +19,9 @@ const GraphPipelineCanvasEmptyState = ({ onAddWorkflow, ...props }: Props) => {
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't add workflows — show no CTA. */}
       {!isReadOnlyView && (
-        <Button size="md" leftIconName="Plus" onClick={onAddWorkflow}>
+        <BitkitButton size="md" icon={IconPlus} onClick={onAddWorkflow}>
           Add Workflow
-        </Button>
+        </BitkitButton>
       )}
     </BitkitEmptyState>
   );

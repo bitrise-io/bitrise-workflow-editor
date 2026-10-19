@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Card,
   CardProps,
   Checkbox,
@@ -14,7 +13,7 @@ import {
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitBadge } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitBadge, BitkitButton } from '@bitrise/bitkit-v2';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -284,16 +283,20 @@ const SecretCard = (props: SecretCardProps) => {
             {saveError && <BitkitAlert variant="critical" messageText="Error while updating secret!" />}
             <Box display="flex" justifyContent="space-between">
               <Box display="flex" gap="16">
-                <Button type="submit" size="md" isDisabled={!watch('key') || !watch('value')} isLoading={saveLoading}>
+                <BitkitButton
+                  type="submit"
+                  size="md"
+                  state={saveLoading ? 'loading' : !watch('key') || !watch('value') ? 'disabled' : undefined}
+                >
                   Save
-                </Button>
-                <Button onClick={onCancelClick} size="md" variant="secondary">
+                </BitkitButton>
+                <BitkitButton onClick={onCancelClick} size="md" variant="secondary">
                   Cancel
-                </Button>
+                </BitkitButton>
               </Box>
-              <Button size="md" variant="danger-secondary" onClick={() => onDelete(secret.key)}>
+              <BitkitButton size="md" variant="danger-secondary" onClick={() => onDelete(secret.key)}>
                 Delete secret
-              </Button>
+              </BitkitButton>
             </Box>
           </Box>
         )}
@@ -307,7 +310,7 @@ const SecretCard = (props: SecretCardProps) => {
           </Text>
         </DialogBody>
         <DialogFooter>
-          <Button
+          <BitkitButton
             variant="secondary"
             onClick={() => {
               setValue('isProtected', false);
@@ -315,17 +318,17 @@ const SecretCard = (props: SecretCardProps) => {
             }}
           >
             Cancel
-          </Button>
-          <Button
-            isDanger
-            isLoading={saveLoading}
+          </BitkitButton>
+          <BitkitButton
+            variant="danger-primary"
+            state={saveLoading ? 'loading' : undefined}
             onClick={() => {
               confirmCallback?.();
               setConfirmCallback(undefined);
             }}
           >
             Save and protect
-          </Button>
+          </BitkitButton>
         </DialogFooter>
       </Dialog>
     </Card>

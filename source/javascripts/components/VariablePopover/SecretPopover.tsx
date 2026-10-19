@@ -1,4 +1,5 @@
-import { Button, IconButton, Text } from '@bitrise/bitkit';
+import { IconButton, Text } from '@bitrise/bitkit';
+import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 import {
   List,
   ListItem,
@@ -102,9 +103,9 @@ const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMod
             {isMode(Mode.SELECT) && (
               <>
                 <Text textStyle="heading/h4">Insert secret</Text>
-                <Button variant="tertiary" size="sm" leftIconName="Plus" onClick={() => switchTo(Mode.CREATE)}>
+                <BitkitButton variant="tertiary" size="sm" icon={IconPlus} onClick={() => switchTo(Mode.CREATE)}>
                   Create
-                </Button>
+                </BitkitButton>
               </>
             )}
           </PopoverHeader>

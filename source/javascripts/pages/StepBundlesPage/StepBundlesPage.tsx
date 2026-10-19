@@ -1,5 +1,5 @@
-import { Box, Button } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconStep } from '@bitrise/bitkit-v2';
+import { Box } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, IconPlus, IconStep } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 
 import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
@@ -67,15 +67,15 @@ const StepBundlesPage = () => {
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no action. */}
       {!isReadOnlyView && (
-        <Button
+        <BitkitButton
           size="md"
-          leftIconName="Plus"
+          icon={IconPlus}
           onClick={openDialog({
             type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE,
           })}
         >
           Create Step bundle
-        </Button>
+        </BitkitButton>
       )}
     </BitkitEmptyState>
   );

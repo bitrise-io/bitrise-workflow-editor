@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogBody, DialogFooter, DialogProps, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Text } from '@bitrise/bitkit';
+import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -83,12 +84,12 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={handleClose}>
+        <BitkitButton variant="secondary" onClick={handleClose}>
           Cancel
-        </Button>
-        <Button variant="danger-primary" onClick={handleDelete}>
+        </BitkitButton>
+        <BitkitButton variant="danger-primary" onClick={handleDelete}>
           Delete
-        </Button>
+        </BitkitButton>
       </DialogFooter>
     </Dialog>
   );

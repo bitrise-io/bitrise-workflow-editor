@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   ButtonGroup,
   Collapse,
   Dialog,
@@ -12,7 +11,7 @@ import {
   Text,
   Textarea,
 } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitControlButton, IconTrash } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitControlButton, IconPlus, IconTrash } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { useEffect } from 'react';
@@ -349,15 +348,15 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               </Box>
             ))}
             {!readOnly && (
-              <Button
+              <BitkitButton
                 variant="tertiary"
-                leftIconName="Plus"
+                icon={IconPlus}
                 size="md"
                 width="fit-content"
                 onClick={() => append({ key: '', value: '', source: '' })}
               >
                 Add Env Var
-              </Button>
+              </BitkitButton>
             )}
             <Separator />
             <Controller
@@ -392,17 +391,17 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
       </DialogBody>
       <DialogFooter>
         {readOnly ? (
-          <Button variant="secondary" onClick={onClose}>
+          <BitkitButton variant="secondary" onClick={onClose}>
             Close
-          </Button>
+          </BitkitButton>
         ) : (
           <>
-            <Button variant="secondary" onClick={onClose}>
+            <BitkitButton variant="secondary" onClick={onClose}>
               Cancel
-            </Button>
-            <Button type="submit" isDisabled={!formState.isValid || !formState.isDirty}>
+            </BitkitButton>
+            <BitkitButton type="submit" state={!formState.isValid || !formState.isDirty ? 'disabled' : undefined}>
               {editedContainer ? 'Save' : 'Create container'}
-            </Button>
+            </BitkitButton>
           </>
         )}
       </DialogFooter>
