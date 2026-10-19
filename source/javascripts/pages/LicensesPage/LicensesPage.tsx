@@ -1,5 +1,5 @@
-import { Box, Button, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitEmptyState, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
+import { Box, Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
 
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -34,9 +34,9 @@ const LicensesPage = () => {
           headingText="Workflow-specific license pools"
           data-clarity-unmask="true"
         >
-          <Button as="a" href={`/workspaces/${workspaceSlug}/settings/integrations`} target="_blank">
+          <BitkitButton href={`/workspaces/${workspaceSlug}/settings/integrations`} isExternal>
             Add license pool
-          </Button>
+          </BitkitButton>
         </BitkitEmptyState>
       )}
       {!isPending && !!licensePools?.length && (

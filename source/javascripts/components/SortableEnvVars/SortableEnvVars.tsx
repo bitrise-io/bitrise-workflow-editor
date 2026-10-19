@@ -1,4 +1,5 @@
-import { Box, BoxProps, Button, Text } from '@bitrise/bitkit';
+import { Box, BoxProps, Text } from '@bitrise/bitkit';
+import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -92,9 +93,9 @@ const SortableEnvVars = ({
       {/* Read-only views (merged config, cross-repo/ref files) can't add — show no action. */}
       {!hideAddButton && !isReadOnlyView && (
         <Box px="16" py="12">
-          <Button size="md" variant="tertiary" leftIconName="Plus" onClick={onAdd}>
+          <BitkitButton size="md" variant="tertiary" icon={IconPlus} onClick={onAdd}>
             Add new
-          </Button>
+          </BitkitButton>
         </Box>
       )}
     </Box>
