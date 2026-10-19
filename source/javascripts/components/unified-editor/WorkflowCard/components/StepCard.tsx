@@ -1,5 +1,5 @@
-import { Avatar, Box, Card, CardProps, ColorButton, Dot, Icon, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
+import { Avatar, Box, Card, CardProps, Dot, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitColorButton, BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -321,9 +321,9 @@ const StepCard = ({
                     textStyle="body/md/regular"
                   >
                     <Text paddingRight="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                    <ColorButton colorScheme="neutral" onClick={() => setIsMultiSelectAccepted(true)} size="xs">
+                    <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
                       Got it
-                    </ColorButton>
+                    </BitkitColorButton>
                   </PopoverBody>
                 </PopoverContent>
               )}

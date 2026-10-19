@@ -1,5 +1,12 @@
-import { Card, Icon, Input, Select, Table, Tbody, Td, Th, Thead, ToggleButton, Toggletip, Tr } from '@bitrise/bitkit';
-import { BitkitButton, BitkitControlButton, IconPlus, IconTrash } from '@bitrise/bitkit-v2';
+import { Card, Icon, Input, Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
+import {
+  BitkitButton,
+  BitkitControlButton,
+  BitkitToggleButton,
+  IconPlus,
+  IconRegex,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -104,9 +111,10 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
                         size="md"
                         leftAddon={
-                          <ToggleButton
-                            aria-label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
-                            iconName="Regex"
+                          <BitkitToggleButton
+                            icon={IconRegex}
+                            label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
+                            size="sm"
                             isSelected={isRegex}
                             marginBlockStart="4"
                             marginInlineStart="4"
