@@ -1,6 +1,7 @@
-import { ButtonGroup, Checkbox, Input } from '@bitrise/bitkit';
+import { Checkbox, Input } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
 import { useForm } from 'react-hook-form';
 
@@ -62,7 +63,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
           Replace variable in inputs
         </Checkbox>
       </Box>
-      <ButtonGroup spacing="12">
+      <ButtonGroup gap="12">
         <BitkitButton size="sm" type="submit">
           Create
         </BitkitButton>

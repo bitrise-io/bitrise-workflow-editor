@@ -1,6 +1,7 @@
-import { ButtonGroup, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Tooltip } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Icon, Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
@@ -138,7 +139,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
         </Box>
       </DialogBody>
       <DialogFooter>
-        <ButtonGroup spacing="16">
+        <ButtonGroup gap="16">
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
