@@ -1,4 +1,4 @@
-import { Box, ButtonGroup, Card, CardProps, Collapse, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Card, CardProps, Collapse, Text } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -184,7 +185,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
       {!isPlaceholder && (
         <>
-          <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
+          <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
             {isSortable && (
               <DragHandle
                 mx="-8"
@@ -210,7 +211,14 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               />
             )}
 
-            <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="flex-start"
+              justifyContent="center"
+              flex="1"
+              minWidth="0"
+            >
               <Text textStyle="body/md/semibold" hasEllipsis>
                 {title}
               </Text>
@@ -229,7 +237,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
           {!isCrossFile && (
             <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
               <SortableWorkflowsContext containerRef={containerRef}>
-                <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+                <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
                   <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
                   <WorkflowStepList workflowId={id} />

@@ -1,5 +1,6 @@
-import { Box, Card, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
 import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';

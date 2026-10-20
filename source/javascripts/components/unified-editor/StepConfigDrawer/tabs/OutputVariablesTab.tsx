@@ -1,4 +1,5 @@
-import { Box, IconButton, Input, Text } from '@bitrise/bitkit';
+import { IconButton, Input, Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { FormControl } from 'chakra-ui-2--react';
 import { Fragment } from 'react';

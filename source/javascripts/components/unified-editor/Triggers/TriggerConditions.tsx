@@ -1,4 +1,4 @@
-import { Box, Text, Tooltip } from '@bitrise/bitkit';
+import { Text, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
   BitkitTag,
@@ -9,6 +9,7 @@ import {
   IconPull,
   IconTag,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Fragment } from 'react';
 
 import { TargetBasedCondition, TargetBasedConditionType, TriggerType } from '@/core/models/Trigger';

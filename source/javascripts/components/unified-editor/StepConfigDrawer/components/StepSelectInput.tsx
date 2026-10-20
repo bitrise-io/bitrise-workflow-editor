@@ -1,4 +1,5 @@
-import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
+import { Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { useState } from 'react';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
@@ -56,7 +57,7 @@ const StepSelectInput = forwardRef(
           )}
         </Dropdown>
         {!isReadOnlyView && (
-          <Box pt="24">
+          <Box paddingBlockStart="24">
             <EnvVarPopover
               size="md"
               workflowId={workflowId}

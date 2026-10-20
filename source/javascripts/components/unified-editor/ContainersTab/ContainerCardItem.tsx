@@ -1,5 +1,6 @@
-import { Box, Checkbox, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
+import { Checkbox, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
 import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -66,7 +67,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
         </Tooltip>
       </Td>
       <Td width="96px">
-        <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4" pr="12">
+        <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4" paddingInlineEnd="12">
           {/* Jump to where the container is defined (a file picker when it's defined across modules). */}
           <CrossFileJumpButton kind="containers" id={reference.id} />
           {/* Read-only (merged/ghost) view has no CTAs — the remove button is hidden, not disabled. */}

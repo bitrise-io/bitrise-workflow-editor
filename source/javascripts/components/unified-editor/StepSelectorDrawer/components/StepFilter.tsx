@@ -1,4 +1,5 @@
-import { Box, BoxProps, Icon, SearchInput, SelectableTag, SelectableTagGroup, TypeIconName } from '@bitrise/bitkit';
+import { Icon, SearchInput, SelectableTag, SelectableTagGroup, TypeIconName } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { capitalize, startCase } from 'es-toolkit';
 import { memo, useCallback, useMemo } from 'react';
@@ -87,7 +88,7 @@ const StepFilter = (props: BoxProps) => {
   const onChange = useSearch((s) => s.setSearchStep);
 
   return (
-    <Box display="flex" flexDir="column" gap="16" {...props}>
+    <Box display="flex" flexDirection="column" gap="16" {...props}>
       <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
       <Box display="flex" flexWrap="wrap" gap="16">
         <StepFilterCategories />

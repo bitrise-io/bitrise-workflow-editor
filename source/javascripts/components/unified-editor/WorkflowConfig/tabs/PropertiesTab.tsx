@@ -1,5 +1,6 @@
-import { Box, Textarea } from '@bitrise/bitkit';
+import { Textarea } from '@bitrise/bitkit';
 import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler } from 'react';
@@ -111,7 +112,7 @@ const PropertiesTab = ({ variant, onRename, onDelete }: Props) => {
   const shouldShowSeparator = isPriorityEnabled || isGitStatusNameEnabled;
 
   return (
-    <Box gap="16" display="flex" flexDir="column">
+    <Box gap="16" display="flex" flexDirection="column">
       <NameInput onRename={onRename} isDisabled={isReadOnlyView} />
       <SummaryInput workflowId={workflowId} isDisabled={isReadOnlyView} />
       <DescriptionInput workflowId={workflowId} isDisabled={isReadOnlyView} />

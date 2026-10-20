@@ -1,5 +1,6 @@
-import { Box, MarkdownContent } from '@bitrise/bitkit';
+import { MarkdownContent } from '@bitrise/bitkit';
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Collapse } from 'chakra-ui-2--react';
 

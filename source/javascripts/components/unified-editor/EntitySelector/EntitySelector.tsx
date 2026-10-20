@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Dropdown,
   DropdownGroup,
@@ -10,6 +9,7 @@ import {
   Tooltip,
 } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -100,10 +100,10 @@ const EntitySelector = (props: EntitySelectorProps) => {
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no footer at all. */}
       {!isReadOnlyView && (!!onCreate || isAIButtonVisible) && (
         <Box
-          paddingY="8"
+          paddingBlock="8"
           position="sticky"
-          bottom="-8px"
-          marginBottom="-8px"
+          bottom="-8"
+          marginBlockEnd="-8"
           borderTop="1px solid"
           borderColor="border/regular"
           backgroundColor="background/primary"
