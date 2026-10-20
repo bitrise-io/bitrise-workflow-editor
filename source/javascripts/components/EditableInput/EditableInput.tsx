@@ -1,5 +1,6 @@
-import { ButtonGroup, Input, InputProps } from '@bitrise/bitkit';
+import { Input, InputProps } from '@bitrise/bitkit';
 import { BitkitControlButton, IconCheck, IconCross, IconPencil } from '@bitrise/bitkit-v2';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 
 type Props = InputProps & {
@@ -109,7 +110,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
       rightAddonPlacement="inside"
       rightAddon={
         editable.isEditing ? (
-          <ButtonGroup mx="8" spacing="0">
+          <ButtonGroup marginInline="8" gap="0">
             <BitkitControlButton
               size={buttonSize}
               icon={IconCheck}

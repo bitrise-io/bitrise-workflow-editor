@@ -1,4 +1,5 @@
-import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
+import { forwardRef, IconButton } from '@bitrise/bitkit';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { FocusEventHandler, useState } from 'react';
 
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
@@ -86,7 +87,7 @@ const StepInput = forwardRef(
         }}
       >
         {!isDisabled && !isReadOnlyView && (
-          <ButtonGroup size="md" spacing="6">
+          <ButtonGroup gap="6">
             {!!value && !isSensitive && (
               <IconButton
                 size="md"

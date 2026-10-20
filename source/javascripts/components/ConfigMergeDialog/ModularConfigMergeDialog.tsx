@@ -1,6 +1,7 @@
-import { ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitButton, BitkitTabs } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';
@@ -305,7 +306,7 @@ const ModularConfigMergeDialogBody = ({
         {clientError && <BitkitAlert variant="critical" titleText="Error pushing changes" messageText={clientError} />}
       </DialogBody>
       <DialogFooter>
-        <ButtonGroup spacing={16}>
+        <ButtonGroup gap="16">
           <BitkitButton variant="secondary" state={isPushPending ? 'disabled' : undefined} onClick={onClose}>
             Cancel
           </BitkitButton>
