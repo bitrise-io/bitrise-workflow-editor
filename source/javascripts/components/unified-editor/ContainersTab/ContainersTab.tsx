@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 
 import { Container, ContainerType } from '@/core/models/Container';
 
@@ -38,7 +38,7 @@ const ContainersTab = (props: ContainersTabProps) => {
   } = props;
 
   return (
-    <Box display="flex" flexDir="column" gap="24">
+    <Box display="flex" flexDirection="column" gap="24">
       <ContainerCard
         type={ContainerType.Execution}
         containers={executionContainers}

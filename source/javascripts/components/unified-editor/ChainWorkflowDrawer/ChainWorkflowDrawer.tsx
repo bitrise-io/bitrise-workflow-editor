@@ -1,5 +1,6 @@
-import { Box, SearchInput, Text } from '@bitrise/bitkit';
+import { SearchInput, Text } from '@bitrise/bitkit';
 import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 import FloatingDrawer, {
@@ -42,7 +43,7 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
-            <Box display="flex" flexDir="column" gap="16">
+            <Box display="flex" flexDirection="column" gap="16">
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
                 Chain Workflows to '{workflowId}'
               </Text>

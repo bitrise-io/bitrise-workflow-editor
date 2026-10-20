@@ -1,5 +1,6 @@
-import { Box, Card } from '@bitrise/bitkit';
+import { Card } from '@bitrise/bitkit';
 import { BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { range } from 'es-toolkit';
 import { useRef } from 'react';

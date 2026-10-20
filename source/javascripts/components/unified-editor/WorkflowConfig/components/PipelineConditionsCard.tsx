@@ -1,4 +1,5 @@
-import { Box, ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+import { ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { uniq } from 'es-toolkit';
 import { ChangeEventHandler, useState } from 'react';
@@ -19,8 +20,8 @@ const ButtonContent = () => {
   const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
 
   return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minW={0}>
-      <Box display="flex" flexDir="column" alignItems="flex-start" minW={0}>
+    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minWidth="0">
+      <Box display="flex" flexDirection="column" alignItems="flex-start" minWidth="0">
         <Text textStyle="body/lg/semibold">Pipeline Conditions</Text>
         <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
           Running conditions related to {pipelineId}
@@ -158,7 +159,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
       }
       onChange={handleChange}
       rightAddon={
-        <Box paddingRight="4">
+        <Box paddingInlineEnd="4">
           <EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />
         </Box>
       }

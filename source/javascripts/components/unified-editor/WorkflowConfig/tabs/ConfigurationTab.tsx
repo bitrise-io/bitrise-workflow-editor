@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 
 import WorkflowService from '@/core/services/WorkflowService';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -25,7 +25,7 @@ const ConfigurationTab = ({ context, parentWorkflowId }: ConfigurationTabProps) 
   const showStackAndMachine = RuntimeUtils.isWebsiteMode() && !isUtilityWorkflow;
 
   return (
-    <Box display="flex" flexDir="column" gap="16">
+    <Box display="flex" flexDirection="column" gap="16">
       {context === 'pipeline' && !isChainedWorkflow && <PipelineConditionsCard />}
       {showStackAndMachine &&
         (isCrossFile ? (

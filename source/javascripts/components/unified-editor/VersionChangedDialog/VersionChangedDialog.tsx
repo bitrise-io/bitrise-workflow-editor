@@ -1,5 +1,6 @@
-import { Box, Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
 import { BitkitButton, BitkitLink, BitkitTag } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';

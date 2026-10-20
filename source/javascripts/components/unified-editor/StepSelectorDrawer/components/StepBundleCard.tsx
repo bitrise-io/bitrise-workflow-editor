@@ -1,5 +1,6 @@
-import { Box, Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
 import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -113,13 +114,13 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     ),
   };
 
-  let cardPadding;
+  let cardPadding: BoxProps = {};
   if (isCollapsable) {
     if (!isPreviewMode) {
-      cardPadding = '6px 8px 6px 4px';
+      cardPadding = { paddingBlock: '6', paddingInlineStart: '4', paddingInlineEnd: '8' };
     }
   } else {
-    cardPadding = '4px 8px';
+    cardPadding = { paddingBlock: '4', paddingInline: '8' };
   }
 
   const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
@@ -217,10 +218,10 @@ const StepBundleCard = (props: StepBundleCardProps) => {
               display="flex"
               flexGrow={1}
               alignItems="center"
-              padding={cardPadding}
+              {...cardPadding}
               gap="4"
               className="group"
-              minW={0}
+              minWidth="0"
               onClick={handleClick}
               role={isButton ? 'button' : 'div'}
             >
@@ -238,7 +239,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                   label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
                 />
               )}
-              <Box flex="1" minW={0}>
+              <Box flex="1" minWidth="0">
                 <Text textStyle="body/md/semibold" hasEllipsis>
                   {title}
                 </Text>
@@ -268,7 +269,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
           {!isCrossFile && (
             <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-              <Box p="8" ref={containerRef}>
+              <Box padding="8" ref={containerRef}>
                 <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
               </Box>
             </Collapse>

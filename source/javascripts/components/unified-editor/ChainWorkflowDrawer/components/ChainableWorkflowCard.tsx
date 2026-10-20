@@ -1,5 +1,6 @@
-import { Box, ButtonGroup, Card, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Card, Text } from '@bitrise/bitkit';
 import { BitkitButton, IconArrowBackAndUp, IconArrowForwardAndDown } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';

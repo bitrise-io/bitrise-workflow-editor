@@ -1,5 +1,6 @@
-import { Box, Input, Text } from '@bitrise/bitkit';
+import { Input, Text } from '@bitrise/bitkit';
 import { BitkitCodeSnippet, BitkitLink } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { ChangeEventHandler, Fragment, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';

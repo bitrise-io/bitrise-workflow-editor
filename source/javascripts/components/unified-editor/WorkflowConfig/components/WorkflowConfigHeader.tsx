@@ -1,5 +1,6 @@
-import { Box, Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
+import { Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
@@ -48,7 +49,13 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
 
   return (
     <>
-      <Box display="flex" alignItems="center" gap="16" p={variant === 'panel' ? '24px 24px 0px 24px' : '0'}>
+      <Box
+        display="flex"
+        alignItems="center"
+        gap="16"
+        paddingBlockStart={variant === 'panel' ? '24' : '0'}
+        paddingInline={variant === 'panel' ? '24' : '0'}
+      >
         <div>
           <Text as="h3" textStyle="heading/h3">
             {title || id || 'Workflow'}

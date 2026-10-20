@@ -1,5 +1,6 @@
-import { Box, Card, CardProps, Icon, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus } from '@bitrise/bitkit-v2';
+import { Card, CardProps, Icon, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
@@ -81,13 +82,14 @@ const AlgoliaStepListItem = ({
       onMouseLeave={onClose}
     >
       <Box
-        px="12"
+        paddingInline="12"
         gap="8"
         display="flex"
         transition={TRANSITION}
-        py={isOpen ? '8' : '12'}
+        paddingBlock={isOpen ? '8' : '12'}
         transitionProperty="padding"
-        borderBottom={isOpen ? '1px solid var(--colors-border-regular)' : 'none'}
+        borderBottom={isOpen ? '1px solid' : 'none'}
+        borderColor="border/regular"
       >
         <Box position="relative">
           <BitkitAvatar
@@ -107,7 +109,7 @@ const AlgoliaStepListItem = ({
             isVerified={maintainer === Maintainer.Verified}
           />
         </Box>
-        <Box flex="1" display="flex" flexDirection="column" minW="0">
+        <Box flex="1" display="flex" flexDirection="column" minWidth="0">
           <Tooltip isDisabled={!isTitleTruncated} label={title} shouldWrapChildren>
             <Text
               ref={titleRef}
@@ -149,7 +151,14 @@ const AlgoliaStepListItem = ({
       )}
 
       {isOpen && (
-        <Box color="text/secondary" overflowY="auto" overflowX="clip" overscrollBehaviorY="contain" flex="1" p="12">
+        <Box
+          color="text/secondary"
+          overflowY="auto"
+          overflowX="clip"
+          overscrollBehaviorY="contain"
+          flex="1"
+          padding="12"
+        >
           <MarkdownContent md={description || ''} size="sm" />
         </Box>
       )}
@@ -157,9 +166,9 @@ const AlgoliaStepListItem = ({
       {!isDisabled && !isOpen && (
         <Box
           inset="0"
-          bg="white"
+          background="background/primary"
           top="auto"
-          height="26"
+          height={rem(26)}
           display="none"
           position="absolute"
           borderBottomRadius="8"

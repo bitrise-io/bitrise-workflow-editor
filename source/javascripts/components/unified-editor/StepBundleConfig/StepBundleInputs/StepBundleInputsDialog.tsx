@@ -1,5 +1,4 @@
 import {
-  Box,
   ButtonGroup,
   Checkbox,
   Collapse,
@@ -11,6 +10,7 @@ import {
   Textarea,
 } from '@bitrise/bitkit';
 import { BitkitButton, BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { ChangeEvent } from 'react';
 import { useController, useForm } from 'react-hook-form';
@@ -100,7 +100,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
           mb="16"
           {...register('opts.title')}
         />
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb="16">
+        <Box display="flex" justifyContent="space-between" alignItems="center" marginBlockEnd="16">
           <Input
             errorText={formState.errors.key?.message}
             label="Key"

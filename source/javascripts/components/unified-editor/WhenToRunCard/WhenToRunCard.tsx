@@ -1,4 +1,5 @@
-import { Box, ExpandableCard, IconButton, Text, Toggle } from '@bitrise/bitkit';
+import { ExpandableCard, IconButton, Text, Toggle } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { ChangeEventHandler } from 'react';
 

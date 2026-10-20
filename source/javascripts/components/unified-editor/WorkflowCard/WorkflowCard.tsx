@@ -1,4 +1,4 @@
-import { Box, Card, CardProps, Collapse, Text, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse, Text, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
@@ -63,7 +64,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   }
 
   return (
-    <Box display="flex" minW={0} maxW="100%" gap="4" alignItems="center">
+    <Box display="flex" minWidth="0" maxWidth="100%" gap="4" alignItems="center">
       <Text textStyle="body/md/semibold" hasEllipsis>
         {children}
       </Text>
@@ -141,7 +142,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   return (
     <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
-      <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
+      <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
         {/* No expand/collapse for cross-file refs — their nested content lives in another file
             and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
         {isCollapsable && !isCrossFile && (
@@ -155,7 +156,14 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           />
         )}
 
-        <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          justifyContent="center"
+          flex="1"
+          minWidth="0"
+        >
           <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {subtitle}
@@ -207,7 +215,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
       {!isCrossFile && (
         <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
           <SortableWorkflowsContext containerRef={containerRef}>
-            <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+            <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
               <ChainedWorkflowList
                 key={`${workflowId}->before_run`}
                 placement="before_run"
