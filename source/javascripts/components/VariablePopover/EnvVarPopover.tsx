@@ -1,5 +1,6 @@
-import { IconButton, Text } from '@bitrise/bitkit';
+import { IconButton } from '@bitrise/bitkit';
 import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 import {
   List,
   ListItem,
@@ -158,7 +159,7 @@ const EnvVarPopover = ({
                     })}
                   >
                     {filteredItems.length === 0 && (
-                      <Text marginTop="16" marginBottom="8">
+                      <Text marginBlockStart="16" marginBlockEnd="8">
                         No env vars found
                       </Text>
                     )}

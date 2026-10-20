@@ -1,6 +1,7 @@
-import { ButtonGroup, DialogBody, DialogFooter, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { ButtonGroup, DialogBody, DialogFooter, Icon, Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitButton, BitkitTabs } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';

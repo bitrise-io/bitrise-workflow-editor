@@ -1,5 +1,6 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 
 import { Container } from '@/core/models/Container';
 import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';

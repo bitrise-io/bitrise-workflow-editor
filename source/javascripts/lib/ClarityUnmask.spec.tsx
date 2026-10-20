@@ -28,7 +28,6 @@ import {
   Table,
   TabList,
   Tabs,
-  Text,
   Th,
   Thead,
   Tr,
@@ -45,6 +44,7 @@ import {
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 

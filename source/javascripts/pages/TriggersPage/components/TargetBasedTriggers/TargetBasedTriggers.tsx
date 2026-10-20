@@ -1,18 +1,7 @@
-import {
-  Checkbox,
-  IconButton,
-  SearchInput,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-} from '@bitrise/bitkit';
+import { Checkbox, IconButton, SearchInput, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import { BitkitEmptyState, BitkitLink, IconTrigger } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { AriaAttributes, useMemo, useState } from 'react';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';

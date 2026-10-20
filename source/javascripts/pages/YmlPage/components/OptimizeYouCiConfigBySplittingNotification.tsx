@@ -1,5 +1,5 @@
-import { Text } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useUserMetaData from '@/hooks/useUserMetaData';
@@ -32,7 +32,7 @@ const OptimizeYouCiConfigBySplittingNotification = () => {
       messageText={
         <>
           Optimize your config by splitting your{' '}
-          <Text as="span" fontWeight="600">
+          <Text as="span" fontWeight="semibold">
             {ymlSettings.lines}-lines
           </Text>{' '}
           YAML file into smaller chunks.{' '}

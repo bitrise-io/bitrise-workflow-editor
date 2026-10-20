@@ -1,4 +1,5 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
+import { BitkitHeading } from '@bitrise/bitkit-v2';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
 
@@ -14,9 +15,9 @@ const useTabs = create(
 const StacksAndMachinesPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <Text as="h2" textStyle="heading/h2" p="32" data-clarity-unmask="true">
+      <BitkitHeading as="h2" padding="32" data-clarity-unmask="true">
         Stacks & Machines
-      </Text>
+      </BitkitHeading>
       <TabList px="16" data-clarity-unmask="true">
         <Tab>Default</Tab>
         <Tab>Workflows</Tab>

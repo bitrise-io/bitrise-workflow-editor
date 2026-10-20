@@ -1,5 +1,6 @@
-import { Icon, Text } from '@bitrise/bitkit';
+import { Icon } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { NodeProps } from '@xyflow/react';
 
 import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';

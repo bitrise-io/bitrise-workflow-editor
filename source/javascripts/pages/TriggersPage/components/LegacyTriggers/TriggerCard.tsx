@@ -1,5 +1,6 @@
-import { CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from '@bitrise/bitkit';
+import { CardProps, Checkbox, DraggableCard, Icon, IconButton } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 

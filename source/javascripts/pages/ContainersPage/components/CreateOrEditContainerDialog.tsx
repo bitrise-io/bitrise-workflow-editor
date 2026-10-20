@@ -1,14 +1,4 @@
-import {
-  ButtonGroup,
-  Collapse,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogProps,
-  Input,
-  Text,
-  Textarea,
-} from '@bitrise/bitkit';
+import { ButtonGroup, Collapse, Dialog, DialogBody, DialogFooter, DialogProps, Input, Textarea } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
@@ -22,6 +12,7 @@ import {
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
@@ -261,7 +252,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         />
         <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
           <Box display="flex" flexDirection="column" gap="16">
-            <Text textStyle="heading/h3" mt="8">
+            <Text textStyle="heading/h3" marginBlockStart="8">
               Authentication credentials
             </Text>
             <BitkitAlert

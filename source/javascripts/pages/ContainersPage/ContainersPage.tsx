@@ -1,5 +1,6 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
+import { BitkitHeading, BitkitLink } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 import { useEffect } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -62,10 +63,16 @@ const ContainersPage = () => {
 
   return (
     <>
-      <Text as="h2" textStyle="heading/h2" pt="32" px="32" mb="4" data-clarity-unmask="true">
+      <BitkitHeading as="h2" paddingBlockStart="32" paddingInline="32" marginBlockEnd="4" data-clarity-unmask="true">
         Containers
-      </Text>
-      <Text textStyle="body/md/regular" color="text/secondary" pb="24" px="32" data-clarity-unmask="true">
+      </BitkitHeading>
+      <Text
+        textStyle="body/md/regular"
+        color="text/secondary"
+        paddingBlockEnd="24"
+        paddingInline="32"
+        data-clarity-unmask="true"
+      >
         Create custom environments and services for your Workflows.{' '}
         <BitkitLink
           colorVariant="purple"

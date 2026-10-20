@@ -1,6 +1,7 @@
-import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Icon, Tooltip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitIconComponent, BitkitLink, IconStack, IconUbuntu, IconXcode } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';

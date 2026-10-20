@@ -1,7 +1,7 @@
-import { Text } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconDollar } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, BitkitHeading, IconDollar } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -24,9 +24,7 @@ const MergedWorkflowsTab = ({ groups }: { groups: WorkflowEnvVarFileGroup[] }) =
         <Fragment key={`${group.workflowId}@${group.nodeId}`}>
           <Box display="flex" alignItems="flex-start" justifyContent="space-between" gap="8">
             <Box>
-              <Text as="h3" textStyle="heading/h3">
-                {group.workflowId}
-              </Text>
+              <BitkitHeading as="h3">{group.workflowId}</BitkitHeading>
               <Text textStyle="body/sm/regular" color="text/secondary">
                 Defined in {group.path}
               </Text>
@@ -54,9 +52,7 @@ const EditableWorkflowsTab = () => {
     <>
       {workflowIds.map((workflowId, index) => (
         <Fragment key={workflowId}>
-          <Text as="h3" textStyle="heading/h3">
-            {workflowId}
-          </Text>
+          <BitkitHeading as="h3">{workflowId}</BitkitHeading>
           <EnvVarsTable source={EnvVarSource.Workflows} sourceId={workflowId} />
           {workflowIds.length - 1 > index && <Separator />}
         </Fragment>

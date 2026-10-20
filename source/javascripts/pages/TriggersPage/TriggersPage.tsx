@@ -1,6 +1,6 @@
-import { Text } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitHeading, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import LegacyTriggers from './components/LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from './components/TargetBasedTriggers/TargetBasedTriggers';
@@ -9,9 +9,9 @@ import SetupWebhookNotification from './SetupWebhookNotification';
 const TriggersPage = () => {
   return (
     <Box padding="32">
-      <Text as="h2" textStyle="heading/h2" marginBlockEnd="4" data-clarity-unmask="true">
+      <BitkitHeading as="h2" marginBlockEnd="4" data-clarity-unmask="true">
         Triggers
-      </Text>
+      </BitkitHeading>
       <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">
         Triggers help you start builds automatically.{' '}
         <BitkitLink

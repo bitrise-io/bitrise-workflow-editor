@@ -1,6 +1,7 @@
-import { ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Checkbox, Input } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
@@ -48,7 +49,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
               validate: EnvVarService.validateKey,
             })}
           />
-          <Text pt="12">=</Text>
+          <Text paddingBlockStart="12">=</Text>
           <AutoGrowableInput
             aria-label="Value"
             placeholder="Enter value"
