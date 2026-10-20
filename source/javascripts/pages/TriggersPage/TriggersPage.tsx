@@ -9,7 +9,7 @@ import SetupWebhookNotification from './SetupWebhookNotification';
 const TriggersPage = () => {
   return (
     <Box padding="32">
-      <BitkitHeading as="h2" marginBlockEnd="4" data-clarity-unmask="true">
+      <BitkitHeading marginBlockEnd="4" data-clarity-unmask="true">
         Triggers
       </BitkitHeading>
       <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">

@@ -15,7 +15,7 @@ const LicensesPage = () => {
 
   return (
     <Box padding="32">
-      <BitkitHeading as="h2" marginBlockEnd="4" data-clarity-unmask="true">
+      <BitkitHeading marginBlockEnd="4" data-clarity-unmask="true">
         Licenses
       </BitkitHeading>
       <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">

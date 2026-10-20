@@ -156,7 +156,7 @@ const SecretsPage = () => {
 
   return (
     <Box padding="32">
-      <BitkitHeading as="h2" marginBlockEnd="12" data-clarity-unmask="true">
+      <BitkitHeading marginBlockEnd="12" data-clarity-unmask="true">
         Secret Environment Variables
       </BitkitHeading>
       <Text data-clarity-unmask="true">

@@ -63,7 +63,7 @@ const ContainersPage = () => {
 
   return (
     <>
-      <BitkitHeading as="h2" paddingBlockStart="32" paddingInline="32" marginBlockEnd="4" data-clarity-unmask="true">
+      <BitkitHeading paddingBlockStart="32" paddingInline="32" marginBlockEnd="4" data-clarity-unmask="true">
         Containers
       </BitkitHeading>
       <Text

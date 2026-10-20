@@ -11,7 +11,7 @@ const useTabs = create(combine({ index: 0 }, (set) => ({ onChange: (index: numbe
 const EnvVarsPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <BitkitHeading as="h2" padding="32" data-clarity-unmask="true">
+      <BitkitHeading padding="32" data-clarity-unmask="true">
         Environment Variables
       </BitkitHeading>
       <TabList px="16" data-clarity-unmask="true">

@@ -3,6 +3,7 @@ import {
   BitkitAlert,
   BitkitButton,
   BitkitControlButton,
+  BitkitHeading,
   BitkitLink,
   BitkitLinkButton,
   IconPlus,
@@ -252,9 +253,9 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
         />
         <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
           <Box display="flex" flexDirection="column" gap="16">
-            <Text textStyle="heading/h3" marginBlockStart="8">
+            <BitkitHeading as="h3" marginBlockStart="8">
               Authentication credentials
-            </Text>
+            </BitkitHeading>
             <BitkitAlert
               variant="info"
               titleText="Authentication recommended"

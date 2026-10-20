@@ -15,7 +15,7 @@ const useTabs = create(
 const StacksAndMachinesPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <BitkitHeading as="h2" padding="32" data-clarity-unmask="true">
+      <BitkitHeading padding="32" data-clarity-unmask="true">
         Stacks & Machines
       </BitkitHeading>
       <TabList px="16" data-clarity-unmask="true">
