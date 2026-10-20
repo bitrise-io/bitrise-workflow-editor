@@ -241,12 +241,12 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 />
               )}
               <Box flex="1" minWidth="0">
-                <Text textStyle="body/md/semibold" truncate>
+                <Text textStyle="body/md/semibold" truncate maxWidth="full">
                   {title}
                 </Text>
                 <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
                   <BitkitList.Item>
-                    <Text textStyle="body/sm/regular" truncate>
+                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
                       {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
                     </Text>
                   </BitkitList.Item>
@@ -254,7 +254,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                     <BitkitList.Item>
                       <Box display="flex" alignItems="center" gap="4">
                         <IconContainer size="16" color="icon/tertiary" />
-                        <Text textStyle="body/sm/regular" truncate>
+                        <Text textStyle="body/sm/regular" truncate maxWidth="full">
                           {referenceIds}
                         </Text>
                       </Box>

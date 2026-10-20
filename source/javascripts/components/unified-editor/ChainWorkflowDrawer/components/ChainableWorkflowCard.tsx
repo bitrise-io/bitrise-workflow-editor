@@ -35,7 +35,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
       }}
     >
       <Box overflow="hidden">
-        <Text textStyle="body/lg/semibold" marginBlockEnd="4" truncate>
+        <Text textStyle="body/lg/semibold" marginBlockEnd="4" truncate maxWidth="full">
           {chainableWorkflowId}
         </Text>
         <Text textStyle="body/sm/regular" color="text/secondary">

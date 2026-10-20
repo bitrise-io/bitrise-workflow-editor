@@ -62,10 +62,12 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   }
 
   return (
-    <Text truncate display="flex" textStyle="body/sm/regular" color="text/secondary">
-      {resolvedVersion || 'Always latest'}
+    <Box display="flex" alignItems="center" minWidth="0" maxWidth="full">
+      <Text as="span" textStyle="body/sm/regular" color="text/secondary" truncate minWidth="0">
+        {resolvedVersion || 'Always latest'}
+      </Text>
       {icon}
-    </Text>
+    </Box>
   );
 };
 
@@ -279,7 +281,7 @@ const StepCard = ({
                   <BitkitAvatar variant="image" src={icon} name={title} />
 
                   <Box minWidth="0" textAlign="left" flex="1">
-                    <Text textStyle="body/sm/regular" truncate>
+                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
                       {title}
                     </Text>
                     <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
@@ -296,7 +298,7 @@ const StepCard = ({
                         <BitkitList.Item>
                           <Box display="flex" alignItems="center" gap="4">
                             <IconContainer size="16" color="icon/tertiary" />
-                            <Text textStyle="body/sm/regular" truncate>
+                            <Text textStyle="body/sm/regular" truncate maxWidth="full">
                               {referenceIds}
                             </Text>
                           </Box>

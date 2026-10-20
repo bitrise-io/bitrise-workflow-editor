@@ -67,7 +67,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
 
   return (
     <Box display="flex" minWidth="0" maxWidth="100%" gap="4" alignItems="center">
-      <Text textStyle="body/md/semibold" truncate>
+      <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
       <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>

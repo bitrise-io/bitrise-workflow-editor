@@ -57,7 +57,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
 
               <Box flex="1" minWidth="0">
                 <Box display="flex" gap="4" alignItems="center">
-                  <BitkitHeading as="h3" truncate>
+                  <BitkitHeading as="h3" truncate maxWidth="full">
                     {data?.mergedValues?.title || 'Loading...'}
                   </BitkitHeading>
                   <StepBadge

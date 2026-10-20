@@ -117,6 +117,7 @@ const AlgoliaStepListItem = ({
               transition={TRANSITION}
               textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
               truncate
+              maxWidth="full"
             >
               {title}
             </Text>
@@ -124,7 +125,7 @@ const AlgoliaStepListItem = ({
           <Text
             color="text/secondary"
             transition={TRANSITION}
-            marginBlockStart={isOpen ? '-4px' : '0px'}
+            marginBlockStart={isOpen ? '-4' : '0'}
             textStyle={isOpen ? 'body/sm/regular' : 'body/md/regular'}
           >
             {version}

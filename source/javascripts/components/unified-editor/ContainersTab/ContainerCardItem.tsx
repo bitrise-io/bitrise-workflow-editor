@@ -46,10 +46,10 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
   return (
     <Tr key={reference.id}>
       <Td>
-        <Text textStyle="body/md/regular" color="text/body" paddingInline="12" truncate>
+        <Text textStyle="body/md/regular" color="text/body" paddingInline="12" truncate maxWidth="full">
           {reference.id}
         </Text>
-        <Text textStyle="body/sm/regular" color="text/secondary" paddingInline="12" truncate>
+        <Text textStyle="body/sm/regular" color="text/secondary" paddingInline="12" truncate maxWidth="full">
           {container?.userValues.image}
         </Text>
       </Td>
