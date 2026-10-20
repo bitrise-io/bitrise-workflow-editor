@@ -1,6 +1,7 @@
-import { Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import { BitkitAvatar } from '@bitrise/bitkit-v2';
+import { Icon, Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
+import { BitkitAvatar, BitkitHeading } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -56,9 +57,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
 
               <Box flex="1" minWidth="0">
                 <Box display="flex" gap="4" alignItems="center">
-                  <Text as="h3" textStyle="heading/h3" hasEllipsis>
+                  <BitkitHeading as="h3" truncate>
                     {data?.mergedValues?.title || 'Loading...'}
-                  </Text>
+                  </BitkitHeading>
                   <StepBadge
                     isOfficial={data?.resolvedInfo?.isOfficial}
                     isVerified={data?.resolvedInfo?.isVerified}

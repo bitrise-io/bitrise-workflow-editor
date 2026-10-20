@@ -1,7 +1,8 @@
-import { Card, CardProps, Icon, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Icon, MarkdownContent, Tooltip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
 
@@ -115,7 +116,7 @@ const AlgoliaStepListItem = ({
               ref={titleRef}
               transition={TRANSITION}
               textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
-              hasEllipsis
+              truncate
             >
               {title}
             </Text>
@@ -123,7 +124,7 @@ const AlgoliaStepListItem = ({
           <Text
             color="text/secondary"
             transition={TRANSITION}
-            mt={isOpen ? '-4px' : '0px'}
+            marginBlockStart={isOpen ? '-4px' : '0px'}
             textStyle={isOpen ? 'body/sm/regular' : 'body/md/regular'}
           >
             {version}
@@ -145,7 +146,7 @@ const AlgoliaStepListItem = ({
       </Box>
 
       {!isOpen && (
-        <Text noOfLines={3} color="text/secondary" textStyle="body/sm/regular" px="12">
+        <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular" paddingInline="12">
           {removeMd(description || '')}
         </Text>
       )}

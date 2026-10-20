@@ -1,6 +1,7 @@
-import { ExpandableCard, Text } from '@bitrise/bitkit';
+import { ExpandableCard } from '@bitrise/bitkit';
 import { BitkitBadge } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import SortableEnvVars from '@/components/SortableEnvVars/SortableEnvVars';

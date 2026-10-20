@@ -1,6 +1,7 @@
-import { Checkbox, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
+import { Checkbox, Td, Tooltip, Tr } from '@bitrise/bitkit';
 import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -45,10 +46,10 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
   return (
     <Tr key={reference.id}>
       <Td>
-        <Text textStyle="body/md/regular" color="text/body" px="12" hasEllipsis>
+        <Text textStyle="body/md/regular" color="text/body" paddingInline="12" truncate>
           {reference.id}
         </Text>
-        <Text textStyle="body/sm/regular" color="text/secondary" px="12" hasEllipsis>
+        <Text textStyle="body/sm/regular" color="text/secondary" paddingInline="12" truncate>
           {container?.userValues.image}
         </Text>
       </Td>

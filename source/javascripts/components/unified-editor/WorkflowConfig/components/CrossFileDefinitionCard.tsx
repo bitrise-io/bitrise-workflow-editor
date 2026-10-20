@@ -1,5 +1,6 @@
-import { Card, Icon, Text } from '@bitrise/bitkit';
+import { Card, Icon } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 type Props = {
   title: string;

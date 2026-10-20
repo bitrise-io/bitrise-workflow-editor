@@ -1,7 +1,8 @@
-import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
@@ -65,7 +66,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   flex={1}
                   formLabelProps={{
                     optionalIndicator: (
-                      <Text as="span" color="text/secondary" fontSize="2" fontWeight="normal" marginInlineStart="4">
+                      <Text as="span" textStyle="body/md/regular" color="text/secondary" marginInlineStart="4">
                         (optional)
                       </Text>
                     ),

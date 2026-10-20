@@ -1,8 +1,9 @@
-import { Collapse, Input, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { Collapse, Input, MarkdownContent, Select } from '@bitrise/bitkit';
 import { BitkitLink, BitkitLinkButton, IconOpenInNew } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
@@ -127,9 +128,7 @@ const PropertiesTab = () => {
       />
       <Separator />
       <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
-        <Text size="2" fontWeight="600">
-          Summary
-        </Text>
+        <Text textStyle="body/md/semibold">Summary</Text>
         {summary && <MarkdownContent md={summary} />}
         {description && (
           <>

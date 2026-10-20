@@ -1,7 +1,8 @@
-import { ButtonGroup, Card, Text } from '@bitrise/bitkit';
+import { ButtonGroup, Card } from '@bitrise/bitkit';
 import { BitkitButton, IconArrowBackAndUp, IconArrowForwardAndDown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -33,7 +34,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
       }}
     >
       <Box overflow="hidden">
-        <Text textStyle="body/lg/semibold" mb="4" hasEllipsis>
+        <Text textStyle="body/lg/semibold" marginBlockEnd="4" truncate>
           {chainableWorkflowId}
         </Text>
         <Text textStyle="body/sm/regular" color="text/secondary">

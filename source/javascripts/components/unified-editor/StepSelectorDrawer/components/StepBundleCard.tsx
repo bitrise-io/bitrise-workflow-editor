@@ -1,7 +1,8 @@
-import { Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse, Dot, Icon } from '@bitrise/bitkit';
 import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
@@ -240,18 +241,18 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 />
               )}
               <Box flex="1" minWidth="0">
-                <Text textStyle="body/md/semibold" hasEllipsis>
+                <Text textStyle="body/md/semibold" truncate>
                   {title}
                 </Text>
                 <Box display="flex" alignItems="center" gap="4">
-                  <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                  <Text textStyle="body/sm/regular" color="text/secondary" truncate>
                     {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
                   </Text>
                   {referenceIds.length > 0 && (
                     <>
                       <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
                       <Icon name="Container" size="16" color="icon/tertiary" />
-                      <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                      <Text textStyle="body/sm/regular" color="text/secondary" truncate>
                         {referenceIds}
                       </Text>
                     </>

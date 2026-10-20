@@ -1,6 +1,7 @@
-import { Card, CardProps, Dot, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Dot, Icon, Tooltip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitColorButton, BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -54,7 +55,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   }
 
   return (
-    <Text hasEllipsis display="flex" textStyle="body/sm/regular" color="text/secondary">
+    <Text truncate display="flex" textStyle="body/sm/regular" color="text/secondary">
       {resolvedVersion || 'Always latest'}
       {icon}
     </Text>
@@ -271,7 +272,7 @@ const StepCard = ({
                   <BitkitAvatar variant="image" src={icon} name={title} />
 
                   <Box minWidth="0" textAlign="left" flex="1">
-                    <Text textStyle="body/sm/regular" hasEllipsis>
+                    <Text textStyle="body/sm/regular" truncate>
                       {title}
                     </Text>
                     <Box display="flex" alignItems="center" gap="4">
@@ -286,7 +287,7 @@ const StepCard = ({
                         <>
                           <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
                           <Icon name="Container" size="16" color="icon/tertiary" />
-                          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+                          <Text textStyle="body/sm/regular" color="text/secondary" truncate>
                             {referenceIds}
                           </Text>
                         </>
@@ -313,7 +314,7 @@ const StepCard = ({
                     padding="16"
                     textStyle="body/md/regular"
                   >
-                    <Text paddingRight="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                    <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
                     <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
                       Got it
                     </BitkitColorButton>
