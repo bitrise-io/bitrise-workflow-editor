@@ -1,5 +1,5 @@
-import { Input, TagsInput, Text } from '@bitrise/bitkit';
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { Input, Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitTagsInput } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -55,15 +55,7 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
             />
           )}
           {services && services.length > 0 && (
-            <TagsInput
-              isReadOnly
-              label="Service"
-              isRequired
-              marginBlockEnd="24"
-              value={services}
-              onNewValues={() => {}}
-              onRemove={() => {}}
-            />
+            <BitkitTagsInput state="readOnly" label="Service" marginBlockEnd="24" value={services} />
           )}
           <BitkitAlert
             action={{

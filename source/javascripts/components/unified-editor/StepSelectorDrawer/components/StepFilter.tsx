@@ -1,4 +1,11 @@
-import { Icon, SearchInput, SelectableTag, SelectableTagGroup, TypeIconName } from '@bitrise/bitkit';
+import { SearchInput } from '@bitrise/bitkit';
+import {
+  BitkitIconComponent,
+  BitkitSelectableTag,
+  IconBadge3RdParty,
+  IconBadgeBitrise,
+  IconGlobe,
+} from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { capitalize, startCase } from 'es-toolkit';
@@ -12,25 +19,25 @@ import useSearch from '../hooks/useSearch';
 
 const MAINTAINERS: Array<{
   key: 'bitrise' | 'verified' | 'community';
-  icon: TypeIconName;
+  icon: BitkitIconComponent;
   label: string;
   tooltip: string;
 }> = [
   {
     key: 'bitrise',
-    icon: 'BadgeBitrise',
+    icon: IconBadgeBitrise,
     label: 'Official',
     tooltip: 'Official Bitrise steps are maintained by the Bitrise',
   },
   {
     key: 'verified',
-    icon: 'Badge3rdParty',
+    icon: IconBadge3RdParty,
     label: 'Verified',
     tooltip: 'Verified steps are maintained by 3rd parties, and verified by Bitrise',
   },
   {
     key: 'community',
-    icon: 'Globe',
+    icon: IconGlobe,
     label: 'Community',
     tooltip: 'Community steps are maintained by the community and are not verified',
   },
@@ -63,23 +70,20 @@ const StepFilterCategories = memo(function StepFilterCategories() {
   );
 
   return (
-    <SelectableTagGroup value={options} onChange={handleFilterChange}>
-      <Box rowGap="16" columnGap="8" display="flex" flexWrap="wrap">
-        {categories.map((category) => (
-          <SelectableTag key={category} value={category}>
-            {capitalize(startCase(category))}
-          </SelectableTag>
+    <BitkitSelectableTag value={options} onValueChange={handleFilterChange}>
+      {categories.map((category) => (
+        <BitkitSelectableTag.Item key={category} value={category}>
+          {capitalize(startCase(category))}
+        </BitkitSelectableTag.Item>
+      ))}
+      {allowNonBitriseSteps && <Separator orientation="vertical" />}
+      {allowNonBitriseSteps &&
+        MAINTAINERS.map(({ key, icon, label }) => (
+          <BitkitSelectableTag.Item key={key} icon={icon} value={key}>
+            {label}
+          </BitkitSelectableTag.Item>
         ))}
-        {allowNonBitriseSteps && <Separator orientation="vertical" />}
-        {allowNonBitriseSteps &&
-          MAINTAINERS.map(({ key, icon, label }) => (
-            <SelectableTag key={key} value={key}>
-              <Icon name={icon} size="16" marginRight="2" marginBottom={2} />
-              {label}
-            </SelectableTag>
-          ))}
-      </Box>
-    </SelectableTagGroup>
+    </BitkitSelectableTag>
   );
 });
 
