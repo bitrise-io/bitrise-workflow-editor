@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import Editor from '@monaco-editor/react';
 import { useEffect } from 'react';
 import { useStore } from 'zustand';

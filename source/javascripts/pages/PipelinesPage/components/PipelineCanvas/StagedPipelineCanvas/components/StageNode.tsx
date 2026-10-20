@@ -1,4 +1,5 @@
-import { Box, Text } from '@bitrise/bitkit';
+import { Text } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { Node, NodeProps, Position } from '@xyflow/react';
 
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
@@ -13,9 +14,17 @@ const StageNode = ({ id, data: stage }: Props) => {
   return (
     <>
       <InvisibleHandle type="target" position={Position.Left} style={{ top: 26 }} />
-      <Box display="flex" flexDir="column" bg="background/tertiary" borderRadius="12" p="16" w={STAGE_WIDTH} gap="16">
+      <Box
+        display="flex"
+        flexDirection="column"
+        background="background/tertiary"
+        borderRadius="12"
+        padding="16"
+        width={STAGE_WIDTH}
+        gap="16"
+      >
         <Text textStyle="body/md/semibold">{stage.userValues.title || id}</Text>
-        <Box display="flex" flexDir="column" gap="8">
+        <Box display="flex" flexDirection="column" gap="8">
           {stage.userValues.workflows?.map((wf, i) => {
             const wfId = Object.keys(wf)[0];
             // eslint-disable-next-line react/no-array-index-key

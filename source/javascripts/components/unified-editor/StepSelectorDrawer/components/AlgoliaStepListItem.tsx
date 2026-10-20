@@ -1,10 +1,11 @@
-import { Avatar, Card, CardProps, Icon, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
+import { Card, CardProps, Icon, MarkdownContent, Text, Tooltip } from '@bitrise/bitkit';
+import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
 
+import defaultIcon from '@/../images/step/icon-default.svg';
 import StepBadge from '@/components/StepBadge';
 import { Maintainer } from '@/core/models/Step';
 import useIsTruncated from '@/hooks/useIsTruncated';
@@ -91,14 +92,12 @@ const AlgoliaStepListItem = ({
         borderColor="border/regular"
       >
         <Box position="relative">
-          <Avatar
-            src={logo}
-            variant="step"
-            display="flex"
+          <BitkitAvatar
+            variant="image"
+            src={logo || defaultIcon}
             name={title || ''}
             transition={TRANSITION}
             size={isOpen ? '32' : '40'}
-            border="1px solid var(--colors-border-minimal)"
           />
           <StepBadge
             position="absolute"

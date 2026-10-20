@@ -1,5 +1,6 @@
-import { Box, Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitButton, BitkitEmptyState, BitkitLink, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
@@ -113,7 +114,7 @@ const SecretsPage = () => {
       );
     }
     return (
-      <Box marginY="24">
+      <Box marginBlock="24">
         {workspaceSecretList.length === 0 && (
           <BitkitEmptyState
             headingText="Your shared secrets will appear here"
@@ -145,7 +146,7 @@ const SecretsPage = () => {
   };
 
   return (
-    <Box p="32">
+    <Box padding="32">
       <Text as="h2" textStyle="heading/h2" marginBottom="12" data-clarity-unmask="true">
         Secret Environment Variables
       </Text>
@@ -153,9 +154,9 @@ const SecretsPage = () => {
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
         <BitkitLink
+          colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
           isExternal
-          isUnderlined
         >
           Learn more
         </BitkitLink>
@@ -180,7 +181,7 @@ const SecretsPage = () => {
       <Text as="h4" textStyle="heading/h4" data-clarity-unmask="true">
         Project level Secrets
       </Text>
-      <Box marginTop="16" marginBottom="24">
+      <Box marginBlockStart="16" marginBlockEnd="24">
         {appSecretList.map((secret) => (
           <SecretCard
             appSlug={appSlug}

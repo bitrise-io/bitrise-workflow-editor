@@ -1,11 +1,11 @@
-import { CodeSnippet, Input, Text } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { Input, Text } from '@bitrise/bitkit';
+import { BitkitCodeSnippet, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { ChangeEventHandler, useState } from 'react';
+import { ChangeEventHandler, Fragment, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
 
-const TOOLTIP_MAP: Record<string, string> = {
+const VARIABLE_DESCRIPTIONS: Record<string, string> = {
   '<event_type>': 'PR / Push / Tag',
   '<project_slug>': 'The unique identifier of your project.',
   '<project_title>': 'Optional title of your project.',
@@ -88,11 +88,20 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
           <Text color="input/text/helper" textStyle="body/sm/regular" marginY="8">
             You can use the following variables in your string:
           </Text>
-          {Object.keys(variables).map((variable) => (
-            <CodeSnippet key={variable} variant="inline" tooltipLabel={TOOLTIP_MAP[variable]} marginRight="8">
-              {variable}
-            </CodeSnippet>
-          ))}
+          <Box as="dl" display="grid" gridTemplateColumns="auto 1fr" alignItems="baseline" columnGap="8" rowGap="4">
+            {Object.keys(variables).map((variable) => (
+              <Fragment key={variable}>
+                <Box as="dt">
+                  <BitkitCodeSnippet variant="inline" interactive>
+                    {variable}
+                  </BitkitCodeSnippet>
+                </Box>
+                <Text as="dd" color="input/text/helper" textStyle="body/sm/regular">
+                  {VARIABLE_DESCRIPTIONS[variable]}
+                </Text>
+              </Fragment>
+            ))}
+          </Box>
         </>
       )}
     </Box>

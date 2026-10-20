@@ -1,4 +1,4 @@
-import { Box, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   BitkitLinkButton,
@@ -7,6 +7,7 @@ import {
   IconPencil,
   useResponsive,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 

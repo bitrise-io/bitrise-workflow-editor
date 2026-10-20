@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useTree } from '@/hooks/useTree';

@@ -1,4 +1,5 @@
-import { Avatar, Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { BitkitAvatar } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import semver from 'semver';
 
@@ -46,15 +47,11 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">
-              <Avatar
+              <BitkitAvatar
+                variant="image"
                 size="48"
                 src={data?.icon || defaultIcon}
                 name={data?.mergedValues?.title || ''}
-                variant="step"
-                borderWidth="1px"
-                borderStyle="solid"
-                borderColor="border/minimal"
-                backgroundColor="background/primary"
               />
 
               <Box flex="1" minWidth="0">

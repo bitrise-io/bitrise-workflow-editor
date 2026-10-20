@@ -1,58 +1,44 @@
-import {
-  Avatar,
-  Box,
-  BoxProps,
-  Dropdown,
-  DropdownDetailedOption,
-  DropdownGroup,
-  Text,
-  Toggletip,
-  TypeIconName,
-} from '@bitrise/bitkit';
+import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Text, Toggletip } from '@bitrise/bitkit';
+import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { ReactNode, useMemo } from 'react';
 
 import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
 import { doesHardwareVaryByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
-const getIconName = (osId?: string): TypeIconName | undefined => {
+const getIcon = (osId?: string): BitkitIconComponent => {
   switch (osId) {
     case 'linux':
-      return 'Linux';
+      return IconLinux;
     case 'osx':
     case 'macos':
-      return 'Apple';
+      return IconApple;
     default:
-      return 'Cpu';
+      return IconCpu;
   }
 };
 
 const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
   return machineTypeOptions.map((props) => {
-    const iconName = getIconName(props.os);
+    const icon = getIcon(props.os);
 
-    return (
-      <DropdownDetailedOption
-        {...props}
-        key={props.value}
-        icon={iconName && <Avatar variant="brand" size="32" iconName={iconName} />}
-      />
-    );
+    return <DropdownDetailedOption {...props} key={props.value} icon={<BitkitAvatar variant="icon" icon={icon} />} />;
   });
 };
 
 const renderFormLabel = (machineTypeOption: MachineTypeOption) => {
   const { title, os } = machineTypeOption;
-  const iconName = getIconName(os);
+  const icon = getIcon(os);
 
   return (
-    <Box display="flex" gap={12} alignItems="center">
-      {iconName && <Avatar variant="brand" size="24" iconName={iconName} />}
+    <Box display="flex" gap="12" alignItems="center">
+      <BitkitAvatar variant="icon" icon={icon} size="24" />
       {title}
     </Box>
   );
 };
 
-type Props = Pick<BoxProps, 'width'> & {
+type Props = Pick<DropdownProps<string | null>, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled: boolean;
@@ -87,7 +73,7 @@ const MachineTypeSelector = ({
         label="Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales."
         button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
       >
-        <Box maxH="20px" mt="-4px">
+        <Box maxHeight="20px" marginBlockStart="-4px">
           {icon}
         </Box>
       </Toggletip>
@@ -97,7 +83,7 @@ const MachineTypeSelector = ({
   const helperText = () => {
     if (doesHardwareVaryByRegionForSelectedMachineType && !selectedRegion) {
       return (
-        <Box as="span" display="flex" flexDir="column" gap={8}>
+        <Box as="span" display="flex" flexDirection="column" gap="8">
           <Text as="span">Machine types may vary depending on high demand.</Text>
           {Object.entries(machineType.availableInRegions).map(([regionName, texts]) => {
             return (

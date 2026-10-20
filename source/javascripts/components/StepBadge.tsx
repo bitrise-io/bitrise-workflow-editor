@@ -1,4 +1,5 @@
-import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
+import { Icon, Tooltip } from '@bitrise/bitkit';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
 
 import deprecatedIcon from '@/../images/step/badge-deprecated.svg';
 

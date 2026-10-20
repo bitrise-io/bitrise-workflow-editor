@@ -1,5 +1,13 @@
-import { Card, Icon, Input, Select, Table, Tbody, Td, Th, Thead, ToggleButton, Toggletip, Tr } from '@bitrise/bitkit';
-import { BitkitButton, BitkitControlButton, IconPlus, IconTrash } from '@bitrise/bitkit-v2';
+import { Card, Icon, Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
+import {
+  BitkitButton,
+  BitkitControlButton,
+  BitkitTextInput,
+  BitkitToggleButton,
+  IconPlus,
+  IconRegex,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -96,26 +104,22 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                   <Controller
                     name={`conditions.${index}.value`}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        isRequired={isRequired}
-                        onChange={(e) => field.onChange(e.target.value.trimStart())}
+                      <BitkitTextInput
+                        value={field.value}
+                        onValueChange={(value) => field.onChange(value.trimStart())}
+                        inputProps={{ name: field.name, onBlur: field.onBlur, required: isRequired }}
                         placeholder={isRegex ? '.*' : '*'}
-                        helperText={type ? CONDITION_HELPERTEXT_MAP[type] || '' : ''}
+                        helperText={type ? CONDITION_HELPERTEXT_MAP[type] : undefined}
                         size="md"
-                        leftAddon={
-                          <ToggleButton
-                            aria-label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
-                            iconName="Regex"
+                        startElement={
+                          <BitkitToggleButton
+                            icon={IconRegex}
+                            label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
+                            size="sm"
                             isSelected={isRegex}
-                            marginBlockStart="4"
-                            marginInlineStart="4"
-                            onClick={() => {
-                              setValue(`conditions.${index}.isRegex`, !isRegex);
-                            }}
+                            onSelectedChange={(selected) => setValue(`conditions.${index}.isRegex`, selected)}
                           />
                         }
-                        leftAddonPlacement="inside"
                       />
                     )}
                   />

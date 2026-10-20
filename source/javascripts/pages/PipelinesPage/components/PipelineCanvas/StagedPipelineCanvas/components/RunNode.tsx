@@ -1,4 +1,5 @@
-import { Box, Icon } from '@bitrise/bitkit';
+import { Icon } from '@bitrise/bitkit';
+import { Box } from '@chakra-ui/react/box';
 import { NodeProps, Position } from '@xyflow/react';
 
 import { ICON_STAGE_WIDTH } from '../StagedPipelineCanvas.const';
@@ -11,9 +12,9 @@ const RunNode = (_props: Props) => {
     <>
       <InvisibleHandle type="target" position={Position.Left} />
       <Box
-        w={ICON_STAGE_WIDTH}
-        h={ICON_STAGE_WIDTH}
-        bg="background/primary"
+        width={ICON_STAGE_WIDTH}
+        height={ICON_STAGE_WIDTH}
+        background="background/primary"
         display="flex"
         border="1px solid"
         alignItems="center"

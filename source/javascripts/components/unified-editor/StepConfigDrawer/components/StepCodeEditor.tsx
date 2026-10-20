@@ -1,4 +1,4 @@
-import { Label } from '@bitrise/bitkit';
+import { BitkitLabel } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Editor } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
@@ -51,12 +51,12 @@ const StepCodeEditor = ({ label, value, defaultValue, onChange }: Props) => {
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
-      {label && <Label>{label}</Label>}
+      {label && <BitkitLabel>{label}</BitkitLabel>}
       <Editor
         theme="vs-dark"
         onMount={setEditor}
         defaultLanguage="shell"
-        options={{ ...EDITOR_OPTIONS, readOnly: isReadOnlyView }}
+        options={{ ...EDITOR_OPTIONS, ariaLabel: label, readOnly: isReadOnlyView }}
         value={value || defaultValue}
         onChange={(changedValue) => onChange(changedValue || null)}
         beforeMount={MonacoUtils.configureEnvVarsCompletionProvider}
