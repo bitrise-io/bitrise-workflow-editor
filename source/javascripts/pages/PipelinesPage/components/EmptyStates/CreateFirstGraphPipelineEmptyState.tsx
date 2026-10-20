@@ -1,6 +1,7 @@
-import { ButtonGroup, Card, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
+import { Card, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
 import { BitkitButton, BitkitLink, IconArrowNortheast, IconPlus, IconSparkleFilled, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { Image } from '@chakra-ui/react/image';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -27,7 +28,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
 
   const actions = (
     <Box display="flex" flexDirection={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
-      <ButtonGroup spacing="0" gap="24">
+      <ButtonGroup gap="24">
         {isAIButtonVisible && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
             <BitkitButton

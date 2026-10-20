@@ -1,14 +1,4 @@
-import {
-  ButtonGroup,
-  Collapse,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  DialogProps,
-  Input,
-  Text,
-  Textarea,
-} from '@bitrise/bitkit';
+import { Collapse, Dialog, DialogBody, DialogFooter, DialogProps, Input, Text, Textarea } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
@@ -20,6 +10,7 @@ import {
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { useEffect } from 'react';
