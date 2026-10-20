@@ -1,6 +1,7 @@
-import { ButtonGroup, Card } from '@bitrise/bitkit';
+import { Card } from '@bitrise/bitkit';
 import { BitkitButton, IconArrowBackAndUp, IconArrowForwardAndDown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 
@@ -45,7 +46,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           />
         </Text>
       </Box>
-      <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>
+      <ButtonGroup flexShrink="0" display="none" _groupHover={{ display: 'inline-flex' }}>
         <BitkitButton
           variant="tertiary"
           size="sm"

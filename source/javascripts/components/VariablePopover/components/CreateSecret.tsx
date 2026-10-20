@@ -1,6 +1,7 @@
-import { ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { Checkbox, Input, Text } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
@@ -74,7 +75,7 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
           </Checkbox>
         </Box>
       </Box>
-      <ButtonGroup spacing="12">
+      <ButtonGroup gap="12">
         <BitkitButton size="sm" type="submit">
           Create
         </BitkitButton>

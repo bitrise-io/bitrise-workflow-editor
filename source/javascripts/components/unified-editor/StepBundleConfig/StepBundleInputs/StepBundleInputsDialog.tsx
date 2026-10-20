@@ -1,6 +1,7 @@
-import { ButtonGroup, Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Input, Textarea } from '@bitrise/bitkit';
+import { Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Input, Textarea } from '@bitrise/bitkit';
 import { BitkitButton, BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { ChangeEvent } from 'react';

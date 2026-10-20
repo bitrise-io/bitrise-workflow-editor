@@ -1,4 +1,4 @@
-import { ButtonGroup, Card, CardProps, Collapse } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -8,6 +8,7 @@ import {
   IconTrash,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -126,7 +127,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     }
 
     return (
-      <ButtonGroup spacing="0" display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
+      <ButtonGroup gap="0" display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
         {onChainChainedWorkflow && !isCrossFile && (
           <BitkitControlButton
             size="xs"

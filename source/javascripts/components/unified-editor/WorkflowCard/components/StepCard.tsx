@@ -1,5 +1,12 @@
-import { Card, CardProps, Dot, Icon, Tooltip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitColorButton, BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
+import { Card, CardProps, Icon, Tooltip } from '@bitrise/bitkit';
+import {
+  BitkitAvatar,
+  BitkitColorButton,
+  BitkitList,
+  BitkitSkeletonGroup,
+  IconContainer,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -275,24 +282,27 @@ const StepCard = ({
                     <Text textStyle="body/sm/regular" truncate>
                       {title}
                     </Text>
-                    <Box display="flex" alignItems="center" gap="4">
+                    <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
                       {showSecondary && (
-                        <StepSecondaryText
-                          isUpgradable={isUpgradable}
-                          errorText={error ? 'Failed to load Step' : undefined}
-                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                        />
+                        <BitkitList.Item>
+                          <StepSecondaryText
+                            isUpgradable={isUpgradable}
+                            errorText={error ? 'Failed to load Step' : undefined}
+                            resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                          />
+                        </BitkitList.Item>
                       )}
                       {referenceIds.length > 0 && (
-                        <>
-                          <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
-                          <Icon name="Container" size="16" color="icon/tertiary" />
-                          <Text textStyle="body/sm/regular" color="text/secondary" truncate>
-                            {referenceIds}
-                          </Text>
-                        </>
+                        <BitkitList.Item>
+                          <Box display="flex" alignItems="center" gap="4">
+                            <IconContainer size="16" color="icon/tertiary" />
+                            <Text textStyle="body/sm/regular" truncate>
+                              {referenceIds}
+                            </Text>
+                          </Box>
+                        </BitkitList.Item>
                       )}
-                    </Box>
+                    </BitkitList>
                   </Box>
 
                   {buttonGroup}
