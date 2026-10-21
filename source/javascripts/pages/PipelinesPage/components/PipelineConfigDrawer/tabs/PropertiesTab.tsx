@@ -93,7 +93,7 @@ const Priority = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
   return (
     <PriorityInput
       value={value}
-      isDisabled={isReadOnlyView}
+      state={isReadOnlyView ? 'disabled' : undefined}
       helperText="Set priority between -100 and +100. Default value is 0. Available on certain plans only."
       onChange={(newValue) => PipelineService.updatePipelineField(pipelineId, 'priority', newValue)}
     />
