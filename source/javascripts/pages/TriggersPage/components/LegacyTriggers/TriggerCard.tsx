@@ -1,4 +1,5 @@
-import { CardProps, Checkbox, DraggableCard, Icon, IconButton } from '@bitrise/bitkit';
+import { CardProps, Checkbox, DraggableCard, Icon } from '@bitrise/bitkit';
+import { BitkitIconButton, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -90,12 +91,11 @@ const TriggerCard = (props: TriggerCardProps) => {
         {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
         {!isReadOnlyView && (
           <>
-            <IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
-            <IconButton
-              iconName="MinusCircle"
-              aria-label="Remove trigger"
-              variant="tertiary"
-              isDanger
+            <BitkitIconButton icon={IconPencil} label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+            <BitkitIconButton
+              icon={IconMinusCircle}
+              label="Remove trigger"
+              variant="danger-tertiary"
               onClick={handleRemove}
             />
           </>
