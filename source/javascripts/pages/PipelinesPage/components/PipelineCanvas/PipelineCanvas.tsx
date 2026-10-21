@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react/box';
-import { Controls, MiniMap } from '@xyflow/react';
+import { Background, BackgroundVariant, Controls, MiniMap } from '@xyflow/react';
 
+import { CANVAS_DOT_COLOR, CANVAS_DOT_GAP, CANVAS_DOT_SIZE } from '@/components/unified-editor/canvasDots';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -39,24 +40,30 @@ const PipelineCanvas = () => {
     <>
       <PipelineConversionSignposting />
       <PipelineConversionNotification />
-      <Box background="background/secondary" flex="1" position="relative" userSelect="none">
+      {/* A fixed header above the canvas, rather than a bar floating over it. */}
+      <Box flex="1" minHeight="0" display="flex" flexDirection="column">
         <Toolbar
-          top="16"
-          left="50%"
-          zIndex="10"
-          position="absolute"
-          transform="translateX(-50%)"
-          width="clamp(0px, calc(100% - 32px), 768px)"
           onPropertiesClick={openDialog({
             type: PipelinesPageDialogType.PIPELINE_CONFIG,
             pipelineId: selectedPipeline,
           })}
           onRunClick={handleRunPipelineClick}
         />
-        <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
-          <Controls showInteractive={false} />
-          <MiniMap pannable zoomable zoomStep={1} />
-        </CanvasComponent>
+        <Box
+          background="background/secondary"
+          flex="1"
+          minHeight="0"
+          position="relative"
+          userSelect="none"
+          // The shared canvas dot grid; React Flow's own pattern, so it pans and zooms with the Pipeline.
+          css={{ '& .react-flow__background-pattern.dots': { fill: CANVAS_DOT_COLOR } }}
+        >
+          <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
+            <Background variant={BackgroundVariant.Dots} gap={CANVAS_DOT_GAP} size={CANVAS_DOT_SIZE} />
+            <Controls showInteractive={false} />
+            <MiniMap pannable zoomable zoomStep={1} />
+          </CanvasComponent>
+        </Box>
       </Box>
     </>
   );

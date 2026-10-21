@@ -120,6 +120,19 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
 
   const hashParams = getSearchParamsFromLocationHash();
   const selected = (page: string, param: string) => (currentPage === page ? hashParams[param] : undefined);
+  // Whether the page being left has a drawer open: then the clicked entity's settings drawer takes its place.
+  const isDrawerOpenOnCurrentPage = () => {
+    switch (currentPage) {
+      case 'pipelines':
+        return usePipelinesPageStore.getState().openedDialogType !== PipelinesPageDialogType.NONE;
+      case 'workflows':
+        return useWorkflowsPageStore.getState().openedDialogType !== WorkflowsPageDialogType.NONE;
+      case 'step_bundles':
+        return useStepBundlesPageStore.getState().openedDialogType !== StepBundlesPageDialogType.NONE;
+      default:
+        return false;
+    }
+  };
   const createIn = (path: string, openDialog: () => void) => () => {
     if (openEntity(path)) openDialog();
   };
@@ -129,7 +142,16 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
       label: 'Pipelines',
       items: pipelineItems,
       selectedId: selected('pipelines', 'pipeline'),
-      onSelect: (id: string) => openEntity(paths.pipelines, { param: 'pipeline', id }),
+      // Workflows and Step bundles open their settings drawer on selection (their pages do that); a
+      // Pipeline does when it replaces an open drawer.
+      onSelect: (id: string) => {
+        const hadDrawer = isDrawerOpenOnCurrentPage();
+        if (openEntity(paths.pipelines, { param: 'pipeline', id }) && hadDrawer) {
+          usePipelinesPageStore
+            .getState()
+            .openDialog({ type: PipelinesPageDialogType.PIPELINE_CONFIG, pipelineId: id })();
+        }
+      },
       addControl: (
         <AddControl
           entityName="Pipeline"

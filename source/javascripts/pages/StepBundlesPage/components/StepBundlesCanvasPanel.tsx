@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react/box';
 import { useCallback } from 'react';
 
+import { canvasDotsBackground } from '@/components/unified-editor/canvasDots';
 import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
@@ -193,6 +194,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         paddingInlineEnd={['16', isDrawerOpen ? `calc(${FLOATING_DRAWER_WIDTH} + 32px)` : '16']}
         transition="padding-inline-end 200ms"
         background="background/secondary"
+        {...canvasDotsBackground}
       >
         <WorkflowCardContextProvider
           onAddStepToStepBundle={openStepSelectorDrawer}

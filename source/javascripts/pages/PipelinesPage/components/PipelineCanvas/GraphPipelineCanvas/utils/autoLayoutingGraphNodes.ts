@@ -2,7 +2,6 @@ import dagre from '@dagrejs/dagre';
 
 import {
   CANVAS_PADDING,
-  TOOLBAR_CONTAINER_HEIGHT,
   TRIGGER_NODE_SIZE,
   WORKFLOW_NODE_GAP_X,
   WORKFLOW_NODE_GAP_Y,
@@ -28,7 +27,7 @@ function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: Gra
     rankdir: 'LR',
     // Room on the left for the trigger node, which sits ahead of the first column.
     marginx: CANVAS_PADDING + (hasTrigger ? TRIGGER_NODE_SIZE + WORKFLOW_NODE_GAP_X : 0),
-    marginy: CANVAS_PADDING + TOOLBAR_CONTAINER_HEIGHT,
+    marginy: CANVAS_PADDING,
     ranksep: WORKFLOW_NODE_GAP_X,
     nodesep: WORKFLOW_NODE_GAP_Y,
     edgesep: WORKFLOW_NODE_HEIGHT + WORKFLOW_NODE_GAP_Y,

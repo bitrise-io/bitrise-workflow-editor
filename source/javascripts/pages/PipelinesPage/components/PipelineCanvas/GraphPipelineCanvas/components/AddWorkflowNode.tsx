@@ -5,6 +5,7 @@ import { useIsReadOnlyView } from '@/hooks/useTree';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
+import { OPENS_WORKFLOW_SELECTOR } from '../../../WorkflowSelectorDrawer/WorkflowSelectorDrawer';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 
 // Adding a Workflow happens where the Workflows are: under the ones that run first.
@@ -23,6 +24,7 @@ const AddWorkflowNode = () => {
       {/* Inset 16px each side from the Workflow nodes it adds to. */}
       <BitkitButton
         className="nodrag nopan"
+        {...{ [OPENS_WORKFLOW_SELECTOR]: true }}
         width="100%"
         size="md"
         variant="tertiary"
