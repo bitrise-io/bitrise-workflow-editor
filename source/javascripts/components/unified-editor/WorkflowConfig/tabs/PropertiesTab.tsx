@@ -74,7 +74,7 @@ const Priority = ({ workflowId, isDisabled }: { workflowId: string; isDisabled?:
   return (
     <PriorityInput
       value={value}
-      isDisabled={isDisabled}
+      state={isDisabled ? 'disabled' : undefined}
       helperText="Set priority between -100 and +100. Default value is 0. Available on certain plans only."
       onChange={handleOnChange}
     />
