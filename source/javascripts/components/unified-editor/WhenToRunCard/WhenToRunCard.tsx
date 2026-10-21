@@ -1,4 +1,5 @@
-import { ExpandableCard, IconButton, Toggle } from '@bitrise/bitkit';
+import { ExpandableCard, Toggle } from '@bitrise/bitkit';
+import { BitkitIconButton, IconRefresh } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
@@ -37,12 +38,12 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
       <Box display="flex" alignItems="center" gap="4" minHeight="32">
         <Text flex="1">Run even if previous Step(s) failed</Text>
         {!!onIsAlwaysRunReset && (
-          <IconButton
-            iconName="Refresh"
-            aria-label="Reset to default"
+          <BitkitIconButton
+            icon={IconRefresh}
+            label="Reset to default"
             size="sm"
             variant="tertiary"
-            isDisabled={isReadOnlyView}
+            state={isReadOnlyView ? 'disabled' : undefined}
             onClick={onIsAlwaysRunReset}
           />
         )}
