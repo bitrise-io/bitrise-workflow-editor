@@ -30,7 +30,7 @@ type Site = { kind: Kind; edit: () => TextEdit };
 
 const joinComments = (...comments: (string | null | undefined)[]) => comments.filter(Boolean).join('\n') || undefined;
 
-const keyOf = (pair: Pair) => String(isScalar(pair.key) ? pair.key.value : pair.key);
+const keyOf = (pair: Pair) => String(pair.key);
 
 const ownKeys = (map: YAMLMap) => new Set(map.items.filter((item) => !YmlUtils.isMergeKey(item)).map(keyOf));
 
@@ -40,9 +40,6 @@ const lineStart = (text: string, offset: number) => text.lastIndexOf('\n', offse
 
 // Nested aliases multiply: ten aliases to a list of ten aliases to … A copy past this is no quick fix.
 const MAX_COPY_NODES = 10_000;
-
-// Stands in for a number's source text while the copy is rendered. See `copy`.
-const RAW_NUMBER = /__wfe_raw_(\d+)__/g;
 
 /**
  * Rewrites the YAML aliases and merge keys of one file as text edits. Each edit replaces the lines of one
@@ -66,10 +63,23 @@ class Expander {
 
   private readonly rawNumbers: string[] = [];
 
+  // Stands in for a number's source text while the copy is rendered. See `copy`. Never in the file's
+  // own text, so nothing the file already has can match it.
+  private readonly rawNumberMark: string;
+
+  private readonly rawNumberPattern: RegExp;
+
   constructor(
     private readonly text: string,
     private readonly doc: Document,
   ) {
+    let mark: string;
+    do {
+      mark = `__wfe_raw_${Math.random().toString(36).slice(2)}_`;
+    } while (text.includes(mark));
+    this.rawNumberMark = mark;
+    this.rawNumberPattern = new RegExp(`${mark}(\\d+)__`, 'g');
+
     // An alias resolves to the last anchor of its name above it, as in `toDoc`, which has already
     // rejected every alias that doesn't resolve.
     const anchors = new Map<string, Node>();
@@ -88,11 +98,11 @@ class Expander {
 
     visit(doc, {
       Pair: (_, pair, path) => {
-        const range = YmlUtils.isMergeKey(pair) ? pair.key.range : undefined;
-        if (!range) {
+        if (!YmlUtils.isMergeKey(pair) || !pair.key.range) {
           return undefined;
         }
-        const site: Site = { kind: 'merge-key', edit: () => this.mergeKeyEdit(pair as Pair<Scalar>, range, path) };
+        const { range } = pair.key;
+        const site: Site = { kind: 'merge-key', edit: () => this.mergeKeyEdit(pair, range, path) };
         this.sites.set(range[0], site);
         // The aliases and merge keys inside a merge key's value are expanded with it, so every alias and
         // merge key `findAliasesAndMergeKeys` warns about has a site.
@@ -288,7 +298,10 @@ class Expander {
 
   /** A full copy of `node`: every alias inside it expanded, every merge key resolved, no anchors. */
   private copy(node: unknown): unknown {
-    if (isNode(node) && ++this.copied > MAX_COPY_NODES) {
+    if (!isNode(node)) {
+      return node;
+    }
+    if (++this.copied > MAX_COPY_NODES) {
       throw new Error('This expands to too much YAML to expand here.');
     }
     if (isAlias(node)) {
@@ -298,9 +311,6 @@ class Expander {
       copy.comment = undefined;
       copy.spaceBefore = false;
       return copy;
-    }
-    if (!isNode(node)) {
-      return node;
     }
     // Shallow, as yaml's own `clone()` is for a scalar. A collection's `clone()` would deep-copy the
     // items this replaces with copies of their own.
@@ -316,9 +326,13 @@ class Expander {
         }
         return itemCopy;
       });
-    } else if (isScalar(node) && typeof node.value === 'number' && !node.tag && node.source) {
+    } else if (isScalar(node) && typeof node.value === 'number' && node.source) {
       // yaml renders a number from its value, so `012` would become `12`: octal 10 to the CLI's YAML 1.1.
-      (copy as Scalar).value = `__wfe_raw_${this.rawNumbers.push(node.source) - 1}__`;
+      // A tag goes into the source text too, since yaml renders a tagged string through the tag.
+      const tag = node.tag && (this.doc.directives?.tagString(node.tag) ?? `!<${node.tag}>`);
+      const source = tag ? `${tag} ${node.source}` : node.source;
+      copy.tag = undefined;
+      (copy as Scalar).value = `${this.rawNumberMark}${this.rawNumbers.push(source) - 1}__`;
     }
     return copy;
   }
@@ -354,7 +368,7 @@ class Expander {
     return doc
       .toString({ ...this.options, verifyAliasOrder: false })
       .replace(/\n+$/, '')
-      .replace(RAW_NUMBER, (_, index: string) => this.rawNumbers[Number(index)]);
+      .replace(this.rawNumberPattern, (_, index: string) => this.rawNumbers[Number(index)]);
   }
 
   /** Replaces `start` up to the end of `nodeEnd`'s line with `node`, rendered at `start`'s column. */

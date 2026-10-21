@@ -250,6 +250,11 @@ describe('YmlExpansionUtils', () => {
       expect(expandAtText('a: &a\n  o: 012\n  h: 0x1F\n  e: 1e3\nm: *a\n', '*a\n')).toContain(
         'm:\n  o: 012\n  h: 0x1F\n  e: 1e3\n',
       );
+      expect(expandAtText('a: &a !!int 012\nm: *a\n', '*a\n')).toBe('a: &a !!int 012\nm: !!int 012\n');
+      expect(expandAtText('a: &a\n  - !!float 1e3 # n\nm: *a\n', '*a\n')).toContain('m:\n  - !!float 1e3 # n\n');
+      expect(expandAtText('a: &a\n  n: 1\n  s: __wfe_raw_0__ # __wfe_raw_0__\nm: *a\n', '*a\n')).toContain(
+        'm:\n  n: 1\n  s: __wfe_raw_0__ # __wfe_raw_0__\n',
+      );
     });
 
     it('refuses an alias that expands to too much YAML', () => {
