@@ -1,6 +1,5 @@
 import { Card, CardProps, Collapse, Tooltip } from '@bitrise/bitkit';
 import {
-  BitkitBadge,
   BitkitControlButton,
   IconChevronDown,
   IconChevronUp,
@@ -8,6 +7,7 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { Badge } from '@chakra-ui/react/badge';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
@@ -71,7 +71,12 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
         {children}
       </Text>
       <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
-        <BitkitBadge size="xs">{badgeContent}</BitkitBadge>
+        {/* Not BitkitBadge: even its xs size makes the card header taller. The overrides shrink the
+            Bitkit badge recipe to fit the title line, and display="flex" stops it sinking to the
+            bottom of the line inside the Tooltip's wrapper span. */}
+        <Badge display="flex" minWidth="0" paddingBlock="0" paddingInline="4">
+          {badgeContent}
+        </Badge>
       </Tooltip>
     </Box>
   );
