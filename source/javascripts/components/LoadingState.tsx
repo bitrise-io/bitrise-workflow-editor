@@ -1,5 +1,6 @@
-import { ProgressBitbot, Text } from '@bitrise/bitkit';
+import { ProgressBitbot } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 const LoadingState = ({ text = 'Loading...' }: { text?: string }) => {
   return (

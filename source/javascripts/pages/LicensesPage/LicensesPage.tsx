@@ -1,6 +1,7 @@
-import { Select, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitButton, BitkitEmptyState, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
+import { Select, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, BitkitHeading, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import StackAndMachineService, { StackAndMachineSource } from '@/core/services/StackAndMachineService';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -14,9 +15,9 @@ const LicensesPage = () => {
 
   return (
     <Box padding="32">
-      <Text as="h2" textStyle="heading/h2" marginBlockEnd="4" data-clarity-unmask="true">
+      <BitkitHeading marginBlockEnd="4" data-clarity-unmask="true">
         Licenses
-      </Text>
+      </BitkitHeading>
       <Text color="text/secondary" marginBlockEnd="32" data-clarity-unmask="true">
         You can run your builds on Bitrise machines relying on license pools. Your Workflow-specific builds will run
         utilizing the selected pool.{' '}

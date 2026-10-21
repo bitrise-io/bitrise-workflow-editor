@@ -1,6 +1,15 @@
-import { Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitEmptyState, BitkitLink, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
+import {
+  BitkitAlert,
+  BitkitButton,
+  BitkitEmptyState,
+  BitkitHeading,
+  BitkitLink,
+  IconLock,
+  IconPlusCircle,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Secret } from '@/core/models/Secret';
@@ -147,9 +156,9 @@ const SecretsPage = () => {
 
   return (
     <Box padding="32">
-      <Text as="h2" textStyle="heading/h2" marginBottom="12" data-clarity-unmask="true">
+      <BitkitHeading marginBlockEnd="12" data-clarity-unmask="true">
         Secret Environment Variables
-      </Text>
+      </BitkitHeading>
       <Text data-clarity-unmask="true">
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
         on the UI by marking them as protected.{' '}
@@ -169,18 +178,18 @@ const SecretsPage = () => {
         messageText="Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request."
       />
 
-      <Text as="h4" textStyle="heading/h4" paddingBottom="8" data-clarity-unmask="true">
+      <BitkitHeading as="h4" paddingBlockEnd="8" data-clarity-unmask="true">
         Shared Secrets
-      </Text>
-      <Text textColor="text/secondary" size="2" data-clarity-unmask="true">
+      </BitkitHeading>
+      <Text textStyle="body/md/regular" color="text/secondary" data-clarity-unmask="true">
         All projects have access to shared Secrets. If the same Secret is configured at a project level here, it will
         overwrite the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
       </Text>
       {sharedSecretsBlock()}
 
-      <Text as="h4" textStyle="heading/h4" data-clarity-unmask="true">
+      <BitkitHeading as="h4" data-clarity-unmask="true">
         Project level Secrets
-      </Text>
+      </BitkitHeading>
       <Box marginBlockStart="16" marginBlockEnd="24">
         {appSecretList.map((secret) => (
           <SecretCard

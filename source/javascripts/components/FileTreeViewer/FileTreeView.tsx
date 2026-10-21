@@ -1,6 +1,6 @@
-import { Text } from '@bitrise/bitkit';
 import { BitkitTooltip, BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useMemo } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';

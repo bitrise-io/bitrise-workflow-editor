@@ -1,5 +1,13 @@
-import { Card, List, ListItem, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, BitkitLink, IconArrowNortheast, IconPlus, IconSparkleFilled, rem } from '@bitrise/bitkit-v2';
+import { Card, List, ListItem, Tooltip } from '@bitrise/bitkit';
+import {
+  BitkitButton,
+  BitkitHeading,
+  BitkitLink,
+  IconArrowNortheast,
+  IconPlus,
+  IconSparkleFilled,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Image } from '@chakra-ui/react/image';
@@ -78,9 +86,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
         data-clarity-unmask="true"
       >
         <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
-          <Text as="h3" textStyle="heading/h3">
-            Get started with Pipelines
-          </Text>
+          <BitkitHeading as="h3">Get started with Pipelines</BitkitHeading>
 
           <List flex="1" variant="unordered" pl="8" textStyle="body/md/regular">
             <ListItem>Parallelize tasks for faster build cycles</ListItem>

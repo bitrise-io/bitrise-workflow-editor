@@ -8,13 +8,13 @@ import {
   Icon,
   IconButton,
   Input,
-  Text,
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitBadge, BitkitButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
+import { Text } from '@chakra-ui/react/text';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -229,7 +229,7 @@ const SecretCard = (props: SecretCardProps) => {
           )}
         </Box>
         {!secret.isEditing && (
-          <Text fontSize="16" color="text/secondary">
+          <Text color="text/secondary">
             {[
               secret.isExpand ? 'Variables are replaced in inputs' : '',
               secret.isExpose ? 'Exposed for pull requests' : '',
@@ -248,8 +248,8 @@ const SecretCard = (props: SecretCardProps) => {
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
             >
               <Box display="flex" flexDirection="column">
-                <Text size="3">Replace variables in inputs</Text>
-                <Text size="1" color="input/text/helper" casing="none">
+                <Text textStyle="body/lg/regular">Replace variables in inputs</Text>
+                <Text textStyle="body/sm/regular" color="text/helper">
                   Enable this if you want to replace Env Vars in your input with the assigned value.
                 </Text>
               </Box>
@@ -261,8 +261,8 @@ const SecretCard = (props: SecretCardProps) => {
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
             >
               <Box display="flex" flexDirection="column">
-                <Text size="3">Expose for pull requests</Text>
-                <Text size="1" color="input/text/helper" casing="none">
+                <Text textStyle="body/lg/regular">Expose for pull requests</Text>
+                <Text textStyle="body/sm/regular" color="text/helper">
                   Be careful, this is a potential security risk.
                 </Text>
               </Box>
@@ -274,8 +274,8 @@ const SecretCard = (props: SecretCardProps) => {
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
             >
               <Box display="flex" flexDirection="column">
-                <Text size="3">Protected</Text>
-                <Text size="1" color="input/text/helper" casing="none">
+                <Text textStyle="body/lg/regular">Protected</Text>
+                <Text textStyle="body/sm/regular" color="text/helper">
                   Value cannot be revealed or changed. Irreversible once saved. Delete to replace.
                 </Text>
               </Box>

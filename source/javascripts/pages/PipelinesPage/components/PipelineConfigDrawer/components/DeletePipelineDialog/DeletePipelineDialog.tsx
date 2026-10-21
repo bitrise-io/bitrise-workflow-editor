@@ -1,5 +1,6 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 import { useCallback } from 'react';
 
 import PipelineService from '@/core/services/PipelineService';

@@ -1,6 +1,7 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Text } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { ContainerType } from '@/core/models/Container';
@@ -64,7 +65,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
   return (
     <Dialog title="Delete container?" isOpen={isOpen} onClose={handleClose}>
       <DialogBody>
-        <Text mb="24">
+        <Text marginBlockEnd="24">
           Are you sure you want to delete{' '}
           <Text as="span" textStyle="body/lg/semibold">
             {selectedContainerId}?

@@ -1,4 +1,5 @@
-import { Card, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
+import { Card, Popover, PopoverContent, PopoverTrigger } from '@bitrise/bitkit';
+import { Text } from '@chakra-ui/react/text';
 import { memo } from 'react';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';

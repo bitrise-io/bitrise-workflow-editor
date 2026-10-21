@@ -1,4 +1,4 @@
-import { Text } from '@bitrise/bitkit';
+import { Text } from '@chakra-ui/react/text';
 import { ReactNode } from 'react';
 
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';

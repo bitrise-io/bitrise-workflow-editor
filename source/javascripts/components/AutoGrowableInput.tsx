@@ -1,4 +1,5 @@
-import { forwardRef, Text } from '@bitrise/bitkit';
+import { forwardRef } from '@bitrise/bitkit';
+import { Text } from '@chakra-ui/react/text';
 import {
   Box,
   FormControl,
@@ -72,7 +73,7 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
             {label}
           </FormLabel>
           {!rest.isRequired && (
-            <Text as="span" color="text/secondary" textStyle="body/md/regular" mb="4">
+            <Text as="span" color="text/secondary" textStyle="body/md/regular" marginBlockEnd="4">
               (optional)
             </Text>
           )}

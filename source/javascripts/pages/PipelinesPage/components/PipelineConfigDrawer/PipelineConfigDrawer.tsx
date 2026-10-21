@@ -1,5 +1,5 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, BitkitHeading, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import FloatingDrawer, {
@@ -37,9 +37,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">
-              <Text as="h3" textStyle="heading/h3">
-                {pipelineId}
-              </Text>
+              <BitkitHeading as="h3">{pipelineId}</BitkitHeading>
               {isAIButtonVisible && (
                 <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
                   <BitkitButton

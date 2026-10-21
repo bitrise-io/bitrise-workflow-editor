@@ -1,5 +1,4 @@
-import { Text } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconDollar } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, BitkitHeading, IconDollar } from '@bitrise/bitkit-v2';
 import { Fragment } from 'react/jsx-runtime';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
@@ -43,9 +42,7 @@ const ProjectTab = () => {
         // per-row jump-to-definition arrows.
         fileGroups.map((group) => (
           <Fragment key={group.nodeId}>
-            <Text as="h3" textStyle="heading/h3">
-              {group.path}
-            </Text>
+            <BitkitHeading as="h3">{group.path}</BitkitHeading>
             <EnvVarsTable
               source={EnvVarSource.App}
               initialEnvs={group.envs}

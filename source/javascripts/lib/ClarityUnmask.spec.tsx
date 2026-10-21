@@ -28,7 +28,7 @@ import {
   Table,
   TabList,
   Tabs,
-  Text,
+  Text as BitkitV1Text,
   Th,
   Thead,
   Tr,
@@ -39,12 +39,14 @@ import {
   BitkitBreadcrumb,
   BitkitButton,
   BitkitEmptyState,
+  BitkitHeading,
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
@@ -125,6 +127,8 @@ describe('Clarity unmasking', () => {
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
+          {/* Still tagged in unified-editor until the second half of the Text migration lands. */}
+          <BitkitV1Text data-clarity-unmask="true">v1 text</BitkitV1Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
           <Card data-clarity-unmask="true">card</Card>
           <List data-clarity-unmask="true">
@@ -163,7 +167,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(12);
+      expect(unmasked()).toHaveLength(13);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
       ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
@@ -192,6 +196,7 @@ describe('Clarity unmasking', () => {
             data-clarity-unmask="true"
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
+          <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
           {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
               their remaining props onto the link they render, so the attribute reaches the DOM. That
               forwarding is what this asserts — a release that stopped doing it would silently
@@ -207,7 +212,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(8);
+      expect(unmasked()).toHaveLength(9);
       [
         'alert message',
         'segment label',
@@ -215,6 +220,7 @@ describe('Clarity unmasking', () => {
         'bitkit button',
         'empty state',
         'ribbon message',
+        'heading',
         'breadcrumb item',
         'breadcrumb current item',
       ].forEach((label) => {

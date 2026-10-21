@@ -1,4 +1,4 @@
-import { Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   BitkitLinkButton,
@@ -9,6 +9,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
