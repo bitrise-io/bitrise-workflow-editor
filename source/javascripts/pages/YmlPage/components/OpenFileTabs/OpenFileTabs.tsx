@@ -40,7 +40,8 @@ const OpenFileTabs = () => {
         }
       }}
     >
-      <BitkitTabs.List background="background/primary">
+      {/* Three steps of gray: the strip (tertiary), resting tabs (secondary), the open one (primary). */}
+      <BitkitTabs.List background="background/tertiary">
         <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup}>
           Merged config
         </BitkitTabs.Trigger>

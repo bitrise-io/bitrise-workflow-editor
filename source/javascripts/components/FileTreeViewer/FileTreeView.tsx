@@ -13,6 +13,9 @@ type Props = {
   selectedNodeId?: string;
   onSelect: (nodeId: string) => void;
   isNodeDisabled?: (node: TreeNode) => boolean;
+  // Where the project is already named around the tree (the sidebar), its own files need no header.
+  // Groups from other repositories or refs keep theirs.
+  hideWorkingRepoHeader?: boolean;
 };
 
 // Folder ids are path strings, file ids are node_ids.
@@ -113,7 +116,7 @@ const GroupTree = ({
   );
 };
 
-const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
+const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled, hideWorkingRepoHeader }: Props) => {
   const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
 
   const groups = useMemo(
@@ -126,7 +129,12 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
       {groups.map((group) => (
         <Box key={group.key} display="flex" flexDirection="column">
           {/* No `px`: header left-aligns with the title while the tree's own 8px inset indents file rows. */}
-          <Box display="flex" alignItems="center" gap="4" paddingBlock="6">
+          <Box
+            display={hideWorkingRepoHeader && !group.isReadOnly ? 'none' : 'flex'}
+            alignItems="center"
+            gap="4"
+            paddingBlock="6"
+          >
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (
               <BitkitTooltip text="Modules included from another repository or ref are read-only.">

@@ -20,6 +20,7 @@ const FilesPanel = () => {
     <Box data-clarity-mask="true">
       <FileTreeView
         rootNode={tree}
+        hideWorkingRepoHeader
         selectedNodeId={isMergedConfigSelected ? undefined : selectedNodeId}
         onSelect={openFile}
       />

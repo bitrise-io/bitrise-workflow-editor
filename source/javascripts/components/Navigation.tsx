@@ -211,6 +211,8 @@ const Navigation = (props: Props) => {
       maxWidth={rem(340)}
       // Even space above and below the segmented control (the sidebar's own top padding is 16).
       paddingBlockStart="8"
+      // 8px on both sides, for the body and the footer alike (Bitkit gives the sidebar none).
+      paddingInline="8"
       {...props}
     >
       <BitkitPageSidebar.Body>
