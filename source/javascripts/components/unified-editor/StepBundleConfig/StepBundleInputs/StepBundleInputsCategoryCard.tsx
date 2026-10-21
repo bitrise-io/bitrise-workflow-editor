@@ -8,6 +8,7 @@ import {
   IconPencil,
   IconPlus,
   IconTrash,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
@@ -84,8 +85,16 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 />
               )}
 
+              {/* 28px centres the 32px trigger on the 40px field under the label; 28 has no spacing token. */}
               <BitkitActionMenu
-                trigger={<BitkitControlButton icon={IconMoreVertical} label="More" marginBlockStart="28" />}
+                trigger={
+                  <BitkitControlButton
+                    icon={IconMoreVertical}
+                    label="More"
+                    alignSelf="flex-start"
+                    marginBlockStart={rem(28)}
+                  />
+                }
               >
                 <BitkitActionMenu.Item icon={IconCopy} onClick={() => copy(key)}>
                   Copy key

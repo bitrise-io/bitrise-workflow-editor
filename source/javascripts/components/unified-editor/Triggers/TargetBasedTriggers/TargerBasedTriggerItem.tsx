@@ -44,7 +44,9 @@ const TargetBasedTriggerItem = (props: Props) => {
       />
       {/* The menu only holds mutating actions, so it's hidden entirely in read-only/ghost views. */}
       {!isReadOnly && (
-        <BitkitActionMenu trigger={<BitkitControlButton icon={IconMoreVertical} label="Open menu" />}>
+        <BitkitActionMenu
+          trigger={<BitkitControlButton icon={IconMoreVertical} label="Open menu" alignSelf="flex-start" />}
+        >
           <BitkitActionMenu.Item icon={IconPencil} onClick={() => onEditTrigger(trigger)}>
             Edit trigger
           </BitkitActionMenu.Item>
