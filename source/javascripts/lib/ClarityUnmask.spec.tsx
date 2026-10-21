@@ -23,7 +23,6 @@ import {
   Table,
   TabList,
   Tabs,
-  Text as BitkitV1Text,
   Th,
   Thead,
   Tr,
@@ -122,8 +121,6 @@ describe('Clarity unmasking', () => {
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
-          {/* Still tagged in unified-editor until the second half of the Text migration lands. */}
-          <BitkitV1Text data-clarity-unmask="true">v1 text</BitkitV1Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
           <Card data-clarity-unmask="true">card</Card>
           <List data-clarity-unmask="true">
@@ -154,7 +151,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(11);
+      expect(unmasked()).toHaveLength(10);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
       ['column header', 'tab label', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
