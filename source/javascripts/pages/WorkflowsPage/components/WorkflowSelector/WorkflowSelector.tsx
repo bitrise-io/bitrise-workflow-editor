@@ -1,46 +1,15 @@
-import { useMemo } from 'react';
+import { Text } from '@chakra-ui/react/text';
 
-import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
-import { useWorkflows } from '@/hooks/useWorkflows';
-import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
+// The sidebar's Building blocks list picks the Workflow now; the panel only names it.
 const WorkflowSelector = () => {
-  const workflowIds = useWorkflows((s) => Object.keys(s));
-  const openDialog = useWorkflowsPageStore((s) => s.openDialog);
-  const [selectedWorkflowId, setSelectedWorkflow] = useSelectedWorkflow();
-
-  const onCreateWorkflow = () => {
-    openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })();
-  };
-
-  const [utilityWorkflows, runnableWorkflows] = useMemo(() => {
-    const utility: string[] = [];
-    const runnable: string[] = [];
-
-    workflowIds.forEach((workflowName) => {
-      if (workflowName.startsWith('_')) {
-        utility.push(workflowName);
-      } else {
-        runnable.push(workflowName);
-      }
-    });
-
-    return [utility, runnable];
-  }, [workflowIds]);
+  const [selectedWorkflowId] = useSelectedWorkflow();
 
   return (
-    <EntitySelector
-      entityIds={runnableWorkflows}
-      entityName="Workflow"
-      onChange={setSelectedWorkflow}
-      onCreate={onCreateWorkflow}
-      secondaryEntities={{
-        label: 'utility workflows',
-        ids: utilityWorkflows,
-      }}
-      value={selectedWorkflowId}
-    />
+    <Text flex="1" minWidth="0" alignSelf="center" textStyle="body/lg/semibold" truncate>
+      {selectedWorkflowId || 'No Workflow selected'}
+    </Text>
   );
 };
 

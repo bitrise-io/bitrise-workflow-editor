@@ -55,9 +55,6 @@ const PipelineCanvas = () => {
             type: PipelinesPageDialogType.PIPELINE_CONFIG,
             pipelineId: selectedPipeline,
           })}
-          onCreatePipelineClick={openDialog({
-            type: PipelinesPageDialogType.CREATE_PIPELINE,
-          })}
           onRunClick={handleRunPipelineClick}
         />
         <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>

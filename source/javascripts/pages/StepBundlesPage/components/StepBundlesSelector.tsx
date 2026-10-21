@@ -1,26 +1,15 @@
-import EntitySelector from '@/components/unified-editor/EntitySelector/EntitySelector';
+import { Text } from '@chakra-ui/react/text';
+
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
-import { useStepBundles } from '@/hooks/useStepBundles';
 
-import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
-
+// The sidebar's Building blocks list picks the Step bundle now; the panel only names it.
 const StepBundlesSelector = () => {
-  const stepBundleIds = useStepBundles((s) => Object.keys(s));
-  const openDialog = useStepBundlesPageStore((s) => s.openDialog);
-  const [selectedStepBundleId, setSelectedStepBundle] = useSelectedStepBundle();
-
-  const onCreateStepBundle = () => {
-    openDialog({ type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE })();
-  };
+  const [selectedStepBundleId] = useSelectedStepBundle();
 
   return (
-    <EntitySelector
-      entityIds={stepBundleIds}
-      entityName="Step bundle"
-      onChange={setSelectedStepBundle}
-      onCreate={onCreateStepBundle}
-      value={selectedStepBundleId}
-    />
+    <Text minWidth="0" textStyle="body/lg/semibold" truncate>
+      {selectedStepBundleId || 'No Step bundle selected'}
+    </Text>
   );
 };
 

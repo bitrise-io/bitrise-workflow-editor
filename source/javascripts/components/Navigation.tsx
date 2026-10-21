@@ -2,6 +2,7 @@ import {
   BitkitIconComponent,
   BitkitPageSidebar,
   BitkitPageSidebarProps,
+  BitkitSegmentedControl,
   createBitkitToast,
   IconArrowNortheast,
   IconBook,
@@ -11,14 +12,13 @@ import {
   IconKey,
   IconLock,
   IconStack,
-  IconStep,
   IconTrigger,
-  IconWorkflow,
-  IconWorkflowFlow,
   rem,
 } from '@bitrise/bitkit-v2';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
+import FilesPanel from '@/components/Navigation/FilesPanel';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -30,6 +30,7 @@ import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
+import { useTree } from '@/hooks/useTree';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
 
@@ -40,6 +41,10 @@ type NavigationItemProps = {
   icon: BitkitIconComponent;
   intercomTarget?: string;
 };
+
+type SidebarView = 'files' | 'building-blocks' | 'tools';
+
+const BUILDING_BLOCK_PAGES = ['workflows', 'pipelines', 'step_bundles'];
 
 function usePathWithSearchParams() {
   const [searchParams] = useSearchParams();
@@ -86,12 +91,76 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   );
 };
 
+const Tools = () => {
+  const withSearchParams = usePathWithSearchParams();
+
+  return (
+    <>
+      <NavigationItem
+        path={withSearchParams(paths.secrets)}
+        icon={IconLock}
+        intercomTarget="Secrets Page Navigation Item"
+      >
+        Secrets
+      </NavigationItem>
+      <NavigationItem
+        path={withSearchParams(paths.envVars)}
+        icon={IconDollar}
+        intercomTarget="Env Vars Page Navigation Item"
+      >
+        Env Vars
+      </NavigationItem>
+      <NavigationItem
+        path={withSearchParams(paths.triggers)}
+        icon={IconTrigger}
+        intercomTarget="Triggers Page Navigation Item"
+      >
+        Triggers
+      </NavigationItem>
+      <NavigationItem
+        path={withSearchParams(paths.containers)}
+        icon={IconContainer}
+        intercomTarget="Containers Page Navigation Item"
+      >
+        Containers
+      </NavigationItem>
+      {RuntimeUtils.isWebsiteMode() && (
+        <NavigationItem
+          path={withSearchParams(paths.stacksAndMachines)}
+          icon={IconStack}
+          intercomTarget="Stacks & Machines Page Navigation Item"
+        >
+          Stacks & Machines
+        </NavigationItem>
+      )}
+      {RuntimeUtils.isWebsiteMode() && (
+        <NavigationItem
+          path={withSearchParams(paths.licenses)}
+          icon={IconKey}
+          intercomTarget="Licenses Page Navigation Item"
+        >
+          Licenses
+        </NavigationItem>
+      )}
+    </>
+  );
+};
+
 const Navigation = (props: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
-  const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
+  // Opens on the menu that holds the page you land on; after that it's the user's choice.
+  const [view, setView] = useState<SidebarView>(() =>
+    BUILDING_BLOCK_PAGES.includes(currentPage ?? '') ? 'building-blocks' : 'tools',
+  );
+  // A single-file config has nothing to navigate between, so it gets no Files menu.
+  const tree = useTree();
+  const isModular = Boolean(tree && tree.includes.length > 0);
+  const visibleView = view === 'files' && !isModular ? 'building-blocks' : view;
+  // Held here so a search survives switching to another menu and back.
+  const [buildingBlocksQuery, setBuildingBlocksQuery] = useState('');
 
   useParentMessageListener<{
     bitriseYmlContents: string;
@@ -128,86 +197,41 @@ const Navigation = (props: Props) => {
   }, [currentPage, data?.usesRepositoryYml]);
 
   return (
-    // Every label, icon and link in the sidebar is the same for every user and account.
+    // The sidebar's own labels, icons and links are the same for every user and account; the entity
+    // lists and file tree inside it mask themselves.
     <BitkitPageSidebar
       data-clarity-unmask="true"
       flexShrink={0}
       // The layout gives the sidebar the height of the row under the header, so the component's own
       // `100dvh` floor has to give way or it pushes past the bottom of the editor.
       minHeight="auto"
-      // The width v1 had. There is no narrow icon-only mode in the design system, so the mobile rail
-      // went with the migration.
-      width={rem(256)}
+      // Wide enough for the segmented control's labels on one line and entity names with their
+      // subtext. Bitkit caps the sidebar at 320 from tablet up, so the cap is lifted with it.
+      width={rem(340)}
+      maxWidth={rem(340)}
       {...props}
     >
-      <BitkitPageSidebar.Body>
-        <NavigationItem
-          path={withSearchParams(paths.workflows)}
-          icon={IconWorkflow}
-          intercomTarget="Workflows Page Navigation Item"
+      <BitkitPageSidebar.Body padding="4">
+        <BitkitSegmentedControl
+          fullWidth
+          // Design-system deviation: fullWidth gives every option an equal share (`flex: 1`), too
+          // narrow for "Building blocks" on one line. Growing each from its label's width keeps the
+          // control full width without wrapping.
+          css={{ '& [data-part="item"]': { flex: '1 1 auto' } }}
+          size="sm"
+          value={visibleView}
+          onValueChange={(details) => details.value && setView(details.value as SidebarView)}
+          marginBlockEnd="12"
         >
-          Workflows
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.pipelines)}
-          icon={IconWorkflowFlow}
-          intercomTarget="Pipelines Page Navigation Item"
-        >
-          Pipelines
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.stepBundles)}
-          icon={IconStep}
-          intercomTarget="Step Bundles Page Navigation Item"
-        >
-          Step bundles
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.secrets)}
-          icon={IconLock}
-          intercomTarget="Secrets Page Navigation Item"
-        >
-          Secrets
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.envVars)}
-          icon={IconDollar}
-          intercomTarget="Env Vars Page Navigation Item"
-        >
-          Env Vars
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.triggers)}
-          icon={IconTrigger}
-          intercomTarget="Triggers Page Navigation Item"
-        >
-          Triggers
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.containers)}
-          icon={IconContainer}
-          intercomTarget="Containers Page Navigation Item"
-        >
-          Containers
-        </NavigationItem>
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.stacksAndMachines)}
-            icon={IconStack}
-            intercomTarget="Stacks & Machines Page Navigation Item"
-          >
-            Stacks & Machines
-          </NavigationItem>
+          {isModular && <BitkitSegmentedControl.Item value="files">Files</BitkitSegmentedControl.Item>}
+          <BitkitSegmentedControl.Item value="building-blocks">Building blocks</BitkitSegmentedControl.Item>
+          <BitkitSegmentedControl.Item value="tools">Tools</BitkitSegmentedControl.Item>
+        </BitkitSegmentedControl>
+        {visibleView === 'files' && <FilesPanel />}
+        {visibleView === 'building-blocks' && (
+          <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
         )}
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.licenses)}
-            icon={IconKey}
-            intercomTarget="Licenses Page Navigation Item"
-          >
-            Licenses
-          </NavigationItem>
-        )}
+        {visibleView === 'tools' && <Tools />}
       </BitkitPageSidebar.Body>
       <BitkitPageSidebar.Footer>
         <BitkitPageSidebar.Item
