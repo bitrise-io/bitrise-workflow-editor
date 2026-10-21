@@ -1,5 +1,4 @@
-import { SearchInput } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitHeading } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitHeading, BitkitSearchInput } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -58,12 +57,13 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...
               />
               <Controller<FormValues>
                 name="search"
-                render={({ field: { ref, onChange, ...rest } }) => (
-                  <SearchInput
+                render={({ field: { ref, onBlur, onChange, value } }) => (
+                  <BitkitSearchInput
                     inputRef={ref}
                     placeholder="Filter by name "
-                    onChange={(value) => onChange({ target: { value } })}
-                    {...rest}
+                    onBlur={onBlur}
+                    onChange={(changedValue) => onChange({ target: { value: changedValue } })}
+                    value={value}
                   />
                 )}
               />

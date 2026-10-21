@@ -1,6 +1,6 @@
-import { SearchInput } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
+  BitkitSearchInput,
   BitkitSelectableTag,
   IconBadge3RdParty,
   IconBadgeBitrise,
@@ -93,7 +93,7 @@ const StepFilter = (props: BoxProps) => {
 
   return (
     <Box display="flex" flexDirection="column" gap="16" {...props}>
-      <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
+      <BitkitSearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
       <Box display="flex" flexWrap="wrap" gap="16">
         <StepFilterCategories />
       </Box>

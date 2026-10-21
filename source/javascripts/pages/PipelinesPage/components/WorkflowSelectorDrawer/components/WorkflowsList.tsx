@@ -1,4 +1,4 @@
-import { Input } from '@bitrise/bitkit';
+import { BitkitSearchInput } from '@bitrise/bitkit-v2';
 import { useState } from 'react';
 
 import WorkflowService from '@/core/services/WorkflowService';
@@ -40,14 +40,7 @@ const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
 
   return (
     <>
-      <Input
-        size="md"
-        autoFocus
-        value={search}
-        leftIconName="Magnifier"
-        placeholder="Filter by name"
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <BitkitSearchInput size="md" autoFocus value={search} placeholder="Filter by name" onChange={setSearch} />
       {shouldShowNoSearchResultsEmptyState ? (
         <SearchResultEmptyState onClickButton={() => setSearch('')} />
       ) : (
