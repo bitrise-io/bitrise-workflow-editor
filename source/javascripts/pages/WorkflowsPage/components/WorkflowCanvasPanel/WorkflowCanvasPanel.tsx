@@ -4,7 +4,7 @@ import { Box } from '@chakra-ui/react/box';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
 
-import { canvasDotsBackground } from '@/components/unified-editor/canvasDots';
+import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
 import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
@@ -414,6 +414,8 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         transition="padding-inline-end 200ms"
         background="background/secondary"
         {...canvasDotsBackground}
+        // An inset shadow stays put while the content scrolls.
+        boxShadow={CANVAS_EDGE_SHADOW}
         data-intercom-target="Workflow Card Container"
       >
         <WorkflowCard

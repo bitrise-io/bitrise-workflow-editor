@@ -1,12 +1,14 @@
+import { Tooltip } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
-  BitkitControlButton,
+  BitkitButton,
   BitkitTextInput,
   IconChevronDown,
   IconPencil,
   IconPlay,
   IconSettings,
   IconTrash,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
@@ -224,10 +226,10 @@ const Toolbar = ({ onRunClick, onPropertiesClick, ...props }: Props) => {
         alignItems="center"
         justifyContent="center"
         gap="8"
-        height="64"
+        height={rem(52)}
         flexShrink={0}
         paddingInlineStart="16"
-        // Keeps the header centred on the canvas an open drawer leaves visible, as the canvas below does.
+        // Keeps the group centred on the canvas an open drawer leaves visible, as the canvas below does.
         paddingInlineEnd={['16', isDrawerOpen ? `calc(${FLOATING_DRAWER_WIDTH} + 32px)` : '16']}
         transition="padding-inline-end 200ms"
         backgroundColor="background/primary"
@@ -245,25 +247,30 @@ const Toolbar = ({ onRunClick, onPropertiesClick, ...props }: Props) => {
         )}
 
         {shouldShowGraphPipelineActions && (
-          <BitkitControlButton
-            size="sm"
+          <BitkitButton
+            size="md"
+            variant="tertiary"
             icon={IconSettings}
-            label="Settings"
             onClick={onPropertiesClick}
             data-clarity-unmask="true"
-          />
+          >
+            Settings
+          </BitkitButton>
         )}
 
         {RuntimeUtils.isWebsiteMode() && (
-          // The label is the control's tooltip, so it also says why Run is unavailable.
-          <BitkitControlButton
-            size="sm"
-            icon={IconPlay}
-            label={runButtonTooltip}
-            state={isRunDisabled ? 'disabled' : undefined}
-            onClick={onRunClick}
-            data-clarity-unmask="true"
-          />
+          <Tooltip label={runButtonTooltip} aria-label={runButtonTooltip} shouldWrapChildren={isRunDisabled}>
+            <BitkitButton
+              size="md"
+              variant="tertiary"
+              suffixIcon={IconPlay}
+              state={isRunDisabled ? 'disabled' : undefined}
+              onClick={onRunClick}
+              data-clarity-unmask="true"
+            >
+              Run
+            </BitkitButton>
+          </Tooltip>
         )}
       </Box>
 

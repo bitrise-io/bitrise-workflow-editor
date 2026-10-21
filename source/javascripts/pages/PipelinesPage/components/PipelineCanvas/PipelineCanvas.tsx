@@ -1,7 +1,12 @@
 import { Box } from '@chakra-ui/react/box';
 import { Background, BackgroundVariant, Controls, MiniMap } from '@xyflow/react';
 
-import { CANVAS_DOT_COLOR, CANVAS_DOT_GAP, CANVAS_DOT_SIZE } from '@/components/unified-editor/canvasDots';
+import {
+  CANVAS_DOT_COLOR,
+  CANVAS_DOT_GAP,
+  CANVAS_DOT_SIZE,
+  CANVAS_EDGE_SHADOW,
+} from '@/components/unified-editor/canvasDots';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import WindowUtils from '@/core/utils/WindowUtils';
@@ -57,6 +62,15 @@ const PipelineCanvas = () => {
           userSelect="none"
           // The shared canvas dot grid; React Flow's own pattern, so it pans and zooms with the Pipeline.
           css={{ '& .react-flow__background-pattern.dots': { fill: CANVAS_DOT_COLOR } }}
+          // The shared canvas edge shadow, on a layer over React Flow that clicks pass through.
+          _after={{
+            content: '""',
+            position: 'absolute',
+            inset: '0',
+            zIndex: '5',
+            pointerEvents: 'none',
+            boxShadow: CANVAS_EDGE_SHADOW,
+          }}
         >
           <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
             <Background variant={BackgroundVariant.Dots} gap={CANVAS_DOT_GAP} size={CANVAS_DOT_SIZE} />

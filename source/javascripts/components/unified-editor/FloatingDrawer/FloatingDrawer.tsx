@@ -15,7 +15,7 @@ import {
   ModalOverlayProps,
   useBreakpointValue,
 } from 'chakra-ui-2--react';
-import { useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { isFloatingDrawerSwitch } from './drawerSwitch';
 
@@ -30,7 +30,41 @@ const FLOATING_DRAWER_WIDTH = 'clamp(420px, 40vw, 700px)';
 const floatingDrawerCoveredWidth = () =>
   window.innerWidth < 768 ? 0 : Math.min(Math.max(420, window.innerWidth * 0.4), 700) + 16;
 
+// A click anywhere else in the editor closes the drawer. The drawer, its menus, tooltips and confirmation
+// dialogs are portalled out of #root, so clicks on them never count. The close waits for the click to do
+// its own thing first: if that opened another drawer, this one is already on its way out (they swap in
+// place) and stays out of the way. A drag to pan a canvas isn't a click.
+const useCloseOnClickOutside = (isOpen: boolean, onClose: () => void) => {
+  const isOpenRef = useRef(isOpen);
+  useLayoutEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const handleClick = (event: MouseEvent) => {
+      if (!(event.target as Element | null)?.closest('#root')) {
+        return;
+      }
+      timer = setTimeout(() => {
+        if (isOpenRef.current) {
+          onClose();
+        }
+      });
+    };
+    document.addEventListener('click', handleClick, true);
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+      clearTimeout(timer);
+    };
+  }, [isOpen, onClose]);
+};
+
 const FloatingDrawer = ({ children, ...props }: FloatingDrawerProps) => {
+  useCloseOnClickOutside(props.isOpen, props.onClose);
   const placement = useBreakpointValue<DrawerProps['placement']>({ base: 'bottom', tablet: 'right' }, { ssr: false });
 
   return (

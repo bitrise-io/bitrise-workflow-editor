@@ -40,8 +40,15 @@ const OpenFileTabs = () => {
         }
       }}
     >
-      {/* Three steps of gray: the strip (tertiary), resting tabs (secondary), the open one (primary). */}
-      <BitkitTabs.List background="background/tertiary">
+      <BitkitTabs.List
+        // The strip shares the resting tabs gray, so only the open tab stands out (white). The outer edges
+        // of the first and the last tab need no border of their own.
+        background="background/secondary"
+        css={{
+          '& [data-part=trigger]:first-of-type': { borderInlineStartWidth: 0 },
+          '& [data-part=trigger]:not(:has(~ [data-part=trigger]))': { borderInlineEndWidth: 0 },
+        }}
+      >
         <BitkitTabs.Trigger value={mergedConfigNodeId} icon={IconGroup}>
           Merged config
         </BitkitTabs.Trigger>
