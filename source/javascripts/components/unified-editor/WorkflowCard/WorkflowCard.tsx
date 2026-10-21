@@ -71,7 +71,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
         {children}
       </Text>
       <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
-        <BitkitBadge>{badgeContent}</BitkitBadge>
+        <BitkitBadge size="xs">{badgeContent}</BitkitBadge>
       </Tooltip>
     </Box>
   );

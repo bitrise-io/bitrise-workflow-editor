@@ -1,5 +1,5 @@
 import { Icon, Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitHeading } from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitHeading, BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import semver from 'semver';
@@ -72,17 +72,16 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                   {isUpgradable && (
                     <>
                       <Icon size="16" marginInline="4" name="WarningYellow" />
-                      <Text
-                        cursor="pointer"
-                        textStyle="body/sm/regular"
+                      <BitkitLinkButton
+                        size="sm"
                         onClick={() => {
                           const source = stepBundleId ? 'step_bundles' : 'workflows';
                           const sourceId = stepBundleId || workflowId;
                           StepService.changeStepVersion(source, sourceId, stepIndex, latestMajorVersion);
                         }}
                       >
-                        Latest version: {latestVersion}
-                      </Text>
+                        {`Latest version: ${latestVersion}`}
+                      </BitkitLinkButton>
                     </>
                   )}
                 </Box>
