@@ -209,9 +209,11 @@ const Navigation = (props: Props) => {
       // subtext. Bitkit caps the sidebar at 320 from tablet up, so the cap is lifted with it.
       width={rem(340)}
       maxWidth={rem(340)}
+      // Even space above and below the segmented control (the sidebar's own top padding is 16).
+      paddingBlockStart="8"
       {...props}
     >
-      <BitkitPageSidebar.Body padding="4">
+      <BitkitPageSidebar.Body>
         <BitkitSegmentedControl
           fullWidth
           // Design-system deviation: fullWidth gives every option an equal share (`flex: 1`), too
@@ -221,7 +223,7 @@ const Navigation = (props: Props) => {
           size="sm"
           value={visibleView}
           onValueChange={(details) => details.value && setView(details.value as SidebarView)}
-          marginBlockEnd="12"
+          marginBlockEnd="8"
         >
           {isModular && <BitkitSegmentedControl.Item value="files">Files</BitkitSegmentedControl.Item>}
           <BitkitSegmentedControl.Item value="building-blocks">Building blocks</BitkitSegmentedControl.Item>
