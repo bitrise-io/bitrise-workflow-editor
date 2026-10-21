@@ -1,5 +1,5 @@
-import { Input, Text } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitTagsInput } from '@bitrise/bitkit-v2';
+import { Input } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitHeading, BitkitTagsInput } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -39,9 +39,7 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
       <FloatingDrawerContent>
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
-          <Text as="h3" textStyle="heading/h3">
-            {title}
-          </Text>
+          <BitkitHeading as="h3">{title}</BitkitHeading>
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {!!container && (

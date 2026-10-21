@@ -1,5 +1,5 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Text, useTabs } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitTag } from '@bitrise/bitkit-v2';
+import { Tab, TabList, TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitHeading, BitkitTag } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
@@ -55,9 +55,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="12">
-              <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                Add Step
-              </Text>
+              <BitkitHeading as="h3">Add Step</BitkitHeading>
               {showStepLimit && <BitkitTag labelText={`${uniqueStepCount}/${uniqueStepLimit} Steps used`} size="sm" />}
             </Box>
             <Box position="relative" marginBlockStart="8" marginInline="-24">

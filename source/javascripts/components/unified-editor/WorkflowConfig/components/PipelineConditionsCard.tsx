@@ -1,6 +1,7 @@
-import { ExpandableCard, Input, Select, Text, Textarea, Toggle } from '@bitrise/bitkit';
+import { ExpandableCard, Input, Select, Textarea, Toggle } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { uniq } from 'es-toolkit';
 import { ChangeEventHandler, useState } from 'react';
 
@@ -23,7 +24,7 @@ const ButtonContent = () => {
     <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minWidth="0">
       <Box display="flex" flexDirection="column" alignItems="flex-start" minWidth="0">
         <Text textStyle="body/lg/semibold">Pipeline Conditions</Text>
-        <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
+        <Text textStyle="body/md/regular" color="text/secondary" truncate maxWidth="full">
           Running conditions related to {pipelineId}
         </Text>
       </Box>

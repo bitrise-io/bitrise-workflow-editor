@@ -1,5 +1,6 @@
-import { Button, Menu, MenuButton, MenuItem, MenuList, Text } from '@bitrise/bitkit';
+import { Button, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';

@@ -1,5 +1,6 @@
-import { Card, DefinitionTooltip, Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Card, DefinitionTooltip, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 
 import ContainerCardItem from '@/components/unified-editor/ContainersTab/ContainerCardItem';
 import { Container, ContainerReference, ContainerType } from '@/core/models/Container';
@@ -55,7 +56,7 @@ const ContainerCard = (props: ContainerCardProps) => {
         <Thead data-clarity-unmask="true">
           <Tr>
             <Th>
-              <Text px="12" color="text/primary">
+              <Text paddingInline="12" color="text/primary">
                 {type === 'execution' ? 'Execution' : 'Service'} Container
               </Text>
             </Th>
@@ -110,7 +111,7 @@ const ContainerCard = (props: ContainerCardProps) => {
             references.length === 0 && (
               <Tr>
                 <Td colSpan={3}>
-                  <Text textStyle="body/md/regular" color="text/secondary" pl="12">
+                  <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
                     No {type} containers.
                   </Text>
                 </Td>
@@ -120,7 +121,7 @@ const ContainerCard = (props: ContainerCardProps) => {
             <Tr>
               {!containers.length ? (
                 <Td colSpan={3}>
-                  <Text textStyle="body/md/regular" color="text/secondary" pl="12">
+                  <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
                     No {type} containers available.{' '}
                     <BitkitLinkButton onClick={() => replace('/containers', { tab: type })}>
                       {`Manage ${type} containers`}

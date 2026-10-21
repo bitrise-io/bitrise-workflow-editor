@@ -1,8 +1,9 @@
-import { Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Input, Text, Textarea } from '@bitrise/bitkit';
+import { Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Input, Textarea } from '@bitrise/bitkit';
 import { BitkitButton, BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { ChangeEvent } from 'react';
 import { useController, useForm } from 'react-hook-form';
 
@@ -102,7 +103,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
             {...keyField}
             onChange={(e) => keyField.onChange(StepBundleService.sanitizeInputKey(e.target.value))}
           />
-          <Text as="span" mx="8">
+          <Text as="span" marginInline="8">
             =
           </Text>
           {valueOptions?.length ? (

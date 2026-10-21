@@ -1,6 +1,7 @@
-import { Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Tab, TabList, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, BitkitHeading, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
@@ -57,9 +58,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
         paddingInline={variant === 'panel' ? '24' : '0'}
       >
         <div>
-          <Text as="h3" textStyle="heading/h3">
-            {title || id || 'Workflow'}
-          </Text>
+          <BitkitHeading as="h3">{title || id || 'Workflow'}</BitkitHeading>
           {showSubTitle && !isCrossFile && (
             <Text textStyle="body/md/regular" color="text/secondary">
               {WorkflowService.getUsedByText(dependants)}

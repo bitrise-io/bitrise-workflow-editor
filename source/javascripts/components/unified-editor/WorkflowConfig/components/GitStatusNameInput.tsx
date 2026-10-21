@@ -1,6 +1,7 @@
-import { Input, Text } from '@bitrise/bitkit';
+import { Input } from '@bitrise/bitkit';
 import { BitkitCodeSnippet, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { ChangeEventHandler, Fragment, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
@@ -82,10 +83,10 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
       />
       {statusReport && (
         <>
-          <Text color="input/text/helper" textStyle="body/sm/regular" marginBlockStart="8">
+          <Text color="text/helper" textStyle="body/sm/regular" marginBlockStart="8">
             {preview}
           </Text>
-          <Text color="input/text/helper" textStyle="body/sm/regular" marginY="8">
+          <Text color="text/helper" textStyle="body/sm/regular" marginBlock="8">
             You can use the following variables in your string:
           </Text>
           <Box as="dl" display="grid" gridTemplateColumns="auto 1fr" alignItems="baseline" columnGap="8" rowGap="4">
@@ -96,7 +97,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
                     {variable}
                   </BitkitCodeSnippet>
                 </Box>
-                <Text as="dd" color="input/text/helper" textStyle="body/sm/regular">
+                <Text as="dd" color="text/helper" textStyle="body/sm/regular">
                   {VARIABLE_DESCRIPTIONS[variable]}
                 </Text>
               </Fragment>

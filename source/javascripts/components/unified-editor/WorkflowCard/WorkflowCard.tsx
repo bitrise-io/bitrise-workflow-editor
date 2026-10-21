@@ -1,5 +1,6 @@
-import { Card, CardProps, Collapse, Text, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse, Tooltip } from '@bitrise/bitkit';
 import {
+  BitkitBadge,
   BitkitControlButton,
   IconChevronDown,
   IconChevronUp,
@@ -9,6 +10,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
@@ -43,7 +45,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
 
   if (!shouldDisplayAsParallelWorkflow) {
     return (
-      <Text textStyle="body/md/semibold" hasEllipsis>
+      <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
     );
@@ -65,13 +67,11 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
 
   return (
     <Box display="flex" minWidth="0" maxWidth="100%" gap="4" alignItems="center">
-      <Text textStyle="body/md/semibold" hasEllipsis>
+      <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
       <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
-        <Text color="text/secondary" textStyle="comp/badge/sm" bg="sys/neutral/subtle" px="4" borderRadius="4">
-          {badgeContent}
-        </Text>
+        <BitkitBadge size="xs">{badgeContent}</BitkitBadge>
       </Tooltip>
     </Box>
   );
@@ -165,7 +165,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           minWidth="0"
         >
           <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
-          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+          <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
             {subtitle}
           </Text>
         </Box>

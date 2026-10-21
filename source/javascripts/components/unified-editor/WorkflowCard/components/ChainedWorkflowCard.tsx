@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse, Text } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -10,6 +10,7 @@ import {
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { memo, useMemo, useRef, useState } from 'react';
@@ -220,10 +221,10 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
               flex="1"
               minWidth="0"
             >
-              <Text textStyle="body/md/semibold" hasEllipsis>
+              <Text textStyle="body/md/semibold" truncate maxWidth="full">
                 {title}
               </Text>
-              <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+              <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
                 {placement}
                 {' • '}
                 {otherModules.nodeIds.length > 0

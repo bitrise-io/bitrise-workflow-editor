@@ -1,6 +1,7 @@
-import { ExpandableCard, IconButton, Text, Toggle } from '@bitrise/bitkit';
+import { ExpandableCard, IconButton, Toggle } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { ChangeEventHandler } from 'react';
 
 import { useIsReadOnlyView } from '@/hooks/useTree';
