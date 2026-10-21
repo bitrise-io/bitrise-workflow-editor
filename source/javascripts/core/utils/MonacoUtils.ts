@@ -114,23 +114,18 @@ const configureAliasQuickFixes: BeforeMountHandler = (monacoInstance) => {
     'yaml',
     {
       provideCodeActions(model, _range, context) {
-        // An alias with no anchor is the one error marker, and there's nothing to expand it to.
-        const markers = context.markers.filter(
-          ({ code, severity }) => code === ALIAS_MARKER_CODE && severity === monaco.MarkerSeverity.Warning,
-        );
+        const markers = context.markers.filter(({ code }) => code === ALIAS_MARKER_CODE);
         // Monaco checks `readOnly` only when an editor mounts, and the YAML editor turns it on later.
         const isReadOnly = monacoInstance.editor
           .getEditors()
           .some((editor) => editor.getModel() === model && editor.getOption(monaco.editor.EditorOption.readOnly));
+        // `undefined` when the text has a parse error, which is what an error marker here means.
         const expander = markers.length > 0 && !isReadOnly ? expanderFor(model) : undefined;
-        if (!expander) {
-          return { actions: [], dispose: () => {} };
-        }
 
         // `<<` and the alias it points at are two markers for one merge key, with one expansion.
         const offered = new Set<Expansion>();
         const actions = markers.flatMap((marker): languages.CodeAction[] => {
-          const expansion = expander.at(
+          const expansion = expander?.at(
             model.getOffsetAt({ lineNumber: marker.startLineNumber, column: marker.startColumn }),
           );
           // What can't be expanded gets no quick fix.

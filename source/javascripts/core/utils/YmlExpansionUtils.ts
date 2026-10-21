@@ -20,7 +20,7 @@ import {
 import YmlUtils from './YmlUtils';
 
 /** Replace `text.slice(start, end)` with `text`. */
-export type TextEdit = { start: number; end: number; text: string };
+type TextEdit = { start: number; end: number; text: string };
 
 type Kind = 'alias' | 'merge-key';
 
@@ -38,6 +38,12 @@ const isBlank = (char: string | undefined) => char === ' ' || char === '\t' || c
 
 const lineStart = (text: string, offset: number) => text.lastIndexOf('\n', offset - 1) + 1;
 
+// Nested aliases multiply: ten aliases to a list of ten aliases to … A copy past this is no quick fix.
+const MAX_COPY_NODES = 10_000;
+
+// Stands in for a number's source text while the copy is rendered. See `copy`.
+const RAW_NUMBER = /__wfe_raw_(\d+)__/g;
+
 /**
  * Rewrites the YAML aliases and merge keys of one file as text edits. Each edit replaces the lines of one
  * alias or merge key, and every other line keeps its bytes: the file is reviewed in diffs, and turning the
@@ -52,17 +58,33 @@ class Expander {
 
   private readonly expansions = new Map<Site, Expansion>();
 
-  // Keyed by offset, since a cloned alias keeps its range and the original is what it resolves from.
-  private readonly targets: ReadonlyMap<number, Node>;
+  private readonly targets = new Map<Alias, Node>();
 
-  private readonly options: ReturnType<typeof YmlUtils.stringifyOptions>;
+  private options?: ReturnType<typeof YmlUtils.stringifyOptions>;
+
+  private copied = 0;
+
+  private readonly rawNumbers: string[] = [];
 
   constructor(
     private readonly text: string,
-    doc: Document,
+    private readonly doc: Document,
   ) {
-    this.options = YmlUtils.stringifyOptions(doc);
-    this.targets = YmlUtils.aliasTargets(doc);
+    // An alias resolves to the last anchor of its name above it, as in `toDoc`, which has already
+    // rejected every alias that doesn't resolve.
+    const anchors = new Map<string, Node>();
+    const addAnchor = (_: unknown, node: Node) => {
+      if (node.anchor) {
+        anchors.set(node.anchor, node);
+      }
+    };
+    const addAlias = (alias: Alias, site: Site) => {
+      const target = anchors.get(alias.source);
+      if (alias.range && target) {
+        this.sites.set(alias.range[0], site);
+        this.targets.set(alias, target);
+      }
+    };
 
     visit(doc, {
       Pair: (_, pair, path) => {
@@ -72,22 +94,26 @@ class Expander {
         }
         const site: Site = { kind: 'merge-key', edit: () => this.mergeKeyEdit(pair as Pair<Scalar>, range, path) };
         this.sites.set(range[0], site);
-        // The aliases a merge key points at are expanded with it.
+        // The aliases and merge keys inside a merge key's value are expanded with it, so every alias and
+        // merge key `findAliasesAndMergeKeys` warns about has a site.
         visit(pair.value as Node, {
-          Alias: (__, alias) => {
-            if (alias.range) {
-              this.sites.set(alias.range[0], site);
+          Pair: (__, inner) => {
+            if (YmlUtils.isMergeKey(inner) && inner.key.range) {
+              this.sites.set(inner.key.range[0], site);
             }
           },
+          Alias: (__, alias) => addAlias(alias, site),
+          Node: addAnchor,
         });
         return visit.SKIP;
       },
       Alias: (_, alias, path) => {
         const { range } = alias;
         if (range) {
-          this.sites.set(range[0], { kind: 'alias', edit: () => this.aliasEdit(alias, range, path) });
+          addAlias(alias, { kind: 'alias', edit: () => this.aliasEdit(alias, range, path) });
         }
       },
+      Node: addAnchor,
     });
   }
 
@@ -98,13 +124,13 @@ class Expander {
    */
   at(offset: number): Expansion | undefined {
     const site = this.sites.get(offset);
-    return site && this.expand(site);
-  }
-
-  private expand(site: Site) {
+    if (!site) {
+      return undefined;
+    }
     let expansion = this.expansions.get(site);
     if (!expansion) {
       try {
+        this.copied = 0;
         expansion = { kind: site.kind, edit: site.edit() };
       } catch (error) {
         expansion = { kind: site.kind, error: (error as Error).message };
@@ -120,29 +146,50 @@ class Expander {
       throw new Error("An alias inside [ … ] or { … } can't be expanded.");
     }
     const parent = path[path.length - 1];
-    const copy = this.copy(alias, []);
+    const copy = this.copy(alias);
 
     if (isPair(parent)) {
-      // With `stringKeys`, an alias used as a key is a parse error.
-      if (!isScalar(parent.key) || !parent.key.range) {
+      // With `stringKeys`, an alias used as a key is a parse error. An explicit `? key` has its value on a
+      // line of its own, which the edit below doesn't keep.
+      const keyStart = isScalar(parent.key) ? parent.key.range?.[0] : undefined;
+      if (!isScalar(parent.key) || keyStart === undefined || /(^|\s)\?\s/.test(this.linePrefix(keyStart))) {
         throw new Error("This alias can't be expanded.");
       }
+      // The edit starts at the key, after its anchor and tag, which stay as written.
       const key = parent.key.clone() as Scalar;
       key.anchor = undefined;
+      key.tag = undefined;
       key.commentBefore = undefined;
       key.spaceBefore = false;
       this.takeAliasComments(alias, copy, key);
       const map = new YAMLMap();
       map.items = [new Pair(key, copy)];
-      return this.blockEdit(parent.key.range[0], nodeEnd, map);
+      return this.blockEdit(keyStart, nodeEnd, map);
     }
 
-    // A block sequence item: the edit starts at its `-`.
-    const dash = this.skipBlanksBack(start);
+    // A block sequence item: the edit starts at its `-`, past any comments between the two.
+    let dash = this.skipBlanksBack(start);
+    let comment = this.linePrefix(dash).search(/(^|\s)#/);
+    while (comment >= 0) {
+      dash = this.skipBlanksBack(lineStart(this.text, dash) + comment);
+      comment = this.linePrefix(dash).search(/(^|\s)#/);
+    }
     if (!isSeq(parent) || this.text[dash - 1] !== '-') {
       throw new Error("This alias can't be expanded.");
     }
-    this.takeAliasComments(alias, copy);
+    // yaml gives the alias the comments above the `-` too, and those stay where they are.
+    this.takeAliasComments(
+      {
+        commentBefore: this.text
+          .slice(dash, start)
+          .match(/#.*/g)
+          ?.map((comment) => comment.slice(1))
+          .join('\n'),
+        spaceBefore: false,
+        comment: alias.comment,
+      },
+      copy,
+    );
     const seq = new YAMLSeq();
     seq.items = [copy];
     return this.blockEdit(dash - 1, nodeEnd, seq);
@@ -156,7 +203,7 @@ class Expander {
 
     // The map's own keys win. A second merge key in the same map is a duplicate key, so a parse error.
     const seen = ownKeys(map);
-    const pairs = this.mergedPairs(pair, [map], seen);
+    const pairs = this.mergedPairs(pair, seen);
 
     const value = isNode(pair.value) ? pair.value : undefined;
     const nodeEnd = value?.range?.[2] ?? keyEnd;
@@ -173,13 +220,14 @@ class Expander {
 
     const end = this.skipBlanksBack(nodeEnd);
     // It merges nothing and is the map's only key: the map stays, empty, rather than turning into null.
+    const commentLines = comment?.replace(/^/gm, '#');
     if (map.items.length === 1) {
-      return this.indented(keyStart, end, comment ? `${comment.replace(/^/gm, '#')}\n{}` : '{}');
+      return this.indented(keyStart, end, commentLines ? `${commentLines}\n{}` : '{}');
     }
 
     // Every key it merges is shadowed: keep only its comment, or delete it with its line.
-    if (comment) {
-      return this.indented(keyStart, end, comment.replace(/^/gm, '#'));
+    if (commentLines) {
+      return this.indented(keyStart, end, commentLines);
     }
     const start = lineStart(this.text, keyStart);
     if (this.text.slice(start, keyStart).trim() === '') {
@@ -191,18 +239,15 @@ class Expander {
   }
 
   /** The pairs a merge key adds that `seen` doesn't have yet, in order. Adds their keys to `seen`. */
-  private mergedPairs(pair: Pair, stack: Node[], seen: Set<string>): Pair<Scalar>[] {
+  private mergedPairs(pair: Pair, seen: Set<string>): Pair<Scalar>[] {
     const sources = isSeq(pair.value) ? pair.value.items : [pair.value];
     return sources
       .flatMap((source) => {
-        const map = isAlias(source) ? this.target(source, stack) : source;
+        const map = isAlias(source) ? this.target(source) : source;
         if (!isMap(map)) {
           throw new Error('A merge key (<<) must point at a map.');
         }
-        if (stack.includes(map)) {
-          throw new Error("A merge key that merges the map it's in can't be expanded.");
-        }
-        return this.copyPairs(map, [...stack, map]);
+        return this.copyPairs(map);
       })
       .filter((source) => {
         const key = keyOf(source);
@@ -215,13 +260,13 @@ class Expander {
   }
 
   /** The pairs of `map` once its merge keys are expanded, each a full copy. */
-  private copyPairs(map: YAMLMap, stack: Node[]) {
+  private copyPairs(map: YAMLMap) {
     const seen = ownKeys(map);
     return map.items.flatMap((item) => {
       if (YmlUtils.isMergeKey(item)) {
-        return this.mergedPairs(item, stack, seen);
+        return this.mergedPairs(item, seen);
       }
-      const copy = new Pair(this.copy(item.key, stack), this.copy(item.value, stack));
+      const copy = new Pair(this.copy(item.key), this.copy(item.value));
       if (isAlias(item.value) && isScalar(copy.key)) {
         this.takeAliasComments(item.value, copy.value, copy.key);
       }
@@ -229,19 +274,25 @@ class Expander {
     });
   }
 
-  private target(alias: Alias, stack: Node[]) {
-    const target = alias.range && this.targets.get(alias.range[0]);
-    if (!target || stack.includes(target)) {
+  /**
+   * `toDoc` reports an alias inside its own anchor as a parse error, so every target ends before its
+   * alias starts and copying one can't loop.
+   */
+  private target(alias: Alias) {
+    const target = this.targets.get(alias);
+    if (!target) {
       throw new Error(`The alias *${alias.source} can't be expanded.`);
     }
     return target;
   }
 
   /** A full copy of `node`: every alias inside it expanded, every merge key resolved, no anchors. */
-  private copy(node: unknown, stack: Node[]): unknown {
+  private copy(node: unknown): unknown {
+    if (isNode(node) && ++this.copied > MAX_COPY_NODES) {
+      throw new Error('This expands to too much YAML to expand here.');
+    }
     if (isAlias(node)) {
-      const target = this.target(node, stack);
-      const copy = this.copy(target, [...stack, target]) as Node;
+      const copy = this.copy(this.target(node)) as Node;
       // The anchor's own comments stay where the anchor is.
       copy.commentBefore = undefined;
       copy.comment = undefined;
@@ -256,21 +307,28 @@ class Expander {
     const copy = Object.create(Object.getPrototypeOf(node), Object.getOwnPropertyDescriptors(node)) as Node;
     copy.anchor = undefined;
     if (isMap(node)) {
-      (copy as YAMLMap).items = this.copyPairs(node, stack);
+      (copy as YAMLMap).items = this.copyPairs(node);
     } else if (isSeq(node)) {
       (copy as YAMLSeq).items = node.items.map((item) => {
-        const itemCopy = this.copy(item, stack);
+        const itemCopy = this.copy(item);
         if (isAlias(item)) {
           this.takeAliasComments(item, itemCopy);
         }
         return itemCopy;
       });
+    } else if (isScalar(node) && typeof node.value === 'number' && !node.tag && node.source) {
+      // yaml renders a number from its value, so `012` would become `12`: octal 10 to the CLI's YAML 1.1.
+      (copy as Scalar).value = `__wfe_raw_${this.rawNumbers.push(node.source) - 1}__`;
     }
     return copy;
   }
 
   /** A copy takes the alias's comments. `steps: *shared # note` keeps the note on the `steps:` line. */
-  private takeAliasComments(alias: Node, copy: unknown, key?: Scalar) {
+  private takeAliasComments(
+    alias: Pick<Node, 'commentBefore' | 'spaceBefore' | 'comment'>,
+    copy: unknown,
+    key?: Scalar,
+  ) {
     if (!isNode(copy)) {
       return;
     }
@@ -291,8 +349,12 @@ class Expander {
   private render(node: Node) {
     const doc = new Document();
     doc.contents = node;
+    this.options ??= YmlUtils.stringifyOptions(this.doc);
     // The copy's aliases are expanded, but the ones a single expansion leaves around it aren't in `doc`.
-    return doc.toString({ ...this.options, verifyAliasOrder: false }).replace(/\n+$/, '');
+    return doc
+      .toString({ ...this.options, verifyAliasOrder: false })
+      .replace(/\n+$/, '')
+      .replace(RAW_NUMBER, (_, index: string) => this.rawNumbers[Number(index)]);
   }
 
   /** Replaces `start` up to the end of `nodeEnd`'s line with `node`, rendered at `start`'s column. */
@@ -303,6 +365,11 @@ class Expander {
   private indented(start: number, end: number, text: string): TextEdit {
     const indent = ' '.repeat(start - lineStart(this.text, start));
     return { start, end, text: text.replace(/\n(?=.)/g, `\n${indent}`) };
+  }
+
+  /** The text from the start of `offset`'s line up to `offset`. */
+  private linePrefix(offset: number) {
+    return this.text.slice(lineStart(this.text, offset), offset);
   }
 
   /**

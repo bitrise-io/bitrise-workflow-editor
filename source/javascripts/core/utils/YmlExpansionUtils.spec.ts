@@ -1,15 +1,20 @@
 import { parseDocument } from 'yaml';
 
-import YmlExpansionUtils, { type TextEdit } from './YmlExpansionUtils';
+import YmlExpansionUtils from './YmlExpansionUtils';
+import YmlUtils from './YmlUtils';
 
 const expandAt = (text: string, search: string) => YmlExpansionUtils.expander(text)?.at(text.indexOf(search));
 
-function expandAtText(text: string, search: string) {
+function editAt(text: string, search: string) {
   const result = expandAt(text, search);
   if (!result || 'error' in result) {
     throw new Error(`Expected an edit, got ${JSON.stringify(result)}`);
   }
-  const { start, end, text: newText } = result.edit;
+  return result.edit;
+}
+
+function expandAtText(text: string, search: string) {
+  const { start, end, text: newText } = editAt(text, search);
   return text.slice(0, start) + newText + text.slice(end);
 }
 
@@ -80,17 +85,16 @@ describe('YmlExpansionUtils', () => {
     });
 
     // The file is reviewed in diffs, so every other line keeps its bytes.
-    it('edits only the line of the alias or merge key it expands', () => {
-      ['<<: *defaults\n    steps', '<<: *defaults\n    meta', '*clone', '*shared_envs', '*test_steps'].forEach(
-        (search) => {
-          const { start, end } = (expandAt(BITRISE_YML, search) as { edit: TextEdit }).edit;
-          const replaced = BITRISE_YML.slice(start, end).replace(/\n$/, '');
+    it.each(['<<: *defaults\n    steps', '<<: *defaults\n    meta', '*clone', '*shared_envs', '*test_steps'])(
+      'edits only the line of the alias or merge key it expands (%j)',
+      (search) => {
+        const { start, end } = editAt(BITRISE_YML, search);
+        const replaced = BITRISE_YML.slice(start, end).replace(/\n$/, '');
 
-          expect(replaced).not.toContain('\n');
-          expect(replaced).toContain(search.split('\n')[0]);
-        },
-      );
-    });
+        expect(replaced).not.toContain('\n');
+        expect(replaced).toContain(search.split('\n')[0]);
+      },
+    );
   });
 
   describe('expandAt', () => {
@@ -224,6 +228,47 @@ describe('YmlExpansionUtils', () => {
       const text = '&k name: one\nother: *k\n';
 
       expect(expandAtText(text, '*k')).toBe('&k name: one\nother: name\n');
+    });
+
+    it('keeps the comments around a list item where they were', () => {
+      const base = 'a: &a\n  k: 1\nlist:\n  - x\n';
+
+      expect(expandAtText(`${base}  # above\n  - *a\n`, '*a\n')).toBe(`${base}  # above\n  - k: 1\n`);
+      expect(expandAtText(`${base}\n  - *a\n`, '*a\n')).toBe(`${base}\n  - k: 1\n`);
+      expect(expandAtText(`${base}  - # c\n    # d\n    *a\n`, '*a\n')).toBe(`${base}  # c\n  # d\n  - k: 1\n`);
+    });
+
+    it("keeps a key's tag, and refuses an explicit `? key`", () => {
+      expect(expandAtText('a: &a 1\nm:\n  !!str k: *a\n', '*a\n')).toBe('a: &a 1\nm:\n  !!str k: 1\n');
+      expect(expandAt('a: &a [1]\nm:\n  ? b\n  : *a\n', '*a\n')).toEqual({
+        kind: 'alias',
+        error: "This alias can't be expanded.",
+      });
+    });
+
+    it('copies a number as it was written', () => {
+      expect(expandAtText('a: &a\n  o: 012\n  h: 0x1F\n  e: 1e3\nm: *a\n', '*a\n')).toContain(
+        'm:\n  o: 012\n  h: 0x1F\n  e: 1e3\n',
+      );
+    });
+
+    it('refuses an alias that expands to too much YAML', () => {
+      const lists = Array.from({ length: 6 }, (_, i) => `a${i + 1}: &a${i + 1} [${`*a${i}, `.repeat(9)}*a${i}]`);
+      const text = ['a0: &a0 [x, x, x, x, x, x, x, x, x, x]', ...lists, 'z:', '  - *a6', ''].join('\n');
+
+      expect(expandAt(text, '*a6\n')).toEqual({
+        kind: 'alias',
+        error: 'This expands to too much YAML to expand here.',
+      });
+    });
+
+    it('has an expansion for every alias and merge key that gets a warning', () => {
+      const text = `${BITRISE_YML}nested:\n  <<: { <<: *defaults, title: t }\n`;
+      const expander = YmlExpansionUtils.expander(text);
+
+      YmlUtils.findAliasesAndMergeKeys(YmlUtils.toDoc(text)).forEach(({ start }) => {
+        expect(expander?.at(start)).toHaveProperty('edit');
+      });
     });
 
     it('offers nothing where there is no alias or merge key', () => {
