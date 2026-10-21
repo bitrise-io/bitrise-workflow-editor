@@ -5,7 +5,7 @@ import { Text } from '@chakra-ui/react/text';
 
 import { TargetBasedTrigger, TriggerType, TYPE_MAP } from '@/core/models/Trigger';
 
-import TargetBasedTriggerItem from './TargerBasedTriggerItem';
+import TargetBasedTriggerItem from './TargetBasedTriggerItem';
 
 const ICON_MAP: Record<TriggerType, TypeIconName> = {
   push: 'Push',

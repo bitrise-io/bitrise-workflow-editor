@@ -85,15 +85,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
               )}
 
               <BitkitActionMenu
-                trigger={
-                  <BitkitControlButton
-                    icon={IconMoreVertical}
-                    label="More"
-                    alignSelf="flex-start"
-                    marginBlockStart="24"
-                    size="md"
-                  />
-                }
+                trigger={<BitkitControlButton icon={IconMoreVertical} label="More" marginBlockStart="24" size="md" />}
               >
                 <BitkitActionMenu.Item icon={IconCopy} onClick={() => copy(key)}>
                   Copy key
