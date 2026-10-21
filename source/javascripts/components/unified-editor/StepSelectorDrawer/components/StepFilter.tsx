@@ -93,7 +93,13 @@ const StepFilter = (props: BoxProps) => {
 
   return (
     <Box display="flex" flexDirection="column" gap="16" {...props}>
-      <BitkitSearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
+      <BitkitSearchInput
+        autoFocus
+        label="Filter by name or description"
+        placeholder="Filter by name or description..."
+        value={value}
+        onChange={onChange}
+      />
       <Box display="flex" flexWrap="wrap" gap="16">
         <StepFilterCategories />
       </Box>

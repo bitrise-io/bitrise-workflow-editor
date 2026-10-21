@@ -60,6 +60,7 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, onCloseComplete, ...
                 render={({ field: { ref, onBlur, onChange, value } }) => (
                   <BitkitSearchInput
                     inputRef={ref}
+                    label="Filter by name"
                     placeholder="Filter by name "
                     onBlur={onBlur}
                     onChange={(changedValue) => onChange({ target: { value: changedValue } })}

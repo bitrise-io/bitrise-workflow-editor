@@ -144,6 +144,7 @@ const EnvVarPopover = ({
               <>
                 <FilterInput
                   {...getFilterInputProps({
+                    label: 'Filter by key or source',
                     paddingBlock: '8',
                     placeholder: 'Filter by key or source',
                   })}

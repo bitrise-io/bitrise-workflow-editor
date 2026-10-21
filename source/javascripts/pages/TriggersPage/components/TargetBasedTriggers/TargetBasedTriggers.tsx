@@ -220,6 +220,7 @@ const TargetBasedTriggers = () => {
               width="100%"
               size="md"
               marginBlockEnd="16"
+              label="Filter by target, type or condition"
               placeholder="Filter by target, type or condition"
             />
             <AddTriggerButton onAddTrigger={setTriggerType} />

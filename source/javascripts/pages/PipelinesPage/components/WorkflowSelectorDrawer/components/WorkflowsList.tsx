@@ -40,7 +40,14 @@ const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
 
   return (
     <>
-      <BitkitSearchInput size="md" autoFocus value={search} placeholder="Filter by name" onChange={setSearch} />
+      <BitkitSearchInput
+        size="md"
+        autoFocus
+        label="Filter by name"
+        value={search}
+        placeholder="Filter by name"
+        onChange={setSearch}
+      />
       {shouldShowNoSearchResultsEmptyState ? (
         <SearchResultEmptyState onClickButton={() => setSearch('')} />
       ) : (

@@ -8,7 +8,16 @@ const StepBundleFilter = (props: Props) => {
   const value = useSearch((s) => s.stepBundleQuery);
   const onChange = useSearch((s) => s.setSearchStepBundle);
 
-  return <BitkitSearchInput autoFocus placeholder="Filter by name..." {...props} value={value} onChange={onChange} />;
+  return (
+    <BitkitSearchInput
+      autoFocus
+      label="Filter by name"
+      placeholder="Filter by name..."
+      {...props}
+      value={value}
+      onChange={onChange}
+    />
+  );
 };
 
 export default StepBundleFilter;
