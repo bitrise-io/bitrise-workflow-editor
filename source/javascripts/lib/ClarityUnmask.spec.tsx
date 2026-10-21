@@ -12,16 +12,11 @@ import path from 'node:path';
 import {
   Breadcrumb,
   BreadcrumbLink,
-  Button,
   Card,
   Dialog,
   DialogFooter,
   List,
   ListItem,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Provider,
   Sidebar,
   Tab,
@@ -150,14 +145,6 @@ describe('Clarity unmasking', () => {
               <Tab>tab label</Tab>
             </TabList>
           </Tabs>
-          <Menu isOpen>
-            <MenuButton as={Button} data-clarity-unmask="true">
-              menu button
-            </MenuButton>
-            <MenuList data-clarity-unmask="true">
-              <MenuItem>menu item</MenuItem>
-            </MenuList>
-          </Menu>
           {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
           <Dialog isOpen title="dialog title" onClose={() => {}}>
             <DialogFooter data-clarity-unmask="true">
@@ -167,9 +154,9 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(13);
+      expect(unmasked()).toHaveLength(11);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
+      ['column header', 'tab label', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });

@@ -1,5 +1,14 @@
-import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import { Card, ExpandableCard } from '@bitrise/bitkit';
+import {
+  BitkitActionMenu,
+  BitkitButton,
+  BitkitControlButton,
+  IconCopy,
+  IconMoreVertical,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
@@ -75,23 +84,25 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                 />
               )}
 
-              <OverflowMenu buttonProps={{ marginTop: '28', 'aria-label': 'More', iconName: 'MoreVertical' }}>
-                <OverflowMenuItem leftIconName="Duplicate" onClick={() => copy(key)}>
+              <BitkitActionMenu
+                trigger={<BitkitControlButton icon={IconMoreVertical} label="More" marginBlockStart="28" />}
+              >
+                <BitkitActionMenu.Item icon={IconCopy} onClick={() => copy(key)}>
                   Copy key
-                </OverflowMenuItem>
+                </BitkitActionMenu.Item>
                 {/* Read-only (merged/ghost): no edit/delete CTAs — hidden, not disabled (BIVS-3721). */}
                 {!isReadOnlyView && (
                   <>
-                    <OverflowMenuItem leftIconName="Pencil" onClick={() => onEdit(index)}>
+                    <BitkitActionMenu.Item icon={IconPencil} onClick={() => onEdit(index)}>
                       Edit input
-                    </OverflowMenuItem>
-                    <Separator />
-                    <OverflowMenuItem leftIconName="Trash" isDanger onClick={() => onDelete(index)}>
+                    </BitkitActionMenu.Item>
+                    <BitkitActionMenu.Separator />
+                    <BitkitActionMenu.Item icon={IconTrash} isDanger onClick={() => onDelete(index)}>
                       Delete
-                    </OverflowMenuItem>
+                    </BitkitActionMenu.Item>
                   </>
                 )}
-              </OverflowMenu>
+              </BitkitActionMenu>
             </Box>
             <Separator marginBlock="16" />
           </Fragment>
