@@ -1,4 +1,5 @@
-import { CardProps, Checkbox, DraggableCard, Icon, IconButton } from '@bitrise/bitkit';
+import { CardProps, Checkbox, DraggableCard, IconButton } from '@bitrise/bitkit';
+import { IconArrowRight } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -70,7 +71,7 @@ const TriggerCard = (props: TriggerCardProps) => {
         <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} triggerType={triggerItem.triggerType} />
       </Box>
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
-        <Icon name="ArrowRight" marginRight="16" />
+        <IconArrowRight marginInlineEnd="16" />
         <Box display="flex" flexDirection="column" gap="4">
           <Text>{targetId}</Text>
           <Text textStyle="body/md/regular" color="text/secondary">

@@ -1,4 +1,4 @@
-import { Icon } from '@bitrise/bitkit';
+import { IconPlay } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { NodeProps, Position } from '@xyflow/react';
 
@@ -22,7 +22,7 @@ const RunNode = (_props: Props) => {
         justifyContent="center"
         borderColor="border/regular"
       >
-        <Icon name="Play" size="16" color="icon/tertiary" />
+        <IconPlay size="16" color="icon/tertiary" />
       </Box>
       <InvisibleHandle type="source" position={Position.Right} />
     </>

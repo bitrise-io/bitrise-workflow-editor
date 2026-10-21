@@ -16,6 +16,13 @@ const RESTRICTED_IMPORTS = [
     importNames: ["useShallow"],
     message: `Please import useShallow from '@/hooks/useShallow' instead.`,
   },
+  {
+    name: "@bitrise/bitkit",
+    importNames: ["Icon", "TypeIconName"],
+    message:
+      "Icons come from @bitrise/bitkit-v2: import the named component (IconPlus, IconCross, …) " +
+      "and type icon props as BitkitIconComponent.",
+  },
 ];
 
 const RAW_USE_STORE_MESSAGE =

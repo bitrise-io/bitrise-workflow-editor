@@ -1,4 +1,4 @@
-import { Card, CardProps, Icon, MarkdownContent, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, MarkdownContent, Tooltip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
@@ -133,10 +133,9 @@ const AlgoliaStepListItem = ({
         </Box>
 
         {!isDisabled && !isOpen && (
-          <Icon
-            p="4"
-            size="32"
-            name="Plus"
+          <IconPlus
+            boxSize="32"
+            padding="4"
             display="none"
             color="icon/interactive"
             _groupHover={{ display: 'block' }}

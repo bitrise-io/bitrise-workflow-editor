@@ -1,5 +1,5 @@
-import { DialogBody, DialogFooter, Icon, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitTabs } from '@bitrise/bitkit-v2';
+import { DialogBody, DialogFooter, Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, BitkitTabs, IconArrowLeft, IconArrowRight, IconCross } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
@@ -220,7 +220,7 @@ const ModularConfigMergeDialogBody = ({
         </Text>
       </ModalHeader>
       <ModalCloseButton size="large">
-        <Icon name="Cross" />
+        <IconCross />
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
         <Text>
@@ -257,7 +257,7 @@ const ModularConfigMergeDialogBody = ({
             </Box>
 
             <Box alignSelf="center">
-              <Icon name="ArrowRight" color="icon/tertiary" size="24" />
+              <IconArrowRight color="icon/tertiary" />
             </Box>
 
             <Box display="flex" flexDirection="column" flex="1" gap="4">
@@ -278,7 +278,7 @@ const ModularConfigMergeDialogBody = ({
             </Box>
 
             <Box alignSelf="center">
-              <Icon name="ArrowLeft" color="icon/tertiary" size="24" />
+              <IconArrowLeft color="icon/tertiary" />
             </Box>
 
             <Box display="flex" flexDirection="column" flex="1" gap="4">

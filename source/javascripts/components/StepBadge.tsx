@@ -1,4 +1,5 @@
-import { Icon, Tooltip } from '@bitrise/bitkit';
+import { Tooltip } from '@bitrise/bitkit';
+import { IconBadge3RdParty, IconBadgeBitrise } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 
 import deprecatedIcon from '@/../images/step/badge-deprecated.svg';
@@ -23,7 +24,7 @@ const StepBadge = ({
     return (
       <Box title="Bitrise step" data-e2e-tag="official-badge" {...rest}>
         <Tooltip label="Maintained by Bitrise">
-          <Icon name="BadgeBitrise" size={size} />
+          <IconBadgeBitrise size={size} />
         </Tooltip>
       </Box>
     );
@@ -33,7 +34,7 @@ const StepBadge = ({
     return (
       <Box title="Verified step" data-e2e-tag="verified-badge" {...rest}>
         <Tooltip label="Verified by Bitrise">
-          <Icon name="Badge3rdParty" size={size} />
+          <IconBadge3RdParty size={size} />
         </Tooltip>
       </Box>
     );

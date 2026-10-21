@@ -1,5 +1,5 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Icon, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, IconCross } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
@@ -113,7 +113,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
         <YmlValidationBadge status={ymlStatus} />
       </ModalHeader>
       <ModalCloseButton size="large">
-        <Icon name="Cross" />
+        <IconCross />
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
         <BitkitAlert
