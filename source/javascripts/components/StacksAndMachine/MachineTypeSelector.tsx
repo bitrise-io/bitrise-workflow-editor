@@ -89,10 +89,7 @@ const MachineTypeSelector = ({
           {Object.entries(machineType.availableInRegions).map(([regionName, texts]) => {
             return (
               <Text as="span" color="text/helper" key={regionName} textStyle="body/sm/regular">
-                <Text as="span" fontWeight="bold">
-                  {regionName}:
-                </Text>{' '}
-                {texts?.join(' • ')}
+                <strong>{regionName}:</strong> {texts?.join(' • ')}
               </Text>
             );
           })}
