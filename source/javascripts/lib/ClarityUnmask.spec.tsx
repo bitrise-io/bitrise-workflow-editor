@@ -165,12 +165,16 @@ describe('Clarity unmasking', () => {
           <BitkitSegmentedControl value="a" data-clarity-unmask="true">
             <BitkitSegmentedControl.Item value="a">segment label</BitkitSegmentedControl.Item>
           </BitkitSegmentedControl>
-          {/* Portalled: the attribute has to sit on the item itself, since a tagged ancestor in the
-              main tree would not enclose the portalled node. */}
+          {/* Portalled: a tagged ancestor in the main tree would not enclose the portalled node, so the
+              attribute goes on the item itself, or on the menu, which forwards it to the portalled
+              role="menu" element around every item. */}
           <BitkitActionMenu open trigger={<button type="button">trigger</button>}>
             <BitkitActionMenu.Item value="x" data-clarity-unmask="true">
               action menu item
             </BitkitActionMenu.Item>
+          </BitkitActionMenu>
+          <BitkitActionMenu open data-clarity-unmask="true" trigger={<button type="button">other trigger</button>}>
+            <BitkitActionMenu.Item value="y">action menu root item</BitkitActionMenu.Item>
           </BitkitActionMenu>
           <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
           <BitkitEmptyState
@@ -196,11 +200,12 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(9);
+      expect(unmasked()).toHaveLength(10);
       [
         'alert message',
         'segment label',
         'action menu item',
+        'action menu root item',
         'bitkit button',
         'empty state',
         'ribbon message',
