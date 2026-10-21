@@ -24,6 +24,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
   const {
     pipelineId,
+    pipelineConfigTab,
     stepBundleId,
     workflowId,
     selectedStepIndices,
@@ -70,6 +71,7 @@ const Drawers = ({ children }: PropsWithChildren) => {
       {isDialogMounted(PipelinesPageDialogType.PIPELINE_CONFIG) && (
         <PipelineConfigDrawer
           pipelineId={pipelineId}
+          initialTab={pipelineConfigTab}
           isOpen={isDialogOpen(PipelinesPageDialogType.PIPELINE_CONFIG)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
@@ -118,7 +120,6 @@ const Drawers = ({ children }: PropsWithChildren) => {
 
       {isDialogMounted(PipelinesPageDialogType.STEP_BUNDLE) && (
         <StepBundleConfigDrawer
-          size="md"
           isOpen={isDialogOpen(PipelinesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}

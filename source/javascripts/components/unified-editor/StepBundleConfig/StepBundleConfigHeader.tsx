@@ -14,9 +14,11 @@ import { useStepBundleConfigContext } from './StepBundleConfig.context';
 
 type HeaderProps = {
   variant: 'panel' | 'drawer';
+  // The bundle's own definition, not an instance of it inside a Workflow or another bundle.
+  isDefinition?: boolean;
 };
 
-const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
+const StepBundleConfigHeader = ({ variant, isDefinition = variant === 'panel' }: HeaderProps) => {
   const { cvs, stepBundleId, title } = useStepBundleConfigContext((s) => ({
     cvs: s.stepBundle?.cvs || '',
     stepBundleId: s.stepBundle?.id || s.stepBundleId || '',
@@ -45,7 +47,7 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   let subtitle: ReactNode = (
     <EntityModuleProvenance kind="stepBundles" id={stepBundleId} pathTextStyle="body/md/semibold" fallback={usedIn} />
   );
-  if (variant === 'drawer') {
+  if (!isDefinition) {
     subtitle = (
       <>
         Instance of{' '}

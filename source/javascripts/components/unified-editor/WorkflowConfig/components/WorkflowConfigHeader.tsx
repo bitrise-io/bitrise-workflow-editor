@@ -14,11 +14,12 @@ import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig
 
 type Props = {
   variant: 'panel' | 'drawer';
+  withExplain?: boolean;
   context: 'pipeline' | 'workflow';
   parentWorkflowId?: string;
 };
 
-const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
+const WorkflowConfigHeader = ({ variant, context, parentWorkflowId, withExplain = variant === 'panel' }: Props) => {
   const id = useWorkflowConfigId();
   const title = useWorkflowConfigContext((s) => s?.userValues?.title);
 
@@ -76,7 +77,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
             </Text>
           )}
         </div>
-        {isAIButtonVisible && variant === 'panel' && (
+        {isAIButtonVisible && withExplain && (
           <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
             <BitkitButton
               state={isAIButtonDisabled ? 'disabled' : undefined}

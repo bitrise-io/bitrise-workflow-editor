@@ -10,7 +10,6 @@ const meta: Meta<typeof Toolbar> = {
   component: Toolbar,
   argTypes: {
     onRunClick: { type: 'function' },
-    onWorkflowsClick: { type: 'function' },
     onPropertiesClick: { type: 'function' },
   },
 };

@@ -1,5 +1,5 @@
 import { Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
-import { BitkitControlButton, IconChevronDown, IconChevronUp } from '@bitrise/bitkit-v2';
+import { BitkitControlButton, IconChevronDown, IconChevronUp, IconSettings } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useSortable } from '@dnd-kit/sortable';
@@ -34,11 +34,14 @@ type StepBundleCardProps = StepCardProps & {
   stepBundleId?: string;
   isCollapsable?: boolean;
   isPreviewMode?: boolean;
+  // Where the bundle is the page's subject: its settings, always visible in the header.
+  onEditStepBundle?: () => void;
 };
 
 const StepBundleCard = (props: StepBundleCardProps) => {
   const {
     cvs,
+    onEditStepBundle,
     isCollapsable,
     isDragging,
     isPreviewMode = false,
@@ -265,6 +268,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 </Box>
               )}
               {buttonGroup}
+              {onEditStepBundle && (
+                <BitkitControlButton
+                  size="xs"
+                  icon={IconSettings}
+                  label="Edit Step bundle"
+                  onClick={onEditStepBundle}
+                />
+              )}
             </Box>
           </Box>
           {!isCrossFile && (

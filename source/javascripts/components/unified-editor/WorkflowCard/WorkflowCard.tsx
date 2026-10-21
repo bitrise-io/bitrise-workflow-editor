@@ -36,6 +36,13 @@ type ContentProps = {
   parallel?: string | number;
   isCollapsable?: boolean;
   containerProps?: CardProps;
+  // Where the card is the page's subject, its settings are always in reach, not only on hover.
+  isEditButtonAlwaysVisible?: boolean;
+  // Page-level actions for that subject (e.g. Run), always visible in the header.
+  headerActions?: ReactNode;
+  // Lets the parent own the expansion (e.g. the pipeline canvas opening a node on click).
+  isExpanded?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
 };
 
 const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
@@ -83,6 +90,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   parallel,
   isCollapsable,
   containerProps,
+  isEditButtonAlwaysVisible,
+  headerActions,
+  isExpanded,
+  onExpandedChange,
 }: ContentProps) {
   const workflowId = uses || id;
 
@@ -99,13 +110,21 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
   const isGhost = isCrossFile || isReadOnlyView;
 
-  const {
-    open: isOpen,
-    onOpen,
-    onToggle,
-  } = useDisclosure({
+  const disclosure = useDisclosure({
     defaultOpen: !isCollapsable,
   });
+  const isOpen = isExpanded ?? disclosure.open;
+  const setIsOpen = (next: boolean) => {
+    if (onExpandedChange) {
+      onExpandedChange(next);
+    } else if (next) {
+      disclosure.onOpen();
+    } else {
+      disclosure.onClose();
+    }
+  };
+  const onOpen = () => setIsOpen(true);
+  const onToggle = () => setIsOpen(!isOpen);
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
@@ -170,7 +189,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           </Text>
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
+        {(onChainWorkflow || (onEditWorkflow && !isEditButtonAlwaysVisible) || onRemoveWorkflow || showJumpButton) && (
           <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
             {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
             {onChainWorkflow && !isCrossFile && (
@@ -191,7 +210,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
               // a workflow defined here and elsewhere are reachable.
               <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
-            {onEditWorkflow && (
+            {onEditWorkflow && !isEditButtonAlwaysVisible && (
               <BitkitControlButton
                 size="xs"
                 icon={IconSettings}
@@ -209,6 +228,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
               />
             )}
           </Box>
+        )}
+        {headerActions}
+        {onEditWorkflow && isEditButtonAlwaysVisible && (
+          <BitkitControlButton size="xs" icon={IconSettings} label="Edit Workflow" onClick={() => onEditWorkflow(id)} />
         )}
       </Box>
 
@@ -247,6 +270,10 @@ const WorkflowCard = ({
   parallel,
   isCollapsable,
   containerProps,
+  isEditButtonAlwaysVisible,
+  headerActions,
+  isExpanded,
+  onExpandedChange,
   selectedStepIndices = [],
   selectionParent,
   ...actions
@@ -258,6 +285,10 @@ const WorkflowCard = ({
       parallel={parallel}
       isCollapsable={isCollapsable}
       containerProps={containerProps}
+      isEditButtonAlwaysVisible={isEditButtonAlwaysVisible}
+      headerActions={headerActions}
+      isExpanded={isExpanded}
+      onExpandedChange={onExpandedChange}
     />
   </WorkflowCardContextProvider>
 );

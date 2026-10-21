@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
-import WorkflowConfigPanel from '@/components/unified-editor/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
 import useCloseDialogsOnFileSwitch, { FileSwitchDialogRefs } from '@/hooks/useCloseDialogsOnFileSwitch';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -42,9 +41,15 @@ const WorkflowsPage = () => {
   const openDialog = useWorkflowsPageStore((s) => s.openDialog);
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
 
+  // The Workflow's settings live in a drawer now, so opening a Workflow opens it, as a panel would
+  // have shown them.
   useEffect(() => {
-    closeDialog();
-  }, [selectedWorkflowId, closeDialog]);
+    if (selectedWorkflowId) {
+      openDialog({ type: WorkflowsPageDialogType.WORKFLOW_CONFIG, workflowId: selectedWorkflowId })();
+    } else {
+      closeDialog();
+    }
+  }, [selectedWorkflowId, openDialog, closeDialog]);
 
   useCloseDialogsOnFileSwitch(fileSwitchDialogRefs, () => {
     const { closeDialog: close, setSelectedStepIndices } = useWorkflowsPageStore.getState();
@@ -66,9 +71,8 @@ const WorkflowsPage = () => {
   }
 
   return (
-    <Box height="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
+    <Box height="100%" display="grid" gridTemplateRows="100%">
       <WorkflowCanvasPanel workflowId={selectedWorkflowId} />
-      <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       <Drawers />
     </Box>
   );

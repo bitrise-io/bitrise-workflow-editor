@@ -1,28 +1,26 @@
 import { Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlay, IconPlus, IconSettings } from '@bitrise/bitkit-v2';
+import { BitkitButton, IconPlay, IconSettings } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useMemo } from 'react';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useIsMergedConfigSelected, useIsReadOnlyView, useTree } from '@/hooks/useTree';
+import { useIsMergedConfigSelected, useTree } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
 type Props = BoxProps & {
   onRunClick?: () => void;
-  onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
 };
 
-const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
+const Toolbar = ({ onRunClick, onPropertiesClick, ...props }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
   const tree = useTree();
   const isMergedConfigSelected = useIsMergedConfigSelected();
   const isModularFileTab = !!tree && !isMergedConfigSelected;
-  const isReadOnlyView = useIsReadOnlyView();
   // The sidebar's Building blocks list picks the Pipeline now; the toolbar only names it.
   const { options, selectedPipeline } = usePipelineSelector();
 
@@ -79,19 +77,6 @@ const Toolbar = ({ onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: 
           >
             Properties
           </BitkitButton>
-          {/* Adds workflows to the pipeline (a mutation) → hidden on the read-only merged/ghost view
-              (BIVS-3721). Properties stays for inspection. */}
-          {!isReadOnlyView && (
-            <BitkitButton
-              size="md"
-              variant="secondary"
-              icon={IconPlus}
-              onClick={onWorkflowsClick}
-              data-clarity-unmask="true"
-            >
-              Workflows
-            </BitkitButton>
-          )}
         </>
       )}
 

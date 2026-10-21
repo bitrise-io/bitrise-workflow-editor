@@ -10,15 +10,17 @@ import FloatingDrawer, {
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useAIButton from '@/hooks/useAIButton';
+import { PipelineConfigTab } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import PropertiesTab from './tabs/PropertiesTab';
 import TriggersTab from './tabs/TriggersTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
+  initialTab?: PipelineConfigTab;
 };
 
-const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
+const PipelineConfigDrawer = ({ pipelineId, initialTab, ...props }: Props) => {
   const {
     isVisible: isAIButtonVisible,
     tooltipLabel,
@@ -31,7 +33,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   }
 
   return (
-    <Tabs>
+    <Tabs defaultIndex={initialTab === 'triggers' ? 1 : 0}>
       <FloatingDrawer {...props}>
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />

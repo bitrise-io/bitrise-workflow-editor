@@ -2,6 +2,7 @@ import {
   applyNodeChanges,
   EdgeMouseHandler,
   EdgeTypes,
+  NodeMouseHandler,
   NodeTypes,
   OnConnect,
   OnEdgesDelete,
@@ -12,27 +13,39 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
+  useStoreApi,
 } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { floatingDrawerCoveredWidth } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import PipelineService from '@/core/services/PipelineService';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import GraphPipelineCanvasEmptyState from '../../EmptyStates/GraphPipelineCanvasEmptyState';
+import AddWorkflowNode from './components/AddWorkflowNode';
 import GeneratedWorkflowsPlaceholderNode from './components/GeneratedWorkflowsPlaceholderNode';
 import GraphEdge, { ConnectionGraphEdge } from './components/GraphEdge';
 import PlaceholderNode from './components/PlaceholderWorkflowNode';
+import TriggerNode from './components/TriggerNode';
 import WorkflowNode from './components/WorkflowNode';
 import {
+  ADD_WORKFLOW_NODE_TYPE,
+  CANVAS_PADDING,
   GENERATED_WORKFLOWS_PLACEHOLDER_NODE_TYPE,
   GRAPH_EDGE_TYPE,
   PLACEHOLDER_NODE_TYPE,
+  TRIGGER_NODE_TYPE,
+  WORKFLOW_NODE_HEIGHT,
   WORKFLOW_NODE_TYPE,
+  WORKFLOW_NODE_WIDTH,
 } from './GraphPipelineCanvas.const';
 import { GraphPipelineEdgeType, GraphPipelineNodeType, isWorkflowNode } from './GraphPipelineCanvas.types';
 import usePipelineWorkflows from './hooks/usePipelineWorkflows';
+import addCanvasControls from './utils/addCanvasControls';
+import { estimateExpandedHeight, useAutoExpandedNode } from './utils/autoExpandedNode';
 import autoLayoutingGraphNodes from './utils/autoLayoutingGraphNodes';
 import transformWorkflowsToGraphEntities from './utils/transformWorkflowsToGraphEntities';
 import validateConnection from './utils/validateConnection';
@@ -41,6 +54,8 @@ const nodeTypes: NodeTypes = {
   [WORKFLOW_NODE_TYPE]: WorkflowNode,
   [PLACEHOLDER_NODE_TYPE]: PlaceholderNode,
   [GENERATED_WORKFLOWS_PLACEHOLDER_NODE_TYPE]: GeneratedWorkflowsPlaceholderNode,
+  [TRIGGER_NODE_TYPE]: TriggerNode,
+  [ADD_WORKFLOW_NODE_TYPE]: AddWorkflowNode,
 };
 
 const edgeTypes: EdgeTypes = {
@@ -52,8 +67,13 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const { selectedPipeline } = usePipelineSelector();
   const [prevWorkflows, setPrevWorkflows] = useState(workflows);
-  const initial = transformWorkflowsToGraphEntities(workflows);
-  const { updateEdgeData } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
+  const initial = addCanvasControls(workflows, transformWorkflowsToGraphEntities(workflows));
+  const { updateEdgeData, getNode, getZoom, setCenter } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
+  const flowStore = useStoreApi();
+  // The node whose drawer is open: a Workflow's own, or one of its chained Workflows'.
+  const focusedNodeId = usePipelinesPageStore((s) =>
+    s.openedDialogType === PipelinesPageDialogType.WORKFLOW_CONFIG ? s.parentWorkflowId || s.workflowId : undefined,
+  );
 
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [nodes, setNodes] = useNodesState(autoLayoutingGraphNodes(workflows, initial.nodes));
@@ -103,10 +123,71 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
     [workflows, setNodes],
   );
 
+  // Clicking a Workflow node opens its drawer, as its settings button does. Clicks on what's inside
+  // the card (steps, its own buttons, menus) keep doing their own thing.
+  const handleNodeClick: NodeMouseHandler<GraphPipelineNodeType> = useCallback(
+    (event, node) => {
+      const isOnControl = (event.target as Element).closest(
+        'button, a, input, textarea, select, [role="button"], [role="menuitem"], [role="checkbox"]',
+      );
+      if (!isWorkflowNode(node) || isOnControl || focusedNodeId === node.id) {
+        return;
+      }
+      openDialog({
+        type: PipelinesPageDialogType.WORKFLOW_CONFIG,
+        pipelineId: selectedPipeline,
+        workflowId: node.id,
+      })();
+    },
+    [focusedNodeId, openDialog, selectedPipeline],
+  );
+
+  // A clicked node opens too, if it fits the canvas at the current zoom; one with too many Steps stays
+  // closed rather than spilling off-screen. It closes again when the focus moves on or the drawer closes.
+  useEffect(() => {
+    const node = focusedNodeId ? getNode(focusedNodeId) : undefined;
+    let nodeId: string | undefined;
+    if (node && isWorkflowNode(node)) {
+      const workflowId = node.data.uses || node.id;
+      const available = flowStore.getState().height / getZoom() - 2 * CANVAS_PADDING;
+      nodeId = estimateExpandedHeight(getBitriseYml(), workflowId) <= available ? node.id : undefined;
+    }
+    useAutoExpandedNode.setState({ nodeId });
+  }, [focusedNodeId, flowStore, getNode, getZoom]);
+
+  useEffect(() => () => useAutoExpandedNode.setState({ nodeId: undefined }), []);
+
+  // Whenever a Workflow's drawer opens, glide its node to the middle of the canvas the drawer leaves
+  // visible. It moves with the drawer's 0.2s slide-in, so the two read as one motion. While the node
+  // opens and the layout settles, the glide follows it to where it ends up.
+  const focusedNode = nodes.find((n) => n.id === focusedNodeId);
+  const focusedY = focusedNode?.position.y;
+  const focusedHeight = focusedNode?.measured?.height ?? focusedNode?.height;
+  const focusedAt = useRef(0);
+  useEffect(() => {
+    focusedAt.current = Date.now();
+  }, [focusedNodeId]);
+  useEffect(() => {
+    const node = focusedNodeId ? getNode(focusedNodeId) : undefined;
+    if (!node || Date.now() - focusedAt.current > 800) {
+      return;
+    }
+    const zoom = getZoom();
+    const width = node.measured?.width ?? WORKFLOW_NODE_WIDTH;
+    const fullHeight = node.measured?.height ?? WORKFLOW_NODE_HEIGHT;
+    // A node that fits is centred whole; a taller one on its upper part, so its header stays in view.
+    const fits = fullHeight <= flowStore.getState().height / zoom - 2 * CANVAS_PADDING;
+    const height = fits ? fullHeight : Math.min(fullHeight, 240);
+    setCenter(node.position.x + width / 2 + floatingDrawerCoveredWidth() / 2 / zoom, node.position.y + height / 2, {
+      zoom,
+      duration: 250,
+    });
+  }, [focusedNodeId, focusedY, focusedHeight, flowStore, getNode, getZoom, setCenter]);
+
   // Update nodes and edges when workflows change
   useEffect(() => {
     if (!isEqual(workflows, prevWorkflows)) {
-      const entities = transformWorkflowsToGraphEntities(workflows);
+      const entities = addCanvasControls(workflows, transformWorkflowsToGraphEntities(workflows));
 
       setNodes((nds) => {
         const newNodes = entities.nodes.map((node) => {
@@ -140,6 +221,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onConnect={handleConnect}
+        onNodeClick={handleNodeClick}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={handleEdgesDelete}
@@ -151,7 +233,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         isValidConnection={validateConnection(nodes, edges)}
         {...props}
       />
-      {nodes.length === 0 && (
+      {workflows.length === 0 && (
         <GraphPipelineCanvasEmptyState
           inset="0"
           position="absolute"

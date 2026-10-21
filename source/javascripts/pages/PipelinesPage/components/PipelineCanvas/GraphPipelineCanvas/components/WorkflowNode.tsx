@@ -2,7 +2,7 @@ import { CardProps } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useHover, useResizeObserver } from 'usehooks-ts';
 
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
@@ -19,6 +19,7 @@ import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
+import { useAutoExpandedNode } from '../utils/autoExpandedNode';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -95,6 +96,18 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
+
+  const [isOpenedByUser, setIsOpenedByUser] = useState(false);
+  const isAutoExpanded = useAutoExpandedNode((s) => s.nodeId === id);
+  const handleExpandedChange = useCallback(
+    (isExpanded: boolean) => {
+      setIsOpenedByUser(isExpanded);
+      if (!isExpanded && useAutoExpandedNode.getState().nodeId === id) {
+        useAutoExpandedNode.setState({ nodeId: undefined });
+      }
+    },
+    [id],
+  );
 
   const uses = 'uses' in data ? data.uses : undefined;
   const parallel = 'parallel' in data ? data.parallel : undefined;
@@ -463,6 +476,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         uses={uses}
         parallel={parallel}
         containerProps={containerProps}
+        isExpanded={isOpenedByUser || isAutoExpanded}
+        onExpandedChange={handleExpandedChange}
         selectedStepIndices={selectedStepIndices}
         selectionParent={selectionParent}
         onAddStep={handleAddStep}

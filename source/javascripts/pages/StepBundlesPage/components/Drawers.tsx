@@ -5,6 +5,7 @@ import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import { StepBundleCreationSource } from '@/core/models/StepBundle';
 import StepBundleService from '@/core/services/StepBundleService';
 import StepService from '@/core/services/StepService';
+import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
 import CreateStepBundleDialog from '../../../components/unified-editor/CreateStepBundleDialog/CreateStepBundleDialog';
@@ -12,6 +13,7 @@ import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundl
 
 const Drawers = () => {
   const enabledSteps = useUniqueStepIds('set');
+  const [, setSelectedStepBundle] = useSelectedStepBundle();
   const { closeDialog, isDialogOpen, openDialog, unmountDialog, isDialogMounted, selectedStepIndices, stepBundleId } =
     useStepBundlesPageStore();
 
@@ -49,7 +51,6 @@ const Drawers = () => {
 
       {isDialogMounted(StepBundlesPageDialogType.STEP_CONFIG) && (
         <StepConfigDrawer
-          size="lg"
           stepBundleId={stepBundleId}
           workflowId=""
           stepIndex={selectedStepIndices[0]}
@@ -61,7 +62,6 @@ const Drawers = () => {
 
       {isDialogMounted(StepBundlesPageDialogType.STEP_SELECTOR) && (
         <StepSelectorDrawer
-          size="lg"
           enabledSteps={enabledSteps}
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_SELECTOR)}
           onClose={closeDialog}
@@ -71,9 +71,21 @@ const Drawers = () => {
         />
       )}
 
+      {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION) && (
+        <StepBundleConfigDrawer
+          isDefinition
+          stepBundleId={stepBundleId}
+          stepIndex={-1}
+          isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION)}
+          onClose={closeDialog}
+          onCloseComplete={unmountDialog}
+          onDelete={closeDialog}
+          onChangeId={setSelectedStepBundle}
+        />
+      )}
+
       {isDialogMounted(StepBundlesPageDialogType.STEP_BUNDLE) && (
         <StepBundleConfigDrawer
-          size="lg"
           isOpen={isDialogOpen(StepBundlesPageDialogType.STEP_BUNDLE)}
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
