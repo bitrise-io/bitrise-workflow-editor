@@ -1,4 +1,5 @@
-import { ExpandableCard, Input, Select, Textarea, Toggle } from '@bitrise/bitkit';
+import { ExpandableCard, Input, Select, Textarea } from '@bitrise/bitkit';
+import { BitkitSwitch } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
@@ -37,17 +38,18 @@ const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputPro
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.abort_on_fail ?? false,
   );
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'abort_on_fail', e.target.checked);
+  const handleChange = ({ checked }: { checked: boolean }) => {
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'abort_on_fail', checked);
   };
 
   return (
-    <Toggle
-      isChecked={isChecked}
+    <BitkitSwitch
+      checked={isChecked}
       variant="fixed"
+      size="md"
       label="Abort Pipeline on failure"
       helperText="Running Workflows will shut down, future ones won’t start if this one fails."
-      onChange={handleChange}
+      onCheckedChange={handleChange}
     />
   );
 };
