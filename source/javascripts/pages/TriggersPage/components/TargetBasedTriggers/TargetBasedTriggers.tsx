@@ -1,5 +1,6 @@
-import { Checkbox, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import {
+  BitkitCheckbox,
   BitkitEmptyState,
   BitkitIconButton,
   BitkitLink,
@@ -139,14 +140,13 @@ const TargetBasedTriggers = () => {
         </Td>
         <Td display="flex" justifyContent="flex-end" alignItems="center">
           <Box display="flex" alignItems="center">
-            <Checkbox
-              marginRight="16"
-              isChecked={trigger.isActive}
-              isDisabled={isReadOnlyView}
-              onChange={() => handleActiveChange(trigger)}
-            >
-              Active
-            </Checkbox>
+            <BitkitCheckbox
+              labelText="Active"
+              marginInlineEnd="16"
+              checked={trigger.isActive}
+              state={isReadOnlyView ? 'disabled' : undefined}
+              onCheckedChange={() => handleActiveChange(trigger)}
+            />
             {isReadOnlyView ? (
               // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
               // collapse to a jump-to-definition arrow over the modules that actually carry a trigger;

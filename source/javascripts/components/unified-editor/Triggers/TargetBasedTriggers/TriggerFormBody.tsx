@@ -1,5 +1,5 @@
-import { Checkbox, Select } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { Select } from '@bitrise/bitkit';
+import { BitkitCheckbox, BitkitLink } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -105,8 +105,9 @@ const TriggerFormBody = (props: Props) => {
         remove={remove}
       />
       {triggerType === 'pull_request' && (
-        <Checkbox
-          isChecked={isDraftPr !== false}
+        <BitkitCheckbox
+          labelText="Include draft pull requests"
+          checked={isDraftPr !== false}
           marginBlockStart="24"
           helperText={
             <>
@@ -120,10 +121,8 @@ const TriggerFormBody = (props: Props) => {
               </BitkitLink>
             </>
           }
-          onChange={(e) => setValue(`isDraftPr`, e.target.checked)}
-        >
-          Include draft pull requests
-        </Checkbox>
+          onCheckedChange={({ checked }) => setValue(`isDraftPr`, checked === true)}
+        />
       )}
       {variant === 'target-based' && (
         <PriorityInput

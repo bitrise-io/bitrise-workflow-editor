@@ -1,5 +1,5 @@
-import { Checkbox, Td, Tooltip, Tr } from '@bitrise/bitkit';
-import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { Td, Tooltip, Tr } from '@bitrise/bitkit';
+import { BitkitCheckbox, BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -56,14 +56,13 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
       <Td>
         <Tooltip label="Edit containers in the Step bundle definition." isDisabled={!isDisabled}>
           <Box display="inline-block">
-            <Checkbox
-              isChecked={reference.recreate}
-              onChange={(e) => onRecreate(reference.id, e.target.checked)}
+            <BitkitCheckbox
+              labelText="Recreate container"
+              checked={reference.recreate}
+              onCheckedChange={({ checked }) => onRecreate(reference.id, checked === true)}
               value={reference.id}
-              isDisabled={isDisabled || isReadOnlyView}
-            >
-              Recreate container
-            </Checkbox>
+              state={isDisabled || isReadOnlyView ? 'disabled' : undefined}
+            />
           </Box>
         </Tooltip>
       </Td>
