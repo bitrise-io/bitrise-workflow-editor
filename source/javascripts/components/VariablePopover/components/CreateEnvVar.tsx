@@ -1,9 +1,9 @@
-import { Checkbox, Input } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
+import { Input } from '@bitrise/bitkit';
+import { BitkitButton, BitkitCheckbox } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { EnvVar } from '@/core/models/EnvVar';
@@ -17,11 +17,12 @@ type Props = {
 
 const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
   const {
+    control,
     register,
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<EnvVar>();
+  } = useForm<EnvVar>({ defaultValues: { isExpand: false } });
 
   const handleCancel = () => {
     onCancel();
@@ -59,9 +60,19 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
             {...register('value')}
           />
         </Box>
-        <Checkbox isRequired={false} {...register('isExpand')} marginTop="16">
-          Replace variable in inputs
-        </Checkbox>
+        <Controller
+          control={control}
+          name="isExpand"
+          render={({ field }) => (
+            <BitkitCheckbox
+              labelText="Replace variable in inputs"
+              marginBlockStart="16"
+              checked={!!field.value}
+              name={field.name}
+              onCheckedChange={({ checked }) => field.onChange(checked === true)}
+            />
+          )}
+        />
       </Box>
       <ButtonGroup gap="12">
         <BitkitButton size="sm" type="submit">
