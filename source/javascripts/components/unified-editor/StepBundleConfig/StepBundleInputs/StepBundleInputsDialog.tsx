@@ -1,11 +1,11 @@
-import { Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Input, Textarea } from '@bitrise/bitkit';
-import { BitkitButton, BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Collapse, Dialog, DialogBody, DialogFooter, Input, Textarea } from '@bitrise/bitkit';
+import { BitkitButton, BitkitCheckbox, BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { ChangeEvent } from 'react';
-import { useController, useForm } from 'react-hook-form';
+import { Controller, useController, useForm } from 'react-hook-form';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -132,35 +132,59 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
             />
             <Input label="Category" {...register('opts.category')} />
             <Textarea label="Description" {...register('opts.description')} />
-            <Checkbox
-              isChecked={watch('opts.is_required')}
-              helperText="Input must have a valid value, or the Step will fail."
-              {...register('opts.is_required')}
-            >
-              Required
-            </Checkbox>
-            <Checkbox
-              isChecked={watch('opts.is_sensitive')}
-              helperText="Input accepts only Secrets as values."
-              {...register('opts.is_sensitive')}
-            >
-              Sensitive
-            </Checkbox>
-            <Checkbox
-              isChecked={watch('opts.is_dont_change_value')}
-              helperText="The default value shouldn't be changed on the UI."
-              {...register('opts.is_dont_change_value')}
-            >
-              Read-only value
-            </Checkbox>
-            <Checkbox
-              isChecked={watch('opts.is_expand')}
-              helperText="If a value is an Env Var, the CLI will pass its value to the Step. Uncheck to pass the key as a string."
-              mb="16"
-              {...register('opts.is_expand')}
-            >
-              Expand Env Vars in inputs
-            </Checkbox>
+            <Controller
+              control={control}
+              name="opts.is_required"
+              render={({ field }) => (
+                <BitkitCheckbox
+                  labelText="Required"
+                  helperText="Input must have a valid value, or the Step will fail."
+                  checked={!!field.value}
+                  name={field.name}
+                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="opts.is_sensitive"
+              render={({ field }) => (
+                <BitkitCheckbox
+                  labelText="Sensitive"
+                  helperText="Input accepts only Secrets as values."
+                  checked={!!field.value}
+                  name={field.name}
+                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="opts.is_dont_change_value"
+              render={({ field }) => (
+                <BitkitCheckbox
+                  labelText="Read-only value"
+                  helperText="The default value shouldn't be changed on the UI."
+                  checked={!!field.value}
+                  name={field.name}
+                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="opts.is_expand"
+              render={({ field }) => (
+                <BitkitCheckbox
+                  labelText="Expand Env Vars in inputs"
+                  helperText="If a value is an Env Var, the CLI will pass its value to the Step. Uncheck to pass the key as a string."
+                  marginBlockEnd="16"
+                  checked={!!field.value}
+                  name={field.name}
+                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                />
+              )}
+            />
           </Box>
         </Collapse>
         <BitkitLinkButton onClick={onToggle}>{isShowMore ? 'Show less options' : 'Show more options'}</BitkitLinkButton>
