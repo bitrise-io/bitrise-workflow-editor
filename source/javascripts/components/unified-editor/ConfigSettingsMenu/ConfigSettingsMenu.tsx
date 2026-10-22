@@ -92,7 +92,15 @@ const ConfigSettingsMenu = (props: Props) => {
       <BitkitActionMenu
         size="md"
         positioning={{ placement: 'bottom-end' }}
-        trigger={<BitkitControlButton icon={IconChevronDown} label="Configuration options" size="xs" />}
+        trigger={
+          <BitkitControlButton
+            icon={IconChevronDown}
+            label="Configuration options"
+            size="xs"
+            // Bitkit hides the tooltip on a control that opens a menu; every control button here names itself.
+            tooltipProps={{ disabled: false }}
+          />
+        }
       >
         {enableBranchSwitching && usesRepositoryYml && (
           <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">

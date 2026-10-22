@@ -15,6 +15,7 @@ import {
   IconTrigger,
   rem,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
@@ -97,18 +98,18 @@ const Tools = () => {
   return (
     <>
       <NavigationItem
-        path={withSearchParams(paths.secrets)}
-        icon={IconLock}
-        intercomTarget="Secrets Page Navigation Item"
-      >
-        Secrets
-      </NavigationItem>
-      <NavigationItem
         path={withSearchParams(paths.envVars)}
         icon={IconDollar}
         intercomTarget="Env Vars Page Navigation Item"
       >
         Env Vars
+      </NavigationItem>
+      <NavigationItem
+        path={withSearchParams(paths.secrets)}
+        icon={IconLock}
+        intercomTarget="Secrets Page Navigation Item"
+      >
+        Secrets
       </NavigationItem>
       <NavigationItem
         path={withSearchParams(paths.triggers)}
@@ -152,6 +153,9 @@ const Navigation = (props: Props) => {
   const { data } = useCiConfigSettings();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
   // Opens on the menu that holds the page you land on; after that it's the user's choice.
+  const [, navigate] = useHashLocation();
+  const withSearchParams = usePathWithSearchParams();
+  const visualEditorNotice = useVisualEditorNotice();
   const [view, setView] = useState<SidebarView>(() =>
     BUILDING_BLOCK_PAGES.includes(currentPage ?? '') ? 'building-blocks' : 'tools',
   );
@@ -196,6 +200,14 @@ const Navigation = (props: Props) => {
     isDefaultTabRef.current = false;
   }, [currentPage, data?.usesRepositoryYml]);
 
+  // Picking Tools from a Pipeline, Workflow or Step bundle page opens its first tool, Env Vars, so the
+  // menu and the page agree. On a tool page already, the page stays.
+  const handleViewChange = (next: SidebarView) => {
+    setView(next);
+    if (next === 'tools' && BUILDING_BLOCK_PAGES.includes(currentPage ?? '') && !visualEditorNotice?.disabled) {
+      navigate(withSearchParams(paths.envVars));
+    }
+  };
   return (
     // The sidebar's own labels, icons and links are the same for every user and account; the entity
     // lists and file tree inside it mask themselves.
@@ -215,27 +227,33 @@ const Navigation = (props: Props) => {
       paddingInline="8"
       {...props}
     >
-      <BitkitPageSidebar.Body>
+      {/* Bitkit's body fills the sidebar but never scrolls, so a long list pushed the whole editor page
+          down. The body is held to the sidebar's height; the switch stays put and the panel below it
+          scrolls, between the switch and the footer. */}
+      <BitkitPageSidebar.Body minHeight="0">
         <BitkitSegmentedControl
           fullWidth
-          // Design-system deviation: fullWidth gives every option an equal share (`flex: 1`), too
-          // narrow for "Building blocks" on one line. Growing each from its label's width keeps the
-          // control full width without wrapping.
+          // Design-system deviation: fullWidth gives every option an equal share (`flex: 1`), which
+          // wrapped the longer labels. Growing each from its label's width keeps the control full width
+          // without wrapping.
           css={{ '& [data-part="item"]': { flex: '1 1 auto' } }}
           size="sm"
           value={visibleView}
-          onValueChange={(details) => details.value && setView(details.value as SidebarView)}
+          onValueChange={(details) => details.value && handleViewChange(details.value as SidebarView)}
           marginBlockEnd="8"
+          flexShrink={0}
         >
           {isModular && <BitkitSegmentedControl.Item value="files">Files</BitkitSegmentedControl.Item>}
-          <BitkitSegmentedControl.Item value="building-blocks">Building blocks</BitkitSegmentedControl.Item>
+          <BitkitSegmentedControl.Item value="building-blocks">CI blocks</BitkitSegmentedControl.Item>
           <BitkitSegmentedControl.Item value="tools">Tools</BitkitSegmentedControl.Item>
         </BitkitSegmentedControl>
-        {visibleView === 'files' && <FilesPanel />}
-        {visibleView === 'building-blocks' && (
-          <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
-        )}
-        {visibleView === 'tools' && <Tools />}
+        <Box flex="1" minHeight="0" overflowY="auto">
+          {visibleView === 'files' && <FilesPanel />}
+          {visibleView === 'building-blocks' && (
+            <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
+          )}
+          {visibleView === 'tools' && <Tools />}
+        </Box>
       </BitkitPageSidebar.Body>
       <BitkitPageSidebar.Footer>
         <BitkitPageSidebar.Item

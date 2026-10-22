@@ -1,4 +1,11 @@
-import { BitkitTreeView, createTreeCollection, IconChevronDown, IconChevronRight } from '@bitrise/bitkit-v2';
+import {
+  BitkitEmptyState,
+  BitkitIconComponent,
+  BitkitTreeView,
+  createTreeCollection,
+  IconChevronDown,
+  IconChevronRight,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { chakra } from '@chakra-ui/react/styled-system';
 import { Text } from '@chakra-ui/react/text';
@@ -14,7 +21,8 @@ type Props = {
   selectedId?: string;
   onSelect: (id: string) => void;
   addControl: ReactNode;
-  emptyText: string;
+  // Shown when the list is empty: what the entity is, and a button that creates one.
+  empty: { icon: BitkitIconComponent; heading: string; body: string; action: ReactNode };
   // While searching, every section with a match is shown open, whatever the user collapsed.
   isSearching: boolean;
 };
@@ -24,7 +32,7 @@ const ROOT_ID = '__entities__';
 // The design system has no section header with a permanent action: an accordion trigger takes text
 // or a badge only, and a tree branch shows its actions on hover. This header is put together from
 // primitives until Bitkit has one.
-const EntitySection = ({ label, items, selectedId, onSelect, addControl, emptyText, isSearching }: Props) => {
+const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, isSearching }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isOpen = isSearching || !isCollapsed;
 
@@ -89,9 +97,16 @@ const EntitySection = ({ label, items, selectedId, onSelect, addControl, emptyTe
             />
           </Box>
         ) : (
-          <Text textStyle="body/md/regular" color="text/tertiary" paddingBlock="8" paddingInline="12">
-            {emptyText}
-          </Text>
+          // Compact, as the empty Workflow card's empty state is: the sidebar is narrow.
+          <BitkitEmptyState
+            padding="16"
+            marginBlockStart="8"
+            icon={empty.icon}
+            headingText={empty.heading}
+            bodyText={empty.body}
+          >
+            {empty.action}
+          </BitkitEmptyState>
         ))}
     </Box>
   );

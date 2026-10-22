@@ -1,4 +1,11 @@
-import { BitkitButton, BitkitSearchInput, createBitkitToast } from '@bitrise/bitkit-v2';
+import {
+  BitkitButton,
+  BitkitSearchInput,
+  createBitkitToast,
+  IconStep,
+  IconWorkflow,
+  IconWorkflowFlow,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useCallback, useMemo } from 'react';
@@ -137,6 +144,28 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
     if (openEntity(path)) openDialog();
   };
 
+  // How each kind is created; a section's header + and its empty state share it.
+  const createPipeline = {
+    entityName: 'Pipeline' as const,
+    ai: { action: 'create_pipeline', source: 'pipeline_selector', yamlSelector: 'pipelines' },
+    onCreate: createIn(paths.pipelines, () =>
+      usePipelinesPageStore.getState().openDialog({ type: PipelinesPageDialogType.CREATE_PIPELINE })(),
+    ),
+  };
+  const createWorkflow = {
+    entityName: 'Workflow' as const,
+    ai: { action: 'create_workflow', source: 'workflow_selector', yamlSelector: 'workflows' },
+    onCreate: createIn(paths.workflows, () =>
+      useWorkflowsPageStore.getState().openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })(),
+    ),
+  };
+  const createStepBundle = {
+    entityName: 'Step bundle' as const,
+    onCreate: createIn(paths.stepBundles, () =>
+      useStepBundlesPageStore.getState().openDialog({ type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE })(),
+    ),
+  };
+
   const sections = [
     {
       label: 'Pipelines',
@@ -152,47 +181,39 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
             .openDialog({ type: PipelinesPageDialogType.PIPELINE_CONFIG, pipelineId: id })();
         }
       },
-      addControl: (
-        <AddControl
-          entityName="Pipeline"
-          ai={{ action: 'create_pipeline', source: 'pipeline_selector', yamlSelector: 'pipelines' }}
-          onCreate={createIn(paths.pipelines, () =>
-            usePipelinesPageStore.getState().openDialog({ type: PipelinesPageDialogType.CREATE_PIPELINE })(),
-          )}
-        />
-      ),
-      emptyText: 'No Pipelines yet',
+      addControl: <AddControl {...createPipeline} />,
+      empty: {
+        icon: IconWorkflowFlow,
+        heading: 'No Pipelines yet',
+        body: 'Run several Workflows together, one after another or in parallel.',
+        action: <AddControl {...createPipeline} variant="button" />,
+      },
     },
     {
       label: 'Workflows',
       items: workflowItems,
       selectedId: selected('workflows', 'workflow_id'),
       onSelect: (id: string) => openEntity(paths.workflows, { param: 'workflow_id', id }),
-      addControl: (
-        <AddControl
-          entityName="Workflow"
-          ai={{ action: 'create_workflow', source: 'workflow_selector', yamlSelector: 'workflows' }}
-          onCreate={createIn(paths.workflows, () =>
-            useWorkflowsPageStore.getState().openDialog({ type: WorkflowsPageDialogType.CREATE_WORKFLOW })(),
-          )}
-        />
-      ),
-      emptyText: 'No Workflows yet',
+      addControl: <AddControl {...createWorkflow} />,
+      empty: {
+        icon: IconWorkflow,
+        heading: 'No Workflows yet',
+        body: 'A Workflow is the series of Steps a build runs.',
+        action: <AddControl {...createWorkflow} variant="button" />,
+      },
     },
     {
       label: 'Step bundles',
       items: stepBundleItems,
       selectedId: selected('step_bundles', 'step_bundle_id'),
       onSelect: (id: string) => openEntity(paths.stepBundles, { param: 'step_bundle_id', id }),
-      addControl: (
-        <AddControl
-          entityName="Step bundle"
-          onCreate={createIn(paths.stepBundles, () =>
-            useStepBundlesPageStore.getState().openDialog({ type: StepBundlesPageDialogType.CREATE_STEP_BUNDLE })(),
-          )}
-        />
-      ),
-      emptyText: 'No Step bundles yet',
+      addControl: <AddControl {...createStepBundle} />,
+      empty: {
+        icon: IconStep,
+        heading: 'No Step bundles yet',
+        body: 'With Step bundles, you can create reusable chunks of configuration.',
+        action: <AddControl {...createStepBundle} variant="button" />,
+      },
     },
   ];
   // While searching, only sections with a match are shown, and nothing at all gets one message.

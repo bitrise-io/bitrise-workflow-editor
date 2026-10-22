@@ -140,7 +140,7 @@ const Toolbar = ({ onRunClick, onPropertiesClick, ...props }: Props) => {
   const isMergedConfigSelected = useIsMergedConfigSelected();
   const isReadOnlyView = useIsReadOnlyView();
   const isModularFileTab = !!tree && !isMergedConfigSelected;
-  // The sidebar's Building blocks list picks the Pipeline; the header names it and holds its actions.
+  // The sidebar's CI blocks list picks the Pipeline; the header names it and holds its actions.
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
   const { isDrawerOpen, closeDialog, setPipelineId } = usePipelinesPageStore(
     useShallow((s) => ({

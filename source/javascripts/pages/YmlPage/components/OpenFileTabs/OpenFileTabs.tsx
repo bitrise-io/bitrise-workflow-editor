@@ -44,6 +44,11 @@ const OpenFileTabs = () => {
         // The strip shares the resting tabs gray, so only the open tab stands out (white). The outer edges
         // of the first and the last tab need no border of their own.
         background="background/secondary"
+        // Covers the header's bottom border where the tabs are, so the strip has no line on top. The
+        // border stays over the sidebar.
+        position="relative"
+        zIndex="1"
+        marginBlockStart="-1px"
         css={{
           '& [data-part=trigger]:first-of-type': { borderInlineStartWidth: 0 },
           '& [data-part=trigger]:not(:has(~ [data-part=trigger]))': { borderInlineEndWidth: 0 },

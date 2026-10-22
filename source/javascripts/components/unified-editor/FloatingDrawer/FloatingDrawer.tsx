@@ -122,7 +122,8 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
       border="1px solid"
       borderColor="border/regular"
       margin={[0, 16]}
-      marginTop={[0, 72]}
+      // 8px higher than the tab line's top edge, so the drawer reads as floating above the page.
+      marginTop={[0, 64]}
       borderRadius={[0, 12]}
       containerProps={containerProps}
       motionProps={motionProps}
