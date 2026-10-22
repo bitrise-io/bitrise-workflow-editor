@@ -57,7 +57,6 @@ const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, 
         paddingInlineEnd="4"
         borderBlockEnd="1px solid"
         borderColor="border/minimal"
-        background="background/secondary"
       >
         <chakra.button
           type="button"
