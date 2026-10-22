@@ -337,7 +337,7 @@ const ToolRow = ({
         <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
           <Box display="flex" flexDirection="column" gap="8" width={TOOL_ID_COLUMN_WIDTH} flexShrink="0">
             <BitkitSelect
-              size="lg"
+              size="md"
               placeholder="Select one"
               isLoading={isCatalogLoading}
               items={dropdownItems}
@@ -347,7 +347,7 @@ const ToolRow = ({
             />
             {showCustomInput && (
               <BitkitTextInput
-                size="lg"
+                size="md"
                 placeholder="Tool ID (e.g. deno)"
                 errorText={toolIdFieldState.error?.message}
                 state={isReadOnly ? 'readOnly' : undefined}
@@ -363,7 +363,7 @@ const ToolRow = ({
         <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
           <Box display="flex" flexDirection="column" gap="8" flex="1">
             <BitkitSelect
-              size="lg"
+              size="md"
               items={strategyItems}
               value={effectiveStrategy}
               state={isReadOnly ? 'readOnly' : undefined}
@@ -401,7 +401,7 @@ const ToolRow = ({
                   prefix only when the list has version numbers. */}
               {isExactKnownTool ? (
                 <BitkitSelect
-                  size="lg"
+                  size="md"
                   placeholder="Select"
                   items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
@@ -419,7 +419,7 @@ const ToolRow = ({
                 />
               ) : hasPrefixDropdown ? (
                 <BitkitSelect
-                  size="lg"
+                  size="md"
                   placeholder="Select"
                   items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
@@ -434,7 +434,7 @@ const ToolRow = ({
                 />
               ) : (
                 <BitkitTextInput
-                  size="lg"
+                  size="md"
                   placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                   errorText={displayedVersionError}
                   helperText={versionHint}

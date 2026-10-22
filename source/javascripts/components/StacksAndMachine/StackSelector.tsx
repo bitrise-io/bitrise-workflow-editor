@@ -94,6 +94,7 @@ const StackSelector = ({
   return (
     <Box {...boxProps} flex="1">
       <Dropdown
+        size="md"
         required
         search={false}
         label="Stack"

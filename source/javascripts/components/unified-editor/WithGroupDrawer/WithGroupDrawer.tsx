@@ -46,6 +46,7 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         <FloatingDrawerBody>
           {!!container && (
             <Input
+              size="md"
               isRequired
               isReadOnly
               label="Image"
@@ -55,7 +56,7 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
             />
           )}
           {services && services.length > 0 && (
-            <BitkitTagsInput state="readOnly" label="Service" marginBlockEnd="24" value={services} />
+            <BitkitTagsInput size="md" state="readOnly" label="Service" marginBlockEnd="24" value={services} />
           )}
           <BitkitAlert
             action={{

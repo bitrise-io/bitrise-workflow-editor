@@ -11,6 +11,7 @@ const PriorityInput = (props: PriorityInputProps) => {
   const { onChange, value, helperText, ...rest } = props;
   return (
     <Input
+      size="md"
       type="number"
       helperText={
         <>

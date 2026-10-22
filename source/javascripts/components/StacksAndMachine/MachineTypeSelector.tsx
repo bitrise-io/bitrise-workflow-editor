@@ -119,6 +119,7 @@ const MachineTypeSelector = ({
 
   return (
     <Dropdown
+      size="md"
       {...boxProps}
       flex="1"
       formLabel={selectedOption && renderFormLabel(selectedOption)}

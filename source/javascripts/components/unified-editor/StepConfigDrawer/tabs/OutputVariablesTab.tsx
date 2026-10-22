@@ -26,6 +26,7 @@ const OutputVariablesTab = () => {
             <Box display="flex" flexDirection="column" gap="8">
               <FormControl>
                 <Input
+                  size="md"
                   type="text"
                   label={opts?.title || 'Output variable'}
                   value={variable}

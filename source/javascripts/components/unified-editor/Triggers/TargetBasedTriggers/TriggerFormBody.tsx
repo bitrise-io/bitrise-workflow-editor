@@ -73,7 +73,7 @@ const TriggerFormBody = (props: Props) => {
           name="source"
           control={control}
           render={({ field }) => (
-            <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired mb="24" {...field}>
+            <Select size="md" label="Target" placeholder="Select a Pipeline or Workflow" isRequired mb="24" {...field}>
               {pipelines.length > 0 && (
                 <optgroup label="Pipelines">
                   {pipelines.map((p) => (
