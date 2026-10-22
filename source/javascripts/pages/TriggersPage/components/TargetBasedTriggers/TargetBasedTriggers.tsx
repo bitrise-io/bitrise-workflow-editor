@@ -1,11 +1,13 @@
-import { Checkbox, SearchInput, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Checkbox, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import {
   BitkitEmptyState,
   BitkitIconButton,
   BitkitLink,
+  BitkitSearchInput,
   IconMinusCircle,
   IconPencil,
   IconTrigger,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
@@ -211,13 +213,14 @@ const TargetBasedTriggers = () => {
       {pipelineableTriggers.length > 0 ? (
         <>
           <Box display="flex" justifyContent="space-between">
-            <SearchInput
+            <BitkitSearchInput
               onChange={setFilterString}
               value={filterString}
-              maxWidth="320"
+              maxWidth={rem(320)}
               width="100%"
               size="md"
               marginBlockEnd="16"
+              label="Filter by target, type or condition"
               placeholder="Filter by target, type or condition"
             />
             <AddTriggerButton onAddTrigger={setTriggerType} />

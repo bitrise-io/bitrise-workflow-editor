@@ -1,11 +1,12 @@
-import { SearchInput, SearchInputProps } from '@bitrise/bitkit';
+import { BitkitSearchInput, BitkitSearchInputProps } from '@bitrise/bitkit-v2';
 import { debounce } from 'es-toolkit';
 import { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 
 const DEBOUNCE_TIME = 300;
 
-export type FilterInputProps = SearchInputProps & {
+export type FilterInputProps = Omit<BitkitSearchInputProps, 'onChange'> & {
   debounceTime?: number;
+  onChange: (value: string) => void;
 };
 
 const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
@@ -23,7 +24,7 @@ const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
       [debouncedOnChange],
     );
 
-    return <SearchInput inputRef={ref} name="filter" value={state} onChange={onChangeHandler} {...rest} />;
+    return <BitkitSearchInput inputRef={ref} value={state} onChange={onChangeHandler} {...rest} />;
   },
 );
 
