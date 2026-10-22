@@ -1,9 +1,8 @@
-import { ExpandableCard, Toggle } from '@bitrise/bitkit';
-import { BitkitIconButton, IconRefresh } from '@bitrise/bitkit-v2';
+import { ExpandableCard } from '@bitrise/bitkit';
+import { BitkitIconButton, BitkitSwitch, IconRefresh } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
-import { ChangeEventHandler } from 'react';
 
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
@@ -13,9 +12,9 @@ type WhenToRunCardProps = {
   defaultValuesRunIf?: string;
   isAlwaysRun?: boolean;
   isSkippable?: boolean;
-  onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement>;
+  onIsAlwaysRunChange: (isAlwaysRun: boolean) => void;
   onIsAlwaysRunReset?: VoidFunction;
-  onIsSkippableChange?: ChangeEventHandler<HTMLInputElement>;
+  onIsSkippableChange?: (isSkippable: boolean) => void;
   onRunIfChange: (runIf: string) => void;
   userValuesRunIf?: string;
 };
@@ -47,14 +46,26 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
             onClick={onIsAlwaysRunReset}
           />
         )}
-        <Toggle defaultChecked={isAlwaysRun} isDisabled={isReadOnlyView} onChange={onIsAlwaysRunChange} />
+        <BitkitSwitch
+          hideLabel
+          label="Run even if previous Step(s) failed"
+          defaultChecked={isAlwaysRun}
+          state={isReadOnlyView ? 'disabled' : undefined}
+          onCheckedChange={({ checked }) => onIsAlwaysRunChange(checked)}
+        />
       </Box>
       <Separator marginBlock="24" />
       {!!onIsSkippableChange && (
         <>
           <Box display="flex">
             <Text flex="1">Continue build even if this Step fails</Text>
-            <Toggle defaultChecked={isSkippable} isDisabled={isReadOnlyView} onChange={onIsSkippableChange} />
+            <BitkitSwitch
+              hideLabel
+              label="Continue build even if this Step fails"
+              defaultChecked={isSkippable}
+              state={isReadOnlyView ? 'disabled' : undefined}
+              onCheckedChange={({ checked }) => onIsSkippableChange(checked)}
+            />
           </Box>
           <Separator marginBlock="24" />
         </>

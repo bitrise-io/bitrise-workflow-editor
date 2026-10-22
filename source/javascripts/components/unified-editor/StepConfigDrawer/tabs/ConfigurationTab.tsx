@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react/box';
-import { ChangeEventHandler } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 
 import StepService from '@/core/services/StepService';
@@ -31,30 +30,16 @@ const ConfigurationTab = () => {
     updateStepInput(source, sourceId, stepIndex, name, value);
   };
 
-  const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  const onIsAlwaysRunChange = (isAlwaysRun: boolean) => {
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
-    StepService.updateStepField(
-      source,
-      sourceId,
-      stepIndex,
-      'is_always_run',
-      e.currentTarget.checked,
-      defaultValues.is_always_run,
-    );
+    StepService.updateStepField(source, sourceId, stepIndex, 'is_always_run', isAlwaysRun, defaultValues.is_always_run);
   };
 
-  const onIsSkippableChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  const onIsSkippableChange = (isSkippable: boolean) => {
     const source = stepBundleId ? 'step_bundles' : 'workflows';
     const sourceId = stepBundleId || workflowId;
-    StepService.updateStepField(
-      source,
-      sourceId,
-      stepIndex,
-      'is_skippable',
-      e.currentTarget.checked,
-      defaultValues.is_skippable,
-    );
+    StepService.updateStepField(source, sourceId, stepIndex, 'is_skippable', isSkippable, defaultValues.is_skippable);
   };
 
   const onRunIfChange = (runIf: string) => {
