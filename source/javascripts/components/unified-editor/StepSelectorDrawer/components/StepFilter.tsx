@@ -43,7 +43,7 @@ const MAINTAINERS: Array<{
   },
 ];
 
-const StepFilterCategories = memo(function StepFilterCategories() {
+export const StepFilterCategories = memo(function StepFilterCategories() {
   const allowNonBitriseSteps = PageProps.limits()?.allowNonBitriseSteps ?? true;
   const allowedMaintainers = allowNonBitriseSteps ? [] : ['bitrise'];
   const { data: steps = [] } = useAlgoliaSteps(allowedMaintainers);
@@ -92,13 +92,18 @@ const StepFilter = (props: BoxProps) => {
   const onChange = useSearch((s) => s.setSearchStep);
 
   return (
+    // The category and maintainer tags live in the drawer's scrolling body (`StepFilterTags`), so they
+    // scroll away and leave more room for Steps; the search stays here, pinned.
     <Box display="flex" flexDirection="column" gap="16" {...props}>
       <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
-      <Box display="flex" flexWrap="wrap" gap="16">
-        <StepFilterCategories />
-      </Box>
     </Box>
   );
 };
+
+export const StepFilterTags = (props: BoxProps) => (
+  <Box display="flex" flexWrap="wrap" gap="16" {...props}>
+    <StepFilterCategories />
+  </Box>
+);
 
 export default StepFilter;
