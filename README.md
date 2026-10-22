@@ -89,7 +89,7 @@ surfaces in the monolith as `OpenURI::HTTPError 404` from `WorkflowController#co
 
 ```bash
 npm test                                  # Jest unit tests
-npm test -- --testPathPattern="path/to"   # a subset
+npm test -- --testPathPatterns="path/to"   # a subset
 npm run storybook                         # component workshop on :6006
 npx tsc --noEmit                          # nothing else type-checks, including CI
 ```
