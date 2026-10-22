@@ -1,6 +1,7 @@
 import { memo, PropsWithChildren } from 'react';
 
 import ChainWorkflowDrawer from '@/components/unified-editor/ChainWorkflowDrawer/ChainWorkflowDrawer';
+import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
 import StartBuildDialog from '@/components/unified-editor/StartBuildDialog/StartBuildDialog';
 import StepBundleConfigDrawer from '@/components/unified-editor/StepBundleConfig/StepBundleConfigDrawer';
 import StepConfigDrawer from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer';
@@ -10,6 +11,7 @@ import { BITRISE_STEP_LIBRARY_URL, LibraryType } from '@/core/models/Step';
 import PipelineService from '@/core/services/PipelineService';
 import StepService from '@/core/services/StepService';
 import WorkflowService from '@/core/services/WorkflowService';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 import useUniqueStepIds from '@/hooks/useUniqueStepIds';
 
@@ -94,6 +96,30 @@ const Drawers = ({ children }: PropsWithChildren) => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onSelectWorkflow={handleAddWorkflowToPipeline}
+          onCreateEmptyWorkflow={openDialog({ type: PipelinesPageDialogType.CREATE_WORKFLOW, pipelineId, workflowId })}
+        />
+      )}
+
+      {isDialogMounted(PipelinesPageDialogType.CREATE_WORKFLOW) && (
+        // A new, empty Workflow: created, added to the Pipeline where the selector was opened (after the
+        // Workflow it was opened from, if any), then its drawer opens.
+        <CreateEntityDialog
+          baseEntities={[]}
+          entityName="Workflow"
+          isOpen={isDialogOpen(PipelinesPageDialogType.CREATE_WORKFLOW)}
+          onClose={closeDialog}
+          onCreateEntity={(newWorkflowId) => {
+            WorkflowService.createWorkflow(newWorkflowId);
+            PipelineService.addWorkflowToPipeline(pipelineId, newWorkflowId, workflowId);
+          }}
+          onCloseComplete={(newWorkflowId) => {
+            unmountDialog();
+            if (newWorkflowId) {
+              openDialog({ type: PipelinesPageDialogType.WORKFLOW_CONFIG, pipelineId, workflowId: newWorkflowId })();
+            }
+          }}
+          sanitizer={WorkflowService.sanitizeName}
+          validator={(name) => WorkflowService.validateName(name, '', Object.keys(getBitriseYml().workflows ?? {}))}
         />
       )}
 

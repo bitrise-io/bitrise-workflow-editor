@@ -13,9 +13,10 @@ import WorkflowsList from './components/WorkflowsList';
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
   onSelectWorkflow: (id: string) => void;
+  onCreateEmptyWorkflow: VoidFunction;
 };
 
-const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Props) => {
+const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, onCreateEmptyWorkflow, ...props }: Props) => {
   return (
     <FloatingDrawer {...props}>
       <FloatingDrawerContent>
@@ -26,7 +27,11 @@ const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Prop
           </Text>
         </FloatingDrawerHeader>
         <FloatingDrawerBody display="flex" flexDir="column" gap="12">
-          <WorkflowsList pipelineId={pipelineId} onSelectWorkflow={onSelectWorkflow} />
+          <WorkflowsList
+            pipelineId={pipelineId}
+            onSelectWorkflow={onSelectWorkflow}
+            onCreateEmptyWorkflow={onCreateEmptyWorkflow}
+          />
         </FloatingDrawerBody>
       </FloatingDrawerContent>
     </FloatingDrawer>

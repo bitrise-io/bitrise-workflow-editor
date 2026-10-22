@@ -120,12 +120,15 @@ const CreateEntityDialog = <T,>({
             {...register('title')}
           />
         )}
-        <Select size="md" label="Based on" {...register('baseEntityId')}>
-          <option key="" value="">
-            An empty {entityName}
-          </option>
-          <Options<T> baseEntities={baseEntities} />
-        </Select>
+        {/* Nothing to base it on (e.g. an empty Workflow): no picker. */}
+        {baseEntities.some(({ ids }) => ids.length > 0) && (
+          <Select size="md" label="Based on" {...register('baseEntityId')}>
+            <option key="" value="">
+              An empty {entityName}
+            </option>
+            <Options<T> baseEntities={baseEntities} />
+          </Select>
+        )}
       </DialogBody>
       <DialogFooter>
         <BitkitButton variant="secondary" onClick={onClose}>

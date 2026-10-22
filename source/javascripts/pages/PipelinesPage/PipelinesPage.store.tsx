@@ -16,6 +16,7 @@ export enum PipelinesPageDialogType {
   CREATE_PIPELINE,
   WORKFLOW_CONFIG,
   WORKFLOW_SELECTOR,
+  CREATE_WORKFLOW,
 }
 
 type State = {

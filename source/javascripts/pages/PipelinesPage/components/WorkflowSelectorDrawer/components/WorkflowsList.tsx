@@ -4,6 +4,7 @@ import { useState } from 'react';
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
+import CreateEmptyWorkflowOption from './CreateEmptyWorkflowOption';
 import NoWorkflowsEmptyState from './NoWorkflowsEmptyState';
 import SearchResultEmptyState from './SearchResultEmptyState';
 import SelectableWorkflowCard from './SelectableWorkflowCard';
@@ -11,9 +12,10 @@ import SelectableWorkflowCard from './SelectableWorkflowCard';
 type Props = {
   pipelineId: string;
   onSelectWorkflow: (id: string) => void;
+  onCreateEmptyWorkflow: VoidFunction;
 };
 
-const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
+const WorkflowsList = ({ pipelineId, onSelectWorkflow, onCreateEmptyWorkflow }: Props) => {
   const [search, setSearch] = useState('');
   // Active-file workflows unioned with the entity index (other module files); the index
   // is empty in single-file mode, so this stays just the active file's workflows.
@@ -35,7 +37,12 @@ const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
   const shouldShowNoSearchResultsEmptyState = search && hasNoWorkflows;
 
   if (shouldShowNoWorkflowsEmptyState) {
-    return <NoWorkflowsEmptyState />;
+    return (
+      <>
+        <CreateEmptyWorkflowOption onClick={onCreateEmptyWorkflow} />
+        <NoWorkflowsEmptyState />
+      </>
+    );
   }
 
   return (
@@ -48,6 +55,7 @@ const WorkflowsList = ({ pipelineId, onSelectWorkflow }: Props) => {
         placeholder="Filter by name"
         onChange={(e) => setSearch(e.target.value)}
       />
+      <CreateEmptyWorkflowOption onClick={onCreateEmptyWorkflow} />
       {shouldShowNoSearchResultsEmptyState ? (
         <SearchResultEmptyState onClickButton={() => setSearch('')} />
       ) : (
