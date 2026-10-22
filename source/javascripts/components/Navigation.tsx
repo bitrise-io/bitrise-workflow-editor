@@ -219,13 +219,14 @@ const Navigation = (props: Props) => {
 
   // Switching file tabs shows that file's CI blocks wherever the canvas would otherwise not change: from a
   // tool page (Env Vars, Secrets, …), or from a kind the new file doesn't have (e.g. only Step bundles while
-  // on Pipelines). The Tools menu gives way to CI blocks to match; Files stays, as picking files is its job.
-  // The YAML page stays put. Only on switching files: deleting the last entity of a kind keeps you there.
+  // on Pipelines). The sidebar switches to CI blocks to match, from Tools and from Files alike: picking a
+  // file shows what's in it, and Files is one click away. The YAML page stays put. Only on switching
+  // files: deleting the last entity of a kind keeps you there.
   const selectedNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
   const [viewNodeId, setViewNodeId] = useState(selectedNodeId);
   if (viewNodeId !== selectedNodeId) {
     setViewNodeId(selectedNodeId);
-    if (view === 'tools' && currentPage !== 'yml') {
+    if (view !== 'building-blocks' && currentPage !== 'yml') {
       setView('building-blocks');
     }
   }
