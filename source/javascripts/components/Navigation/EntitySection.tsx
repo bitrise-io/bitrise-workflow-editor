@@ -1,4 +1,5 @@
 import {
+  BitkitBadge,
   BitkitEmptyState,
   BitkitIconComponent,
   BitkitTooltip,
@@ -17,7 +18,7 @@ import {
 import { Box } from '@chakra-ui/react/box';
 import { chakra } from '@chakra-ui/react/styled-system';
 import { Text } from '@chakra-ui/react/text';
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EntityRowStatus } from './useEntityStatuses';
 
@@ -87,8 +88,25 @@ const ROOT_ID = '__entities__';
 // or a badge only, and a tree branch shows its actions on hover. This header is put together from
 // primitives until Bitkit has one.
 const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, isSearching }: Props) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const isOpen = isSearching || !isCollapsed;
+  // Empty sections start collapsed (their count says 0); the user's own open/close wins after that.
+  const [isOpenedByUser, setIsOpenedByUser] = useState<boolean>();
+  const isOpen = isSearching || (isOpenedByUser ?? items.length > 0);
+
+  // Selecting an item unfolds its section and scrolls the row into view in the sidebar, so you can see
+  // where you are. Folding it again afterwards is still up to you.
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isSelectedHere = Boolean(selectedId && items.some((item) => item.id === selectedId));
+  // Unfold when the selection arrives here (adjusted while rendering, as React recommends over an effect).
+  const [revealedId, setRevealedId] = useState<string>();
+  if (isSelectedHere && selectedId !== revealedId) {
+    setRevealedId(selectedId);
+    setIsOpenedByUser(true);
+  }
+  useEffect(() => {
+    if (isSelectedHere) {
+      sectionRef.current?.querySelector('[data-selected]')?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [isSelectedHere, selectedId]);
 
   const collection = useMemo(
     () =>
@@ -102,7 +120,7 @@ const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, 
   );
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box ref={sectionRef} display="flex" flexDirection="column">
       <Box
         display="flex"
         alignItems="center"
@@ -124,12 +142,15 @@ const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, 
           color="text/secondary"
           aria-expanded={isOpen}
           disabled={isSearching}
-          onClick={() => setIsCollapsed((collapsed) => !collapsed)}
+          onClick={() => setIsOpenedByUser(!isOpen)}
         >
           {isOpen ? <IconChevronDown size="16" /> : <IconChevronRight size="16" />}
           <Text textStyle="heading/h6" textTransform="uppercase">
             {label}
           </Text>
+          <BitkitBadge colorVariant="neutral" size="xs" variant="subtle">
+            {items.length}
+          </BitkitBadge>
         </chakra.button>
         {addControl}
       </Box>

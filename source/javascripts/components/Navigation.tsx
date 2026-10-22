@@ -32,7 +32,7 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
-import useSearchParams from '@/hooks/useSearchParams';
+import useSearchParams, { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
 import { useTree } from '@/hooks/useTree';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
@@ -234,14 +234,30 @@ const Navigation = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNodeId]);
 
+  // Opening the editor on a CI blocks page without naming an entity lands on the highest-level block too.
+  // A link that names one (e.g. from a build page) is kept. Read on first render, before any page fills
+  // in a default; acted on once the config has loaded.
+  const landedWithEntityRef = useRef(
+    FirstBuildingBlock.entityParams.some((param) => Boolean(getSearchParamsFromLocationHash()[param])),
+  );
+  const hasAnyBlock = useBitriseYmlStore((s) => Boolean(FirstBuildingBlock.firstBuildingBlock(s.yml)));
+  const hasLandedRef = useRef(false);
+  useEffect(() => {
+    if (!hasAnyBlock || hasLandedRef.current) {
+      return;
+    }
+    hasLandedRef.current = true;
+    if (!landedWithEntityRef.current && BUILDING_BLOCK_PAGES.includes(currentPage ?? '')) {
+      openFirstBuildingBlock();
+    }
+    // Runs once, when the config first has a block; the rest is read fresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasAnyBlock]);
+
   const handleViewChange = (next: SidebarView) => {
     setView(next);
-    // CI blocks opens on something: the first block of the open file, unless you're already on a kind it has.
-    const page = currentPage ?? '';
-    if (
-      next === 'building-blocks' &&
-      (!BUILDING_BLOCK_PAGES.includes(page) || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))
-    ) {
+    // CI blocks opens on the highest-level block: the first Pipeline, else Workflow, else Step bundle.
+    if (next === 'building-blocks') {
       openFirstBuildingBlock();
     }
     if (next === 'tools' && BUILDING_BLOCK_PAGES.includes(currentPage ?? '') && !visualEditorNotice?.disabled) {
