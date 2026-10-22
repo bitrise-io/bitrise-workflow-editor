@@ -264,6 +264,10 @@ export default Toolbar;
 // The card the controls float in, over the canvas's top-left: the original floating toolbar's look,
 // sized to its contents.
 export const FLOATING_CONTROLS_HEIGHT = 40;
+export const FLOATING_CONTROLS_INSET = 16;
+// The graph starts 64px in from the canvas's left edge and 64px below the card.
+export const PIPELINE_GRAPH_INSET = 64;
+export const PIPELINE_GRAPH_TOP = FLOATING_CONTROLS_INSET + FLOATING_CONTROLS_HEIGHT + PIPELINE_GRAPH_INSET;
 export const floatingControlsProps = {
   display: 'flex',
   alignItems: 'center',

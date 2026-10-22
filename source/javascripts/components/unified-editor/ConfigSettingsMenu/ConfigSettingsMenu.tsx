@@ -96,7 +96,7 @@ const ConfigSettingsMenu = (props: Props) => {
           <BitkitControlButton
             icon={IconChevronDown}
             label="Configuration options"
-            size="xs"
+            size="xxs"
             // Bitkit hides the tooltip on a control that opens a menu; every control button here names itself.
             tooltipProps={{ disabled: false }}
           />

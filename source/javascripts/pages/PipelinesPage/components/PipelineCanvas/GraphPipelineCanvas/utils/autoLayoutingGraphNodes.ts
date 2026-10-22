@@ -1,8 +1,7 @@
 import dagre from '@dagrejs/dagre';
 
-import { FLOATING_CONTROLS_HEIGHT } from '../../../Toolbar/Toolbar';
+import { PIPELINE_GRAPH_INSET, PIPELINE_GRAPH_TOP } from '../../../Toolbar/Toolbar';
 import {
-  CANVAS_PADDING,
   TRIGGER_NODE_SIZE,
   WORKFLOW_NODE_GAP_X,
   WORKFLOW_NODE_GAP_Y,
@@ -27,9 +26,9 @@ function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: Gra
     align: 'UL',
     rankdir: 'LR',
     // Room on the left for the trigger node, which sits ahead of the first column.
-    marginx: CANVAS_PADDING + (hasTrigger ? TRIGGER_NODE_SIZE + WORKFLOW_NODE_GAP_X : 0),
+    marginx: PIPELINE_GRAPH_INSET + (hasTrigger ? TRIGGER_NODE_SIZE + WORKFLOW_NODE_GAP_X : 0),
     // Room on top for the floating Pipeline controls.
-    marginy: CANVAS_PADDING + FLOATING_CONTROLS_HEIGHT,
+    marginy: PIPELINE_GRAPH_TOP,
     ranksep: WORKFLOW_NODE_GAP_X,
     nodesep: WORKFLOW_NODE_GAP_Y,
     edgesep: WORKFLOW_NODE_HEIGHT + WORKFLOW_NODE_GAP_Y,
@@ -84,7 +83,7 @@ function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: Gra
       // Level with the top Workflow's header, where its incoming handle is.
       return {
         ...node,
-        position: { x: CANVAS_PADDING, y: columnTop + WORKFLOW_NODE_HEIGHT / 2 - TRIGGER_NODE_SIZE / 2 },
+        position: { x: PIPELINE_GRAPH_INSET, y: columnTop + WORKFLOW_NODE_HEIGHT / 2 - TRIGGER_NODE_SIZE / 2 },
       };
     }
     if (isAddWorkflowNode(node)) {

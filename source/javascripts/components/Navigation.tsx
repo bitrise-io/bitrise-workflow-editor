@@ -310,7 +310,7 @@ const Navigation = (props: Props) => {
           marginBlockEnd="8"
           flexShrink={0}
         >
-          {isModular && <BitkitSegmentedControl.Item value="files">Files</BitkitSegmentedControl.Item>}
+          {isModular && <BitkitSegmentedControl.Item value="files">Modules</BitkitSegmentedControl.Item>}
           <BitkitSegmentedControl.Item value="building-blocks">CI blocks</BitkitSegmentedControl.Item>
           <BitkitSegmentedControl.Item value="tools">Tools</BitkitSegmentedControl.Item>
         </BitkitSegmentedControl>

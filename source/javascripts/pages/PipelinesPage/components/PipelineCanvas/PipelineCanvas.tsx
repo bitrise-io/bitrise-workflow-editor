@@ -10,7 +10,7 @@ import {
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
-import Toolbar, { floatingControlsProps, PipelineActionsProvider } from '../Toolbar/Toolbar';
+import Toolbar, { FLOATING_CONTROLS_INSET, floatingControlsProps, PipelineActionsProvider } from '../Toolbar/Toolbar';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
 import PipelineConversionNotification from './PipelineConversionNotification';
 import PipelineConversionSignposting from './PipelineConversionSignposting';
@@ -45,7 +45,13 @@ const PipelineCanvas = () => {
           }}
         >
           {/* The Pipeline's name, menu and Run float over the canvas's top-left; the graph starts below them. */}
-          <Box {...floatingControlsProps} position="absolute" top="16" left="16" zIndex="10">
+          <Box
+            {...floatingControlsProps}
+            position="absolute"
+            top={`${FLOATING_CONTROLS_INSET}px`}
+            left={`${FLOATING_CONTROLS_INSET}px`}
+            zIndex="10"
+          >
             <Toolbar />
           </Box>
           <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
