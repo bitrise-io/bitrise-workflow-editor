@@ -66,7 +66,6 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
   if (!(window.env?.MODE === 'WEBSITE' && window.env?.NODE_ENV !== 'production')) {
     configureMonacoYaml(monacoInstance, {
       hover: true,
-      format: true,
       validate: true,
       completion: true,
       yamlVersion: '1.1',

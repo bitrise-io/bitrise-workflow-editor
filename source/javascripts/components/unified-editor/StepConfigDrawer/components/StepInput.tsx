@@ -1,4 +1,5 @@
-import { forwardRef, IconButton } from '@bitrise/bitkit';
+import { forwardRef } from '@bitrise/bitkit';
+import { BitkitIconButton, IconCross, IconRefresh } from '@bitrise/bitkit-v2';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { FocusEventHandler, useState } from 'react';
 
@@ -89,14 +90,11 @@ const StepInput = forwardRef(
         {!isDisabled && !isReadOnlyView && (
           <ButtonGroup gap="6">
             {!!value && !isSensitive && (
-              <IconButton
+              <BitkitIconButton
                 size="md"
                 variant="secondary"
-                iconName={defaultValue ? 'Refresh' : 'Cross'}
-                aria-label={defaultValue ? 'Reset to default' : 'Clear'}
-                tooltipProps={{
-                  'aria-label': defaultValue ? 'Reset to default' : 'Clear',
-                }}
+                icon={defaultValue ? IconRefresh : IconCross}
+                label={defaultValue ? 'Reset to default' : 'Clear'}
                 onClick={() => {
                   setValue('');
                   onChange?.('');

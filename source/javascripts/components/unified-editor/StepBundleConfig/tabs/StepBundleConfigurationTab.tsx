@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react/box';
-import { ChangeEventHandler } from 'react';
 
 import StepBundleService from '@/core/services/StepBundleService';
 
@@ -23,12 +22,12 @@ const StepBundleConfigurationTab = () => {
     stepIndex,
   };
 
-  const onIsAlwaysRunChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+  const onIsAlwaysRunChange = (isAlwaysRun: boolean) => {
     if (stepBundleId) {
       if (isDefaultMode) {
-        StepBundleService.updateStepBundleField(stepBundleId, 'is_always_run', e.currentTarget.checked);
+        StepBundleService.updateStepBundleField(stepBundleId, 'is_always_run', isAlwaysRun);
       } else {
-        StepBundleService.updateStepBundleInstanceField('is_always_run', e.currentTarget.checked, at);
+        StepBundleService.updateStepBundleInstanceField('is_always_run', isAlwaysRun, at);
       }
     }
   };

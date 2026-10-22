@@ -1,5 +1,5 @@
-import { ExpandableCard, Icon, TypeIconName } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import { ExpandableCard } from '@bitrise/bitkit';
+import { BitkitButton, BitkitIconComponent, IconPlus, IconPull, IconPush, IconTag } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -7,10 +7,10 @@ import { TargetBasedTrigger, TriggerType, TYPE_MAP } from '@/core/models/Trigger
 
 import TargetBasedTriggerItem from './TargetBasedTriggerItem';
 
-const ICON_MAP: Record<TriggerType, TypeIconName> = {
-  push: 'Push',
-  pull_request: 'Pull',
-  tag: 'Tag',
+const ICON_MAP: Record<TriggerType, BitkitIconComponent> = {
+  push: IconPush,
+  pull_request: IconPull,
+  tag: IconTag,
 };
 
 type Props = {
@@ -34,6 +34,8 @@ const TriggerCard = ({
   onDeleteTrigger,
   onUpdateTriggerEnabled,
 }: Props) => {
+  const TriggerIcon = ICON_MAP[triggerType];
+
   return (
     <ExpandableCard
       isExpanded
@@ -42,7 +44,7 @@ const TriggerCard = ({
       buttonPadding="16px 24px"
       buttonContent={
         <Box display="flex" justifyContent="flex-start">
-          <Icon name={ICON_MAP[triggerType]} marginRight={8} />
+          <TriggerIcon marginInlineEnd="8" />
           <Text textStyle="body/lg/semibold">{TYPE_MAP[triggerType]}</Text>
         </Box>
       }

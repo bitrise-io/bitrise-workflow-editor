@@ -1,4 +1,5 @@
-import { CardProps, IconButton } from '@bitrise/bitkit';
+import { CardProps } from '@bitrise/bitkit';
+import { BitkitIconButton, IconPlay } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
@@ -398,15 +399,16 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       >
         <WorkflowSelector />
         {RuntimeUtils.isWebsiteMode() && (
-          <IconButton
+          <BitkitIconButton
             size="md"
-            iconName="Play"
+            icon={IconPlay}
             variant="secondary"
-            aria-label={runButtonAriaLabel}
-            tooltipProps={{
-              'aria-label': runButtonAriaLabel,
-            }}
-            isDisabled={WorkflowService.isUtilityWorkflow(workflowId) || isModularFileTab || hasUnsavedChanges}
+            label={runButtonAriaLabel}
+            state={
+              WorkflowService.isUtilityWorkflow(workflowId) || isModularFileTab || hasUnsavedChanges
+                ? 'disabled'
+                : undefined
+            }
             onClick={() => openRunWorkflowDialog(workflowId)}
           />
         )}

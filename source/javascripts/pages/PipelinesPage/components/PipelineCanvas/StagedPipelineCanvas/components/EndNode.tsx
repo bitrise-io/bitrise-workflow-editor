@@ -1,4 +1,4 @@
-import { Icon } from '@bitrise/bitkit';
+import { IconFlag } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { NodeProps, Position } from '@xyflow/react';
 
@@ -22,7 +22,7 @@ const EndNode = (_props: Props) => {
         justifyContent="center"
         borderColor="border/regular"
       >
-        <Icon name="Flag" size="16" color="icon/tertiary" />
+        <IconFlag size="16" color="icon/tertiary" />
       </Box>
       <InvisibleHandle type="source" position={Position.Right} />
     </>

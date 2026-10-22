@@ -5,10 +5,9 @@ import {
   DropdownOption,
   DropdownProps,
   DropdownSearch,
-  Icon,
   Tooltip,
 } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconMagnifier } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 
@@ -129,13 +128,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
                 color="button.secondary"
                 textStyle="body/lg/regular"
                 justifyContent="flex-start"
-                leftIcon={
-                  <Icon
-                    name="SparkleFilled"
-                    size="24"
-                    color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
-                  />
-                }
+                leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
                 variant="tertiary"
                 width="100%"
                 isDisabled={isAIButtonDisabled}

@@ -5,13 +5,12 @@ import {
   Dialog,
   DialogBody,
   DialogFooter,
-  Icon,
   IconButton,
   Input,
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitBadge, BitkitButton } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitBadge, BitkitButton, IconLock } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
@@ -106,7 +105,7 @@ const SecretCard = (props: SecretCardProps) => {
     onCancel();
   };
 
-  const protectedIcon = <Icon size="16" name="Lock" color="icon/tertiary" margin="12" />;
+  const protectedIcon = <IconLock size="16" color="icon/tertiary" margin="12" />;
 
   const showHideButton = (
     <IconButton

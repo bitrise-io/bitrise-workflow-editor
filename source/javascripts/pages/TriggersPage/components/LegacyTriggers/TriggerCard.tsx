@@ -1,4 +1,5 @@
-import { CardProps, Checkbox, DraggableCard, Icon, IconButton } from '@bitrise/bitkit';
+import { CardProps, Checkbox, DraggableCard } from '@bitrise/bitkit';
+import { BitkitIconButton, IconArrowRight, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -70,7 +71,7 @@ const TriggerCard = (props: TriggerCardProps) => {
         <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} triggerType={triggerItem.triggerType} />
       </Box>
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
-        <Icon name="ArrowRight" marginRight="16" />
+        <IconArrowRight marginInlineEnd="16" />
         <Box display="flex" flexDirection="column" gap="4">
           <Text>{targetId}</Text>
           <Text textStyle="body/md/regular" color="text/secondary">
@@ -90,12 +91,11 @@ const TriggerCard = (props: TriggerCardProps) => {
         {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
         {!isReadOnlyView && (
           <>
-            <IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
-            <IconButton
-              iconName="MinusCircle"
-              aria-label="Remove trigger"
-              variant="tertiary"
-              isDanger
+            <BitkitIconButton icon={IconPencil} label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+            <BitkitIconButton
+              icon={IconMinusCircle}
+              label="Remove trigger"
+              variant="danger-tertiary"
               onClick={handleRemove}
             />
           </>
