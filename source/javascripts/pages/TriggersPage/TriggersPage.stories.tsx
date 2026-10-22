@@ -7,7 +7,7 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import TriggersPage from './TriggersPage';
 
 const removeTriggers = (yml: BitriseYml): BitriseYml => {
-  const copyYml = { ...yml };
+  const copyYml = structuredClone(yml);
   if (yml.workflows && copyYml.workflows) {
     Object.keys(yml.workflows).forEach((id) => {
       copyYml.workflows![id] = {
