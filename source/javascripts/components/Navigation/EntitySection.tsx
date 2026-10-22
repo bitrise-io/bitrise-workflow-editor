@@ -1,17 +1,71 @@
 import {
   BitkitEmptyState,
   BitkitIconComponent,
+  BitkitTooltip,
   BitkitTreeView,
   createTreeCollection,
+  IconAbortCircleFilled,
+  IconCheckCircleFilled,
   IconChevronDown,
   IconChevronRight,
+  IconCircleDashed,
+  IconCircleHalfFilled,
+  IconCrossCircleFilled,
+  IconSkipCircle,
+  IconTrigger,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { chakra } from '@chakra-ui/react/styled-system';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode, useMemo, useState } from 'react';
 
-export type EntityItem = { id: string; label: string };
+import { EntityRowStatus } from './useEntityStatuses';
+
+export type EntityItem = { id: string; label: string; status?: EntityRowStatus };
+
+const RUN_LOOK = {
+  succeeded: { icon: IconCheckCircleFilled, color: 'icon/positive', text: 'Last run passed' },
+  failed: { icon: IconCrossCircleFilled, color: 'icon/negative', text: 'Last run failed' },
+  aborted: { icon: IconAbortCircleFilled, color: 'icon/warning', text: 'Last run was aborted' },
+  running: { icon: IconCircleHalfFilled, color: 'icon/interactive', text: 'Running now' },
+  skipped: { icon: IconSkipCircle, color: 'icon/tertiary', text: 'Skipped in the last run' },
+  never: { icon: IconCircleDashed, color: 'icon/tertiary', text: 'No runs yet' },
+} as const;
+
+// "5m", "3h", "2d": how long ago, short enough for the row's end.
+const since = (iso: string) => {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 60 * 24) return `${Math.round(minutes / 60)}h`;
+  return `${Math.round(minutes / (60 * 24))}d`;
+};
+
+// The row: last run status first, then on its end a warning for a problem, a trigger icon when it starts
+// on its own, and how long ago it last ran. Hovering it says all of that in words.
+const EntityLeaf = ({ label, status }: EntityItem) => {
+  const run = status?.run && RUN_LOOK[status.run.status];
+  const ranAgo = status?.run?.at && status.run.status !== 'running' ? since(status.run.at) : undefined;
+  const summary = [status?.problem, run && (ranAgo ? `${run.text} ${ranAgo} ago` : run.text), status?.triggers]
+    .filter(Boolean)
+    .join(' · ');
+  const leaf = (
+    <BitkitTreeView.Leaf
+      label={label}
+      icon={run?.icon}
+      iconColor={run?.color}
+      hasWarning={Boolean(status?.problem)}
+      suffixIcon={status?.triggers ? IconTrigger : undefined}
+      suffixText={ranAgo}
+    />
+  );
+  return summary ? (
+    <BitkitTooltip text={summary} placement="right">
+      {leaf}
+    </BitkitTooltip>
+  ) : (
+    leaf
+  );
+};
 
 type EntityNode = EntityItem & { children: EntityNode[] };
 
@@ -92,7 +146,7 @@ const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, 
                 const id = details.selectedValue[0];
                 if (id) onSelect(id);
               }}
-              render={({ node }) => <BitkitTreeView.Leaf label={node.label} />}
+              render={({ node }) => <EntityLeaf {...node} />}
             />
           </Box>
         ) : (

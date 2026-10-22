@@ -20,12 +20,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
 import FilesPanel from '@/components/Navigation/FilesPanel';
+import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
@@ -154,6 +156,7 @@ const Navigation = (props: Props) => {
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
   // Opens on the menu that holds the page you land on; after that it's the user's choice.
   const [, navigate] = useHashLocation();
+  const [searchParams] = useSearchParams();
   const withSearchParams = usePathWithSearchParams();
   const visualEditorNotice = useVisualEditorNotice();
   const [view, setView] = useState<SidebarView>(() =>
@@ -202,8 +205,45 @@ const Navigation = (props: Props) => {
 
   // Picking Tools from a Pipeline, Workflow or Step bundle page opens its first tool, Env Vars, so the
   // menu and the page agree. On a tool page already, the page stays.
+  // Opens the open file's first CI block, replacing whatever entity the URL picked.
+  const openFirstBuildingBlock = () => {
+    const target = FirstBuildingBlock.firstBuildingBlock(bitriseYmlStore.getState().yml);
+    if (!target || visualEditorNotice?.disabled) {
+      return;
+    }
+    const params = new URLSearchParams(searchParams);
+    FirstBuildingBlock.entityParams.forEach((param) => params.delete(param));
+    params.set(target.param, target.id);
+    navigate(`${target.path}?${params.toString()}`);
+  };
+
+  // A file tab without the kind you're looking at (e.g. only Step bundles while on Pipelines) opens its
+  // first CI block instead of an empty page. Only on switching files: deleting the last one keeps you there.
+  const selectedNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
+  const previousNodeIdRef = useRef(selectedNodeId);
+  useEffect(() => {
+    if (previousNodeIdRef.current === selectedNodeId) {
+      return;
+    }
+    previousNodeIdRef.current = selectedNodeId;
+    const page = currentPage ?? '';
+    if (BUILDING_BLOCK_PAGES.includes(page) && !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page)) {
+      openFirstBuildingBlock();
+    }
+    // Reacts to the file switch only; the rest is read fresh when it happens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNodeId]);
+
   const handleViewChange = (next: SidebarView) => {
     setView(next);
+    // CI blocks opens on something: the first block of the open file, unless you're already on a kind it has.
+    const page = currentPage ?? '';
+    if (
+      next === 'building-blocks' &&
+      (!BUILDING_BLOCK_PAGES.includes(page) || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))
+    ) {
+      openFirstBuildingBlock();
+    }
     if (next === 'tools' && BUILDING_BLOCK_PAGES.includes(currentPage ?? '') && !visualEditorNotice?.disabled) {
       navigate(withSearchParams(paths.envVars));
     }

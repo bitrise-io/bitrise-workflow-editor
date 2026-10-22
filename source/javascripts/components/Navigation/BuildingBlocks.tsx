@@ -28,6 +28,7 @@ import { paths } from '@/routes';
 
 import AddControl from './AddControl';
 import EntitySection, { EntityItem } from './EntitySection';
+import useEntityStatuses from './useEntityStatuses';
 
 const ENTITY_PARAMS = ['workflow_id', 'pipeline', 'step_bundle_id'];
 
@@ -109,8 +110,13 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
   );
 
   // Pipelines go by their title where they have one, as the Pipelines page names them.
+  const statuses = useEntityStatuses();
   const pipelineItems = matching(
-    Object.entries(pipelines).map(([id, pipeline]) => ({ id, label: pipeline?.title || id })),
+    Object.entries(pipelines).map(([id, pipeline]) => ({
+      id,
+      label: pipeline?.title || id,
+      status: statuses.pipeline(id),
+    })),
   );
   // Runnable Workflows first, utility ones (`_` prefix) after them, as the old selector grouped them.
   const workflowItems = matching(
@@ -119,11 +125,11 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
         [
           ...workflowIds.filter((id) => !WorkflowService.isUtilityWorkflow(id)),
           ...workflowIds.filter((id) => WorkflowService.isUtilityWorkflow(id)),
-        ].map((id) => ({ id, label: id })),
-      [workflowIds],
+        ].map((id) => ({ id, label: id, status: statuses.workflow(id) })),
+      [workflowIds, statuses],
     ),
   );
-  const stepBundleItems = matching(stepBundleIds.map((id) => ({ id, label: id })));
+  const stepBundleItems = matching(stepBundleIds.map((id) => ({ id, label: id, status: statuses.stepBundle(id) })));
 
   const hashParams = getSearchParamsFromLocationHash();
   const selected = (page: string, param: string) => (currentPage === page ? hashParams[param] : undefined);
