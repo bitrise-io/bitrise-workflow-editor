@@ -1,10 +1,12 @@
-import { Card, CardProps, Icon, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitColorButton,
   BitkitList,
   BitkitSkeletonGroup,
   IconContainer,
+  IconErrorCircleFilled,
+  IconWarningYellow,
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
@@ -43,7 +45,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   if (errorText) {
     icon = (
       <Tooltip label={errorText} aria-label={errorText} shouldWrapChildren wrapperProps={{ display: 'flex' }}>
-        <Icon ml="4" name="ErrorCircleFilled" size="16" color="icon/negative" />
+        <IconErrorCircleFilled marginInlineStart="4" size="16" color="icon/negative" />
       </Tooltip>
     );
   }
@@ -56,7 +58,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
         shouldWrapChildren
         wrapperProps={{ display: 'flex' }}
       >
-        <Icon ml="4" name="WarningYellow" size="16" />
+        <IconWarningYellow marginInlineStart="4" size="16" />
       </Tooltip>
     );
   }

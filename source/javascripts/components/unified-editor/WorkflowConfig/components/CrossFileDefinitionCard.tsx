@@ -1,4 +1,5 @@
-import { Card, Icon } from '@bitrise/bitkit';
+import { Card } from '@bitrise/bitkit';
+import { IconChevronDown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -13,7 +14,7 @@ const CrossFileDefinitionCard = ({ title, definingPath }: Props) => (
       <Text textStyle="body/lg/semibold" color="text/secondary">
         {title}
       </Text>
-      <Icon name="ChevronDown" color="icon/disabled" />
+      <IconChevronDown color="icon/disabled" />
     </Box>
     <Box padding="0 24px 16px 24px">
       <Text textStyle="body/sm/regular" color="text/secondary">

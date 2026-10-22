@@ -1,4 +1,4 @@
-import { Icon } from '@bitrise/bitkit';
+import { IconArrowDown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -181,7 +181,7 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
         marginBlockStart={isEmpty && isAfterRun ? -8 : 0}
         marginBlockEnd={isEmpty && isBeforeRun ? -8 : 0}
       >
-        {isAfterRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+        {isAfterRun && !isEmpty && <IconArrowDown size="16" color="icon/tertiary" alignSelf="center" />}
         {isAfterRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
 
         {sortableItems.map((item) => (
@@ -189,7 +189,7 @@ const ChainedWorkflowList = ({ placement, parentWorkflowId }: Props) => {
         ))}
 
         {isBeforeRun && isEmpty && <Droppable placement={placement} parentWorkflowId={parentWorkflowId} />}
-        {isBeforeRun && !isEmpty && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+        {isBeforeRun && !isEmpty && <IconArrowDown size="16" color="icon/tertiary" alignSelf="center" />}
       </Box>
     </SortableContext>
   );

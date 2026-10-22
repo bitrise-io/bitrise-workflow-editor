@@ -1,5 +1,5 @@
-import { Button, Dropdown, DropdownOption, DropdownSearch, Icon, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlay, IconPlus, IconSettings } from '@bitrise/bitkit-v2';
+import { Button, Dropdown, DropdownOption, DropdownSearch, Tooltip } from '@bitrise/bitkit';
+import { BitkitButton, IconPlay, IconPlus, IconSettings, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
@@ -158,13 +158,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
                   textStyle="body/lg/regular"
                   borderRadius="0"
                   variant="secondary"
-                  leftIcon={
-                    <Icon
-                      name="SparkleFilled"
-                      size="24"
-                      color={isAIButtonDisabled ? 'status/ai/disabled' : 'status/ai/icon'}
-                    />
-                  }
+                  leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
                   justifyContent="flex-start"
                   isDisabled={isAIButtonDisabled}
                   _disabled={{

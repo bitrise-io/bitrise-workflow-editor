@@ -1,4 +1,4 @@
-import { Icon } from '@bitrise/bitkit';
+import { IconPlusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { NodeProps } from '@xyflow/react';
@@ -23,7 +23,7 @@ const PlaceholderNode = ({ zIndex }: Props) => {
         borderColor="border/regular"
         backgroundColor="background/primary"
       >
-        <Icon color="icon/tertiary" name="PlusCircle" size="16" />
+        <IconPlusCircle color="icon/tertiary" size="16" />
         <Text color="text/tertiary" textStyle="body/md/regular">
           Workflow
         </Text>

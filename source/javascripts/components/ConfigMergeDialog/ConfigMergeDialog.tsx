@@ -1,5 +1,5 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Icon, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, IconArrowLeft, IconArrowRight, IconCross } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
@@ -197,7 +197,7 @@ const ConfigMergeDialogContent = ({
         <YmlValidationBadge status={ymlStatus} />
       </ModalHeader>
       <ModalCloseButton size="large">
-        <Icon name="Cross" />
+        <IconCross />
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
         <Text>
@@ -221,7 +221,7 @@ const ConfigMergeDialogContent = ({
           </Box>
 
           <Box alignSelf="center">
-            <Icon name="ArrowRight" color="icon/tertiary" size="24" />
+            <IconArrowRight color="icon/tertiary" />
           </Box>
 
           <Box display="flex" flexDirection="column" flex="1" gap="4">
@@ -241,7 +241,7 @@ const ConfigMergeDialogContent = ({
           </Box>
 
           <Box alignSelf="center">
-            <Icon name="ArrowLeft" color="icon/tertiary" size="24" />
+            <IconArrowLeft color="icon/tertiary" />
           </Box>
 
           <Box display="flex" flexDirection="column" flex="1" gap="4">
