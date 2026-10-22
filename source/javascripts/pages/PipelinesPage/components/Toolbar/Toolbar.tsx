@@ -1,26 +1,24 @@
-import { Tooltip } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
-  BitkitButton,
+  BitkitControlButton,
   BitkitTextInput,
   IconChevronDown,
   IconPencil,
   IconPlay,
   IconSettings,
   IconTrash,
-  rem,
 } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
-import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { createContext, forwardRef, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
 
-import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import PipelineService from '@/core/services/PipelineService';
+import GlobalProps from '@/core/utils/GlobalProps';
+import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WindowUtils from '@/core/utils/WindowUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useShallow } from '@/hooks/useShallow';
 import { useIsMergedConfigSelected, useIsReadOnlyView, useTree } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
@@ -29,15 +27,74 @@ import useRenamePipeline from '../../hooks/useRenamePipeline';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
 import DeletePipelineDialog from '../PipelineConfigDrawer/components/DeletePipelineDialog/DeletePipelineDialog';
 
-const DIALOGS_WITHOUT_DRAWER = [
-  PipelinesPageDialogType.NONE,
-  PipelinesPageDialogType.START_BUILD,
-  PipelinesPageDialogType.CREATE_PIPELINE,
-];
+type PipelineActions = {
+  run: () => void;
+  editProperties: () => void;
+  rename: (newPipelineId: string) => void;
+  requestDelete: () => void;
+};
 
-type Props = BoxProps & {
-  onRunClick?: () => void;
-  onPropertiesClick?: () => void;
+const noop = () => undefined;
+const PipelineActionsContext = createContext<PipelineActions>({
+  run: noop,
+  editProperties: noop,
+  rename: noop,
+  requestDelete: noop,
+});
+
+// The Pipeline's actions live above the canvas, because the canvas is rebuilt whenever the selected
+// Pipeline changes, as it does mid-rename and after a delete. The controls on the canvas only call them.
+export const PipelineActionsProvider = ({ children }: PropsWithChildren) => {
+  const { keys, selectedPipeline, onSelectPipeline } = usePipelineSelector();
+  const openDialog = usePipelinesPageStore((s) => s.openDialog);
+  const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
+  const setPipelineId = usePipelinesPageStore((s) => s.setPipelineId);
+  const { open: isDeleteDialogOpen, onOpen: requestDelete, onClose: onCloseDeleteDialog } = useDisclosure();
+  const renamePipeline = useRenamePipeline(onSelectPipeline);
+
+  const actions = useMemo<PipelineActions>(
+    () => ({
+      run: () => {
+        const shouldShowTrialUpsellDialog = Boolean(
+          GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild,
+        );
+        if (shouldShowTrialUpsellDialog) {
+          WindowUtils.postMessageToParent('OPEN_TRIAL_UPSELL_DIALOG', { reason: 'pipeline_run' });
+        } else {
+          openDialog({ type: PipelinesPageDialogType.START_BUILD, pipelineId: selectedPipeline })();
+        }
+      },
+      editProperties: openDialog({ type: PipelinesPageDialogType.PIPELINE_CONFIG, pipelineId: selectedPipeline }),
+      rename: (newPipelineId: string) => {
+        setPipelineId(newPipelineId);
+        renamePipeline(newPipelineId);
+      },
+      requestDelete,
+    }),
+    [openDialog, renamePipeline, requestDelete, selectedPipeline, setPipelineId],
+  );
+
+  const handleDeletePipeline = useCallback(
+    (deletedId: string) => {
+      closeDialog();
+      onSelectPipeline(keys.filter((key) => key !== deletedId)[0]);
+    },
+    [closeDialog, keys, onSelectPipeline],
+  );
+
+  return (
+    <PipelineActionsContext.Provider value={actions}>
+      {children}
+      {selectedPipeline && (
+        <DeletePipelineDialog
+          pipelineId={selectedPipeline}
+          isOpen={isDeleteDialogOpen}
+          onClose={onCloseDeleteDialog}
+          onDeletePipeline={handleDeletePipeline}
+        />
+      )}
+    </PipelineActionsContext.Provider>
+  );
 };
 
 // The Pipeline's name, opening its actions. Bitkit has no title-with-menu trigger (a design-system gap),
@@ -51,8 +108,8 @@ const TitleTrigger = forwardRef<HTMLButtonElement, { title: string }>(function T
       alignItems="center"
       gap="4"
       minWidth="0"
-      height="32"
-      paddingInline="8"
+      height="24"
+      paddingInline="4"
       borderRadius="4"
       color="text/primary"
       cursor="pointer"
@@ -61,7 +118,7 @@ const TitleTrigger = forwardRef<HTMLButtonElement, { title: string }>(function T
       {...props}
     >
       {/* The Pipeline's name is customer data: keep it out of session recordings. */}
-      <Text textStyle="body/lg/semibold" truncate data-clarity-mask="true">
+      <Text textStyle="body/md/semibold" truncate data-clarity-mask="true">
         {title}
       </Text>
       <IconChevronDown size="16" color="icon/secondary" flexShrink={0} />
@@ -69,18 +126,11 @@ const TitleTrigger = forwardRef<HTMLButtonElement, { title: string }>(function T
   );
 });
 
-// Renaming happens in place: the title turns into its own text field. Enter or leaving the field saves,
-// Escape cancels. The rename itself runs in the toolbar, which outlives this field.
-const NameEditor = ({
-  pipelineId,
-  onRename,
-  onDone,
-}: {
-  pipelineId: string;
-  onRename: (newPipelineId: string) => void;
-  onDone: () => void;
-}) => {
+// Renaming happens in place: the name turns into its own text field. Enter or leaving the field saves,
+// Escape cancels.
+const NameEditor = ({ pipelineId, onDone }: { pipelineId: string; onDone: () => void }) => {
   const { keys } = usePipelineSelector();
+  const { rename } = useContext(PipelineActionsContext);
   const [value, setValue] = useState(pipelineId);
   const validation = PipelineService.validateName(value, pipelineId, keys);
   const error = validation === true ? undefined : validation;
@@ -90,13 +140,13 @@ const NameEditor = ({
       return;
     }
     if (value !== pipelineId) {
-      onRename(value);
+      rename(value);
     }
     onDone();
   };
 
   return (
-    <Box position="relative" width="320px" maxWidth="100%" data-clarity-mask="true">
+    <Box position="relative" width="240px" data-clarity-mask="true">
       <BitkitTextInput
         size="md"
         label="Pipeline name"
@@ -117,7 +167,7 @@ const NameEditor = ({
           onBlur: () => (error ? onDone() : commit()),
         }}
       />
-      {/* Under the field, over the canvas, so an error doesn't push the header taller. */}
+      {/* Under the field, over the canvas, so an error doesn't move the field. */}
       {error && (
         <Text
           position="absolute"
@@ -134,85 +184,57 @@ const NameEditor = ({
   );
 };
 
-const Toolbar = ({ onRunClick, onPropertiesClick, ...props }: Props) => {
+// The Pipeline's name with its menu, then Run, in a card floating over the canvas.
+const Toolbar = (props: BoxProps) => {
   const hasUnsavedChanges = useYmlHasChanges();
   const tree = useTree();
   const isMergedConfigSelected = useIsMergedConfigSelected();
   const isReadOnlyView = useIsReadOnlyView();
   const isModularFileTab = !!tree && !isMergedConfigSelected;
-  // The sidebar's CI blocks list picks the Pipeline; the header names it and holds its actions.
-  const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
-  const { isDrawerOpen, closeDialog, setPipelineId } = usePipelinesPageStore(
-    useShallow((s) => ({
-      isDrawerOpen: s.isSwitchingDialog || !DIALOGS_WITHOUT_DRAWER.includes(s.openedDialogType),
-      closeDialog: s.closeDialog,
-      setPipelineId: s.setPipelineId,
-    })),
-  );
-
+  const { options, selectedPipeline } = usePipelineSelector();
+  const { run, editProperties, requestDelete } = useContext(PipelineActionsContext);
   const [isRenaming, setIsRenaming] = useState(false);
-  const { open: isDeleteDialogOpen, onOpen: onOpenDeleteDialog, onClose: onCloseDeleteDialog } = useDisclosure();
-  const renamePipeline = useRenamePipeline(onSelectPipeline);
-  const handleRename = useCallback(
-    (newPipelineId: string) => {
-      setPipelineId(newPipelineId);
-      renamePipeline(newPipelineId);
-    },
-    [renamePipeline, setPipelineId],
-  );
-  const handleDeletePipeline = useCallback(
-    (deletedId: string) => {
-      closeDialog();
-      onSelectPipeline(keys.filter((key) => key !== deletedId)[0]);
-    },
-    [closeDialog, keys, onSelectPipeline],
-  );
 
-  const shouldShowGraphPipelineActions = useBitriseYmlStore((s) => s.yml.pipelines?.[selectedPipeline]?.workflows);
+  const isGraph = useBitriseYmlStore((s) => Boolean(s.yml.pipelines?.[selectedPipeline]?.workflows));
   const isEmpty = useBitriseYmlStore((s) => {
     const pipeline = s.yml.pipelines?.[selectedPipeline];
-
     if (pipeline?.workflows) {
       return Object.keys(pipeline.workflows).length === 0;
     }
-
     if (pipeline?.stages) {
       return pipeline.stages.length === 0;
     }
-
     return true;
   });
 
-  const runButtonTooltip = useMemo(() => {
-    if (isModularFileTab) {
-      return 'Only available in the Merged config tab';
-    }
-
-    if (hasUnsavedChanges) {
-      return 'Save changes before running';
-    }
-
-    return 'Run Pipeline';
-  }, [hasUnsavedChanges, isModularFileTab]);
-
+  let runLabel = 'Run Pipeline';
+  if (isModularFileTab) {
+    runLabel = 'Only available in the Merged config tab';
+  } else if (hasUnsavedChanges) {
+    runLabel = 'Save changes before running';
+  }
   const isRunDisabled = isEmpty || isModularFileTab || hasUnsavedChanges;
 
-  let title = <Text textStyle="body/lg/semibold">No Pipeline selected</Text>;
+  let title = (
+    <Text textStyle="body/md/semibold" paddingInline="4">
+      No Pipeline selected
+    </Text>
+  );
   if (selectedPipeline && isRenaming) {
-    title = <NameEditor pipelineId={selectedPipeline} onRename={handleRename} onDone={() => setIsRenaming(false)} />;
+    title = <NameEditor pipelineId={selectedPipeline} onDone={() => setIsRenaming(false)} />;
   } else if (selectedPipeline) {
     title = (
       <BitkitActionMenu size="md" trigger={<TitleTrigger title={options[selectedPipeline]} />}>
         <BitkitActionMenu.Item icon={IconPencil} disabled={isReadOnlyView} onClick={() => setIsRenaming(true)}>
           Rename
         </BitkitActionMenu.Item>
-        {shouldShowGraphPipelineActions && (
-          <BitkitActionMenu.Item icon={IconSettings} onClick={onPropertiesClick}>
+        {isGraph && (
+          <BitkitActionMenu.Item icon={IconSettings} onClick={editProperties}>
             Edit properties
           </BitkitActionMenu.Item>
         )}
         <BitkitActionMenu.Separator />
-        <BitkitActionMenu.Item icon={IconTrash} isDanger disabled={isReadOnlyView} onClick={onOpenDeleteDialog}>
+        <BitkitActionMenu.Item icon={IconTrash} isDanger disabled={isReadOnlyView} onClick={requestDelete}>
           Delete
         </BitkitActionMenu.Item>
       </BitkitActionMenu>
@@ -220,70 +242,34 @@ const Toolbar = ({ onRunClick, onPropertiesClick, ...props }: Props) => {
   }
 
   return (
-    <>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        gap="8"
-        height={rem(52)}
-        flexShrink={0}
-        paddingInlineStart="16"
-        // Keeps the group centred on the canvas an open drawer leaves visible, as the canvas below does.
-        paddingInlineEnd={['16', isDrawerOpen ? `calc(${FLOATING_DRAWER_WIDTH} + 32px)` : '16']}
-        transition="padding-inline-end 200ms"
-        backgroundColor="background/primary"
-        borderBlockEnd="1px solid"
-        borderColor="border/regular"
-        {...props}
-      >
-        {/* The name, then its actions right after it: one group in the middle of the header. */}
-        <Box display="flex" minWidth="0">
-          {title}
-        </Box>
-
-        {(shouldShowGraphPipelineActions || RuntimeUtils.isWebsiteMode()) && (
-          <Separator orientation="vertical" height="24" flexShrink={0} />
-        )}
-
-        {shouldShowGraphPipelineActions && (
-          <BitkitButton
-            size="md"
-            variant="tertiary"
-            icon={IconSettings}
-            onClick={onPropertiesClick}
-            data-clarity-unmask="true"
-          >
-            Settings
-          </BitkitButton>
-        )}
-
-        {RuntimeUtils.isWebsiteMode() && (
-          <Tooltip label={runButtonTooltip} aria-label={runButtonTooltip} shouldWrapChildren={isRunDisabled}>
-            <BitkitButton
-              size="md"
-              variant="tertiary"
-              suffixIcon={IconPlay}
-              state={isRunDisabled ? 'disabled' : undefined}
-              onClick={onRunClick}
-              data-clarity-unmask="true"
-            >
-              Run
-            </BitkitButton>
-          </Tooltip>
-        )}
-      </Box>
-
-      {selectedPipeline && (
-        <DeletePipelineDialog
-          pipelineId={selectedPipeline}
-          isOpen={isDeleteDialogOpen}
-          onClose={onCloseDeleteDialog}
-          onDeletePipeline={handleDeletePipeline}
+    <Box display="flex" alignItems="center" gap="2" minWidth="0" {...props}>
+      {title}
+      {RuntimeUtils.isWebsiteMode() && (
+        // The label is the control's tooltip, so it also says why Run is unavailable.
+        <BitkitControlButton
+          size="xs"
+          icon={IconPlay}
+          label={runLabel}
+          state={isRunDisabled ? 'disabled' : undefined}
+          onClick={run}
+          data-clarity-unmask="true"
         />
       )}
-    </>
+    </Box>
   );
 };
 
 export default Toolbar;
+
+// The card the controls float in, over the canvas's top-left: the original floating toolbar's look,
+// sized to its contents.
+export const FLOATING_CONTROLS_HEIGHT = 40;
+export const floatingControlsProps = {
+  display: 'flex',
+  alignItems: 'center',
+  minHeight: `${FLOATING_CONTROLS_HEIGHT}px`,
+  paddingInline: '8',
+  borderRadius: '12',
+  boxShadow: 'elevation/lg',
+  background: 'background/primary',
+} satisfies BoxProps;

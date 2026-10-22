@@ -217,9 +217,18 @@ const Navigation = (props: Props) => {
     navigate(`${target.path}?${params.toString()}`);
   };
 
-  // A file tab without the kind you're looking at (e.g. only Step bundles while on Pipelines) opens its
-  // first CI block instead of an empty page. Only on switching files: deleting the last one keeps you there.
+  // Switching file tabs shows that file's CI blocks wherever the canvas would otherwise not change: from a
+  // tool page (Env Vars, Secrets, …), or from a kind the new file doesn't have (e.g. only Step bundles while
+  // on Pipelines). The Tools menu gives way to CI blocks to match; Files stays, as picking files is its job.
+  // The YAML page stays put. Only on switching files: deleting the last entity of a kind keeps you there.
   const selectedNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
+  const [viewNodeId, setViewNodeId] = useState(selectedNodeId);
+  if (viewNodeId !== selectedNodeId) {
+    setViewNodeId(selectedNodeId);
+    if (view === 'tools' && currentPage !== 'yml') {
+      setView('building-blocks');
+    }
+  }
   const previousNodeIdRef = useRef(selectedNodeId);
   useEffect(() => {
     if (previousNodeIdRef.current === selectedNodeId) {
@@ -227,7 +236,8 @@ const Navigation = (props: Props) => {
     }
     previousNodeIdRef.current = selectedNodeId;
     const page = currentPage ?? '';
-    if (BUILDING_BLOCK_PAGES.includes(page) && !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page)) {
+    const isBlockPage = BUILDING_BLOCK_PAGES.includes(page);
+    if (page !== 'yml' && (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))) {
       openFirstBuildingBlock();
     }
     // Reacts to the file switch only; the rest is read fresh when it happens.

@@ -7,14 +7,10 @@ import {
   CANVAS_DOT_SIZE,
   CANVAS_EDGE_SHADOW,
 } from '@/components/unified-editor/canvasDots';
-import GlobalProps from '@/core/utils/GlobalProps';
-import PageProps from '@/core/utils/PageProps';
-import WindowUtils from '@/core/utils/WindowUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
-import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
-import Toolbar from '../Toolbar/Toolbar';
+import Toolbar, { floatingControlsProps, PipelineActionsProvider } from '../Toolbar/Toolbar';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
 import PipelineConversionNotification from './PipelineConversionNotification';
 import PipelineConversionSignposting from './PipelineConversionSignposting';
@@ -22,38 +18,14 @@ import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 
 const PipelineCanvas = () => {
   const { selectedPipeline } = usePipelineSelector();
-  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline]?.workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
 
-  const handleRunPipelineClick = () => {
-    const shouldShowTrialUpsellDialog = Boolean(GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild);
-
-    if (shouldShowTrialUpsellDialog) {
-      WindowUtils.postMessageToParent('OPEN_TRIAL_UPSELL_DIALOG', {
-        reason: 'pipeline_run',
-      });
-    } else {
-      openDialog({
-        type: PipelinesPageDialogType.START_BUILD,
-        pipelineId: selectedPipeline,
-      })();
-    }
-  };
-
   return (
-    <>
+    <PipelineActionsProvider>
       <PipelineConversionSignposting />
       <PipelineConversionNotification />
-      {/* A fixed header above the canvas, rather than a bar floating over it. */}
       <Box flex="1" minHeight="0" display="flex" flexDirection="column">
-        <Toolbar
-          onPropertiesClick={openDialog({
-            type: PipelinesPageDialogType.PIPELINE_CONFIG,
-            pipelineId: selectedPipeline,
-          })}
-          onRunClick={handleRunPipelineClick}
-        />
         <Box
           background="background/secondary"
           flex="1"
@@ -72,6 +44,10 @@ const PipelineCanvas = () => {
             boxShadow: CANVAS_EDGE_SHADOW,
           }}
         >
+          {/* The Pipeline's name, menu and Run float over the canvas's top-left; the graph starts below them. */}
+          <Box {...floatingControlsProps} position="absolute" top="16" left="16" zIndex="10">
+            <Toolbar />
+          </Box>
           <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
             <Background variant={BackgroundVariant.Dots} gap={CANVAS_DOT_GAP} size={CANVAS_DOT_SIZE} />
             <Controls showInteractive={false} />
@@ -79,7 +55,7 @@ const PipelineCanvas = () => {
           </CanvasComponent>
         </Box>
       </Box>
-    </>
+    </PipelineActionsProvider>
   );
 };
 

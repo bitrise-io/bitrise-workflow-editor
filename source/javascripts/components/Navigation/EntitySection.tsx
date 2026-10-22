@@ -1,6 +1,7 @@
 import {
   BitkitBadge,
   BitkitEmptyState,
+  bitkitIcon,
   BitkitIconComponent,
   BitkitTooltip,
   BitkitTreeView,
@@ -23,6 +24,12 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { EntityRowStatus } from './useEntityStatuses';
 
 export type EntityItem = { id: string; label: string; status?: EntityRowStatus };
+
+// The tree colours a row's end (icons and text) in its secondary text color; the trigger marker is a quiet
+// hint, so it stays tertiary. `bitkitIcon` is Bitkit's way to make a custom icon.
+const IconTriggerTertiary = bitkitIcon(function IconTriggerTertiary(props) {
+  return <IconTrigger color="icon/tertiary" {...props} />;
+});
 
 const RUN_LOOK = {
   succeeded: { icon: IconCheckCircleFilled, color: 'icon/positive', text: 'Last run passed' },
@@ -55,7 +62,7 @@ const EntityLeaf = ({ label, status }: EntityItem) => {
       icon={run?.icon}
       iconColor={run?.color}
       hasWarning={Boolean(status?.problem)}
-      suffixIcon={status?.triggers ? IconTrigger : undefined}
+      suffixIcon={status?.triggers ? IconTriggerTertiary : undefined}
       suffixText={ranAgo}
     />
   );
@@ -90,7 +97,17 @@ const ROOT_ID = '__entities__';
 const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, isSearching }: Props) => {
   // Empty sections start collapsed (their count says 0); the user's own open/close wins after that.
   const [isOpenedByUser, setIsOpenedByUser] = useState<boolean>();
-  const isOpen = isSearching || (isOpenedByUser ?? items.length > 0);
+  // A list that becomes empty (e.g. on a file switch) folds again, whatever was open before; unfolding it
+  // by hand still shows its empty state.
+  const isEmpty = items.length === 0;
+  const [wasEmpty, setWasEmpty] = useState(isEmpty);
+  if (wasEmpty !== isEmpty) {
+    setWasEmpty(isEmpty);
+    if (isEmpty) {
+      setIsOpenedByUser(undefined);
+    }
+  }
+  const isOpen = isSearching || (isOpenedByUser ?? !isEmpty);
 
   // Selecting an item unfolds its section and scrolls the row into view in the sidebar, so you can see
   // where you are. Folding it again afterwards is still up to you.

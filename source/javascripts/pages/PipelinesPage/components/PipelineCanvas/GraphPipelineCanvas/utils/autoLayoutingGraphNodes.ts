@@ -1,5 +1,6 @@
 import dagre from '@dagrejs/dagre';
 
+import { FLOATING_CONTROLS_HEIGHT } from '../../../Toolbar/Toolbar';
 import {
   CANVAS_PADDING,
   TRIGGER_NODE_SIZE,
@@ -27,7 +28,8 @@ function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: Gra
     rankdir: 'LR',
     // Room on the left for the trigger node, which sits ahead of the first column.
     marginx: CANVAS_PADDING + (hasTrigger ? TRIGGER_NODE_SIZE + WORKFLOW_NODE_GAP_X : 0),
-    marginy: CANVAS_PADDING,
+    // Room on top for the floating Pipeline controls.
+    marginy: CANVAS_PADDING + FLOATING_CONTROLS_HEIGHT,
     ranksep: WORKFLOW_NODE_GAP_X,
     nodesep: WORKFLOW_NODE_GAP_Y,
     edgesep: WORKFLOW_NODE_HEIGHT + WORKFLOW_NODE_GAP_Y,

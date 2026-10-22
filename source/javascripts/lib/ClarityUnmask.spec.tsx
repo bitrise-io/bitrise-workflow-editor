@@ -267,7 +267,7 @@ describe('Clarity unmasking', () => {
       'pages/PipelinesPage/components/PipelineCanvas/PipelineConversionNotification.tsx': 1,
       'pages/PipelinesPage/components/PipelineCanvas/PipelineConversionSignposting.tsx': 1,
       'pages/PipelinesPage/components/PipelineConfigDrawer/PipelineConfigDrawer.tsx': 1,
-      'pages/PipelinesPage/components/Toolbar/Toolbar.tsx': 2,
+      'pages/PipelinesPage/components/Toolbar/Toolbar.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/WorkflowSelectorDrawer.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/NoWorkflowsEmptyState.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/SearchResultEmptyState.tsx': 1,

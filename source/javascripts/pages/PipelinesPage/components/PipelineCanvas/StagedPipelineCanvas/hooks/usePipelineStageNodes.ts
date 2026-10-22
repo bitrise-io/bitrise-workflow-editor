@@ -2,6 +2,7 @@ import { Node, Position } from '@xyflow/react';
 
 import { Stage } from '@/core/models/Stage';
 
+import { FLOATING_CONTROLS_HEIGHT } from '../../../Toolbar/Toolbar';
 import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../StagedPipelineCanvas.const';
 import usePipelineStages from './usePipelineStages';
 
@@ -12,7 +13,8 @@ const commonNodeProps: Partial<Node> = {
   targetPosition: Position.Right,
 };
 
-const BASE_Y = CANVAS_PADDING;
+// Room on top for the floating Pipeline controls.
+const BASE_Y = CANVAS_PADDING + FLOATING_CONTROLS_HEIGHT;
 
 const runNode = (id: string, x: number): Node => ({
   id: `run-${id}`,
