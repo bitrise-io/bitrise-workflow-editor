@@ -2,6 +2,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Suspense, useState } from 'react';
 import { Redirect, Router, Switch } from 'wouter';
 
+import FirstRunTour from '@/components/FirstRunTour/FirstRunTour';
 import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
 import LoadingState from '@/components/LoadingState';
@@ -82,7 +83,11 @@ const MainLayout = () => {
   return (
     <Box height="100dvh" display="flex" flexDirection="column">
       <Header />
-      {tabsUnderHeader && <OpenFileTabs />}
+      {tabsUnderHeader && (
+        <Box data-tour="file-tabs">
+          <OpenFileTabs />
+        </Box>
+      )}
       {/* Positioned, so an open tool panel can float over the sidebar's list and the content alike. */}
       <Box display="flex" flex="1" minHeight={0} position="relative">
         {/* Shown on the YAML page too: there, its CI blocks jump to definitions in the editor. */}
@@ -95,14 +100,19 @@ const MainLayout = () => {
           </ToolPanel>
         )}
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
-          {isModular && !tabsUnderHeader && <OpenFileTabs />}
-          <Box flex="1" overflowX="hidden" overflowY="auto" position="relative">
-            {isConfigLoading && <LoadingState />}
+          {isModular && !tabsUnderHeader && (
+            <Box data-tour="file-tabs">
+              <OpenFileTabs />
+            </Box>
+          )}
+          <Box flex="1" overflowX="hidden" overflowY="auto" position="relative" data-tour="canvas">
+            {isConfigLoading && <LoadingState isCanvas />}
             {/* A tool page opens in a panel over the YAML or CI block you were on, which stays on screen behind it. */}
             {!isConfigLoading && <BehindToolPanelProvider isBehind={isToolPage}>{pageRouter}</BehindToolPanelProvider>}
           </Box>
         </Box>
       </Box>
+      {!isConfigLoading && <FirstRunTour />}
     </Box>
   );
 };

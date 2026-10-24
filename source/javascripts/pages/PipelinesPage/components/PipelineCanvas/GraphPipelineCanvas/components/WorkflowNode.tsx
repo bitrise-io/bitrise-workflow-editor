@@ -483,7 +483,17 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   }, [id, highlighted, setEdges]);
 
   return (
-    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" width={WORKFLOW_NODE_WIDTH} className="nopan">
+    <Box
+      ref={ref}
+      display="flex"
+      zIndex={zIndex}
+      alignItems="stretch"
+      width={WORKFLOW_NODE_WIDTH}
+      className="nopan"
+      data-tour="workflow-node"
+      // Marks an open Workflow, which the first-run tour points at.
+      data-open={isOpenedByUser || isAutoExpanded || undefined}
+    >
       <LeftHandle />
       <WorkflowCard
         id={id}

@@ -51,6 +51,7 @@ jest.mock('wouter', () => ({
 jest.mock('@/components/Header', () => ({ __esModule: true, default: () => null }));
 jest.mock('@/components/Navigation', () => ({ __esModule: true, default: () => null }));
 jest.mock('@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs', () => ({ __esModule: true, default: () => null }));
+jest.mock('@/components/FirstRunTour/FirstRunTour', () => ({ __esModule: true, default: () => null }));
 jest.mock('@chakra-ui/react/box', () => ({ Box: ({ children }: { children?: ReactNode }) => <div>{children}</div> }));
 jest.mock('@chakra-ui/react/text', () => ({
   Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,

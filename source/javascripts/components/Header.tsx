@@ -401,6 +401,7 @@ const Header = () => {
               size="sm"
               value={editorView}
               aria-label="Editor view"
+              data-tour="editor-view"
               data-clarity-unmask="true"
               onValueChange={(details) => handleEditorViewChange(details.value)}
             >
@@ -452,6 +453,7 @@ const Header = () => {
           <BitkitButton
             size="sm"
             className="save"
+            data-tour="save"
             variant="primary"
             data-clarity-unmask="true"
             onClick={() => saveCIConfig('save_changes_button')}

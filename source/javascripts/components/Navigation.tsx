@@ -7,6 +7,7 @@ import {
   IconBook,
   IconDoc,
   IconFolder,
+  IconLightbulb,
   IconTerminal,
   rem,
 } from '@bitrise/bitkit-v2';
@@ -14,6 +15,7 @@ import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { startFirstRunTour } from '@/components/FirstRunTour/FirstRunTour';
 import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
 import FilesPanel from '@/components/Navigation/FilesPanel';
 import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
@@ -276,18 +278,33 @@ const Navigation = (props: BoxProps) => {
           onSelect={() => showList('building-blocks')}
         />
         <Separator width="24" marginBlock="4" />
-        {TOOLS.filter((tool) => !tool.isWebsiteOnly || RuntimeUtils.isWebsiteMode()).map((tool) => (
-          <Box key={tool.page} data-intercom-target={tool.intercomTarget}>
-            <RailButton
-              icon={tool.icon}
-              label={tool.label}
-              isSelected={currentTool?.page === tool.page}
-              // Clicking the open tool again closes its panel, like its ×.
-              onSelect={() => (currentTool?.page === tool.page ? closeToolPanel() : openTool(tool.path))}
-            />
-          </Box>
-        ))}
+        <Box display="flex" flexDirection="column" gap="4" data-tour="tools">
+          {TOOLS.filter((tool) => !tool.isWebsiteOnly || RuntimeUtils.isWebsiteMode()).map((tool) => (
+            <Box key={tool.page} data-intercom-target={tool.intercomTarget}>
+              <RailButton
+                icon={tool.icon}
+                label={tool.label}
+                isSelected={currentTool?.page === tool.page}
+                // Clicking the open tool again closes its panel, like its ×.
+                onSelect={() => (currentTool?.page === tool.page ? closeToolPanel() : openTool(tool.path))}
+              />
+            </Box>
+          ))}
+        </Box>
         <Box marginBlockStart="auto" display="flex" flexDirection="column" gap="4">
+          <BitkitControlButton
+            {...RAIL_LINK_PROPS}
+            icon={IconLightbulb}
+            label="Take the tour"
+            tooltipProps={{ placement: 'right' }}
+            onClick={() => {
+              // The tour walks the canvas, so a tool panel steps aside for it.
+              if (currentTool) {
+                closeToolPanel();
+              }
+              startFirstRunTour();
+            }}
+          />
           <BitkitControlButton
             data-intercom-target="YAML Reference Navigation Item"
             href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
@@ -312,7 +329,7 @@ const Navigation = (props: BoxProps) => {
       </Box>
 
       {/* The list beside the rail. It stays put while a tool is open: the tool's panel floats over it. */}
-      <Box position="relative" flexShrink={0} display="flex">
+      <Box position="relative" flexShrink={0} display="flex" data-tour="ci-blocks">
         <BitkitPageSidebar
           flexShrink={0}
           // The layout gives the sidebar the height of the row under the header, so the component's own

@@ -37,10 +37,12 @@ const DIALOGS_WITHOUT_DRAWER = [
   WorkflowsPageDialogType.CREATE_WORKFLOW,
 ];
 
-const containerProps: CardProps = {
+const containerProps = {
   maxW: 400,
   marginX: 'auto',
-};
+  // The first-run tour's Workflows step points at this card.
+  'data-tour': 'workflow-card',
+} as CardProps;
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();

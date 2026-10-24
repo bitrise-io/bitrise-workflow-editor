@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
+import { useIsFirstRunTourActive } from '@/components/FirstRunTour/FirstRunTour';
 import { useIsBehindToolPanel } from '@/components/Navigation/ToolPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
 import useCloseDialogsOnFileSwitch, { FileSwitchDialogRefs } from '@/hooks/useCloseDialogsOnFileSwitch';
@@ -44,10 +45,12 @@ const WorkflowsPage = () => {
 
   // The Workflow's settings live in a drawer now, so opening a Workflow opens it, as a panel would
   // have shown them.
-  // Behind a tool panel the page stays on screen without its drawer; it opens once the panel closes.
+  // Behind a tool panel the page stays on screen without its drawer; it opens once the panel closes. The same
+  // goes while the first-run tour runs or is about to: the drawer opens when it ends.
   const isBehindToolPanel = useIsBehindToolPanel();
+  const isTourActive = useIsFirstRunTourActive();
   useEffect(() => {
-    if (isBehindToolPanel) {
+    if (isBehindToolPanel || isTourActive) {
       return;
     }
     if (selectedWorkflowId) {
@@ -55,7 +58,7 @@ const WorkflowsPage = () => {
     } else {
       closeDialog();
     }
-  }, [selectedWorkflowId, openDialog, closeDialog, isBehindToolPanel]);
+  }, [selectedWorkflowId, openDialog, closeDialog, isBehindToolPanel, isTourActive]);
 
   useCloseDialogsOnFileSwitch(fileSwitchDialogRefs, () => {
     const { closeDialog: close, setSelectedStepIndices } = useWorkflowsPageStore.getState();

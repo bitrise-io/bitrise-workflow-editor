@@ -2,6 +2,7 @@ import { BitkitButton, BitkitEmptyState, IconPlus, IconStep } from '@bitrise/bit
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
+import { useIsFirstRunTourActive } from '@/components/FirstRunTour/FirstRunTour';
 import { useIsBehindToolPanel } from '@/components/Navigation/ToolPanel';
 import useCloseDialogsOnFileSwitch, { FileSwitchDialogRefs } from '@/hooks/useCloseDialogsOnFileSwitch';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
@@ -43,10 +44,12 @@ const StepBundlesPage = () => {
   const hasStepBundles = stepBundlesIds.length > 0;
 
   // The bundle's settings live in a drawer now, so opening a Step bundle opens it.
-  // Behind a tool panel the page stays on screen without its drawer; it opens once the panel closes.
+  // Behind a tool panel the page stays on screen without its drawer; it opens once the panel closes. The same
+  // goes while the first-run tour runs or is about to: the drawer opens when it ends.
   const isBehindToolPanel = useIsBehindToolPanel();
+  const isTourActive = useIsFirstRunTourActive();
   useEffect(() => {
-    if (isBehindToolPanel) {
+    if (isBehindToolPanel || isTourActive) {
       return;
     }
     if (stepBundleId) {
@@ -54,7 +57,7 @@ const StepBundlesPage = () => {
     } else {
       closeDialog();
     }
-  }, [stepBundleId, openDialog, closeDialog, isBehindToolPanel]);
+  }, [stepBundleId, openDialog, closeDialog, isBehindToolPanel, isTourActive]);
 
   useCloseDialogsOnFileSwitch(fileSwitchDialogRefs, () => {
     const { closeDialog: close, setSelectedStepIndices } = useStepBundlesPageStore.getState();
