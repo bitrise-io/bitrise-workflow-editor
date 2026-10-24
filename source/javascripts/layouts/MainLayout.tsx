@@ -9,7 +9,7 @@ import Navigation from '@/components/Navigation';
 import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
 import ToolPanel, { BehindToolPanelProvider } from '@/components/Navigation/ToolPanel';
 import TOOLS from '@/components/Navigation/tools';
-import useOpenBuildingBlock, { useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
+import { useCloseToolPanel, useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useHashLocation from '@/hooks/useHashLocation';
@@ -35,15 +35,16 @@ const MainLayout = () => {
   // shows the loading state (settings check + tree/legacy fetch).
   const isConfigLoading = useIsConfigLoading();
 
-  // Tool pages (Env Vars, Secrets, …) open in a panel over the last CI block; closing it returns there.
+  // Tool pages (Env Vars, Secrets, …) open in a panel over the YAML page or the last CI block, whichever
+  // was open; closing it returns there.
   const [currentPath] = useHashLocation();
   const isToolPage = TOOLS.some((tool) => currentPath.startsWith(tool.path));
-  const lastBlockPath = useLastBlock((s) => s.target?.path);
+  const lastBlockPath = useLastBlock((s) => (s.isYamlView ? paths.yml : s.target?.path));
   const firstBlockPath = useBitriseYmlStore((s) => FirstBuildingBlock.firstBuildingBlock(s.yml)?.path);
   const BehindPage = routes.find(
     ({ path }) => path === (lastBlockPath ?? firstBlockPath ?? paths.workflows),
   )?.component;
-  const openBuildingBlock = useOpenBuildingBlock();
+  const closeToolPanel = useCloseToolPanel();
   const pageRouter = (
     <Router hook={useHashLocation} searchHook={useHashSearch}>
       <VisualEditorDisabledRedirect>
@@ -71,7 +72,7 @@ const MainLayout = () => {
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto" position="relative">
             {isConfigLoading && <LoadingState />}
-            {/* A tool page opens in a panel over the CI block you were on, which stays on screen behind it. */}
+            {/* A tool page opens in a panel over the YAML or CI block you were on, which stays on screen behind it. */}
             {!isConfigLoading && isToolPage && BehindPage && (
               <BehindToolPanelProvider>
                 <Suspense fallback={<LoadingState />}>
@@ -79,7 +80,7 @@ const MainLayout = () => {
                 </Suspense>
               </BehindToolPanelProvider>
             )}
-            {!isConfigLoading && isToolPage && <ToolPanel onClose={openBuildingBlock}>{pageRouter}</ToolPanel>}
+            {!isConfigLoading && isToolPage && <ToolPanel onClose={closeToolPanel}>{pageRouter}</ToolPanel>}
             {!isConfigLoading && !isToolPage && pageRouter}
           </Box>
         </Box>

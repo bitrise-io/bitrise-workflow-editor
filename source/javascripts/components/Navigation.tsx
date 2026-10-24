@@ -18,7 +18,7 @@ import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
 import FilesPanel from '@/components/Navigation/FilesPanel';
 import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
 import TOOLS from '@/components/Navigation/tools';
-import useOpenBuildingBlock, { useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
+import useOpenBuildingBlock, { useCloseToolPanel, useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -86,6 +86,7 @@ const Navigation = (props: BoxProps) => {
   const withSearchParams = usePathWithSearchParams();
   const visualEditorNotice = useVisualEditorNotice();
   const openBuildingBlock = useOpenBuildingBlock();
+  const closeToolPanel = useCloseToolPanel();
   const [view, setView] = useState<SidebarView>('building-blocks');
   // A single-file config has nothing to navigate between, so it gets no Modules.
   const tree = useTree();
@@ -129,8 +130,14 @@ const Navigation = (props: BoxProps) => {
     isDefaultTabRef.current = false;
   }, [currentPage, data?.usesRepositoryYml]);
 
-  // Remember the last CI block a URL names, so CI blocks (and closing a tool panel) return there.
+  // Remember the last CI block a URL names, so CI blocks (and closing a tool panel) return there, and
+  // whether the YAML page or a CI blocks page was open last, so a tool panel opens over that one.
   useEffect(() => {
+    if (currentPage === 'yml') {
+      useLastBlock.setState({ isYamlView: true });
+    } else if (BUILDING_BLOCK_PAGES.includes(currentPage ?? '')) {
+      useLastBlock.setState({ isYamlView: false });
+    }
     const at = FirstBuildingBlock.blockAt(currentPage, searchParams);
     if (at) {
       useLastBlock.setState({ target: at });
@@ -157,7 +164,12 @@ const Navigation = (props: BoxProps) => {
     previousNodeIdRef.current = selectedNodeId;
     const page = currentPage ?? '';
     const isBlockPage = BUILDING_BLOCK_PAGES.includes(page);
-    if (page !== 'yml' && (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))) {
+    if (currentTool && useLastBlock.getState().isYamlView) {
+      closeToolPanel();
+    } else if (
+      page !== 'yml' &&
+      (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))
+    ) {
       openBuildingBlock();
     }
     // Reacts to the file switch only; the rest is read fresh when it happens.
@@ -184,11 +196,13 @@ const Navigation = (props: BoxProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasAnyBlock]);
 
-  // CI blocks and Modules show their list beside the rail, closing any tool panel by going back to the last
-  // CI block. On the YAML page they stay put: there, the lists jump within the YAML.
+  // CI blocks and Modules show their list beside the rail, closing any tool panel by going back to what it
+  // opened over. On the YAML page they stay put: there, the lists jump within the YAML.
   const showList = (next: SidebarView) => {
     setView(next);
-    if (currentPage !== 'yml' && (next === 'building-blocks' || currentTool)) {
+    if (currentTool) {
+      closeToolPanel();
+    } else if (currentPage !== 'yml' && next === 'building-blocks') {
       openBuildingBlock();
     }
   };
