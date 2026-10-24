@@ -1,8 +1,9 @@
-import { Checkbox, Td, Text, Tooltip, Tr } from '@bitrise/bitkit';
+import { Checkbox, Td, Text, Tr } from '@bitrise/bitkit';
 import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import LabelTooltip from '@/components/LabelTooltip';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerReference } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -53,7 +54,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
         </Text>
       </Td>
       <Td>
-        <Tooltip label="Edit containers in the Step bundle definition." isDisabled={!isDisabled}>
+        <LabelTooltip text="Edit containers in the Step bundle definition." disabled={!isDisabled}>
           <Box display="inline-block">
             <Checkbox
               isChecked={reference.recreate}
@@ -64,7 +65,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
               Recreate container
             </Checkbox>
           </Box>
-        </Tooltip>
+        </LabelTooltip>
       </Td>
       <Td width="96px">
         <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4" paddingInlineEnd="12">

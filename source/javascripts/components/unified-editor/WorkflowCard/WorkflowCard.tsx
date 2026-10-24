@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse, Text, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse, Text } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -13,6 +13,7 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'r
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import LabelTooltip from '@/components/LabelTooltip';
 import PipelineService from '@/core/services/PipelineService';
 import {
   useCrossFileEntity,
@@ -57,17 +58,11 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   }
 
   let badgeContent = parallel;
-  let tooltipLabel = `${parallel} parallel copies` as ReactNode;
-  let tooltipAriaLabel = `${parallel} parallel copies`;
+  let tooltipLabel = `${parallel} parallel copies`;
 
   if (!PipelineService.isIntegerValue(parallel)) {
     badgeContent = '$';
-    tooltipLabel = (
-      <>
-        Number of copies is calculated based on <strong>{parallel}</strong> Env Var.
-      </>
-    );
-    tooltipAriaLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
+    tooltipLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
   }
 
   return (
@@ -75,11 +70,11 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
       <Text textStyle="body/md/semibold" hasEllipsis>
         {children}
       </Text>
-      <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
+      <LabelTooltip wrapTrigger text={tooltipLabel}>
         <Text color="text/secondary" textStyle="comp/badge/sm" bg="sys/neutral/subtle" px="4" borderRadius="4">
           {badgeContent}
         </Text>
-      </Tooltip>
+      </LabelTooltip>
     </Box>
   );
 };

@@ -3,7 +3,6 @@ import {
   BitkitButton,
   BitkitPageHeader,
   BitkitSegmentedControl,
-  BitkitTooltip,
   createBitkitToast,
   IconCode,
   IconWebUi,
@@ -14,6 +13,7 @@ import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import TOOLS from '@/components/Navigation/tools';
 import { useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import {
@@ -392,7 +392,7 @@ const Header = () => {
       <BitkitPageHeader
         breadcrumb={trail}
         controls={
-          <BitkitTooltip
+          <LabelTooltip
             disabled={!visualEditorNotice}
             placement={isMobile ? 'bottom' : 'bottom-start'}
             text={visualEditorNotice?.description ?? ''}
@@ -411,7 +411,7 @@ const Header = () => {
                 YAML
               </BitkitSegmentedControl.Item>
             </BitkitSegmentedControl>
-          </BitkitTooltip>
+          </LabelTooltip>
         }
         // Stays masked in recordings, deliberately. `title` is a string and the component exposes
         // no hook onto its `h1`, so the only way to opt it out is to tag the root — which opts out
@@ -441,7 +441,7 @@ const Header = () => {
         >
           Discard
         </BitkitButton>
-        <BitkitTooltip
+        <LabelTooltip
           disabled={ymlStatus !== 'invalid'}
           placement={isMobile ? 'bottom' : 'bottom-start'}
           text="YAML is invalid, please fix it before saving."
@@ -459,7 +459,7 @@ const Header = () => {
           >
             Save changes
           </BitkitButton>
-        </BitkitTooltip>
+        </LabelTooltip>
       </BitkitPageHeader>
       {isModular ? (
         <GlobalDiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />
