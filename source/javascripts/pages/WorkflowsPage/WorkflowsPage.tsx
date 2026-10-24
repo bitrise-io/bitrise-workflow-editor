@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
+import { useIsBehindToolPanel } from '@/components/Navigation/ToolPanel';
 import WorkflowEmptyState from '@/components/unified-editor/WorkflowEmptyState';
 import useCloseDialogsOnFileSwitch, { FileSwitchDialogRefs } from '@/hooks/useCloseDialogsOnFileSwitch';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -43,13 +44,18 @@ const WorkflowsPage = () => {
 
   // The Workflow's settings live in a drawer now, so opening a Workflow opens it, as a panel would
   // have shown them.
+  // Behind a tool panel the page stays on screen without its drawer; it opens once the panel closes.
+  const isBehindToolPanel = useIsBehindToolPanel();
   useEffect(() => {
+    if (isBehindToolPanel) {
+      return;
+    }
     if (selectedWorkflowId) {
       openDialog({ type: WorkflowsPageDialogType.WORKFLOW_CONFIG, workflowId: selectedWorkflowId })();
     } else {
       closeDialog();
     }
-  }, [selectedWorkflowId, openDialog, closeDialog]);
+  }, [selectedWorkflowId, openDialog, closeDialog, isBehindToolPanel]);
 
   useCloseDialogsOnFileSwitch(fileSwitchDialogRefs, () => {
     const { closeDialog: close, setSelectedStepIndices } = useWorkflowsPageStore.getState();
