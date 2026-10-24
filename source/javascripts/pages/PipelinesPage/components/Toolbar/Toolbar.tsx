@@ -244,6 +244,8 @@ const Toolbar = (props: BoxProps) => {
   return (
     <Box display="flex" alignItems="center" gap="2" minWidth="0" {...props}>
       {title}
+      {/* Settings is in the name's menu too; this puts it one click away, next to Run. */}
+      {isGraph && <BitkitControlButton size="xs" icon={IconSettings} label="Settings" onClick={editProperties} />}
       {RuntimeUtils.isWebsiteMode() && (
         // The label is the control's tooltip, so it also says why Run is unavailable.
         <BitkitControlButton
