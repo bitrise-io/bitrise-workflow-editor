@@ -238,6 +238,9 @@ const Navigation = (props: BoxProps) => {
         gap="4"
         width={`${RAIL_WIDTH}px`}
         flexShrink={0}
+        // Above the tool panel, which slides out from behind it.
+        position="relative"
+        zIndex="21"
         paddingBlock="8"
         paddingInline="8"
         borderInlineEnd="1px solid"

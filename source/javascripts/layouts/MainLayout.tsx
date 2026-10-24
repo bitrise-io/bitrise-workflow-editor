@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react/box';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import { Redirect, Router, Switch } from 'wouter';
 
 import Header from '@/components/Header';
@@ -22,6 +22,22 @@ import VisualEditorDisabledRedirect from '@/layouts/VisualEditorDisabledRedirect
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
+const useBehindToolPath = () => {
+  const lastBlockPath = useLastBlock((s) => (s.isYamlView ? paths.yml : s.target?.path));
+  const firstBlockPath = useBitriseYmlStore((s) => FirstBuildingBlock.firstBuildingBlock(s.yml)?.path);
+  return lastBlockPath ?? firstBlockPath ?? paths.workflows;
+};
+
+const isToolPath = (path: string) => TOOLS.some((tool) => path.startsWith(tool.path));
+
+// The content area's location. While a tool is open it's the page the tool's panel opened over (the YAML page
+// or the last CI block), so that page stays mounted, unchanged, as the panel opens and closes.
+const useContentLocation = (() => {
+  const [path, navigate] = useHashLocation();
+  const behindPath = useBehindToolPath();
+  return [isToolPath(path) ? behindPath : path, navigate];
+}) as typeof useHashLocation;
+
 const MainLayout = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
@@ -38,15 +54,17 @@ const MainLayout = () => {
   // Tool pages (Env Vars, Secrets, …) open in a panel over the YAML page or the last CI block, whichever
   // was open; closing it returns there.
   const [currentPath] = useHashLocation();
-  const isToolPage = TOOLS.some((tool) => currentPath.startsWith(tool.path));
-  const lastBlockPath = useLastBlock((s) => (s.isYamlView ? paths.yml : s.target?.path));
-  const firstBlockPath = useBitriseYmlStore((s) => FirstBuildingBlock.firstBuildingBlock(s.yml)?.path);
-  const BehindPage = routes.find(
-    ({ path }) => path === (lastBlockPath ?? firstBlockPath ?? paths.workflows),
-  )?.component;
+  const isToolPage = isToolPath(currentPath);
   const closeToolPanel = useCloseToolPanel();
+  // The panel keeps showing the last tool while it slides away.
+  const toolRoute = isToolPage ? routes.find(({ path }) => currentPath.startsWith(path)) : undefined;
+  const [shownToolRoute, setShownToolRoute] = useState(toolRoute);
+  if (toolRoute && toolRoute !== shownToolRoute) {
+    setShownToolRoute(toolRoute);
+  }
+  const ShownTool = shownToolRoute?.component;
   const pageRouter = (
-    <Router hook={useHashLocation} searchHook={useHashSearch}>
+    <Router hook={useContentLocation} searchHook={useHashSearch}>
       <VisualEditorDisabledRedirect>
         <Switch>
           {routes.map(({ path, component }) => (
@@ -69,20 +87,19 @@ const MainLayout = () => {
       <Box display="flex" flex="1" minHeight={0} position="relative">
         {/* Shown on the YAML page too: there, its CI blocks jump to definitions in the editor. */}
         <Navigation />
-        {!isConfigLoading && isToolPage && <ToolPanel onClose={closeToolPanel}>{pageRouter}</ToolPanel>}
+        {!isConfigLoading && ShownTool && (
+          <ToolPanel isOpen={isToolPage} onClose={closeToolPanel}>
+            <Suspense fallback={<LoadingState />}>
+              <ShownTool />
+            </Suspense>
+          </ToolPanel>
+        )}
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto" position="relative">
             {isConfigLoading && <LoadingState />}
             {/* A tool page opens in a panel over the YAML or CI block you were on, which stays on screen behind it. */}
-            {!isConfigLoading && isToolPage && BehindPage && (
-              <BehindToolPanelProvider>
-                <Suspense fallback={<LoadingState />}>
-                  <BehindPage />
-                </Suspense>
-              </BehindToolPanelProvider>
-            )}
-            {!isConfigLoading && !isToolPage && pageRouter}
+            {!isConfigLoading && <BehindToolPanelProvider isBehind={isToolPage}>{pageRouter}</BehindToolPanelProvider>}
           </Box>
         </Box>
       </Box>
