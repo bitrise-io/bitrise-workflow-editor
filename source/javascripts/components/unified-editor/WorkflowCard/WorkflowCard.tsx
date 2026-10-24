@@ -34,6 +34,9 @@ type ContentProps = {
   containerProps?: CardProps;
   // Where the card is the page's subject, its settings are always in reach, not only on hover.
   isEditButtonAlwaysVisible?: boolean;
+  // Keeps the header's hover actions (chain, settings, remove, jump) on screen, e.g. while the card is open and
+  // in focus.
+  areActionsVisible?: boolean;
   // Page-level actions for that subject (e.g. Run), always visible in the header.
   headerActions?: ReactNode;
   // Lets the parent own the expansion (e.g. the pipeline canvas opening a node on click).
@@ -84,6 +87,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   headerActions,
   isExpanded,
   onExpandedChange,
+  areActionsVisible,
 }: ContentProps) {
   const workflowId = uses || id;
 
@@ -175,7 +179,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         </Box>
 
         {(onChainWorkflow || (onEditWorkflow && !isEditButtonAlwaysVisible) || onRemoveWorkflow || showJumpButton) && (
-          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
+          <Box
+            display={areActionsVisible || isJumpPopoverOpen ? 'inline-flex' : 'none'}
+            _groupHover={{ display: 'inline-flex' }}
+          >
             {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
             {onChainWorkflow && !isCrossFile && (
               <BitkitControlButton
@@ -259,6 +266,7 @@ const WorkflowCard = ({
   headerActions,
   isExpanded,
   onExpandedChange,
+  areActionsVisible,
   selectedStepIndices = [],
   selectionParent,
   ...actions
@@ -274,6 +282,7 @@ const WorkflowCard = ({
       headerActions={headerActions}
       isExpanded={isExpanded}
       onExpandedChange={onExpandedChange}
+      areActionsVisible={areActionsVisible}
     />
   </WorkflowCardContextProvider>
 );
