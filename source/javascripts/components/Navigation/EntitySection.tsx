@@ -144,8 +144,9 @@ const EntitySection = ({ label, items, selectedId, onSelect, addControl, empty, 
       </Box>
       {isOpen &&
         (items.length > 0 ? (
-          // Entity names are the customer's config: keep them out of session recordings.
-          <Box data-clarity-mask="true">
+          // Entity names are the customer's config: keep them out of session recordings. 8px under the header,
+          // like the empty state.
+          <Box data-clarity-mask="true" paddingBlockStart="8">
             <BitkitTreeView
               variant="files"
               collection={collection}
