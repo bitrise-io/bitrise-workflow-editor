@@ -1,9 +1,10 @@
-import { Tab, TabList, Text, Tooltip } from '@bitrise/bitkit';
+import { Tab, TabList, Text } from '@bitrise/bitkit';
 import { BitkitButton, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import LabelTooltip from '@/components/LabelTooltip';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -78,7 +79,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId, withExplain 
           )}
         </div>
         {isAIButtonVisible && withExplain && (
-          <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+          <LabelTooltip text={tooltipLabel ?? ''} disabled={!tooltipLabel}>
             <BitkitButton
               state={isAIButtonDisabled ? 'disabled' : undefined}
               icon={IconSparkleFilled}
@@ -88,7 +89,7 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId, withExplain 
             >
               Explain
             </BitkitButton>
-          </Tooltip>
+          </LabelTooltip>
         )}
       </Box>
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">

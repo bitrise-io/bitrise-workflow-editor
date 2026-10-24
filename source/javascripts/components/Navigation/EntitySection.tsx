@@ -3,7 +3,6 @@ import {
   BitkitEmptyState,
   bitkitIcon,
   BitkitIconComponent,
-  BitkitTooltip,
   BitkitTreeView,
   createTreeCollection,
   IconChevronDown,
@@ -14,6 +13,8 @@ import { Box } from '@chakra-ui/react/box';
 import { chakra } from '@chakra-ui/react/styled-system';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+
+import LabelTooltip from '@/components/LabelTooltip';
 
 import { EntityRowStatus } from './useEntityStatuses';
 
@@ -37,9 +38,9 @@ const EntityLeaf = ({ label, status }: EntityItem) => {
     />
   );
   return summary ? (
-    <BitkitTooltip text={summary} placement="right">
+    <LabelTooltip text={summary} placement="right">
       {leaf}
-    </BitkitTooltip>
+    </LabelTooltip>
   ) : (
     leaf
   );

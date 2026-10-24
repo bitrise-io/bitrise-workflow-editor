@@ -1,8 +1,9 @@
-import { BitkitTooltip, IconTrigger } from '@bitrise/bitkit-v2';
+import { IconTrigger } from '@bitrise/bitkit-v2';
 import { chakra } from '@chakra-ui/react/styled-system';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { useEffect } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
@@ -33,7 +34,7 @@ const TriggerNode = () => {
 
   return (
     <>
-      <BitkitTooltip text={label}>
+      <LabelTooltip text={label}>
         <chakra.button
           type="button"
           className="nodrag nopan"
@@ -66,7 +67,7 @@ const TriggerNode = () => {
         >
           <IconTrigger size="16" />
         </chakra.button>
-      </BitkitTooltip>
+      </LabelTooltip>
       <Handle
         type="source"
         position={Position.Right}

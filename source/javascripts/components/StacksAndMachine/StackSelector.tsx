@@ -1,7 +1,8 @@
-import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Icon, Text, Tooltip } from '@bitrise/bitkit';
+import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Icon, Text } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitIconComponent, BitkitLink, IconStack, IconUbuntu, IconXcode } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
 
@@ -33,9 +34,9 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
 };
 
 const PreviousStackVersionTip = () => (
-  <Tooltip label="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
+  <LabelTooltip text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
     <Icon size="16" name="QuestionCircle" color="icon/tertiary" />
-  </Tooltip>
+  </LabelTooltip>
 );
 
 const getIcon = (osId?: string): BitkitIconComponent => {
@@ -114,9 +115,9 @@ const StackSelector = ({
             </DropdownGroup>
           ))}
       </Dropdown>
-      <Tooltip
-        label="Stack rollback is not available when your workspace is configured to use external hosts only."
-        isDisabled={!disableRollbackOption}
+      <LabelTooltip
+        text="Stack rollback is not available when your workspace is configured to use external hosts only."
+        disabled={!disableRollbackOption}
       >
         <Box display="inline-block" marginBlockStart="16">
           <Checkbox
@@ -127,7 +128,7 @@ const StackSelector = ({
             Use previous stack version <PreviousStackVersionTip />
           </Checkbox>
         </Box>
-      </Tooltip>
+      </LabelTooltip>
     </Box>
   );
 };

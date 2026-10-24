@@ -8,7 +8,6 @@ import {
   BitkitRadio,
   BitkitRadioGroup,
   BitkitSectionHeading,
-  BitkitTooltip,
   createBitkitToast,
   IconCopy,
   IconDownload,
@@ -21,6 +20,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import YmlDialogErrorNotification from '@/components/unified-editor/UpdateConfigurationDialog/YmlDialogErrorNotification';
 import {
   trackCopyYmlClicked,
@@ -466,14 +466,14 @@ const ConfigurationYmlSourceDialog = ({ isOpen, onClose }: ConfigurationYmlStora
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
-          <BitkitTooltip text={toolTip} disabled={isStorageChanged}>
+          <LabelTooltip text={toolTip} disabled={isStorageChanged}>
             <BitkitButton
               onClick={onValidateAndSave}
               state={isValidateAndSaveLoading ? 'loading' : isValidateAndSaveDisabled ? 'disabled' : undefined}
             >
               Validate and save
             </BitkitButton>
-          </BitkitTooltip>
+          </LabelTooltip>
         </>
       }
     >
