@@ -17,6 +17,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
 import FilesPanel from '@/components/Navigation/FilesPanel';
 import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
+import SidebarResizeHandle, { useSidebarWidth } from '@/components/Navigation/SidebarResizeHandle';
 import TOOLS from '@/components/Navigation/tools';
 import useOpenBuildingBlock, { useCloseToolPanel, useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -93,6 +94,7 @@ const Navigation = (props: BoxProps) => {
   const isModular = Boolean(tree && tree.includes.length > 0);
   const visibleView = view === 'files' && !isModular ? 'building-blocks' : view;
   const currentTool = TOOLS.find((tool) => tool.page === currentPage);
+  const [sidebarWidth, setSidebarWidth] = useSidebarWidth();
   // Held here so a search survives switching to another view and back.
   const [buildingBlocksQuery, setBuildingBlocksQuery] = useState('');
 
@@ -239,12 +241,7 @@ const Navigation = (props: BoxProps) => {
         borderColor="border/regular"
         background="background/primary"
       >
-        <RailButton
-          icon={IconTerminal}
-          label="CI blocks"
-          isSelected={!currentTool && visibleView === 'building-blocks'}
-          onSelect={() => showList('building-blocks')}
-        />
+        {/* In a modular setup Modules comes first: the files, then what's in them. */}
         {isModular && (
           <RailButton
             icon={IconFolder}
@@ -253,6 +250,12 @@ const Navigation = (props: BoxProps) => {
             onSelect={() => showList('files')}
           />
         )}
+        <RailButton
+          icon={IconTerminal}
+          label="CI blocks"
+          isSelected={!currentTool && visibleView === 'building-blocks'}
+          onSelect={() => showList('building-blocks')}
+        />
         <Separator width="24" marginBlock="4" />
         {TOOLS.filter((tool) => !tool.isWebsiteOnly || RuntimeUtils.isWebsiteMode()).map((tool) => (
           <Box key={tool.page} data-intercom-target={tool.intercomTarget}>
@@ -260,7 +263,8 @@ const Navigation = (props: BoxProps) => {
               icon={tool.icon}
               label={tool.label}
               isSelected={currentTool?.page === tool.page}
-              onSelect={() => openTool(tool.path)}
+              // Clicking the open tool again closes its panel, like its ×.
+              onSelect={() => (currentTool?.page === tool.page ? closeToolPanel() : openTool(tool.path))}
             />
           </Box>
         ))}
@@ -288,29 +292,32 @@ const Navigation = (props: BoxProps) => {
 
       {/* The list beside the rail; a tool panel takes its place while open. */}
       {!currentTool && (
-        <BitkitPageSidebar
-          flexShrink={0}
-          // The layout gives the sidebar the height of the row under the header, so the component's own
-          // `100dvh` floor has to give way or it pushes past the bottom of the editor.
-          minHeight="auto"
-          // Wide enough for entity names; Bitkit caps the sidebar at 320 from tablet up, so the cap is
-          // lifted with it.
-          width={rem(340)}
-          maxWidth={rem(340)}
-          paddingBlockStart="8"
-          paddingInline="8"
-        >
-          {/* Bitkit's body fills the sidebar but never scrolls, so a long list would push the whole editor
+        <Box position="relative" flexShrink={0} display="flex">
+          <BitkitPageSidebar
+            flexShrink={0}
+            // The layout gives the sidebar the height of the row under the header, so the component's own
+            // `100dvh` floor has to give way or it pushes past the bottom of the editor.
+            minHeight="auto"
+            // Wide enough for entity names; Bitkit caps the sidebar at 320 from tablet up, so the cap is
+            // lifted with it.
+            width={rem(sidebarWidth)}
+            maxWidth={rem(sidebarWidth)}
+            paddingBlockStart="8"
+            paddingInline="8"
+          >
+            {/* Bitkit's body fills the sidebar but never scrolls, so a long list would push the whole editor
               page down. The body is held to the sidebar's height and the list scrolls inside it. */}
-          <BitkitPageSidebar.Body minHeight="0">
-            <Box flex="1" minHeight="0" overflowY="auto">
-              {visibleView === 'files' && <FilesPanel />}
-              {visibleView === 'building-blocks' && (
-                <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
-              )}
-            </Box>
-          </BitkitPageSidebar.Body>
-        </BitkitPageSidebar>
+            <BitkitPageSidebar.Body minHeight="0">
+              <Box flex="1" minHeight="0" overflowY="auto">
+                {visibleView === 'files' && <FilesPanel />}
+                {visibleView === 'building-blocks' && (
+                  <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
+                )}
+              </Box>
+            </BitkitPageSidebar.Body>
+          </BitkitPageSidebar>
+          <SidebarResizeHandle width={sidebarWidth} onResize={setSidebarWidth} />
+        </Box>
       )}
     </Box>
   );
