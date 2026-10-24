@@ -477,6 +477,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         parallel={parallel}
         containerProps={containerProps}
         isExpanded={isOpenedByUser || isAutoExpanded}
+        // An open Workflow in focus keeps its header actions on screen, not only on hover.
+        areActionsVisible={selected && (isOpenedByUser || isAutoExpanded)}
         onExpandedChange={handleExpandedChange}
         selectedStepIndices={selectedStepIndices}
         selectionParent={selectionParent}
