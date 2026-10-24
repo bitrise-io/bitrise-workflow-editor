@@ -253,6 +253,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 type Selection = {
   selectedStepIndices?: number[];
   selectionParent?: SelectionParent;
+  isAddingStep?: boolean;
 };
 type Props = ContentProps & WorkflowActions & StepActions & Selection;
 
@@ -269,9 +270,15 @@ const WorkflowCard = ({
   areActionsVisible,
   selectedStepIndices = [],
   selectionParent,
+  isAddingStep,
   ...actions
 }: Props) => (
-  <WorkflowCardContextProvider selectedStepIndices={selectedStepIndices} selectionParent={selectionParent} {...actions}>
+  <WorkflowCardContextProvider
+    selectedStepIndices={selectedStepIndices}
+    selectionParent={selectionParent}
+    isAddingStep={isAddingStep}
+    {...actions}
+  >
     <WorkflowCardContent
       id={id}
       uses={uses}

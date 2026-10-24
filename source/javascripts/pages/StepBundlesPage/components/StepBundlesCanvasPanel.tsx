@@ -33,7 +33,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
   const isDrawerOpen = useStepBundlesPageStore(
     (s) => s.isSwitchingDialog || !DIALOGS_WITHOUT_DRAWER.includes(s.openedDialogType),
   );
-  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
+  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent, isAddingStep } =
     useStepBundlesPageStore(
       useShallow((s) => ({
         closeDialog: s.closeDialog,
@@ -41,6 +41,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         selectedStepIndices: s.selectedStepIndices,
         selectionParent: s.selectionParent,
         setSelectedStepIndices: s.setSelectedStepIndices,
+        isAddingStep: s.openedDialogType === StepBundlesPageDialogType.STEP_SELECTOR,
       })),
     );
 
@@ -208,6 +209,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
           selectedStepIndices={selectedStepIndices}
           selectionParent={selectionParent}
+          isAddingStep={isAddingStep}
         >
           <StepBundleCard
             uniqueId=""
