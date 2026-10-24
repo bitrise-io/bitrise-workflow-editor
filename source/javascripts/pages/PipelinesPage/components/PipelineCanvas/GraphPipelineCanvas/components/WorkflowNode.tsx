@@ -90,6 +90,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
   const selectedStepIndices = usePipelinesPageStore((s) => s.selectedStepIndices);
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
+  const isAddingStep = usePipelinesPageStore((s) => s.openedDialogType === PipelinesPageDialogType.STEP_SELECTOR);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
 
@@ -108,6 +109,14 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     },
     [id],
   );
+  // The canvas opens a clicked node only while its own drawer is open. Picking or adding a Step swaps that
+  // drawer for the Step's, so the node keeps itself open from then on, as if the user had opened it, and the
+  // Step stays in sight.
+  const keepOpen = useCallback(() => {
+    if (useAutoExpandedNode.getState().nodeId === id) {
+      setIsOpenedByUser(true);
+    }
+  }, [id]);
 
   const uses = 'uses' in data ? data.uses : undefined;
   const parallel = 'parallel' in data ? data.parallel : undefined;
@@ -231,7 +240,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     }
 
     return {
-      handleAddStep: (workflowId: string, stepIndex: number) =>
+      handleAddStep: (workflowId: string, stepIndex: number) => {
+        keepOpen();
         openDialog({
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
@@ -241,7 +251,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             id: workflowId || '',
             type: 'workflow',
           },
-        })(),
+        })();
+      },
       handleSelectStep: ({
         stepIndex,
         type,
@@ -255,6 +266,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         wfId?: string;
         isMultiple?: boolean;
       }) => {
+        keepOpen();
         const newSelectionParent: SelectionParent = {
           id: stepBundleId || wfId || '',
           type: stepBundleId ? 'stepBundle' : 'workflow',
@@ -331,7 +343,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           cvs,
         });
       },
-      handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) =>
+      handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) => {
+        keepOpen();
         openDialog({
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
@@ -341,7 +354,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             id: stepBundleId || '',
             type: 'stepBundle',
           },
-        })(),
+        })();
+      },
       handleCloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
         StepService.cloneStep('step_bundles', stepBundleId, stepIndex);
         handleStepActionChange({
@@ -442,6 +456,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
+    keepOpen,
   ]);
 
   const containerProps = useMemo(
@@ -482,6 +497,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         onExpandedChange={handleExpandedChange}
         selectedStepIndices={selectedStepIndices}
         selectionParent={selectionParent}
+        isAddingStep={isAddingStep}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}

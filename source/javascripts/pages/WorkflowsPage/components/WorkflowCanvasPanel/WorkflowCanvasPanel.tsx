@@ -63,6 +63,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     selectionParent,
     setSelectedStepIndices,
     isDrawerOpen,
+    isAddingStep,
   } = useWorkflowsPageStore(
     useShallow((s) => ({
       isDrawerOpen: s.isSwitchingDialog || !DIALOGS_WITHOUT_DRAWER.includes(s.openedDialogType),
@@ -73,6 +74,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       selectedStepBundleId: s.stepBundleId,
       selectionParent: s.selectionParent,
       setSelectedStepIndices: s.setSelectedStepIndices,
+      isAddingStep: s.openedDialogType === WorkflowsPageDialogType.STEP_SELECTOR,
     })),
   );
 
@@ -441,6 +443,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           // Selection
           selectedStepIndices={selectedStepIndices}
           selectionParent={selectionParent}
+          isAddingStep={isAddingStep}
           // Workflow actions
           onEditWorkflow={openWorkflowConfigDrawer}
           onRemoveWorkflow={undefined}
