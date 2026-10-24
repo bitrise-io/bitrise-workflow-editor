@@ -49,11 +49,9 @@ const OpenFileTabs = () => {
         position="relative"
         zIndex="1"
         marginBlockStart="-1px"
-        // The line under the tabs is one step lighter than Bitkit's: the strip's own bottom border and the
-        // resting tabs' bottom edges, which sit on it. The dividers between tabs keep their color.
-        borderBlockEndColor="border/minimal"
+        // The line under the tabs is Bitkit's regular border along the whole strip (a lighter `border/minimal`
+        // was tried and dropped).
         css={{
-          '& [data-part=trigger]': { borderBlockEndColor: 'border/minimal' },
           '& [data-part=trigger]:first-of-type': { borderInlineStartWidth: 0 },
           '& [data-part=trigger]:not(:has(~ [data-part=trigger]))': { borderInlineEndWidth: 0 },
         }}
