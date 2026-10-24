@@ -21,7 +21,6 @@ import sampleBitriseYml from '../../../spec/integration/test_bitrise.yml?raw';
 // config, settings and branches; the sample config is only a fallback for running without it.
 type PlaygroundBridge = {
   bitriseYml: (projectSlug: string) => string | undefined;
-  latestRuns?: (projectSlug: string) => unknown;
   configTree: (projectSlug: string) => WireTreeNode | undefined;
   configSettings: (projectSlug: string) => { usesRepositoryYml: boolean; modularYamlSupported: boolean } | undefined;
   branches: (projectSlug: string) => string[] | undefined;
@@ -126,10 +125,6 @@ const handlers = [
     return HttpResponse.json({ status: 'ok', commit_sha: fakeSha() });
   }),
 
-  // The proposed latest-runs endpoint, answered from the playground's database.
-  http.get('/app/:projectSlug/latest_runs', ({ params }) =>
-    HttpResponse.json(bridge()?.latestRuns?.(String(params.projectSlug)) ?? { pipelines: {}, workflows: {} }),
-  ),
   http.get('/app/:projectSlug/pipeline_config', ({ params }) => {
     const projectSlug = String(params.projectSlug);
     const settings = bridge()?.configSettings(projectSlug);
