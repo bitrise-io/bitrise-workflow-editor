@@ -55,6 +55,14 @@ function usePathWithSearchParams() {
   );
 }
 
+// The help links at the rail's foot match its buttons: 40px with a 20px icon (md's 24px drawing, scaled down).
+const RAIL_LINK_PROPS = {
+  size: 'md',
+  minWidth: '40',
+  height: '40',
+  css: { '& svg': { width: '20px', height: '20px' } },
+} as const;
+
 // One square in the rail: an icon with its name as the tooltip, and the selected look when it's open.
 const RailButton = ({
   icon,
@@ -68,7 +76,12 @@ const RailButton = ({
   onSelect: VoidFunction;
 }) => (
   <BitkitToggleButton
-    size="md"
+    // Experiment: 20px icons in 40px buttons. Bitkit draws icons at 16 and 24 only, so the lg size (24px
+    // drawing) is held at md's 40px and its icon scaled down, keeping the finer drawing.
+    size="lg"
+    minWidth="40"
+    height="40"
+    css={{ '& svg': { width: '20px', height: '20px' } }}
     borderWidth="0"
     tooltipProps={{ placement: 'right' }}
     icon={icon}
@@ -281,6 +294,7 @@ const Navigation = (props: BoxProps) => {
             isExternal
             icon={IconBook}
             label="YAML Reference"
+            {...RAIL_LINK_PROPS}
             tooltipProps={{ placement: 'right' }}
             onClick={() => segmentTrack('Workflow Editor YAML Reference Button Clicked')}
           />
@@ -290,6 +304,7 @@ const Navigation = (props: BoxProps) => {
             isExternal
             icon={IconDoc}
             label="Workflow Recipes"
+            {...RAIL_LINK_PROPS}
             tooltipProps={{ placement: 'right' }}
             onClick={() => segmentTrack('Workflow Editor Workflow Recipes Button Clicked')}
           />
