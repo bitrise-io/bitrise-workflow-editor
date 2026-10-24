@@ -268,7 +268,8 @@ const Navigation = (props: Props) => {
   const handleViewChange = (next: SidebarView) => {
     setView(next);
     // CI blocks opens on the highest-level block: the first Pipeline, else Workflow, else Step bundle.
-    if (next === 'building-blocks') {
+    // On the YAML page it stays put: there, CI blocks jump within the YAML instead.
+    if (next === 'building-blocks' && currentPage !== 'yml') {
       openFirstBuildingBlock();
     }
     if (next === 'tools' && BUILDING_BLOCK_PAGES.includes(currentPage ?? '') && !visualEditorNotice?.disabled) {

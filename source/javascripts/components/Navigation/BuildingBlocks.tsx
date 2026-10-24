@@ -8,7 +8,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -24,6 +24,7 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import YmlEditorRegistry, { YmlSection } from '@/pages/YmlPage/ymlEditorRegistry';
 import { paths } from '@/routes';
 
 import AddControl from './AddControl';
@@ -132,7 +133,24 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
   const stepBundleItems = matching(stepBundleIds.map((id) => ({ id, label: id, status: statuses.stepBundle(id) })));
 
   const hashParams = getSearchParamsFromLocationHash();
-  const selected = (page: string, param: string) => (currentPage === page ? hashParams[param] : undefined);
+  // On the YAML page, a click jumps the editor to the definition (the lists show what the YAML on screen
+  // holds, so it's always there), and the row it jumped to stays selected. The page names double as
+  // the YAML sections' keys.
+  const [revealed, setRevealed] = useState<{ section: YmlSection; id: string }>();
+  const revealInYaml = (section: YmlSection, id: string) => {
+    if (currentPage !== 'yml') {
+      return false;
+    }
+    setRevealed({ section, id });
+    YmlEditorRegistry.revealYmlDefinition(section, id);
+    return true;
+  };
+  const selected = (page: YmlSection, param: string) => {
+    if (currentPage === 'yml') {
+      return revealed?.section === page ? revealed.id : undefined;
+    }
+    return currentPage === page ? hashParams[param] : undefined;
+  };
   // Whether the page being left has a drawer open: then the clicked entity's settings drawer takes its place.
   const isDrawerOpenOnCurrentPage = () => {
     switch (currentPage) {
@@ -180,6 +198,9 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
       // Workflows and Step bundles open their settings drawer on selection (their pages do that); a
       // Pipeline does when it replaces an open drawer.
       onSelect: (id: string) => {
+        if (revealInYaml('pipelines', id)) {
+          return;
+        }
         const hadDrawer = isDrawerOpenOnCurrentPage();
         if (openEntity(paths.pipelines, { param: 'pipeline', id }) && hadDrawer) {
           usePipelinesPageStore
@@ -199,7 +220,8 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
       label: 'Workflows',
       items: workflowItems,
       selectedId: selected('workflows', 'workflow_id'),
-      onSelect: (id: string) => openEntity(paths.workflows, { param: 'workflow_id', id }),
+      onSelect: (id: string) =>
+        revealInYaml('workflows', id) || openEntity(paths.workflows, { param: 'workflow_id', id }),
       addControl: <AddControl {...createWorkflow} />,
       empty: {
         icon: IconWorkflow,
@@ -212,7 +234,8 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
       label: 'Step bundles',
       items: stepBundleItems,
       selectedId: selected('step_bundles', 'step_bundle_id'),
-      onSelect: (id: string) => openEntity(paths.stepBundles, { param: 'step_bundle_id', id }),
+      onSelect: (id: string) =>
+        revealInYaml('step_bundles', id) || openEntity(paths.stepBundles, { param: 'step_bundle_id', id }),
       addControl: <AddControl {...createStepBundle} />,
       empty: {
         icon: IconStep,
