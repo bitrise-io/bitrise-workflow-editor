@@ -1,15 +1,16 @@
-import { Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitEmptyState, BitkitLink, IconLock, IconPlusCircle } from '@bitrise/bitkit-v2';
+import { Card, Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useState } from 'react';
 
 import ToolPageHeading from '@/components/Navigation/ToolPageHeading';
+import TabHeader from '@/components/tabs/TabHeader';
 import { Secret } from '@/core/models/Secret';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 
-import SecretCard from './SecretCard';
+import SecretCard, { hasRowActions, secretRowGrid } from './SecretCard';
 
 const SecretsPage = () => {
   const appSlug = PageProps.appSlug();
@@ -99,52 +100,60 @@ const SecretsPage = () => {
     ]);
   }, []);
 
-  const sharedSecretsBlock = () => {
-    if (!sharedSecretsAvailable) {
-      return (
-        <BitkitLink
-          display="inline-block"
-          marginBlockStart="8"
-          marginBlockEnd="24"
-          colorVariant="purple"
-          textStyle="body/md/regular"
-          href={planSelectorPath}
-        >
-          Upgrade your plan
+  const tableHeader = (hasActionsColumn: boolean) => (
+    <Box
+      as="header"
+      {...secretRowGrid(hasActionsColumn)}
+      height="48"
+      alignItems="center"
+      textStyle="heading/h5"
+      borderBottom="1px solid"
+      borderColor="border/minimal"
+      data-clarity-unmask="true"
+    >
+      <Text as="span">Key</Text>
+      <span />
+      <Text as="span">Value</Text>
+    </Box>
+  );
+
+  const renderRow = (secret: Secret, hasActionsColumn: boolean, isKeyUsed: (key: string) => boolean) => (
+    <SecretCard
+      appSlug={appSlug}
+      key={secret.key}
+      secret={secret}
+      secretSettingsUrl={secret.isShared ? workspaceSecretsPath : undefined}
+      onEdit={handleEdit(secret.key)}
+      onCancel={handleCancel}
+      onSave={handleSave}
+      onDelete={() => setDeleteId(secret.key)}
+      isKeyUsed={isKeyUsed}
+      hasActionsColumn={hasActionsColumn}
+    />
+  );
+
+  // Shown in place of rows when a table is empty, like the Env Vars tables' empty text.
+  const emptyRow = (text: string, link?: { href: string; label: string }) => (
+    <Text
+      paddingInline="32"
+      paddingBlock="16"
+      textStyle="body/md/regular"
+      color="text/secondary"
+      borderBottom="1px solid"
+      borderColor="border/minimal"
+      data-clarity-unmask="true"
+    >
+      {text}{' '}
+      {link && (
+        <BitkitLink colorVariant="purple" href={link.href}>
+          {link.label}
         </BitkitLink>
-      );
-    }
-    return (
-      <Box marginBlock="24">
-        {workspaceSecretList.length === 0 && (
-          <BitkitEmptyState
-            headingText="Your shared secrets will appear here"
-            icon={IconLock}
-            data-clarity-unmask="true"
-            bodyText="Shared resources are managed at Workspace settings"
-          >
-            <BitkitButton size="md" variant="secondary" href={workspaceSecretsPath}>
-              Go to Settings
-            </BitkitButton>
-          </BitkitEmptyState>
-        )}
-        {workspaceSecretList.length > 0 &&
-          workspaceSecretList.map((secret) => (
-            <SecretCard
-              appSlug={appSlug}
-              key={secret.key}
-              secret={secret}
-              secretSettingsUrl={workspaceSecretsPath}
-              onEdit={handleEdit(secret.key)}
-              onCancel={handleCancel}
-              onSave={handleSave}
-              onDelete={() => setDeleteId(secret.key)}
-              isKeyUsed={(key) => appSecretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
-            />
-          ))}
-      </Box>
-    );
-  };
+      )}
+    </Text>
+  );
+
+  const projectHasActions = appSecretList.some(hasRowActions);
+  const sharedHasActions = workspaceSecretList.some(hasRowActions);
 
   return (
     <>
@@ -164,56 +173,68 @@ const SecretsPage = () => {
           </>
         }
       />
-      <Box paddingInline="32" paddingBlockEnd="32">
+      <Box paddingInline="32" paddingBlockEnd="32" display="flex" flexDirection="column" gap="32">
         <BitkitAlert
           variant="info"
-          marginBlock="24"
           data-clarity-unmask="true"
           titleText="We advise not to expose Secrets in pull requests"
           messageText="Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request."
         />
 
-        <Text as="h4" textStyle="heading/h4" paddingBottom="8" data-clarity-unmask="true">
-          Shared Secrets
-        </Text>
-        <Text textColor="text/secondary" size="2" data-clarity-unmask="true">
-          All projects have access to shared Secrets. If the same Secret is configured at a project level here, it will
-          overwrite the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
-        </Text>
-        {sharedSecretsBlock()}
-
-        <Text as="h4" textStyle="heading/h4" data-clarity-unmask="true">
-          Project level Secrets
-        </Text>
-        <Box marginBlockStart="16" marginBlockEnd="24">
-          {appSecretList.map((secret) => (
-            <SecretCard
-              appSlug={appSlug}
-              key={secret.key}
-              secret={secret}
-              onEdit={handleEdit(secret.key)}
-              onCancel={handleCancel}
-              onSave={handleSave}
-              onDelete={() => setDeleteId(secret.key)}
-              isKeyUsed={(key) =>
-                appSecretList
-                  .filter((s) => !s.isShared)
-                  .filter((s) => s.key !== secret.key && !secret.isShared)
-                  .some((s) => s.key === key)
-              }
-            />
-          ))}
+        {/* Like the Env Vars page: a section header, then one table of key = value rows. */}
+        <Box display="flex" flexDirection="column" gap="16">
+          <TabHeader
+            title="Project Secrets"
+            subtitle="Available in this project's builds. They're stored encrypted and never shown in the bitrise.yml."
+          />
+          <Card as="section" variant="outline" overflow="hidden">
+            {tableHeader(projectHasActions)}
+            {appSecretList.length === 0 && emptyRow('No Secrets yet.')}
+            {appSecretList.map((secret) =>
+              renderRow(secret, projectHasActions, (key) =>
+                appSecretList.filter((s) => !s.isShared && s.key !== secret.key).some((s) => s.key === key),
+              ),
+            )}
+            <Box paddingInline="16" paddingBlock="12">
+              <BitkitButton
+                size="md"
+                variant="tertiary"
+                icon={IconPlus}
+                onClick={onAddClick}
+                data-clarity-unmask="true"
+              >
+                Add new
+              </BitkitButton>
+            </Box>
+          </Card>
         </Box>
-        <BitkitButton
-          variant="secondary"
-          icon={IconPlusCircle}
-          size="md"
-          marginBottom="24"
-          onClick={onAddClick}
-          data-clarity-unmask="true"
-        >
-          Add new
-        </BitkitButton>
+
+        <Box display="flex" flexDirection="column" gap="16">
+          <TabHeader
+            title="Shared Secrets"
+            subtitle="All projects of the Workspace can use them. A project Secret with the same key overrides the shared one."
+          />
+          <Card as="section" variant="outline" overflow="hidden">
+            {tableHeader(sharedHasActions)}
+            {!sharedSecretsAvailable &&
+              emptyRow('Shared Secrets are available with the Enterprise plans.', {
+                href: planSelectorPath,
+                label: 'Upgrade your plan',
+              })}
+            {sharedSecretsAvailable &&
+              workspaceSecretList.length === 0 &&
+              emptyRow('Shared Secrets are managed at Workspace settings and appear here.', {
+                href: workspaceSecretsPath,
+                label: 'Go to settings',
+              })}
+            {sharedSecretsAvailable &&
+              workspaceSecretList.map((secret) =>
+                renderRow(secret, sharedHasActions, (key) =>
+                  appSecretList.filter((s) => s.key !== secret.key).some((s) => s.key === key),
+                ),
+              )}
+          </Card>
+        </Box>
 
         {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
           step bundle dialogs: a future body addition then stays masked until reviewed. */}

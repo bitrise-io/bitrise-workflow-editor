@@ -273,7 +273,7 @@ describe('Clarity unmasking', () => {
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/CreateEmptyWorkflowOption.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/NoWorkflowsEmptyState.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/SearchResultEmptyState.tsx': 1,
-      'pages/SecretsPage/SecretsPage.tsx': 9,
+      'pages/SecretsPage/SecretsPage.tsx': 7,
       'pages/StacksAndMachinesPage/StacksAndMachinesPage.tsx': 1,
       'pages/StacksAndMachinesPage/tabs/WorkflowsTab.tsx': 1,
       'pages/StepBundlesPage/StepBundlesPage.tsx': 1,
