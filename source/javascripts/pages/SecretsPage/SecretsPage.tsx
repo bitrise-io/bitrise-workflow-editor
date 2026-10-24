@@ -3,6 +3,7 @@ import { BitkitAlert, BitkitButton, BitkitEmptyState, BitkitLink, IconLock, Icon
 import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useState } from 'react';
 
+import ToolPageHeading from '@/components/Navigation/ToolPageHeading';
 import { Secret } from '@/core/models/Secret';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -146,97 +147,101 @@ const SecretsPage = () => {
   };
 
   return (
-    <Box padding="32">
-      <Text as="h2" textStyle="heading/h2" marginBottom="12" data-clarity-unmask="true">
-        Secret Environment Variables
-      </Text>
-      <Text data-clarity-unmask="true">
-        Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
-        on the UI by marking them as protected.{' '}
-        <BitkitLink
-          colorVariant="purple"
-          href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
-          isExternal
-        >
-          Learn more
-        </BitkitLink>
-      </Text>
-      <BitkitAlert
-        variant="info"
-        marginBlock="24"
-        data-clarity-unmask="true"
-        titleText="We advise not to expose Secrets in pull requests"
-        messageText="Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request."
+    <>
+      <ToolPageHeading
+        label="Secret Environment Variables"
+        helperText={
+          <>
+            Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being
+            exposed on the UI by marking them as protected.{' '}
+            <BitkitLink
+              colorVariant="purple"
+              href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
+              isExternal
+            >
+              Learn more
+            </BitkitLink>
+          </>
+        }
       />
+      <Box paddingInline="32" paddingBlockEnd="32">
+        <BitkitAlert
+          variant="info"
+          marginBlock="24"
+          data-clarity-unmask="true"
+          titleText="We advise not to expose Secrets in pull requests"
+          messageText="Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request."
+        />
 
-      <Text as="h4" textStyle="heading/h4" paddingBottom="8" data-clarity-unmask="true">
-        Shared Secrets
-      </Text>
-      <Text textColor="text/secondary" size="2" data-clarity-unmask="true">
-        All projects have access to shared Secrets. If the same Secret is configured at a project level here, it will
-        overwrite the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
-      </Text>
-      {sharedSecretsBlock()}
+        <Text as="h4" textStyle="heading/h4" paddingBottom="8" data-clarity-unmask="true">
+          Shared Secrets
+        </Text>
+        <Text textColor="text/secondary" size="2" data-clarity-unmask="true">
+          All projects have access to shared Secrets. If the same Secret is configured at a project level here, it will
+          overwrite the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
+        </Text>
+        {sharedSecretsBlock()}
 
-      <Text as="h4" textStyle="heading/h4" data-clarity-unmask="true">
-        Project level Secrets
-      </Text>
-      <Box marginBlockStart="16" marginBlockEnd="24">
-        {appSecretList.map((secret) => (
-          <SecretCard
-            appSlug={appSlug}
-            key={secret.key}
-            secret={secret}
-            onEdit={handleEdit(secret.key)}
-            onCancel={handleCancel}
-            onSave={handleSave}
-            onDelete={() => setDeleteId(secret.key)}
-            isKeyUsed={(key) =>
-              appSecretList
-                .filter((s) => !s.isShared)
-                .filter((s) => s.key !== secret.key && !secret.isShared)
-                .some((s) => s.key === key)
-            }
-          />
-        ))}
-      </Box>
-      <BitkitButton
-        variant="secondary"
-        icon={IconPlusCircle}
-        size="md"
-        marginBottom="24"
-        onClick={onAddClick}
-        data-clarity-unmask="true"
-      >
-        Add new
-      </BitkitButton>
+        <Text as="h4" textStyle="heading/h4" data-clarity-unmask="true">
+          Project level Secrets
+        </Text>
+        <Box marginBlockStart="16" marginBlockEnd="24">
+          {appSecretList.map((secret) => (
+            <SecretCard
+              appSlug={appSlug}
+              key={secret.key}
+              secret={secret}
+              onEdit={handleEdit(secret.key)}
+              onCancel={handleCancel}
+              onSave={handleSave}
+              onDelete={() => setDeleteId(secret.key)}
+              isKeyUsed={(key) =>
+                appSecretList
+                  .filter((s) => !s.isShared)
+                  .filter((s) => s.key !== secret.key && !secret.isShared)
+                  .some((s) => s.key === key)
+              }
+            />
+          ))}
+        </Box>
+        <BitkitButton
+          variant="secondary"
+          icon={IconPlusCircle}
+          size="md"
+          marginBottom="24"
+          onClick={onAddClick}
+          data-clarity-unmask="true"
+        >
+          Add new
+        </BitkitButton>
 
-      {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
+        {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
           step bundle dialogs: a future body addition then stays masked until reviewed. */}
-      <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
-        <DialogBody>
-          {deleteError && (
-            <BitkitAlert variant="critical" data-clarity-unmask="true" messageText="Error while deleting secret!" />
-          )}
-          <Text data-clarity-unmask="true">
-            Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
-            This action cannot be undone.
-          </Text>
-        </DialogBody>
-        <DialogFooter data-clarity-unmask="true">
-          <BitkitButton variant="secondary" onClick={() => setDeleteId(null)}>
-            Cancel
-          </BitkitButton>
-          <BitkitButton
-            variant="danger-primary"
-            state={deleteLoading ? 'loading' : undefined}
-            onClick={() => handleDelete(deleteId)}
-          >
-            Delete secret
-          </BitkitButton>
-        </DialogFooter>
-      </Dialog>
-    </Box>
+        <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
+          <DialogBody>
+            {deleteError && (
+              <BitkitAlert variant="critical" data-clarity-unmask="true" messageText="Error while deleting secret!" />
+            )}
+            <Text data-clarity-unmask="true">
+              Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
+              This action cannot be undone.
+            </Text>
+          </DialogBody>
+          <DialogFooter data-clarity-unmask="true">
+            <BitkitButton variant="secondary" onClick={() => setDeleteId(null)}>
+              Cancel
+            </BitkitButton>
+            <BitkitButton
+              variant="danger-primary"
+              state={deleteLoading ? 'loading' : undefined}
+              onClick={() => handleDelete(deleteId)}
+            >
+              Delete secret
+            </BitkitButton>
+          </DialogFooter>
+        </Dialog>
+      </Box>
+    </>
   );
 };
 

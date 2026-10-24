@@ -1,6 +1,8 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
+
+import ToolPageHeading from '@/components/Navigation/ToolPageHeading';
 
 import DefaultTab from './tabs/DefaultTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
@@ -14,9 +16,12 @@ const useTabs = create(
 const StacksAndMachinesPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <Text as="h2" textStyle="heading/h2" p="32" data-clarity-unmask="true">
-        Stacks & Machines
-      </Text>
+      <ToolPageHeading
+        label="Stacks & Machines"
+        helperText={
+          <>Choose the stack and machine your builds run on, for the whole project or for a single Workflow.</>
+        }
+      />
       <TabList px="16" data-clarity-unmask="true">
         <Tab>Default</Tab>
         <Tab>Workflows</Tab>
