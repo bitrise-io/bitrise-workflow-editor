@@ -43,7 +43,7 @@ const MainLayout = () => {
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">
             {isConfigLoading ? (
-              <LoadingState />
+              <LoadingState isCanvas />
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>
                 <VisualEditorDisabledRedirect>
