@@ -14,6 +14,8 @@ import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
+import TOOLS from '@/components/Navigation/tools';
+import { useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import {
   trackConfigMergePopupShown,
   trackPushConfigChangesPopupShown,
@@ -79,15 +81,18 @@ const Header = () => {
   const [searchParams] = useSearchParams();
 
   const isYmlPage = currentPage === 'yml';
-  const editorView = isYmlPage ? 'yaml' : 'visual';
+  // A tool panel opened from the YAML view sits over the YAML, so the switch stays on YAML.
+  const isToolOverYaml = useLastBlock((s) => Boolean(s.isYamlView)) && TOOLS.some((tool) => tool.page === currentPage);
+  const isYamlView = isYmlPage || isToolOverYaml;
+  const editorView = isYamlView ? 'yaml' : 'visual';
 
   // Remember the last visual page so switching back from YAML returns to it.
   const lastVisualPathnameRef = useRef<string>(paths.workflows);
   useEffect(() => {
-    if (!isYmlPage) {
+    if (!isYamlView) {
       lastVisualPathnameRef.current = path.split('?')[0];
     }
-  }, [isYmlPage, path]);
+  }, [isYamlView, path]);
 
   const handleEditorViewChange = useCallback(
     (value: string | null) => {
