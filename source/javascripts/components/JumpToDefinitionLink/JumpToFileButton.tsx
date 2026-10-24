@@ -1,5 +1,6 @@
 import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 
+import { tabLocationFor } from '@/components/Navigation/lastBlock';
 import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import { useTree } from '@/hooks/useTree';
 
@@ -28,7 +29,10 @@ const JumpToFileButton = ({ nodeId }: Props) => {
       onSelect={(id) => {
         // Record the current tab's page before switching, so returning to it (e.g. the merged tab)
         // restores the right page — mirrors useJumpToDefinition.
-        recordActiveTabLocation(window.parent.location.hash);
+        const leftLocation = tabLocationFor(window.parent.location.hash);
+        if (leftLocation) {
+          recordActiveTabLocation(leftLocation);
+        }
         openTab(id, { preview: false });
       }}
       trigger={

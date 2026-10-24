@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { create } from 'zustand';
 
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
 import useHashLocation from '@/hooks/useHashLocation';
@@ -7,12 +6,8 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
 
-import FirstBuildingBlock, { BlockTarget } from './firstBuildingBlock';
-
-// The last CI block opened (read from the URL whenever a CI blocks page names an entity), so coming back to
-// CI blocks continues where you were. The layout also shows it behind an open tool panel. `isYamlView` says
-// the YAML page was open last instead: then a tool panel opens over the YAML, and closing it returns there.
-export const useLastBlock = create<{ target?: BlockTarget; isYamlView?: boolean }>(() => ({}));
+import FirstBuildingBlock from './firstBuildingBlock';
+import { useLastBlock } from './lastBlock';
 
 // Opens the last CI block if the config still has it, else the config's top block, replacing whatever entity
 // the URL picked.
@@ -53,3 +48,5 @@ export function useCloseToolPanel() {
     navigate(query ? `${paths.yml}?${query}` : paths.yml);
   }, [navigate, openBuildingBlock, searchParams]);
 }
+
+export { isToolOverYamlLocation, tabLocationFor, useLastBlock } from './lastBlock';
