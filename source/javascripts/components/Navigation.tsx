@@ -18,6 +18,7 @@ import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
 import FilesPanel from '@/components/Navigation/FilesPanel';
 import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
 import SidebarResizeHandle, { useSidebarWidth } from '@/components/Navigation/SidebarResizeHandle';
+import { RAIL_WIDTH } from '@/components/Navigation/ToolPanel';
 import TOOLS from '@/components/Navigation/tools';
 import useOpenBuildingBlock, { useCloseToolPanel, useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -235,6 +236,8 @@ const Navigation = (props: BoxProps) => {
         flexDirection="column"
         alignItems="center"
         gap="4"
+        width={`${RAIL_WIDTH}px`}
+        flexShrink={0}
         paddingBlock="8"
         paddingInline="8"
         borderInlineEnd="1px solid"
@@ -290,35 +293,33 @@ const Navigation = (props: BoxProps) => {
         </Box>
       </Box>
 
-      {/* The list beside the rail; a tool panel takes its place while open. */}
-      {!currentTool && (
-        <Box position="relative" flexShrink={0} display="flex">
-          <BitkitPageSidebar
-            flexShrink={0}
-            // The layout gives the sidebar the height of the row under the header, so the component's own
-            // `100dvh` floor has to give way or it pushes past the bottom of the editor.
-            minHeight="auto"
-            // Wide enough for entity names; Bitkit caps the sidebar at 320 from tablet up, so the cap is
-            // lifted with it.
-            width={rem(sidebarWidth)}
-            maxWidth={rem(sidebarWidth)}
-            paddingBlockStart="8"
-            paddingInline="8"
-          >
-            {/* Bitkit's body fills the sidebar but never scrolls, so a long list would push the whole editor
+      {/* The list beside the rail. It stays put while a tool is open: the tool's panel floats over it. */}
+      <Box position="relative" flexShrink={0} display="flex">
+        <BitkitPageSidebar
+          flexShrink={0}
+          // The layout gives the sidebar the height of the row under the header, so the component's own
+          // `100dvh` floor has to give way or it pushes past the bottom of the editor.
+          minHeight="auto"
+          // Wide enough for entity names; Bitkit caps the sidebar at 320 from tablet up, so the cap is
+          // lifted with it.
+          width={rem(sidebarWidth)}
+          maxWidth={rem(sidebarWidth)}
+          paddingBlockStart="8"
+          paddingInline="8"
+        >
+          {/* Bitkit's body fills the sidebar but never scrolls, so a long list would push the whole editor
               page down. The body is held to the sidebar's height and the list scrolls inside it. */}
-            <BitkitPageSidebar.Body minHeight="0">
-              <Box flex="1" minHeight="0" overflowY="auto">
-                {visibleView === 'files' && <FilesPanel />}
-                {visibleView === 'building-blocks' && (
-                  <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
-                )}
-              </Box>
-            </BitkitPageSidebar.Body>
-          </BitkitPageSidebar>
-          <SidebarResizeHandle width={sidebarWidth} onResize={setSidebarWidth} />
-        </Box>
-      )}
+          <BitkitPageSidebar.Body minHeight="0">
+            <Box flex="1" minHeight="0" overflowY="auto">
+              {visibleView === 'files' && <FilesPanel />}
+              {visibleView === 'building-blocks' && (
+                <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
+              )}
+            </Box>
+          </BitkitPageSidebar.Body>
+        </BitkitPageSidebar>
+        <SidebarResizeHandle width={sidebarWidth} onResize={setSidebarWidth} />
+      </Box>
     </Box>
   );
 };

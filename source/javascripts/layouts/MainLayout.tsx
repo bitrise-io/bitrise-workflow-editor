@@ -65,9 +65,11 @@ const MainLayout = () => {
     <Box height="100dvh" display="flex" flexDirection="column">
       <Header />
       {tabsUnderHeader && <OpenFileTabs />}
-      <Box display="flex" flex="1" minHeight={0}>
+      {/* Positioned, so an open tool panel can float over the sidebar's list and the content alike. */}
+      <Box display="flex" flex="1" minHeight={0} position="relative">
         {/* Shown on the YAML page too: there, its CI blocks jump to definitions in the editor. */}
         <Navigation />
+        {!isConfigLoading && isToolPage && <ToolPanel onClose={closeToolPanel}>{pageRouter}</ToolPanel>}
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto" position="relative">
@@ -80,7 +82,6 @@ const MainLayout = () => {
                 </Suspense>
               </BehindToolPanelProvider>
             )}
-            {!isConfigLoading && isToolPage && <ToolPanel onClose={closeToolPanel}>{pageRouter}</ToolPanel>}
             {!isConfigLoading && !isToolPage && pageRouter}
           </Box>
         </Box>
