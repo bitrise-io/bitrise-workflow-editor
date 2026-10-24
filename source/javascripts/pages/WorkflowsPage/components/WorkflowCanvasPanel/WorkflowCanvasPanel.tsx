@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react';
 
 import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
 import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import useDeleteSelectedStepsOnKey from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
@@ -77,6 +78,16 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       isAddingStep: s.openedDialogType === WorkflowsPageDialogType.STEP_SELECTOR,
     })),
   );
+
+  useDeleteSelectedStepsOnKey({
+    selectedStepIndices,
+    selectionParent,
+    isEnabled: !isAddingStep,
+    onDeleted: () => {
+      closeDialog();
+      setSelectedStepIndices([]);
+    },
+  });
 
   const runButtonAriaLabel = useMemo(() => {
     if (WorkflowService.isUtilityWorkflow(workflowId)) {

@@ -5,6 +5,7 @@ import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-e
 import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import useDeleteSelectedStepsOnKey from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -44,6 +45,16 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         isAddingStep: s.openedDialogType === StepBundlesPageDialogType.STEP_SELECTOR,
       })),
     );
+
+  useDeleteSelectedStepsOnKey({
+    selectedStepIndices,
+    selectionParent,
+    isEnabled: !isAddingStep,
+    onDeleted: () => {
+      closeDialog();
+      setSelectedStepIndices([]);
+    },
+  });
 
   const handleSelectStep = useCallback<
     (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
