@@ -19,6 +19,9 @@ import { isEqual } from 'es-toolkit';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { floatingDrawerCoveredWidth } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import useDeleteSelectedStepsOnKey, {
+  hasSelectedSteps,
+} from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import PipelineService from '@/core/services/PipelineService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
@@ -65,6 +68,22 @@ const edgeTypes: EdgeTypes = {
 const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const workflows = usePipelineWorkflows();
   const openDialog = usePipelinesPageStore((s) => s.openDialog);
+  const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
+  const selectedStepIndices = usePipelinesPageStore((s) => s.selectedStepIndices);
+  const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
+  const isAddingStep = usePipelinesPageStore((s) => s.openedDialogType === PipelinesPageDialogType.STEP_SELECTOR);
+  const isStepSelected = !isAddingStep && hasSelectedSteps({ selectedStepIndices, selectionParent });
+  // Backspace deletes the selected Steps. While a Step is selected, React Flow's own Backspace (which deletes
+  // the selected Workflow node from the Pipeline) is off, so the Step is what goes.
+  useDeleteSelectedStepsOnKey({
+    selectedStepIndices,
+    selectionParent,
+    isEnabled: !isAddingStep,
+    onDeleted: () => {
+      closeDialog();
+      usePipelinesPageStore.setState({ selectedStepIndices: [] });
+    },
+  });
   const { selectedPipeline } = usePipelineSelector();
   const [prevWorkflows, setPrevWorkflows] = useState(workflows);
   const initial = addCanvasControls(workflows, transformWorkflowsToGraphEntities(workflows));
@@ -230,6 +249,7 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         onEdgeMouseEnter={handleEdgeMouseEnter}
         onEdgeMouseLeave={handleEdgeMouseLeave}
         connectionLineComponent={ConnectionGraphEdge}
+        deleteKeyCode={isStepSelected ? null : undefined}
         isValidConnection={validateConnection(nodes, edges)}
         {...props}
       />
