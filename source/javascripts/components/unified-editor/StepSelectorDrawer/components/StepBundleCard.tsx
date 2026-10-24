@@ -16,12 +16,7 @@ import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useStepBundle from '@/hooks/useStepBundle';
-import {
-  useCrossFileEntity,
-  useIsMergedConfigSelected,
-  useIsReadOnlyView,
-  useOtherDefiningModules,
-} from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -62,12 +57,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   // Modules other than the one open that define this bundle — drives the "Also defined in …" line and
   // the jump target. Covers both the pure cross-file case and the intermediate one (also defined here).
   const otherModules = useOtherDefiningModules('stepBundles', bundleId);
-  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs or read-only view) get a lighter border/minimal instead of the tint.
-  const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -147,9 +139,6 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const cardProps = useMemo(() => {
     const common: CardProps = {
       variant: 'outline',
-      // A step bundle is a step-level item inside a workflow, so the ghost look is just a lighter
-      // border/minimal — no shadow (unlike the node cards, which use minElevated).
-      ...(isGhost ? { borderColor: 'border/minimal' } : {}),
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
       ...(isCollapsable ? { borderRadius: '4' } : { borderRadius: '8' }),
     };
@@ -172,7 +161,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
       ...common,
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isGhost]);
+  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
     // The menu's actions come from onDeleteStep OR onDeleteStepInStepBundle (the latter for

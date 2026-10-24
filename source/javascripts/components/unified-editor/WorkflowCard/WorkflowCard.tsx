@@ -15,12 +15,7 @@ import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import LabelTooltip from '@/components/LabelTooltip';
 import PipelineService from '@/core/services/PipelineService';
-import {
-  useCrossFileEntity,
-  useIsMergedConfigSelected,
-  useIsReadOnlyView,
-  useOtherDefiningModules,
-} from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -98,12 +93,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', workflowId);
   const otherModules = useOtherDefiningModules('workflows', workflowId);
-  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
-  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
-  const isGhost = isCrossFile || isReadOnlyView;
 
   const disclosure = useDisclosure({
     defaultOpen: !isCollapsable,
@@ -138,9 +129,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     }),
     [containerProps, isHighlighted],
   );
-  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
-  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
-  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
+  // Cross-file refs and read-only views look like any other card; their actions say what differs.
+  const cardVariant = containerProps?.variant ?? 'elevated';
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;

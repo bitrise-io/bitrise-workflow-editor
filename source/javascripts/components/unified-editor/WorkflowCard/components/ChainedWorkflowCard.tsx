@@ -19,12 +19,7 @@ import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJump
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import {
-  useCrossFileEntity,
-  useIsMergedConfigSelected,
-  useIsReadOnlyView,
-  useOtherDefiningModules,
-} from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
@@ -49,11 +44,8 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const workflow = useWorkflow(id, (s) => (s?.id ? { title: s.userValues.title } : undefined));
   const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', id);
   const otherModules = useOtherDefiningModules('workflows', id);
-  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
-  const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,7 +83,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const cardProps = useMemo(() => {
     const common: CardProps = {
       borderRadius: '4',
-      variant: isGhost ? 'minElevated' : 'outline',
+      variant: 'outline',
       ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
     };
 
@@ -114,7 +106,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
       ...common,
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isDragging, isHighlighted, isPlaceholder, isGhost]);
+  }, [isDragging, isHighlighted, isPlaceholder]);
 
   const buttonGroup = useMemo(() => {
     if (
