@@ -97,7 +97,7 @@ const MainLayout = () => {
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto" position="relative">
-            {isConfigLoading && <LoadingState />}
+            {isConfigLoading && <LoadingState isCanvas />}
             {/* A tool page opens in a panel over the YAML or CI block you were on, which stays on screen behind it. */}
             {!isConfigLoading && <BehindToolPanelProvider isBehind={isToolPage}>{pageRouter}</BehindToolPanelProvider>}
           </Box>
