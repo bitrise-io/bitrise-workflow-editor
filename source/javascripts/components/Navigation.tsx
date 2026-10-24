@@ -20,7 +20,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
 import FilesPanel from '@/components/Navigation/FilesPanel';
-import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
+import FirstBuildingBlock, { BlockTarget } from '@/components/Navigation/firstBuildingBlock';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -206,8 +206,25 @@ const Navigation = (props: Props) => {
   // Picking Tools from a Pipeline, Workflow or Step bundle page opens its first tool, Env Vars, so the
   // menu and the page agree. On a tool page already, the page stays.
   // Opens the open file's first CI block, replacing whatever entity the URL picked.
-  const openFirstBuildingBlock = () => {
-    const target = FirstBuildingBlock.firstBuildingBlock(bitriseYmlStore.getState().yml);
+  // The last CI block opened, so coming back to CI blocks (e.g. after a look at Env Vars) continues where
+  // you were. It's read from the URL whenever a CI blocks page names an entity.
+  const lastBlockRef = useRef<BlockTarget>();
+  useEffect(() => {
+    const at = FirstBuildingBlock.blockAt(currentPage, searchParams);
+    if (at) {
+      lastBlockRef.current = at;
+    }
+  }, [currentPage, searchParams]);
+
+  // Opens the last CI block if this file still has it, else the file's top block, replacing whatever
+  // entity the URL picked.
+  const openBuildingBlock = () => {
+    const { yml } = bitriseYmlStore.getState();
+    const remembered = lastBlockRef.current;
+    const target =
+      remembered && FirstBuildingBlock.exists(yml, remembered)
+        ? remembered
+        : FirstBuildingBlock.firstBuildingBlock(yml);
     if (!target || visualEditorNotice?.disabled) {
       return;
     }
@@ -239,7 +256,7 @@ const Navigation = (props: Props) => {
     const page = currentPage ?? '';
     const isBlockPage = BUILDING_BLOCK_PAGES.includes(page);
     if (page !== 'yml' && (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))) {
-      openFirstBuildingBlock();
+      openBuildingBlock();
     }
     // Reacts to the file switch only; the rest is read fresh when it happens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -259,7 +276,7 @@ const Navigation = (props: Props) => {
     }
     hasLandedRef.current = true;
     if (!landedWithEntityRef.current && BUILDING_BLOCK_PAGES.includes(currentPage ?? '')) {
-      openFirstBuildingBlock();
+      openBuildingBlock();
     }
     // Runs once, when the config first has a block; the rest is read fresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -267,10 +284,11 @@ const Navigation = (props: Props) => {
 
   const handleViewChange = (next: SidebarView) => {
     setView(next);
-    // CI blocks opens on the highest-level block: the first Pipeline, else Workflow, else Step bundle.
+    // CI blocks opens where you were (the last CI block, if this file still has it), else on the
+    // highest-level block: the first Pipeline, else Workflow, else Step bundle.
     // On the YAML page it stays put: there, CI blocks jump within the YAML instead.
     if (next === 'building-blocks' && currentPage !== 'yml') {
-      openFirstBuildingBlock();
+      openBuildingBlock();
     }
     if (next === 'tools' && BUILDING_BLOCK_PAGES.includes(currentPage ?? '') && !visualEditorNotice?.disabled) {
       navigate(withSearchParams(paths.envVars));

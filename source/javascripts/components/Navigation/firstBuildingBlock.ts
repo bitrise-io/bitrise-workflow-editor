@@ -29,4 +29,19 @@ function firstBuildingBlock(yml: BitriseYml) {
   return undefined;
 }
 
-export default { hasBlocksFor, firstBuildingBlock, entityParams: KINDS.map((k) => k.param) };
+export type BlockTarget = { path: string; param: string; id: string };
+
+// The CI block a page's URL names, if it's a CI blocks page that names one.
+function blockAt(page: string | undefined, params: Record<string, string | undefined>): BlockTarget | undefined {
+  const kind = KINDS.find((k) => k.page === page);
+  const id = kind ? params[kind.param] : undefined;
+  return kind && id ? { path: kind.path, param: kind.param, id } : undefined;
+}
+
+// Whether that block is still in this config (it may have been renamed or deleted, or live in another file).
+function exists(yml: BitriseYml, target: BlockTarget) {
+  const kind = KINDS.find((k) => k.param === target.param);
+  return Boolean(kind && idsOf(yml, kind.section).includes(target.id));
+}
+
+export default { hasBlocksFor, firstBuildingBlock, blockAt, exists, entityParams: KINDS.map((k) => k.param) };

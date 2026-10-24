@@ -29,4 +29,13 @@ describe('firstBuildingBlock', () => {
     expect(FirstBuildingBlock.hasBlocksFor(yml, 'step_bundles')).toBe(true);
     expect(FirstBuildingBlock.hasBlocksFor(yml, 'secrets')).toBe(false);
   });
+
+  it('reads the CI block a URL names, and whether a config still has it', () => {
+    const target = FirstBuildingBlock.blockAt('workflows', { workflow_id: 'build', branch: 'main' });
+    expect(target).toEqual({ path: '/workflows', param: 'workflow_id', id: 'build' });
+    expect(FirstBuildingBlock.blockAt('workflows', {})).toBe(undefined);
+    expect(FirstBuildingBlock.blockAt('env_vars', { workflow_id: 'build' })).toBe(undefined);
+    expect(FirstBuildingBlock.exists({ format_version: '', workflows: { build: {} } }, target!)).toBe(true);
+    expect(FirstBuildingBlock.exists({ format_version: '', workflows: { test: {} } }, target!)).toBe(false);
+  });
 });
