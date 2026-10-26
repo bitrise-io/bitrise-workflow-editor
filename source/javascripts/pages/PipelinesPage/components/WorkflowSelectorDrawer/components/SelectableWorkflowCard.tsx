@@ -1,4 +1,5 @@
-import { Card, Popover, PopoverContent, PopoverTrigger } from '@bitrise/bitkit';
+import { Popover, PopoverContent, PopoverTrigger } from '@bitrise/bitkit';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { memo } from 'react';
 
@@ -35,14 +36,7 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
-        <Card
-          py="8"
-          px="16"
-          role="button"
-          variant="outline"
-          onClick={onClick}
-          _hover={{ boxShadow: 'small', borderColor: 'border/hover' }}
-        >
+        <Card.Root elevation={false} interactive paddingBlock="8" paddingInline="16" role="button" onClick={onClick}>
           <Text textStyle="body/lg/semibold">{workflow?.title || id}</Text>
           <Text textStyle="body/sm/regular" color="text/secondary">
             {/* When the workflow is (also) defined in another module, surface that instead of
@@ -62,7 +56,7 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
               }
             />
           </Text>
-        </Card>
+        </Card.Root>
       </PopoverTrigger>
       <PopoverContent width={320}>
         <WorkflowCard id={id} />

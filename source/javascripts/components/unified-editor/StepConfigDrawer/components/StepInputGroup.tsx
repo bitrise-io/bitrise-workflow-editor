@@ -1,4 +1,5 @@
-import { Card, ExpandableCard } from '@bitrise/bitkit';
+import { ExpandableCard } from '@bitrise/bitkit';
+import { Card } from '@chakra-ui/react/card';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
@@ -78,9 +79,9 @@ const StepInputGroup = ({ title, stepId, defaults, inputs, onChange }: Props) =>
 
   if (!title) {
     return (
-      <Card variant="outline" p="16">
+      <Card.Root elevation={false} padding="16">
         {content}
-      </Card>
+      </Card.Root>
     );
   }
 

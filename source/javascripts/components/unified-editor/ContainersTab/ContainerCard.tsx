@@ -1,5 +1,6 @@
-import { Card, DefinitionTooltip, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { DefinitionTooltip, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 
 import ContainerCardItem from '@/components/unified-editor/ContainersTab/ContainerCardItem';
@@ -51,7 +52,7 @@ const ContainerCard = (props: ContainerCardProps) => {
   const availableContainers = containers.filter((container) => !selectedReferenceIds.has(container.id));
 
   return (
-    <Card variant="outline" overflow="hidden">
+    <Card.Root elevation={false} overflow="hidden">
       <Table variant="borderless" disableRowHover isFixed>
         <Thead data-clarity-unmask="true">
           <Tr>
@@ -150,7 +151,7 @@ const ContainerCard = (props: ContainerCardProps) => {
           )}
         </Tbody>
       </Table>
-    </Card>
+    </Card.Root>
   );
 };
 

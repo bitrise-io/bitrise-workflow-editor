@@ -1,4 +1,5 @@
-import { Card, Popover, PopoverContent, PopoverTrigger } from '@bitrise/bitkit';
+import { Popover, PopoverContent, PopoverTrigger } from '@bitrise/bitkit';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
@@ -29,29 +30,24 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
-        <Card
-          as="button"
-          variant="outline"
-          padding="8px 12px"
-          textAlign="left"
-          _hover={{ borderColor: 'border/hover' }}
-          onClick={handleClick}
-        >
-          <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-            {title || id}
-          </Text>
-          <Text textStyle="body/md/regular" color="text/secondary">
-            {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
+        <Card.Root asChild elevation={false} interactive paddingBlock="8" paddingInline="12" textAlign="start">
+          <button type="button" onClick={handleClick}>
+            <Text textStyle="body/lg/semibold" marginBlockEnd="4">
+              {title || id}
+            </Text>
+            <Text textStyle="body/md/regular" color="text/secondary">
+              {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
                 the hover preview (StepBundleCard) to avoid a nested interactive control. */}
-            <EntityModuleProvenance
-              kind="stepBundles"
-              id={id}
-              withJumpLink={false}
-              pathTextStyle="body/md/semibold"
-              fallback={usedInWorkflowsText}
-            />
-          </Text>
-        </Card>
+              <EntityModuleProvenance
+                kind="stepBundles"
+                id={id}
+                withJumpLink={false}
+                pathTextStyle="body/md/semibold"
+                fallback={usedInWorkflowsText}
+              />
+            </Text>
+          </button>
+        </Card.Root>
       </PopoverTrigger>
       <PopoverContent width={320}>
         <WorkflowCardContextProvider>

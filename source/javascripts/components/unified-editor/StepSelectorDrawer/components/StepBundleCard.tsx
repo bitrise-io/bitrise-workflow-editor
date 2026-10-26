@@ -1,6 +1,14 @@
-import { Card, CardProps, Collapse } from '@bitrise/bitkit';
-import { BitkitControlButton, BitkitList, IconChevronDown, IconChevronUp, IconContainer } from '@bitrise/bitkit-v2';
+import { Collapse } from '@bitrise/bitkit';
+import {
+  BitkitControlButton,
+  BitkitList,
+  IconChevronDown,
+  IconChevronUp,
+  IconContainer,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -143,19 +151,20 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     : undefined;
 
   const cardProps = useMemo(() => {
-    const common: CardProps = {
-      variant: 'outline',
+    const common: CardRootProps = {
+      width: 'full',
+      elevation: false,
       // A step bundle is a step-level item inside a workflow, so the ghost look is just a lighter
-      // border/minimal — no shadow (unlike the node cards, which use minElevated).
+      // border/minimal — no shadow (unlike the node cards, which switch to the elevated card).
       ...(isGhost ? { borderColor: 'border/minimal' } : {}),
-      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'elevation/sm' } : {}),
       ...(isCollapsable ? { borderRadius: '4' } : { borderRadius: '8' }),
     };
 
     if (isPlaceholder) {
       return {
         ...common,
-        height: 50,
+        height: rem(50),
         border: '1px dashed',
         alignItems: 'center',
         color: 'text/secondary',
@@ -163,7 +172,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
         textStyle: 'body/sm/regular',
         borderColor: 'border/strong',
         backgroundColor: 'background/secondary',
-      } satisfies CardProps;
+      } satisfies CardRootProps;
     }
 
     return {
@@ -203,7 +212,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const title = stepBundleInstance.stepBundle?.mergedValues?.title || StepBundleService.cvsToId(cvs);
 
   return (
-    <Card {...cardProps} minW={0} maxW={392} style={style} ref={sortable.setNodeRef}>
+    <Card.Root {...cardProps} minWidth="0" maxWidth={rem(392)} style={style} ref={sortable.setNodeRef}>
       {!isPlaceholder && (
         <>
           <Box display="flex">
@@ -280,7 +289,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           )}
         </>
       )}
-    </Card>
+    </Card.Root>
   );
 };
 

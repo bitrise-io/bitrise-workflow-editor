@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse, Tooltip } from '@bitrise/bitkit';
+import { Collapse, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -9,6 +9,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Badge } from '@chakra-ui/react/badge';
 import { Box } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
@@ -37,7 +38,7 @@ type ContentProps = {
   uses?: string;
   parallel?: string | number;
   isCollapsable?: boolean;
-  containerProps?: CardProps;
+  containerProps?: CardRootProps;
 };
 
 const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
@@ -100,8 +101,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
-  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
+  // Ghosts (cross-file refs, or everything in the read-only merged view) always get the elevated card
+  // (border/minimal + small shadow), even where the caller asks for an outlined one.
   const isGhost = isCrossFile || isReadOnlyView;
 
   const {
@@ -129,9 +130,9 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     }),
     [containerProps, isHighlighted],
   );
-  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
-  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
-  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
+  // Resolve the elevation after spreading `cardProps` so a caller's `containerProps.elevation`
+  // (e.g. WorkflowNode's outlined card) can't override the ghost styling — ghost always wins.
+  const cardElevation = isGhost || containerProps?.elevation;
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -146,7 +147,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
+    <Card.Root minWidth="0" width="full" {...cardProps} elevation={cardElevation}>
       <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
         {/* No expand/collapse for cross-file refs — their nested content lives in another file
             and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
@@ -236,7 +237,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           </SortableWorkflowsContext>
         </Collapse>
       )}
-    </Card>
+    </Card.Root>
   );
 });
 

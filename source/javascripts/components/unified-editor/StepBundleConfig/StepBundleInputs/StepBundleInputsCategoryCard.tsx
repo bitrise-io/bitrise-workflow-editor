@@ -1,6 +1,7 @@
-import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
+import { ExpandableCard, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
 import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
@@ -107,9 +108,9 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
 
   if (!category) {
     return (
-      <Card variant="outline" p="16" mb="16">
+      <Card.Root elevation={false} padding="16" marginBlockEnd="16">
         {content}
-      </Card>
+      </Card.Root>
     );
   }
 

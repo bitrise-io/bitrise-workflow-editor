@@ -1,6 +1,6 @@
-import { Card } from '@bitrise/bitkit';
 import { IconChevronDown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
 };
 
 const CrossFileDefinitionCard = ({ title, definingPath }: Props) => (
-  <Card variant="outline" opacity={0.6} cursor="not-allowed">
+  <Card.Root elevation={false} opacity={0.6} cursor="not-allowed">
     <Box display="flex" alignItems="center" justifyContent="space-between" padding="16px 24px">
       <Text textStyle="body/lg/semibold" color="text/secondary">
         {title}
@@ -29,7 +29,7 @@ const CrossFileDefinitionCard = ({ title, definingPath }: Props) => (
         . Edit it there.
       </Text>
     </Box>
-  </Card>
+  </Card.Root>
 );
 
 export default CrossFileDefinitionCard;

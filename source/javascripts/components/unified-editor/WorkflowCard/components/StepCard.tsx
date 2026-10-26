@@ -1,4 +1,4 @@
-import { Card, CardProps, Tooltip } from '@bitrise/bitkit';
+import { Tooltip } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitColorButton,
@@ -10,6 +10,7 @@ import {
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -185,20 +186,21 @@ const StepCard = ({
     : undefined;
 
   const cardProps = useMemo(() => {
-    const common: CardProps = {
+    const common: CardRootProps = {
+      width: 'full',
       display: 'flex',
       borderRadius: '4',
-      variant: 'outline',
+      elevation: false,
       className: 'group',
       // Ghost (read-only) steps: a lighter border/minimal, no shadow — per the design's ghost-step spec.
       ...(isReadOnlyView ? { borderColor: 'border/minimal' } : {}),
-      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'elevation/sm' } : {}),
     };
 
     if (isPlaceholder) {
       return {
         ...common,
-        height: 42,
+        height: rem(42),
         display: 'flex',
         border: '1px dashed',
         alignItems: 'center',
@@ -207,7 +209,7 @@ const StepCard = ({
         textStyle: 'body/sm/regular',
         borderColor: 'border/strong',
         backgroundColor: 'background/secondary',
-      } satisfies CardProps;
+      } satisfies CardRootProps;
     }
 
     if (isButton) {
@@ -239,7 +241,7 @@ const StepCard = ({
   }, [workflowId, stepBundleId, isDragging, isUpgradable, isClonable, isRemovable, isHighlighted, step, stepIndex]);
 
   return (
-    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
+    <Card.Root ref={sortable.setNodeRef} {...cardProps} style={style}>
       {!isPlaceholder && (
         <>
           {isSortable && (
@@ -339,7 +341,7 @@ const StepCard = ({
           )}
         </>
       )}
-    </Card>
+    </Card.Root>
   );
 };
 

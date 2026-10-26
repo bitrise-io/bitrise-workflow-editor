@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse } from '@bitrise/bitkit';
+import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -6,9 +6,11 @@ import {
   IconLink,
   IconSettings,
   IconTrash,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -54,7 +56,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
+  // Ghosts get the elevated card (border/minimal + small shadow) instead of the outlined one.
   const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
@@ -91,16 +93,17 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const title = workflow?.title || id;
 
   const cardProps = useMemo(() => {
-    const common: CardProps = {
+    const common: CardRootProps = {
+      width: 'full',
       borderRadius: '4',
-      variant: isGhost ? 'minElevated' : 'outline',
-      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+      elevation: isGhost,
+      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'elevation/sm' } : {}),
     };
 
     if (isPlaceholder) {
       return {
         ...common,
-        height: 50,
+        height: rem(50),
         display: 'flex',
         border: '1px dashed',
         alignItems: 'center',
@@ -184,7 +187,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   }
 
   return (
-    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
+    <Card.Root ref={sortable.setNodeRef} {...cardProps} style={style}>
       {!isPlaceholder && (
         <>
           <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
@@ -251,7 +254,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
           )}
         </>
       )}
-    </Card>
+    </Card.Root>
   );
 };
 

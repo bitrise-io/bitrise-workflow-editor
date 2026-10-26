@@ -1,4 +1,4 @@
-import { Card, List, ListItem, Tooltip } from '@bitrise/bitkit';
+import { List, ListItem, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitHeading,
@@ -10,6 +10,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
+import { Card } from '@chakra-ui/react/card';
 import { Image } from '@chakra-ui/react/image';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -76,13 +77,12 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
       alignItems={['flex-start', 'center']}
       background="background/secondary"
     >
-      <Card
-        p="24"
+      <Card.Root
+        elevation={false}
+        padding="24"
         display="flex"
-        flexDir={['column', 'row']}
+        flexDirection={['column', 'row']}
         gap="32"
-        variant="outline"
-        width="auto"
         data-clarity-unmask="true"
       >
         <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
@@ -120,7 +120,7 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
             {actions}
           </Box>
         )}
-      </Card>
+      </Card.Root>
     </Box>
   );
 };

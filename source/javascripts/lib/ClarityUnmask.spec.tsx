@@ -13,7 +13,6 @@ import {
   Breadcrumb,
   BreadcrumbLink,
   Button,
-  Card,
   Dialog,
   DialogFooter,
   List,
@@ -46,6 +45,7 @@ import {
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
@@ -130,7 +130,7 @@ describe('Clarity unmasking', () => {
           {/* Still tagged in unified-editor until the second half of the Text migration lands. */}
           <BitkitV1Text data-clarity-unmask="true">v1 text</BitkitV1Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
-          <Card data-clarity-unmask="true">card</Card>
+          <Card.Root data-clarity-unmask="true">card</Card.Root>
           <List data-clarity-unmask="true">
             <ListItem>list item</ListItem>
           </List>

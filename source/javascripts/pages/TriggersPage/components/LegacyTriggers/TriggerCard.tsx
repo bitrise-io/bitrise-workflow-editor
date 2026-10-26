@@ -1,4 +1,4 @@
-import { CardProps, Checkbox, DraggableCard } from '@bitrise/bitkit';
+import { Checkbox, DraggableCard, DraggableCardProps } from '@bitrise/bitkit';
 import { BitkitIconButton, IconArrowRight, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
@@ -11,7 +11,7 @@ import { TriggerSource } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
-interface TriggerCardProps extends CardProps {
+interface TriggerCardProps extends DraggableCardProps {
   isOverlay?: boolean;
   triggerItem: LegacyTrigger;
   onRemove?: (triggerItem: LegacyTrigger) => void;
@@ -30,7 +30,7 @@ const TriggerCard = (props: TriggerCardProps) => {
     disabled: isReadOnlyView,
   });
 
-  const style: CardProps = {
+  const style: DraggableCardProps = {
     transform: CSS.Transform.toString(transform),
     transition,
   };

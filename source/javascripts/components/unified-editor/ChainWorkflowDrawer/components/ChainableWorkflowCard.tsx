@@ -1,7 +1,7 @@
-import { Card } from '@bitrise/bitkit';
 import { BitkitButton, IconArrowBackAndUp, IconArrowForwardAndDown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
+import { Card } from '@chakra-ui/react/card';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 
@@ -20,19 +20,15 @@ type Props = {
 const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
   const dependants = useDependantWorkflows({ workflowId: chainableWorkflowId });
   return (
-    <Card
+    <Card.Root
       className="group"
-      variant="outline"
+      elevation={false}
       display="flex"
       alignItems="center"
       justifyContent="space-between"
-      px="16"
-      py="8"
-      _hover={{
-        backgroundColor: 'inherit',
-        borderColor: 'border.strong',
-        boxShadow: 'small',
-      }}
+      paddingInline="16"
+      paddingBlock="8"
+      _hover={{ borderColor: 'border/strong', boxShadow: 'elevation/sm' }}
     >
       <Box overflow="hidden">
         <Text textStyle="body/lg/semibold" marginBlockEnd="4" truncate maxWidth="full">
@@ -65,7 +61,7 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
           Add after
         </BitkitButton>
       </ButtonGroup>
-    </Card>
+    </Card.Root>
   );
 };
 

@@ -1,17 +1,7 @@
-import {
-  Card,
-  CardProps,
-  Checkbox,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  IconButton,
-  Input,
-  Textarea,
-  Toggletip,
-} from '@bitrise/bitkit';
+import { Checkbox, Dialog, DialogBody, DialogFooter, IconButton, Input, Textarea, Toggletip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitBadge, BitkitButton, IconLock } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { JSX, useMemo, useState } from 'react';
@@ -20,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import { Secret } from '@/core/models/Secret';
 import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
 
-interface SecretCardProps extends CardProps {
+interface SecretCardProps {
   appSlug: string;
   secret: Secret;
   onEdit: (id: string) => void;
@@ -167,7 +157,7 @@ const SecretCard = (props: SecretCardProps) => {
   };
 
   return (
-    <Card paddingY="16" paddingX="24" marginBottom="16">
+    <Card.Root paddingBlock="16" paddingInline="24" marginBlockEnd="16">
       <Box as="form" onSubmit={handleSubmit(onFormSubmit)} width="100%" display="flex" gap="12" flexDirection="column">
         <Box width="100%" display="flex" gap="8">
           <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
@@ -330,7 +320,7 @@ const SecretCard = (props: SecretCardProps) => {
           </BitkitButton>
         </DialogFooter>
       </Dialog>
-    </Card>
+    </Card.Root>
   );
 };
 

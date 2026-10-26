@@ -1,6 +1,7 @@
-import { Card, CardProps, MarkdownContent, Tooltip } from '@bitrise/bitkit';
+import { MarkdownContent, Tooltip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { MouseEventHandler, useRef } from 'react';
@@ -13,7 +14,7 @@ import useIsTruncated from '@/hooks/useIsTruncated';
 
 import { STEP_HEIGHT } from './AlgoliaStepList.const';
 
-type Props = Omit<CardProps, 'onClick'> & {
+type Props = Omit<CardRootProps, 'onClick'> & {
   logo?: string;
   title?: string;
   version?: string;
@@ -45,7 +46,7 @@ const AlgoliaStepListItem = ({
     hoverProps = {
       className: 'group',
       _hover: {
-        boxShadow: 'small',
+        boxShadow: 'elevation/sm',
         borderColor: 'border/strong',
       },
     };
@@ -64,11 +65,11 @@ const AlgoliaStepListItem = ({
   };
 
   return (
-    <Card
-      minW="0"
+    <Card.Root
+      elevation={false}
+      minWidth="0"
       role="button"
       display="flex"
-      variant="outline"
       position="relative"
       flexDirection="column"
       {...props}
@@ -187,7 +188,7 @@ const AlgoliaStepListItem = ({
           </BitkitLinkButton>
         </Box>
       )}
-    </Card>
+    </Card.Root>
   );
 };
 

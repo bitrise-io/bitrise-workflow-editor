@@ -1,5 +1,5 @@
-import { CardProps } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { CardRootProps } from '@chakra-ui/react/card';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
 import { memo, useEffect, useMemo, useRef } from 'react';
@@ -24,20 +24,20 @@ import { LeftHandle, RightHandle } from './Handles';
 type Props = NodeProps<GraphPipelineNodeType>;
 
 const defaultStyle = {
-  variant: 'outline',
-  boxShadow: 'small',
-} satisfies CardProps;
+  elevation: false,
+  boxShadow: 'elevation/sm',
+} satisfies CardRootProps;
 
 const hoveredStyle = {
-  boxShadow: 'small',
+  boxShadow: 'elevation/sm',
   borderColor: 'border/hover',
-} satisfies CardProps;
+} satisfies CardRootProps;
 
 const selectedStyle = {
   outline: '2px solid',
   outlineColor: 'border/selected',
   outlineOffset: '-2px',
-} satisfies CardProps;
+} satisfies CardRootProps;
 
 const ParallelWorkflowIndicator = memo(function ParallelWorkflowIndicator() {
   return (

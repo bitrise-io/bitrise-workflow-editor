@@ -1,4 +1,4 @@
-import { Card, Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
+import { Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitControlButton,
@@ -9,6 +9,7 @@ import {
   IconRegex,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { Card } from '@chakra-ui/react/card';
 import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -46,7 +47,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
   }, [conditions]);
 
   return (
-    <Card variant="outline" overflow="hidden">
+    <Card.Root elevation={false} overflow="hidden">
       <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
         <Thead backgroundColor="background/primary" data-clarity-unmask="true">
           <Tr>
@@ -162,7 +163,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
           </Tfoot>
         )}
       </Table>
-    </Card>
+    </Card.Root>
   );
 };
 

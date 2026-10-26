@@ -1,5 +1,5 @@
-import { Card } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode } from 'react';
 
@@ -43,7 +43,7 @@ type Props = {
 
 const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, emptyText, renderJumpButton }: Props) => {
   return (
-    <Card as="section" variant="outline" overflow="hidden">
+    <Card.Root as="section" elevation={false} overflow="hidden">
       <EnvVarsTableHeader />
       <Box>
         {emptyText && !initialEnvs?.length ? (
@@ -60,7 +60,7 @@ const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, emptyText,
           />
         )}
       </Box>
-    </Card>
+    </Card.Root>
   );
 };
 
