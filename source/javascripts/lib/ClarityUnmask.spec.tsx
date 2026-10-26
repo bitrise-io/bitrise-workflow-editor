@@ -12,22 +12,16 @@ import path from 'node:path';
 import {
   Breadcrumb,
   BreadcrumbLink,
-  Button,
   Dialog,
   DialogFooter,
   List,
   ListItem,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Provider,
   Sidebar,
   Tab,
   Table,
   TabList,
   Tabs,
-  Text as BitkitV1Text,
   Th,
   Thead,
   Tr,
@@ -127,8 +121,6 @@ describe('Clarity unmasking', () => {
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
-          {/* Still tagged in unified-editor until the second half of the Text migration lands. */}
-          <BitkitV1Text data-clarity-unmask="true">v1 text</BitkitV1Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
           <Card.Root data-clarity-unmask="true">card</Card.Root>
           <List data-clarity-unmask="true">
@@ -150,14 +142,6 @@ describe('Clarity unmasking', () => {
               <Tab>tab label</Tab>
             </TabList>
           </Tabs>
-          <Menu isOpen>
-            <MenuButton as={Button} data-clarity-unmask="true">
-              menu button
-            </MenuButton>
-            <MenuList data-clarity-unmask="true">
-              <MenuItem>menu item</MenuItem>
-            </MenuList>
-          </Menu>
           {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
           <Dialog isOpen title="dialog title" onClose={() => {}}>
             <DialogFooter data-clarity-unmask="true">
@@ -167,9 +151,9 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(13);
+      expect(unmasked()).toHaveLength(10);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
+      ['column header', 'tab label', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -181,12 +165,16 @@ describe('Clarity unmasking', () => {
           <BitkitSegmentedControl value="a" data-clarity-unmask="true">
             <BitkitSegmentedControl.Item value="a">segment label</BitkitSegmentedControl.Item>
           </BitkitSegmentedControl>
-          {/* Portalled: the attribute has to sit on the item itself, since a tagged ancestor in the
-              main tree would not enclose the portalled node. */}
+          {/* Portalled: a tagged ancestor in the main tree would not enclose the portalled node, so the
+              attribute goes on the item itself, or on the menu, which forwards it to the portalled
+              role="menu" element around every item. */}
           <BitkitActionMenu open trigger={<button type="button">trigger</button>}>
             <BitkitActionMenu.Item value="x" data-clarity-unmask="true">
               action menu item
             </BitkitActionMenu.Item>
+          </BitkitActionMenu>
+          <BitkitActionMenu open data-clarity-unmask="true" trigger={<button type="button">other trigger</button>}>
+            <BitkitActionMenu.Item value="y">action menu root item</BitkitActionMenu.Item>
           </BitkitActionMenu>
           <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
           <BitkitEmptyState
@@ -212,11 +200,12 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(9);
+      expect(unmasked()).toHaveLength(10);
       [
         'alert message',
         'segment label',
         'action menu item',
+        'action menu root item',
         'bitkit button',
         'empty state',
         'ribbon message',
