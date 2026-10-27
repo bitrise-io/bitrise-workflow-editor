@@ -22,6 +22,7 @@ import { floatingDrawerCoveredWidth } from '@/components/unified-editor/Floating
 import useDeleteSelectedStepsOnKey, {
   hasSelectedSteps,
 } from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
+import { isWorkflowDefined } from '@/components/unified-editor/WorkflowConfig/WorkflowConfigDrawer';
 import PipelineService from '@/core/services/PipelineService';
 import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import usePipelineSelector from '@/pages/PipelinesPage/hooks/usePipelineSelector';
@@ -73,6 +74,11 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
   const isAddingStep = usePipelinesPageStore((s) => s.openedDialogType === PipelinesPageDialogType.STEP_SELECTOR);
   const isStepSelected = !isAddingStep && hasSelectedSteps({ selectedStepIndices, selectionParent });
+  // A Pipeline's canvas starts with no Step selected (a selection from the previous Pipeline would point at Steps
+  // that aren't on screen).
+  useEffect(() => {
+    usePipelinesPageStore.setState({ selectedStepIndices: [] });
+  }, []);
   // Backspace deletes the selected Steps. While a Step is selected, React Flow's own Backspace (which deletes
   // the selected Workflow node from the Pipeline) is off, so the Step is what goes.
   useDeleteSelectedStepsOnKey({
@@ -150,6 +156,11 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
         'button, a, input, textarea, select, [role="button"], [role="menuitem"], [role="checkbox"]',
       );
       if (!isWorkflowNode(node) || isOnControl || focusedNodeId === node.id) {
+        return;
+      }
+      // A `uses:` entry is the Pipeline's own name for another Workflow, and an entry may point at a Workflow
+      // that isn't defined: neither has settings of its own to open.
+      if (('uses' in node.data && node.data.uses) || !isWorkflowDefined(node.id)) {
         return;
       }
       openDialog({

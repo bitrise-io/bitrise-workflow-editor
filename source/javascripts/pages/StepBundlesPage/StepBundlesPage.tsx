@@ -44,7 +44,8 @@ const StepBundlesPage = () => {
   // The bundle's settings live in a drawer now, so opening a Step bundle opens it.
   useEffect(() => {
     if (stepBundleId) {
-      openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION, stepBundleId })();
+      // A Step selected in the previous bundle doesn't carry over (Backspace would delete it out of sight).
+      openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION, stepBundleId, selectedStepIndices: [] })();
     } else {
       closeDialog();
     }

@@ -2,6 +2,7 @@ import { useEventListener } from 'usehooks-ts';
 
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import StepService from '@/core/services/StepService';
+import { getBitriseYml } from '@/core/stores/BitriseYmlStore';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
 type Options = {
@@ -11,6 +12,30 @@ type Options = {
   isEnabled: boolean;
   // The selected Steps are gone: clear the selection and close their drawer.
   onDeleted: VoidFunction;
+};
+
+// Marks a canvas the Steps live on. Backspace only deletes while the focus is there (or nowhere in particular),
+// so a key pressed in a drawer, a dialog or the sidebar never removes a Step.
+export const STEP_CANVAS_ATTRIBUTE = 'data-step-canvas';
+
+const isOnCanvas = (target: EventTarget | null) =>
+  target === document.body ||
+  target === document.documentElement ||
+  (target instanceof Element && Boolean(target.closest(`[${STEP_CANVAS_ATTRIBUTE}]`)));
+
+// The selection can outlive its Steps (an undo, a YAML edit); only Steps that still exist are deleted.
+const selectedStepsExist = ({
+  selectedStepIndices,
+  selectionParent,
+}: Pick<Options, 'selectedStepIndices'> & {
+  selectionParent: SelectionParent;
+}) => {
+  const yml = getBitriseYml();
+  const steps =
+    selectionParent.type === 'stepBundle'
+      ? yml.step_bundles?.[selectionParent.id]?.steps
+      : yml.workflows?.[selectionParent.id]?.steps;
+  return Boolean(steps) && selectedStepIndices.every((index) => index >= 0 && index < (steps?.length ?? 0));
 };
 
 // Typing in a field (a Step input, a search, the YAML editor) keeps Backspace for the text.
@@ -49,7 +74,15 @@ export default function useDeleteSelectedStepsOnKey({
     ) {
       return;
     }
-    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) {
+    if (
+      event.defaultPrevented ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.altKey ||
+      isTypingTarget(event.target) ||
+      !isOnCanvas(event.target) ||
+      !selectedStepsExist({ selectedStepIndices, selectionParent })
+    ) {
       return;
     }
     event.preventDefault();

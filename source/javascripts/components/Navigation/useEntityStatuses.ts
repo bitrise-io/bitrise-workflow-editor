@@ -11,6 +11,16 @@ export type EntityRowStatus = {
   problem?: string;
 };
 
+// The config is only known to parse, not to have the right shape (it updates on every keystroke in the YAML
+// editor), so a status that can't be worked out is left off rather than breaking the sidebar.
+const safely = <T>(compute: () => T, fallback: T): T => {
+  try {
+    return compute();
+  } catch {
+    return fallback;
+  }
+};
+
 // Statuses for the CI blocks rows, from the config: active triggers and broken references.
 const useEntityStatuses = () => {
   const yml = useBitriseYmlStore((s) => s.yml);
@@ -21,19 +31,22 @@ const useEntityStatuses = () => {
     const isDefined = (kind: 'workflows' | 'stepBundles', id: string) =>
       Boolean((kind === 'workflows' ? yml.workflows : yml.step_bundles)?.[id]) ||
       EntityIndexService.definitionsOf(entityIndex, kind, id).length > 0;
-    const triggers = EntityStatus.activeTriggerTypes(yml.pipelines ?? {}, yml.workflows ?? {}, yml.trigger_map);
+    const triggers = safely(
+      () => EntityStatus.activeTriggerTypes(yml.pipelines ?? {}, yml.workflows ?? {}, yml.trigger_map),
+      {} as ReturnType<typeof EntityStatus.activeTriggerTypes>,
+    );
 
     return {
       pipeline: (id: string): EntityRowStatus => ({
         triggers: EntityStatus.triggerSummary(triggers[`pipelines#${id}`]),
-        problem: EntityStatus.pipelineProblem(yml.pipelines?.[id], isDefined),
+        problem: safely(() => EntityStatus.pipelineProblem(yml.pipelines?.[id], isDefined), undefined),
       }),
       workflow: (id: string): EntityRowStatus => ({
         triggers: EntityStatus.triggerSummary(triggers[`workflows#${id}`]),
-        problem: EntityStatus.workflowProblem(yml.workflows?.[id], isDefined),
+        problem: safely(() => EntityStatus.workflowProblem(yml.workflows?.[id], isDefined), undefined),
       }),
       stepBundle: (id: string): EntityRowStatus => ({
-        problem: EntityStatus.stepBundleProblem(yml.step_bundles?.[id], isDefined),
+        problem: safely(() => EntityStatus.stepBundleProblem(yml.step_bundles?.[id], isDefined), undefined),
       }),
     };
   }, [yml, entityIndex]);

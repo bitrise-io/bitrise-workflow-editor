@@ -8,6 +8,9 @@ import FloatingDrawer, {
   FloatingDrawerHeader,
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import EntityIndexService from '@/core/services/EntityIndexService';
+import { bitriseYmlStore, BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSearchParams from '@/hooks/useSearchParams';
 import datadogCustomRumTiming from '@/utils/datadogCustomRumTiming';
 
@@ -105,7 +108,28 @@ const WorkflowConfigDrawerContent = ({
   );
 };
 
+// Defined in the open file or, in a modular config, in any other file.
+const isDefinedIn = ({ yml, entityIndex }: Pick<BitriseYmlStoreState, 'yml' | 'entityIndex'>, workflowId: string) =>
+  Boolean(yml.workflows?.[workflowId]) ||
+  EntityIndexService.definitionsOf(entityIndex, 'workflows', workflowId).length > 0;
+
+export const isWorkflowDefined = (workflowId: string) => isDefinedIn(bitriseYmlStore.getState(), workflowId);
+
 const WorkflowConfigDrawer = ({ workflowId, ...props }: Props) => {
+  // A Workflow that's gone (deleted from this drawer) or never existed has no settings to show: the drawer
+  // closes instead of rendering them.
+  const isDefined = useBitriseYmlStore((s) => isDefinedIn(s, workflowId));
+  const { onCloseComplete } = props;
+  useEffect(() => {
+    if (!isDefined) {
+      onCloseComplete?.();
+    }
+  }, [isDefined, onCloseComplete]);
+
+  if (!isDefined) {
+    return null;
+  }
+
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
       <WorkflowConfigDrawerContent {...props} />

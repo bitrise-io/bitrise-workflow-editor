@@ -45,7 +45,12 @@ const WorkflowsPage = () => {
   // have shown them.
   useEffect(() => {
     if (selectedWorkflowId) {
-      openDialog({ type: WorkflowsPageDialogType.WORKFLOW_CONFIG, workflowId: selectedWorkflowId })();
+      // A Step selected in the previous Workflow doesn't carry over (Backspace would delete it out of sight).
+      openDialog({
+        type: WorkflowsPageDialogType.WORKFLOW_CONFIG,
+        workflowId: selectedWorkflowId,
+        selectedStepIndices: [],
+      })();
     } else {
       closeDialog();
     }
