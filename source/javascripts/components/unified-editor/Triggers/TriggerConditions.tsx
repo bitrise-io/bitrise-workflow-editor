@@ -1,4 +1,3 @@
-import { Tooltip } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
   BitkitTag,
@@ -13,6 +12,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import { TargetBasedCondition, TargetBasedConditionType, TriggerType } from '@/core/models/Trigger';
 import { LegacyCondition, LegacyConditionType } from '@/core/models/Trigger.legacy';
 
@@ -65,14 +65,14 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
       {(!conditions || conditions.length === 0) && <BitkitTag labelText="No conditions." size="sm" />}
       {conditions.map(({ type, value }, index) => (
         <Fragment key={type + value}>
-          <Tooltip label={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]}>
+          <LabelTooltip text={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]}>
             <BitkitTag
               icon={ICON_MAP[type]}
               labelText={value}
               size="sm"
               state={triggerDisabled ? 'disabled' : undefined}
             />
-          </Tooltip>
+          </LabelTooltip>
           {conditions.length - 1 > index && (
             <Text as="span" textStyle="body/md/regular" color="text/secondary">
               and

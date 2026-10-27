@@ -2,7 +2,7 @@ import { CardProps } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
 import { NodeProps, useReactFlow } from '@xyflow/react';
 import { isEqual } from 'es-toolkit';
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useHover, useResizeObserver } from 'usehooks-ts';
 
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
@@ -19,6 +19,7 @@ import usePipelineSelector from '../../../../hooks/usePipelineSelector';
 import { PipelinesPageDialogType, usePipelinesPageStore } from '../../../../PipelinesPage.store';
 import { WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import { GraphPipelineEdgeType, GraphPipelineNodeType } from '../GraphPipelineCanvas.types';
+import { useAutoExpandedNode } from '../utils/autoExpandedNode';
 import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
@@ -89,12 +90,33 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   const closeDialog = usePipelinesPageStore((s) => s.closeDialog);
   const selectedStepIndices = usePipelinesPageStore((s) => s.selectedStepIndices);
   const selectionParent = usePipelinesPageStore((s) => s.selectionParent);
+  const isAddingStep = usePipelinesPageStore((s) => s.openedDialogType === PipelinesPageDialogType.STEP_SELECTOR);
   const setSelectedStepIndices = usePipelinesPageStore((s) => s.setSelectedStepIndices);
   const selectedWorkflowId = usePipelinesPageStore((s) => s.workflowId);
 
   const { updateNode, deleteElements, setEdges } = useReactFlow<GraphPipelineNodeType, GraphPipelineEdgeType>();
 
   useResizeObserver({ ref, onResize: ({ height }) => updateNode(id, { height }) });
+
+  const [isOpenedByUser, setIsOpenedByUser] = useState(false);
+  const isAutoExpanded = useAutoExpandedNode((s) => s.nodeId === id);
+  const handleExpandedChange = useCallback(
+    (isExpanded: boolean) => {
+      setIsOpenedByUser(isExpanded);
+      if (!isExpanded && useAutoExpandedNode.getState().nodeId === id) {
+        useAutoExpandedNode.setState({ nodeId: undefined });
+      }
+    },
+    [id],
+  );
+  // The canvas opens a clicked node only while its own drawer is open. Picking or adding a Step swaps that
+  // drawer for the Step's, so the node keeps itself open from then on, as if the user had opened it, and the
+  // Step stays in sight.
+  const keepOpen = useCallback(() => {
+    if (useAutoExpandedNode.getState().nodeId === id) {
+      setIsOpenedByUser(true);
+    }
+  }, [id]);
 
   const uses = 'uses' in data ? data.uses : undefined;
   const parallel = 'parallel' in data ? data.parallel : undefined;
@@ -218,7 +240,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     }
 
     return {
-      handleAddStep: (workflowId: string, stepIndex: number) =>
+      handleAddStep: (workflowId: string, stepIndex: number) => {
+        keepOpen();
         openDialog({
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
@@ -228,7 +251,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             id: workflowId || '',
             type: 'workflow',
           },
-        })(),
+        })();
+      },
       handleSelectStep: ({
         stepIndex,
         type,
@@ -242,6 +266,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         wfId?: string;
         isMultiple?: boolean;
       }) => {
+        keepOpen();
         const newSelectionParent: SelectionParent = {
           id: stepBundleId || wfId || '',
           type: stepBundleId ? 'stepBundle' : 'workflow',
@@ -318,7 +343,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
           cvs,
         });
       },
-      handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) =>
+      handleAddStepToStepBundle: (stepBundleId: string, stepIndex: number) => {
+        keepOpen();
         openDialog({
           type: PipelinesPageDialogType.STEP_SELECTOR,
           pipelineId: selectedPipeline,
@@ -328,7 +354,8 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
             id: stepBundleId || '',
             type: 'stepBundle',
           },
-        })(),
+        })();
+      },
       handleCloneStepInStepBundle: (stepBundleId: string, stepIndex: number) => {
         StepService.cloneStep('step_bundles', stepBundleId, stepIndex);
         handleStepActionChange({
@@ -429,6 +456,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     deleteElements,
     openDialog,
     selectedPipeline,
+    keepOpen,
   ]);
 
   const containerProps = useMemo(
@@ -455,7 +483,17 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
   }, [id, highlighted, setEdges]);
 
   return (
-    <Box ref={ref} display="flex" zIndex={zIndex} alignItems="stretch" width={WORKFLOW_NODE_WIDTH} className="nopan">
+    <Box
+      ref={ref}
+      display="flex"
+      zIndex={zIndex}
+      alignItems="stretch"
+      width={WORKFLOW_NODE_WIDTH}
+      className="nopan"
+      data-tour="workflow-node"
+      // Marks an open Workflow, which the first-run tour points at.
+      data-open={isOpenedByUser || isAutoExpanded || undefined}
+    >
       <LeftHandle />
       <WorkflowCard
         id={id}
@@ -463,8 +501,13 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
         uses={uses}
         parallel={parallel}
         containerProps={containerProps}
+        isExpanded={isOpenedByUser || isAutoExpanded}
+        // An open Workflow in focus keeps its header actions on screen, not only on hover.
+        areActionsVisible={selected && (isOpenedByUser || isAutoExpanded)}
+        onExpandedChange={handleExpandedChange}
         selectedStepIndices={selectedStepIndices}
         selectionParent={selectionParent}
+        isAddingStep={isAddingStep}
         onAddStep={handleAddStep}
         onMoveStep={handleMoveStep}
         onCloneStep={handleCloneStep}

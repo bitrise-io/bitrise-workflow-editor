@@ -1,4 +1,4 @@
-import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Tooltip } from '@bitrise/bitkit';
+import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitIconComponent,
@@ -11,6 +11,7 @@ import {
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
 
@@ -42,9 +43,9 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
 };
 
 const PreviousStackVersionTip = () => (
-  <Tooltip label="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
+  <LabelTooltip text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
     <IconQuestionCircle size="16" color="icon/tertiary" />
-  </Tooltip>
+  </LabelTooltip>
 );
 
 const getIcon = (osId?: string): BitkitIconComponent => {
@@ -103,6 +104,7 @@ const StackSelector = ({
   return (
     <Box {...boxProps} flex="1">
       <Dropdown
+        size="md"
         required
         search={false}
         label="Stack"
@@ -122,9 +124,9 @@ const StackSelector = ({
             </DropdownGroup>
           ))}
       </Dropdown>
-      <Tooltip
-        label="Stack rollback is not available when your workspace is configured to use external hosts only."
-        isDisabled={!disableRollbackOption}
+      <LabelTooltip
+        text="Stack rollback is not available when your workspace is configured to use external hosts only."
+        disabled={!disableRollbackOption}
       >
         <Box display="inline-block" marginBlockStart="16">
           <Checkbox
@@ -135,7 +137,7 @@ const StackSelector = ({
             Use previous stack version <PreviousStackVersionTip />
           </Checkbox>
         </Box>
-      </Tooltip>
+      </LabelTooltip>
     </Box>
   );
 };

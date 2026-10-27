@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { markFloatingDrawerSwitch } from '@/components/unified-editor/FloatingDrawer/drawerSwitch';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 export enum WorkflowsPageDialogType {
@@ -23,6 +24,8 @@ type State = {
   openedDialogType: WorkflowsPageDialogType;
   mountedDialogType: WorkflowsPageDialogType;
   _nextDialog?: DialogParams;
+  // Between one dialog closing and the one replacing it opening (a frame).
+  isSwitchingDialog: boolean;
   selectionParent?: SelectionParent;
 };
 
@@ -56,6 +59,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
   parentStepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
+  isSwitchingDialog: false,
   openedDialogType: WorkflowsPageDialogType.NONE,
   mountedDialogType: WorkflowsPageDialogType.NONE,
   selectionParent: undefined,
@@ -99,24 +103,30 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
       return set((state) => {
         const {
           openedDialogType,
-          closeDialog,
           selectionParent: stateSelectionParent,
           selectedStepIndices: stateSelectedStepIndices,
         } = state;
         if (openedDialogType !== WorkflowsPageDialogType.NONE) {
-          closeDialog();
+          // Replacing an open dialog: swap it in place on the next frame rather than sliding
+          // this one out and the next one in.
+          const next = {
+            type,
+            selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
+            stepBundleId,
+            newStepBundleId,
+            parentStepBundleId,
+            workflowId,
+            parentWorkflowId,
+            selectionParent: selectionParent || stateSelectionParent,
+          };
+          markFloatingDrawerSwitch();
+          requestAnimationFrame(() => get().openDialog(next)());
 
           return {
-            _nextDialog: {
-              type,
-              selectedStepIndices: selectedStepIndices || stateSelectedStepIndices,
-              stepBundleId,
-              newStepBundleId,
-              parentStepBundleId,
-              workflowId,
-              parentWorkflowId,
-              selectionParent: selectionParent || stateSelectionParent,
-            },
+            _nextDialog: undefined,
+            openedDialogType: WorkflowsPageDialogType.NONE,
+            mountedDialogType: WorkflowsPageDialogType.NONE,
+            isSwitchingDialog: true,
           };
         }
 
@@ -128,6 +138,7 @@ export const useWorkflowsPageStore = create<State & Action>((set, get) => ({
           workflowId,
           parentWorkflowId,
           _nextDialog: undefined,
+          isSwitchingDialog: false,
           openedDialogType: type,
           mountedDialogType: type,
           selectionParent: selectionParent || stateSelectionParent,

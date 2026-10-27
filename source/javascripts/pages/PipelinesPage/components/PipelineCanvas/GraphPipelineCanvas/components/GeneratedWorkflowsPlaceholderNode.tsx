@@ -1,8 +1,9 @@
-import { Tooltip } from '@bitrise/bitkit';
 import { rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { NodeProps } from '@xyflow/react';
+
+import LabelTooltip from '@/components/LabelTooltip';
 
 import { WORKFLOW_NODE_HEIGHT, WORKFLOW_NODE_WIDTH } from '../GraphPipelineCanvas.const';
 import { LeftHandle } from './Handles';
@@ -13,7 +14,7 @@ const GeneratedWorkflowsPlaceholderNode = ({ zIndex }: NodeProps) => {
   return (
     <Box display="flex" alignItems="stretch" height={WORKFLOW_NODE_HEIGHT} width={WORKFLOW_NODE_WIDTH} zIndex={zIndex}>
       <LeftHandle />
-      <Tooltip label={TOOLTIP_LABEL}>
+      <LabelTooltip text={TOOLTIP_LABEL}>
         <Box
           flex="1"
           minWidth="0"
@@ -45,7 +46,7 @@ const GeneratedWorkflowsPlaceholderNode = ({ zIndex }: NodeProps) => {
             </Text>
           </Box>
         </Box>
-      </Tooltip>
+      </LabelTooltip>
       <Box width="16" />
     </Box>
   );

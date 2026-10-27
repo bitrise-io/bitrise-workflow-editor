@@ -1,7 +1,8 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { BitkitHeading } from '@bitrise/bitkit-v2';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
+
+import ToolPageHeading from '@/components/Navigation/ToolPageHeading';
 
 import ProjectTab from './tabs/ProjectTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
@@ -11,9 +12,15 @@ const useTabs = create(combine({ index: 0 }, (set) => ({ onChange: (index: numbe
 const EnvVarsPage = () => {
   return (
     <Tabs {...useTabs()} isLazy>
-      <BitkitHeading padding="32" data-clarity-unmask="true">
-        Environment Variables
-      </BitkitHeading>
+      <ToolPageHeading
+        label="Environment Variables"
+        helperText={
+          <>
+            Environment Variables are available to every Step of your builds. Set them for the whole project or for a
+            single Workflow.
+          </>
+        }
+      />
       <TabList px="16" data-clarity-unmask="true">
         <Tab>Project</Tab>
         <Tab>Workflows</Tab>

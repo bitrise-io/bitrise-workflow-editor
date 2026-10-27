@@ -44,6 +44,11 @@ if (RuntimeUtils.isProduction() && RuntimeUtils.isLocalMode()) {
   });
 }
 
+if (import.meta.env.VITE_PLAYGROUND === 'true') {
+  const { default: startPlaygroundMocks } = await import('@/playground/startPlaygroundMocks');
+  await startPlaygroundMocks();
+}
+
 const OriginalResizeObserver = window.ResizeObserver;
 window.ResizeObserver = class extends OriginalResizeObserver {
   constructor(callback: ResizeObserverCallback) {

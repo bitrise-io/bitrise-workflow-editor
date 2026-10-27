@@ -88,6 +88,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
       </Box>
       <Box display="flex" gap="8" width="100%">
         <Input
+          size="md"
           flex="1"
           label="Summary"
           isDisabled={isReadOnlyView}

@@ -91,6 +91,7 @@ const SwitchBranchDialog = ({ isOpen, onClose }: Props) => {
     >
       <Text>Load configuration from selected branch.</Text>
       <BitkitSelect
+        size="md"
         label="Branch"
         placeholder="Select branch"
         items={filteredBranches || []}
