@@ -44,6 +44,16 @@ const WorkflowsPage = () => {
   // The Workflow's settings live in a drawer now, so opening a Workflow opens it, as a panel would
   // have shown them.
   useEffect(() => {
+    const { openedDialogType, workflowId, parentWorkflowId } = useWorkflowsPageStore.getState();
+    // A create dialog opened on the way here (from the sidebar) stays; so does a drawer already showing this Workflow.
+    if (
+      openedDialogType === WorkflowsPageDialogType.CREATE_WORKFLOW ||
+      (openedDialogType === WorkflowsPageDialogType.WORKFLOW_CONFIG &&
+        workflowId === selectedWorkflowId &&
+        !parentWorkflowId)
+    ) {
+      return;
+    }
     if (selectedWorkflowId) {
       // A Step selected in the previous Workflow doesn't carry over (Backspace would delete it out of sight).
       openDialog({

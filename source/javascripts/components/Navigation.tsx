@@ -35,6 +35,9 @@ import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams, { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
 import { useTree } from '@/hooks/useTree';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import { paths } from '@/routes';
 
 type Props = Omit<BitkitPageSidebarProps, 'children'>;
@@ -252,10 +255,26 @@ const Navigation = (props: Props) => {
     if (previousNodeIdRef.current === selectedNodeId) {
       return;
     }
+    const previousNodeId = previousNodeIdRef.current;
     previousNodeIdRef.current = selectedNodeId;
-    const page = currentPage ?? '';
+    // A modular config picking its first file on load isn't a switch: a link to any page keeps it.
+    if (previousNodeId === undefined) {
+      return;
+    }
+    // The page the click went to: a tab's remembered page or a jump's target is already in the hash, while the
+    // page state only follows on the next hashchange.
+    const page = window.parent.location.hash.split('?')[0].split('/').pop() ?? '';
     const isBlockPage = BUILDING_BLOCK_PAGES.includes(page);
-    if (page !== 'yml' && (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))) {
+    // Creating the first of a kind in the new file (the sidebar's "Add a … to …") lands on that kind's page.
+    const isCreating =
+      usePipelinesPageStore.getState().openedDialogType === PipelinesPageDialogType.CREATE_PIPELINE ||
+      useWorkflowsPageStore.getState().openedDialogType === WorkflowsPageDialogType.CREATE_WORKFLOW ||
+      useStepBundlesPageStore.getState().openedDialogType === StepBundlesPageDialogType.CREATE_STEP_BUNDLE;
+    if (
+      page !== 'yml' &&
+      !isCreating &&
+      (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))
+    ) {
       openBuildingBlock();
     }
     // Reacts to the file switch only; the rest is read fresh when it happens.

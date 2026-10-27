@@ -158,15 +158,16 @@ const GraphPipelineCanvas = (props: ReactFlowProps) => {
       if (!isWorkflowNode(node) || isOnControl || focusedNodeId === node.id) {
         return;
       }
-      // A `uses:` entry is the Pipeline's own name for another Workflow, and an entry may point at a Workflow
-      // that isn't defined: neither has settings of its own to open.
-      if (('uses' in node.data && node.data.uses) || !isWorkflowDefined(node.id)) {
+      // A `uses:` entry is the Pipeline's own name for another Workflow: its settings are that Workflow's. An
+      // entry may also point at a Workflow that isn't defined, which has no settings to open.
+      const workflowId = ('uses' in node.data && node.data.uses) || node.id;
+      if (!isWorkflowDefined(workflowId)) {
         return;
       }
       openDialog({
         type: PipelinesPageDialogType.WORKFLOW_CONFIG,
         pipelineId: selectedPipeline,
-        workflowId: node.id,
+        workflowId,
       })();
     },
     [focusedNodeId, openDialog, selectedPipeline],
