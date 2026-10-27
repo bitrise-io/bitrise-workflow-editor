@@ -1,6 +1,6 @@
-import { Text } from '@bitrise/bitkit';
 import { IconPlus } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { NodeProps } from '@xyflow/react';
 import { useMemo } from 'react';
 

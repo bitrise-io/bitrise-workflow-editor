@@ -1,5 +1,5 @@
-import { Text } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import { Container, ContainerType } from '@/core/models/Container';
 import { useEntitiesGroupedByFile, useIsMergedConfigSelected } from '@/hooks/useTree';

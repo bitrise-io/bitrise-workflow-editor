@@ -1,6 +1,7 @@
-import { Checkbox, Input, Text } from '@bitrise/bitkit';
+import { Checkbox, Input } from '@bitrise/bitkit';
 import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode, useState } from 'react';
@@ -102,7 +103,7 @@ const SortableEnvVarItem = ({
             errorText={errors.key !== true ? errors.key : undefined}
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           />
-          <Text color="text/tertiary" pt="8">
+          <Text color="text/tertiary" paddingBlockStart="8">
             =
           </Text>
           <AutoGrowableInput

@@ -1,4 +1,4 @@
-import { Icon } from '@bitrise/bitkit';
+import { IconPlus } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { memo } from 'react';
 
@@ -49,7 +49,7 @@ const AddStepButton = ({ onClick, isActive, ...props }: Props) => {
             display: 'flex',
           }}
         >
-          <Icon name="Plus" size="16" />
+          <IconPlus size="16" />
         </Box>
       </LabelTooltip>
     </Box>

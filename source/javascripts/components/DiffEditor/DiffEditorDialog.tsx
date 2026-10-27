@@ -1,6 +1,8 @@
-import { ButtonGroup, Dialog, DialogBody, DialogFooter, DialogProps, Icon, Text, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Tooltip } from '@bitrise/bitkit';
+import { BitkitAlert, BitkitButton, IconCross } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { ButtonGroup } from '@chakra-ui/react/button';
+import { Text } from '@chakra-ui/react/text';
 import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -111,7 +113,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
         <YmlValidationBadge status={ymlStatus} />
       </ModalHeader>
       <ModalCloseButton size="large">
-        <Icon name="Cross" />
+        <IconCross />
       </ModalCloseButton>
       <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
         <BitkitAlert
@@ -137,7 +139,7 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
         </Box>
       </DialogBody>
       <DialogFooter>
-        <ButtonGroup spacing="16">
+        <ButtonGroup gap="16">
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>

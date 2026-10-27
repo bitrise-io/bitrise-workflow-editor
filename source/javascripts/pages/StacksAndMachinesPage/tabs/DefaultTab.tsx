@@ -1,4 +1,4 @@
-import { Text } from '@bitrise/bitkit';
+import { Text } from '@chakra-ui/react/text';
 
 import JumpToFileButton from '@/components/JumpToDefinitionLink/JumpToFileButton';
 import DefaultStackAndMachine from '@/components/StacksAndMachine/DefaultStackAndMachine';

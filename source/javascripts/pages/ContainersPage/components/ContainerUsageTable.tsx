@@ -1,5 +1,6 @@
-import { Table, Tbody, Td, Text, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import { useContainerUsageByWorkflow } from '@/hooks/useContainerWorkflowUsage';

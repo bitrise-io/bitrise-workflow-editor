@@ -1,7 +1,9 @@
-import { Input, InputProps } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitLink, BitkitNumberInput, BitkitNumberInputProps } from '@bitrise/bitkit-v2';
 
-export type PriorityInputProps = Omit<InputProps, 'onChange' | 'value'> & {
+export type PriorityInputProps = Omit<
+  BitkitNumberInputProps,
+  'defaultValue' | 'helperText' | 'inputProps' | 'label' | 'onChange' | 'onValueChange' | 'optional' | 'value'
+> & {
   onChange: (newValue?: number) => void;
   value?: number;
   helperText: string;
@@ -10,9 +12,8 @@ export type PriorityInputProps = Omit<InputProps, 'onChange' | 'value'> & {
 const PriorityInput = (props: PriorityInputProps) => {
   const { onChange, value, helperText, ...rest } = props;
   return (
-    <Input
+    <BitkitNumberInput
       size="md"
-      type="number"
       helperText={
         <>
           {helperText}{' '}
@@ -25,18 +26,17 @@ const PriorityInput = (props: PriorityInputProps) => {
           </BitkitLink>
         </>
       }
-      min="-100"
-      max="100"
+      inputProps={{ min: -100, max: 100, allowOverflow: false }}
       label="Priority"
-      onChange={(e) => {
-        const parsedValue = parseInt(e.target.value, 10);
+      onValueChange={(newValue) => {
+        const parsedValue = parseInt(newValue, 10);
         if (parsedValue >= -100 && parsedValue <= 100) {
           onChange(parsedValue);
-        } else if (e.target.value === '') {
+        } else if (newValue === '') {
           onChange(undefined);
         }
       }}
-      inputMode="numeric"
+      optional
       value={value?.toString() || ''}
       {...rest}
     />

@@ -1,4 +1,4 @@
-import { Text } from '@bitrise/bitkit';
+import { Text } from '@chakra-ui/react/text';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import { useOtherDefiningModules } from '@/hooks/useTree';
@@ -19,7 +19,7 @@ const ContainerDefinitions = ({ id }: Props) => {
   }
 
   return (
-    <Text textStyle="body/sm/regular" color="text/secondary" mt="4">
+    <Text textStyle="body/sm/regular" color="text/secondary" marginBlockStart="4">
       <EntityModuleProvenance kind="containers" id={id} />
     </Text>
   );

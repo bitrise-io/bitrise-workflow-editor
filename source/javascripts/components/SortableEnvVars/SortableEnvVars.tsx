@@ -1,6 +1,6 @@
-import { Text } from '@bitrise/bitkit';
 import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';

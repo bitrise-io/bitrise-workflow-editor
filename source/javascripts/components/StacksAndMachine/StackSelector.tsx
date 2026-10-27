@@ -1,6 +1,15 @@
-import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Icon, Text } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitIconComponent, BitkitLink, IconStack, IconUbuntu, IconXcode } from '@bitrise/bitkit-v2';
+import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup } from '@bitrise/bitkit';
+import {
+  BitkitAvatar,
+  BitkitIconComponent,
+  BitkitLink,
+  IconQuestionCircle,
+  IconStack,
+  IconUbuntu,
+  IconXcode,
+} from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import LabelTooltip from '@/components/LabelTooltip';
 import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
@@ -35,7 +44,7 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
 
 const PreviousStackVersionTip = () => (
   <LabelTooltip text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
-    <Icon size="16" name="QuestionCircle" color="icon/tertiary" />
+    <IconQuestionCircle size="16" color="icon/tertiary" />
   </LabelTooltip>
 );
 

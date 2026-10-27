@@ -29,8 +29,32 @@ type Story = StoryObj<typeof WorkflowEditor>;
 
 type PlaygroundParent = Window & { playground?: typeof sampleBridge };
 
+// main.tsx delays every ResizeObserver callback by a frame, so the editor's layout changes during a resize don't
+// end in the browser's "ResizeObserver loop completed with undelivered notifications" error. These stories
+// render the editor without main.tsx, so they install the same wrapper, once.
+const DELAYED_RESIZE_OBSERVER = Symbol.for('playground.delayedResizeObserver');
+if (!(window as unknown as Record<symbol, boolean>)[DELAYED_RESIZE_OBSERVER]) {
+  (window as unknown as Record<symbol, boolean>)[DELAYED_RESIZE_OBSERVER] = true;
+  const OriginalResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = class extends OriginalResizeObserver {
+    constructor(callback: ResizeObserverCallback) {
+      super((entries, observer) => window.requestAnimationFrame(() => callback(entries, observer)));
+    }
+  };
+}
+
+// Storybook's preview runtime turns HTMLElement.prototype.focus into a getter/setter. Ark's focus tracker
+// (Bitkit v2) then redefines it as a value without `writable`, which leaves it read-only, and Chakra v2's
+// tracker (Bitkit v1 Checkbox, e.g. in a Workflow's drawer) throws when it assigns it. Outside Storybook neither
+// happens. Pinning it back to a plain writable value keeps it writable through Ark's redefinition.
+const pinWritableFocus = () => {
+  const { focus } = HTMLElement.prototype;
+  Object.defineProperty(HTMLElement.prototype, 'focus', { configurable: true, writable: true, value: focus });
+};
+
 const onProject = (slug: SampleProjectSlug): Story => ({
   beforeEach: ({ msw }) => {
+    pinWritableFocus();
     const project = SAMPLE_PROJECTS[slug];
     msw.use(...playgroundHandlers);
     (window.parent as PlaygroundParent).playground = sampleBridge;

@@ -1,5 +1,6 @@
-import { ButtonGroup, Tooltip } from '@bitrise/bitkit';
+import { Tooltip } from '@bitrise/bitkit';
 import { BitkitButton } from '@bitrise/bitkit-v2';
+import { ButtonGroup } from '@chakra-ui/react/button';
 import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
@@ -41,7 +42,7 @@ const TriggerFormFooter = (props: Props) => {
   };
 
   return (
-    <ButtonGroup spacing="16">
+    <ButtonGroup gap="16">
       <BitkitButton variant="secondary" onClick={handleCancel}>
         Cancel
       </BitkitButton>

@@ -1,6 +1,7 @@
-import { Card, Dialog, DialogBody, DialogFooter, Text } from '@bitrise/bitkit';
+import { Card, Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitButton, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useCallback, useEffect, useState } from 'react';
 
 import ToolPageHeading from '@/components/Navigation/ToolPageHeading';

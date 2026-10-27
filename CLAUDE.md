@@ -24,7 +24,7 @@ npm run build            # Vite production build
 npm run lint             # ESLint (cached)
 npx tsc --noEmit         # The only type check. Not a script, not in CI
 npm test                 # Jest
-npm test -- --testPathPattern="path/to/file"
+npm test -- --testPathPatterns="path/to/file"
 npm run test:smoke       # Playwright, post-deploy only (needs SMOKE_TEST_* env vars)
 npm run storybook        # Storybook on 6006
 go vet ./... && go test ./...

@@ -1,7 +1,15 @@
-import { Card, CardProps, Collapse, Dot, Icon, Text } from '@bitrise/bitkit';
-import { BitkitControlButton, IconChevronDown, IconChevronUp, IconSettings } from '@bitrise/bitkit-v2';
+import { Card, CardProps, Collapse } from '@bitrise/bitkit';
+import {
+  BitkitControlButton,
+  BitkitList,
+  IconChevronDown,
+  IconChevronUp,
+  IconContainer,
+  IconSettings,
+} from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
@@ -232,23 +240,26 @@ const StepBundleCard = (props: StepBundleCardProps) => {
                 />
               )}
               <Box flex="1" minWidth="0">
-                <Text textStyle="body/md/semibold" hasEllipsis>
+                <Text textStyle="body/md/semibold" truncate maxWidth="full">
                   {title}
                 </Text>
-                <Box display="flex" alignItems="center" gap="4">
-                  <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                    {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
-                  </Text>
+                <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
+                  <BitkitList.Item>
+                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                      {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
+                    </Text>
+                  </BitkitList.Item>
                   {referenceIds.length > 0 && (
-                    <>
-                      <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
-                      <Icon name="Container" size="16" color="icon/tertiary" />
-                      <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                        {referenceIds}
-                      </Text>
-                    </>
+                    <BitkitList.Item>
+                      <Box display="flex" alignItems="center" gap="4">
+                        <IconContainer size="16" color="icon/tertiary" />
+                        <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                          {referenceIds}
+                        </Text>
+                      </Box>
+                    </BitkitList.Item>
                   )}
-                </Box>
+                </BitkitList>
               </Box>
               {showJumpButton && (
                 <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
