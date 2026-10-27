@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse, Text } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -7,8 +7,10 @@ import {
   IconSettings,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { Badge } from '@chakra-ui/react/badge';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
@@ -49,7 +51,7 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
 
   if (!shouldDisplayAsParallelWorkflow) {
     return (
-      <Text textStyle="body/md/semibold" hasEllipsis>
+      <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
     );
@@ -65,13 +67,16 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
 
   return (
     <Box display="flex" minWidth="0" maxWidth="100%" gap="4" alignItems="center">
-      <Text textStyle="body/md/semibold" hasEllipsis>
+      <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
       <LabelTooltip wrapTrigger text={tooltipLabel}>
-        <Text color="text/secondary" textStyle="comp/badge/sm" bg="sys/neutral/subtle" px="4" borderRadius="4">
+        {/* Not BitkitBadge: even its xs size makes the card header taller. The overrides shrink the
+            Bitkit badge recipe to fit the title line, and display="flex" stops it sinking to the
+            bottom of the line inside the Tooltip's wrapper span. */}
+        <Badge display="flex" minWidth="0" paddingBlock="0" paddingInline="4">
           {badgeContent}
-        </Text>
+        </Badge>
       </LabelTooltip>
     </Box>
   );
@@ -173,7 +178,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           minWidth="0"
         >
           <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
-          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+          <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
             {subtitle}
           </Text>
         </Box>

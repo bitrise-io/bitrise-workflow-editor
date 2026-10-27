@@ -1,5 +1,13 @@
 /* eslint-disable react-hooks/immutability */
-import { OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
+import {
+  BitkitActionMenu,
+  BitkitControlButton,
+  IconBlockCircle,
+  IconMoreVertical,
+  IconPencil,
+  IconPlay,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { Box } from 'chakra-ui-2--react';
 
 import { TargetBasedTrigger } from '@/core/models/Trigger';
@@ -36,23 +44,23 @@ const TargetBasedTriggerItem = (props: Props) => {
       />
       {/* The menu only holds mutating actions, so it's hidden entirely in read-only/ghost views. */}
       {!isReadOnly && (
-        <OverflowMenu>
-          <OverflowMenuItem leftIconName="Pencil" onClick={() => onEditTrigger(trigger)}>
+        <BitkitActionMenu trigger={<BitkitControlButton icon={IconMoreVertical} label="Open menu" />}>
+          <BitkitActionMenu.Item icon={IconPencil} onClick={() => onEditTrigger(trigger)}>
             Edit trigger
-          </OverflowMenuItem>
-          <OverflowMenuItem
-            leftIconName={triggerDisabled ? 'Play' : 'BlockCircle'}
+          </BitkitActionMenu.Item>
+          <BitkitActionMenu.Item
+            icon={triggerDisabled ? IconPlay : IconBlockCircle}
             onClick={() => {
               trigger.isActive = !trigger.isActive;
               onUpdateEnabled(trigger);
             }}
           >
             {triggerDisabled ? 'Enable trigger' : 'Disable trigger'}
-          </OverflowMenuItem>
-          <OverflowMenuItem isDanger leftIconName="Trash" onClick={() => onDeleteTrigger(trigger)}>
+          </BitkitActionMenu.Item>
+          <BitkitActionMenu.Item isDanger icon={IconTrash} onClick={() => onDeleteTrigger(trigger)}>
             Delete trigger
-          </OverflowMenuItem>
-        </OverflowMenu>
+          </BitkitActionMenu.Item>
+        </BitkitActionMenu>
       )}
     </Box>
   );

@@ -1,6 +1,6 @@
-import { Text } from '@bitrise/bitkit';
-import { BitkitEmptyState, IconWorkflow } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, BitkitHeading, IconWorkflow } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import WorkflowStackAndMachine from '@/components/StacksAndMachine/WorkflowStackAndMachine';
@@ -22,9 +22,7 @@ const WorkflowStackGroup = ({ workflowId, showDefinition }: GroupProps) => {
   return (
     <Box>
       <Box marginBlockEnd="12">
-        <Text as="h4" textStyle="heading/h4">
-          {workflowId}
-        </Text>
+        <BitkitHeading as="h4">{workflowId}</BitkitHeading>
         {showJump && (
           <Text textStyle="body/sm/regular" color="text/secondary">
             Defined in {definingPath}

@@ -12,23 +12,17 @@ import path from 'node:path';
 import {
   Breadcrumb,
   BreadcrumbLink,
-  Button,
   Card,
   Dialog,
   DialogFooter,
   List,
   ListItem,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Provider,
   Sidebar,
   Tab,
   Table,
   TabList,
   Tabs,
-  Text,
   Th,
   Thead,
   Tr,
@@ -39,12 +33,14 @@ import {
   BitkitBreadcrumb,
   BitkitButton,
   BitkitEmptyState,
+  BitkitHeading,
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
@@ -146,14 +142,6 @@ describe('Clarity unmasking', () => {
               <Tab>tab label</Tab>
             </TabList>
           </Tabs>
-          <Menu isOpen>
-            <MenuButton as={Button} data-clarity-unmask="true">
-              menu button
-            </MenuButton>
-            <MenuList data-clarity-unmask="true">
-              <MenuItem>menu item</MenuItem>
-            </MenuList>
-          </Menu>
           {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
           <Dialog isOpen title="dialog title" onClose={() => {}}>
             <DialogFooter data-clarity-unmask="true">
@@ -163,9 +151,9 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(12);
+      expect(unmasked()).toHaveLength(10);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
+      ['column header', 'tab label', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -177,12 +165,16 @@ describe('Clarity unmasking', () => {
           <BitkitSegmentedControl value="a" data-clarity-unmask="true">
             <BitkitSegmentedControl.Item value="a">segment label</BitkitSegmentedControl.Item>
           </BitkitSegmentedControl>
-          {/* Portalled: the attribute has to sit on the item itself, since a tagged ancestor in the
-              main tree would not enclose the portalled node. */}
+          {/* Portalled: a tagged ancestor in the main tree would not enclose the portalled node, so the
+              attribute goes on the item itself, or on the menu, which forwards it to the portalled
+              role="menu" element around every item. */}
           <BitkitActionMenu open trigger={<button type="button">trigger</button>}>
             <BitkitActionMenu.Item value="x" data-clarity-unmask="true">
               action menu item
             </BitkitActionMenu.Item>
+          </BitkitActionMenu>
+          <BitkitActionMenu open data-clarity-unmask="true" trigger={<button type="button">other trigger</button>}>
+            <BitkitActionMenu.Item value="y">action menu root item</BitkitActionMenu.Item>
           </BitkitActionMenu>
           <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
           <BitkitEmptyState
@@ -192,6 +184,7 @@ describe('Clarity unmasking', () => {
             data-clarity-unmask="true"
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
+          <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
           {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
               their remaining props onto the link they render, so the attribute reaches the DOM. That
               forwarding is what this asserts — a release that stopped doing it would silently
@@ -207,14 +200,16 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(8);
+      expect(unmasked()).toHaveLength(10);
       [
         'alert message',
         'segment label',
         'action menu item',
+        'action menu root item',
         'bitkit button',
         'empty state',
         'ribbon message',
+        'heading',
         'breadcrumb item',
         'breadcrumb current item',
       ].forEach((label) => {

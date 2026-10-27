@@ -1,6 +1,7 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import { BitkitButton, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
+import { BitkitButton, BitkitHeading, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
+import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
@@ -68,9 +69,9 @@ const LegacyTriggers = () => {
 
   return (
     <>
-      <Text as="h3" textStyle="heading/h3" marginBottom="4" data-clarity-unmask="true">
+      <BitkitHeading as="h3" marginBlockEnd="4" data-clarity-unmask="true">
         Legacy triggers
-      </Text>
+      </BitkitHeading>
       <Text color="text/secondary" data-clarity-unmask="true">
         A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
         <BitkitLink

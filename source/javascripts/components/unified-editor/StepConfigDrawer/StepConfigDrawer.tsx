@@ -1,6 +1,7 @@
-import { Icon, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import { BitkitAvatar } from '@bitrise/bitkit-v2';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
+import { BitkitAvatar, BitkitHeading, BitkitLinkButton, IconWarningYellow } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -56,9 +57,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
 
               <Box flex="1" minWidth="0">
                 <Box display="flex" gap="4" alignItems="center">
-                  <Text as="h3" textStyle="heading/h3" hasEllipsis>
+                  <BitkitHeading as="h3" truncate maxWidth="full">
                     {data?.mergedValues?.title || 'Loading...'}
-                  </Text>
+                  </BitkitHeading>
                   <StepBadge
                     isOfficial={data?.resolvedInfo?.isOfficial}
                     isVerified={data?.resolvedInfo?.isVerified}
@@ -70,18 +71,17 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                   <Text display="flex">{data?.resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
                   {isUpgradable && (
                     <>
-                      <Icon size="16" marginInline="4" name="WarningYellow" />
-                      <Text
-                        cursor="pointer"
-                        textStyle="body/sm/regular"
+                      <IconWarningYellow size="16" marginInline="4" />
+                      <BitkitLinkButton
+                        size="sm"
                         onClick={() => {
                           const source = stepBundleId ? 'step_bundles' : 'workflows';
                           const sourceId = stepBundleId || workflowId;
                           StepService.changeStepVersion(source, sourceId, stepIndex, latestMajorVersion);
                         }}
                       >
-                        Latest version: {latestVersion}
-                      </Text>
+                        {`Latest version: ${latestVersion}`}
+                      </BitkitLinkButton>
                     </>
                   )}
                 </Box>

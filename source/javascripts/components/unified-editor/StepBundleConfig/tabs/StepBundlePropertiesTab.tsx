@@ -1,5 +1,5 @@
-import { IconButton, Input, Textarea } from '@bitrise/bitkit';
-import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
+import { Input, Textarea } from '@bitrise/bitkit';
+import { BitkitButton, BitkitIconButton, IconRefresh, IconTrash } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
@@ -75,10 +75,10 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           value={contextData.stepBundle?.mergedValues.title || ''}
         />
         {variant === 'drawer' && contextData.stepBundle?.userValues.title && (
-          <IconButton
-            aria-label="Reset to default"
-            iconName="Refresh"
-            isDisabled={isReadOnlyView}
+          <BitkitIconButton
+            label="Reset to default"
+            icon={IconRefresh}
+            state={isReadOnlyView ? 'disabled' : undefined}
             marginBlockStart="24"
             onClick={() => handleFieldChange('title', '')}
             size="md"
@@ -96,10 +96,10 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           onChange={(e) => handleFieldChange('summary', e.target.value)}
         />
         {variant === 'drawer' && contextData.stepBundle?.userValues.summary && (
-          <IconButton
-            aria-label="Reset to default"
-            iconName="Refresh"
-            isDisabled={isReadOnlyView}
+          <BitkitIconButton
+            label="Reset to default"
+            icon={IconRefresh}
+            state={isReadOnlyView ? 'disabled' : undefined}
             marginBlockStart="24"
             onClick={() => handleFieldChange('summary', '')}
             size="md"
@@ -116,10 +116,10 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           onChange={(e) => handleFieldChange('description', e.target.value)}
         />
         {variant === 'drawer' && contextData.stepBundle?.userValues.description && (
-          <IconButton
-            aria-label="Reset to default"
-            iconName="Refresh"
-            isDisabled={isReadOnlyView}
+          <BitkitIconButton
+            label="Reset to default"
+            icon={IconRefresh}
+            state={isReadOnlyView ? 'disabled' : undefined}
             marginBlockStart="24"
             onClick={() => handleFieldChange('description', '')}
             size="md"

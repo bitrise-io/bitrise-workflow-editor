@@ -1,4 +1,5 @@
-import { Text } from '@bitrise/bitkit';
+import { BitkitHeading } from '@bitrise/bitkit-v2';
+import { Text } from '@chakra-ui/react/text';
 import { ReactNode } from 'react';
 
 import StackAndMachine from '@/components/StacksAndMachine/StackAndMachine';
@@ -39,11 +40,11 @@ const DefaultStackAndMachine = ({ definingPath, selectsTrailing, readOnly, value
 
   return (
     <div>
-      <Text as="h4" textStyle="heading/h4" mb={definingPath ? '4' : '12'}>
+      <BitkitHeading as="h4" marginBlockEnd={definingPath ? '4' : '12'}>
         Default stack & machine
-      </Text>
+      </BitkitHeading>
       {definingPath && (
-        <Text textStyle="body/sm/regular" color="text/secondary" mb="12">
+        <Text textStyle="body/sm/regular" color="text/secondary" marginBlockEnd="12">
           Defined in {definingPath}
         </Text>
       )}

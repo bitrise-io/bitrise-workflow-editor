@@ -1,4 +1,3 @@
-import { Text } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
   BitkitTag,
@@ -10,6 +9,7 @@ import {
   IconTag,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 
 import LabelTooltip from '@/components/LabelTooltip';

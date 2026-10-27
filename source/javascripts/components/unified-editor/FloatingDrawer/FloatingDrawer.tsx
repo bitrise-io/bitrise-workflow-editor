@@ -1,4 +1,4 @@
-import { Icon } from '@bitrise/bitkit';
+import { IconCross } from '@bitrise/bitkit-v2';
 import {
   CloseButtonProps,
   Drawer,
@@ -97,7 +97,7 @@ const FloatingDrawerOverlay = (props: ModalOverlayProps) => {
 const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => {
   return (
     <DrawerCloseButton size="md" {...props}>
-      {children ?? <Icon name="Cross" />}
+      {children ?? <IconCross />}
     </DrawerCloseButton>
   );
 };

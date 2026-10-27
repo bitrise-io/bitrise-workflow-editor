@@ -1,5 +1,5 @@
-import { ButtonGroup } from '@bitrise/bitkit';
 import { BitkitButton, BitkitEmptyState, IconPlus, IconSparkleFilled, IconWorkflow } from '@bitrise/bitkit-v2';
+import { ButtonGroup } from '@chakra-ui/react/button';
 
 import LabelTooltip from '@/components/LabelTooltip';
 import useAIButton from '@/hooks/useAIButton';
@@ -31,7 +31,7 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
     >
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
       {!isReadOnlyView && (
-        <ButtonGroup spacing="0" gap="24">
+        <ButtonGroup gap="24">
           {isAIButtonVisible && (
             <LabelTooltip text={tooltipLabel ?? ''} disabled={!tooltipLabel}>
               <BitkitButton

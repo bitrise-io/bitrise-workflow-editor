@@ -1,6 +1,6 @@
-import { Text } from '@bitrise/bitkit';
 import { rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { NodeProps } from '@xyflow/react';
 
 import LabelTooltip from '@/components/LabelTooltip';
@@ -38,10 +38,10 @@ const GeneratedWorkflowsPlaceholderNode = ({ zIndex }: NodeProps) => {
             flex="1"
             minWidth="0"
           >
-            <Text textStyle="body/md/semibold" color="text/secondary" hasEllipsis>
+            <Text textStyle="body/md/semibold" color="text/secondary" truncate maxWidth="full">
               Dynamic workflows
             </Text>
-            <Text textStyle="body/sm/regular" color="text/tertiary" hasEllipsis>
+            <Text textStyle="body/sm/regular" color="text/tertiary" truncate maxWidth="full">
               Appended at runtime
             </Text>
           </Box>

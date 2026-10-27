@@ -1,6 +1,16 @@
-import { Card, CardProps, Dot, Icon, Text } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitColorButton, BitkitSkeletonGroup, rem } from '@bitrise/bitkit-v2';
+import { Card, CardProps } from '@bitrise/bitkit';
+import {
+  BitkitAvatar,
+  BitkitColorButton,
+  BitkitList,
+  BitkitSkeletonGroup,
+  IconContainer,
+  IconErrorCircleFilled,
+  IconWarningYellow,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
@@ -36,7 +46,7 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   if (errorText) {
     icon = (
       <LabelTooltip text={errorText} wrapTrigger wrapperProps={{ display: 'flex' }}>
-        <Icon ml="4" name="ErrorCircleFilled" size="16" color="icon/negative" />
+        <IconErrorCircleFilled marginInlineStart="4" size="16" color="icon/negative" />
       </LabelTooltip>
     );
   }
@@ -44,16 +54,18 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
   if (isUpgradable && !icon) {
     icon = (
       <LabelTooltip text="New version is available" wrapTrigger wrapperProps={{ display: 'flex' }}>
-        <Icon ml="4" name="WarningYellow" size="16" />
+        <IconWarningYellow marginInlineStart="4" size="16" />
       </LabelTooltip>
     );
   }
 
   return (
-    <Text hasEllipsis display="flex" textStyle="body/sm/regular" color="text/secondary">
-      {resolvedVersion || 'Always latest'}
+    <Box display="flex" alignItems="center" minWidth="0" maxWidth="full">
+      <Text as="span" textStyle="body/sm/regular" color="text/secondary" truncate minWidth="0">
+        {resolvedVersion || 'Always latest'}
+      </Text>
       {icon}
-    </Text>
+    </Box>
   );
 };
 
@@ -267,27 +279,30 @@ const StepCard = ({
                   <BitkitAvatar variant="image" src={icon} name={title} />
 
                   <Box minWidth="0" textAlign="left" flex="1">
-                    <Text textStyle="body/sm/regular" hasEllipsis>
+                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
                       {title}
                     </Text>
-                    <Box display="flex" alignItems="center" gap="4">
+                    <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
                       {showSecondary && (
-                        <StepSecondaryText
-                          isUpgradable={isUpgradable}
-                          errorText={error ? 'Failed to load Step' : undefined}
-                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                        />
+                        <BitkitList.Item>
+                          <StepSecondaryText
+                            isUpgradable={isUpgradable}
+                            errorText={error ? 'Failed to load Step' : undefined}
+                            resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                          />
+                        </BitkitList.Item>
                       )}
                       {referenceIds.length > 0 && (
-                        <>
-                          <Dot backgroundColor="icon/tertiary" size="4" mx="6"></Dot>
-                          <Icon name="Container" size="16" color="icon/tertiary" />
-                          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-                            {referenceIds}
-                          </Text>
-                        </>
+                        <BitkitList.Item>
+                          <Box display="flex" alignItems="center" gap="4">
+                            <IconContainer size="16" color="icon/tertiary" />
+                            <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                              {referenceIds}
+                            </Text>
+                          </Box>
+                        </BitkitList.Item>
                       )}
-                    </Box>
+                    </BitkitList>
                   </Box>
 
                   {buttonGroup}
@@ -309,7 +324,7 @@ const StepCard = ({
                     padding="16"
                     textStyle="body/md/regular"
                   >
-                    <Text paddingRight="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                    <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
                     <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
                       Got it
                     </BitkitColorButton>
