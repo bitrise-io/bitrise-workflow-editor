@@ -14,8 +14,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
 import LabelTooltip from '@/components/LabelTooltip';
+import { isToolPath, tabLocationFor, useLastBlock } from '@/components/Navigation/lastBlock';
 import TOOLS from '@/components/Navigation/tools';
-import { useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import {
   trackConfigMergePopupShown,
   trackPushConfigChangesPopupShown,
@@ -89,7 +89,8 @@ const Header = () => {
   // Remember the last visual page so switching back from YAML returns to it.
   const lastVisualPathnameRef = useRef<string>(paths.workflows);
   useEffect(() => {
-    if (!isYamlView) {
+    // A tool panel isn't a page: the page under it is remembered (by the tab) instead.
+    if (!isYamlView && !isToolPath(path.split('?')[0])) {
       lastVisualPathnameRef.current = path.split('?')[0];
     }
   }, [isYamlView, path]);
@@ -99,7 +100,10 @@ const Header = () => {
       if (value === 'yaml') {
         // Keep the active tab's visual page fresh: tab switches while in YAML
         // mode don't record locations, so this snapshot is what restores later.
-        recordActiveTabLocation(window.parent.location.hash);
+        const tabLocation = tabLocationFor(window.parent.location.hash);
+        if (tabLocation) {
+          recordActiveTabLocation(tabLocation);
+        }
         const searchParamsString = new URLSearchParams(searchParams).toString();
         navigate(searchParamsString ? `${paths.yml}?${searchParamsString}` : paths.yml);
         return;

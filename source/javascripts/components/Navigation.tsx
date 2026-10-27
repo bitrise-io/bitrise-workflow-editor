@@ -35,9 +35,9 @@ import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams, { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
 import { useTree } from '@/hooks/useTree';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
-import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
-import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
-import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
 type SidebarView = 'files' | 'building-blocks';
 
@@ -177,13 +177,27 @@ const Navigation = (props: BoxProps) => {
     if (previousNodeIdRef.current === selectedNodeId) {
       return;
     }
+    const previousNodeId = previousNodeIdRef.current;
     previousNodeIdRef.current = selectedNodeId;
-    const page = currentPage ?? '';
+    // A modular config picking its first file on load isn't a switch: a link to a tool page keeps it open.
+    if (previousNodeId === undefined) {
+      return;
+    }
+    // The page the click went to: a tab's remembered page or a jump's target is already in the hash, while the
+    // page state only follows on the next hashchange.
+    const page = window.parent.location.hash.split('?')[0].split('/').pop() ?? '';
+    const isToolOpen = TOOLS.some((tool) => tool.page === page);
     const isBlockPage = BUILDING_BLOCK_PAGES.includes(page);
-    if (currentTool && useLastBlock.getState().isYamlView) {
+    // Creating the first of a kind in the new file (the sidebar's "Add a … to …") lands on that kind's page.
+    const isCreating =
+      usePipelinesPageStore.getState().openedDialogType === PipelinesPageDialogType.CREATE_PIPELINE ||
+      useWorkflowsPageStore.getState().openedDialogType === WorkflowsPageDialogType.CREATE_WORKFLOW ||
+      useStepBundlesPageStore.getState().openedDialogType === StepBundlesPageDialogType.CREATE_STEP_BUNDLE;
+    if (isToolOpen && useLastBlock.getState().isYamlView) {
       closeToolPanel();
     } else if (
       page !== 'yml' &&
+      !isCreating &&
       (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))
     ) {
       openBuildingBlock();

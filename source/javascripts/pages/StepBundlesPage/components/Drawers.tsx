@@ -80,7 +80,11 @@ const Drawers = () => {
           onClose={closeDialog}
           onCloseComplete={unmountDialog}
           onDelete={closeDialog}
-          onChangeId={setSelectedStepBundle}
+          onChangeId={(newStepBundleId) => {
+            // The drawer follows the new ID at once (it finishes the rename by deleting the old one), then the URL.
+            useStepBundlesPageStore.setState({ stepBundleId: newStepBundleId });
+            setSelectedStepBundle(newStepBundleId);
+          }}
         />
       )}
 

@@ -2,6 +2,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Suspense, useState } from 'react';
 import { Redirect, Router, Switch } from 'wouter';
 
+import Discardable from '@/components/Discardable';
 import Header from '@/components/Header';
 import LazyRoute from '@/components/LazyRoute';
 import LoadingState from '@/components/LoadingState';
@@ -90,7 +91,9 @@ const MainLayout = () => {
         {!isConfigLoading && ShownTool && (
           <ToolPanel isOpen={isToolPage} onClose={closeToolPanel}>
             <Suspense fallback={<LoadingState />}>
-              <ShownTool />
+              <Discardable>
+                <ShownTool />
+              </Discardable>
             </Suspense>
           </ToolPanel>
         )}

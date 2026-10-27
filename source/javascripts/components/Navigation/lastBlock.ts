@@ -22,7 +22,7 @@ export const useLastBlock = create<{ target?: BlockTarget; isYamlView?: boolean 
 
 // A raw hash location (e.g. `#!/secrets?branch=main`): its prefix, path and query.
 const LOCATION_PATTERN = /^(#?!?)([^?]*)(?:\?(.*))?$/;
-const isToolPath = (path: string) => TOOL_PATHS.some((toolPath) => path.startsWith(toolPath));
+export const isToolPath = (path: string) => TOOL_PATHS.some((toolPath) => path.startsWith(toolPath));
 
 /** True when a raw hash location is a tool panel open over the YAML page. */
 export function isToolOverYamlLocation(location: string) {

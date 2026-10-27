@@ -49,6 +49,14 @@ const StepBundlesPage = () => {
     if (isBehindToolPanel) {
       return;
     }
+    const { openedDialogType, stepBundleId: openStepBundleId } = useStepBundlesPageStore.getState();
+    // A create dialog opened on the way here (from the sidebar) stays; so does a drawer already showing this bundle.
+    if (
+      openedDialogType === StepBundlesPageDialogType.CREATE_STEP_BUNDLE ||
+      (openedDialogType === StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION && openStepBundleId === stepBundleId)
+    ) {
+      return;
+    }
     if (stepBundleId) {
       // A Step selected in the previous bundle doesn't carry over (Backspace would delete it out of sight).
       openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION, stepBundleId, selectedStepIndices: [] })();
