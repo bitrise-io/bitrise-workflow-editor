@@ -4,8 +4,7 @@ import CrossFileDefinitionCard from './CrossFileDefinitionCard';
 
 /**
  * Stands in for the Stack & Machine and Env Vars cards on the Configuration tab when the workflow is
- * defined in another file of an `include:` tree. It imitates a disabled expandable card with a plain
- * card, lowered opacity and a chevron that does nothing.
+ * defined in another file of an `include:` tree. It only says where to edit them, so it is a plain card.
  */
 export default {
   component: CrossFileDefinitionCard,
