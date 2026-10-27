@@ -122,7 +122,10 @@ export function useFileTabs() {
 
   const openFile = useCallback(
     (nodeId: string) => {
-      recordActiveTabLocation(currentLocation());
+      const leftLocation = tabLocationFor(currentLocation());
+      if (leftLocation) {
+        recordActiveTabLocation(leftLocation);
+      }
       // Explicit "Open module" gesture → pin a permanent tab, not a preview that the next open replaces.
       openTab(nodeId, { preview: false });
       restoreTabLocation(nodeId);
@@ -131,7 +134,10 @@ export function useFileTabs() {
   );
 
   const selectMerged = useCallback(() => {
-    recordActiveTabLocation(currentLocation());
+    const leftLocation = tabLocationFor(currentLocation());
+    if (leftLocation) {
+      recordActiveTabLocation(leftLocation);
+    }
     selectMergedConfig();
     restoreTabLocation(MERGED_CONFIG_NODE_ID);
   }, [restoreTabLocation]);
