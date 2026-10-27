@@ -7,6 +7,7 @@ import {
   CANVAS_DOT_SIZE,
   CANVAS_EDGE_SHADOW,
 } from '@/components/unified-editor/canvasDots';
+import { STEP_CANVAS_ATTRIBUTE } from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
@@ -32,6 +33,7 @@ const PipelineCanvas = () => {
           minHeight="0"
           position="relative"
           userSelect="none"
+          {...{ [STEP_CANVAS_ATTRIBUTE]: '' }}
           // The shared canvas dot grid; React Flow's own pattern, so it pans and zooms with the Pipeline.
           css={{ '& .react-flow__background-pattern.dots': { fill: CANVAS_DOT_COLOR } }}
           // The shared canvas edge shadow, on a layer over React Flow that clicks pass through.

@@ -205,7 +205,7 @@ const BuildingBlocks = ({ query, onQueryChange }: Props) => {
         if (openEntity(paths.pipelines, { param: 'pipeline', id }) && hadDrawer) {
           usePipelinesPageStore
             .getState()
-            .openDialog({ type: PipelinesPageDialogType.PIPELINE_CONFIG, pipelineId: id })();
+            .openDialog({ type: PipelinesPageDialogType.PIPELINE_CONFIG, pipelineId: id, selectedStepIndices: [] })();
         }
       },
       addControl: <AddControl {...createPipeline} />,

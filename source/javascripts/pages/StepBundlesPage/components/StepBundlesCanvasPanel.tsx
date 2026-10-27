@@ -5,7 +5,9 @@ import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-e
 import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
-import useDeleteSelectedStepsOnKey from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
+import useDeleteSelectedStepsOnKey, {
+  STEP_CANVAS_ATTRIBUTE,
+} from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -209,6 +211,7 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         {...canvasDotsBackground}
         // An inset shadow stays put while the content scrolls.
         boxShadow={CANVAS_EDGE_SHADOW}
+        {...{ [STEP_CANVAS_ATTRIBUTE]: '' }}
       >
         <WorkflowCardContextProvider
           onAddStepToStepBundle={openStepSelectorDrawer}

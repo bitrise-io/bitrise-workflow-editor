@@ -6,7 +6,9 @@ import { useCallback, useMemo } from 'react';
 
 import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
 import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
-import useDeleteSelectedStepsOnKey from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
+import useDeleteSelectedStepsOnKey, {
+  STEP_CANVAS_ATTRIBUTE,
+} from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
@@ -432,6 +434,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         // An inset shadow stays put while the content scrolls.
         boxShadow={CANVAS_EDGE_SHADOW}
         data-intercom-target="Workflow Card Container"
+        {...{ [STEP_CANVAS_ATTRIBUTE]: '' }}
       >
         <WorkflowCard
           id={workflowId}

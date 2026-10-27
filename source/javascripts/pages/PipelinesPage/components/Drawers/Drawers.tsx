@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren } from 'react';
+import { memo, PropsWithChildren, useRef } from 'react';
 
 import ChainWorkflowDrawer from '@/components/unified-editor/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
@@ -22,6 +22,9 @@ import WorkflowSelectorDrawer from '../WorkflowSelectorDrawer/WorkflowSelectorDr
 
 const Drawers = ({ children }: PropsWithChildren) => {
   const enabledSteps = useUniqueStepIds('set');
+  // The Workflow the "Empty Workflow" dialog created. Its close reports the typed name even on Cancel, so only
+  // this one opens afterwards.
+  const createdWorkflowIdRef = useRef<string>();
   const [, setSearchParams] = useSearchParams();
 
   const {
@@ -109,17 +112,26 @@ const Drawers = ({ children }: PropsWithChildren) => {
           isOpen={isDialogOpen(PipelinesPageDialogType.CREATE_WORKFLOW)}
           onClose={closeDialog}
           onCreateEntity={(newWorkflowId) => {
+            createdWorkflowIdRef.current = newWorkflowId;
             WorkflowService.createWorkflow(newWorkflowId);
             PipelineService.addWorkflowToPipeline(pipelineId, newWorkflowId, workflowId);
           }}
           onCloseComplete={(newWorkflowId) => {
             unmountDialog();
-            if (newWorkflowId) {
+            const createdWorkflowId = createdWorkflowIdRef.current;
+            createdWorkflowIdRef.current = undefined;
+            if (newWorkflowId && newWorkflowId === createdWorkflowId) {
               openDialog({ type: PipelinesPageDialogType.WORKFLOW_CONFIG, pipelineId, workflowId: newWorkflowId })();
             }
           }}
           sanitizer={WorkflowService.sanitizeName}
-          validator={(name) => WorkflowService.validateName(name, '', Object.keys(getBitriseYml().workflows ?? {}))}
+          // Taken: any Workflow, and any entry of this Pipeline (a `uses:` entry has its own name).
+          validator={(name) =>
+            WorkflowService.validateName(name, '', [
+              ...Object.keys(getBitriseYml().workflows ?? {}),
+              ...Object.keys(getBitriseYml().pipelines?.[pipelineId]?.workflows ?? {}),
+            ])
+          }
         />
       )}
 
