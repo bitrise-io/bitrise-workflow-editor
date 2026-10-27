@@ -245,4 +245,7 @@ const startPlaygroundMocks = async () => {
   });
 };
 
+// Also used by the whole-editor prototype stories (WorkflowEditor.stories.tsx).
+export { handlers as playgroundHandlers };
+
 export default startPlaygroundMocks;
