@@ -1,0 +1,263 @@
+{
+  "acme-superapp": {
+    "title": "acme-superapp",
+    "editorFeatureFlags": {
+      "enable-wfe-modular-yaml-editing": true,
+      "enable-branch-switching": true
+    },
+    "bitriseYml": "format_version: \"13\"\ndefault_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git\nproject_type: other\n\nmeta:\n  bitrise.io:\n    stack: osx-xcode-16.0.x\n    machine_type_id: g2.mac.medium\n\napp:\n  envs:\n  - APPLE_TEAM_ID: 7ABC123XYZ\n  - NODE_VERSION: \"22\"\n\ninclude:\n- path: ci/shared/containers.yml\n- path: ci/shared/step-bundles.yml\n- path: ci/ios/ios.yml\n- path: ci/android/android.yml\n- path: ci/backend/api.yml\n- path: ci/pipelines.yml\n- repository: acme/bitrise-shared-ci\n  branch: main\n  path: templates/notifications.yml\n- repository: acme/bitrise-shared-ci\n  tag: v3.2.0\n  path: templates/security-scans.yml\n- repository: acme/design-tokens\n  commit: 9f2c1ab\n  path: ci/tokens.yml\n\nstep_bundles:\n  notify-team:\n    summary: Posts the build result to the team channel\n    inputs:\n    - channel: \"#superapp-ci\"\n    steps:\n    - slack@4:\n        inputs:\n        - channel: $channel\n        - webhook_url: $SLACK_WEBHOOK_URL\n\nworkflows:\n  smoke-test:\n    summary: Fast sanity check of every app target before the full suites run\n    steps:\n    - bundle::checkout: {}\n    - script@1:\n        title: Build all targets\n        execution_container: node\n        inputs:\n        - content: ./scripts/smoke.sh\n    - bundle::notify-team: {}\n  deploy-docs:\n    summary: Publishes the developer docs site\n    triggers:\n      push:\n      - branch: main\n        changed_files: docs/**\n    steps:\n    - bundle::checkout: {}\n    - script@1:\n        title: Build and publish docs\n        execution_container: node\n        inputs:\n        - content: npm run docs:publish\n\npipelines:\n  hotfix:\n    triggers:\n      push:\n      - branch: hotfix/*\n    workflows:\n      smoke-test: {}\n      ios-archive-testflight:\n        depends_on:\n        - smoke-test\n      android-build-aab:\n        depends_on:\n        - smoke-test\n      notify-release:\n        depends_on:\n        - ios-archive-testflight\n        - android-build-aab\n",
+    "configTree": {
+      "node_id": "n_81eefa71e152",
+      "path": "bitrise.yml",
+      "contents": "format_version: \"13\"\ndefault_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git\nproject_type: other\n\nmeta:\n  bitrise.io:\n    stack: osx-xcode-16.0.x\n    machine_type_id: g2.mac.medium\n\napp:\n  envs:\n  - APPLE_TEAM_ID: 7ABC123XYZ\n  - NODE_VERSION: \"22\"\n\ninclude:\n- path: ci/shared/containers.yml\n- path: ci/shared/step-bundles.yml\n- path: ci/ios/ios.yml\n- path: ci/android/android.yml\n- path: ci/backend/api.yml\n- path: ci/pipelines.yml\n- repository: acme/bitrise-shared-ci\n  branch: main\n  path: templates/notifications.yml\n- repository: acme/bitrise-shared-ci\n  tag: v3.2.0\n  path: templates/security-scans.yml\n- repository: acme/design-tokens\n  commit: 9f2c1ab\n  path: ci/tokens.yml\n\nstep_bundles:\n  notify-team:\n    summary: Posts the build result to the team channel\n    inputs:\n    - channel: \"#superapp-ci\"\n    steps:\n    - slack@4:\n        inputs:\n        - channel: $channel\n        - webhook_url: $SLACK_WEBHOOK_URL\n\nworkflows:\n  smoke-test:\n    summary: Fast sanity check of every app target before the full suites run\n    steps:\n    - bundle::checkout: {}\n    - script@1:\n        title: Build all targets\n        execution_container: node\n        inputs:\n        - content: ./scripts/smoke.sh\n    - bundle::notify-team: {}\n  deploy-docs:\n    summary: Publishes the developer docs site\n    triggers:\n      push:\n      - branch: main\n        changed_files: docs/**\n    steps:\n    - bundle::checkout: {}\n    - script@1:\n        title: Build and publish docs\n        execution_container: node\n        inputs:\n        - content: npm run docs:publish\n\npipelines:\n  hotfix:\n    triggers:\n      push:\n      - branch: hotfix/*\n    workflows:\n      smoke-test: {}\n      ios-archive-testflight:\n        depends_on:\n        - smoke-test\n      android-build-aab:\n        depends_on:\n        - smoke-test\n      notify-release:\n        depends_on:\n        - ios-archive-testflight\n        - android-build-aab\n",
+      "source": null,
+      "commit_sha": "06de49842505d915b35b53ce5cdedcf7aaccceb0",
+      "editable": true,
+      "includes": [
+        {
+          "node_id": "n_85ad06c41a3f",
+          "path": "ci/shared/containers.yml",
+          "contents": "containers:\n  node:\n    type: execution\n    image: node:22-bookworm\n  ruby:\n    type: execution\n    image: ruby:3.3\n  postgres:\n    type: service\n    image: postgres:16\n    ports:\n    - 5432:5432\n    envs:\n    - POSTGRES_PASSWORD: $POSTGRES_PASSWORD\n    options: --health-cmd pg_isready --health-interval 10s --health-retries 5\n  redis:\n    type: service\n    image: redis:7\n    ports:\n    - 6379:6379\n",
+          "source": {
+            "path": "ci/shared/containers.yml",
+            "repository": null,
+            "branch": null,
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "a29f490cd48105d9825d34e6d6bac343aeae3518",
+          "editable": true,
+          "includes": []
+        },
+        {
+          "node_id": "n_15d2ae2e680b",
+          "path": "ci/shared/step-bundles.yml",
+          "contents": "step_bundles:\n  checkout:\n    summary: SSH key, clone and the build's shared cache\n    inputs:\n    - cache_key: '{{ .OS }}-{{ .Arch }}-{{ checksum \"package-lock.json\" }}'\n    steps:\n    - activate-ssh-key@4:\n        run_if: '{{getenv \"SSH_RSA_PRIVATE_KEY\" | ne \"\"}}'\n    - git-clone@8:\n        inputs:\n        - fetch_depth: 50\n    - restore-cache@2:\n        inputs:\n        - key: $cache_key\n  upload-results:\n    summary: Test reports and artifacts to the build page\n    steps:\n    - deploy-to-bitrise-io@2:\n        inputs:\n        - notify_user_groups: none\n  save-build-cache:\n    steps:\n    - save-cache@1:\n        inputs:\n        - key: '{{ .OS }}-{{ .Arch }}-{{ checksum \"package-lock.json\" }}'\n        - paths: node_modules\n",
+          "source": {
+            "path": "ci/shared/step-bundles.yml",
+            "repository": null,
+            "branch": null,
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "3111efa1457d12226f89ac6f983a1d6882c9aef5",
+          "editable": true,
+          "includes": []
+        },
+        {
+          "node_id": "n_26123eadeb87",
+          "path": "ci/ios/ios.yml",
+          "contents": "include:\n- path: ci/ios/testing.yml\n- path: ci/ios/release.yml\n\nworkflows:\n  _ios-setup:\n    summary: Checkout, Swift packages and CocoaPods\n    envs:\n    - IOS_WORKSPACE: ios/SuperApp.xcworkspace\n    - IOS_SCHEME: SuperApp\n    steps:\n    - bundle::checkout: {}\n    - bundle::xcode-cache: {}\n    - cocoapods-install@2:\n        inputs:\n        - source_root_path: ios\n\nstep_bundles:\n  xcode-cache:\n    summary: Swift packages and derived data from the last build\n    steps:\n    - restore-spm-cache@1: {}\n    - restore-xcode-derived-data-cache@1: {}\n",
+          "source": {
+            "path": "ci/ios/ios.yml",
+            "repository": null,
+            "branch": null,
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "8f7e04fcdf6804339432f8067a91d2cd1d9ee798",
+          "editable": true,
+          "includes": [
+            {
+              "node_id": "n_2585a4a88a40",
+              "path": "ci/ios/testing.yml",
+              "contents": "workflows:\n  ios-unit-tests:\n    summary: Unit test plan on the latest simulator\n    before_run:\n    - _ios-setup\n    steps:\n    - xcode-test@5:\n        inputs:\n        - project_path: $IOS_WORKSPACE\n        - scheme: $IOS_SCHEME\n        - test_plan: UnitTests\n    - bundle::upload-results: {}\n  ios-ui-tests:\n    summary: UI tests, split across simulators\n    before_run:\n    - _ios-setup\n    steps:\n    - xcode-build-for-test@3:\n        inputs:\n        - project_path: $IOS_WORKSPACE\n        - scheme: $IOS_SCHEME\n    - xcode-test-without-building@0:\n        inputs:\n        - destination: platform=iOS Simulator,name=iPhone 16,OS=latest\n    - bundle::upload-results: {}\n  ios-snapshot-tests:\n    summary: Snapshot tests against the design system's reference images\n    before_run:\n    - _ios-setup\n    steps:\n    - xcode-test@5:\n        inputs:\n        - test_plan: SnapshotTests\n    - bundle::upload-results: {}\n",
+              "source": {
+                "path": "ci/ios/testing.yml",
+                "repository": null,
+                "branch": null,
+                "tag": null,
+                "commit": null
+              },
+              "commit_sha": "709dcda05ce75c031bc4dc86fb5505415cfd5464",
+              "editable": true,
+              "includes": []
+            },
+            {
+              "node_id": "n_5dbea56525e4",
+              "path": "ci/ios/release.yml",
+              "contents": "include:\n- path: ci/ios/signing.yml\n\nworkflows:\n  ios-archive-testflight:\n    summary: Signed archive to TestFlight for internal testers\n    envs:\n    - IOS_DISTRIBUTION_METHOD: app-store\n    before_run:\n    - _ios-setup\n    - _ios-codesigning\n    steps:\n    - xcode-archive@5:\n        inputs:\n        - project_path: $IOS_WORKSPACE\n        - scheme: $IOS_SCHEME\n        - distribution_method: $IOS_DISTRIBUTION_METHOD\n    - deploy-to-itunesconnect-application-loader@1: {}\n    - bundle::upload-results: {}\n  ios-release-appstore:\n    summary: Submits the TestFlight build for App Store review\n    steps:\n    - bundle::checkout: {}\n    - fastlane@3:\n        inputs:\n        - lane: ios submit_for_review\n",
+              "source": {
+                "path": "ci/ios/release.yml",
+                "repository": null,
+                "branch": null,
+                "tag": null,
+                "commit": null
+              },
+              "commit_sha": "ee82d0d7789f69b0f542bcc165e1c2d23139b42b",
+              "editable": true,
+              "includes": [
+                {
+                  "node_id": "n_920e3e2328de",
+                  "path": "ci/ios/signing.yml",
+                  "contents": "workflows:\n  _ios-codesigning:\n    summary: Installs certificates and profiles for the distribution method\n    steps:\n    - certificate-and-profile-installer@1: {}\n    - manage-ios-code-signing@2:\n        inputs:\n        - distribution_method: $IOS_DISTRIBUTION_METHOD\n        - apple_team_id: $APPLE_TEAM_ID\n",
+                  "source": {
+                    "path": "ci/ios/signing.yml",
+                    "repository": null,
+                    "branch": null,
+                    "tag": null,
+                    "commit": null
+                  },
+                  "commit_sha": "f925beee7624217b54738f6c6be78349a90390b2",
+                  "editable": true,
+                  "includes": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "node_id": "n_1f49542dfc06",
+          "path": "ci/android/android.yml",
+          "contents": "include:\n- path: ci/android/testing.yml\n- path: ci/android/release.yml\n\nworkflows:\n  _android-setup:\n    meta:\n      bitrise.io:\n        stack: ubuntu-jammy-22.04-bitrise-2024\n        machine_type_id: standard\n    steps:\n    - bundle::checkout: {}\n    - restore-gradle-cache@2: {}\n    - set-java-version@1:\n        inputs:\n        - set_java_version: \"17\"\n\npipelines:\n  android-pr:\n    triggers:\n      pull_request:\n      - source_branch: \"*\"\n        changed_files: android/**\n    workflows:\n      android-lint: {}\n      android-unit-tests: {}\n      android-instrumented-tests:\n        depends_on:\n        - android-unit-tests\n",
+          "source": {
+            "path": "ci/android/android.yml",
+            "repository": null,
+            "branch": null,
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "98bd6112efdcfaff2cebeb846888e369b57808f6",
+          "editable": true,
+          "includes": [
+            {
+              "node_id": "n_03278ea2369d",
+              "path": "ci/android/testing.yml",
+              "contents": "workflows:\n  android-lint:\n    before_run:\n    - _android-setup\n    steps:\n    - android-lint@0:\n        inputs:\n        - project_location: android\n        - module: app\n  android-unit-tests:\n    before_run:\n    - _android-setup\n    steps:\n    - android-unit-test@1:\n        inputs:\n        - project_location: android\n        - module: app\n        - variant: debug\n    - bundle::upload-results: {}\n  android-instrumented-tests:\n    summary: Instrumented tests on Firebase Test Lab\n    before_run:\n    - _android-setup\n    steps:\n    - android-build-for-ui-testing@0:\n        inputs:\n        - project_location: android\n        - module: app\n        - variant: debug\n    - virtual-device-testing-for-android@1:\n        inputs:\n        - test_type: instrumentation\n    - bundle::upload-results: {}\n",
+              "source": {
+                "path": "ci/android/testing.yml",
+                "repository": null,
+                "branch": null,
+                "tag": null,
+                "commit": null
+              },
+              "commit_sha": "1116c076966c372db32ceb143c902603cb5e6072",
+              "editable": true,
+              "includes": []
+            },
+            {
+              "node_id": "n_ccaef6a3969b",
+              "path": "ci/android/release.yml",
+              "contents": "workflows:\n  android-build-aab:\n    summary: Signed App Bundle\n    before_run:\n    - _android-setup\n    steps:\n    - android-build@1:\n        inputs:\n        - project_location: android\n        - module: app\n        - variant: release\n        - build_type: aab\n    - sign-apk@1: {}\n    - bundle::upload-results: {}\n  android-release-play:\n    summary: App Bundle to the Google Play internal track\n    after_run:\n    - android-build-aab\n    steps:\n    - google-play-deploy@3:\n        inputs:\n        - package_name: com.acme.superapp\n        - track: internal\n",
+              "source": {
+                "path": "ci/android/release.yml",
+                "repository": null,
+                "branch": null,
+                "tag": null,
+                "commit": null
+              },
+              "commit_sha": "3d3df4497b63a40ce117c42f839c366273e79b0d",
+              "editable": true,
+              "includes": []
+            }
+          ]
+        },
+        {
+          "node_id": "n_eb948d7d2aa8",
+          "path": "ci/backend/api.yml",
+          "contents": "workflows:\n  api-tests:\n    summary: API test suite against Postgres and Redis\n    meta:\n      bitrise.io:\n        stack: ubuntu-jammy-22.04-bitrise-2024\n        machine_type_id: standard\n    steps:\n    - bundle::checkout: {}\n    - script@1:\n        title: Install and test\n        execution_container: node\n        service_containers:\n        - postgres\n        - redis\n        inputs:\n        - content: |-\n            cd api\n            npm ci\n            npm test\n    - bundle::save-build-cache: {}\n    - bundle::upload-results: {}\n  api-deploy-staging:\n    summary: Deploys the API to staging\n    steps:\n    - bundle::checkout: {}\n    - script@1:\n        title: Deploy\n        execution_container: node\n        inputs:\n        - content: cd api && npm run deploy -- --env staging\n",
+          "source": {
+            "path": "ci/backend/api.yml",
+            "repository": null,
+            "branch": null,
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "f1526d814903198c125ae9dff8d2a3eab6835c0d",
+          "editable": true,
+          "includes": []
+        },
+        {
+          "node_id": "n_83ae5f395283",
+          "path": "ci/pipelines.yml",
+          "contents": "pipelines:\n  pr-validation:\n    triggers:\n      pull_request:\n      - source_branch: \"*\"\n        draft_pull_request_enabled: false\n    workflows:\n      ios-unit-tests: {}\n      android-lint: {}\n      android-unit-tests: {}\n      api-tests: {}\n      security-scan: {}\n      ios-ui-tests:\n        depends_on:\n        - ios-unit-tests\n      android-instrumented-tests:\n        depends_on:\n        - android-unit-tests\n  release:\n    triggers:\n      push:\n      - branch: main\n    workflows:\n      ios-unit-tests: {}\n      android-unit-tests: {}\n      api-tests: {}\n      ios-archive-testflight:\n        depends_on:\n        - ios-unit-tests\n      android-build-aab:\n        depends_on:\n        - android-unit-tests\n      api-deploy-staging:\n        depends_on:\n        - api-tests\n      notify-release:\n        depends_on:\n        - ios-archive-testflight\n        - android-build-aab\n        - api-deploy-staging\n  nightly:\n    workflows:\n      ios-snapshot-tests: {}\n      android-instrumented-tests: {}\n      dependency-audit: {}\n      sync-design-tokens: {}\n  ios-store-release:\n    triggers:\n      tag:\n      - name: ios/v*\n    workflows:\n      ios-archive-testflight: {}\n      ios-release-appstore:\n        depends_on:\n        - ios-archive-testflight\n  android-store-release:\n    triggers:\n      tag:\n      - name: android/v*\n    workflows:\n      android-release-play: {}\n",
+          "source": {
+            "path": "ci/pipelines.yml",
+            "repository": null,
+            "branch": null,
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "f16f9d4e76d6ad253f21a924657a0df322b1a4aa",
+          "editable": true,
+          "includes": []
+        },
+        {
+          "node_id": "n_f1d2d23c53b2",
+          "path": "templates/notifications.yml",
+          "contents": "# Maintained by the Platform team. Changes go through acme/bitrise-shared-ci.\nstep_bundles:\n  shared-notify:\n    inputs:\n    - channel: \"#builds\"\n    steps:\n    - slack@4:\n        inputs:\n        - channel: $channel\n        - webhook_url: $SLACK_WEBHOOK_URL\n\nworkflows:\n  notify-release:\n    summary: Posts the release summary to Slack\n    steps:\n    - bundle::shared-notify:\n        inputs:\n        - channel: \"#releases\"\n",
+          "source": {
+            "path": "templates/notifications.yml",
+            "repository": "acme/bitrise-shared-ci",
+            "branch": "main",
+            "tag": null,
+            "commit": null
+          },
+          "commit_sha": "ca7f67ffbb2ac224d8f9f5517debd1be526022cb",
+          "editable": false,
+          "includes": []
+        },
+        {
+          "node_id": "n_4b16d3a3bca0",
+          "path": "templates/security-scans.yml",
+          "contents": "workflows:\n  security-scan:\n    summary: Secret detection and SAST\n    steps:\n    - git-clone@8: {}\n    - script@1:\n        title: Gitleaks\n        inputs:\n        - content: gitleaks detect --redact --exit-code 1\n  dependency-audit:\n    summary: Known-vulnerability audit of every package manifest\n    steps:\n    - git-clone@8: {}\n    - script@1:\n        title: OSV scanner\n        inputs:\n        - content: osv-scanner --recursive .\n",
+          "source": {
+            "path": "templates/security-scans.yml",
+            "repository": "acme/bitrise-shared-ci",
+            "branch": null,
+            "tag": "v3.2.0",
+            "commit": null
+          },
+          "commit_sha": "9d412f0538e29438a7db9263b219216e20bbe611",
+          "editable": false,
+          "includes": []
+        },
+        {
+          "node_id": "n_c7e121af6736",
+          "path": "ci/tokens.yml",
+          "contents": "workflows:\n  sync-design-tokens:\n    summary: Regenerates platform tokens from the design-tokens repo\n    steps:\n    - git-clone@8: {}\n    - script@1:\n        title: Build tokens\n        inputs:\n        - content: npx style-dictionary build --config tokens.config.json\n",
+          "source": {
+            "path": "ci/tokens.yml",
+            "repository": "acme/design-tokens",
+            "branch": null,
+            "tag": null,
+            "commit": "9f2c1ab"
+          },
+          "commit_sha": "9f2c1ab",
+          "editable": false,
+          "includes": []
+        }
+      ]
+    },
+    "configSettings": {
+      "usesRepositoryYml": true,
+      "modularYamlSupported": true
+    },
+    "branches": [
+      "main",
+      "feature/onboarding",
+      "fix/login-crash",
+      "chore/deps",
+      "feature/dark-mode",
+      "release/2.4"
+    ]
+  },
+  "my-ios-app": {
+    "title": "my-ios-app",
+    "editorFeatureFlags": {},
+    "bitriseYml": "format_version: \"13\"\ndefault_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git\nproject_type: ios\n\nmeta:\n  bitrise.io:\n    stack: osx-xcode-16.0.x\n    machine_type_id: g2.mac.medium\n\napp:\n  envs:\n  - BITRISE_PROJECT_PATH: MyApp.xcodeproj\n  - BITRISE_SCHEME: MyApp\n  - BITRISE_DISTRIBUTION_METHOD: app-store\n\npipelines:\n  pr-validation:\n    triggers:\n      pull_request:\n      - source_branch: \"*\"\n    workflows:\n      unit-tests: {}\n      ui-tests: {}\n  release:\n    triggers:\n      push:\n      - branch: main\n    workflows:\n      unit-tests: {}\n      archive-and-deploy:\n        depends_on:\n        - unit-tests\n\nworkflows:\n  unit-tests:\n    summary: Runs the unit test plan\n    steps:\n    - activate-ssh-key@4:\n        run_if: '{{getenv \"SSH_RSA_PRIVATE_KEY\" | ne \"\"}}'\n    - git-clone@8: {}\n    - restore-spm-cache@1: {}\n    - xcode-test@5:\n        inputs:\n        - test_plan: UnitTests\n    - save-spm-cache@1: {}\n    - deploy-to-bitrise-io@2: {}\n  ui-tests:\n    summary: Runs the UI tests on an iPhone simulator\n    steps:\n    - git-clone@8: {}\n    - restore-spm-cache@1: {}\n    - xcode-test@5:\n        inputs:\n        - test_plan: UITests\n        - destination: platform=iOS Simulator,name=iPhone 16,OS=latest\n    - deploy-to-bitrise-io@2: {}\n  archive-and-deploy:\n    summary: Archives a signed build and uploads it to App Store Connect\n    steps:\n    - git-clone@8: {}\n    - restore-spm-cache@1: {}\n    - manage-ios-code-signing@2:\n        inputs:\n        - distribution_method: $BITRISE_DISTRIBUTION_METHOD\n    - xcode-archive@5:\n        inputs:\n        - distribution_method: $BITRISE_DISTRIBUTION_METHOD\n        - automatic_code_signing: api-key\n    - deploy-to-itunesconnect-application-loader@1: {}\n    - deploy-to-bitrise-io@2: {}\n    - slack@4:\n        inputs:\n        - channel: \"#ios-releases\"\n",
+    "configTree": null,
+    "configSettings": {
+      "usesRepositoryYml": false,
+      "modularYamlSupported": false
+    },
+    "branches": [
+      "main",
+      "feature/onboarding",
+      "fix/login-crash",
+      "chore/deps",
+      "feature/dark-mode",
+      "release/2.4"
+    ]
+  }
+}
