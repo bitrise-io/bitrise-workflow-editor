@@ -89,7 +89,7 @@ const withoutModifiedMarks = (node: WireTreeNode): WireTreeNode => ({
 
 const fakeSha = () => Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
 
-// Secrets, per project in sessionStorage like saves: a realistic set to look at, and listing, revealing,
+// Secrets, per project in memory: a realistic set to look at, and listing, revealing,
 // creating, editing and deleting all work. Values are made up.
 type PlaygroundSecret = {
   id: string;
@@ -118,13 +118,13 @@ const SAMPLE_SECRETS: PlaygroundSecret[] = [
   exposed_for_pull_requests: Boolean(isExpose),
 }));
 
-const secretsKey = (projectSlug: string) => `playground:secrets:${projectSlug}`;
-const loadSecrets = (projectSlug: string): PlaygroundSecret[] => {
-  const saved = sessionStorage.getItem(secretsKey(projectSlug));
-  return saved ? JSON.parse(saved) : SAMPLE_SECRETS;
+// Kept in memory only, per project: even made-up secret values are never written to browser storage. Changes
+// last until the editor reloads.
+const secretsByProject = new Map<string, PlaygroundSecret[]>();
+const loadSecrets = (projectSlug: string): PlaygroundSecret[] => secretsByProject.get(projectSlug) ?? SAMPLE_SECRETS;
+const storeSecrets = (projectSlug: string, secrets: PlaygroundSecret[]) => {
+  secretsByProject.set(projectSlug, secrets);
 };
-const storeSecrets = (projectSlug: string, secrets: PlaygroundSecret[]) =>
-  sessionStorage.setItem(secretsKey(projectSlug), JSON.stringify(secrets));
 // Lists never carry values; a protected one never reveals its value.
 const withoutValue = ({ value: _value, ...secret }: PlaygroundSecret) => secret;
 
