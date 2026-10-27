@@ -12,7 +12,6 @@ import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
 interface TriggerCardProps extends DraggableCardProps {
-  isOverlay?: boolean;
   triggerItem: LegacyTrigger;
   onRemove?: (triggerItem: LegacyTrigger) => void;
   onEdit?: (triggerItem: LegacyTrigger) => void;

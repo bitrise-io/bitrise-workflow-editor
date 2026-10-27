@@ -17,12 +17,7 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'r
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
-import {
-  useCrossFileEntity,
-  useIsMergedConfigSelected,
-  useIsReadOnlyView,
-  useOtherDefiningModules,
-} from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -98,12 +93,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', workflowId);
   const otherModules = useOtherDefiningModules('workflows', workflowId);
-  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs, or everything in the read-only merged view) always get the elevated card
-  // (border/minimal + small shadow), even where the caller asks for an outlined one.
-  const isGhost = isCrossFile || isReadOnlyView;
 
   const {
     open: isOpen,
@@ -130,9 +121,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     }),
     [containerProps, isHighlighted],
   );
-  // Resolve the elevation after spreading `cardProps` so a caller's `containerProps.elevation`
-  // (e.g. WorkflowNode's outlined card) can't override the ghost styling — ghost always wins.
-  const cardElevation = isGhost || containerProps?.elevation;
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -147,7 +135,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card.Root minWidth="0" width="full" {...cardProps} elevation={cardElevation}>
+    <Card.Root minWidth="0" width="full" {...cardProps}>
       <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
         {/* No expand/collapse for cross-file refs — their nested content lives in another file
             and isn't shown here, so the chevron is hidden rather than rendered disabled. */}

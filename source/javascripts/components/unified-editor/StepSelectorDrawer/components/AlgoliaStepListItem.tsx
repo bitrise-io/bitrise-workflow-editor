@@ -41,17 +41,6 @@ const AlgoliaStepListItem = ({
   const isTitleTruncated = useIsTruncated(titleRef);
   const { open: isOpen, onOpen, onClose } = useDisclosure();
 
-  let hoverProps: Props = {};
-  if (!isDisabled) {
-    hoverProps = {
-      className: 'group',
-      _hover: {
-        boxShadow: 'elevation/sm',
-        borderColor: 'border/strong',
-      },
-    };
-  }
-
   let cursor = 'pointer';
   if (isDisabled) {
     cursor = 'not-allowed';
@@ -73,7 +62,8 @@ const AlgoliaStepListItem = ({
       position="relative"
       flexDirection="column"
       {...props}
-      {...hoverProps}
+      className={isDisabled ? undefined : 'group'}
+      interactive={!isDisabled}
       cursor={cursor}
       overflow="hidden"
       transition={TRANSITION}

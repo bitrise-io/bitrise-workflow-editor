@@ -18,6 +18,7 @@ import { MouseEvent, useMemo, useRef, useState } from 'react';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import SortablePlaceholder from '@/components/SortablePlaceholder/SortablePlaceholder';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
@@ -25,12 +26,7 @@ import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useStepBundle from '@/hooks/useStepBundle';
-import {
-  useCrossFileEntity,
-  useIsMergedConfigSelected,
-  useIsReadOnlyView,
-  useOtherDefiningModules,
-} from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -68,12 +64,9 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   // Modules other than the one open that define this bundle — drives the "Also defined in …" line and
   // the jump target. Covers both the pure cross-file case and the intermediate one (also defined here).
   const otherModules = useOtherDefiningModules('stepBundles', bundleId);
-  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs or read-only view) get a lighter border/minimal instead of the tint.
-  const isGhost = isCrossFile || isReadOnlyView;
   const { isSelected } = useSelection();
   const { onDeleteStep, onDeleteStepInStepBundle, onSelectStep } = useStepActions();
   const zoom = useReactFlowZoom();
@@ -153,33 +146,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const cardProps = useMemo(() => {
     const common: CardRootProps = {
       width: 'full',
-      elevation: false,
-      // A step bundle is a step-level item inside a workflow, so the ghost look is just a lighter
-      // border/minimal — no shadow (unlike the node cards, which switch to the elevated card).
-      ...(isGhost ? { borderColor: 'border/minimal' } : {}),
-      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'elevation/sm' } : {}),
-      ...(isCollapsable ? { borderRadius: '4' } : { borderRadius: '8' }),
+      elevation: isDragging,
     };
-
-    if (isPlaceholder) {
-      return {
-        ...common,
-        height: rem(50),
-        border: '1px dashed',
-        alignItems: 'center',
-        color: 'text/secondary',
-        justifyContent: 'center',
-        textStyle: 'body/sm/regular',
-        borderColor: 'border/strong',
-        backgroundColor: 'background/secondary',
-      } satisfies CardRootProps;
-    }
 
     return {
       ...common,
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isCollapsable, isDragging, isHighlighted, isPlaceholder, isGhost]);
+  }, [isDragging, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
     // The menu's actions come from onDeleteStep OR onDeleteStepInStepBundle (the latter for
@@ -211,83 +185,83 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   const title = stepBundleInstance.stepBundle?.mergedValues?.title || StepBundleService.cvsToId(cvs);
 
+  if (isPlaceholder) {
+    return <SortablePlaceholder ref={sortable.setNodeRef} style={style} height={rem(50)} />;
+  }
+
   return (
     <Card.Root {...cardProps} minWidth="0" maxWidth={rem(392)} style={style} ref={sortable.setNodeRef}>
-      {!isPlaceholder && (
-        <>
-          <Box display="flex">
-            {isSortable && (
-              <DragHandle
-                withGroupHover
-                ref={sortable.setActivatorNodeRef}
-                {...sortable.listeners}
-                {...sortable.attributes}
-              />
-            )}
-            <Box
-              display="flex"
-              flexGrow={1}
-              alignItems="center"
-              {...cardPadding}
-              gap="4"
-              className="group"
-              minWidth="0"
-              onClick={handleClick}
-              role={isButton ? 'button' : 'div'}
-            >
-              {/* No expand/collapse for cross-file refs — their nested steps live in another file. */}
-              {isCollapsable && !isCrossFile && (
-                <BitkitControlButton
-                  size="xs"
-                  tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-                  className="nopan"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggle();
-                  }}
-                  icon={isOpen ? IconChevronUp : IconChevronDown}
-                  label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
-                />
-              )}
-              <Box flex="1" minWidth="0">
-                <Text textStyle="body/md/semibold" truncate maxWidth="full">
-                  {title}
-                </Text>
-                <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
-                  <BitkitList.Item>
-                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                      {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
-                    </Text>
-                  </BitkitList.Item>
-                  {referenceIds.length > 0 && (
-                    <BitkitList.Item>
-                      <Box display="flex" alignItems="center" gap="4">
-                        <IconContainer size="16" color="icon/tertiary" />
-                        <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                          {referenceIds}
-                        </Text>
-                      </Box>
-                    </BitkitList.Item>
-                  )}
-                </BitkitList>
-              </Box>
-              {showJumpButton && (
-                <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
-                  {/* Lists every defining module (incl. the current one) so both occurrences are reachable. */}
-                  <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
-                </Box>
-              )}
-              {buttonGroup}
-            </Box>
-          </Box>
-          {!isCrossFile && (
-            <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-              <Box padding="8" ref={containerRef}>
-                <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
-              </Box>
-            </Collapse>
+      <Box display="flex">
+        {isSortable && (
+          <DragHandle
+            withGroupHover
+            ref={sortable.setActivatorNodeRef}
+            {...sortable.listeners}
+            {...sortable.attributes}
+          />
+        )}
+        <Box
+          display="flex"
+          flexGrow={1}
+          alignItems="center"
+          {...cardPadding}
+          gap="4"
+          className="group"
+          minWidth="0"
+          onClick={handleClick}
+          role={isButton ? 'button' : 'div'}
+        >
+          {/* No expand/collapse for cross-file refs — their nested steps live in another file. */}
+          {isCollapsable && !isCrossFile && (
+            <BitkitControlButton
+              size="xs"
+              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+              className="nopan"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle();
+              }}
+              icon={isOpen ? IconChevronUp : IconChevronDown}
+              label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
+            />
           )}
-        </>
+          <Box flex="1" minWidth="0">
+            <Text textStyle="body/md/semibold" truncate maxWidth="full">
+              {title}
+            </Text>
+            <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
+              <BitkitList.Item>
+                <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                  {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
+                </Text>
+              </BitkitList.Item>
+              {referenceIds.length > 0 && (
+                <BitkitList.Item>
+                  <Box display="flex" alignItems="center" gap="4">
+                    <IconContainer size="16" color="icon/tertiary" />
+                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                      {referenceIds}
+                    </Text>
+                  </Box>
+                </BitkitList.Item>
+              )}
+            </BitkitList>
+          </Box>
+          {showJumpButton && (
+            <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
+              {/* Lists every defining module (incl. the current one) so both occurrences are reachable. */}
+              <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
+            </Box>
+          )}
+          {buttonGroup}
+        </Box>
+      </Box>
+      {!isCrossFile && (
+        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <Box padding="8" ref={containerRef}>
+            <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+          </Box>
+        </Collapse>
       )}
     </Card.Root>
   );

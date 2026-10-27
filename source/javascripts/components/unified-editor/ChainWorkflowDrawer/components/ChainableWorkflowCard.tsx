@@ -28,7 +28,6 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
       justifyContent="space-between"
       paddingInline="16"
       paddingBlock="8"
-      _hover={{ borderColor: 'border/strong', boxShadow: 'elevation/sm' }}
     >
       <Box overflow="hidden">
         <Text textStyle="body/lg/semibold" marginBlockEnd="4" truncate maxWidth="full">

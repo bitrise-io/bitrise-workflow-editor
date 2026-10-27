@@ -23,16 +23,6 @@ import { LeftHandle, RightHandle } from './Handles';
 
 type Props = NodeProps<GraphPipelineNodeType>;
 
-const defaultStyle = {
-  elevation: false,
-  boxShadow: 'elevation/sm',
-} satisfies CardRootProps;
-
-const hoveredStyle = {
-  boxShadow: 'elevation/sm',
-  borderColor: 'border/hover',
-} satisfies CardRootProps;
-
 const selectedStyle = {
   outline: '2px solid',
   outlineColor: 'border/selected',
@@ -431,14 +421,7 @@ const WorkflowNode = ({ id, selected, zIndex, data }: Props) => {
     selectedPipeline,
   ]);
 
-  const containerProps = useMemo(
-    () => ({
-      ...defaultStyle,
-      ...(selected ? selectedStyle : {}),
-      ...(hovered ? hoveredStyle : {}),
-    }),
-    [selected, hovered],
-  );
+  const containerProps = selected ? selectedStyle : undefined;
 
   const highlighted = selected || hovered;
 
