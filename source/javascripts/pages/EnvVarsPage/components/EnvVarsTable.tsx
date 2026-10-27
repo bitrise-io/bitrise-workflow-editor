@@ -1,5 +1,6 @@
-import { Card, Text } from '@bitrise/bitkit';
+import { Card } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { ReactNode } from 'react';
 
 import { SortableEnvVar } from '@/components/SortableEnvVars/SortableEnvVarItem';

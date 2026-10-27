@@ -1,6 +1,6 @@
-import { SearchInput } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
+  BitkitSearchInput,
   BitkitSelectableTag,
   IconBadge3RdParty,
   IconBadgeBitrise,
@@ -95,7 +95,14 @@ const StepFilter = (props: BoxProps) => {
     // The category and maintainer tags live in the drawer's scrolling body (`StepFilterTags`), so they
     // scroll away and leave more room for Steps; the search stays here, pinned.
     <Box display="flex" flexDirection="column" gap="16" {...props}>
-      <SearchInput autoFocus placeholder="Filter by name or description..." value={value} onChange={onChange} />
+      <BitkitSearchInput
+        autoFocus
+        size="md"
+        label="Filter by name or description"
+        placeholder="Filter by name or description..."
+        value={value}
+        onChange={onChange}
+      />
     </Box>
   );
 };

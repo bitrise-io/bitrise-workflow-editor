@@ -1,6 +1,7 @@
-import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Text, Toggletip } from '@bitrise/bitkit';
+import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Toggletip } from '@bitrise/bitkit';
 import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { ReactNode, useMemo } from 'react';
 
 import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
@@ -87,11 +88,8 @@ const MachineTypeSelector = ({
           <Text as="span">Machine types may vary depending on high demand.</Text>
           {Object.entries(machineType.availableInRegions).map(([regionName, texts]) => {
             return (
-              <Text as="span" color="input/text/helper" key={regionName} textStyle="body/sm/regular">
-                <Text as="span" fontWeight="bold">
-                  {regionName}:
-                </Text>{' '}
-                {texts?.join(' • ')}
+              <Text as="span" color="text/helper" key={regionName} textStyle="body/sm/regular">
+                <strong>{regionName}:</strong> {texts?.join(' • ')}
               </Text>
             );
           })}
@@ -102,7 +100,7 @@ const MachineTypeSelector = ({
     const region = selectedRegion || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
 
     return (
-      <Text as="span" color="input/text/helper" textStyle="body/sm/regular">
+      <Text as="span" color="text/helper" textStyle="body/sm/regular">
         {machineType.availableInRegions[region]?.join(' • ')}
       </Text>
     );

@@ -1,14 +1,16 @@
-import { Checkbox, Dialog, DialogBody, DialogFooter, Icon, IconButton, Input, Text, Toggletip } from '@bitrise/bitkit';
+import { Checkbox, Dialog, DialogBody, DialogFooter, IconButton, Input, Toggletip } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitBadge,
   BitkitButton,
   BitkitControlButton,
+  IconLock,
   IconMinusCircle,
   IconPencil,
 } from '@bitrise/bitkit-v2';
 import { Box, BoxProps } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
+import { Text } from '@chakra-ui/react/text';
 import { JSX, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -119,7 +121,7 @@ const SecretCard = (props: SecretCardProps) => {
     onCancel();
   };
 
-  const protectedIcon = <Icon size="16" name="Lock" color="icon/tertiary" margin="12" />;
+  const protectedIcon = <IconLock size="16" color="icon/tertiary" margin="12" />;
 
   const showHideButton = (
     <IconButton
@@ -283,8 +285,8 @@ const SecretCard = (props: SecretCardProps) => {
             style={optionStyle}
           >
             <Box display="flex" flexDirection="column">
-              <Text size="3">Replace variables in inputs</Text>
-              <Text size="1" color="input/text/helper" casing="none">
+              <Text textStyle="body/lg/regular">Replace variables in inputs</Text>
+              <Text textStyle="body/sm/regular" color="text/helper">
                 Enable this if you want to replace Env Vars in your input with the assigned value.
               </Text>
             </Box>
@@ -296,8 +298,8 @@ const SecretCard = (props: SecretCardProps) => {
             style={optionStyle}
           >
             <Box display="flex" flexDirection="column">
-              <Text size="3">Expose for pull requests</Text>
-              <Text size="1" color="input/text/helper" casing="none">
+              <Text textStyle="body/lg/regular">Expose for pull requests</Text>
+              <Text textStyle="body/sm/regular" color="text/helper">
                 Be careful, this is a potential security risk.
               </Text>
             </Box>
@@ -309,8 +311,8 @@ const SecretCard = (props: SecretCardProps) => {
             style={optionStyle}
           >
             <Box display="flex" flexDirection="column">
-              <Text size="3">Protected</Text>
-              <Text size="1" color="input/text/helper" casing="none">
+              <Text textStyle="body/lg/regular">Protected</Text>
+              <Text textStyle="body/sm/regular" color="text/helper">
                 Value cannot be revealed or changed. Irreversible once saved. Delete to replace.
               </Text>
             </Box>

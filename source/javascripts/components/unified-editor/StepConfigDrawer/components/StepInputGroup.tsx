@@ -1,5 +1,6 @@
-import { Card, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Card, ExpandableCard } from '@bitrise/bitkit';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 
 import { EnvModel } from '@/core/models/BitriseYml';

@@ -1,6 +1,8 @@
-import { IconButton, Input, Text } from '@bitrise/bitkit';
+import { Input } from '@bitrise/bitkit';
+import { BitkitIconButton, IconCopy } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
+import { Text } from '@chakra-ui/react/text';
 import { FormControl } from 'chakra-ui-2--react';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
@@ -32,11 +34,10 @@ const OutputVariablesTab = () => {
                   value={variable}
                   isReadOnly
                   rightAddon={
-                    <IconButton
+                    <BitkitIconButton
                       variant="secondary"
-                      iconName="Duplicate"
-                      aria-label="Copy variable name"
-                      tooltipProps={{ 'aria-label': 'Copy variable name' }}
+                      icon={IconCopy}
+                      label="Copy variable name"
                       onClick={() => copy(variable)}
                     />
                   }
