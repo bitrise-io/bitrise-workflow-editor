@@ -5,6 +5,7 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useSelection } from '../contexts/WorkflowCardContext';
 import { dndKitMeasuring } from '../WorkflowCard.const';
 import { SortableStepItem } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
@@ -39,6 +40,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
 
   const isEmpty = !steps.length;
   const isSortable = Boolean(onMove);
+  const { isAddingAt } = useSelection();
 
   const [activeItem, setActiveItem] = useState<SortableStepItem>();
   // Seeded from props so the first paint already has the items (no empty-frame flash on mount).
@@ -96,6 +98,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
               {onAdd && (
                 <AddStepButton
                   my={-8}
+                  isActive={isAddingAt({ stepBundleId, workflowId, stepIndex: item.stepIndex })}
                   onClick={() => {
                     onAdd(id, item.stepIndex);
                   }}
@@ -105,6 +108,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
               {isLast && onAdd && (
                 <AddStepButton
                   my={-8}
+                  isActive={isAddingAt({ stepBundleId, workflowId, stepIndex: item.stepIndex + 1 })}
                   onClick={() => {
                     onAdd(id, item.stepIndex + 1);
                   }}
@@ -115,7 +119,7 @@ const StepList = ({ stepBundleId, steps, onAdd, onMove, workflowId }: Props) => 
         })}
       </Box>
     );
-  }, [id, isSortable, onAdd, sortableItems]);
+  }, [id, isAddingAt, isSortable, onAdd, sortableItems, stepBundleId, workflowId]);
 
   if (isEmpty) {
     return (

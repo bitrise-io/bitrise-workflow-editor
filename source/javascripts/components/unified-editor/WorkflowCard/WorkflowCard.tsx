@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps, Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -15,13 +15,9 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'r
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import LabelTooltip from '@/components/LabelTooltip';
 import PipelineService from '@/core/services/PipelineService';
-import {
-  useCrossFileEntity,
-  useIsMergedConfigSelected,
-  useIsReadOnlyView,
-  useOtherDefiningModules,
-} from '@/hooks/useTree';
+import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -38,6 +34,16 @@ type ContentProps = {
   parallel?: string | number;
   isCollapsable?: boolean;
   containerProps?: CardProps;
+  // Where the card is the page's subject, its settings are always in reach, not only on hover.
+  isEditButtonAlwaysVisible?: boolean;
+  // Keeps the header's hover actions (chain, settings, remove, jump) on screen, e.g. while the card is open and
+  // in focus.
+  areActionsVisible?: boolean;
+  // Page-level actions for that subject (e.g. Run), always visible in the header.
+  headerActions?: ReactNode;
+  // Lets the parent own the expansion (e.g. the pipeline canvas opening a node on click).
+  isExpanded?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
 };
 
 const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
@@ -52,17 +58,11 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   }
 
   let badgeContent = parallel;
-  let tooltipLabel = `${parallel} parallel copies` as ReactNode;
-  let tooltipAriaLabel = `${parallel} parallel copies`;
+  let tooltipLabel = `${parallel} parallel copies`;
 
   if (!PipelineService.isIntegerValue(parallel)) {
     badgeContent = '$';
-    tooltipLabel = (
-      <>
-        Number of copies is calculated based on <strong>{parallel}</strong> Env Var.
-      </>
-    );
-    tooltipAriaLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
+    tooltipLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
   }
 
   return (
@@ -70,14 +70,14 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
       <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
-      <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
+      <LabelTooltip wrapTrigger text={tooltipLabel}>
         {/* Not BitkitBadge: even its xs size makes the card header taller. The overrides shrink the
             Bitkit badge recipe to fit the title line, and display="flex" stops it sinking to the
             bottom of the line inside the Tooltip's wrapper span. */}
         <Badge display="flex" minWidth="0" paddingBlock="0" paddingInline="4">
           {badgeContent}
         </Badge>
-      </Tooltip>
+      </LabelTooltip>
     </Box>
   );
 };
@@ -88,6 +88,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   parallel,
   isCollapsable,
   containerProps,
+  isEditButtonAlwaysVisible,
+  headerActions,
+  isExpanded,
+  onExpandedChange,
+  areActionsVisible,
 }: ContentProps) {
   const workflowId = uses || id;
 
@@ -97,20 +102,24 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', workflowId);
   const otherModules = useOtherDefiningModules('workflows', workflowId);
-  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
-  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
-  const isGhost = isCrossFile || isReadOnlyView;
 
-  const {
-    open: isOpen,
-    onOpen,
-    onToggle,
-  } = useDisclosure({
+  const disclosure = useDisclosure({
     defaultOpen: !isCollapsable,
   });
+  const isOpen = isExpanded ?? disclosure.open;
+  const setIsOpen = (next: boolean) => {
+    if (onExpandedChange) {
+      onExpandedChange(next);
+    } else if (next) {
+      disclosure.onOpen();
+    } else {
+      disclosure.onClose();
+    }
+  };
+  const onOpen = () => setIsOpen(true);
+  const onToggle = () => setIsOpen(!isOpen);
   const { onCreateWorkflow, onChainWorkflow, onEditWorkflow, onRemoveWorkflow } = useWorkflowActions();
 
   const [isJumpPopoverOpen, setIsJumpPopoverOpen] = useState(false);
@@ -129,9 +138,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
     }),
     [containerProps, isHighlighted],
   );
-  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
-  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
-  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
+  // Cross-file refs and read-only views look like any other card; their actions say what differs.
+  const cardVariant = containerProps?.variant ?? 'elevated';
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -175,8 +183,11 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           </Text>
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
-          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
+        {(onChainWorkflow || (onEditWorkflow && !isEditButtonAlwaysVisible) || onRemoveWorkflow || showJumpButton) && (
+          <Box
+            display={areActionsVisible || isJumpPopoverOpen ? 'inline-flex' : 'none'}
+            _groupHover={{ display: 'inline-flex' }}
+          >
             {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
             {onChainWorkflow && !isCrossFile && (
               <BitkitControlButton
@@ -196,7 +207,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
               // a workflow defined here and elsewhere are reachable.
               <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
             )}
-            {onEditWorkflow && (
+            {onEditWorkflow && !isEditButtonAlwaysVisible && (
               <BitkitControlButton
                 size="xs"
                 icon={IconSettings}
@@ -214,6 +225,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
               />
             )}
           </Box>
+        )}
+        {headerActions}
+        {onEditWorkflow && isEditButtonAlwaysVisible && (
+          <BitkitControlButton size="xs" icon={IconSettings} label="Edit Workflow" onClick={() => onEditWorkflow(id)} />
         )}
       </Box>
 
@@ -243,6 +258,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 type Selection = {
   selectedStepIndices?: number[];
   selectionParent?: SelectionParent;
+  isAddingStep?: boolean;
 };
 type Props = ContentProps & WorkflowActions & StepActions & Selection;
 
@@ -252,17 +268,33 @@ const WorkflowCard = ({
   parallel,
   isCollapsable,
   containerProps,
+  isEditButtonAlwaysVisible,
+  headerActions,
+  isExpanded,
+  onExpandedChange,
+  areActionsVisible,
   selectedStepIndices = [],
   selectionParent,
+  isAddingStep,
   ...actions
 }: Props) => (
-  <WorkflowCardContextProvider selectedStepIndices={selectedStepIndices} selectionParent={selectionParent} {...actions}>
+  <WorkflowCardContextProvider
+    selectedStepIndices={selectedStepIndices}
+    selectionParent={selectionParent}
+    isAddingStep={isAddingStep}
+    {...actions}
+  >
     <WorkflowCardContent
       id={id}
       uses={uses}
       parallel={parallel}
       isCollapsable={isCollapsable}
       containerProps={containerProps}
+      isEditButtonAlwaysVisible={isEditButtonAlwaysVisible}
+      headerActions={headerActions}
+      isExpanded={isExpanded}
+      onExpandedChange={onExpandedChange}
+      areActionsVisible={areActionsVisible}
     />
   </WorkflowCardContextProvider>
 );

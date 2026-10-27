@@ -31,7 +31,15 @@ const JumpToFileButton = ({ nodeId }: Props) => {
         recordActiveTabLocation(window.parent.location.hash);
         openTab(id, { preview: false });
       }}
-      trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label="Edit definition" />}
+      trigger={
+        <BitkitControlButton
+          size="xs"
+          icon={IconArrowNortheast}
+          label="Edit definition"
+          // Bitkit hides the tooltip on a control that opens a menu; every control button here names itself.
+          tooltipProps={{ disabled: false }}
+        />
+      }
     />
   );
 };

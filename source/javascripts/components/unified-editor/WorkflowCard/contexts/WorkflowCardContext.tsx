@@ -11,16 +11,22 @@ import { useIsReadOnlyView } from '@/hooks/useTree';
 type State = {
   selectedStepIndices?: number[];
   selectionParent?: SelectionParent;
+  // The Step drawer is open to add a Step: the selection then marks where it goes (the + between Steps), not a
+  // selected Step.
+  isAddingStep?: boolean;
 };
 type Actions = StepActions & WorkflowActions;
 type ContextState = State & Actions;
 
 const WorkflowCardContext = createContext<ContextState | undefined>(undefined);
 
+type SelectionTarget = { stepBundleId?: string; stepIndex?: number; workflowId?: string };
+
 const WorkflowCardContextProvider = ({
   children,
   selectedStepIndices = [],
   selectionParent,
+  isAddingStep = false,
   ...methods
 }: PropsWithChildren<ContextState>) => {
   const state = useMemo(
@@ -28,8 +34,9 @@ const WorkflowCardContextProvider = ({
       ...methods,
       selectedStepIndices,
       selectionParent,
+      isAddingStep,
     }),
-    [methods, selectedStepIndices, selectionParent],
+    [methods, selectedStepIndices, selectionParent, isAddingStep],
   );
 
   return <WorkflowCardContext.Provider value={state}>{children}</WorkflowCardContext.Provider>;
@@ -42,29 +49,25 @@ function useSelection() {
     throw new Error('useSelection must be used within a WorkflowCardContextProvider');
   }
 
-  return useMemo(
-    () => ({
-      selectedStepIndices: state.selectedStepIndices,
-      isSelected: ({
-        stepBundleId,
-        stepIndex = -1,
-        workflowId,
-      }: {
-        stepBundleId?: string;
-        stepIndex?: number;
-        workflowId?: string;
-      }) => {
-        const type: SelectionParent['type'] = stepBundleId ? 'stepBundle' : 'workflow';
-        const isWorkflowSelected =
-          typeof workflowId === 'string' && type === 'workflow' && state.selectionParent?.id === workflowId;
-        const isStepBundleSelected = type === 'stepBundle' && state.selectionParent?.id === stepBundleId;
-        const isStepIndexSelected = state.selectedStepIndices?.includes(stepIndex);
+  return useMemo(() => {
+    const isSelectionAt = ({ stepBundleId, stepIndex = -1, workflowId }: SelectionTarget) => {
+      const type: SelectionParent['type'] = stepBundleId ? 'stepBundle' : 'workflow';
+      const isWorkflowSelected =
+        typeof workflowId === 'string' && type === 'workflow' && state.selectionParent?.id === workflowId;
+      const isStepBundleSelected = type === 'stepBundle' && state.selectionParent?.id === stepBundleId;
+      const isStepIndexSelected = state.selectedStepIndices?.includes(stepIndex);
 
-        return (isWorkflowSelected || isStepBundleSelected) && isStepIndexSelected;
-      },
-    }),
-    [state],
-  );
+      return Boolean((isWorkflowSelected || isStepBundleSelected) && isStepIndexSelected);
+    };
+
+    return {
+      selectedStepIndices: state.selectedStepIndices,
+      // While a Step is being added, no Step shows as selected: the selection is the insertion point.
+      isSelected: (target: SelectionTarget) => !state.isAddingStep && isSelectionAt(target),
+      // Whether a Step is being added at this index of this list (the + before the Step at `stepIndex`).
+      isAddingAt: (target: SelectionTarget) => Boolean(state.isAddingStep) && isSelectionAt(target),
+    };
+  }, [state]);
 }
 
 function useWorkflowActions(): WorkflowActions {

@@ -10,11 +10,11 @@ const LazyRoute = (props: RouteProps) => {
   const { isLoading } = useGetCiConfig({ projectSlug: PageProps.appSlug(), skipValidation: true });
 
   if (isLoading) {
-    return <LoadingState />;
+    return <LoadingState isCanvas />;
   }
 
   return (
-    <Suspense fallback={<LoadingState />}>
+    <Suspense fallback={<LoadingState isCanvas />}>
       <Discardable>
         <Route {...props} />
       </Discardable>

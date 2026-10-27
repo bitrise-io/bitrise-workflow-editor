@@ -1,16 +1,9 @@
-import {
-  Button,
-  Dropdown,
-  DropdownGroup,
-  DropdownOption,
-  DropdownProps,
-  DropdownSearch,
-  Tooltip,
-} from '@bitrise/bitkit';
+import { Button, Dropdown, DropdownGroup, DropdownOption, DropdownProps, DropdownSearch } from '@bitrise/bitkit';
 import { BitkitEmptyState, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
@@ -122,7 +115,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
           )}
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+            <LabelTooltip text={tooltipLabel ?? ''} disabled={!tooltipLabel}>
               <Button
                 borderRadius="0"
                 color="button.secondary"
@@ -136,7 +129,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
               >
                 Create {entityName} with AI
               </Button>
-            </Tooltip>
+            </LabelTooltip>
           )}
         </Box>
       )}

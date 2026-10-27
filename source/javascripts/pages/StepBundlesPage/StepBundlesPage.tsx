@@ -2,7 +2,6 @@ import { BitkitButton, BitkitEmptyState, IconPlus, IconStep } from '@bitrise/bit
 import { Box } from '@chakra-ui/react/box';
 import { useEffect } from 'react';
 
-import StepBundleConfigPanel from '@/components/unified-editor/StepBundleConfig/StepBundleConfigPanel';
 import useCloseDialogsOnFileSwitch, { FileSwitchDialogRefs } from '@/hooks/useCloseDialogsOnFileSwitch';
 import useSelectedStepBundle from '@/hooks/useSelectedStepBundle';
 import { useStepBundles } from '@/hooks/useStepBundles';
@@ -42,9 +41,23 @@ const StepBundlesPage = () => {
   const [stepBundleId] = useSelectedStepBundle();
   const hasStepBundles = stepBundlesIds.length > 0;
 
+  // The bundle's settings live in a drawer now, so opening a Step bundle opens it.
   useEffect(() => {
-    closeDialog();
-  }, [stepBundleId, closeDialog]);
+    const { openedDialogType, stepBundleId: openStepBundleId } = useStepBundlesPageStore.getState();
+    // A create dialog opened on the way here (from the sidebar) stays; so does a drawer already showing this bundle.
+    if (
+      openedDialogType === StepBundlesPageDialogType.CREATE_STEP_BUNDLE ||
+      (openedDialogType === StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION && openStepBundleId === stepBundleId)
+    ) {
+      return;
+    }
+    if (stepBundleId) {
+      // A Step selected in the previous bundle doesn't carry over (Backspace would delete it out of sight).
+      openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION, stepBundleId, selectedStepIndices: [] })();
+    } else {
+      closeDialog();
+    }
+  }, [stepBundleId, openDialog, closeDialog]);
 
   useCloseDialogsOnFileSwitch(fileSwitchDialogRefs, () => {
     const { closeDialog: close, setSelectedStepIndices } = useStepBundlesPageStore.getState();
@@ -53,9 +66,8 @@ const StepBundlesPage = () => {
   });
 
   const content = hasStepBundles ? (
-    <Box height="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
+    <Box height="100%" display="grid" gridTemplateRows="100%">
       <StepBundlesCanvasPanel stepBundleId={stepBundleId} />
-      <StepBundleConfigPanel stepBundleId={stepBundleId} />
     </Box>
   ) : (
     <BitkitEmptyState

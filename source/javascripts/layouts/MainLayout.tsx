@@ -17,8 +17,6 @@ import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
 const MainLayout = () => {
-  const [currentPath] = useHashLocation();
-  const isYmlPage = currentPath.startsWith(paths.yml);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   // Modular configs get a global file-tab strip directly under the header.
@@ -39,13 +37,13 @@ const MainLayout = () => {
       <Header />
       {tabsUnderHeader && <OpenFileTabs />}
       <Box display="flex" flex="1" minHeight={0}>
-        {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
-        <Navigation style={{ display: isYmlPage ? 'none' : undefined }} />
+        {/* Shown on the YAML page too: there, its CI blocks jump to definitions in the editor. */}
+        <Navigation />
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">
             {isConfigLoading ? (
-              <LoadingState />
+              <LoadingState isCanvas />
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>
                 <VisualEditorDisabledRedirect>

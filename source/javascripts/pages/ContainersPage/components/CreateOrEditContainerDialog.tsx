@@ -195,6 +195,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           }}
           render={({ field: { onChange, ...fieldProps } }) => (
             <Input
+              size="md"
               label="Unique ID"
               helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
               placeholder="e.g. node, postgres, redis"
@@ -216,6 +217,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           rules={{ required: 'Image is required' }}
           render={({ field }) => (
             <Input
+              size="md"
               label="Image"
               helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
               placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
@@ -243,6 +245,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           }}
           render={({ field }) => (
             <Input
+              size="md"
               label="Ports"
               helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
               placeholder="e.g. 3000:3000, 5432:5432"
@@ -283,6 +286,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               name="userValues.credentials.server"
               render={({ field }) => (
                 <Input
+                  size="md"
                   label="Registry server"
                   helperText="Fully qualified registry server URL to be used by docker login command."
                   placeholder="e.g. ghcr.io"
@@ -295,14 +299,14 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               control={control}
               name="userValues.credentials.username"
               render={({ field }) => (
-                <StepInput label="Username" isSensitive size="lg" isDisabled={readOnly} {...field} />
+                <StepInput label="Username" isSensitive size="md" isDisabled={readOnly} {...field} />
               )}
             />
             <Controller
               control={control}
               name="userValues.credentials.password"
               render={({ field }) => (
-                <StepInput label="Password" isSensitive size="lg" isDisabled={readOnly} {...field} />
+                <StepInput label="Password" isSensitive size="md" isDisabled={readOnly} {...field} />
               )}
             />
             <Separator marginBlockStart="8" />
@@ -313,6 +317,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   name={`userValues.envs.${index}.key`}
                   render={({ field: { value, ...fieldProps } }) => (
                     <Input
+                      size="md"
                       label={index === 0 ? 'Environment Variables' : undefined}
                       placeholder="Key"
                       width="100%"
@@ -326,13 +331,20 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   control={control}
                   name={`userValues.envs.${index}.value`}
                   render={({ field: { value, ...fieldProps } }) => (
-                    <Input placeholder="Value" width="100%" value={value || ''} isDisabled={readOnly} {...fieldProps} />
+                    <Input
+                      size="md"
+                      placeholder="Value"
+                      width="100%"
+                      value={value || ''}
+                      isDisabled={readOnly}
+                      {...fieldProps}
+                    />
                   )}
                 />
                 {!readOnly && (
                   <ButtonGroup>
                     <EnvVarPopover
-                      size="lg"
+                      size="md"
                       onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
                       showCreate={false}
                     />
@@ -340,7 +352,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                       icon={IconTrash}
                       isDanger
                       state={fields.length === 1 ? 'disabled' : undefined}
-                      size="lg"
+                      size="md"
                       label="Remove environment variable"
                       onClick={() => remove(index)}
                     />

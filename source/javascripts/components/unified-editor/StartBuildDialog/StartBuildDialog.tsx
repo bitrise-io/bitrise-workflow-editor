@@ -53,6 +53,7 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
     <Dialog title={`Run "${pipelineId || workflowId}"`} {...dialogProps} onCloseComplete={handleOnCloseComplete}>
       <DialogBody>
         <Input
+          size="md"
           autoFocus
           isRequired
           label="Branch"

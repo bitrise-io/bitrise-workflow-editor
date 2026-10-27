@@ -1,16 +1,19 @@
-import { Tooltip } from '@bitrise/bitkit';
 import { IconPlus } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { memo } from 'react';
 
-type Props = BoxProps;
+import LabelTooltip from '@/components/LabelTooltip';
 
-const AddStepButton = ({ onClick, ...props }: Props) => {
+// `isActive`: a Step is being added here, so the line and the + stay on screen while the Step drawer is open,
+// showing where the Step will go.
+type Props = BoxProps & { isActive?: boolean };
+
+const AddStepButton = ({ onClick, isActive, ...props }: Props) => {
   return (
     <Box height="8" cursor="pointer" position="relative" {...props} className="group">
       <Box
         height="2"
-        display="none"
+        display={isActive ? 'block' : 'none'}
         background="interactive/base"
         top="calc(50% - 1px)"
         left={0}
@@ -20,7 +23,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           display: 'block',
         }}
       />
-      <Tooltip label="Add Step or Step bundle" aria-label="Add Step or Step bundle">
+      <LabelTooltip text="Add Step or Step bundle">
         <Box
           width="20"
           height="20"
@@ -30,7 +33,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           left="calc(50% - 10px)"
           onClick={onClick}
           aria-label="Add Step or Step bundle"
-          display="none"
+          display={isActive ? 'flex' : 'none'}
           alignItems="center"
           justifyContent="center"
           background="button/primary/bg"
@@ -48,7 +51,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
         >
           <IconPlus size="16" />
         </Box>
-      </Tooltip>
+      </LabelTooltip>
     </Box>
   );
 };
