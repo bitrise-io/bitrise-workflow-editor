@@ -29,8 +29,18 @@ type Story = StoryObj<typeof WorkflowEditor>;
 
 type PlaygroundParent = Window & { playground?: typeof sampleBridge };
 
+// Storybook's preview runtime turns HTMLElement.prototype.focus into a getter/setter. Ark's focus tracker
+// (Bitkit v2) then redefines it as a value without `writable`, which leaves it read-only, and Chakra v2's
+// tracker (Bitkit v1 Checkbox, e.g. in a Workflow's drawer) throws when it assigns it. Outside Storybook neither
+// happens. Pinning it back to a plain writable value keeps it writable through Ark's redefinition.
+const pinWritableFocus = () => {
+  const { focus } = HTMLElement.prototype;
+  Object.defineProperty(HTMLElement.prototype, 'focus', { configurable: true, writable: true, value: focus });
+};
+
 const onProject = (slug: SampleProjectSlug): Story => ({
   beforeEach: ({ msw }) => {
+    pinWritableFocus();
     const project = SAMPLE_PROJECTS[slug];
     msw.use(...playgroundHandlers);
     (window.parent as PlaygroundParent).playground = sampleBridge;
