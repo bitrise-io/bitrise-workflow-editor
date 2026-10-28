@@ -1,5 +1,4 @@
-import { Tooltip } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitTooltip } from '@bitrise/bitkit-v2';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { useFormContext } from 'react-hook-form';
 
@@ -46,9 +45,10 @@ const TriggerFormFooter = (props: Props) => {
       <BitkitButton variant="secondary" onClick={handleCancel}>
         Cancel
       </BitkitButton>
-      <Tooltip
-        isDisabled={!isSameTriggerExist && !hasEmptyCondition}
-        label={
+      <BitkitTooltip
+        disabled={!isSameTriggerExist && !hasEmptyCondition}
+        wrapTrigger={isSameTriggerExist || hasEmptyCondition}
+        text={
           isSameTriggerExist
             ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
             : 'Please fill all conditions.'
@@ -61,7 +61,7 @@ const TriggerFormFooter = (props: Props) => {
         >
           {editedItem ? 'Apply changes' : 'Add trigger'}
         </BitkitButton>
-      </Tooltip>
+      </BitkitTooltip>
     </ButtonGroup>
   );
 };

@@ -1,13 +1,5 @@
-import {
-  Button,
-  Dropdown,
-  DropdownGroup,
-  DropdownOption,
-  DropdownProps,
-  DropdownSearch,
-  Tooltip,
-} from '@bitrise/bitkit';
-import { BitkitEmptyState, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Button, Dropdown, DropdownGroup, DropdownOption, DropdownProps, DropdownSearch } from '@bitrise/bitkit';
+import { BitkitEmptyState, BitkitTooltip, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 
@@ -24,6 +16,37 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
     ids: string[];
   };
 }
+
+// Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
+// into an array, and BitkitTooltip wraps an array in an inline span, which shrinks this full-width row.
+// An element without `children` is left alone.
+const CreateWithAIButton = ({
+  entityName,
+  isDisabled,
+  onClick,
+  tooltipLabel,
+}: {
+  entityName?: string;
+  isDisabled: boolean;
+  onClick: VoidFunction;
+  tooltipLabel?: string;
+}) => (
+  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''}>
+    <Button
+      borderRadius="0"
+      color="button.secondary"
+      textStyle="body/lg/regular"
+      justifyContent="flex-start"
+      leftIcon={<IconSparkleFilled color={isDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
+      variant="tertiary"
+      width="100%"
+      isDisabled={isDisabled}
+      onClick={onClick}
+    >
+      Create {entityName} with AI
+    </Button>
+  </BitkitTooltip>
+);
 
 const EntitySelector = (props: EntitySelectorProps) => {
   const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
@@ -122,21 +145,12 @@ const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
           )}
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-              <Button
-                borderRadius="0"
-                color="button.secondary"
-                textStyle="body/lg/regular"
-                justifyContent="flex-start"
-                leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
-                variant="tertiary"
-                width="100%"
-                isDisabled={isAIButtonDisabled}
-                onClick={handleCreateWithAI}
-              >
-                Create {entityName} with AI
-              </Button>
-            </Tooltip>
+            <CreateWithAIButton
+              entityName={entityName}
+              isDisabled={isAIButtonDisabled}
+              onClick={handleCreateWithAI}
+              tooltipLabel={tooltipLabel}
+            />
           )}
         </Box>
       )}

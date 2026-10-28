@@ -1,5 +1,12 @@
-import { Card, CardProps, MarkdownContent, Tooltip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
+import { Card, CardProps, MarkdownContent } from '@bitrise/bitkit';
+import {
+  BitkitAvatar,
+  BitkitControlButton,
+  BitkitLinkButton,
+  BitkitOverflowTooltip,
+  IconPlus,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
@@ -111,7 +118,7 @@ const AlgoliaStepListItem = ({
           />
         </Box>
         <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-          <Tooltip isDisabled={!isTitleTruncated} label={title} shouldWrapChildren>
+          <BitkitOverflowTooltip disabled={!isTitleTruncated} text={title ?? ''}>
             <Text
               ref={titleRef}
               transition={TRANSITION}
@@ -121,7 +128,7 @@ const AlgoliaStepListItem = ({
             >
               {title}
             </Text>
-          </Tooltip>
+          </BitkitOverflowTooltip>
           <Text
             color="text/secondary"
             transition={TRANSITION}

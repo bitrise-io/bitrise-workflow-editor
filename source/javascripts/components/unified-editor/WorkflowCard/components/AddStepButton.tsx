@@ -1,5 +1,4 @@
-import { Tooltip } from '@bitrise/bitkit';
-import { IconPlus } from '@bitrise/bitkit-v2';
+import { BitkitLabelTooltip, IconPlus } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { memo } from 'react';
 
@@ -20,7 +19,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           display: 'block',
         }}
       />
-      <Tooltip label="Add Step or Step bundle" aria-label="Add Step or Step bundle">
+      <BitkitLabelTooltip text="Add Step or Step bundle">
         <Box
           width="20"
           height="20"
@@ -48,7 +47,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
         >
           <IconPlus size="16" />
         </Box>
-      </Tooltip>
+      </BitkitLabelTooltip>
     </Box>
   );
 };

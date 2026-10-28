@@ -1,5 +1,5 @@
-import { Button, Dropdown, DropdownOption, DropdownSearch, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlay, IconPlus, IconSettings, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
+import { BitkitButton, BitkitTooltip, IconPlay, IconPlus, IconSettings, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
@@ -18,6 +18,39 @@ type Props = BoxProps & {
   onPropertiesClick?: () => void;
   onCreatePipelineClick?: () => void;
 };
+
+// Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
+// into an array, and BitkitTooltip wraps an array in an inline span, which shrinks this full-width row.
+// An element without `children` is left alone.
+const CreatePipelineWithAIButton = ({
+  isDisabled,
+  onClick,
+  tooltipLabel,
+}: {
+  isDisabled: boolean;
+  onClick: VoidFunction;
+  tooltipLabel?: string;
+}) => (
+  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''}>
+    <Button
+      w="100%"
+      border="none"
+      textStyle="body/lg/regular"
+      borderRadius="0"
+      variant="secondary"
+      leftIcon={<IconSparkleFilled color={isDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
+      justifyContent="flex-start"
+      isDisabled={isDisabled}
+      _disabled={{
+        backgroundColor: 'background/primary',
+        color: 'button/secondary/fg-disabled',
+      }}
+      onClick={onClick}
+    >
+      Create Pipeline with AI
+    </Button>
+  </BitkitTooltip>
+);
 
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
@@ -151,25 +184,11 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
               Create Pipeline
             </Button>
             {isAIButtonVisible && (
-              <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} display="block">
-                <Button
-                  w="100%"
-                  border="none"
-                  textStyle="body/lg/regular"
-                  borderRadius="0"
-                  variant="secondary"
-                  leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
-                  justifyContent="flex-start"
-                  isDisabled={isAIButtonDisabled}
-                  _disabled={{
-                    backgroundColor: 'background/primary',
-                    color: 'button/secondary/fg-disabled',
-                  }}
-                  onClick={onCreatePipelineWithAI}
-                >
-                  Create Pipeline with AI
-                </Button>
-              </Tooltip>
+              <CreatePipelineWithAIButton
+                isDisabled={isAIButtonDisabled}
+                onClick={onCreatePipelineWithAI}
+                tooltipLabel={tooltipLabel}
+              />
             )}
           </Box>
         )}
@@ -203,11 +222,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       )}
 
       {RuntimeUtils.isWebsiteMode() && (
-        <Tooltip
-          label={runButtonTooltip}
-          aria-label={runButtonTooltip}
-          shouldWrapChildren={isEmpty || isModularFileTab || hasUnsavedChanges}
-        >
+        <BitkitTooltip text={runButtonTooltip} wrapTrigger={isEmpty || isModularFileTab || hasUnsavedChanges}>
           <BitkitButton
             size="md"
             variant="secondary"
@@ -218,7 +233,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
           >
             Run
           </BitkitButton>
-        </Tooltip>
+        </BitkitTooltip>
       )}
     </Box>
   );
