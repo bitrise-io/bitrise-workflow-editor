@@ -2,16 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import ToolCatalogApi from '@/core/api/ToolCatalogApi';
 import { Tools } from '@/core/models/BitriseYml';
-import { ToolScope } from '@/core/services/ToolsService';
+import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 export function useToolsForScope(scope: ToolScope): Tools {
-  return useBitriseYmlStore(({ yml }) => {
-    if (scope.type === 'workflow') {
-      return yml.workflows?.[scope.workflowId]?.tools ?? {};
-    }
-    return yml.tools ?? {};
-  });
+  return useBitriseYmlStore(({ yml }) => ToolsService.getToolsForScope(yml, scope));
 }
 
 export function useToolCatalog() {

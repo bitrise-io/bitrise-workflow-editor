@@ -1,5 +1,6 @@
 import semver from 'semver';
 
+import { BitriseYml, Tools } from '../models/BitriseYml';
 import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '../models/Tools';
 import { bitriseYmlStore, updateBitriseYmlDocument } from '../stores/BitriseYmlStore';
 import ToolVersionUtils from '../utils/ToolVersionUtils';
@@ -160,6 +161,10 @@ function validateScope(scope: ToolScope, doc = bitriseYmlStore.getState().ymlDoc
 
 function getScopePath(scope: ToolScope): (string | number)[] {
   return scope.type === 'workflow' ? ['workflows', scope.workflowId] : [];
+}
+
+function getToolsForScope(yml: BitriseYml, scope: ToolScope): Tools {
+  return (scope.type === 'workflow' ? yml.workflows?.[scope.workflowId]?.tools : yml.tools) ?? {};
 }
 
 /** Every tool ID (canonical name or alias) the catalog recognizes. */
@@ -329,6 +334,7 @@ export default {
   isKeywordStart,
   toParsedToolVersion,
   getVersionInputValue,
+  getToolsForScope,
   setTool,
   deleteTool,
   renameTool,
