@@ -158,7 +158,7 @@ const AlgoliaStepListItem = ({
       {!isDisabled && !isOpen && (
         <Box
           inset="0"
-          background="background/primary"
+          background="background/secondary"
           top="auto"
           height={rem(26)}
           display="none"
