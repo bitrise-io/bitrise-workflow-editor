@@ -27,9 +27,8 @@ const mapEntries = (value: unknown) => (isPlainObject(value) ? Object.entries(va
 const uiWrites = new Map<string, string | null>();
 
 /**
- * Remembers what a tool setup UI write left in the active file, so a save can tell the changes made
- * through the UI from those made in YAML. Read back from the document rather than taken from the write,
- * so a rename or a removal needs nothing of its own.
+ * Remembers what a tool setup UI write left in the active file. Read back from the document rather than
+ * taken from the write, so a rename or a removal needs nothing of its own.
  */
 export function recordToolSetupWrite(scope: ToolScope, toolIds: string[]) {
   const state = bitriseYmlStore.getState();
@@ -40,6 +39,23 @@ export function recordToolSetupWrite(scope: ToolScope, toolIds: string[]) {
     const value = Object.keys(tools).includes(toolId) ? toRawValue(tools[toolId]) : null;
     uiWrites.set(entryKey(activeFileKey(state), workflowId, toolId), value);
   });
+}
+
+/**
+ * The document as JSON, or nothing for a file whose tools can't be read: one with parse errors, where a
+ * partial parse can drop or move tools, or one `toJSON` throws on, such as too many aliases. Its tools then
+ * count only when the UI wrote them. This runs inside store updates, so a throw would break the save.
+ */
+function readConfig(document: Document) {
+  if (document.errors.length > 0) {
+    return undefined;
+  }
+
+  try {
+    return YmlUtils.toJSON(document);
+  } catch {
+    return undefined;
+  }
 }
 
 function snapshotTools(documents: Record<string, Document>): ToolSnapshot {
@@ -54,7 +70,11 @@ function snapshotTools(documents: Record<string, Document>): ToolSnapshot {
   };
 
   Object.entries(documents).forEach(([fileKey, document]) => {
-    const yml = YmlUtils.toJSON(document);
+    const yml = readConfig(document);
+    if (!yml) {
+      return;
+    }
+
     addScope(fileKey, undefined, yml.tools);
     mapEntries(yml.workflows).forEach(([workflowId, workflow]) => {
       addScope(fileKey, workflowId, isPlainObject(workflow) ? workflow.tools : undefined);
@@ -77,10 +97,7 @@ function describeVersion(value: string) {
   }
 }
 
-/**
- * Records in RUM each tool entry a save added, changed or removed, and whether the tool setup UI made the
- * change, so how many people set up tools through the UI, and how, can be counted.
- */
+/** Records in RUM each tool entry a save added, changed or removed, and whether the tool setup UI made it. */
 export function trackToolSetupSaved(prevDocuments: Record<string, Document>, nextDocuments: Record<string, Document>) {
   const prev = snapshotTools(prevDocuments);
   const next = snapshotTools(nextDocuments);
@@ -96,8 +113,8 @@ export function trackToolSetupSaved(prevDocuments: Record<string, Document>, nex
 
     const { fileKey, workflowId, toolId, value } = entry;
     const viaUi = uiWrites.has(key) && uiWrites.get(key) === (after?.value ?? null);
-    // A workflow or file that came or went with the save, renamed say, takes its tools along without
-    // anyone touching them, so only an entry the UI wrote under its saved name counts there.
+    // A scope missing from either snapshot, such as a renamed workflow or a file with parse errors, has
+    // nothing to compare with, so only entries the UI wrote count there.
     const scope = scopeKey(fileKey, workflowId);
     if (!viaUi && !(prev.scopes.has(scope) && next.scopes.has(scope))) {
       return;

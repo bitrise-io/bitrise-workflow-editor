@@ -123,13 +123,14 @@ describe('useTrackToolSetup', () => {
     ]);
   });
 
-  it('records nothing when a save leaves the tools as they were', () => {
+  it('records nothing for a tool a save leaves as it was', () => {
     mount();
     setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
     removeInUi('nodejs');
+    setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
     save();
 
-    expect(addAction).not.toHaveBeenCalled();
+    expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby' })]);
   });
 
   it('credits the YAML editor when it changes a value the UI wrote', () => {
@@ -154,10 +155,10 @@ describe('useTrackToolSetup', () => {
 
   it('ignores tools that a workflow rename carries along', () => {
     mount('workflows:\n  primary:\n    tools:\n      nodejs: latest\n');
-    editYaml('workflows:\n  renamed:\n    tools:\n      nodejs: latest\n');
+    editYaml('tools:\n  ruby: 3.3.0\nworkflows:\n  renamed:\n    tools:\n      nodejs: latest\n');
     save();
 
-    expect(addAction).not.toHaveBeenCalled();
+    expect(actions()).toEqual([expect.objectContaining({ change: 'added', scope: 'root', tool: 'ruby' })]);
   });
 
   it('records tools set up in the UI for a workflow the save creates', () => {
@@ -206,6 +207,35 @@ describe('useTrackToolSetup', () => {
     expect(actions()).toEqual([expect.objectContaining({ tool: 'nodejs', viaUi: true })]);
   });
 
+  it('ignores tools that were already there when a config that failed to parse is fixed', () => {
+    mount('tools:\n  nodejs: 22.1.0\nworkflows: [\n');
+    editYaml('tools:\n  nodejs: 22.1.0\nworkflows:\n  primary: {}\n');
+    setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
+    save();
+
+    expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+  });
+
+  it('forgets UI writes when a config that fails to parse loads over another one', () => {
+    mount('workflows: [\n');
+    editYaml('workflows:\n  primary: {}\n');
+    setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
+    load('tools:\n  nodejs: 22.1.0\nworkflows: [\n');
+    editYaml('tools:\n  nodejs: 22.1.0\nworkflows:\n  primary: {}\n');
+    setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
+    save();
+
+    expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+  });
+
+  it('records tools added in YAML to a config that started empty', () => {
+    mount('');
+    editYaml('tools:\n  nodejs: 22.1.0\n');
+    save();
+
+    expect(actions()).toEqual([expect.objectContaining({ change: 'added', tool: 'nodejs', viaUi: false })]);
+  });
+
   it('sends the workspace when there is one', () => {
     mount();
     jest.spyOn(GlobalProps, 'workspaceSlug').mockReturnValueOnce('workspace-slug');
@@ -226,17 +256,21 @@ describe('useTrackToolSetup', () => {
       includes,
     });
 
-    const saveModular = () =>
+    const mountModular = (root: TreeNode) => {
+      renderHook(() => useTrackToolSetup());
+      act(() => initializeModularConfig({ root, mergedYml: '{}\n' }));
+    };
+
+    const BROKEN_MODULE = 'tools:\n  nodejs: 22.1.0\nworkflows: *missing\n';
+
+    const saveModular = (moduleContents = getFileYmlString('module')) =>
       act(() =>
-        applyModularSaveResult({
-          root: node('root', getFileYmlString('root'), [node('module', getFileYmlString('module'))]),
-        }),
+        applyModularSaveResult({ root: node('root', getFileYmlString('root'), [node('module', moduleContents)]) }),
       );
 
     it('tells the same tool in two files apart', () => {
       const tools = 'tools:\n  nodejs: latest\n';
-      renderHook(() => useTrackToolSetup());
-      act(() => initializeModularConfig({ root: node('root', tools, [node('module', tools)]), mergedYml: tools }));
+      mountModular(node('root', tools, [node('module', tools)]));
       act(() => selectNode('module'));
       setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
       act(() => selectNode('root'));
@@ -253,8 +287,7 @@ describe('useTrackToolSetup', () => {
     });
 
     it('forgets only the UI writes of a discarded file', () => {
-      renderHook(() => useTrackToolSetup());
-      act(() => initializeModularConfig({ root: node('root', '{}\n', [node('module', '{}\n')]), mergedYml: '{}\n' }));
+      mountModular(node('root', '{}\n', [node('module', '{}\n')]));
       act(() => selectNode('root'));
       setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
       act(() => selectNode('module'));
@@ -270,6 +303,37 @@ describe('useTrackToolSetup', () => {
         ]),
       );
       expect(addAction).toHaveBeenCalledTimes(2);
+    });
+
+    it('ignores tools that were already there when a module that failed to parse is fixed', () => {
+      mountModular(node('root', '{}\n', [node('module', BROKEN_MODULE)]));
+      act(() => updateFileDocumentByString('module', 'tools:\n  nodejs: 22.1.0\n'));
+      act(() => selectNode('root'));
+      setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
+      saveModular();
+
+      expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+    });
+
+    it('prunes UI writes on a discard and saves while a module fails to parse', () => {
+      mountModular(node('root', '{}\n', [node('module', BROKEN_MODULE)]));
+      act(() => selectNode('root'));
+      setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
+      act(() => discardBitriseYmlDocument());
+      act(() => updateBitriseYmlDocumentByString('tools:\n  ruby: 3.3.0\n'));
+      saveModular(BROKEN_MODULE);
+
+      expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: false })]);
+    });
+
+    it('keeps saving while a module has more aliases than the YAML library resolves', () => {
+      const manyAliases = `x: &x [1]\n${Array.from({ length: 101 }, (_, i) => `k${i}: *x\n`).join('')}`;
+      mountModular(node('root', '{}\n', [node('module', manyAliases)]));
+      act(() => selectNode('root'));
+      setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
+      saveModular(manyAliases);
+
+      expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
     });
   });
 });
