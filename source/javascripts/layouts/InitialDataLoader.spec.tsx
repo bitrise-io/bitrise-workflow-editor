@@ -73,6 +73,8 @@ jest.mock('@bitrise/bitkit-v2', () => ({
 
 jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn(), addAction: jest.fn() } }));
 jest.mock('@/core/analytics/ConfigManagementAnalytics', () => ({ trackConfigBranchLoaded: jest.fn() }));
+// The real module reads `window.env` on load, which Jest doesn't have.
+jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ segmentTrack: jest.fn() }));
 jest.mock('@/hooks/useYmlLanguageServices', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('@/hooks/useCloseAIDrawer', () => ({ __esModule: true, default: jest.fn() }));
 
