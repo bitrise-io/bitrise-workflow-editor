@@ -26,7 +26,12 @@ import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useStepBundle from '@/hooks/useStepBundle';
-import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
+import {
+  useCrossFileEntity,
+  useIsMergedConfigSelected,
+  useIsReadOnlyView,
+  useOtherDefiningModules,
+} from '@/hooks/useTree';
 
 import StepBundleStepList from '../../WorkflowCard/components/StepBundleStepList';
 import { StepCardProps } from '../../WorkflowCard/components/StepCard';
@@ -58,12 +63,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows({ stepBundleCvs: cvs });
 
-  // Cross-file: bundle definition lives in another module — a subtle tint signals it.
+  // Cross-file: bundle definition lives in another module.
   const bundleId = StepBundleService.cvsToId(cvs);
   const { isCrossFile, hasDefinition } = useCrossFileEntity('stepBundles', bundleId);
   // Modules other than the one open that define this bundle — drives the "Also defined in …" line and
   // the jump target. Covers both the pure cross-file case and the intermediate one (also defined here).
   const otherModules = useOtherDefiningModules('stepBundles', bundleId);
+  const isReadOnlyView = useIsReadOnlyView();
+  const isFaded = isCollapsable ? isCrossFile && !isReadOnlyView : isCrossFile || isReadOnlyView;
   const isMergedView = useIsMergedConfigSelected();
   // In the merged view every bundle resolves locally, but its definition still lives in a module — offer a jump.
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
@@ -147,13 +154,14 @@ const StepBundleCard = (props: StepBundleCardProps) => {
     const common: CardRootProps = {
       width: 'full',
       elevation: Boolean(isDragging),
+      opacity: isFaded ? 0.7 : undefined,
     };
 
     return {
       ...common,
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isDragging, isHighlighted]);
+  }, [isDragging, isFaded, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
     // The menu's actions come from onDeleteStep OR onDeleteStepInStepBundle (the latter for

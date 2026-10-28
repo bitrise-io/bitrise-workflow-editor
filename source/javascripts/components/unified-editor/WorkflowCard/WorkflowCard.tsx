@@ -17,7 +17,12 @@ import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'r
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import PipelineService from '@/core/services/PipelineService';
-import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
+import {
+  useCrossFileEntity,
+  useIsMergedConfigSelected,
+  useIsReadOnlyView,
+  useOtherDefiningModules,
+} from '@/hooks/useTree';
 import useWorkflow from '@/hooks/useWorkflow';
 import useWorkflowStackName from '@/hooks/useWorkflowStackName';
 
@@ -93,8 +98,10 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   const { isCrossFile, hasDefinition } = useCrossFileEntity('workflows', workflowId);
   const otherModules = useOtherDefiningModules('workflows', workflowId);
+  const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
+  const isGhost = isCrossFile || isReadOnlyView;
 
   const {
     open: isOpen,
@@ -112,6 +119,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
+      ...(isGhost && { opacity: 0.7 }),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -119,7 +127,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted],
+    [containerProps, isGhost, isHighlighted],
   );
 
   if (!workflow && !isCrossFile) {
