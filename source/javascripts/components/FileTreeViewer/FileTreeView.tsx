@@ -1,8 +1,9 @@
-import { BitkitTooltip, BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
+import { BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useMemo } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import { TreeNode } from '@/core/models/Tree';
 import FileTreeService, { FileTreeFolder, FileTreeGroup } from '@/core/services/FileTreeService';
 import PageProps from '@/core/utils/PageProps';
@@ -13,6 +14,9 @@ type Props = {
   selectedNodeId?: string;
   onSelect: (nodeId: string) => void;
   isNodeDisabled?: (node: TreeNode) => boolean;
+  // Where the project is already named around the tree (the sidebar), its own files need no header.
+  // Groups from other repositories or refs keep theirs.
+  hideWorkingRepoHeader?: boolean;
 };
 
 // Folder ids are path strings, file ids are node_ids.
@@ -113,7 +117,7 @@ const GroupTree = ({
   );
 };
 
-const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
+const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled, hideWorkingRepoHeader }: Props) => {
   const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
 
   const groups = useMemo(
@@ -126,10 +130,15 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
       {groups.map((group) => (
         <Box key={group.key} display="flex" flexDirection="column">
           {/* No `px`: header left-aligns with the title while the tree's own 8px inset indents file rows. */}
-          <Box display="flex" alignItems="center" gap="4" paddingBlock="6">
+          <Box
+            display={hideWorkingRepoHeader && !group.isReadOnly ? 'none' : 'flex'}
+            alignItems="center"
+            gap="4"
+            paddingBlock="6"
+          >
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (
-              <BitkitTooltip text="Modules included from another repository or ref are read-only.">
+              <LabelTooltip text="Modules included from another repository or ref are read-only.">
                 {/* Focusable + labelled so the read-only explanation is reachable by keyboard and
                     announced by screen readers, while staying non-actionable (not a button). */}
                 <IconInfoCircle
@@ -139,7 +148,7 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
                   role="img"
                   aria-label="Read-only — included from another repository or ref"
                 />
-              </BitkitTooltip>
+              </LabelTooltip>
             )}
           </Box>
           <GroupTree

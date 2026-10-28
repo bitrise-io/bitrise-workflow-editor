@@ -1,14 +1,17 @@
 import { Box } from '@chakra-ui/react/box';
-import { Controls, MiniMap } from '@xyflow/react';
+import { Background, BackgroundVariant, Controls, MiniMap } from '@xyflow/react';
 
-import GlobalProps from '@/core/utils/GlobalProps';
-import PageProps from '@/core/utils/PageProps';
-import WindowUtils from '@/core/utils/WindowUtils';
+import {
+  CANVAS_DOT_COLOR,
+  CANVAS_DOT_GAP,
+  CANVAS_DOT_SIZE,
+  CANVAS_EDGE_SHADOW,
+} from '@/components/unified-editor/canvasDots';
+import { STEP_CANVAS_ATTRIBUTE } from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 import usePipelineSelector from '../../hooks/usePipelineSelector';
-import { PipelinesPageDialogType, usePipelinesPageStore } from '../../PipelinesPage.store';
-import Toolbar from '../Toolbar/Toolbar';
+import Toolbar, { FLOATING_CONTROLS_INSET, floatingControlsProps, PipelineActionsProvider } from '../Toolbar/Toolbar';
 import GraphPipelineCanvas from './GraphPipelineCanvas/GraphPipelineCanvas';
 import PipelineConversionNotification from './PipelineConversionNotification';
 import PipelineConversionSignposting from './PipelineConversionSignposting';
@@ -16,56 +19,51 @@ import StagedPipelineCanvas from './StagedPipelineCanvas/StagedPipelineCanvas';
 
 const PipelineCanvas = () => {
   const { selectedPipeline } = usePipelineSelector();
-  const openDialog = usePipelinesPageStore((s) => s.openDialog);
   const variant = useBitriseYmlStore(({ yml }) => (yml.pipelines?.[selectedPipeline]?.workflows ? 'graph' : 'staged'));
   const CanvasComponent = variant === 'graph' ? GraphPipelineCanvas : StagedPipelineCanvas;
 
-  const handleRunPipelineClick = () => {
-    const shouldShowTrialUpsellDialog = Boolean(GlobalProps.workspace()?.isRestricted && PageProps.app()?.hasAnyBuild);
-
-    if (shouldShowTrialUpsellDialog) {
-      WindowUtils.postMessageToParent('OPEN_TRIAL_UPSELL_DIALOG', {
-        reason: 'pipeline_run',
-      });
-    } else {
-      openDialog({
-        type: PipelinesPageDialogType.START_BUILD,
-        pipelineId: selectedPipeline,
-      })();
-    }
-  };
-
   return (
-    <>
+    <PipelineActionsProvider>
       <PipelineConversionSignposting />
       <PipelineConversionNotification />
-      <Box background="background/secondary" flex="1" position="relative" userSelect="none">
-        <Toolbar
-          top="16"
-          left="50%"
-          zIndex="10"
-          position="absolute"
-          transform="translateX(-50%)"
-          width="clamp(0px, calc(100% - 32px), 768px)"
-          onWorkflowsClick={openDialog({
-            type: PipelinesPageDialogType.WORKFLOW_SELECTOR,
-            pipelineId: selectedPipeline,
-          })}
-          onPropertiesClick={openDialog({
-            type: PipelinesPageDialogType.PIPELINE_CONFIG,
-            pipelineId: selectedPipeline,
-          })}
-          onCreatePipelineClick={openDialog({
-            type: PipelinesPageDialogType.CREATE_PIPELINE,
-          })}
-          onRunClick={handleRunPipelineClick}
-        />
-        <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
-          <Controls showInteractive={false} />
-          <MiniMap pannable zoomable zoomStep={1} />
-        </CanvasComponent>
+      <Box flex="1" minHeight="0" display="flex" flexDirection="column">
+        <Box
+          background="background/secondary"
+          flex="1"
+          minHeight="0"
+          position="relative"
+          userSelect="none"
+          {...{ [STEP_CANVAS_ATTRIBUTE]: '' }}
+          // The shared canvas dot grid; React Flow's own pattern, so it pans and zooms with the Pipeline.
+          css={{ '& .react-flow__background-pattern.dots': { fill: CANVAS_DOT_COLOR } }}
+          // The shared canvas edge shadow, on a layer over React Flow that clicks pass through.
+          _after={{
+            content: '""',
+            position: 'absolute',
+            inset: '0',
+            zIndex: '5',
+            pointerEvents: 'none',
+            boxShadow: CANVAS_EDGE_SHADOW,
+          }}
+        >
+          {/* The Pipeline's name, menu and Run float over the canvas's top-left; the graph starts below them. */}
+          <Box
+            {...floatingControlsProps}
+            position="absolute"
+            top={`${FLOATING_CONTROLS_INSET}px`}
+            left={`${FLOATING_CONTROLS_INSET}px`}
+            zIndex="10"
+          >
+            <Toolbar />
+          </Box>
+          <CanvasComponent key={selectedPipeline} proOptions={{ hideAttribution: true }}>
+            <Background variant={BackgroundVariant.Dots} gap={CANVAS_DOT_GAP} size={CANVAS_DOT_SIZE} />
+            <Controls showInteractive={false} />
+            <MiniMap pannable zoomable zoomStep={1} />
+          </CanvasComponent>
+        </Box>
       </Box>
-    </>
+    </PipelineActionsProvider>
   );
 };
 

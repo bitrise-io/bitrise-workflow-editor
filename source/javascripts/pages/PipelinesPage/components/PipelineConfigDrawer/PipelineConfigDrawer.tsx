@@ -1,7 +1,8 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip } from '@bitrise/bitkit';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
 import { BitkitButton, BitkitHeading, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
@@ -10,15 +11,17 @@ import FloatingDrawer, {
   FloatingDrawerProps,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useAIButton from '@/hooks/useAIButton';
+import { PipelineConfigTab } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import PropertiesTab from './tabs/PropertiesTab';
 import TriggersTab from './tabs/TriggersTab';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   pipelineId: string;
+  initialTab?: PipelineConfigTab;
 };
 
-const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
+const PipelineConfigDrawer = ({ pipelineId, initialTab, ...props }: Props) => {
   const {
     isVisible: isAIButtonVisible,
     tooltipLabel,
@@ -31,7 +34,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   }
 
   return (
-    <Tabs>
+    <Tabs defaultIndex={initialTab === 'triggers' ? 1 : 0}>
       <FloatingDrawer {...props}>
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
@@ -39,7 +42,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
             <Box display="flex" gap="16">
               <BitkitHeading as="h3">{pipelineId}</BitkitHeading>
               {isAIButtonVisible && (
-                <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
+                <LabelTooltip text={tooltipLabel ?? ''} disabled={!tooltipLabel}>
                   <BitkitButton
                     state={isAIButtonDisabled ? 'disabled' : undefined}
                     icon={IconSparkleFilled}
@@ -49,7 +52,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
                   >
                     Explain
                   </BitkitButton>
-                </Tooltip>
+                </LabelTooltip>
               )}
             </Box>
             <Box marginInline="-24" marginBlockStart="16">

@@ -121,6 +121,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         }}
         render={({ field, fieldState }) => (
           <BitkitTextInput
+            size="md"
             label="Branch name"
             placeholder="new-branch-name"
             helperText="Must follow Git branch naming rules."
@@ -136,6 +137,7 @@ const PushBranchDialog = ({ isOpen, onClose, isPushPending, pushError, onPush, o
         rules={{ required: 'Commit message is required' }}
         render={({ field }) => (
           <BitkitTextArea
+            size="md"
             label="Commit message"
             placeholder="e.g. Update Bitrise configuration via Workflow Editor"
             helperText="Appears in your Git commit history."

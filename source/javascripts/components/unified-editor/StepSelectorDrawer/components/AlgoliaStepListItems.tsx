@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { AlgoliaStepResponse } from '@/core/api/AlgoliaApi';
 import { findScrollContainer } from '@/core/utils/CommonUtils';
@@ -22,9 +22,29 @@ const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
   const columns = useCalculateColumns(ref);
   const rows = useVirtualItems({ steps, columns, enabledSteps });
 
+  // The tags above the list scroll with it, so the list starts below them in the scroll container. The
+  // virtualizer needs that offset (`scrollMargin`), kept current as the tags wrap or the drawer resizes.
+  const [scrollMargin, setScrollMargin] = useState(0);
+  useLayoutEffect(() => {
+    const list = ref.current;
+    const container = findScrollContainer(list);
+    if (!list || !container) {
+      return undefined;
+    }
+    const update = () =>
+      setScrollMargin(list.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop);
+    const observer = new ResizeObserver(update);
+    observer.observe(container);
+    if (list.parentElement) {
+      observer.observe(list.parentElement);
+    }
+    return () => observer.disconnect();
+  }, []);
+
   const { measure, getTotalSize, getVirtualItems } = useVirtualizer({
     gap: GAP,
     count: rows.length,
+    scrollMargin,
     getScrollElement: () => {
       return findScrollContainer(ref.current);
     },
@@ -50,7 +70,7 @@ const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
 
         if (typeof item === 'string') {
           return (
-            <Text key={key} top={start} height={size} position="absolute" textStyle="heading/h4">
+            <Text key={key} top={start - scrollMargin} height={size} position="absolute" textStyle="heading/h4">
               {item}
             </Text>
           );
@@ -60,7 +80,7 @@ const AlgoliaStepListItems = ({ steps, enabledSteps, onSelectStep }: Props) => {
           <Box
             gap={GAP}
             key={key}
-            top={start}
+            top={start - scrollMargin}
             width="100%"
             height={size}
             display="grid"

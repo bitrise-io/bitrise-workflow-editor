@@ -5,7 +5,6 @@ import {
   BitkitLink,
   BitkitSelect,
   BitkitTextInput,
-  BitkitTooltip,
   IconMinusCircle,
   IconOpenInNew,
   IconQuestionCircle,
@@ -18,6 +17,7 @@ import { useController, useForm } from 'react-hook-form';
 import { Document } from 'yaml';
 import { useStore } from 'zustand';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import { ParsedToolVersion, ToolCatalog, ToolVersions, VersionStrategy } from '@/core/models/Tools';
 import ToolsService from '@/core/services/ToolsService';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
@@ -334,10 +334,10 @@ const ToolRow = ({
   return (
     <Box display="flex" flexDirection="column" gap="8">
       <Box display="flex" alignItems="flex-start" gap="12">
-        <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+        <LabelTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
           <Box display="flex" flexDirection="column" gap="8" width={TOOL_ID_COLUMN_WIDTH} flexShrink="0">
             <BitkitSelect
-              size="lg"
+              size="md"
               placeholder="Select one"
               isLoading={isCatalogLoading}
               items={dropdownItems}
@@ -347,7 +347,7 @@ const ToolRow = ({
             />
             {showCustomInput && (
               <BitkitTextInput
-                size="lg"
+                size="md"
                 placeholder="Tool ID (e.g. deno)"
                 errorText={toolIdFieldState.error?.message}
                 state={isReadOnly ? 'readOnly' : undefined}
@@ -358,12 +358,12 @@ const ToolRow = ({
               />
             )}
           </Box>
-        </BitkitTooltip>
+        </LabelTooltip>
 
-        <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+        <LabelTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
           <Box display="flex" flexDirection="column" gap="8" flex="1">
             <BitkitSelect
-              size="lg"
+              size="md"
               items={strategyItems}
               value={effectiveStrategy}
               state={isReadOnly ? 'readOnly' : undefined}
@@ -375,7 +375,7 @@ const ToolRow = ({
                 labelText={
                   <>
                     Prefer preinstalled version{' '}
-                    <BitkitTooltip text={PREFER_INSTALLED_TOOLTIP_TEXT}>
+                    <LabelTooltip text={PREFER_INSTALLED_TOOLTIP_TEXT}>
                       <IconQuestionCircle
                         size="16"
                         color="icon/tertiary"
@@ -383,7 +383,7 @@ const ToolRow = ({
                         role="img"
                         aria-label="Prefer preinstalled version details"
                       />
-                    </BitkitTooltip>
+                    </LabelTooltip>
                   </>
                 }
                 checked={effectivePreferInstalled}
@@ -392,16 +392,16 @@ const ToolRow = ({
               />
             )}
           </Box>
-        </BitkitTooltip>
+        </LabelTooltip>
 
         {(effectiveStrategy === 'exact' || isLatestOf) && (
-          <BitkitTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
+          <LabelTooltip text={READ_ONLY_TOOLTIP_TEXT} disabled={!isReadOnly}>
             <Box display="flex" flexDirection="column" gap="8" width={VERSION_COLUMN_WIDTH} flexShrink="0">
               {/* An exact version of a tool the catalog knows is always picked from its list, a
                   prefix only when the list has version numbers. */}
               {isExactKnownTool ? (
                 <BitkitSelect
-                  size="lg"
+                  size="md"
                   placeholder="Select"
                   items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
@@ -419,7 +419,7 @@ const ToolRow = ({
                 />
               ) : hasPrefixDropdown ? (
                 <BitkitSelect
-                  size="lg"
+                  size="md"
                   placeholder="Select"
                   items={searchedVersionOptions}
                   isLoading={isVersionsLoading}
@@ -434,7 +434,7 @@ const ToolRow = ({
                 />
               ) : (
                 <BitkitTextInput
-                  size="lg"
+                  size="md"
                   placeholder={effectiveStrategy === 'exact' ? 'e.g. 24.7.0' : 'prefix, e.g. 22'}
                   errorText={displayedVersionError}
                   helperText={versionHint}
@@ -448,7 +448,7 @@ const ToolRow = ({
                 />
               )}
             </Box>
-          </BitkitTooltip>
+          </LabelTooltip>
         )}
 
         <BitkitIconButton

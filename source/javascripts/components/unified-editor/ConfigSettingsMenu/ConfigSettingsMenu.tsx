@@ -2,7 +2,6 @@ import {
   BitkitActionMenu,
   BitkitControlButton,
   BitkitOverflowTooltip,
-  BitkitTooltip,
   IconBranch,
   IconChevronDown,
   IconDownload,
@@ -14,6 +13,7 @@ import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import {
   trackBranchSwitchPopupShown,
   trackChangeStorageButtonClicked,
@@ -92,10 +92,18 @@ const ConfigSettingsMenu = (props: Props) => {
       <BitkitActionMenu
         size="md"
         positioning={{ placement: 'bottom-end' }}
-        trigger={<BitkitControlButton icon={IconChevronDown} label="Configuration options" size="xs" />}
+        trigger={
+          <BitkitControlButton
+            icon={IconChevronDown}
+            label="Configuration options"
+            size="xxs"
+            // Bitkit hides the tooltip on a control that opens a menu; every control button here names itself.
+            tooltipProps={{ disabled: false }}
+          />
+        }
       >
         {enableBranchSwitching && usesRepositoryYml && (
-          <BitkitTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
+          <LabelTooltip disabled={!hasChanges} text="Unsaved changes, save or discard first.">
             <BitkitActionMenu.Item
               value="switch-branch"
               icon={IconBranch}
@@ -108,7 +116,7 @@ const ConfigSettingsMenu = (props: Props) => {
             >
               Switch branch...
             </BitkitActionMenu.Item>
-          </BitkitTooltip>
+          </LabelTooltip>
         )}
         {/* Only the fixed menu item labels — the branch / storage label in the trigger row above is
             customer data, so it stays masked. */}

@@ -17,6 +17,8 @@ import YmlUtils from '@/core/utils/YmlUtils';
 import { useFile } from '@/hooks/useFile';
 import { useNodeModelUri, useSelectedNodeId } from '@/hooks/useTree';
 
+import YmlEditorRegistry from '../ymlEditorRegistry';
+
 // Read-only tab for the merged config. It's a synthetic flattening, not a source file, so it lives on
 // its own `bitrise-merged://` scheme — an isolated single-file language-service workspace (in-file
 // navigation/hover) that never joins the real bitrise:// tree. See MERGED_MODEL_URI.
@@ -43,7 +45,10 @@ const EditableFileEditor = ({ file, path }: { file: FileSlice; path: string }) =
           MonacoUtils.setAliasMarkers(path, updateBitriseYmlDocumentByString(value));
         }
       }}
-      onMount={() => MonacoUtils.setAliasMarkers(path)}
+      onMount={(editor) => {
+        YmlEditorRegistry.registerYmlEditor(editor);
+        MonacoUtils.setAliasMarkers(path);
+      }}
       options={{ minimap: { enabled: false } }}
     />
   );
@@ -70,7 +75,12 @@ const ReadOnlyEditor = ({ path, value, markAliases }: { path: string; value: str
         keepCurrentModel
         path={path}
         value={value}
-        onMount={markAliases ? () => MonacoUtils.setAliasMarkers(path) : undefined}
+        onMount={(editor) => {
+          YmlEditorRegistry.registerYmlEditor(editor);
+          if (markAliases) {
+            MonacoUtils.setAliasMarkers(path);
+          }
+        }}
         options={{ readOnly: true, minimap: { enabled: false } }}
       />
     </Box>

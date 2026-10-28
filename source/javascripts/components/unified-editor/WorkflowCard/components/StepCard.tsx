@@ -1,4 +1,4 @@
-import { Card, CardProps, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitColorButton,
@@ -19,6 +19,7 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import LabelTooltip from '@/components/LabelTooltip';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
@@ -44,22 +45,17 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
 
   if (errorText) {
     icon = (
-      <Tooltip label={errorText} aria-label={errorText} shouldWrapChildren wrapperProps={{ display: 'flex' }}>
+      <LabelTooltip text={errorText} wrapTrigger wrapperProps={{ display: 'flex' }}>
         <IconErrorCircleFilled marginInlineStart="4" size="16" color="icon/negative" />
-      </Tooltip>
+      </LabelTooltip>
     );
   }
 
   if (isUpgradable && !icon) {
     icon = (
-      <Tooltip
-        label="New version is available"
-        aria-label="New version is available"
-        shouldWrapChildren
-        wrapperProps={{ display: 'flex' }}
-      >
+      <LabelTooltip text="New version is available" wrapTrigger wrapperProps={{ display: 'flex' }}>
         <IconWarningYellow marginInlineStart="4" size="16" />
-      </Tooltip>
+      </LabelTooltip>
     );
   }
 

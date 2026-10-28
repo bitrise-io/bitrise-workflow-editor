@@ -1,45 +1,47 @@
 import {
+  BitkitControlButton,
   BitkitIconComponent,
   BitkitPageSidebar,
-  BitkitPageSidebarProps,
+  BitkitToggleButton,
   createBitkitToast,
-  IconArrowNortheast,
   IconBook,
-  IconContainer,
   IconDoc,
-  IconDollar,
-  IconKey,
-  IconLock,
-  IconStack,
-  IconStep,
-  IconTrigger,
-  IconWorkflow,
-  IconWorkflowFlow,
+  IconFolder,
+  IconTerminal,
   rem,
 } from '@bitrise/bitkit-v2';
-import { useCallback, useEffect, useRef } from 'react';
+import { Box, type BoxProps } from '@chakra-ui/react/box';
+import { Separator } from '@chakra-ui/react/separator';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import BuildingBlocks from '@/components/Navigation/BuildingBlocks';
+import FilesPanel from '@/components/Navigation/FilesPanel';
+import FirstBuildingBlock from '@/components/Navigation/firstBuildingBlock';
+import SidebarResizeHandle, { useSidebarWidth } from '@/components/Navigation/SidebarResizeHandle';
+import { RAIL_WIDTH } from '@/components/Navigation/ToolPanel';
+import TOOLS from '@/components/Navigation/tools';
+import useOpenBuildingBlock, { useCloseToolPanel, useLastBlock } from '@/components/Navigation/useOpenBuildingBlock';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
 import PageProps from '@/core/utils/PageProps';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WindowUtils from '@/core/utils/WindowUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
-import useSearchParams from '@/hooks/useSearchParams';
+import useSearchParams, { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
+import { useTree } from '@/hooks/useTree';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
-import { paths } from '@/routes';
+import { PipelinesPageDialogType, usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
+import { StepBundlesPageDialogType, useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
+import { useWorkflowsPageStore, WorkflowsPageDialogType } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 
-type Props = Omit<BitkitPageSidebarProps, 'children'>;
-type NavigationItemProps = {
-  children: string;
-  path: string;
-  icon: BitkitIconComponent;
-  intercomTarget?: string;
-};
+type SidebarView = 'files' | 'building-blocks';
+
+const BUILDING_BLOCK_PAGES = ['workflows', 'pipelines', 'step_bundles'];
 
 function usePathWithSearchParams() {
   const [searchParams] = useSearchParams();
@@ -53,45 +55,62 @@ function usePathWithSearchParams() {
   );
 }
 
-const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItemProps) => {
-  const [hashPath, navigate] = useHashLocation();
-  const isSelected = hashPath.startsWith(path);
-  // Schema/marker errors don't block navigation: the visual pages render any config they can read.
-  // Blocking on the broader validation status trapped users on the current page whenever the YAML
-  // was merely schema-invalid (SSW-3087).
-  const visualEditorNotice = useVisualEditorNotice();
+// The help links at the rail's foot match its buttons: 40px with a 20px icon (md's 24px drawing, scaled down).
+const RAIL_LINK_PROPS = {
+  size: 'md',
+  minWidth: '40',
+  height: '40',
+  css: { '& svg': { width: '20px', height: '20px' } },
+} as const;
 
-  const handleNavigation = useCallback(() => {
-    if (visualEditorNotice?.disabled && !path.startsWith(paths.yml)) {
-      createBitkitToast({
-        variant: visualEditorNotice.severity,
-        titleText: visualEditorNotice.title,
-        messageText: visualEditorNotice.description,
-      });
-      return;
-    }
+// One square in the rail: an icon with its name as the tooltip, and the selected look when it's open.
+const RailButton = ({
+  icon,
+  label,
+  isSelected,
+  onSelect,
+}: {
+  icon: BitkitIconComponent;
+  label: string;
+  isSelected: boolean;
+  onSelect: VoidFunction;
+}) => (
+  <BitkitToggleButton
+    // Experiment: 20px icons in 40px buttons. Bitkit draws icons at 16 and 24 only, so the lg size (24px
+    // drawing) is held at md's 40px and its icon scaled down, keeping the finer drawing.
+    size="lg"
+    minWidth="40"
+    height="40"
+    css={{ '& svg': { width: '20px', height: '20px' } }}
+    borderWidth="0"
+    tooltipProps={{ placement: 'right' }}
+    icon={icon}
+    label={label}
+    isSelected={isSelected}
+    onSelectedChange={onSelect}
+  />
+);
 
-    navigate(path);
-  }, [visualEditorNotice, navigate, path]);
-
-  return (
-    <BitkitPageSidebar.Item
-      data-intercom-target={intercomTarget}
-      icon={icon}
-      onClick={handleNavigation}
-      selected={isSelected}
-    >
-      {children}
-    </BitkitPageSidebar.Item>
-  );
-};
-
-const Navigation = (props: Props) => {
+const Navigation = (props: BoxProps) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
-  const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
+  const [, navigate] = useHashLocation();
+  const [searchParams] = useSearchParams();
+  const withSearchParams = usePathWithSearchParams();
+  const visualEditorNotice = useVisualEditorNotice();
+  const openBuildingBlock = useOpenBuildingBlock();
+  const closeToolPanel = useCloseToolPanel();
+  const [view, setView] = useState<SidebarView>('building-blocks');
+  // A single-file config has nothing to navigate between, so it gets no Modules.
+  const tree = useTree();
+  const isModular = Boolean(tree && tree.includes.length > 0);
+  const visibleView = view === 'files' && !isModular ? 'building-blocks' : view;
+  const currentTool = TOOLS.find((tool) => tool.page === currentPage);
+  const [sidebarWidth, setSidebarWidth] = useSidebarWidth();
+  // Held here so a search survives switching to another view and back.
+  const [buildingBlocksQuery, setBuildingBlocksQuery] = useState('');
 
   useParentMessageListener<{
     bitriseYmlContents: string;
@@ -127,113 +146,213 @@ const Navigation = (props: Props) => {
     isDefaultTabRef.current = false;
   }, [currentPage, data?.usesRepositoryYml]);
 
+  // Remember the last CI block a URL names, so CI blocks (and closing a tool panel) return there, and
+  // whether the YAML page or a CI blocks page was open last, so a tool panel opens over that one.
+  useEffect(() => {
+    if (currentPage === 'yml') {
+      useLastBlock.setState({ isYamlView: true });
+    } else if (BUILDING_BLOCK_PAGES.includes(currentPage ?? '')) {
+      useLastBlock.setState({ isYamlView: false });
+    }
+    const at = FirstBuildingBlock.blockAt(currentPage, searchParams);
+    if (at) {
+      useLastBlock.setState({ target: at });
+    }
+  }, [currentPage, searchParams]);
+
+  // Switching file tabs shows that file's CI blocks wherever the canvas would otherwise not change: from a
+  // tool panel, or from a kind the new file doesn't have (e.g. only Step bundles while on Pipelines). The
+  // sidebar switches from Modules to CI blocks to match: picking a file shows what's in it. The YAML page
+  // stays put. Only on switching files: deleting the last entity of a kind keeps you there.
+  const selectedNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
+  const [viewNodeId, setViewNodeId] = useState(selectedNodeId);
+  if (viewNodeId !== selectedNodeId) {
+    setViewNodeId(selectedNodeId);
+    if (view !== 'building-blocks' && currentPage !== 'yml') {
+      setView('building-blocks');
+    }
+  }
+  const previousNodeIdRef = useRef(selectedNodeId);
+  useEffect(() => {
+    if (previousNodeIdRef.current === selectedNodeId) {
+      return;
+    }
+    const previousNodeId = previousNodeIdRef.current;
+    previousNodeIdRef.current = selectedNodeId;
+    // A modular config picking its first file on load isn't a switch: a link to a tool page keeps it open.
+    if (previousNodeId === undefined) {
+      return;
+    }
+    // The page the click went to: a tab's remembered page or a jump's target is already in the hash, while the
+    // page state only follows on the next hashchange.
+    const page = window.parent.location.hash.split('?')[0].split('/').pop() ?? '';
+    const isToolOpen = TOOLS.some((tool) => tool.page === page);
+    const isBlockPage = BUILDING_BLOCK_PAGES.includes(page);
+    // Creating the first of a kind in the new file (the sidebar's "Add a … to …") lands on that kind's page.
+    const isCreating =
+      usePipelinesPageStore.getState().openedDialogType === PipelinesPageDialogType.CREATE_PIPELINE ||
+      useWorkflowsPageStore.getState().openedDialogType === WorkflowsPageDialogType.CREATE_WORKFLOW ||
+      useStepBundlesPageStore.getState().openedDialogType === StepBundlesPageDialogType.CREATE_STEP_BUNDLE;
+    if (isToolOpen && useLastBlock.getState().isYamlView) {
+      closeToolPanel();
+    } else if (
+      page !== 'yml' &&
+      !isCreating &&
+      (!isBlockPage || !FirstBuildingBlock.hasBlocksFor(bitriseYmlStore.getState().yml, page))
+    ) {
+      openBuildingBlock();
+    }
+    // Reacts to the file switch only; the rest is read fresh when it happens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNodeId]);
+
+  // Opening the editor on a CI blocks page without naming an entity lands on the highest-level block too.
+  // A link that names one (e.g. from a build page) is kept. Read on first render, before any page fills
+  // in a default; acted on once the config has loaded.
+  const landedWithEntityRef = useRef(
+    FirstBuildingBlock.entityParams.some((param) => Boolean(getSearchParamsFromLocationHash()[param])),
+  );
+  const hasAnyBlock = useBitriseYmlStore((s) => Boolean(FirstBuildingBlock.firstBuildingBlock(s.yml)));
+  const hasLandedRef = useRef(false);
+  useEffect(() => {
+    if (!hasAnyBlock || hasLandedRef.current) {
+      return;
+    }
+    hasLandedRef.current = true;
+    if (!landedWithEntityRef.current && BUILDING_BLOCK_PAGES.includes(currentPage ?? '')) {
+      openBuildingBlock();
+    }
+    // Runs once, when the config first has a block; the rest is read fresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasAnyBlock]);
+
+  // CI blocks and Modules show their list beside the rail, closing any tool panel by going back to what it
+  // opened over. On the YAML page they stay put: there, the lists jump within the YAML.
+  const showList = (next: SidebarView) => {
+    setView(next);
+    if (currentTool) {
+      closeToolPanel();
+    } else if (currentPage !== 'yml' && next === 'building-blocks') {
+      openBuildingBlock();
+    }
+  };
+
+  // A tool opens its page in a panel over the canvas; the canvas page's own drawer steps aside for it.
+  const openTool = (path: string) => {
+    if (visualEditorNotice?.disabled) {
+      createBitkitToast({
+        variant: visualEditorNotice.severity,
+        titleText: visualEditorNotice.title,
+        messageText: visualEditorNotice.description,
+      });
+      return;
+    }
+    usePipelinesPageStore.getState().closeDialog();
+    useWorkflowsPageStore.getState().closeDialog();
+    useStepBundlesPageStore.getState().closeDialog();
+    navigate(withSearchParams(path));
+  };
+
   return (
-    // Every label, icon and link in the sidebar is the same for every user and account.
-    <BitkitPageSidebar
-      data-clarity-unmask="true"
-      flexShrink={0}
-      // The layout gives the sidebar the height of the row under the header, so the component's own
-      // `100dvh` floor has to give way or it pushes past the bottom of the editor.
-      minHeight="auto"
-      // The width v1 had. There is no narrow icon-only mode in the design system, so the mobile rail
-      // went with the migration.
-      width={rem(256)}
-      {...props}
-    >
-      <BitkitPageSidebar.Body>
-        <NavigationItem
-          path={withSearchParams(paths.workflows)}
-          icon={IconWorkflow}
-          intercomTarget="Workflows Page Navigation Item"
-        >
-          Workflows
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.pipelines)}
-          icon={IconWorkflowFlow}
-          intercomTarget="Pipelines Page Navigation Item"
-        >
-          Pipelines
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.stepBundles)}
-          icon={IconStep}
-          intercomTarget="Step Bundles Page Navigation Item"
-        >
-          Step bundles
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.secrets)}
-          icon={IconLock}
-          intercomTarget="Secrets Page Navigation Item"
-        >
-          Secrets
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.envVars)}
-          icon={IconDollar}
-          intercomTarget="Env Vars Page Navigation Item"
-        >
-          Env Vars
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.triggers)}
-          icon={IconTrigger}
-          intercomTarget="Triggers Page Navigation Item"
-        >
-          Triggers
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.containers)}
-          icon={IconContainer}
-          intercomTarget="Containers Page Navigation Item"
-        >
-          Containers
-        </NavigationItem>
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.stacksAndMachines)}
-            icon={IconStack}
-            intercomTarget="Stacks & Machines Page Navigation Item"
-          >
-            Stacks & Machines
-          </NavigationItem>
+    // The sidebar's own labels, icons and links are the same for every user and account; the entity
+    // lists and file tree inside it mask themselves.
+    <Box display="flex" flexShrink={0} minHeight="0" data-clarity-unmask="true" {...props}>
+      {/* The rail: CI blocks and Modules show their list beside it; each tool opens its page in a panel. */}
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap="4"
+        width={`${RAIL_WIDTH}px`}
+        flexShrink={0}
+        // Above the tool panel, which slides out from behind it.
+        position="relative"
+        zIndex="21"
+        paddingBlock="8"
+        paddingInline="8"
+        borderInlineEnd="1px solid"
+        borderColor="border/regular"
+        background="background/primary"
+      >
+        {/* In a modular setup Modules comes first: the files, then what's in them. */}
+        {isModular && (
+          <RailButton
+            icon={IconFolder}
+            label="Modules"
+            isSelected={!currentTool && visibleView === 'files'}
+            onSelect={() => showList('files')}
+          />
         )}
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.licenses)}
-            icon={IconKey}
-            intercomTarget="Licenses Page Navigation Item"
-          >
-            Licenses
-          </NavigationItem>
-        )}
-      </BitkitPageSidebar.Body>
-      <BitkitPageSidebar.Footer>
-        <BitkitPageSidebar.Item
-          data-intercom-target="YAML Reference Navigation Item"
-          href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
-          icon={IconBook}
-          onClick={() => segmentTrack('Workflow Editor YAML Reference Button Clicked')}
-          rel="noopener noreferrer"
-          suffixIcon={IconArrowNortheast}
-          target="_blank"
+        <RailButton
+          icon={IconTerminal}
+          label="CI blocks"
+          isSelected={!currentTool && visibleView === 'building-blocks'}
+          onSelect={() => showList('building-blocks')}
+        />
+        <Separator width="24" marginBlock="4" />
+        {TOOLS.filter((tool) => !tool.isWebsiteOnly || RuntimeUtils.isWebsiteMode()).map((tool) => (
+          <Box key={tool.page} data-intercom-target={tool.intercomTarget}>
+            <RailButton
+              icon={tool.icon}
+              label={tool.label}
+              isSelected={currentTool?.page === tool.page}
+              // Clicking the open tool again closes its panel, like its ×.
+              onSelect={() => (currentTool?.page === tool.page ? closeToolPanel() : openTool(tool.path))}
+            />
+          </Box>
+        ))}
+        <Box marginBlockStart="auto" display="flex" flexDirection="column" gap="4">
+          <BitkitControlButton
+            data-intercom-target="YAML Reference Navigation Item"
+            href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
+            isExternal
+            icon={IconBook}
+            label="YAML Reference"
+            {...RAIL_LINK_PROPS}
+            tooltipProps={{ placement: 'right' }}
+            onClick={() => segmentTrack('Workflow Editor YAML Reference Button Clicked')}
+          />
+          <BitkitControlButton
+            data-intercom-target="Workflow Recipes Navigation Item"
+            href="https://github.com/bitrise-io/workflow-recipes"
+            isExternal
+            icon={IconDoc}
+            label="Workflow Recipes"
+            {...RAIL_LINK_PROPS}
+            tooltipProps={{ placement: 'right' }}
+            onClick={() => segmentTrack('Workflow Editor Workflow Recipes Button Clicked')}
+          />
+        </Box>
+      </Box>
+
+      {/* The list beside the rail. It stays put while a tool is open: the tool's panel floats over it. */}
+      <Box position="relative" flexShrink={0} display="flex">
+        <BitkitPageSidebar
+          flexShrink={0}
+          // The layout gives the sidebar the height of the row under the header, so the component's own
+          // `100dvh` floor has to give way or it pushes past the bottom of the editor.
+          minHeight="auto"
+          // Wide enough for entity names; Bitkit caps the sidebar at 320 from tablet up, so the cap is
+          // lifted with it.
+          width={rem(sidebarWidth)}
+          maxWidth={rem(sidebarWidth)}
+          paddingBlockStart="8"
+          paddingInline="8"
         >
-          YAML Reference
-        </BitkitPageSidebar.Item>
-        <BitkitPageSidebar.Item
-          data-intercom-target="Workflow Recipes Navigation Item"
-          href="https://github.com/bitrise-io/workflow-recipes"
-          icon={IconDoc}
-          onClick={() => segmentTrack('Workflow Editor Workflow Recipes Button Clicked')}
-          rel="noopener noreferrer"
-          suffixIcon={IconArrowNortheast}
-          target="_blank"
-        >
-          Workflow Recipes
-        </BitkitPageSidebar.Item>
-      </BitkitPageSidebar.Footer>
-    </BitkitPageSidebar>
+          {/* Bitkit's body fills the sidebar but never scrolls, so a long list would push the whole editor
+              page down. The body is held to the sidebar's height and the list scrolls inside it. */}
+          <BitkitPageSidebar.Body minHeight="0">
+            <Box flex="1" minHeight="0" overflowY="auto">
+              {visibleView === 'files' && <FilesPanel />}
+              {visibleView === 'building-blocks' && (
+                <BuildingBlocks query={buildingBlocksQuery} onQueryChange={setBuildingBlocksQuery} />
+              )}
+            </Box>
+          </BitkitPageSidebar.Body>
+        </BitkitPageSidebar>
+        <SidebarResizeHandle width={sidebarWidth} onResize={setSidebarWidth} />
+      </Box>
+    </Box>
   );
 };
 

@@ -1,9 +1,14 @@
 import { CardProps } from '@bitrise/bitkit';
-import { BitkitIconButton, IconPlay } from '@bitrise/bitkit-v2';
+import { BitkitControlButton, IconPlay } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
 
+import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
+import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import useDeleteSelectedStepsOnKey, {
+  STEP_CANVAS_ATTRIBUTE,
+} from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import WorkflowCard from '@/components/unified-editor/WorkflowCard/WorkflowCard';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
@@ -22,11 +27,17 @@ import { useIsMergedConfigSelected, useTree } from '@/hooks/useTree';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 
 import { useWorkflowsPageStore, WorkflowsPageDialogType } from '../../WorkflowsPage.store';
-import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
 type Props = {
   workflowId: string;
 };
+
+// Modal dialogs cover the page; everything else is a drawer beside the canvas.
+const DIALOGS_WITHOUT_DRAWER = [
+  WorkflowsPageDialogType.NONE,
+  WorkflowsPageDialogType.START_BUILD,
+  WorkflowsPageDialogType.CREATE_WORKFLOW,
+];
 
 const containerProps: CardProps = {
   maxW: 400,
@@ -47,18 +58,38 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     );
   });
 
-  const { closeDialog, openDialog, selectedStepIndices, selectedWorkflowId, selectionParent, setSelectedStepIndices } =
-    useWorkflowsPageStore(
-      useShallow((s) => ({
-        closeDialog: s.closeDialog,
-        openDialog: s.openDialog,
-        selectedStepIndices: s.selectedStepIndices,
-        selectedWorkflowId: s.workflowId,
-        selectedStepBundleId: s.stepBundleId,
-        selectionParent: s.selectionParent,
-        setSelectedStepIndices: s.setSelectedStepIndices,
-      })),
-    );
+  const {
+    closeDialog,
+    openDialog,
+    selectedStepIndices,
+    selectedWorkflowId,
+    selectionParent,
+    setSelectedStepIndices,
+    isDrawerOpen,
+    isAddingStep,
+  } = useWorkflowsPageStore(
+    useShallow((s) => ({
+      isDrawerOpen: s.isSwitchingDialog || !DIALOGS_WITHOUT_DRAWER.includes(s.openedDialogType),
+      closeDialog: s.closeDialog,
+      openDialog: s.openDialog,
+      selectedStepIndices: s.selectedStepIndices,
+      selectedWorkflowId: s.workflowId,
+      selectedStepBundleId: s.stepBundleId,
+      selectionParent: s.selectionParent,
+      setSelectedStepIndices: s.setSelectedStepIndices,
+      isAddingStep: s.openedDialogType === WorkflowsPageDialogType.STEP_SELECTOR,
+    })),
+  );
+
+  useDeleteSelectedStepsOnKey({
+    selectedStepIndices,
+    selectionParent,
+    isEnabled: !isAddingStep,
+    onDeleted: () => {
+      closeDialog();
+      setSelectedStepIndices([]);
+    },
+  });
 
   const runButtonAriaLabel = useMemo(() => {
     if (WorkflowService.isUtilityWorkflow(workflowId)) {
@@ -390,45 +421,45 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   return (
     <Box height="100%" display="flex" flexDirection="column" minWidth={[256, 320, 400]}>
       <Box
-        padding="12"
-        display="flex"
-        gap="12"
-        background="background/primary"
-        borderBottom="1px solid"
-        borderColor="border/regular"
-      >
-        <WorkflowSelector />
-        {RuntimeUtils.isWebsiteMode() && (
-          <BitkitIconButton
-            size="md"
-            icon={IconPlay}
-            variant="secondary"
-            label={runButtonAriaLabel}
-            state={
-              WorkflowService.isUtilityWorkflow(workflowId) || isModularFileTab || hasUnsavedChanges
-                ? 'disabled'
-                : undefined
-            }
-            onClick={() => openRunWorkflowDialog(workflowId)}
-          />
-        )}
-      </Box>
-      <Box
         flex="1"
         overflowY="auto"
         padding="16"
+        // Keeps the card in view beside an open drawer rather than under it.
+        paddingInlineEnd={['16', isDrawerOpen ? `calc(${FLOATING_DRAWER_WIDTH} + 32px)` : '16']}
+        transition="padding-inline-end 200ms"
         background="background/secondary"
+        {...canvasDotsBackground}
+        // An inset shadow stays put while the content scrolls.
+        boxShadow={CANVAS_EDGE_SHADOW}
         data-intercom-target="Workflow Card Container"
+        {...{ [STEP_CANVAS_ATTRIBUTE]: '' }}
       >
         <WorkflowCard
           id={workflowId}
           isCollapsable={false}
           containerProps={containerProps}
+          isEditButtonAlwaysVisible
+          headerActions={
+            RuntimeUtils.isWebsiteMode() && (
+              <BitkitControlButton
+                size="xs"
+                icon={IconPlay}
+                label={runButtonAriaLabel}
+                state={
+                  WorkflowService.isUtilityWorkflow(workflowId) || isModularFileTab || hasUnsavedChanges
+                    ? 'disabled'
+                    : undefined
+                }
+                onClick={() => openRunWorkflowDialog(workflowId)}
+              />
+            )
+          }
           // Selection
           selectedStepIndices={selectedStepIndices}
           selectionParent={selectionParent}
+          isAddingStep={isAddingStep}
           // Workflow actions
-          onEditWorkflow={undefined}
+          onEditWorkflow={openWorkflowConfigDrawer}
           onRemoveWorkflow={undefined}
           onChainWorkflow={openChainWorkflowDialog}
           onChainedWorkflowsUpdate={WorkflowService.setChainedWorkflows}
