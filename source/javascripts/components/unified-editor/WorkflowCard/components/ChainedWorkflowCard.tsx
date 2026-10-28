@@ -97,7 +97,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     const common: CardRootProps = {
       width: 'full',
       // Ghosts and the card being dragged get the elevated card instead of the outlined one.
-      elevation: isGhost || isDragging,
+      elevation: isGhost || Boolean(isDragging),
     };
 
     return {

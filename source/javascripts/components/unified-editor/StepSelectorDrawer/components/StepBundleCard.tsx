@@ -146,7 +146,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   const cardProps = useMemo(() => {
     const common: CardRootProps = {
       width: 'full',
-      elevation: isDragging,
+      elevation: Boolean(isDragging),
     };
 
     return {

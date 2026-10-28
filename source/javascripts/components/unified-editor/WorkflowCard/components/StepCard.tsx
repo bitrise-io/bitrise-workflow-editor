@@ -190,7 +190,7 @@ const StepCard = ({
       display: 'flex',
       className: 'group',
       // The card being dragged lifts: the elevated card instead of the outlined one.
-      elevation: isDragging,
+      elevation: Boolean(isDragging),
     };
 
     if (isButton) {
