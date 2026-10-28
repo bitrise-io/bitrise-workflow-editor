@@ -153,6 +153,15 @@ in only for the document it was started on, so a discard or any other edit drops
 keyed by workflow, so switching workflow drops it too. A new row does not offer `latest-of`, since
 its draft would not survive the row becoming a real one.
 
+## Tool setup usage is counted at save
+
+The RUM action `tool_setup_saved` compares the `tools:` entries a save wrote with the ones it
+replaced, because a text field writes the YAML on every keystroke and an edit can still be
+discarded. To tell the UI from the YAML editor, `ToolVersions` records what each of its writes left
+in the document, and a saved value that matches counts as `viaUi`. The record lives in the
+component's handlers rather than in `ToolsService`, so a later caller of the service is not counted
+as the UI.
+
 ## Things that fail somewhere else
 
 - **A new YAML key fails at save**, not at compile time: the Go server validates with the `bitrise`
