@@ -20,8 +20,9 @@ type Props = BoxProps & {
 };
 
 // Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
-// into an array, and BitkitTooltip wraps an array in an inline span, which shrinks this full-width row.
-// An element without `children` is left alone.
+// into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
+// left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
+// footer is a flex column.
 const CreatePipelineWithAIButton = ({
   isDisabled,
   onClick,
@@ -31,7 +32,7 @@ const CreatePipelineWithAIButton = ({
   onClick: VoidFunction;
   tooltipLabel?: string;
 }) => (
-  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''}>
+  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''} wrapTrigger={!!tooltipLabel}>
     <Button
       w="100%"
       border="none"
@@ -127,8 +128,12 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       return 'Save changes before running';
     }
 
+    if (isEmpty) {
+      return 'Add Workflows to the Pipeline before running';
+    }
+
     return 'Run Pipeline';
-  }, [hasUnsavedChanges, isModularFileTab]);
+  }, [hasUnsavedChanges, isEmpty, isModularFileTab]);
 
   return (
     <Box
@@ -161,6 +166,8 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         {/* Create actions are hidden (not disabled) on the read-only merged/ghost view (BIVS-3721). */}
         {!isReadOnlyView && (
           <Box
+            display="flex"
+            flexDirection="column"
             width="100%"
             marginBlockStart="8"
             paddingBlock="12"

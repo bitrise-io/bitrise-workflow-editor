@@ -42,8 +42,11 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
   );
 };
 
-const PreviousStackVersionTip = () => (
-  <BitkitTooltip text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
+const PreviousStackVersionTip = ({ disabled }: { disabled: boolean }) => (
+  <BitkitTooltip
+    disabled={disabled}
+    text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions."
+  >
     <IconQuestionCircle size="16" color="icon/tertiary" />
   </BitkitTooltip>
 );
@@ -79,6 +82,7 @@ type Props = Pick<BoxProps, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled?: boolean;
+  disabledReason?: string;
   isRollbackVersionAvailable: boolean;
   disableRollbackOption?: boolean;
   useRollbackVersion?: boolean;
@@ -91,6 +95,7 @@ const StackSelector = ({
   isLoading,
   isInvalid,
   isDisabled,
+  disabledReason,
   isRollbackVersionAvailable,
   disableRollbackOption,
   useRollbackVersion,
@@ -103,26 +108,30 @@ const StackSelector = ({
 
   return (
     <Box {...boxProps} flex="1">
-      <Dropdown
-        required
-        search={false}
-        label="Stack"
-        dropdownMaxHeight="25rem"
-        disabled={isLoading || isDisabled}
-        isError={isInvalid}
-        errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
-        helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
-        value={stack.value}
-        onChange={(e) => onChange(e.target.value ?? '')}
-      >
-        {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
-        {optionGroups.length > 1 &&
-          optionGroups.map((group) => (
-            <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-              {renderOptions(group.options)}
-            </DropdownGroup>
-          ))}
-      </Dropdown>
+      <BitkitTooltip disabled={!disabledReason} text={disabledReason ?? ''}>
+        <Dropdown
+          required
+          search={false}
+          label="Stack"
+          dropdownMaxHeight="25rem"
+          disabled={isLoading || isDisabled}
+          isError={isInvalid}
+          errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
+          helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
+          value={stack.value}
+          onChange={(e) => onChange(e.target.value ?? '')}
+        >
+          {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
+          {optionGroups.length > 1 &&
+            optionGroups.map((group) => (
+              <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
+                {renderOptions(group.options)}
+              </DropdownGroup>
+            ))}
+        </Dropdown>
+      </BitkitTooltip>
+      {/* The "?" tooltip sits inside the rollback one. Only one tooltip opens at a time, and the pointer
+          reaches every enclosing trigger, so only one of the two is enabled. */}
       <BitkitTooltip
         disabled={!disableRollbackOption}
         text="Stack rollback is not available when your workspace is configured to use external hosts only."
@@ -133,7 +142,7 @@ const StackSelector = ({
             isChecked={!isRollbackDisabled && useRollbackVersion}
             onChange={(e) => onChange(stack.value, e.target.checked)}
           >
-            Use previous stack version <PreviousStackVersionTip />
+            Use previous stack version <PreviousStackVersionTip disabled={!!disableRollbackOption} />
           </Checkbox>
         </Box>
       </BitkitTooltip>

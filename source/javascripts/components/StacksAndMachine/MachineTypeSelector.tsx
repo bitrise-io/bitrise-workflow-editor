@@ -1,5 +1,5 @@
 import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Toggletip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitIconComponent, BitkitTooltip, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode, useMemo } from 'react';
@@ -43,6 +43,7 @@ type Props = Pick<DropdownProps<string | null>, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled: boolean;
+  disabledReason?: string;
   machineType: MachineTypeWithValue;
   optionGroups: MachineTypeOptionGroup[];
   onChange: (machineId: string) => void;
@@ -53,6 +54,7 @@ const MachineTypeSelector = ({
   isLoading,
   isInvalid,
   isDisabled,
+  disabledReason,
   machineType,
   optionGroups,
   onChange,
@@ -116,33 +118,35 @@ const MachineTypeSelector = ({
   });
 
   return (
-    <Dropdown
-      {...boxProps}
-      flex="1"
-      formLabel={selectedOption && renderFormLabel(selectedOption)}
-      required
-      search={false}
-      label="Machine type"
-      labelHelp={toggletip}
-      dropdownMaxHeight="25rem"
-      disabled={isLoading || isDisabled}
-      isError={isInvalid}
-      errorText={isInvalid ? 'Invalid machine type' : undefined}
-      helperText={helperText()}
-      value={machineType.value}
-      onChange={(e) => onChange(e.target.value ?? '')}
-    >
-      {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
-      {optionGroups.length > 1 && (
-        <>
-          {optionGroups.map((group) => (
-            <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-              {renderOptions(group.options)}
-            </DropdownGroup>
-          ))}
-        </>
-      )}
-    </Dropdown>
+    <BitkitTooltip disabled={!disabledReason} text={disabledReason ?? ''}>
+      <Dropdown
+        {...boxProps}
+        flex="1"
+        formLabel={selectedOption && renderFormLabel(selectedOption)}
+        required
+        search={false}
+        label="Machine type"
+        labelHelp={toggletip}
+        dropdownMaxHeight="25rem"
+        disabled={isLoading || isDisabled}
+        isError={isInvalid}
+        errorText={isInvalid ? 'Invalid machine type' : undefined}
+        helperText={helperText()}
+        value={machineType.value}
+        onChange={(e) => onChange(e.target.value ?? '')}
+      >
+        {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
+        {optionGroups.length > 1 && (
+          <>
+            {optionGroups.map((group) => (
+              <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
+                {renderOptions(group.options)}
+              </DropdownGroup>
+            ))}
+          </>
+        )}
+      </Dropdown>
+    </BitkitTooltip>
   );
 };
 

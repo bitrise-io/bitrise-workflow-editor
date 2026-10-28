@@ -118,7 +118,7 @@ const AlgoliaStepListItem = ({
           />
         </Box>
         <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-          <BitkitOverflowTooltip disabled={!isTitleTruncated} text={title ?? ''}>
+          <BitkitOverflowTooltip disabled={!title || !isTitleTruncated} placement="top" text={title ?? ''}>
             <Text
               ref={titleRef}
               transition={TRANSITION}

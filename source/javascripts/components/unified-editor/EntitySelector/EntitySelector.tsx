@@ -18,8 +18,9 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
 }
 
 // Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
-// into an array, and BitkitTooltip wraps an array in an inline span, which shrinks this full-width row.
-// An element without `children` is left alone.
+// into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
+// left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
+// footer is a flex column.
 const CreateWithAIButton = ({
   entityName,
   isDisabled,
@@ -31,7 +32,7 @@ const CreateWithAIButton = ({
   onClick: VoidFunction;
   tooltipLabel?: string;
 }) => (
-  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''}>
+  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''} wrapTrigger={!!tooltipLabel}>
     <Button
       borderRadius="0"
       color="button.secondary"
@@ -122,6 +123,8 @@ const EntitySelector = (props: EntitySelectorProps) => {
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no footer at all. */}
       {!isReadOnlyView && (!!onCreate || isAIButtonVisible) && (
         <Box
+          display="flex"
+          flexDirection="column"
           paddingBlock="8"
           position="sticky"
           bottom="-8"
