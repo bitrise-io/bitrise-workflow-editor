@@ -36,8 +36,8 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
-        <Card.Root elevation={false} interactive role="button" onClick={onClick}>
-          <Card.Body paddingBlock="8" paddingInline="16">
+        <Card.Root elevation={false} interactive paddingSize="sm" role="button" onClick={onClick}>
+          <Card.Body>
             <Text textStyle="body/lg/semibold">{workflow?.title || id}</Text>
             <Text textStyle="body/sm/regular" color="text/secondary">
               {/* When the workflow is (also) defined in another module, surface that instead of

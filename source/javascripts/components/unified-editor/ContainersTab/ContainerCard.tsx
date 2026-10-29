@@ -53,6 +53,8 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   return (
     <Card.Root elevation={false} overflow="hidden">
+      {/* TODO: The table pads itself, so the body's padding is off. The Table migration replaces this card with
+          BitkitTableCard; drop the Card.Root and Card.Body then. */}
       <Card.Body padding="0">
         <Table variant="borderless" disableRowHover isFixed>
           <Thead data-clarity-unmask="true">

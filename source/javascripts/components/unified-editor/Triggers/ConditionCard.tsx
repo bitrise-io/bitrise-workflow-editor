@@ -48,6 +48,8 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
 
   return (
     <Card.Root elevation={false} overflow="hidden">
+      {/* TODO: The table pads itself, so the body's padding is off. The Table migration replaces this card with
+          BitkitTableCard; drop the Card.Root and Card.Body then. */}
       <Card.Body padding="0">
         <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
           <Thead backgroundColor="background/primary" data-clarity-unmask="true">
