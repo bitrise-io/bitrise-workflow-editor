@@ -226,7 +226,7 @@ const StepCard = ({
 
   return (
     <Card.Root ref={sortable.setNodeRef} {...cardProps} style={style}>
-      <Card.Body display="flex" padding="0">
+      <Card.Body display="flex">
         {isSortable && (
           <DragHandle
             withGroupHover

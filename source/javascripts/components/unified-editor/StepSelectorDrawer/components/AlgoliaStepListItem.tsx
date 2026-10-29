@@ -71,7 +71,7 @@ const AlgoliaStepListItem = ({
       onClick={!isDisabled && !isOpen ? onClick : undefined}
       onMouseLeave={onClose}
     >
-      <Card.Body display="flex" flexDirection="column" height="full" padding="0">
+      <Card.Body display="flex" flexDirection="column" height="full">
         <Box
           paddingInline="12"
           gap="8"
