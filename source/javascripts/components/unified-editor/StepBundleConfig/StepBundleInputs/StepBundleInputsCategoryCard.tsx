@@ -1,8 +1,9 @@
-import { Card, ExpandableCard } from '@bitrise/bitkit';
+import { Card } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitButton,
   BitkitControlButton,
+  BitkitExpandableCard,
   IconCopy,
   IconMoreVertical,
   IconPencil,
@@ -125,9 +126,9 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
   }
 
   return (
-    <ExpandableCard mb={16} buttonContent={<Text textStyle="body/lg/semibold">{category}</Text>}>
+    <BitkitExpandableCard elevation={false} marginBlockEnd="16" title={category}>
       {content}
-    </ExpandableCard>
+    </BitkitExpandableCard>
   );
 };
 
