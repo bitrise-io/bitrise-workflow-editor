@@ -57,6 +57,7 @@ const AlgoliaStepListItem = ({
     <Card.Root
       elevation={false}
       minWidth="0"
+      paddingSize="sm"
       role="button"
       position="relative"
       {...props}

@@ -143,7 +143,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card.Root minWidth="0" width="full" {...cardProps}>
+    <Card.Root minWidth="0" width="full" paddingSize="sm" {...cardProps}>
       <Card.Body>
         <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
           {/* No expand/collapse for cross-file refs — their nested content lives in another file

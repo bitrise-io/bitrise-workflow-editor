@@ -198,7 +198,7 @@ const StepBundleCard = (props: StepBundleCardProps) => {
   }
 
   return (
-    <Card.Root {...cardProps} minWidth="0" maxWidth={rem(392)} style={style} ref={sortable.setNodeRef}>
+    <Card.Root {...cardProps} minWidth="0" maxWidth={rem(392)} paddingSize="sm" style={style} ref={sortable.setNodeRef}>
       <Card.Body>
         <Box display="flex">
           {isSortable && (

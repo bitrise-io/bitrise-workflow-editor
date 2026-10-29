@@ -43,7 +43,7 @@ type Props = {
 
 const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, emptyText, renderJumpButton }: Props) => {
   return (
-    <Card.Root as="section" elevation={false} overflow="hidden">
+    <Card.Root as="section" elevation={false} overflow="hidden" paddingSize="sm">
       <Card.Body>
         <EnvVarsTableHeader />
         <Box>
