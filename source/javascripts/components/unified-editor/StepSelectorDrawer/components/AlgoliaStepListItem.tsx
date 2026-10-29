@@ -65,6 +65,18 @@ const AlgoliaStepListItem = ({
     cursor = 'auto';
   }
 
+  const titleText = (
+    <Text
+      ref={titleRef}
+      transition={TRANSITION}
+      textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
+      truncate
+      maxWidth="full"
+    >
+      {title}
+    </Text>
+  );
+
   const handleReadMoreClick: MouseEventHandler = (e) => {
     e.stopPropagation();
     onOpen();
@@ -118,17 +130,13 @@ const AlgoliaStepListItem = ({
           />
         </Box>
         <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-          <BitkitOverflowTooltip disabled={!title || !isTitleTruncated} placement="top" text={title ?? ''}>
-            <Text
-              ref={titleRef}
-              transition={TRANSITION}
-              textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
-              truncate
-              maxWidth="full"
-            >
-              {title}
-            </Text>
-          </BitkitOverflowTooltip>
+          {title ? (
+            <BitkitOverflowTooltip disabled={!isTitleTruncated} placement="top" text={title}>
+              {titleText}
+            </BitkitOverflowTooltip>
+          ) : (
+            titleText
+          )}
           <Text
             color="text/secondary"
             transition={TRANSITION}

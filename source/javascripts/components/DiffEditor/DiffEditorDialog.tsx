@@ -1,5 +1,5 @@
 import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitTooltip, IconCross } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, IconCross } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
@@ -143,16 +143,15 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
-          <BitkitTooltip
-            placement="top-end"
-            disabled={ymlStatus !== 'invalid'}
-            text="YAML is invalid, please fix it before applying changes"
-            wrapTrigger={ymlStatus === 'invalid'}
+          <BitkitButton
+            state={isApplyChangesDisabled ? 'disabled' : undefined}
+            disabledReason={
+              ymlStatus === 'invalid' ? 'YAML is invalid, please fix it before applying changes' : undefined
+            }
+            onClick={applyChanges}
           >
-            <BitkitButton state={isApplyChangesDisabled ? 'disabled' : undefined} onClick={applyChanges}>
-              Apply changes
-            </BitkitButton>
-          </BitkitTooltip>
+            Apply changes
+          </BitkitButton>
         </ButtonGroup>
       </DialogFooter>
     </>

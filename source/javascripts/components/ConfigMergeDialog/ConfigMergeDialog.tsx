@@ -1,5 +1,5 @@
 import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitTooltip, IconArrowLeft, IconArrowRight, IconCross } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, IconArrowLeft, IconArrowRight, IconCross } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
@@ -279,19 +279,13 @@ const ConfigMergeDialogContent = ({
           <BitkitButton variant="secondary" state={isLoading ? 'disabled' : undefined} onClick={handleCancel}>
             Cancel
           </BitkitButton>
-          <BitkitTooltip
-            placement="top-end"
-            disabled={ymlStatus !== 'invalid'}
-            text="YAML is invalid, please fix it before applying changes"
-            wrapTrigger={ymlStatus === 'invalid'}
+          <BitkitButton
+            state={isLoading ? 'loading' : ymlStatus === 'invalid' ? 'disabled' : undefined}
+            disabledReason="YAML is invalid, please fix it before applying changes"
+            onClick={handleSave}
           >
-            <BitkitButton
-              state={isLoading ? 'loading' : ymlStatus === 'invalid' ? 'disabled' : undefined}
-              onClick={handleSave}
-            >
-              Apply changes
-            </BitkitButton>
-          </BitkitTooltip>
+            Apply changes
+          </BitkitButton>
         </ButtonGroup>
       </DialogFooter>
     </>

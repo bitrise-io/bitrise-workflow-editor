@@ -20,7 +20,7 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
 // Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
 // into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
 // left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
-// footer is a flex column.
+// footer is a flex column. The v1 Button has no `disabledReason`, so the reason goes in a tooltip.
 const CreateWithAIButton = ({
   entityName,
   isDisabled,
@@ -31,8 +31,8 @@ const CreateWithAIButton = ({
   isDisabled: boolean;
   onClick: VoidFunction;
   tooltipLabel?: string;
-}) => (
-  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''} wrapTrigger={!!tooltipLabel}>
+}) => {
+  const button = (
     <Button
       borderRadius="0"
       color="button.secondary"
@@ -46,8 +46,16 @@ const CreateWithAIButton = ({
     >
       Create {entityName} with AI
     </Button>
-  </BitkitTooltip>
-);
+  );
+
+  return tooltipLabel ? (
+    <BitkitTooltip text={tooltipLabel} wrapTrigger>
+      {button}
+    </BitkitTooltip>
+  ) : (
+    button
+  );
+};
 
 const EntitySelector = (props: EntitySelectorProps) => {
   const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;

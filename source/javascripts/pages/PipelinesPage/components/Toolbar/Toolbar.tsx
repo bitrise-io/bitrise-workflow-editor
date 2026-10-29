@@ -22,7 +22,7 @@ type Props = BoxProps & {
 // Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
 // into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
 // left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
-// footer is a flex column.
+// footer is a flex column. The v1 Button has no `disabledReason`, so the reason goes in a tooltip.
 const CreatePipelineWithAIButton = ({
   isDisabled,
   onClick,
@@ -31,8 +31,8 @@ const CreatePipelineWithAIButton = ({
   isDisabled: boolean;
   onClick: VoidFunction;
   tooltipLabel?: string;
-}) => (
-  <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''} wrapTrigger={!!tooltipLabel}>
+}) => {
+  const button = (
     <Button
       w="100%"
       border="none"
@@ -50,8 +50,16 @@ const CreatePipelineWithAIButton = ({
     >
       Create Pipeline with AI
     </Button>
-  </BitkitTooltip>
-);
+  );
+
+  return tooltipLabel ? (
+    <BitkitTooltip text={tooltipLabel} wrapTrigger>
+      {button}
+    </BitkitTooltip>
+  ) : (
+    button
+  );
+};
 
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
   const hasUnsavedChanges = useYmlHasChanges();
@@ -119,21 +127,14 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return [ids];
   }, [debouncedSearch, keys]);
 
-  const runButtonTooltip = useMemo(() => {
-    if (isModularFileTab) {
-      return 'Only available in the Merged config tab';
-    }
-
-    if (hasUnsavedChanges) {
-      return 'Save changes before running';
-    }
-
-    if (isEmpty) {
-      return 'Add Workflows to the Pipeline before running';
-    }
-
-    return 'Run Pipeline';
-  }, [hasUnsavedChanges, isEmpty, isModularFileTab]);
+  let runButtonDisabledReason;
+  if (isModularFileTab) {
+    runButtonDisabledReason = 'Only available in the Merged config tab';
+  } else if (hasUnsavedChanges) {
+    runButtonDisabledReason = 'Save changes before running';
+  } else if (isEmpty) {
+    runButtonDisabledReason = 'Add Workflows to the Pipeline before running';
+  }
 
   return (
     <Box
@@ -229,18 +230,17 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       )}
 
       {RuntimeUtils.isWebsiteMode() && (
-        <BitkitTooltip text={runButtonTooltip} wrapTrigger={isEmpty || isModularFileTab || hasUnsavedChanges}>
-          <BitkitButton
-            size="md"
-            variant="secondary"
-            icon={IconPlay}
-            state={isEmpty || isModularFileTab || hasUnsavedChanges ? 'disabled' : undefined}
-            onClick={onRunClick}
-            data-clarity-unmask="true"
-          >
-            Run
-          </BitkitButton>
-        </BitkitTooltip>
+        <BitkitButton
+          size="md"
+          variant="secondary"
+          icon={IconPlay}
+          state={runButtonDisabledReason ? 'disabled' : undefined}
+          disabledReason={runButtonDisabledReason}
+          onClick={onRunClick}
+          data-clarity-unmask="true"
+        >
+          Run
+        </BitkitButton>
       )}
     </Box>
   );

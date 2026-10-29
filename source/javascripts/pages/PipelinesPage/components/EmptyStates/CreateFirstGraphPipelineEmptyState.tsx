@@ -3,7 +3,6 @@ import {
   BitkitButton,
   BitkitHeading,
   BitkitLink,
-  BitkitTooltip,
   IconArrowNortheast,
   IconPlus,
   IconSparkleFilled,
@@ -39,17 +38,16 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
     <Box display="flex" flexDirection={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
       <ButtonGroup gap="24">
         {isAIButtonVisible && (
-          <BitkitTooltip disabled={!tooltipLabel} text={tooltipLabel ?? ''} wrapTrigger={!!tooltipLabel}>
-            <BitkitButton
-              state={isAIButtonDisabled ? 'disabled' : undefined}
-              icon={IconSparkleFilled}
-              size="md"
-              variant="ai-primary"
-              onClick={onAIButtonClick}
-            >
-              Create Pipeline with AI
-            </BitkitButton>
-          </BitkitTooltip>
+          <BitkitButton
+            state={isAIButtonDisabled ? 'disabled' : undefined}
+            disabledReason={tooltipLabel}
+            icon={IconSparkleFilled}
+            size="md"
+            variant="ai-primary"
+            onClick={onAIButtonClick}
+          >
+            Create Pipeline with AI
+          </BitkitButton>
         )}
         <BitkitButton alignSelf={['stretch', 'center']} icon={IconPlus} size="md" onClick={onCreate}>
           Create Pipeline

@@ -106,30 +106,32 @@ const StackSelector = ({
 }: Props) => {
   const isRollbackDisabled = !isRollbackVersionAvailable || !!disableRollbackOption;
 
+  const dropdown = (
+    <Dropdown
+      required
+      search={false}
+      label="Stack"
+      dropdownMaxHeight="25rem"
+      disabled={isLoading || isDisabled}
+      isError={isInvalid}
+      errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
+      helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
+      value={stack.value}
+      onChange={(e) => onChange(e.target.value ?? '')}
+    >
+      {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
+      {optionGroups.length > 1 &&
+        optionGroups.map((group) => (
+          <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
+            {renderOptions(group.options)}
+          </DropdownGroup>
+        ))}
+    </Dropdown>
+  );
+
   return (
     <Box {...boxProps} flex="1">
-      <BitkitTooltip disabled={!disabledReason} text={disabledReason ?? ''}>
-        <Dropdown
-          required
-          search={false}
-          label="Stack"
-          dropdownMaxHeight="25rem"
-          disabled={isLoading || isDisabled}
-          isError={isInvalid}
-          errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
-          helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
-          value={stack.value}
-          onChange={(e) => onChange(e.target.value ?? '')}
-        >
-          {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
-          {optionGroups.length > 1 &&
-            optionGroups.map((group) => (
-              <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-                {renderOptions(group.options)}
-              </DropdownGroup>
-            ))}
-        </Dropdown>
-      </BitkitTooltip>
+      {disabledReason ? <BitkitTooltip text={disabledReason}>{dropdown}</BitkitTooltip> : dropdown}
       {/* The "?" tooltip sits inside the rollback one. Only one tooltip opens at a time, and the pointer
           reaches every enclosing trigger, so only one of the two is enabled. */}
       <BitkitTooltip
