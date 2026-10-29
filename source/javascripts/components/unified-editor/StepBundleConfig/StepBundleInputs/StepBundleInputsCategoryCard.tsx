@@ -119,8 +119,8 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
 
   if (!category) {
     return (
-      <Card.Root elevation={false} padding="16" marginBlockEnd="16">
-        {content}
+      <Card.Root elevation={false} marginBlockEnd="16" paddingSize="sm">
+        <Card.Body>{content}</Card.Body>
       </Card.Root>
     );
   }

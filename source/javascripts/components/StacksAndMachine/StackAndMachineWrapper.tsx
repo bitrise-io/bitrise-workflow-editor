@@ -33,7 +33,11 @@ const StackAndMachineWrapper = (props: StackAndMachineWrapperProps) => {
       </BitkitExpandableCard>
     );
   }
-  return <Card.Root padding="16">{children}</Card.Root>;
+  return (
+    <Card.Root paddingSize="sm">
+      <Card.Body>{children}</Card.Body>
+    </Card.Root>
+  );
 };
 
 export default StackAndMachineWrapper;

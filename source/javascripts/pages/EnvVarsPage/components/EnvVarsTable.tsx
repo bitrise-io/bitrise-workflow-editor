@@ -44,22 +44,24 @@ type Props = {
 const EnvVarsTable = ({ source, sourceId, initialEnvs, hideAddButton, emptyText, renderJumpButton }: Props) => {
   return (
     <Card.Root as="section" elevation={false} overflow="hidden">
-      <EnvVarsTableHeader />
-      <Box>
-        {emptyText && !initialEnvs?.length ? (
-          <Text paddingInline="32" paddingBlock="16" textStyle="body/md/regular" color="text/secondary">
-            {emptyText}
-          </Text>
-        ) : (
-          <SortableEnvVars
-            source={source}
-            sourceId={sourceId}
-            initialEnvs={initialEnvs}
-            hideAddButton={hideAddButton}
-            renderJumpButton={renderJumpButton}
-          />
-        )}
-      </Box>
+      <Card.Body padding="0">
+        <EnvVarsTableHeader />
+        <Box>
+          {emptyText && !initialEnvs?.length ? (
+            <Text paddingInline="32" paddingBlock="16" textStyle="body/md/regular" color="text/secondary">
+              {emptyText}
+            </Text>
+          ) : (
+            <SortableEnvVars
+              source={source}
+              sourceId={sourceId}
+              initialEnvs={initialEnvs}
+              hideAddButton={hideAddButton}
+              renderJumpButton={renderJumpButton}
+            />
+          )}
+        </Box>
+      </Card.Body>
     </Card.Root>
   );
 };

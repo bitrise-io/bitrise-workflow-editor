@@ -36,26 +36,28 @@ const SelectableWorkflowCard = ({ id, onClick }: Props) => {
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
-        <Card.Root elevation={false} interactive paddingBlock="8" paddingInline="16" role="button" onClick={onClick}>
-          <Text textStyle="body/lg/semibold">{workflow?.title || id}</Text>
-          <Text textStyle="body/sm/regular" color="text/secondary">
-            {/* When the workflow is (also) defined in another module, surface that instead of
+        <Card.Root elevation={false} interactive role="button" onClick={onClick}>
+          <Card.Body paddingBlock="8" paddingInline="16">
+            <Text textStyle="body/lg/semibold">{workflow?.title || id}</Text>
+            <Text textStyle="body/sm/regular" color="text/secondary">
+              {/* When the workflow is (also) defined in another module, surface that instead of
                 pipeline-usage + stack counts, which live in the defining module, not this file. */}
-            {/* The card is itself a click target (selects the workflow); the jump-to-definition lives
+              {/* The card is itself a click target (selects the workflow); the jump-to-definition lives
                 in the hover preview (WorkflowCard) to avoid a nested interactive control. */}
-            <EntityModuleProvenance
-              kind="workflows"
-              id={id}
-              withJumpLink={false}
-              fallback={
-                <>
-                  {usedInPipelinesText}
-                  {' • '}
-                  {stackName}
-                </>
-              }
-            />
-          </Text>
+              <EntityModuleProvenance
+                kind="workflows"
+                id={id}
+                withJumpLink={false}
+                fallback={
+                  <>
+                    {usedInPipelinesText}
+                    {' • '}
+                    {stackName}
+                  </>
+                }
+              />
+            </Text>
+          </Card.Body>
         </Card.Root>
       </PopoverTrigger>
       <PopoverContent width={320}>

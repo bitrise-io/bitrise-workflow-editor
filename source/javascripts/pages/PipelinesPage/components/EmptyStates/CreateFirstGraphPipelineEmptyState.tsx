@@ -77,49 +77,44 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
       alignItems={['flex-start', 'center']}
       background="background/secondary"
     >
-      <Card.Root
-        elevation={false}
-        padding="24"
-        display="flex"
-        flexDirection={['column', 'row']}
-        gap="32"
-        data-clarity-unmask="true"
-      >
-        <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
-          <BitkitHeading as="h3">Get started with Pipelines</BitkitHeading>
+      <Card.Root elevation={false} data-clarity-unmask="true">
+        <Card.Body display="flex" flexDirection={['column', 'row']} gap="32">
+          <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
+            <BitkitHeading as="h3">Get started with Pipelines</BitkitHeading>
 
-          <List flex="1" variant="unordered" pl="8" textStyle="body/md/regular">
-            <ListItem>Parallelize tasks for faster build cycles</ListItem>
-            <ListItem>
-              Every Pipeline run is visualized in a simple diagram, making it easy to see dependencies and bottlenecks
-            </ListItem>
-            <ListItem>Edit Workflows directly in the Pipeline</ListItem>
-          </List>
+            <List flex="1" variant="unordered" pl="8" textStyle="body/md/regular">
+              <ListItem>Parallelize tasks for faster build cycles</ListItem>
+              <ListItem>
+                Every Pipeline run is visualized in a simple diagram, making it easy to see dependencies and bottlenecks
+              </ListItem>
+              <ListItem>Edit Workflows directly in the Pipeline</ListItem>
+            </List>
 
-          {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
+            {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
+            {!isReadOnlyView && (
+              <Box display={['none', 'flex']} gap="24" alignItems="center">
+                {actions}
+              </Box>
+            )}
+          </Box>
+
+          <Box
+            padding="8"
+            maxWidth={rem(436)}
+            display="flex"
+            borderRadius="8"
+            background="background/secondary"
+            alignItems="center"
+          >
+            <Image src={graphPipelineImage} alt="Graph Pipeline" />
+          </Box>
+
           {!isReadOnlyView && (
-            <Box display={['none', 'flex']} gap="24" alignItems="center">
+            <Box display={['flex', 'none']} flexDirection="column" gap="24" alignItems="center">
               {actions}
             </Box>
           )}
-        </Box>
-
-        <Box
-          padding="8"
-          maxWidth={rem(436)}
-          display="flex"
-          borderRadius="8"
-          background="background/secondary"
-          alignItems="center"
-        >
-          <Image src={graphPipelineImage} alt="Graph Pipeline" />
-        </Box>
-
-        {!isReadOnlyView && (
-          <Box display={['flex', 'none']} flexDirection="column" gap="24" alignItems="center">
-            {actions}
-          </Box>
-        )}
+        </Card.Body>
       </Card.Root>
     </Box>
   );

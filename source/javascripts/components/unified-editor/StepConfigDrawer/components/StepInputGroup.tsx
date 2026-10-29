@@ -78,8 +78,8 @@ const StepInputGroup = ({ title, stepId, defaults, inputs, onChange }: Props) =>
 
   if (!title) {
     return (
-      <Card.Root elevation={false} padding="16">
-        {content}
+      <Card.Root elevation={false} paddingSize="sm">
+        <Card.Body>{content}</Card.Body>
       </Card.Root>
     );
   }

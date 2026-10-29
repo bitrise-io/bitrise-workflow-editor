@@ -179,68 +179,70 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
 
   return (
     <Card.Root ref={sortable.setNodeRef} {...cardProps} style={style}>
-      <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
-        {isSortable && (
-          <DragHandle
-            mx="-8"
-            my="-6"
-            alignSelf="stretch"
-            ref={sortable.setActivatorNodeRef}
-            {...sortable.listeners}
-            {...sortable.attributes}
-          />
-        )}
+      <Card.Body padding="0">
+        <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
+          {isSortable && (
+            <DragHandle
+              mx="-8"
+              my="-6"
+              alignSelf="stretch"
+              ref={sortable.setActivatorNodeRef}
+              {...sortable.listeners}
+              {...sortable.attributes}
+            />
+          )}
 
-        {/* No expand/collapse for cross-file refs — their nested content isn't shown here. */}
-        {!isCrossFile && (
-          <BitkitControlButton
-            size="xs"
-            tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-            className="nopan"
-            onClick={onToggle}
-            state={isDragging ? 'disabled' : undefined}
-            icon={isOpen ? IconChevronUp : IconChevronDown}
-            label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
-            tooltipProps={{ disabled: isDragging }}
-          />
-        )}
+          {/* No expand/collapse for cross-file refs — their nested content isn't shown here. */}
+          {!isCrossFile && (
+            <BitkitControlButton
+              size="xs"
+              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+              className="nopan"
+              onClick={onToggle}
+              state={isDragging ? 'disabled' : undefined}
+              icon={isOpen ? IconChevronUp : IconChevronDown}
+              label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+              tooltipProps={{ disabled: isDragging }}
+            />
+          )}
 
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          justifyContent="center"
-          flex="1"
-          minWidth="0"
-        >
-          <Text textStyle="body/md/semibold" truncate maxWidth="full">
-            {title}
-          </Text>
-          <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
-            {placement}
-            {' • '}
-            {otherModules.nodeIds.length > 0
-              ? otherModulesLabel(otherModules)
-              : WorkflowService.getUsedByText(dependants)}
-          </Text>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            justifyContent="center"
+            flex="1"
+            minWidth="0"
+          >
+            <Text textStyle="body/md/semibold" truncate maxWidth="full">
+              {title}
+            </Text>
+            <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
+              {placement}
+              {' • '}
+              {otherModules.nodeIds.length > 0
+                ? otherModulesLabel(otherModules)
+                : WorkflowService.getUsedByText(dependants)}
+            </Text>
+          </Box>
+
+          {buttonGroup}
         </Box>
 
-        {buttonGroup}
-      </Box>
+        {!isCrossFile && (
+          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+            <SortableWorkflowsContext containerRef={containerRef}>
+              <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
+                <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-      {!isCrossFile && (
-        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-          <SortableWorkflowsContext containerRef={containerRef}>
-            <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
-              <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
+                <WorkflowStepList workflowId={id} />
 
-              <WorkflowStepList workflowId={id} />
-
-              <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
-            </Box>
-          </SortableWorkflowsContext>
-        </Collapse>
-      )}
+                <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
+              </Box>
+            </SortableWorkflowsContext>
+          </Collapse>
+        )}
+      </Card.Body>
     </Card.Root>
   );
 };

@@ -30,22 +30,24 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
-        <Card.Root asChild elevation={false} interactive paddingBlock="8" paddingInline="12" textAlign="start">
+        <Card.Root asChild elevation={false} interactive textAlign="start">
           <button type="button" onClick={handleClick}>
-            <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-              {title || id}
-            </Text>
-            <Text textStyle="body/md/regular" color="text/secondary">
-              {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
+            <Card.Body paddingBlock="8" paddingInline="12">
+              <Text textStyle="body/lg/semibold" marginBlockEnd="4">
+                {title || id}
+              </Text>
+              <Text textStyle="body/md/regular" color="text/secondary">
+                {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
                 the hover preview (StepBundleCard) to avoid a nested interactive control. */}
-              <EntityModuleProvenance
-                kind="stepBundles"
-                id={id}
-                withJumpLink={false}
-                pathTextStyle="body/md/semibold"
-                fallback={usedInWorkflowsText}
-              />
-            </Text>
+                <EntityModuleProvenance
+                  kind="stepBundles"
+                  id={id}
+                  withJumpLink={false}
+                  pathTextStyle="body/md/semibold"
+                  fallback={usedInWorkflowsText}
+                />
+              </Text>
+            </Card.Body>
           </button>
         </Card.Root>
       </PopoverTrigger>

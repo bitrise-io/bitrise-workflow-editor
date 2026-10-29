@@ -58,9 +58,7 @@ const AlgoliaStepListItem = ({
       elevation={false}
       minWidth="0"
       role="button"
-      display="flex"
       position="relative"
-      flexDirection="column"
       {...props}
       className={isDisabled ? undefined : 'group'}
       interactive={!isDisabled}
@@ -73,111 +71,113 @@ const AlgoliaStepListItem = ({
       onClick={!isDisabled && !isOpen ? onClick : undefined}
       onMouseLeave={onClose}
     >
-      <Box
-        paddingInline="12"
-        gap="8"
-        display="flex"
-        transition={TRANSITION}
-        paddingBlock={isOpen ? '8' : '12'}
-        transitionProperty="padding"
-        borderBottom={isOpen ? '1px solid' : 'none'}
-        borderColor="border/regular"
-      >
-        <Box position="relative">
-          <BitkitAvatar
-            variant="image"
-            src={logo || defaultIcon}
-            name={title || ''}
-            transition={TRANSITION}
-            size={isOpen ? '32' : '40'}
-          />
-          <StepBadge
-            position="absolute"
-            transition={TRANSITION}
-            size={isOpen ? '16' : '24'}
-            right={isOpen ? '-4px' : '-6px'}
-            bottom={isOpen ? '-8px' : '-4px'}
-            isOfficial={maintainer === Maintainer.Bitrise}
-            isVerified={maintainer === Maintainer.Verified}
-          />
-        </Box>
-        <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-          <Tooltip isDisabled={!isTitleTruncated} label={title} shouldWrapChildren>
-            <Text
-              ref={titleRef}
+      <Card.Body display="flex" flexDirection="column" height="full" padding="0">
+        <Box
+          paddingInline="12"
+          gap="8"
+          display="flex"
+          transition={TRANSITION}
+          paddingBlock={isOpen ? '8' : '12'}
+          transitionProperty="padding"
+          borderBottom={isOpen ? '1px solid' : 'none'}
+          borderColor="border/regular"
+        >
+          <Box position="relative">
+            <BitkitAvatar
+              variant="image"
+              src={logo || defaultIcon}
+              name={title || ''}
               transition={TRANSITION}
-              textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
-              truncate
-              maxWidth="full"
+              size={isOpen ? '32' : '40'}
+            />
+            <StepBadge
+              position="absolute"
+              transition={TRANSITION}
+              size={isOpen ? '16' : '24'}
+              right={isOpen ? '-4px' : '-6px'}
+              bottom={isOpen ? '-8px' : '-4px'}
+              isOfficial={maintainer === Maintainer.Bitrise}
+              isVerified={maintainer === Maintainer.Verified}
+            />
+          </Box>
+          <Box flex="1" display="flex" flexDirection="column" minWidth="0">
+            <Tooltip isDisabled={!isTitleTruncated} label={title} shouldWrapChildren>
+              <Text
+                ref={titleRef}
+                transition={TRANSITION}
+                textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
+                truncate
+                maxWidth="full"
+              >
+                {title}
+              </Text>
+            </Tooltip>
+            <Text
+              color="text/secondary"
+              transition={TRANSITION}
+              marginBlockStart={isOpen ? '-4' : '0'}
+              textStyle={isOpen ? 'body/sm/regular' : 'body/md/regular'}
             >
-              {title}
+              {version}
             </Text>
-          </Tooltip>
-          <Text
-            color="text/secondary"
-            transition={TRANSITION}
-            marginBlockStart={isOpen ? '-4' : '0'}
-            textStyle={isOpen ? 'body/sm/regular' : 'body/md/regular'}
-          >
-            {version}
-          </Text>
+          </Box>
+
+          {!isDisabled && !isOpen && (
+            <IconPlus
+              boxSize="32"
+              padding="4"
+              display="none"
+              color="icon/interactive"
+              _groupHover={{ display: 'block' }}
+            />
+          )}
+
+          {!isDisabled && isOpen && <BitkitControlButton label="Add to Workflow" icon={IconPlus} onClick={onClick} />}
         </Box>
 
-        {!isDisabled && !isOpen && (
-          <IconPlus
-            boxSize="32"
-            padding="4"
-            display="none"
-            color="icon/interactive"
-            _groupHover={{ display: 'block' }}
-          />
+        {!isOpen && (
+          <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular" paddingInline="12">
+            {removeMd(description || '')}
+          </Text>
         )}
 
-        {!isDisabled && isOpen && <BitkitControlButton label="Add to Workflow" icon={IconPlus} onClick={onClick} />}
-      </Box>
-
-      {!isOpen && (
-        <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular" paddingInline="12">
-          {removeMd(description || '')}
-        </Text>
-      )}
-
-      {isOpen && (
-        <Box
-          color="text/secondary"
-          overflowY="auto"
-          overflowX="clip"
-          overscrollBehaviorY="contain"
-          flex="1"
-          padding="12"
-        >
-          <MarkdownContent md={description || ''} size="sm" />
-        </Box>
-      )}
-
-      {!isDisabled && !isOpen && (
-        <Box
-          inset="0"
-          background="background/secondary"
-          top="auto"
-          height={rem(26)}
-          display="none"
-          position="absolute"
-          borderBottomRadius="8"
-          _groupHover={{ display: 'block' }}
-        >
-          <BitkitLinkButton
-            size="sm"
-            paddingInline="12"
-            paddingBlockEnd="8"
-            top="-5px"
-            position="relative"
-            onClick={handleReadMoreClick}
+        {isOpen && (
+          <Box
+            color="text/secondary"
+            overflowY="auto"
+            overflowX="clip"
+            overscrollBehaviorY="contain"
+            flex="1"
+            padding="12"
           >
-            Read more
-          </BitkitLinkButton>
-        </Box>
-      )}
+            <MarkdownContent md={description || ''} size="sm" />
+          </Box>
+        )}
+
+        {!isDisabled && !isOpen && (
+          <Box
+            inset="0"
+            background="background/secondary"
+            top="auto"
+            height={rem(26)}
+            display="none"
+            position="absolute"
+            borderBottomRadius="8"
+            _groupHover={{ display: 'block' }}
+          >
+            <BitkitLinkButton
+              size="sm"
+              paddingInline="12"
+              paddingBlockEnd="8"
+              top="-5px"
+              position="relative"
+              onClick={handleReadMoreClick}
+            >
+              Read more
+            </BitkitLinkButton>
+          </Box>
+        )}
+      </Card.Body>
     </Card.Root>
   );
 };

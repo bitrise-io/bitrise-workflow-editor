@@ -53,104 +53,106 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   return (
     <Card.Root elevation={false} overflow="hidden">
-      <Table variant="borderless" disableRowHover isFixed>
-        <Thead data-clarity-unmask="true">
-          <Tr>
-            <Th>
-              <Text paddingInline="12" color="text/primary">
-                {type === 'execution' ? 'Execution' : 'Service'} Container
-              </Text>
-            </Th>
-            <Th color="text/primary">
-              <DefinitionTooltip label='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
-                Behavior
-              </DefinitionTooltip>
-            </Th>
-            <Th width="96px" />
-          </Tr>
-        </Thead>
-        <Tbody>
-          {!!definitionReferences &&
-            (!instanceReferences?.length || type === ContainerType.Service) &&
-            definitionReferences.map((reference) => {
-              const container = getContainerById(reference.id);
-              return (
-                <ContainerCardItem
-                  container={container}
-                  isDisabled={isDefinitionReferencesDisabled}
-                  key={`definition-${reference.id}`}
-                  onRecreate={onRecreate}
-                  onRemove={onRemove}
-                  reference={reference}
-                  source={source}
-                  stepBundleId={stepBundleId}
-                  stepId={stepId}
-                  stepVersion={stepVersion}
-                />
-              );
-            })}
-          {!!instanceReferences &&
-            instanceReferences.map((reference) => {
-              const container = getContainerById(reference.id);
-              return (
-                <ContainerCardItem
-                  key={`instance-${reference.id}`}
-                  reference={reference}
-                  container={container}
-                  onRecreate={onRecreate}
-                  onRemove={onRemove}
-                  source={source}
-                  stepBundleId={stepBundleId}
-                  stepId={stepId}
-                  stepVersion={stepVersion}
-                />
-              );
-            })}
-          {isReadOnlyView ? (
-            // Read-only (e.g. a cross-file step/step bundle defined in another module): no add menu —
-            // just a note when nothing is assigned. Assigned containers render as read-only rows above.
-            references.length === 0 && (
-              <Tr>
-                <Td colSpan={3}>
-                  <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
-                    No {type} containers.
-                  </Text>
-                </Td>
-              </Tr>
-            )
-          ) : (
+      <Card.Body padding="0">
+        <Table variant="borderless" disableRowHover isFixed>
+          <Thead data-clarity-unmask="true">
             <Tr>
-              {!containers.length ? (
-                <Td colSpan={3}>
-                  <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
-                    No {type} containers available.{' '}
-                    <BitkitLinkButton onClick={() => replace('/containers', { tab: type })}>
-                      {`Manage ${type} containers`}
-                    </BitkitLinkButton>
-                  </Text>
-                </Td>
-              ) : (
-                <>
-                  <Td>
-                    <ContainersMenu
-                      actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
-                      containers={availableContainers}
-                      onSelectContainer={onAddContainer}
-                      source={source}
-                      stepBundleId={stepBundleId}
-                      stepId={stepId}
-                      stepVersion={stepVersion}
-                      type={type}
-                    />
-                  </Td>
-                  <Td />
-                  <Td />
-                </>
-              )}
+              <Th>
+                <Text paddingInline="12" color="text/primary">
+                  {type === 'execution' ? 'Execution' : 'Service'} Container
+                </Text>
+              </Th>
+              <Th color="text/primary">
+                <DefinitionTooltip label='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
+                  Behavior
+                </DefinitionTooltip>
+              </Th>
+              <Th width="96px" />
             </Tr>
-          )}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {!!definitionReferences &&
+              (!instanceReferences?.length || type === ContainerType.Service) &&
+              definitionReferences.map((reference) => {
+                const container = getContainerById(reference.id);
+                return (
+                  <ContainerCardItem
+                    container={container}
+                    isDisabled={isDefinitionReferencesDisabled}
+                    key={`definition-${reference.id}`}
+                    onRecreate={onRecreate}
+                    onRemove={onRemove}
+                    reference={reference}
+                    source={source}
+                    stepBundleId={stepBundleId}
+                    stepId={stepId}
+                    stepVersion={stepVersion}
+                  />
+                );
+              })}
+            {!!instanceReferences &&
+              instanceReferences.map((reference) => {
+                const container = getContainerById(reference.id);
+                return (
+                  <ContainerCardItem
+                    key={`instance-${reference.id}`}
+                    reference={reference}
+                    container={container}
+                    onRecreate={onRecreate}
+                    onRemove={onRemove}
+                    source={source}
+                    stepBundleId={stepBundleId}
+                    stepId={stepId}
+                    stepVersion={stepVersion}
+                  />
+                );
+              })}
+            {isReadOnlyView ? (
+              // Read-only (e.g. a cross-file step/step bundle defined in another module): no add menu —
+              // just a note when nothing is assigned. Assigned containers render as read-only rows above.
+              references.length === 0 && (
+                <Tr>
+                  <Td colSpan={3}>
+                    <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
+                      No {type} containers.
+                    </Text>
+                  </Td>
+                </Tr>
+              )
+            ) : (
+              <Tr>
+                {!containers.length ? (
+                  <Td colSpan={3}>
+                    <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
+                      No {type} containers available.{' '}
+                      <BitkitLinkButton onClick={() => replace('/containers', { tab: type })}>
+                        {`Manage ${type} containers`}
+                      </BitkitLinkButton>
+                    </Text>
+                  </Td>
+                ) : (
+                  <>
+                    <Td>
+                      <ContainersMenu
+                        actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
+                        containers={availableContainers}
+                        onSelectContainer={onAddContainer}
+                        source={source}
+                        stepBundleId={stepBundleId}
+                        stepId={stepId}
+                        stepVersion={stepVersion}
+                        type={type}
+                      />
+                    </Td>
+                    <Td />
+                    <Td />
+                  </>
+                )}
+              </Tr>
+            )}
+          </Tbody>
+        </Table>
+      </Card.Body>
     </Card.Root>
   );
 };

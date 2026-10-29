@@ -199,78 +199,80 @@ const StepBundleCard = (props: StepBundleCardProps) => {
 
   return (
     <Card.Root {...cardProps} minWidth="0" maxWidth={rem(392)} style={style} ref={sortable.setNodeRef}>
-      <Box display="flex">
-        {isSortable && (
-          <DragHandle
-            withGroupHover
-            ref={sortable.setActivatorNodeRef}
-            {...sortable.listeners}
-            {...sortable.attributes}
-          />
-        )}
-        <Box
-          display="flex"
-          flexGrow={1}
-          alignItems="center"
-          {...cardPadding}
-          gap="4"
-          className="group"
-          minWidth="0"
-          onClick={handleClick}
-          role={isButton ? 'button' : 'div'}
-        >
-          {/* No expand/collapse for cross-file refs — their nested steps live in another file. */}
-          {isCollapsable && !isCrossFile && (
-            <BitkitControlButton
-              size="xs"
-              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-              className="nopan"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggle();
-              }}
-              icon={isOpen ? IconChevronUp : IconChevronDown}
-              label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
+      <Card.Body padding="0">
+        <Box display="flex">
+          {isSortable && (
+            <DragHandle
+              withGroupHover
+              ref={sortable.setActivatorNodeRef}
+              {...sortable.listeners}
+              {...sortable.attributes}
             />
           )}
-          <Box flex="1" minWidth="0">
-            <Text textStyle="body/md/semibold" truncate maxWidth="full">
-              {title}
-            </Text>
-            <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
-              <BitkitList.Item>
-                <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                  {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
-                </Text>
-              </BitkitList.Item>
-              {referenceIds.length > 0 && (
+          <Box
+            display="flex"
+            flexGrow={1}
+            alignItems="center"
+            {...cardPadding}
+            gap="4"
+            className="group"
+            minWidth="0"
+            onClick={handleClick}
+            role={isButton ? 'button' : 'div'}
+          >
+            {/* No expand/collapse for cross-file refs — their nested steps live in another file. */}
+            {isCollapsable && !isCrossFile && (
+              <BitkitControlButton
+                size="xs"
+                tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+                className="nopan"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggle();
+                }}
+                icon={isOpen ? IconChevronUp : IconChevronDown}
+                label={`${isOpen ? 'Collapse' : 'Expand'} Step Bundle details`}
+              />
+            )}
+            <Box flex="1" minWidth="0">
+              <Text textStyle="body/md/semibold" truncate maxWidth="full">
+                {title}
+              </Text>
+              <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
                 <BitkitList.Item>
-                  <Box display="flex" alignItems="center" gap="4">
-                    <IconContainer size="16" color="icon/tertiary" />
-                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                      {referenceIds}
-                    </Text>
-                  </Box>
+                  <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                    {otherModules.nodeIds.length > 0 ? otherModulesLabel(otherModules) : usedInWorkflowsText}
+                  </Text>
                 </BitkitList.Item>
-              )}
-            </BitkitList>
-          </Box>
-          {showJumpButton && (
-            <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
-              {/* Lists every defining module (incl. the current one) so both occurrences are reachable. */}
-              <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
+                {referenceIds.length > 0 && (
+                  <BitkitList.Item>
+                    <Box display="flex" alignItems="center" gap="4">
+                      <IconContainer size="16" color="icon/tertiary" />
+                      <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                        {referenceIds}
+                      </Text>
+                    </Box>
+                  </BitkitList.Item>
+                )}
+              </BitkitList>
             </Box>
-          )}
-          {buttonGroup}
-        </Box>
-      </Box>
-      {!isCrossFile && (
-        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-          <Box padding="8" ref={containerRef}>
-            <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+            {showJumpButton && (
+              <Box display={isJumpPopoverOpen ? 'flex' : 'none'} _groupHover={{ display: 'flex' }}>
+                {/* Lists every defining module (incl. the current one) so both occurrences are reachable. */}
+                <CrossFileJumpButton kind="stepBundles" id={bundleId} onOpenChange={setIsJumpPopoverOpen} />
+              </Box>
+            )}
+            {buttonGroup}
           </Box>
-        </Collapse>
-      )}
+        </Box>
+        {!isCrossFile && (
+          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+            <Box padding="8" ref={containerRef}>
+              <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
+            </Box>
+          </Collapse>
+        )}
+      </Card.Body>
     </Card.Root>
   );
 };

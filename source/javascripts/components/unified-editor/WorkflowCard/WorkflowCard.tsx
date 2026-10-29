@@ -144,95 +144,97 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
 
   return (
     <Card.Root minWidth="0" width="full" {...cardProps}>
-      <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
-        {/* No expand/collapse for cross-file refs — their nested content lives in another file
-            and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
-        {isCollapsable && !isCrossFile && (
-          <BitkitControlButton
-            size="xs"
-            tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-            className="nopan"
-            onClick={onToggle}
-            icon={isOpen ? IconChevronUp : IconChevronDown}
-            label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
-          />
-        )}
+      <Card.Body padding="0">
+        <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
+          {/* No expand/collapse for cross-file refs — their nested content lives in another file
+              and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
+          {isCollapsable && !isCrossFile && (
+            <BitkitControlButton
+              size="xs"
+              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+              className="nopan"
+              onClick={onToggle}
+              icon={isOpen ? IconChevronUp : IconChevronDown}
+              label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+            />
+          )}
 
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          justifyContent="center"
-          flex="1"
-          minWidth="0"
-        >
-          <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
-          <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
-            {subtitle}
-          </Text>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            justifyContent="center"
+            flex="1"
+            minWidth="0"
+          >
+            <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
+            <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
+              {subtitle}
+            </Text>
+          </Box>
+
+          {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
+            <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
+              {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
+              {onChainWorkflow && !isCrossFile && (
+                <BitkitControlButton
+                  size="xs"
+                  icon={IconLink}
+                  label="Chain Workflows"
+                  onClick={() => {
+                    onOpen();
+                    onChainWorkflow(id);
+                  }}
+                />
+              )}
+              {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
+                  matching the design's referenced-WF actions: jump → settings → remove. */}
+              {showJumpButton && (
+                // The picker lists every defining module (incl. the current one) so both occurrences of
+                // a workflow defined here and elsewhere are reachable.
+                <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+              )}
+              {onEditWorkflow && (
+                <BitkitControlButton
+                  size="xs"
+                  icon={IconSettings}
+                  label="Edit Workflow"
+                  onClick={() => onEditWorkflow(id)}
+                />
+              )}
+              {onRemoveWorkflow && (
+                <BitkitControlButton
+                  isDanger
+                  size="xs"
+                  icon={IconTrash}
+                  label="Remove Workflow"
+                  onClick={() => onRemoveWorkflow(id)}
+                />
+              )}
+            </Box>
+          )}
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
-          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
-            {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
-            {onChainWorkflow && !isCrossFile && (
-              <BitkitControlButton
-                size="xs"
-                icon={IconLink}
-                label="Chain Workflows"
-                onClick={() => {
-                  onOpen();
-                  onChainWorkflow(id);
-                }}
-              />
-            )}
-            {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
-                matching the design's referenced-WF actions: jump → settings → remove. */}
-            {showJumpButton && (
-              // The picker lists every defining module (incl. the current one) so both occurrences of
-              // a workflow defined here and elsewhere are reachable.
-              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
-            )}
-            {onEditWorkflow && (
-              <BitkitControlButton
-                size="xs"
-                icon={IconSettings}
-                label="Edit Workflow"
-                onClick={() => onEditWorkflow(id)}
-              />
-            )}
-            {onRemoveWorkflow && (
-              <BitkitControlButton
-                isDanger
-                size="xs"
-                icon={IconTrash}
-                label="Remove Workflow"
-                onClick={() => onRemoveWorkflow(id)}
-              />
-            )}
-          </Box>
+        {!isCrossFile && (
+          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+            <SortableWorkflowsContext containerRef={containerRef}>
+              <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
+                <ChainedWorkflowList
+                  key={`${workflowId}->before_run`}
+                  placement="before_run"
+                  parentWorkflowId={workflowId}
+                />
+                <WorkflowStepList workflowId={workflowId} />
+                <ChainedWorkflowList
+                  key={`${workflowId}->after_run`}
+                  placement="after_run"
+                  parentWorkflowId={workflowId}
+                />
+              </Box>
+            </SortableWorkflowsContext>
+          </Collapse>
         )}
-      </Box>
-
-      {!isCrossFile && (
-        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-          <SortableWorkflowsContext containerRef={containerRef}>
-            <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
-              <ChainedWorkflowList
-                key={`${workflowId}->before_run`}
-                placement="before_run"
-                parentWorkflowId={workflowId}
-              />
-              <WorkflowStepList workflowId={workflowId} />
-              <ChainedWorkflowList
-                key={`${workflowId}->after_run`}
-                placement="after_run"
-                parentWorkflowId={workflowId}
-              />
-            </Box>
-          </SortableWorkflowsContext>
-        </Collapse>
-      )}
+      </Card.Body>
     </Card.Root>
   );
 });

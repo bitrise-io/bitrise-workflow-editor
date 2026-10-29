@@ -187,7 +187,6 @@ const StepCard = ({
   const cardProps = useMemo(() => {
     const common: CardRootProps = {
       width: 'full',
-      display: 'flex',
       className: 'group',
       // The card being dragged lifts: the elevated card instead of the outlined one.
       elevation: Boolean(isDragging),
@@ -227,101 +226,103 @@ const StepCard = ({
 
   return (
     <Card.Root ref={sortable.setNodeRef} {...cardProps} style={style}>
-      {isSortable && (
-        <DragHandle
-          withGroupHover
-          borderStartRadius="8"
-          isDisabled={isLoading}
-          ref={sortable.setActivatorNodeRef}
-          {...sortable.listeners}
-          {...sortable.attributes}
-        />
-      )}
+      <Card.Body display="flex" padding="0">
+        {isSortable && (
+          <DragHandle
+            withGroupHover
+            borderStartRadius="8"
+            isDisabled={isLoading}
+            ref={sortable.setActivatorNodeRef}
+            {...sortable.listeners}
+            {...sortable.attributes}
+          />
+        )}
 
-      {isLoading ? (
-        <BitkitSkeletonGroup
-          display="grid"
-          gridTemplateColumns="auto auto"
-          alignItems="center"
-          columnGap="8"
-          rowGap="4"
-          padding="4"
-          paddingInlineStart={isSortable ? '0' : '4'}
-        >
-          <Box gridRow={showSecondary ? 'span 2' : undefined} height="32" width="32" borderRadius="4" />
-          <Box height={rem(14)} width={rem(150)} />
-          {showSecondary && <Box height={rem(14)} width={rem(75)} />}
-        </BitkitSkeletonGroup>
-      ) : (
-        <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
-          <PopoverAnchor>
-            <Box
-              padding="4"
-              paddingInlineStart={isSortable ? 0 : 4}
-              gap="8"
-              flex="1"
-              minWidth="0"
-              display="flex"
-              onClick={handleClick}
-              role={isButton ? 'button' : 'div'}
-            >
-              <BitkitAvatar variant="image" src={icon} name={title} />
-
-              <Box minWidth="0" textAlign="left" flex="1">
-                <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                  {title}
-                </Text>
-                <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
-                  {showSecondary && (
-                    <BitkitList.Item>
-                      <StepSecondaryText
-                        isUpgradable={isUpgradable}
-                        errorText={error ? 'Failed to load Step' : undefined}
-                        resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                      />
-                    </BitkitList.Item>
-                  )}
-                  {referenceIds.length > 0 && (
-                    <BitkitList.Item>
-                      <Box display="flex" alignItems="center" gap="4">
-                        <IconContainer size="16" color="icon/tertiary" />
-                        <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                          {referenceIds}
-                        </Text>
-                      </Box>
-                    </BitkitList.Item>
-                  )}
-                </BitkitList>
-              </Box>
-
-              {buttonGroup}
-            </Box>
-          </PopoverAnchor>
-          {!isMultiSelectAccepted && (
-            <PopoverContent
-              background="neutral.10"
-              color="neutral.100"
-              sx={{
-                '--popper-arrow-bg': '#201b22',
-              }}
-            >
-              <PopoverArrow />
-              <PopoverBody
+        {isLoading ? (
+          <BitkitSkeletonGroup
+            display="grid"
+            gridTemplateColumns="auto auto"
+            alignItems="center"
+            columnGap="8"
+            rowGap="4"
+            padding="4"
+            paddingInlineStart={isSortable ? '0' : '4'}
+          >
+            <Box gridRow={showSecondary ? 'span 2' : undefined} height="32" width="32" borderRadius="4" />
+            <Box height={rem(14)} width={rem(150)} />
+            {showSecondary && <Box height={rem(14)} width={rem(75)} />}
+          </BitkitSkeletonGroup>
+        ) : (
+          <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
+            <PopoverAnchor>
+              <Box
+                padding="4"
+                paddingInlineStart={isSortable ? 0 : 4}
+                gap="8"
+                flex="1"
+                minWidth="0"
                 display="flex"
-                alignItems="center"
-                color="neutral.100"
-                padding="16"
-                textStyle="body/md/regular"
+                onClick={handleClick}
+                role={isButton ? 'button' : 'div'}
               >
-                <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
-                  Got it
-                </BitkitColorButton>
-              </PopoverBody>
-            </PopoverContent>
-          )}
-        </Popover>
-      )}
+                <BitkitAvatar variant="image" src={icon} name={title} />
+
+                <Box minWidth="0" textAlign="left" flex="1">
+                  <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                    {title}
+                  </Text>
+                  <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
+                    {showSecondary && (
+                      <BitkitList.Item>
+                        <StepSecondaryText
+                          isUpgradable={isUpgradable}
+                          errorText={error ? 'Failed to load Step' : undefined}
+                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                        />
+                      </BitkitList.Item>
+                    )}
+                    {referenceIds.length > 0 && (
+                      <BitkitList.Item>
+                        <Box display="flex" alignItems="center" gap="4">
+                          <IconContainer size="16" color="icon/tertiary" />
+                          <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                            {referenceIds}
+                          </Text>
+                        </Box>
+                      </BitkitList.Item>
+                    )}
+                  </BitkitList>
+                </Box>
+
+                {buttonGroup}
+              </Box>
+            </PopoverAnchor>
+            {!isMultiSelectAccepted && (
+              <PopoverContent
+                background="neutral.10"
+                color="neutral.100"
+                sx={{
+                  '--popper-arrow-bg': '#201b22',
+                }}
+              >
+                <PopoverArrow />
+                <PopoverBody
+                  display="flex"
+                  alignItems="center"
+                  color="neutral.100"
+                  padding="16"
+                  textStyle="body/md/regular"
+                >
+                  <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                  <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
+                    Got it
+                  </BitkitColorButton>
+                </PopoverBody>
+              </PopoverContent>
+            )}
+          </Popover>
+        )}
+      </Card.Body>
     </Card.Root>
   );
 };

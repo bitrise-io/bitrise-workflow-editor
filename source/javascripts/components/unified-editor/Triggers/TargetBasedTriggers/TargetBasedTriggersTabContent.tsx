@@ -75,16 +75,18 @@ const TargetBasedTriggersTabContent = (props: Props) => {
   return (
     <>
       <TargetBasedTriggerNotification />
-      <Card.Root elevation={false} paddingBlock="16" paddingInline="24" marginBlockEnd="24">
-        <BitkitSwitch
-          variant="fixed"
-          size="md"
-          label="Enable triggers"
-          helperText="When disabled and saved, none of the triggers below will execute a build."
-          checked={triggers.enabled !== false}
-          state={isReadOnly ? 'readOnly' : undefined}
-          onCheckedChange={handleGlobalTriggerEnabledToggled}
-        />
+      <Card.Root elevation={false} marginBlockEnd="24" paddingSize="md">
+        <Card.Body>
+          <BitkitSwitch
+            variant="fixed"
+            size="md"
+            label="Enable triggers"
+            helperText="When disabled and saved, none of the triggers below will execute a build."
+            checked={triggers.enabled !== false}
+            state={isReadOnly ? 'readOnly' : undefined}
+            onCheckedChange={handleGlobalTriggerEnabledToggled}
+          />
+        </Card.Body>
       </Card.Root>
       <TargetBasedTriggersCard
         triggerType="push"
