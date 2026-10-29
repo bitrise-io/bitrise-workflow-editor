@@ -2,6 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-vite';
 
 import { TreeNode } from '@/core/models/Tree';
 import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import WorkflowCard from './WorkflowCard';
 
@@ -44,7 +45,7 @@ export const Empty: Story = {
 };
 
 // A cross-file ("ghost") workflow: defined in another module, so it can't be edited here. The card
-// renders with the subtler `minElevated` look (border/minimal + small shadow, no background tint)
+// renders as the elevated card (border/minimal + small shadow, no background tint)
 // and a jump-to-definition button instead of the editable chrome.
 const GHOST_ROOT: TreeNode = {
   nodeId: 'n_root',
@@ -75,6 +76,40 @@ export const Ghost: Story = {
       root: GHOST_ROOT,
       branch: 'main',
       commitSha: GHOST_ROOT.commitSha,
+    });
+  },
+};
+
+// wf2 runs wf1 before it and wf3, wf7, wf7 after it, so the card shows chained workflow cards.
+export const WithChainedWorkflows: Story = {
+  args: {
+    id: 'wf2',
+    isCollapsable: false,
+  },
+};
+
+// The open file is read-only (as a file from another repository or ref is), so the steps and the step
+// bundle inside the card render as ghosts. The file is the shared test config, because the Storybook
+// preview resets the document to it after the story sets up.
+const READ_ONLY_ROOT: TreeNode = {
+  nodeId: 'n_root',
+  path: 'bitrise.yml',
+  contents: YmlUtils.toYml(TEST_BITRISE_YML as never),
+  source: null,
+  commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
+  editable: false,
+  includes: [],
+};
+
+export const ReadOnly: Story = {
+  args: {
+    isCollapsable: false,
+  },
+  beforeEach: () => {
+    initializeModularConfig({
+      root: READ_ONLY_ROOT,
+      branch: 'main',
+      commitSha: READ_ONLY_ROOT.commitSha,
     });
   },
 };

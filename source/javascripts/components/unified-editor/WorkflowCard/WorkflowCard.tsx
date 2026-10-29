@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse, Tooltip } from '@bitrise/bitkit';
+import { Collapse, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -9,6 +9,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Badge } from '@chakra-ui/react/badge';
 import { Box } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
@@ -37,7 +38,7 @@ type ContentProps = {
   uses?: string;
   parallel?: string | number;
   isCollapsable?: boolean;
-  containerProps?: CardProps;
+  containerProps?: CardRootProps;
 };
 
 const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProps, 'parallel'>>) => {
@@ -100,8 +101,6 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts (cross-file refs, or everything in the read-only merged view) get a subtler card:
-  // the `minElevated` variant (border/minimal + small shadow) instead of the default elevated look.
   const isGhost = isCrossFile || isReadOnlyView;
 
   const {
@@ -120,6 +119,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   const cardProps = useMemo(
     () => ({
       ...containerProps,
+      ...(isGhost && { opacity: 0.7 }),
       ...(isHighlighted
         ? {
             outline: '2px solid',
@@ -127,11 +127,8 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
           }
         : {}),
     }),
-    [containerProps, isHighlighted],
+    [containerProps, isGhost, isHighlighted],
   );
-  // Resolve the variant after spreading `cardProps` so a caller's `containerProps.variant`
-  // (e.g. WorkflowNode's 'outline') can't override the ghost styling — ghost always wins.
-  const cardVariant = isGhost ? 'minElevated' : (containerProps?.variant ?? 'elevated');
 
   if (!workflow && !isCrossFile) {
     return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
@@ -146,97 +143,99 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
   }
 
   return (
-    <Card minW={0} borderRadius="8" {...cardProps} variant={cardVariant}>
-      <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
-        {/* No expand/collapse for cross-file refs — their nested content lives in another file
-            and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
-        {isCollapsable && !isCrossFile && (
-          <BitkitControlButton
-            size="xs"
-            tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-            className="nopan"
-            onClick={onToggle}
-            icon={isOpen ? IconChevronUp : IconChevronDown}
-            label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
-          />
-        )}
+    <Card.Root minWidth="0" width="full" paddingSize="sm" {...cardProps}>
+      <Card.Body>
+        <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
+          {/* No expand/collapse for cross-file refs — their nested content lives in another file
+              and isn't shown here, so the chevron is hidden rather than rendered disabled. */}
+          {isCollapsable && !isCrossFile && (
+            <BitkitControlButton
+              size="xs"
+              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+              className="nopan"
+              onClick={onToggle}
+              icon={isOpen ? IconChevronUp : IconChevronDown}
+              label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+            />
+          )}
 
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-          justifyContent="center"
-          flex="1"
-          minWidth="0"
-        >
-          <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
-          <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
-            {subtitle}
-          </Text>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            justifyContent="center"
+            flex="1"
+            minWidth="0"
+          >
+            <WorkflowName parallel={parallel}>{uses ? id : workflow?.title || id}</WorkflowName>
+            <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
+              {subtitle}
+            </Text>
+          </Box>
+
+          {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
+            <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
+              {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
+              {onChainWorkflow && !isCrossFile && (
+                <BitkitControlButton
+                  size="xs"
+                  icon={IconLink}
+                  label="Chain Workflows"
+                  onClick={() => {
+                    onOpen();
+                    onChainWorkflow(id);
+                  }}
+                />
+              )}
+              {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
+                  matching the design's referenced-WF actions: jump → settings → remove. */}
+              {showJumpButton && (
+                // The picker lists every defining module (incl. the current one) so both occurrences of
+                // a workflow defined here and elsewhere are reachable.
+                <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
+              )}
+              {onEditWorkflow && (
+                <BitkitControlButton
+                  size="xs"
+                  icon={IconSettings}
+                  label="Edit Workflow"
+                  onClick={() => onEditWorkflow(id)}
+                />
+              )}
+              {onRemoveWorkflow && (
+                <BitkitControlButton
+                  isDanger
+                  size="xs"
+                  icon={IconTrash}
+                  label="Remove Workflow"
+                  onClick={() => onRemoveWorkflow(id)}
+                />
+              )}
+            </Box>
+          )}
         </Box>
 
-        {(onChainWorkflow || onEditWorkflow || onRemoveWorkflow || showJumpButton) && (
-          <Box display={isJumpPopoverOpen ? 'inline-flex' : 'none'} _groupHover={{ display: 'inline-flex' }}>
-            {/* Chaining writes into the definition — hidden for cross-file refs (another file). */}
-            {onChainWorkflow && !isCrossFile && (
-              <BitkitControlButton
-                size="xs"
-                icon={IconLink}
-                label="Chain Workflows"
-                onClick={() => {
-                  onOpen();
-                  onChainWorkflow(id);
-                }}
-              />
-            )}
-            {/* Jump takes the leading "primary action" slot for ghosts (where Chain is hidden),
-                matching the design's referenced-WF actions: jump → settings → remove. */}
-            {showJumpButton && (
-              // The picker lists every defining module (incl. the current one) so both occurrences of
-              // a workflow defined here and elsewhere are reachable.
-              <CrossFileJumpButton kind="workflows" id={workflowId} onOpenChange={setIsJumpPopoverOpen} />
-            )}
-            {onEditWorkflow && (
-              <BitkitControlButton
-                size="xs"
-                icon={IconSettings}
-                label="Edit Workflow"
-                onClick={() => onEditWorkflow(id)}
-              />
-            )}
-            {onRemoveWorkflow && (
-              <BitkitControlButton
-                isDanger
-                size="xs"
-                icon={IconTrash}
-                label="Remove Workflow"
-                onClick={() => onRemoveWorkflow(id)}
-              />
-            )}
-          </Box>
+        {!isCrossFile && (
+          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+            <SortableWorkflowsContext containerRef={containerRef}>
+              <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
+                <ChainedWorkflowList
+                  key={`${workflowId}->before_run`}
+                  placement="before_run"
+                  parentWorkflowId={workflowId}
+                />
+                <WorkflowStepList workflowId={workflowId} />
+                <ChainedWorkflowList
+                  key={`${workflowId}->after_run`}
+                  placement="after_run"
+                  parentWorkflowId={workflowId}
+                />
+              </Box>
+            </SortableWorkflowsContext>
+          </Collapse>
         )}
-      </Box>
-
-      {!isCrossFile && (
-        <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-          <SortableWorkflowsContext containerRef={containerRef}>
-            <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
-              <ChainedWorkflowList
-                key={`${workflowId}->before_run`}
-                placement="before_run"
-                parentWorkflowId={workflowId}
-              />
-              <WorkflowStepList workflowId={workflowId} />
-              <ChainedWorkflowList
-                key={`${workflowId}->after_run`}
-                placement="after_run"
-                parentWorkflowId={workflowId}
-              />
-            </Box>
-          </SortableWorkflowsContext>
-        </Collapse>
-      )}
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 });
 

@@ -1,4 +1,4 @@
-import { Card, CardProps, Collapse } from '@bitrise/bitkit';
+import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -6,9 +6,11 @@ import {
   IconLink,
   IconSettings,
   IconTrash,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -18,6 +20,7 @@ import { memo, useMemo, useRef, useState } from 'react';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import SortablePlaceholder from '@/components/SortablePlaceholder/SortablePlaceholder';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import WorkflowService from '@/core/services/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -54,8 +57,9 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts get the subtler `minElevated` card (border/minimal + small shadow) instead of the tint.
+  // Ghosts get the elevated card (border/minimal + small shadow) instead of the outlined one.
   const isGhost = isCrossFile || isReadOnlyView;
+  const isFaded = isCrossFile && !isReadOnlyView;
   const { isSelected } = useSelection();
   const dependants = useDependantWorkflows({ workflowId: id });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,32 +95,18 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const title = workflow?.title || id;
 
   const cardProps = useMemo(() => {
-    const common: CardProps = {
-      borderRadius: '4',
-      variant: isGhost ? 'minElevated' : 'outline',
-      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+    const common: CardRootProps = {
+      width: 'full',
+      // Ghosts and the card being dragged get the elevated card instead of the outlined one.
+      elevation: isGhost || Boolean(isDragging),
+      opacity: isFaded ? 0.7 : undefined,
     };
-
-    if (isPlaceholder) {
-      return {
-        ...common,
-        height: 50,
-        display: 'flex',
-        border: '1px dashed',
-        alignItems: 'center',
-        color: 'text/secondary',
-        justifyContent: 'center',
-        textStyle: 'body/sm/regular',
-        borderColor: 'border/strong',
-        backgroundColor: 'background/secondary',
-      };
-    }
 
     return {
       ...common,
       ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
     };
-  }, [isDragging, isHighlighted, isPlaceholder, isGhost]);
+  }, [isDragging, isHighlighted, isGhost, isFaded]);
 
   const buttonGroup = useMemo(() => {
     if (
@@ -183,75 +173,77 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
     return null;
   }
 
+  if (isPlaceholder) {
+    return <SortablePlaceholder ref={sortable.setNodeRef} style={style} height={rem(50)} />;
+  }
+
   return (
-    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
-      {!isPlaceholder && (
-        <>
-          <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
-            {isSortable && (
-              <DragHandle
-                mx="-8"
-                my="-6"
-                alignSelf="stretch"
-                ref={sortable.setActivatorNodeRef}
-                {...sortable.listeners}
-                {...sortable.attributes}
-              />
-            )}
+    <Card.Root ref={sortable.setNodeRef} {...cardProps} paddingSize="sm" style={style}>
+      <Card.Body>
+        <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
+          {isSortable && (
+            <DragHandle
+              mx="-8"
+              my="-6"
+              alignSelf="stretch"
+              ref={sortable.setActivatorNodeRef}
+              {...sortable.listeners}
+              {...sortable.attributes}
+            />
+          )}
 
-            {/* No expand/collapse for cross-file refs — their nested content isn't shown here. */}
-            {!isCrossFile && (
-              <BitkitControlButton
-                size="xs"
-                tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
-                className="nopan"
-                onClick={onToggle}
-                state={isDragging ? 'disabled' : undefined}
-                icon={isOpen ? IconChevronUp : IconChevronDown}
-                label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
-                tooltipProps={{ disabled: isDragging }}
-              />
-            )}
+          {/* No expand/collapse for cross-file refs — their nested content isn't shown here. */}
+          {!isCrossFile && (
+            <BitkitControlButton
+              size="xs"
+              tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
+              className="nopan"
+              onClick={onToggle}
+              state={isDragging ? 'disabled' : undefined}
+              icon={isOpen ? IconChevronUp : IconChevronDown}
+              label={`${isOpen ? 'Collapse' : 'Expand'} Workflow details`}
+              tooltipProps={{ disabled: isDragging }}
+            />
+          )}
 
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="flex-start"
-              justifyContent="center"
-              flex="1"
-              minWidth="0"
-            >
-              <Text textStyle="body/md/semibold" truncate maxWidth="full">
-                {title}
-              </Text>
-              <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
-                {placement}
-                {' • '}
-                {otherModules.nodeIds.length > 0
-                  ? otherModulesLabel(otherModules)
-                  : WorkflowService.getUsedByText(dependants)}
-              </Text>
-            </Box>
-
-            {buttonGroup}
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="flex-start"
+            justifyContent="center"
+            flex="1"
+            minWidth="0"
+          >
+            <Text textStyle="body/md/semibold" truncate maxWidth="full">
+              {title}
+            </Text>
+            <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
+              {placement}
+              {' • '}
+              {otherModules.nodeIds.length > 0
+                ? otherModulesLabel(otherModules)
+                : WorkflowService.getUsedByText(dependants)}
+            </Text>
           </Box>
 
-          {!isCrossFile && (
-            <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
-              <SortableWorkflowsContext containerRef={containerRef}>
-                <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
-                  <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
+          {buttonGroup}
+        </Box>
 
-                  <WorkflowStepList workflowId={id} />
+        {!isCrossFile && (
+          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+            <SortableWorkflowsContext containerRef={containerRef}>
+              <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
+                <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
 
-                  <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
-                </Box>
-              </SortableWorkflowsContext>
-            </Collapse>
-          )}
-        </>
-      )}
-    </Card>
+                <WorkflowStepList workflowId={id} />
+
+                <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
+              </Box>
+            </SortableWorkflowsContext>
+          </Collapse>
+        )}
+      </Card.Body>
+    </Card.Root>
   );
 };
 

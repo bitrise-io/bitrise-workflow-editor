@@ -1,4 +1,4 @@
-import { Card, CardProps, Tooltip } from '@bitrise/bitkit';
+import { Tooltip } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitColorButton,
@@ -10,6 +10,7 @@ import {
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -19,6 +20,7 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import SortablePlaceholder from '@/components/SortablePlaceholder/SortablePlaceholder';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
@@ -26,7 +28,6 @@ import StepService from '@/core/services/StepService';
 import VersionUtils from '@/core/utils/VersionUtils';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useStep from '@/hooks/useStep';
-import { useIsReadOnlyView } from '@/hooks/useTree';
 
 import { useSelection, useStepActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
@@ -95,7 +96,6 @@ const StepCard = ({
   cvs,
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
-  const isReadOnlyView = useIsReadOnlyView();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
@@ -185,41 +185,23 @@ const StepCard = ({
     : undefined;
 
   const cardProps = useMemo(() => {
-    const common: CardProps = {
-      display: 'flex',
-      borderRadius: '4',
-      variant: 'outline',
+    const common: CardRootProps = {
+      width: 'full',
       className: 'group',
-      // Ghost (read-only) steps: a lighter border/minimal, no shadow — per the design's ghost-step spec.
-      ...(isReadOnlyView ? { borderColor: 'border/minimal' } : {}),
-      ...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
+      // The card being dragged lifts: the elevated card instead of the outlined one.
+      elevation: Boolean(isDragging),
     };
-
-    if (isPlaceholder) {
-      return {
-        ...common,
-        height: 42,
-        display: 'flex',
-        border: '1px dashed',
-        alignItems: 'center',
-        color: 'text/secondary',
-        justifyContent: 'center',
-        textStyle: 'body/sm/regular',
-        borderColor: 'border/strong',
-        backgroundColor: 'background/secondary',
-      } satisfies CardProps;
-    }
 
     if (isButton) {
       return {
         ...common,
+        interactive: true,
         ...(isHighlighted ? { outline: '2px solid', outlineColor: 'border/selected' } : {}),
-        _hover: { borderColor: 'border/hover' },
       };
     }
 
     return common;
-  }, [isDragging, isPlaceholder, isButton, isHighlighted, isReadOnlyView]);
+  }, [isDragging, isButton, isHighlighted]);
 
   const buttonGroup = useMemo(() => {
     if (!(workflowId || stepBundleId) || isDragging || (!isUpgradable && !isClonable && !isRemovable)) {
@@ -238,108 +220,110 @@ const StepCard = ({
     );
   }, [workflowId, stepBundleId, isDragging, isUpgradable, isClonable, isRemovable, isHighlighted, step, stepIndex]);
 
+  if (isPlaceholder) {
+    return <SortablePlaceholder ref={sortable.setNodeRef} style={style} height={rem(42)} />;
+  }
+
   return (
-    <Card ref={sortable.setNodeRef} {...cardProps} style={style}>
-      {!isPlaceholder && (
-        <>
-          {isSortable && (
-            <DragHandle
-              withGroupHover
-              borderLeftRadius="4"
-              isDisabled={isLoading}
-              ref={sortable.setActivatorNodeRef}
-              {...sortable.listeners}
-              {...sortable.attributes}
-            />
-          )}
+    <Card.Root ref={sortable.setNodeRef} {...cardProps} paddingSize="sm" style={style}>
+      <Card.Body display="flex">
+        {isSortable && (
+          <DragHandle
+            withGroupHover
+            borderStartRadius="8"
+            isDisabled={isLoading}
+            ref={sortable.setActivatorNodeRef}
+            {...sortable.listeners}
+            {...sortable.attributes}
+          />
+        )}
 
-          {isLoading ? (
-            <BitkitSkeletonGroup
-              display="grid"
-              gridTemplateColumns="auto auto"
-              alignItems="center"
-              columnGap="8"
-              rowGap="4"
-              padding="4"
-              paddingInlineStart={isSortable ? '0' : '4'}
-            >
-              <Box gridRow={showSecondary ? 'span 2' : undefined} height="32" width="32" borderRadius="4" />
-              <Box height={rem(14)} width={rem(150)} />
-              {showSecondary && <Box height={rem(14)} width={rem(75)} />}
-            </BitkitSkeletonGroup>
-          ) : (
-            <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
-              <PopoverAnchor>
-                <Box
-                  padding="4"
-                  paddingInlineStart={isSortable ? 0 : 4}
-                  gap="8"
-                  flex="1"
-                  minWidth="0"
-                  display="flex"
-                  onClick={handleClick}
-                  role={isButton ? 'button' : 'div'}
-                >
-                  <BitkitAvatar variant="image" src={icon} name={title} />
+        {isLoading ? (
+          <BitkitSkeletonGroup
+            display="grid"
+            gridTemplateColumns="auto auto"
+            alignItems="center"
+            columnGap="8"
+            rowGap="4"
+            padding="4"
+            paddingInlineStart={isSortable ? '0' : '4'}
+          >
+            <Box gridRow={showSecondary ? 'span 2' : undefined} height="32" width="32" borderRadius="4" />
+            <Box height={rem(14)} width={rem(150)} />
+            {showSecondary && <Box height={rem(14)} width={rem(75)} />}
+          </BitkitSkeletonGroup>
+        ) : (
+          <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
+            <PopoverAnchor>
+              <Box
+                padding="4"
+                paddingInlineStart={isSortable ? 0 : 4}
+                gap="8"
+                flex="1"
+                minWidth="0"
+                display="flex"
+                onClick={handleClick}
+                role={isButton ? 'button' : 'div'}
+              >
+                <BitkitAvatar variant="image" src={icon} name={title} />
 
-                  <Box minWidth="0" textAlign="left" flex="1">
-                    <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                      {title}
-                    </Text>
-                    <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
-                      {showSecondary && (
-                        <BitkitList.Item>
-                          <StepSecondaryText
-                            isUpgradable={isUpgradable}
-                            errorText={error ? 'Failed to load Step' : undefined}
-                            resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                          />
-                        </BitkitList.Item>
-                      )}
-                      {referenceIds.length > 0 && (
-                        <BitkitList.Item>
-                          <Box display="flex" alignItems="center" gap="4">
-                            <IconContainer size="16" color="icon/tertiary" />
-                            <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                              {referenceIds}
-                            </Text>
-                          </Box>
-                        </BitkitList.Item>
-                      )}
-                    </BitkitList>
-                  </Box>
-
-                  {buttonGroup}
+                <Box minWidth="0" textAlign="left" flex="1">
+                  <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                    {title}
+                  </Text>
+                  <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
+                    {showSecondary && (
+                      <BitkitList.Item>
+                        <StepSecondaryText
+                          isUpgradable={isUpgradable}
+                          errorText={error ? 'Failed to load Step' : undefined}
+                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                        />
+                      </BitkitList.Item>
+                    )}
+                    {referenceIds.length > 0 && (
+                      <BitkitList.Item>
+                        <Box display="flex" alignItems="center" gap="4">
+                          <IconContainer size="16" color="icon/tertiary" />
+                          <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                            {referenceIds}
+                          </Text>
+                        </Box>
+                      </BitkitList.Item>
+                    )}
+                  </BitkitList>
                 </Box>
-              </PopoverAnchor>
-              {!isMultiSelectAccepted && (
-                <PopoverContent
-                  background="neutral.10"
+
+                {buttonGroup}
+              </Box>
+            </PopoverAnchor>
+            {!isMultiSelectAccepted && (
+              <PopoverContent
+                background="neutral.10"
+                color="neutral.100"
+                sx={{
+                  '--popper-arrow-bg': '#201b22',
+                }}
+              >
+                <PopoverArrow />
+                <PopoverBody
+                  display="flex"
+                  alignItems="center"
                   color="neutral.100"
-                  sx={{
-                    '--popper-arrow-bg': '#201b22',
-                  }}
+                  padding="16"
+                  textStyle="body/md/regular"
                 >
-                  <PopoverArrow />
-                  <PopoverBody
-                    display="flex"
-                    alignItems="center"
-                    color="neutral.100"
-                    padding="16"
-                    textStyle="body/md/regular"
-                  >
-                    <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                    <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
-                      Got it
-                    </BitkitColorButton>
-                  </PopoverBody>
-                </PopoverContent>
-              )}
-            </Popover>
-          )}
-        </>
-      )}
-    </Card>
+                  <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
+                  <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
+                    Got it
+                  </BitkitColorButton>
+                </PopoverBody>
+              </PopoverContent>
+            )}
+          </Popover>
+        )}
+      </Card.Body>
+    </Card.Root>
   );
 };
 

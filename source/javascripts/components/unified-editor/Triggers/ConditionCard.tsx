@@ -1,4 +1,4 @@
-import { Card, Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
+import { Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitControlButton,
@@ -9,6 +9,7 @@ import {
   IconRegex,
   IconTrash,
 } from '@bitrise/bitkit-v2';
+import { Card } from '@chakra-ui/react/card';
 import { Checkbox, Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -46,123 +47,127 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
   }, [conditions]);
 
   return (
-    <Card variant="outline" overflow="hidden">
-      <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
-        <Thead backgroundColor="background/primary" data-clarity-unmask="true">
-          <Tr>
-            <Th width="35%">Condition</Th>
-            <Th>Value</Th>
-            {!isTagCondition && <Th width="52px" />}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {fields.map((fieldItem, index) => {
-            const cond = conditions[index] || {};
-            const { isLastCommitOnly, isRegex, type } = cond;
-            const isRequired = TriggerService.requiredField(type);
+    <Card.Root elevation={false} overflow="hidden">
+      {/* TODO: The table pads itself, so the body's padding is off. The Table migration replaces this card with
+          BitkitTableCard; drop the Card.Root and Card.Body then. */}
+      <Card.Body padding="0">
+        <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
+          <Thead backgroundColor="background/primary" data-clarity-unmask="true">
+            <Tr>
+              <Th width="35%">Condition</Th>
+              <Th>Value</Th>
+              {!isTagCondition && <Th width="52px" />}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {fields.map((fieldItem, index) => {
+              const cond = conditions[index] || {};
+              const { isLastCommitOnly, isRegex, type } = cond;
+              const isRequired = TriggerService.requiredField(type);
 
-            return (
-              <Tr key={fieldItem.uniqueId}>
-                <Td height="auto" paddingBlock="12" verticalAlign="top">
-                  <Controller
-                    name={`conditions.${index}.type`}
-                    control={control}
-                    render={({ field }) => (
-                      <Select placeholder="Select a condition type" size="md" {...field}>
-                        {Object.entries(optionsMap).map(([optionType, text]) => {
-                          const isConditionTypeUsed = conditions.some((condition) => condition.type === optionType);
-                          const isTypeOfCurrentCard = optionType === type;
+              return (
+                <Tr key={fieldItem.uniqueId}>
+                  <Td height="auto" paddingBlock="12" verticalAlign="top">
+                    <Controller
+                      name={`conditions.${index}.type`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select placeholder="Select a condition type" size="md" {...field}>
+                          {Object.entries(optionsMap).map(([optionType, text]) => {
+                            const isConditionTypeUsed = conditions.some((condition) => condition.type === optionType);
+                            const isTypeOfCurrentCard = optionType === type;
 
-                          if (isConditionTypeUsed && !isTypeOfCurrentCard) {
-                            return undefined;
+                            if (isConditionTypeUsed && !isTypeOfCurrentCard) {
+                              return undefined;
+                            }
+
+                            return (
+                              <option key={optionType} value={optionType}>
+                                {text}
+                              </option>
+                            );
+                          })}
+                        </Select>
+                      )}
+                    />
+                    {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (
+                      <Checkbox
+                        marginBlockStart="12"
+                        isChecked={isLastCommitOnly}
+                        onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
+                        alignItems="center"
+                        whiteSpace="nowrap"
+                      >
+                        Last commit only
+                        <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
+                          <IconInfoCircle size="16" marginInlineStart="4" />
+                        </Toggletip>
+                      </Checkbox>
+                    )}
+                  </Td>
+                  <Td height="auto" paddingBlock="12" verticalAlign="top">
+                    <Controller
+                      name={`conditions.${index}.value`}
+                      render={({ field }) => (
+                        <BitkitTextInput
+                          value={field.value}
+                          onValueChange={(value) => field.onChange(value.trimStart())}
+                          inputProps={{ name: field.name, onBlur: field.onBlur, required: isRequired }}
+                          placeholder={isRegex ? '.*' : '*'}
+                          helperText={type ? CONDITION_HELPERTEXT_MAP[type] : undefined}
+                          size="md"
+                          startElement={
+                            <BitkitToggleButton
+                              icon={IconRegex}
+                              label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
+                              size="sm"
+                              isSelected={isRegex}
+                              onSelectedChange={(selected) => setValue(`conditions.${index}.isRegex`, selected)}
+                            />
                           }
-
-                          return (
-                            <option key={optionType} value={optionType}>
-                              {text}
-                            </option>
-                          );
-                        })}
-                      </Select>
-                    )}
-                  />
-                  {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (
-                    <Checkbox
-                      marginBlockStart="12"
-                      isChecked={isLastCommitOnly}
-                      onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
-                      alignItems="center"
-                      whiteSpace="nowrap"
-                    >
-                      Last commit only
-                      <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
-                        <IconInfoCircle size="16" marginInlineStart="4" />
-                      </Toggletip>
-                    </Checkbox>
-                  )}
-                </Td>
-                <Td height="auto" paddingBlock="12" verticalAlign="top">
-                  <Controller
-                    name={`conditions.${index}.value`}
-                    render={({ field }) => (
-                      <BitkitTextInput
-                        value={field.value}
-                        onValueChange={(value) => field.onChange(value.trimStart())}
-                        inputProps={{ name: field.name, onBlur: field.onBlur, required: isRequired }}
-                        placeholder={isRegex ? '.*' : '*'}
-                        helperText={type ? CONDITION_HELPERTEXT_MAP[type] : undefined}
-                        size="md"
-                        startElement={
-                          <BitkitToggleButton
-                            icon={IconRegex}
-                            label="Use regex pattern. Bitrise uses Ruby's Regexp#match method."
-                            size="sm"
-                            isSelected={isRegex}
-                            onSelectedChange={(selected) => setValue(`conditions.${index}.isRegex`, selected)}
-                          />
-                        }
-                      />
-                    )}
-                  />
-                </Td>
-                {!isTagCondition && (
-                  <Td height="auto" paddingBlock="12" verticalAlign="top" paddingLeft="0">
-                    <BitkitControlButton
-                      icon={IconTrash}
-                      label="Remove"
-                      tooltipProps={{ disabled: fields.length === 1 }}
-                      size="md"
-                      isDanger
-                      state={fields.length === 1 ? 'disabled' : undefined}
-                      onClick={() => remove(index)}
+                        />
+                      )}
                     />
                   </Td>
-                )}
+                  {!isTagCondition && (
+                    <Td height="auto" paddingBlock="12" verticalAlign="top" paddingLeft="0">
+                      <BitkitControlButton
+                        icon={IconTrash}
+                        label="Remove"
+                        tooltipProps={{ disabled: fields.length === 1 }}
+                        size="md"
+                        isDanger
+                        state={fields.length === 1 ? 'disabled' : undefined}
+                        onClick={() => remove(index)}
+                      />
+                    </Td>
+                  )}
+                </Tr>
+              );
+            })}
+          </Tbody>
+          {!isTagCondition && (
+            <Tfoot>
+              <Tr>
+                <Td>
+                  <BitkitButton
+                    variant="tertiary"
+                    size="md"
+                    icon={IconPlus}
+                    onClick={append}
+                    state={fields.length >= Object.keys(optionsMap).length ? 'disabled' : undefined}
+                  >
+                    Add condition
+                  </BitkitButton>
+                </Td>
+                <Td />
+                <Td />
               </Tr>
-            );
-          })}
-        </Tbody>
-        {!isTagCondition && (
-          <Tfoot>
-            <Tr>
-              <Td>
-                <BitkitButton
-                  variant="tertiary"
-                  size="md"
-                  icon={IconPlus}
-                  onClick={append}
-                  state={fields.length >= Object.keys(optionsMap).length ? 'disabled' : undefined}
-                >
-                  Add condition
-                </BitkitButton>
-              </Td>
-              <Td />
-              <Td />
-            </Tr>
-          </Tfoot>
-        )}
-      </Table>
-    </Card>
+            </Tfoot>
+          )}
+        </Table>
+      </Card.Body>
+    </Card.Root>
   );
 };
 
