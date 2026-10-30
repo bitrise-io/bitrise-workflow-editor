@@ -1,13 +1,5 @@
-import {
-  Button,
-  Dropdown,
-  DropdownGroup,
-  DropdownOption,
-  DropdownProps,
-  DropdownSearch,
-  Tooltip,
-} from '@bitrise/bitkit';
-import { BitkitEmptyState, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Button, Dropdown, DropdownGroup, DropdownOption, DropdownProps, DropdownSearch } from '@bitrise/bitkit';
+import { BitkitEmptyState, BitkitTooltip, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 
@@ -24,6 +16,46 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
     ids: string[];
   };
 }
+
+// Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
+// into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
+// left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
+// footer is a flex column. The v1 Button has no `disabledReason`, so the reason goes in a tooltip.
+const CreateWithAIButton = ({
+  entityName,
+  isDisabled,
+  onClick,
+  tooltipLabel,
+}: {
+  entityName?: string;
+  isDisabled: boolean;
+  onClick: VoidFunction;
+  tooltipLabel?: string;
+}) => {
+  const button = (
+    <Button
+      borderRadius="0"
+      color="button.secondary"
+      textStyle="body/lg/regular"
+      justifyContent="flex-start"
+      leftIcon={<IconSparkleFilled color={isDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
+      variant="tertiary"
+      width="100%"
+      isDisabled={isDisabled}
+      onClick={onClick}
+    >
+      Create {entityName} with AI
+    </Button>
+  );
+
+  return tooltipLabel ? (
+    <BitkitTooltip text={tooltipLabel} wrapTrigger>
+      {button}
+    </BitkitTooltip>
+  ) : (
+    button
+  );
+};
 
 const EntitySelector = (props: EntitySelectorProps) => {
   const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
@@ -99,6 +131,8 @@ const EntitySelector = (props: EntitySelectorProps) => {
       {/* Read-only views (merged config, cross-repo/ref files) can't create — show no footer at all. */}
       {!isReadOnlyView && (!!onCreate || isAIButtonVisible) && (
         <Box
+          display="flex"
+          flexDirection="column"
           paddingBlock="8"
           position="sticky"
           bottom="-8"
@@ -122,21 +156,12 @@ const EntitySelector = (props: EntitySelectorProps) => {
             </Button>
           )}
           {isAIButtonVisible && (
-            <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-              <Button
-                borderRadius="0"
-                color="button.secondary"
-                textStyle="body/lg/regular"
-                justifyContent="flex-start"
-                leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
-                variant="tertiary"
-                width="100%"
-                isDisabled={isAIButtonDisabled}
-                onClick={handleCreateWithAI}
-              >
-                Create {entityName} with AI
-              </Button>
-            </Tooltip>
+            <CreateWithAIButton
+              entityName={entityName}
+              isDisabled={isAIButtonDisabled}
+              onClick={handleCreateWithAI}
+              tooltipLabel={tooltipLabel}
+            />
           )}
         </Box>
       )}

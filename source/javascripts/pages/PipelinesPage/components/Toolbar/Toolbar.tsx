@@ -1,5 +1,5 @@
-import { Button, Dropdown, DropdownOption, DropdownSearch, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlay, IconPlus, IconSettings, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { Button, Dropdown, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
+import { BitkitButton, BitkitTooltip, IconPlay, IconPlus, IconSettings, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
@@ -17,6 +17,48 @@ type Props = BoxProps & {
   onWorkflowsClick?: () => void;
   onPropertiesClick?: () => void;
   onCreatePipelineClick?: () => void;
+};
+
+// Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
+// into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
+// left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
+// footer is a flex column. The v1 Button has no `disabledReason`, so the reason goes in a tooltip.
+const CreatePipelineWithAIButton = ({
+  isDisabled,
+  onClick,
+  tooltipLabel,
+}: {
+  isDisabled: boolean;
+  onClick: VoidFunction;
+  tooltipLabel?: string;
+}) => {
+  const button = (
+    <Button
+      w="100%"
+      border="none"
+      textStyle="body/lg/regular"
+      borderRadius="0"
+      variant="secondary"
+      leftIcon={<IconSparkleFilled color={isDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
+      justifyContent="flex-start"
+      isDisabled={isDisabled}
+      _disabled={{
+        backgroundColor: 'background/primary',
+        color: 'button/secondary/fg-disabled',
+      }}
+      onClick={onClick}
+    >
+      Create Pipeline with AI
+    </Button>
+  );
+
+  return tooltipLabel ? (
+    <BitkitTooltip text={tooltipLabel} wrapTrigger>
+      {button}
+    </BitkitTooltip>
+  ) : (
+    button
+  );
 };
 
 const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onPropertiesClick, ...props }: Props) => {
@@ -85,17 +127,14 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     return [ids];
   }, [debouncedSearch, keys]);
 
-  const runButtonTooltip = useMemo(() => {
-    if (isModularFileTab) {
-      return 'Only available in the Merged config tab';
-    }
-
-    if (hasUnsavedChanges) {
-      return 'Save changes before running';
-    }
-
-    return 'Run Pipeline';
-  }, [hasUnsavedChanges, isModularFileTab]);
+  let runButtonDisabledReason;
+  if (isModularFileTab) {
+    runButtonDisabledReason = 'Only available in the Merged config tab';
+  } else if (hasUnsavedChanges) {
+    runButtonDisabledReason = 'Save changes before running';
+  } else if (isEmpty) {
+    runButtonDisabledReason = 'Add Workflows to the Pipeline before running';
+  }
 
   return (
     <Box
@@ -128,6 +167,8 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         {/* Create actions are hidden (not disabled) on the read-only merged/ghost view (BIVS-3721). */}
         {!isReadOnlyView && (
           <Box
+            display="flex"
+            flexDirection="column"
             width="100%"
             marginBlockStart="8"
             paddingBlock="12"
@@ -151,25 +192,11 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
               Create Pipeline
             </Button>
             {isAIButtonVisible && (
-              <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} display="block">
-                <Button
-                  w="100%"
-                  border="none"
-                  textStyle="body/lg/regular"
-                  borderRadius="0"
-                  variant="secondary"
-                  leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
-                  justifyContent="flex-start"
-                  isDisabled={isAIButtonDisabled}
-                  _disabled={{
-                    backgroundColor: 'background/primary',
-                    color: 'button/secondary/fg-disabled',
-                  }}
-                  onClick={onCreatePipelineWithAI}
-                >
-                  Create Pipeline with AI
-                </Button>
-              </Tooltip>
+              <CreatePipelineWithAIButton
+                isDisabled={isAIButtonDisabled}
+                onClick={onCreatePipelineWithAI}
+                tooltipLabel={tooltipLabel}
+              />
             )}
           </Box>
         )}
@@ -203,22 +230,17 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       )}
 
       {RuntimeUtils.isWebsiteMode() && (
-        <Tooltip
-          label={runButtonTooltip}
-          aria-label={runButtonTooltip}
-          shouldWrapChildren={isEmpty || isModularFileTab || hasUnsavedChanges}
+        <BitkitButton
+          size="md"
+          variant="secondary"
+          icon={IconPlay}
+          state={runButtonDisabledReason ? 'disabled' : undefined}
+          disabledReason={runButtonDisabledReason}
+          onClick={onRunClick}
+          data-clarity-unmask="true"
         >
-          <BitkitButton
-            size="md"
-            variant="secondary"
-            icon={IconPlay}
-            state={isEmpty || isModularFileTab || hasUnsavedChanges ? 'disabled' : undefined}
-            onClick={onRunClick}
-            data-clarity-unmask="true"
-          >
-            Run
-          </BitkitButton>
-        </Tooltip>
+          Run
+        </BitkitButton>
       )}
     </Box>
   );

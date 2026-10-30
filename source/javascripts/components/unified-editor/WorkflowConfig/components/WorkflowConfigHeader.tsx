@@ -1,4 +1,4 @@
-import { Tab, TabList, Tooltip } from '@bitrise/bitkit';
+import { Tab, TabList } from '@bitrise/bitkit';
 import { BitkitButton, BitkitHeading, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
@@ -76,17 +76,16 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           )}
         </div>
         {isAIButtonVisible && variant === 'panel' && (
-          <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-            <BitkitButton
-              state={isAIButtonDisabled ? 'disabled' : undefined}
-              icon={IconSparkleFilled}
-              size="sm"
-              variant="ai-secondary"
-              onClick={onAIButtonClick}
-            >
-              Explain
-            </BitkitButton>
-          </Tooltip>
+          <BitkitButton
+            state={isAIButtonDisabled ? 'disabled' : undefined}
+            disabledReason={tooltipLabel}
+            icon={IconSparkleFilled}
+            size="sm"
+            variant="ai-secondary"
+            onClick={onAIButtonClick}
+          >
+            Explain
+          </BitkitButton>
         )}
       </Box>
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">
