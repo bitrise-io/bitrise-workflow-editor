@@ -17,8 +17,10 @@ import {
   IconWorkflowFlow,
   rem,
 } from '@bitrise/bitkit-v2';
-import { useCallback, useEffect, useRef } from 'react';
+import { Box } from '@chakra-ui/react/box';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -33,7 +35,10 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
 
-type Props = Omit<BitkitPageSidebarProps, 'children'>;
+type Props = Omit<BitkitPageSidebarProps, 'children'> & {
+  /** Collapses the page navigation so only the module file tree is left (YAML view of a modular config). */
+  hidePageNav?: boolean;
+};
 type NavigationItemProps = {
   children: string;
   path: string;
@@ -86,9 +91,49 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   );
 };
 
-const Navigation = (props: Props) => {
+// Whether the element has content scrolled out of view below its bottom edge.
+const useHasMoreBelow = () => {
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
+
+  useEffect(() => {
+    if (!element) {
+      return undefined;
+    }
+    const update = () => setHasMoreBelow(element.scrollTop + element.clientHeight < element.scrollHeight - 1);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    element.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      element.removeEventListener('scroll', update);
+    };
+  }, [element]);
+
+  return [setElement, hasMoreBelow] as const;
+};
+
+const Navigation = ({ hidePageNav = false, ...props }: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
+  const [navBodyRef, hasMoreNavBelow] = useHasMoreBelow();
+  // Whether the page navigation may show its scrollbar. Off for the whole collapse / expand, so the
+  // scrollbar doesn't flash in and shrink with the panel: it goes the moment the nav starts to
+  // collapse, and comes back only once it has fully expanded again (transitionend below).
+  const [isNavScrollable, setIsNavScrollable] = useState(!hidePageNav);
+  if (hidePageNav && isNavScrollable) {
+    setIsNavScrollable(false);
+  }
+  // Fallback for when transitionend never fires (e.g. the page was in the background during the switch).
+  // Generous on purpose: rendering the visual page can hold the expand back by a few hundred ms.
+  useEffect(() => {
+    if (hidePageNav || isNavScrollable) {
+      return undefined;
+    }
+    const timeout = window.setTimeout(() => setIsNavScrollable(true), 1000);
+    return () => window.clearTimeout(timeout);
+  }, [hidePageNav, isNavScrollable]);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
@@ -138,78 +183,118 @@ const Navigation = (props: Props) => {
       // The width v1 had. There is no narrow icon-only mode in the design system, so the mobile rail
       // went with the migration.
       width={rem(256)}
+      // The navigation and the file tree each scroll inside their own area, so the sidebar itself
+      // must not grow or scroll.
+      overflow="hidden"
+      // Without the nav, the title's own top padding is enough; the sidebar's would double the gap.
+      paddingBlockStart={hidePageNav ? '0' : undefined}
+      transition="padding-block-start 200ms ease-out"
+      _motionReduce={{ transition: 'none' }}
       {...props}
     >
-      <BitkitPageSidebar.Body>
-        <NavigationItem
-          path={withSearchParams(paths.workflows)}
-          icon={IconWorkflow}
-          intercomTarget="Workflows Page Navigation Item"
-        >
-          Workflows
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.pipelines)}
-          icon={IconWorkflowFlow}
-          intercomTarget="Pipelines Page Navigation Item"
-        >
-          Pipelines
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.stepBundles)}
-          icon={IconStep}
-          intercomTarget="Step Bundles Page Navigation Item"
-        >
-          Step bundles
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.secrets)}
-          icon={IconLock}
-          intercomTarget="Secrets Page Navigation Item"
-        >
-          Secrets
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.envVars)}
-          icon={IconDollar}
-          intercomTarget="Env Vars Page Navigation Item"
-        >
-          Env Vars
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.triggers)}
-          icon={IconTrigger}
-          intercomTarget="Triggers Page Navigation Item"
-        >
-          Triggers
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.containers)}
-          icon={IconContainer}
-          intercomTarget="Containers Page Navigation Item"
-        >
-          Containers
-        </NavigationItem>
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.stacksAndMachines)}
-            icon={IconStack}
-            intercomTarget="Stacks & Machines Page Navigation Item"
+      {/* Page navigation, at its natural height. It only scrolls if the window is too short for it.
+          In the YAML view of a modular config it collapses away (0fr ↔ 1fr row, animated), so the
+          module tree slides up rather than jumping when the view changes. */}
+      <Box
+        flex="0 1 auto"
+        minHeight={0}
+        display="grid"
+        gridTemplateRows={hidePageNav ? '0fr' : '1fr'}
+        // visibility interpolates, so the nav stays visible while it closes, then leaves the tab order.
+        visibility={hidePageNav ? 'hidden' : 'visible'}
+        transition="grid-template-rows 200ms ease-out, visibility 200ms"
+        _motionReduce={{ transition: 'none' }}
+        onTransitionEnd={(event) => {
+          if (event.target === event.currentTarget && event.propertyName === 'grid-template-rows' && !hidePageNav) {
+            setIsNavScrollable(true);
+          }
+        }}
+      >
+        {/* The grid row can only close to 0 if its child clips: the Body's own padding would hold it open. */}
+        <Box minHeight={0} overflow="hidden" display="flex" flexDirection="column">
+          <BitkitPageSidebar.Body
+            ref={navBodyRef}
+            minHeight={0}
+            overflowY={isNavScrollable ? 'auto' : 'hidden'}
+            // On short windows the module tree keeps its minimum height and the nav scrolls; the fade shows
+            // the list goes on below the last visible item.
+            maskImage={hasMoreNavBelow ? 'linear-gradient(to bottom, black calc(100% - 2rem), transparent)' : undefined}
           >
-            Stacks & Machines
-          </NavigationItem>
-        )}
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.licenses)}
-            icon={IconKey}
-            intercomTarget="Licenses Page Navigation Item"
-          >
-            Licenses
-          </NavigationItem>
-        )}
-      </BitkitPageSidebar.Body>
-      <BitkitPageSidebar.Footer>
+            <NavigationItem
+              path={withSearchParams(paths.workflows)}
+              icon={IconWorkflow}
+              intercomTarget="Workflows Page Navigation Item"
+            >
+              Workflows
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.pipelines)}
+              icon={IconWorkflowFlow}
+              intercomTarget="Pipelines Page Navigation Item"
+            >
+              Pipelines
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.stepBundles)}
+              icon={IconStep}
+              intercomTarget="Step Bundles Page Navigation Item"
+            >
+              Step bundles
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.secrets)}
+              icon={IconLock}
+              intercomTarget="Secrets Page Navigation Item"
+            >
+              Secrets
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.envVars)}
+              icon={IconDollar}
+              intercomTarget="Env Vars Page Navigation Item"
+            >
+              Env Vars
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.triggers)}
+              icon={IconTrigger}
+              intercomTarget="Triggers Page Navigation Item"
+            >
+              Triggers
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.containers)}
+              icon={IconContainer}
+              intercomTarget="Containers Page Navigation Item"
+            >
+              Containers
+            </NavigationItem>
+            {RuntimeUtils.isWebsiteMode() && (
+              <NavigationItem
+                path={withSearchParams(paths.stacksAndMachines)}
+                icon={IconStack}
+                intercomTarget="Stacks & Machines Page Navigation Item"
+              >
+                Stacks & Machines
+              </NavigationItem>
+            )}
+            {RuntimeUtils.isWebsiteMode() && (
+              <NavigationItem
+                path={withSearchParams(paths.licenses)}
+                icon={IconKey}
+                intercomTarget="Licenses Page Navigation Item"
+              >
+                Licenses
+              </NavigationItem>
+            )}
+          </BitkitPageSidebar.Body>
+        </Box>
+      </Box>
+      {/* Modular configs only: the module file tree, filling the space between the navigation and
+          the footer. */}
+      <FileTreeViewer showDivider={!hidePageNav} />
+      {/* Pushed to the bottom when there's no file tree to fill the space above it. */}
+      <BitkitPageSidebar.Footer marginBlockStart="auto">
         <BitkitPageSidebar.Item
           data-intercom-target="YAML Reference Navigation Item"
           href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"
