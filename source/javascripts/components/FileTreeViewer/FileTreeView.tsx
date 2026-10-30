@@ -126,7 +126,7 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
       {groups.map((group) => (
         <Box key={group.key} display="flex" flexDirection="column">
           {/* No `px`: header left-aligns with the title while the tree's own 8px inset indents file rows. */}
-          <Box display="flex" alignItems="center" gap="4" paddingBlock="6">
+          <Box display="flex" alignItems="center" gap="4" paddingBlock="6" data-file-tree-group-header="">
             <Text textStyle="body/md/semibold">{group.header}</Text>
             {group.isReadOnly && (
               <BitkitTooltip text="Modules included from another repository or ref are read-only.">
