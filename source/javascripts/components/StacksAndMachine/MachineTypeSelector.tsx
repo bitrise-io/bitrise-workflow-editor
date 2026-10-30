@@ -1,5 +1,5 @@
 import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Toggletip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitIconComponent, BitkitTooltip, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode, useMemo } from 'react';
@@ -43,7 +43,6 @@ type Props = Pick<DropdownProps<string | null>, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled: boolean;
-  disabledReason?: string;
   machineType: MachineTypeWithValue;
   optionGroups: MachineTypeOptionGroup[];
   onChange: (machineId: string) => void;
@@ -54,7 +53,6 @@ const MachineTypeSelector = ({
   isLoading,
   isInvalid,
   isDisabled,
-  disabledReason,
   machineType,
   optionGroups,
   onChange,
@@ -117,7 +115,7 @@ const MachineTypeSelector = ({
     }
   });
 
-  const dropdown = (
+  return (
     <Dropdown
       {...boxProps}
       flex="1"
@@ -146,8 +144,6 @@ const MachineTypeSelector = ({
       )}
     </Dropdown>
   );
-
-  return disabledReason ? <BitkitTooltip text={disabledReason}>{dropdown}</BitkitTooltip> : dropdown;
 };
 
 export default MachineTypeSelector;

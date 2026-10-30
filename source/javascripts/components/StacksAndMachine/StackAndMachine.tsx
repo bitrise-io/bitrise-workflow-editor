@@ -1,5 +1,6 @@
 import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { ReactNode, RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -123,7 +124,6 @@ const StackAndMachine = ({
 
   const useRollbackVersion =
     !!stackRollbackVersion && !!availableRollbackVersion && stackRollbackVersion === availableRollbackVersion;
-  const readOnlyReason = isReadOnlyView ? 'To edit, switch to the module file that defines them.' : undefined;
 
   return (
     <StackAndMachineWrapper
@@ -132,6 +132,11 @@ const StackAndMachine = ({
       machineTypeName={selectedMachineType.name}
       stackName={selectedStack.name}
     >
+      {isReadOnlyView && (
+        <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
+          To edit the Stack and machine type, switch to the module file that defines them.
+        </Text>
+      )}
       <Box display="flex" flexDirection={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
         <Box
           ref={ref}
@@ -145,7 +150,6 @@ const StackAndMachine = ({
             stack={selectedStack}
             isLoading={isLoading}
             isDisabled={isReadOnlyView}
-            disabledReason={readOnlyReason}
             isInvalid={isInvalidStack && !isLoading}
             optionGroups={stackOptionGroups}
             onChange={(selectedStackValue, useRollbackVersionChecked) =>
@@ -161,7 +165,6 @@ const StackAndMachine = ({
             isLoading={isLoading}
             isInvalid={isInvalidMachineType && !isLoading}
             isDisabled={isMachineTypeSelectionDisabled || isReadOnlyView}
-            disabledReason={readOnlyReason}
             optionGroups={machineOptionGroups}
             onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
             selectedRegion={data?.region}
