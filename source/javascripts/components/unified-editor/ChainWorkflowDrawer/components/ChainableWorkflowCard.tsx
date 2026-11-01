@@ -20,7 +20,7 @@ type Props = {
 const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
   const dependants = useDependantWorkflows({ workflowId: chainableWorkflowId });
   return (
-    <Card.Root className="group" elevation={false} paddingSize="sm">
+    <Card.Root className="group" elevation={false} paddingSize="xs">
       <Card.Body display="flex" alignItems="center" justifyContent="space-between">
         <Box overflow="hidden">
           <Text textStyle="body/lg/semibold" marginBlockEnd="4" truncate maxWidth="full">

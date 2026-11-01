@@ -57,7 +57,7 @@ const AlgoliaStepListItem = ({
     <Card.Root
       elevation={false}
       minWidth="0"
-      paddingSize="sm"
+      paddingSize="xs"
       role="button"
       position="relative"
       {...props}
@@ -74,11 +74,10 @@ const AlgoliaStepListItem = ({
     >
       <Card.Body display="flex" flexDirection="column" height="full">
         <Box
-          paddingInline="12"
           gap="8"
           display="flex"
           transition={TRANSITION}
-          paddingBlock={isOpen ? '8' : '12'}
+          paddingBlockEnd={isOpen ? '8' : '4'}
           transitionProperty="padding"
           borderBottom={isOpen ? '1px solid' : 'none'}
           borderColor="border/regular"
@@ -137,7 +136,7 @@ const AlgoliaStepListItem = ({
         </Box>
 
         {!isOpen && (
-          <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular" paddingInline="12">
+          <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular">
             {removeMd(description || '')}
           </Text>
         )}
@@ -149,7 +148,7 @@ const AlgoliaStepListItem = ({
             overflowX="clip"
             overscrollBehaviorY="contain"
             flex="1"
-            padding="12"
+            paddingBlockStart="8"
           >
             <MarkdownContent md={description || ''} size="sm" />
           </Box>
@@ -160,7 +159,7 @@ const AlgoliaStepListItem = ({
             inset="0"
             background="background/secondary"
             top="auto"
-            height={rem(26)}
+            height={rem(22)}
             display="none"
             position="absolute"
             borderBottomRadius="8"
@@ -168,7 +167,7 @@ const AlgoliaStepListItem = ({
           >
             <BitkitLinkButton
               size="sm"
-              paddingInline="12"
+              paddingInline="16"
               paddingBlockEnd="8"
               top="-5px"
               position="relative"

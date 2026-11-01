@@ -30,9 +30,9 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   return (
     <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
       <PopoverTrigger>
-        <Card.Root asChild elevation={false} interactive paddingSize="sm" textAlign="start">
+        <Card.Root asChild elevation={false} interactive textAlign="start">
           <button type="button" onClick={handleClick}>
-            <Card.Body>
+            <Card.Body paddingBlock="8" paddingInline="12">
               <Text textStyle="body/lg/semibold" marginBlockEnd="4">
                 {title || id}
               </Text>

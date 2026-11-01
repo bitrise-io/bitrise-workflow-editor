@@ -178,8 +178,8 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   }
 
   return (
-    <Card.Root ref={sortable.setNodeRef} {...cardProps} paddingSize="sm" style={style}>
-      <Card.Body>
+    <Card.Root ref={sortable.setNodeRef} {...cardProps} style={style}>
+      <Card.Body padding="0">
         <Box display="flex" alignItems="center" paddingInline="8" paddingBlock="6" gap="4" className="group">
           {isSortable && (
             <DragHandle

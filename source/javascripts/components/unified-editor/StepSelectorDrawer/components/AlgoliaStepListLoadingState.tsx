@@ -18,7 +18,7 @@ const AlgoliaStepListLoadingState = () => {
       {range(16 * columns).map((row) => (
         <Box key={row} display="grid" gap={GAP} height={STEP_HEIGHT} gridTemplateColumns={`repeat(${columns}, 1fr)`}>
           {range(columns).map((col) => (
-            <Card.Root key={col} elevation={false} paddingSize="sm">
+            <Card.Root key={col} elevation={false} paddingSize="xs">
               <Card.Body>
                 <BitkitSkeletonGroup
                   display="grid"
