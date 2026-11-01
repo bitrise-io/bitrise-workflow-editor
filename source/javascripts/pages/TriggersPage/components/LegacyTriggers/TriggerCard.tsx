@@ -1,5 +1,5 @@
-import { CardProps, Checkbox, DraggableCard } from '@bitrise/bitkit';
-import { BitkitIconButton, IconArrowRight, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
+import { CardProps, DraggableCard } from '@bitrise/bitkit';
+import { BitkitCheckbox, BitkitIconButton, IconArrowRight, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -80,14 +80,13 @@ const TriggerCard = (props: TriggerCardProps) => {
         </Box>
       </Box>
       <Box display="flex" alignItems="center">
-        <Checkbox
-          marginRight="16"
-          isChecked={isActive}
-          isDisabled={isReadOnlyView}
-          onChange={() => handleActiveChange()}
-        >
-          Active
-        </Checkbox>
+        <BitkitCheckbox
+          labelText="Active"
+          marginInlineEnd="16"
+          checked={isActive}
+          state={isReadOnlyView ? 'disabled' : undefined}
+          onCheckedChange={() => handleActiveChange()}
+        />
         {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
         {!isReadOnlyView && (
           <>

@@ -1,6 +1,7 @@
-import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup, Tooltip } from '@bitrise/bitkit';
+import { Dropdown, DropdownDetailedOption, DropdownGroup, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
+  BitkitCheckbox,
   BitkitIconComponent,
   BitkitLink,
   IconQuestionCircle,
@@ -127,13 +128,16 @@ const StackSelector = ({
         isDisabled={!disableRollbackOption}
       >
         <Box display="inline-block" marginBlockStart="16">
-          <Checkbox
-            isDisabled={isRollbackDisabled || isDisabled}
-            isChecked={!isRollbackDisabled && useRollbackVersion}
-            onChange={(e) => onChange(stack.value, e.target.checked)}
-          >
-            Use previous stack version <PreviousStackVersionTip />
-          </Checkbox>
+          <BitkitCheckbox
+            labelText={
+              <>
+                Use previous stack version <PreviousStackVersionTip />
+              </>
+            }
+            state={isRollbackDisabled || isDisabled ? 'disabled' : undefined}
+            checked={!isRollbackDisabled && useRollbackVersion}
+            onCheckedChange={({ checked }) => onChange(stack.value, checked === true)}
+          />
         </Box>
       </Tooltip>
     </Box>

@@ -1,6 +1,7 @@
 import { Card, Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
 import {
   BitkitButton,
+  BitkitCheckbox,
   BitkitControlButton,
   BitkitTextInput,
   BitkitToggleButton,
@@ -9,7 +10,7 @@ import {
   IconRegex,
   IconTrash,
 } from '@bitrise/bitkit-v2';
-import { Checkbox, Tfoot } from 'chakra-ui-2--react';
+import { Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
@@ -87,18 +88,22 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                     )}
                   />
                   {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (
-                    <Checkbox
+                    <BitkitCheckbox
+                      labelText={
+                        <>
+                          Last commit only
+                          <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
+                            <IconInfoCircle size="16" marginInlineStart="4" />
+                          </Toggletip>
+                        </>
+                      }
                       marginBlockStart="12"
-                      isChecked={isLastCommitOnly}
-                      onChange={(e) => setValue(`conditions.${index}.isLastCommitOnly`, e.target.checked)}
-                      alignItems="center"
                       whiteSpace="nowrap"
-                    >
-                      Last commit only
-                      <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
-                        <IconInfoCircle size="16" marginInlineStart="4" />
-                      </Toggletip>
-                    </Checkbox>
+                      checked={isLastCommitOnly}
+                      onCheckedChange={({ checked }) =>
+                        setValue(`conditions.${index}.isLastCommitOnly`, checked === true)
+                      }
+                    />
                   )}
                 </Td>
                 <Td height="auto" paddingBlock="12" verticalAlign="top">
