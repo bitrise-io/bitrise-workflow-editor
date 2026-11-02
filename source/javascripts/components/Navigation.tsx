@@ -118,21 +118,6 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
   const [navBodyRef, hasMoreNavBelow] = useHasMoreBelow();
-  // Hides the nav's scrollbar during the collapse / expand, so it doesn't flash in and shrink with the panel.
-  const [isNavScrollable, setIsNavScrollable] = useState(!hidePageNav);
-  if (hidePageNav && isNavScrollable) {
-    setIsNavScrollable(false);
-  }
-  // transitionend never fires without a transition (reduced motion) or in a background tab. The 1s fallback is
-  // generous because rendering the visual page can hold the expand back by a few hundred ms.
-  useEffect(() => {
-    if (hidePageNav || isNavScrollable) {
-      return undefined;
-    }
-    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const timeout = window.setTimeout(() => setIsNavScrollable(true), prefersReducedMotion ? 0 : 1000);
-    return () => window.clearTimeout(timeout);
-  }, [hidePageNav, isNavScrollable]);
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
@@ -196,18 +181,13 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
         visibility={hidePageNav ? 'hidden' : 'visible'}
         transition="grid-template-rows 200ms ease-out, visibility 200ms"
         _motionReduce={{ transition: 'none' }}
-        onTransitionEnd={(event) => {
-          if (event.target === event.currentTarget && event.propertyName === 'grid-template-rows' && !hidePageNav) {
-            setIsNavScrollable(true);
-          }
-        }}
       >
         {/* The grid row can only close to 0 if its child clips: the Body's own padding would hold it open. */}
         <Box minHeight={0} overflow="hidden" display="flex" flexDirection="column">
           <BitkitPageSidebar.Body
             ref={navBodyRef}
             minHeight={0}
-            overflowY={isNavScrollable ? 'auto' : 'hidden'}
+            overflowY={hidePageNav ? 'hidden' : 'auto'}
             maskImage={hasMoreNavBelow ? 'linear-gradient(to bottom, black calc(100% - 2rem), transparent)' : undefined}
           >
             <NavigationItem

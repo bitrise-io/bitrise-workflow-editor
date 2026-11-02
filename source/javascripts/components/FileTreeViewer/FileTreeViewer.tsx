@@ -35,7 +35,7 @@ const FileTreeViewer = ({ showDivider = true }: { showDivider?: boolean }) => {
         Configuration modules
       </Text>
       {/* Never shorter than the group header + 3 modules: on short windows the navigation scrolls instead. */}
-      <Box flex="1 1 0" minHeight={rem(128)} overflow="auto" css={{ '& *': { whiteSpace: 'nowrap' } }}>
+      <Box flex="1 1 0" minHeight={rem(128)} overflow="auto">
         {/* 16 + the tree's own 8px inset puts the top-level icons under the nav icons. */}
         <Box width="max-content" minWidth="full" paddingInlineStart="16" paddingInlineEnd="8" paddingBlockEnd="8">
           <FileTreeView
