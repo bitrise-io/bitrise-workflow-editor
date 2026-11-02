@@ -12,7 +12,6 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
-import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
@@ -74,14 +73,7 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   isDisabled={opts?.is_dont_change_value || isReadOnlyView}
                   onChange={(changedValue) => onChange(key, changedValue, index)}
                   flex={1}
-                  formLabelProps={{
-                    optionalIndicator: (
-                      <Text as="span" textStyle="body/md/regular" color="text/secondary" marginInlineStart="4">
-                        (optional)
-                      </Text>
-                    ),
-                    requiredIndicator: null,
-                  }}
+                  formLabelProps={{ requiredIndicator: null }}
                 />
               )}
 
