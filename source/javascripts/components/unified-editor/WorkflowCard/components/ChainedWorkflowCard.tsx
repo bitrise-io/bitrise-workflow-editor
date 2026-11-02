@@ -57,7 +57,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
   const showJumpButton = otherModules.nodeIds.length > 0 || (isMergedView && hasDefinition);
-  // Ghosts get the elevated card (border/minimal + small shadow) instead of the outlined one.
   const isGhost = isCrossFile || isReadOnlyView;
   const isFaded = isCrossFile && !isReadOnlyView;
   const { isSelected } = useSelection();
@@ -97,7 +96,6 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
   const cardProps = useMemo(() => {
     const common: CardRootProps = {
       width: 'full',
-      // Ghosts and the card being dragged get the elevated card instead of the outlined one.
       elevation: isGhost || Boolean(isDragging),
       opacity: isFaded ? 0.7 : undefined,
     };

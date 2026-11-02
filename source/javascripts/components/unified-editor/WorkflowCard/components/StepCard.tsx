@@ -183,7 +183,6 @@ const StepCard = ({
     const common: CardRootProps = {
       width: 'full',
       className: 'group',
-      // The card being dragged lifts: the elevated card instead of the outlined one.
       elevation: Boolean(isDragging),
     };
 
