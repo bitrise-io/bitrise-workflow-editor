@@ -59,6 +59,18 @@ const AlgoliaStepListItem = ({
     cursor = 'auto';
   }
 
+  const titleText = (
+    <Text
+      ref={titleRef}
+      transition={TRANSITION}
+      textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
+      truncate
+      maxWidth="full"
+    >
+      {title}
+    </Text>
+  );
+
   const handleReadMoreClick: MouseEventHandler = (e) => {
     e.stopPropagation();
     onOpen();
@@ -113,15 +125,7 @@ const AlgoliaStepListItem = ({
         </Box>
         <Box flex="1" display="flex" flexDirection="column" minWidth="0">
           <LabelTooltip disabled={!isTitleTruncated} text={title ?? ''} wrapTrigger>
-            <Text
-              ref={titleRef}
-              transition={TRANSITION}
-              textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
-              truncate
-              maxWidth="full"
-            >
-              {title}
-            </Text>
+            {titleText}
           </LabelTooltip>
           <Text
             color="text/secondary"

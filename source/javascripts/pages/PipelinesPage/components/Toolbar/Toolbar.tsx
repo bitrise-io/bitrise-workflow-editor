@@ -212,6 +212,8 @@ const Toolbar = (props: BoxProps) => {
     runLabel = 'Only available in the Merged config tab';
   } else if (hasUnsavedChanges) {
     runLabel = 'Save changes before running';
+  } else if (isEmpty) {
+    runLabel = 'Add Workflows to the Pipeline before running';
   }
   const isRunDisabled = isEmpty || isModularFileTab || hasUnsavedChanges;
 

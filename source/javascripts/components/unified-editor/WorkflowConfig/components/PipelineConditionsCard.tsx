@@ -1,5 +1,5 @@
-import { ExpandableCard, Input, Select, Textarea } from '@bitrise/bitkit';
-import { BitkitSwitch } from '@bitrise/bitkit-v2';
+import { Input, Select, Textarea } from '@bitrise/bitkit';
+import { BitkitExpandableCard, BitkitSwitch } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
@@ -16,21 +16,6 @@ import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store
 type PipelineConditionInputProps = {
   pipelineId: string;
   workflowId: string;
-};
-
-const ButtonContent = () => {
-  const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
-
-  return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minWidth="0">
-      <Box display="flex" flexDirection="column" alignItems="flex-start" minWidth="0">
-        <Text textStyle="body/lg/semibold">Pipeline Conditions</Text>
-        <Text textStyle="body/md/regular" color="text/secondary" truncate maxWidth="full">
-          Running conditions related to {pipelineId}
-        </Text>
-      </Box>
-    </Box>
-  );
 };
 
 const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
@@ -175,7 +160,15 @@ const PipelineConditionsCard = () => {
   const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
 
   return (
-    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
+    <BitkitExpandableCard
+      elevation={false}
+      subtitle={
+        <Text as="span" display="block" truncate>
+          Running conditions related to {pipelineId}
+        </Text>
+      }
+      title="Pipeline Conditions"
+    >
       <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
 
       <Separator marginBlock="24" />
@@ -186,7 +179,7 @@ const PipelineConditionsCard = () => {
 
       <Separator marginBlock="24" />
       <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
-    </ExpandableCard>
+    </BitkitExpandableCard>
   );
 };
 

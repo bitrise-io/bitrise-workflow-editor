@@ -1,6 +1,6 @@
-import { Card, ExpandableCard } from '@bitrise/bitkit';
+import { Card } from '@bitrise/bitkit';
+import { BitkitExpandableCard } from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
-import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 
 import { EnvModel } from '@/core/models/BitriseYml';
@@ -84,7 +84,11 @@ const StepInputGroup = ({ title, stepId, defaults, inputs, onChange }: Props) =>
     );
   }
 
-  return <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">{title}</Text>}>{content}</ExpandableCard>;
+  return (
+    <BitkitExpandableCard elevation={false} title={title}>
+      {content}
+    </BitkitExpandableCard>
+  );
 };
 
 export default StepInputGroup;

@@ -42,8 +42,11 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
   );
 };
 
-const PreviousStackVersionTip = () => (
-  <LabelTooltip text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
+const PreviousStackVersionTip = ({ disabled }: { disabled: boolean }) => (
+  <LabelTooltip
+    disabled={disabled}
+    text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions."
+  >
     <IconQuestionCircle size="16" color="icon/tertiary" />
   </LabelTooltip>
 );
@@ -124,9 +127,11 @@ const StackSelector = ({
             </DropdownGroup>
           ))}
       </Dropdown>
+      {/* The "?" tooltip sits inside the rollback one. Only one tooltip opens at a time, and the pointer
+          reaches every enclosing trigger, so only one of the two is enabled. */}
       <LabelTooltip
-        text="Stack rollback is not available when your workspace is configured to use external hosts only."
         disabled={!disableRollbackOption}
+        text="Stack rollback is not available when your workspace is configured to use external hosts only."
       >
         <Box display="inline-block" marginBlockStart="16">
           <Checkbox
@@ -134,7 +139,7 @@ const StackSelector = ({
             isChecked={!isRollbackDisabled && useRollbackVersion}
             onChange={(e) => onChange(stack.value, e.target.checked)}
           >
-            Use previous stack version <PreviousStackVersionTip />
+            Use previous stack version <PreviousStackVersionTip disabled={!!disableRollbackOption} />
           </Checkbox>
         </Box>
       </LabelTooltip>

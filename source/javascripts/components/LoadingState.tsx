@@ -1,7 +1,7 @@
-import { ProgressBitbot } from '@bitrise/bitkit';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
+import ProgressBitbot from '@/components/ProgressBitbot';
 import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
 
 type Props = {

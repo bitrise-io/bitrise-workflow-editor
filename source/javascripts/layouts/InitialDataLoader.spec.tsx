@@ -71,13 +71,6 @@ jest.mock('@bitrise/bitkit-v2', () => ({
   createBitkitToast: (...args: unknown[]) => createBitkitToastMock(...args),
 }));
 
-// `LoadingState` is still a v1 component; only the spinner it renders is needed here.
-jest.mock('@bitrise/bitkit', () => ({
-  Box: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
-  ProgressBitbot: () => <div data-testid="loading-state" />,
-  Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
-}));
-
 jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn(), addAction: jest.fn() } }));
 jest.mock('@/core/analytics/ConfigManagementAnalytics', () => ({ trackConfigBranchLoaded: jest.fn() }));
 jest.mock('@/hooks/useYmlLanguageServices', () => ({ __esModule: true, default: jest.fn() }));
