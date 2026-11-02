@@ -1,5 +1,5 @@
-import { Checkbox, Input } from '@bitrise/bitkit';
-import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { Checkbox } from '@bitrise/bitkit';
+import { BitkitControlButton, BitkitTextInput, IconDollar, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -91,15 +91,17 @@ const SortableEnvVarItem = ({
         visibility={sortable.isDragging ? 'hidden' : 'visible'}
       >
         <Box display="flex" alignItems="top" gap="8">
-          <Input
+          <BitkitTextInput
+            optional
             flex="1"
             size="md"
             value={env.key}
-            aria-label="Key"
-            leftIconName="Dollars"
+            label="Key"
+            labelHidden
+            startElement={<IconDollar size="16" />}
             placeholder="Enter key"
-            isDisabled={isReadOnlyView}
-            onChange={(e) => handleKeyChange(e.target.value)}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            onValueChange={handleKeyChange}
             errorText={errors.key !== true ? errors.key : undefined}
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           />

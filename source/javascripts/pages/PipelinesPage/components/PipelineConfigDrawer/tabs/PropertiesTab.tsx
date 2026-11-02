@@ -44,8 +44,7 @@ const NameInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
 
   return (
     <EditableInput
-      isRequired
-      name="name"
+      inputProps={{ name: 'name' }}
       label="Name"
       defaultValue={pipelineId}
       isDisabled={isReadOnlyView}

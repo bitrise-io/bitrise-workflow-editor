@@ -1,5 +1,5 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Input } from '@bitrise/bitkit';
-import { BitkitButton, createBitkitToast, IconOpenInNew } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
+import { BitkitButton, BitkitTextInput, createBitkitToast, IconOpenInNew } from '@bitrise/bitkit-v2';
 import { useCallback, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
@@ -52,15 +52,14 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
   return (
     <Dialog title={`Run "${pipelineId || workflowId}"`} {...dialogProps} onCloseComplete={handleOnCloseComplete}>
       <DialogBody>
-        <Input
-          autoFocus
-          isRequired
+        <BitkitTextInput
           label="Branch"
           placeholder="your-branch"
-          isDisabled={isPending}
+          state={isPending ? 'disabled' : undefined}
           inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+          inputProps={{ autoFocus: true }}
           value={branch}
-          onChange={(event) => setBranch(event.target.value)}
+          onValueChange={setBranch}
         />
       </DialogBody>
       <DialogFooter>

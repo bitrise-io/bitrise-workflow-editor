@@ -1,5 +1,5 @@
-import { Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Input, Textarea } from '@bitrise/bitkit';
-import { BitkitButton, BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Checkbox, Collapse, Dialog, DialogBody, DialogFooter, Textarea } from '@bitrise/bitkit';
+import { BitkitButton, BitkitLinkButton, BitkitTextInput } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
@@ -85,23 +85,25 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
       onSubmit={handleSubmit(onFormSubmit)}
     >
       <DialogBody>
-        <Input
+        <BitkitTextInput
+          optional
           label="Title"
           helperText="This will be the label of the input. Keep it short and descriptive."
           size="md"
-          mb="16"
-          {...register('opts.title')}
+          marginBlockEnd="16"
+          inputProps={register('opts.title')}
         />
         <Box display="flex" justifyContent="space-between" alignItems="center" marginBlockEnd="16">
-          <Input
+          <BitkitTextInput
             errorText={formState.errors.key?.message}
             label="Key"
             helperText="Use this key as variable in Step inputs."
             size="md"
-            flex={1}
-            isRequired
-            {...keyField}
-            onChange={(e) => keyField.onChange(StepBundleService.sanitizeInputKey(e.target.value))}
+            flex="1"
+            inputProps={{
+              ...keyField,
+              onChange: (e) => keyField.onChange(StepBundleService.sanitizeInputKey(e.target.value)),
+            }}
           />
           <Text as="span" marginInline="8">
             =
@@ -119,7 +121,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
         </Box>
         <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
           <Box display="flex" flexDirection="column" gap="16">
-            <Input label="Summary" {...register('opts.summary')} />
+            <BitkitTextInput optional label="Summary" inputProps={register('opts.summary')} />
             <Textarea
               label="Value options"
               helperText="Add values as new lines."
@@ -130,7 +132,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
                 valueOptionsField.onChange(v ? v.split('\n') : []);
               }}
             />
-            <Input label="Category" {...register('opts.category')} />
+            <BitkitTextInput optional label="Category" inputProps={register('opts.category')} />
             <Textarea label="Description" {...register('opts.description')} />
             <Checkbox
               isChecked={watch('opts.is_required')}

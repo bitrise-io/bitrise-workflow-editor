@@ -1,5 +1,4 @@
-import { Input } from '@bitrise/bitkit';
-import { BitkitCodeSnippet, BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitCodeSnippet, BitkitLink, BitkitTextInput } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { ChangeEventHandler, Fragment, useState } from 'react';
@@ -59,9 +58,10 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
 
   return (
     <Box>
-      <Input
+      <BitkitTextInput
+        optional
         size="md"
-        isDisabled={isDisabled}
+        state={isDisabled ? 'disabled' : undefined}
         label="Git status name"
         helperText={
           <>

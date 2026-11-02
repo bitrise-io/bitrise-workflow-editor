@@ -1,5 +1,5 @@
-import { Collapse, Input, MarkdownContent, Select } from '@bitrise/bitkit';
-import { BitkitLink, BitkitLinkButton, IconOpenInNew } from '@bitrise/bitkit-v2';
+import { Collapse, MarkdownContent, Select } from '@bitrise/bitkit';
+import { BitkitLink, BitkitLinkButton, BitkitTextInput, IconOpenInNew } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
@@ -38,7 +38,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   }, [data?.resolvedInfo?.normalizedVersion]);
 
   if (!canChangeVersion) {
-    return <Input label="Version" placeholder="Always latest" isDisabled />;
+    return <BitkitTextInput optional label="Version" placeholder="Always latest" state="disabled" />;
   }
 
   if (variant === 'select') {
@@ -63,14 +63,14 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   }
 
   return (
-    <Input
-      type="text"
+    <BitkitTextInput
+      optional
       label="Version"
-      defaultValue={value}
       placeholder="Always latest"
-      isDisabled={isReadOnlyView}
+      state={isReadOnlyView ? 'disabled' : undefined}
       onChange={onStepVersionChange}
       inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+      inputProps={{ defaultValue: value }}
     />
   );
 };
@@ -111,14 +111,14 @@ const PropertiesTab = () => {
           View source code
         </BitkitLink>
       )}
-      <Input
-        type="text"
+      <BitkitTextInput
+        optional
         label="Title"
-        defaultValue={title}
         placeholder="Step title"
-        isDisabled={isReadOnlyView}
+        state={isReadOnlyView ? 'disabled' : undefined}
         onChange={handleTitleChange}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+        inputProps={{ defaultValue: title }}
       />
       <Separator />
       <StepVersion

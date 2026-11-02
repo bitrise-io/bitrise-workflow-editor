@@ -1,5 +1,4 @@
-import { Input } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitHeading, BitkitTagsInput } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitHeading, BitkitTagsInput, BitkitTextInput } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -43,9 +42,8 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {!!container && (
-            <Input
-              isRequired
-              isReadOnly
+            <BitkitTextInput
+              state="readOnly"
               label="Image"
               inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
               marginBlockEnd="24"
