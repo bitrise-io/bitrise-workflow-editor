@@ -1,9 +1,10 @@
-import { Card, CardProps, Tooltip } from '@bitrise/bitkit';
+import { Card, CardProps } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitColorButton,
   BitkitList,
   BitkitSkeletonGroup,
+  BitkitTooltip,
   IconContainer,
   IconErrorCircleFilled,
   IconWarningYellow,
@@ -44,22 +45,17 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
 
   if (errorText) {
     icon = (
-      <Tooltip label={errorText} aria-label={errorText} shouldWrapChildren wrapperProps={{ display: 'flex' }}>
+      <BitkitTooltip text={errorText} wrapTrigger>
         <IconErrorCircleFilled marginInlineStart="4" size="16" color="icon/negative" />
-      </Tooltip>
+      </BitkitTooltip>
     );
   }
 
   if (isUpgradable && !icon) {
     icon = (
-      <Tooltip
-        label="New version is available"
-        aria-label="New version is available"
-        shouldWrapChildren
-        wrapperProps={{ display: 'flex' }}
-      >
+      <BitkitTooltip text="New version is available" wrapTrigger>
         <IconWarningYellow marginInlineStart="4" size="16" />
-      </Tooltip>
+      </BitkitTooltip>
     );
   }
 
