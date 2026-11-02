@@ -29,6 +29,7 @@ import EnvVarService from '@/core/services/EnvVarService';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
+import ignore1Password from '@/utils/ignore1Password';
 
 type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
   editedContainer: Container | null;
@@ -201,7 +202,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               placeholder="e.g. node, postgres, redis"
               errorText={formState.errors.id?.message}
               state={readOnly ? 'disabled' : undefined}
-              inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+              inputRef={ignore1Password}
               inputProps={{
                 ...fieldProps,
                 onChange: (e) => onChange(ContainerService.sanitizeName(e.target.value)),

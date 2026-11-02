@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+import ignore1Password from '@/utils/ignore1Password';
 
 type Props = {
   items: EnvVar[];
@@ -45,7 +46,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
             labelHidden
             startElement={<IconDollar size="16" />}
             placeholder="Enter key"
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
             errorText={errors.key?.message}
             inputProps={{
               autoFocus: true,

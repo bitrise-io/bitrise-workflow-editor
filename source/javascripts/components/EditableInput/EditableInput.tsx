@@ -9,11 +9,14 @@ import {
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 
+import ignore1Password from '@/utils/ignore1Password';
+
 type Props = Omit<
   BitkitTextInputProps,
-  'endElement' | 'inputRef' | 'onChange' | 'onValueChange' | 'state' | 'value'
+  'endElement' | 'inputProps' | 'inputRef' | 'onChange' | 'onValueChange' | 'state' | 'value'
 > & {
   defaultValue?: string;
+  inputProps?: Omit<NonNullable<BitkitTextInputProps['inputProps']>, 'defaultValue' | 'onChange' | 'value'>;
   isDisabled?: boolean;
   value?: string;
   onCommit?: (value: string) => void;
@@ -116,7 +119,7 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
       value={editable.value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+      inputRef={ignore1Password}
       errorText={editable.validationResult === true ? undefined : editable.validationResult}
       endElement={
         editable.isEditing ? (

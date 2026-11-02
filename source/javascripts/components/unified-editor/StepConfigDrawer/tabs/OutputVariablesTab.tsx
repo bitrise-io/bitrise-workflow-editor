@@ -26,6 +26,7 @@ const OutputVariablesTab = () => {
             <Box display="flex" flexDirection="column" gap="8">
               <BitkitTextInput
                 label={opts?.title || 'Output variable'}
+                required={false}
                 value={variable}
                 state="readOnly"
                 endAddon={

@@ -10,6 +10,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { useIsReadOnlyView } from '@/hooks/useTree';
+import ignore1Password from '@/utils/ignore1Password';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
@@ -22,6 +23,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
   const isReadOnlyView = useIsReadOnlyView();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
+  const [draft, setDraft] = useState<string>();
   const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
   const onStepVersionChange: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
@@ -68,9 +70,13 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
       label="Version"
       placeholder="Always latest"
       state={isReadOnlyView ? 'disabled' : undefined}
-      onChange={onStepVersionChange}
-      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-      inputProps={{ defaultValue: value }}
+      value={draft ?? value ?? ''}
+      onChange={(e) => {
+        setDraft(e.target.value);
+        onStepVersionChange(e);
+      }}
+      inputRef={ignore1Password}
+      inputProps={{ onBlur: () => setDraft(undefined) }}
     />
   );
 };
@@ -81,7 +87,7 @@ const PropertiesTab = () => {
   const { open: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
-  const [title, setTitle] = useState(data?.mergedValues?.title);
+  const [title, setTitle] = useState<string>();
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;
@@ -116,9 +122,9 @@ const PropertiesTab = () => {
         label="Title"
         placeholder="Step title"
         state={isReadOnlyView ? 'disabled' : undefined}
+        value={title ?? data?.mergedValues?.title ?? ''}
         onChange={handleTitleChange}
-        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-        inputProps={{ defaultValue: title }}
+        inputRef={ignore1Password}
       />
       <Separator />
       <StepVersion

@@ -80,6 +80,7 @@ const GitStatusNameInput = (props: GitStatusNameInputProps) => {
         value={statusReportName}
         onChange={onGitStatusNameChange}
         maxLength={100}
+        counter
       />
       {statusReport && (
         <>

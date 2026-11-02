@@ -151,11 +151,10 @@ const SecretCard = (props: SecretCardProps) => {
         optional
         size="md"
         state="readOnly"
-        cursor="not-allowed"
         endElement={protectedIcon}
         endAddon={showHideButton}
         value={watch('value') || ''}
-        inputProps={{ type: isShown ? 'text' : 'password', pointerEvents: 'none' }}
+        inputProps={{ type: isShown ? 'text' : 'password' }}
       />
     );
   };

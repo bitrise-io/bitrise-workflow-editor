@@ -11,6 +11,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import { useIsReadOnlyView } from '@/hooks/useTree';
+import ignore1Password from '@/utils/ignore1Password';
 
 export type SortableEnvVar = EnvVar & {
   uniqueId: string;
@@ -103,7 +104,7 @@ const SortableEnvVarItem = ({
             state={isReadOnlyView ? 'disabled' : undefined}
             onValueChange={handleKeyChange}
             errorText={errors.key !== true ? errors.key : undefined}
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
           />
           <Text color="text/tertiary" paddingBlockStart="8">
             =

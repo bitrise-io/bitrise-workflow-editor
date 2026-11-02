@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 
 import PageProps from '@/core/utils/PageProps';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import ignore1Password from '@/utils/ignore1Password';
 
 import useStartBuild from './useStartBuild';
 
@@ -56,7 +57,7 @@ const StartBuildDialog = ({ pipelineId, workflowId, ...dialogProps }: RunWorkflo
           label="Branch"
           placeholder="your-branch"
           state={isPending ? 'disabled' : undefined}
-          inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+          inputRef={ignore1Password}
           inputProps={{ autoFocus: true }}
           value={branch}
           onValueChange={setBranch}
