@@ -1,5 +1,4 @@
-import { Tooltip } from '@bitrise/bitkit';
-import { IconBadge3RdParty, IconBadgeBitrise } from '@bitrise/bitkit-v2';
+import { BitkitTooltip, IconBadge3RdParty, IconBadgeBitrise } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 
 import deprecatedIcon from '@/../images/step/badge-deprecated.svg';
@@ -23,9 +22,9 @@ const StepBadge = ({
   if (isOfficial) {
     return (
       <Box title="Bitrise step" data-e2e-tag="official-badge" {...rest}>
-        <Tooltip label="Maintained by Bitrise">
+        <BitkitTooltip text="Maintained by Bitrise">
           <IconBadgeBitrise size={size} />
-        </Tooltip>
+        </BitkitTooltip>
       </Box>
     );
   }
@@ -33,9 +32,9 @@ const StepBadge = ({
   if (isVerified) {
     return (
       <Box title="Verified step" data-e2e-tag="verified-badge" {...rest}>
-        <Tooltip label="Verified by Bitrise">
+        <BitkitTooltip text="Verified by Bitrise">
           <IconBadge3RdParty size={size} />
-        </Tooltip>
+        </BitkitTooltip>
       </Box>
     );
   }
@@ -50,9 +49,9 @@ const StepBadge = ({
         data-e2e-tag="deprecated-badge"
         {...rest}
       >
-        <Tooltip label="Deprecated step">
+        <BitkitTooltip text="Deprecated step">
           <img className="deprecated" src={deprecatedIcon} width="18" height="18" alt="Deprecated" />
-        </Tooltip>
+        </BitkitTooltip>
       </Box>
     );
   }
