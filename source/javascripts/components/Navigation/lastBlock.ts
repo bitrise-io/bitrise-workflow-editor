@@ -18,7 +18,11 @@ export const TOOL_PATHS = [
 // The last CI block opened (read from the URL whenever a CI blocks page names an entity), so coming back to
 // CI blocks continues where you were. The layout also shows it behind an open tool panel. `isYamlView` says
 // the YAML page was open last instead: then a tool panel opens over the YAML, and closing it returns there.
-export const useLastBlock = create<{ target?: BlockTarget; isYamlView?: boolean }>(() => ({}));
+// `keepsToolOnFileSwitch`: the next file switch comes from a tool's "Edit definition", so the tool stays open on
+// the new file instead of giving way to its CI blocks.
+export const useLastBlock = create<{ target?: BlockTarget; isYamlView?: boolean; keepsToolOnFileSwitch?: boolean }>(
+  () => ({}),
+);
 
 // A raw hash location (e.g. `#!/secrets?branch=main`): its prefix, path and query.
 const LOCATION_PATTERN = /^(#?!?)([^?]*)(?:\?(.*))?$/;

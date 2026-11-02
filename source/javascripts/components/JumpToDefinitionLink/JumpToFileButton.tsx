@@ -1,6 +1,6 @@
 import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
 
-import { tabLocationFor } from '@/components/Navigation/lastBlock';
+import { isToolPath, tabLocationFor, useLastBlock } from '@/components/Navigation/lastBlock';
 import { openTab, recordActiveTabLocation } from '@/core/stores/BitriseYmlStore';
 import { useTree } from '@/hooks/useTree';
 
@@ -32,6 +32,11 @@ const JumpToFileButton = ({ nodeId }: Props) => {
         const leftLocation = tabLocationFor(window.parent.location.hash);
         if (leftLocation) {
           recordActiveTabLocation(leftLocation);
+        }
+        // From a tool (Env Vars, Stacks & Machines), the tool stays open on the defining file, where the
+        // definition can be edited.
+        if (isToolPath(window.parent.location.hash.replace(/^#?!?/, '').split('?')[0])) {
+          useLastBlock.setState({ keepsToolOnFileSwitch: true });
         }
         openTab(id, { preview: false });
       }}

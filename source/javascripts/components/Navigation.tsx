@@ -193,7 +193,25 @@ const Navigation = (props: BoxProps) => {
       usePipelinesPageStore.getState().openedDialogType === PipelinesPageDialogType.CREATE_PIPELINE ||
       useWorkflowsPageStore.getState().openedDialogType === WorkflowsPageDialogType.CREATE_WORKFLOW ||
       useStepBundlesPageStore.getState().openedDialogType === StepBundlesPageDialogType.CREATE_STEP_BUNDLE;
-    if (isToolOpen && useLastBlock.getState().isYamlView) {
+    const { keepsToolOnFileSwitch, isYamlView, target } = useLastBlock.getState();
+    if (keepsToolOnFileSwitch) {
+      useLastBlock.setState({ keepsToolOnFileSwitch: false });
+    }
+    if (isToolOpen && keepsToolOnFileSwitch) {
+      // A tool's "Edit definition" keeps the tool open on the defining file. Behind it, the YAML stays, or the
+      // new file's CI block takes the old one's place.
+      const { yml } = bitriseYmlStore.getState();
+      const behind =
+        target && FirstBuildingBlock.exists(yml, target) ? target : FirstBuildingBlock.firstBuildingBlock(yml);
+      if (!isYamlView && behind) {
+        useLastBlock.setState({ target: behind });
+        const [path, query = ''] = window.parent.location.hash.replace(/^#?!?/, '').split('?');
+        const params = new URLSearchParams(query);
+        FirstBuildingBlock.entityParams.forEach((param) => params.delete(param));
+        params.set(behind.param, behind.id);
+        navigate(`${path}?${params.toString()}`);
+      }
+    } else if (isToolOpen && isYamlView) {
       closeToolPanel();
     } else if (
       page !== 'yml' &&
