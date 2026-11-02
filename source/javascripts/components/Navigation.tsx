@@ -18,7 +18,7 @@ import {
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -91,33 +91,9 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   );
 };
 
-// Whether the element has content scrolled out of view below its bottom edge.
-const useHasMoreBelow = () => {
-  const [element, setElement] = useState<HTMLDivElement | null>(null);
-  const [hasMoreBelow, setHasMoreBelow] = useState(false);
-
-  useEffect(() => {
-    if (!element) {
-      return undefined;
-    }
-    const update = () => setHasMoreBelow(element.scrollTop + element.clientHeight < element.scrollHeight - 1);
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(element);
-    element.addEventListener('scroll', update, { passive: true });
-    return () => {
-      observer.disconnect();
-      element.removeEventListener('scroll', update);
-    };
-  }, [element]);
-
-  return [setElement, hasMoreBelow] as const;
-};
-
 const Navigation = ({ hidePageNav = false, ...props }: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
-  const [navBodyRef, hasMoreNavBelow] = useHasMoreBelow();
   const { data } = useCiConfigSettings();
   const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
@@ -168,9 +144,6 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
       // went with the migration.
       width={rem(256)}
       overflow="hidden"
-      paddingBlockStart={hidePageNav ? '0' : undefined}
-      transition="padding-block-start 200ms ease-out"
-      _motionReduce={{ transition: 'none' }}
       {...props}
     >
       <Box
@@ -184,12 +157,7 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
       >
         {/* The grid row can only close to 0 if its child clips: the Body's own padding would hold it open. */}
         <Box minHeight={0} overflow="hidden" display="flex" flexDirection="column">
-          <BitkitPageSidebar.Body
-            ref={navBodyRef}
-            minHeight={0}
-            overflowY={hidePageNav ? 'hidden' : 'auto'}
-            maskImage={hasMoreNavBelow ? 'linear-gradient(to bottom, black calc(100% - 2rem), transparent)' : undefined}
-          >
+          <BitkitPageSidebar.Body>
             <NavigationItem
               path={withSearchParams(paths.workflows)}
               icon={IconWorkflow}
@@ -260,7 +228,7 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
           </BitkitPageSidebar.Body>
         </Box>
       </Box>
-      <FileTreeViewer showDivider={!hidePageNav} />
+      <FileTreeViewer withDivider={!hidePageNav} />
       <BitkitPageSidebar.Footer marginBlockStart="auto">
         <BitkitPageSidebar.Item
           data-intercom-target="YAML Reference Navigation Item"

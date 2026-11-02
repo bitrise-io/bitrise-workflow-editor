@@ -14,7 +14,7 @@ export default {
   decorators: [
     (Story) => (
       <BitkitPageSidebar minHeight="auto" height={rem(480)} width={rem(256)} overflow="hidden">
-        <BitkitPageSidebar.Body flex="0 0 auto">
+        <BitkitPageSidebar.Body>
           <BitkitPageSidebar.Item>Workflows</BitkitPageSidebar.Item>
         </BitkitPageSidebar.Body>
         <Story />

@@ -1,6 +1,5 @@
 import { BitkitPageSidebar, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { Text } from '@chakra-ui/react/text';
 
 import { trackWorkflowEditorYmlModuleOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
@@ -9,7 +8,7 @@ import { useSelectedNodeId, useTree } from '@/hooks/useTree';
 
 import FileTreeView from './FileTreeView';
 
-const FileTreeViewer = ({ showDivider = true }: { showDivider?: boolean }) => {
+const FileTreeViewer = ({ withDivider = true }: { withDivider?: boolean }) => {
   const tree = useTree();
   const selectedNodeId = useSelectedNodeId();
   const { openFile } = useFileTabs();
@@ -19,41 +18,26 @@ const FileTreeViewer = ({ showDivider = true }: { showDivider?: boolean }) => {
   }
 
   return (
-    <>
-      {showDivider && (
-        <BitkitPageSidebar.Divider marginInline="0" marginBlockStart="0" marginBlockEnd="0" flexShrink={0} />
-      )}
-      <Text
-        as="h4"
-        flexShrink={0}
-        paddingInline="24"
-        paddingBlockStart="16"
-        paddingBlockEnd="8"
-        textStyle="heading/h4"
-        color="text/primary"
-      >
-        Configuration modules
-      </Text>
-      {/* Never shorter than the group header + 3 modules: on short windows the navigation scrolls instead. */}
-      <Box flex="1 1 0" minHeight={rem(128)} overflow="auto">
-        {/* 16 + the tree's own 8px inset puts the top-level icons under the nav icons. */}
-        <Box width="max-content" minWidth="full" paddingInlineStart="16" paddingInlineEnd="8" paddingBlockEnd="8">
-          <FileTreeView
-            rootNode={tree}
-            selectedNodeId={selectedNodeId}
-            onSelect={(nodeId) => {
-              const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
-              if (!alreadyOpen) {
-                trackWorkflowEditorYmlModuleOpened({
-                  openMethod: 'file_explorer',
-                });
-              }
-              openFile(nodeId);
-            }}
-          />
-        </Box>
+    // The tree never gets shorter than its group header + 3 modules (128), on top of the 1px rule and
+    // the 48px title: on short windows the navigation scrolls instead.
+    <BitkitPageSidebar.Section minHeight={rem(177)} title="Configuration modules" withDivider={withDivider}>
+      {/* 16 + the tree's own 8px inset puts the top-level icons under the nav icons. */}
+      <Box width="max-content" minWidth="full" paddingInlineStart="16" paddingInlineEnd="8" paddingBlockEnd="8">
+        <FileTreeView
+          rootNode={tree}
+          selectedNodeId={selectedNodeId}
+          onSelect={(nodeId) => {
+            const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
+            if (!alreadyOpen) {
+              trackWorkflowEditorYmlModuleOpened({
+                openMethod: 'file_explorer',
+              });
+            }
+            openFile(nodeId);
+          }}
+        />
       </Box>
-    </>
+    </BitkitPageSidebar.Section>
   );
 };
 
