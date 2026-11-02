@@ -1,6 +1,3 @@
-// Bitkit v1's ProgressBitbot, kept here when v1 goes away: Bitkit v2 has no Bitbot loader and isn't
-// getting one (bitrise-website replaced it with BitkitSpinner / BitkitInlineLoading).
-
 const alternate = (a: string, b: string, length: number) =>
   Array.from({ length })
     .map((_, i) => (i % 2 ? b : a))
