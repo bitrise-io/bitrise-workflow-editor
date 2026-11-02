@@ -1,5 +1,6 @@
-import { ProgressBitbot } from '@bitrise/bitkit';
 import { DiffEditor, DiffEditorProps, MonacoDiffEditor } from '@monaco-editor/react';
+
+import ProgressBitbot from '@/components/ProgressBitbot';
 
 export type Props = {
   originalText: string;
