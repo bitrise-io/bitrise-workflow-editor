@@ -28,6 +28,8 @@ github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92 h1:+alkNYr5sbvCp
 github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92/go.mod h1:jeK3Koe+wXMSwfl8t6M7kovGgXsayUJ5ybqo3gDJgts=
 github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599 h1:UaudsJR8LbzL7wjz5D2RVtxN7RYnTL0ZoX+lA9yuqDI=
 github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599/go.mod h1:7yJQdVdq8BxJYq2xjG0yViQf/aspJLJ/xqk/OnP6lGE=
+github.com/bitrise-io/envman v0.0.0 h1:+YmzuGvcNDvS7zWnzKiwhajY3M3DVtSLR+bz2jfSntE=
+github.com/bitrise-io/envman v0.0.0/go.mod h1:7yJQdVdq8BxJYq2xjG0yViQf/aspJLJ/xqk/OnP6lGE=
 github.com/bitrise-io/envman/v2 v2.7.0 h1:6C/a6jXAJ0RRPQ3sdxbdm417W86Y/74xUQ3ifE0C/D4=
 github.com/bitrise-io/envman/v2 v2.7.0/go.mod h1:FuWPjEk053wT3POPxj8IuyeVv7chbh20o3s2zcIXLvw=
 github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.44 h1:EXclFI+XfxxcsRZlly3WsYJwph/6BwJdhF7JZ9bde2M=
