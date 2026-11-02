@@ -1,9 +1,10 @@
-import { Dropdown, DropdownDetailedOption, DropdownGroup, Tooltip } from '@bitrise/bitkit';
+import { Dropdown, DropdownDetailedOption, DropdownGroup } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitCheckbox,
   BitkitIconComponent,
   BitkitLink,
+  BitkitTooltip,
   IconQuestionCircle,
   IconStack,
   IconUbuntu,
@@ -42,10 +43,13 @@ const StackHelperText = ({ description, descriptionUrl }: { description?: string
   );
 };
 
-const PreviousStackVersionTip = () => (
-  <Tooltip label="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions.">
+const PreviousStackVersionTip = ({ disabled }: { disabled: boolean }) => (
+  <BitkitTooltip
+    disabled={disabled}
+    text="Enable this option if your builds are failing after a Stack Update. Your builds will start slower while using rollback stack versions."
+  >
     <IconQuestionCircle size="16" color="icon/tertiary" />
-  </Tooltip>
+  </BitkitTooltip>
 );
 
 const getIcon = (osId?: string): BitkitIconComponent => {
@@ -123,15 +127,17 @@ const StackSelector = ({
             </DropdownGroup>
           ))}
       </Dropdown>
-      <Tooltip
-        label="Stack rollback is not available when your workspace is configured to use external hosts only."
-        isDisabled={!disableRollbackOption}
+      {/* The "?" tooltip sits inside the rollback one. Only one tooltip opens at a time, and the pointer
+          reaches every enclosing trigger, so only one of the two is enabled. */}
+      <BitkitTooltip
+        disabled={!disableRollbackOption}
+        text="Stack rollback is not available when your workspace is configured to use external hosts only."
       >
         <Box display="inline-block" marginBlockStart="16">
           <BitkitCheckbox
             labelText={
               <>
-                Use previous stack version <PreviousStackVersionTip />
+                Use previous stack version <PreviousStackVersionTip disabled={!!disableRollbackOption} />
               </>
             }
             state={isRollbackDisabled || isDisabled ? 'disabled' : undefined}
@@ -139,7 +145,7 @@ const StackSelector = ({
             onCheckedChange={({ checked }) => onChange(stack.value, checked === true)}
           />
         </Box>
-      </Tooltip>
+      </BitkitTooltip>
     </Box>
   );
 };

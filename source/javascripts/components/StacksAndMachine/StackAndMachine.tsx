@@ -1,6 +1,6 @@
-import { Tooltip } from '@bitrise/bitkit';
 import { BitkitAlert, BitkitLink } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Text } from '@chakra-ui/react/text';
 import { ReactNode, RefObject, useCallback, useRef } from 'react';
 import { useResizeObserver } from 'usehooks-ts';
 
@@ -132,43 +132,45 @@ const StackAndMachine = ({
       machineTypeName={selectedMachineType.name}
       stackName={selectedStack.name}
     >
+      {isReadOnlyView && (
+        <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
+          To edit the Stack and machine type, switch to the module file that defines them.
+        </Text>
+      )}
       <Box display="flex" flexDirection={orientation === 'horizontal' ? 'row' : 'column'} gap="24">
-        {/* Tooltip wraps only the selectors — not selectsTrailing, whose jump button has its own tooltip. */}
-        <Tooltip label="To edit, switch to the module file that defines them." isDisabled={!isReadOnlyView}>
-          <Box
-            ref={ref}
-            display="flex"
-            flexDirection={orientation === 'horizontal' ? 'row' : 'column'}
-            gap="24"
-            flex={orientation === 'horizontal' ? '1' : undefined}
-            minWidth="0"
-          >
-            <StackSelector
-              stack={selectedStack}
-              isLoading={isLoading}
-              isDisabled={isReadOnlyView}
-              isInvalid={isInvalidStack && !isLoading}
-              optionGroups={stackOptionGroups}
-              onChange={(selectedStackValue, useRollbackVersionChecked) =>
-                handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
-              }
-              isRollbackVersionAvailable={!!availableRollbackVersion}
-              disableRollbackOption={disableRollbackOption}
-              useRollbackVersion={useRollbackVersion}
-              width={orientation === 'horizontal' ? '50%' : undefined}
-            />
-            <MachineTypeSelector
-              machineType={selectedMachineType}
-              isLoading={isLoading}
-              isInvalid={isInvalidMachineType && !isLoading}
-              isDisabled={isMachineTypeSelectionDisabled || isReadOnlyView}
-              optionGroups={machineOptionGroups}
-              onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
-              selectedRegion={data?.region}
-              width={orientation === 'horizontal' ? '50%' : undefined}
-            />
-          </Box>
-        </Tooltip>
+        <Box
+          ref={ref}
+          display="flex"
+          flexDirection={orientation === 'horizontal' ? 'row' : 'column'}
+          gap="24"
+          flex={orientation === 'horizontal' ? '1' : undefined}
+          minWidth="0"
+        >
+          <StackSelector
+            stack={selectedStack}
+            isLoading={isLoading}
+            isDisabled={isReadOnlyView}
+            isInvalid={isInvalidStack && !isLoading}
+            optionGroups={stackOptionGroups}
+            onChange={(selectedStackValue, useRollbackVersionChecked) =>
+              handleChange(selectedStackValue, selectedMachineType.value, useRollbackVersionChecked)
+            }
+            isRollbackVersionAvailable={!!availableRollbackVersion}
+            disableRollbackOption={disableRollbackOption}
+            useRollbackVersion={useRollbackVersion}
+            width={orientation === 'horizontal' ? '50%' : undefined}
+          />
+          <MachineTypeSelector
+            machineType={selectedMachineType}
+            isLoading={isLoading}
+            isInvalid={isInvalidMachineType && !isLoading}
+            isDisabled={isMachineTypeSelectionDisabled || isReadOnlyView}
+            optionGroups={machineOptionGroups}
+            onChange={(selectedMachineTypeValue) => handleChange(selectedStack.value, selectedMachineTypeValue)}
+            selectedRegion={data?.region}
+            width={orientation === 'horizontal' ? '50%' : undefined}
+          />
+        </Box>
         {selectsTrailing && (
           // Align with the select inputs (which sit below their labels), not the label row.
           <Box alignSelf={orientation === 'horizontal' ? 'flex-start' : 'flex-end'} marginBlockStart="24">
