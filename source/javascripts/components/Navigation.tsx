@@ -118,20 +118,19 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
   const [navBodyRef, hasMoreNavBelow] = useHasMoreBelow();
-  // Whether the page navigation may show its scrollbar. Off for the whole collapse / expand, so the
-  // scrollbar doesn't flash in and shrink with the panel: it goes the moment the nav starts to
-  // collapse, and comes back only once it has fully expanded again (transitionend below).
+  // Hides the nav's scrollbar during the collapse / expand, so it doesn't flash in and shrink with the panel.
   const [isNavScrollable, setIsNavScrollable] = useState(!hidePageNav);
   if (hidePageNav && isNavScrollable) {
     setIsNavScrollable(false);
   }
-  // Fallback for when transitionend never fires (e.g. the page was in the background during the switch).
-  // Generous on purpose: rendering the visual page can hold the expand back by a few hundred ms.
+  // transitionend never fires without a transition (reduced motion) or in a background tab. The 1s fallback is
+  // generous because rendering the visual page can hold the expand back by a few hundred ms.
   useEffect(() => {
     if (hidePageNav || isNavScrollable) {
       return undefined;
     }
-    const timeout = window.setTimeout(() => setIsNavScrollable(true), 1000);
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const timeout = window.setTimeout(() => setIsNavScrollable(true), prefersReducedMotion ? 0 : 1000);
     return () => window.clearTimeout(timeout);
   }, [hidePageNav, isNavScrollable]);
   const { data } = useCiConfigSettings();
@@ -183,24 +182,17 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
       // The width v1 had. There is no narrow icon-only mode in the design system, so the mobile rail
       // went with the migration.
       width={rem(256)}
-      // The navigation and the file tree each scroll inside their own area, so the sidebar itself
-      // must not grow or scroll.
       overflow="hidden"
-      // Without the nav, the title's own top padding is enough; the sidebar's would double the gap.
       paddingBlockStart={hidePageNav ? '0' : undefined}
       transition="padding-block-start 200ms ease-out"
       _motionReduce={{ transition: 'none' }}
       {...props}
     >
-      {/* Page navigation, at its natural height. It only scrolls if the window is too short for it.
-          In the YAML view of a modular config it collapses away (0fr ↔ 1fr row, animated), so the
-          module tree slides up rather than jumping when the view changes. */}
       <Box
         flex="0 1 auto"
         minHeight={0}
         display="grid"
         gridTemplateRows={hidePageNav ? '0fr' : '1fr'}
-        // visibility interpolates, so the nav stays visible while it closes, then leaves the tab order.
         visibility={hidePageNav ? 'hidden' : 'visible'}
         transition="grid-template-rows 200ms ease-out, visibility 200ms"
         _motionReduce={{ transition: 'none' }}
@@ -216,8 +208,6 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
             ref={navBodyRef}
             minHeight={0}
             overflowY={isNavScrollable ? 'auto' : 'hidden'}
-            // On short windows the module tree keeps its minimum height and the nav scrolls; the fade shows
-            // the list goes on below the last visible item.
             maskImage={hasMoreNavBelow ? 'linear-gradient(to bottom, black calc(100% - 2rem), transparent)' : undefined}
           >
             <NavigationItem
@@ -290,10 +280,7 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
           </BitkitPageSidebar.Body>
         </Box>
       </Box>
-      {/* Modular configs only: the module file tree, filling the space between the navigation and
-          the footer. */}
       <FileTreeViewer showDivider={!hidePageNav} />
-      {/* Pushed to the bottom when there's no file tree to fill the space above it. */}
       <BitkitPageSidebar.Footer marginBlockStart="auto">
         <BitkitPageSidebar.Item
           data-intercom-target="YAML Reference Navigation Item"

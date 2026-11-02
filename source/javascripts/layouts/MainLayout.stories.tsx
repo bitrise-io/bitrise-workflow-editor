@@ -29,9 +29,7 @@ export default {
     layout: 'fullscreen',
   },
   beforeEach({ msw }) {
-    // Bitkit v2 bundles copies of zag's focus-visible tracker that redefine HTMLElement.prototype.focus as
-    // read-only; the page's own copy, loaded later by the lazy route, then throws when it assigns to it.
-    // Storybook-only: keep the property writable for this story.
+    // Bitkit v1 checkboxes assign HTMLElement.prototype.focus, which is read-only here. Remove once #1971 is merged.
     const { defineProperty } = Object;
     Object.defineProperty = (target, key, descriptor) =>
       defineProperty(
@@ -39,14 +37,6 @@ export default {
         key,
         target === HTMLElement.prototype && key === 'focus' ? { ...descriptor, writable: true } : descriptor,
       );
-    // crypto.randomUUID only exists in secure contexts, so it's missing when this Storybook is opened over
-    // plain HTTP (e.g. through a dev tunnel). The Workflows page needs it for the trigger dialog.
-    if (!window.isSecureContext && typeof crypto.randomUUID !== 'function') {
-      crypto.randomUUID = () =>
-        '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
-          (Number(c) ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (Number(c) / 4)))).toString(16),
-        ) as ReturnType<Crypto['randomUUID']>;
-    }
     msw.use(
       getBranches(),
       getCiConfig(),
