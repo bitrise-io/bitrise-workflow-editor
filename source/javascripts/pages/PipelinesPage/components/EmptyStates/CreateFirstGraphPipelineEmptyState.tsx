@@ -1,4 +1,4 @@
-import { List, ListItem, Tooltip } from '@bitrise/bitkit';
+import { List, ListItem } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitHeading,
@@ -39,17 +39,16 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
     <Box display="flex" flexDirection={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
       <ButtonGroup gap="24">
         {isAIButtonVisible && (
-          <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-            <BitkitButton
-              state={isAIButtonDisabled ? 'disabled' : undefined}
-              icon={IconSparkleFilled}
-              size="md"
-              variant="ai-primary"
-              onClick={onAIButtonClick}
-            >
-              Create Pipeline with AI
-            </BitkitButton>
-          </Tooltip>
+          <BitkitButton
+            state={isAIButtonDisabled ? 'disabled' : undefined}
+            disabledReason={tooltipLabel}
+            icon={IconSparkleFilled}
+            size="md"
+            variant="ai-primary"
+            onClick={onAIButtonClick}
+          >
+            Create Pipeline with AI
+          </BitkitButton>
         )}
         <BitkitButton alignSelf={['stretch', 'center']} icon={IconPlus} size="md" onClick={onCreate}>
           Create Pipeline

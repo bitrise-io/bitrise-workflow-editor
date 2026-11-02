@@ -1,5 +1,12 @@
-import { MarkdownContent, Tooltip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
+import { MarkdownContent } from '@bitrise/bitkit';
+import {
+  BitkitAvatar,
+  BitkitControlButton,
+  BitkitLinkButton,
+  BitkitOverflowTooltip,
+  IconPlus,
+  rem,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
@@ -47,6 +54,18 @@ const AlgoliaStepListItem = ({
   } else if (isOpen) {
     cursor = 'auto';
   }
+
+  const titleText = (
+    <Text
+      ref={titleRef}
+      transition={TRANSITION}
+      textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
+      truncate
+      maxWidth="full"
+    >
+      {title}
+    </Text>
+  );
 
   const handleReadMoreClick: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -101,17 +120,13 @@ const AlgoliaStepListItem = ({
             />
           </Box>
           <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-            <Tooltip isDisabled={!isTitleTruncated} label={title} shouldWrapChildren>
-              <Text
-                ref={titleRef}
-                transition={TRANSITION}
-                textStyle={isOpen ? 'body/md/semibold' : 'body/lg/semibold'}
-                truncate
-                maxWidth="full"
-              >
-                {title}
-              </Text>
-            </Tooltip>
+            {title ? (
+              <BitkitOverflowTooltip disabled={!isTitleTruncated} placement="top" text={title}>
+                {titleText}
+              </BitkitOverflowTooltip>
+            ) : (
+              titleText
+            )}
             <Text
               color="text/secondary"
               transition={TRANSITION}

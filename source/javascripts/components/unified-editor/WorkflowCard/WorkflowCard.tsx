@@ -1,6 +1,7 @@
-import { Collapse, Tooltip } from '@bitrise/bitkit';
+import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
+  BitkitTooltip,
   IconChevronDown,
   IconChevronUp,
   IconLink,
@@ -12,7 +13,7 @@ import { Box } from '@chakra-ui/react/box';
 import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
-import { memo, PropsWithChildren, ReactNode, useMemo, useRef, useState } from 'react';
+import { memo, PropsWithChildren, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
@@ -53,17 +54,11 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
   }
 
   let badgeContent = parallel;
-  let tooltipLabel = `${parallel} parallel copies` as ReactNode;
-  let tooltipAriaLabel = `${parallel} parallel copies`;
+  let tooltipText = `${parallel} parallel copies`;
 
   if (!PipelineService.isIntegerValue(parallel)) {
     badgeContent = '$';
-    tooltipLabel = (
-      <>
-        Number of copies is calculated based on <strong>{parallel}</strong> Env Var.
-      </>
-    );
-    tooltipAriaLabel = `Number of copies is calculated based on ${parallel} Env Var.`;
+    tooltipText = `Number of copies is calculated based on ${parallel} Env Var.`;
   }
 
   return (
@@ -71,14 +66,13 @@ const WorkflowName = ({ parallel, children }: PropsWithChildren<Pick<ContentProp
       <Text textStyle="body/md/semibold" truncate maxWidth="full">
         {children}
       </Text>
-      <Tooltip shouldWrapChildren label={tooltipLabel} aria-label={tooltipAriaLabel}>
+      <BitkitTooltip text={tooltipText} wrapTrigger>
         {/* Not BitkitBadge: even its xs size makes the card header taller. The overrides shrink the
-            Bitkit badge recipe to fit the title line, and display="flex" stops it sinking to the
-            bottom of the line inside the Tooltip's wrapper span. */}
-        <Badge display="flex" minWidth="0" paddingBlock="0" paddingInline="4">
+            Bitkit badge recipe to fit the title line. */}
+        <Badge minWidth="0" paddingBlock="0" paddingInline="4">
           {badgeContent}
         </Badge>
-      </Tooltip>
+      </BitkitTooltip>
     </Box>
   );
 };
