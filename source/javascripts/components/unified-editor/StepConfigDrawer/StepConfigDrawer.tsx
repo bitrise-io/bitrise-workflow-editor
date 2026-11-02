@@ -1,6 +1,7 @@
 import { BitkitAvatar, BitkitHeading, BitkitLinkButton, BitkitTabs, IconWarningYellow } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
+import { useState } from 'react';
 import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -34,6 +35,8 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
   const stepHasOutputVariables = Boolean(data?.mergedValues?.outputs?.length ?? 0);
+  const [selectedTab, setSelectedTab] = useState('configuration');
+  const tabId = selectedTab === 'output-variables' && !stepHasOutputVariables ? 'configuration' : selectedTab;
 
   const isUpgradable = VersionUtils.hasVersionUpgrade(
     data?.resolvedInfo?.normalizedVersion,
@@ -41,7 +44,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
   );
 
   return (
-    <BitkitTabs.Root defaultValue="configuration">
+    <BitkitTabs.Root value={tabId} onValueChange={({ value }) => setSelectedTab(value)}>
       <FloatingDrawer {...props}>
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
