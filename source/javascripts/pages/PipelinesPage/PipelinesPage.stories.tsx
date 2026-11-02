@@ -84,3 +84,13 @@ export const WithParallelWorkflowCollision: Story = {
     })(),
   },
 };
+
+export const WithEnvVarParallelCopies: Story = {
+  parameters: {
+    bitriseYmlStore: (() => {
+      const yml = structuredClone(TEST_BITRISE_YML);
+      set(yml, 'pipelines["graph-pipeline"].workflows.tmp.parallel', '$PARALLEL_COUNT');
+      return { yml };
+    })(),
+  },
+};
