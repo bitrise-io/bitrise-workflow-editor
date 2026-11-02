@@ -1,5 +1,4 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { BitkitButton, BitkitHeading, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitHeading, BitkitTabs, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import FloatingDrawer, {
@@ -31,7 +30,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
   }
 
   return (
-    <Tabs>
+    <BitkitTabs.Root defaultValue="properties">
       <FloatingDrawer {...props}>
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
@@ -51,26 +50,24 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
                 </BitkitButton>
               )}
             </Box>
-            <Box marginInline="-24" marginBlockStart="16">
-              <TabList px="8" data-clarity-unmask="true">
-                <Tab>Properties</Tab>
-                <Tab>Triggers</Tab>
-              </TabList>
-            </Box>
+            <BitkitTabs.List marginInline="-24" marginBlockStart="16" paddingInline="8" data-clarity-unmask="true">
+              <BitkitTabs.Trigger value="properties">Properties</BitkitTabs.Trigger>
+              <BitkitTabs.Trigger value="triggers">Triggers</BitkitTabs.Trigger>
+            </BitkitTabs.List>
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <TabPanels height="100%">
-              <TabPanel>
+            <BitkitTabs.ContentGroup height="100%">
+              <BitkitTabs.Content value="properties">
                 <PropertiesTab onDelete={props.onClose} pipelineId={pipelineId} />
-              </TabPanel>
-              <TabPanel overflowY="auto" h="100%">
+              </BitkitTabs.Content>
+              <BitkitTabs.Content value="triggers" overflowY="auto" height="100%">
                 <TriggersTab pipelineId={pipelineId} />
-              </TabPanel>
-            </TabPanels>
+              </BitkitTabs.Content>
+            </BitkitTabs.ContentGroup>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
       </FloatingDrawer>
-    </Tabs>
+    </BitkitTabs.Root>
   );
 };
 

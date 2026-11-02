@@ -1,4 +1,4 @@
-import { TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
+import { BitkitTabs } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 
 import TriggersTab from '@/components/unified-editor/WorkflowConfig/tabs/TriggersTab';
@@ -19,46 +19,45 @@ const WorkflowConfigPanelContent = () => {
   const [, setSelectedWorkflow] = useSelectedWorkflow();
   const [searchParams, setSearchParams] = useSearchParams();
   const closeDialog = useWorkflowsPageStore((s) => s.closeDialog);
-  const { setTabIndex, tabIndex } = useTabs<WorkflowConfigTab>({ tabIds: TAB_IDS });
+  const isKnownTab = TAB_IDS.includes(searchParams.tab as WorkflowConfigTab);
+  const tabId = isKnownTab ? searchParams.tab : TAB_IDS[0];
 
-  const onTabChange = (index: number) => {
+  const onTabChange = ({ value }: { value: string }) => {
     setSearchParams({
       ...searchParams,
-      tab: TAB_IDS[index],
+      tab: value,
     });
   };
 
   useEffect(() => {
-    if (searchParams.tab && TAB_IDS.includes(searchParams.tab as WorkflowConfigTab)) {
-      setTabIndex(TAB_IDS.indexOf(searchParams.tab as WorkflowConfigTab));
-    } else {
+    if (!isKnownTab) {
       setSearchParams({ ...searchParams, tab: TAB_IDS[0] });
     }
-  }, [searchParams, setSearchParams, setTabIndex]);
+  }, [isKnownTab, searchParams, setSearchParams]);
 
   return (
-    <Tabs
+    <BitkitTabs.Root
       display="flex"
-      flexDir="column"
-      borderLeft="1px solid"
+      flexDirection="column"
+      borderInlineStart="1px solid"
       borderColor="border/regular"
-      index={tabIndex}
-      onChange={onTabChange}
+      value={tabId}
+      onValueChange={onTabChange}
       data-intercom-target="Workflow Config Panel"
     >
       <WorkflowConfigHeader variant="panel" context="workflow" />
-      <TabPanels flex="1" minH="0">
-        <TabPanel p="24" overflowY="auto" h="100%">
+      <BitkitTabs.ContentGroup flex="1" minHeight="0">
+        <BitkitTabs.Content value={WorkflowConfigTab.CONFIGURATION} padding="24" overflowY="auto" height="100%">
           <ConfigurationTab context="workflow" />
-        </TabPanel>
-        <TabPanel p="24" overflowY="auto" h="100%">
+        </BitkitTabs.Content>
+        <BitkitTabs.Content value={WorkflowConfigTab.PROPERTIES} padding="24" overflowY="auto" height="100%">
           <PropertiesTab variant="panel" onRename={setSelectedWorkflow} onDelete={closeDialog} />
-        </TabPanel>
-        <TabPanel p="24" overflowY="auto" h="100%">
+        </BitkitTabs.Content>
+        <BitkitTabs.Content value={WorkflowConfigTab.TRIGGERS} padding="24" overflowY="auto" height="100%">
           <TriggersTab />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+        </BitkitTabs.Content>
+      </BitkitTabs.ContentGroup>
+    </BitkitTabs.Root>
   );
 };
 

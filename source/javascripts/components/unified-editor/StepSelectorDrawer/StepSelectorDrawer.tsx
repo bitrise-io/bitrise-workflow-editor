@@ -1,7 +1,6 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitHeading, BitkitTag } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitHeading, BitkitTabs, BitkitTag } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
@@ -29,9 +28,7 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
 const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, parentStepBundleId, ...props }: Props) => {
   const resetSearch = useSearch((s) => s.reset);
 
-  const { tabId, tabIndex, setTabIndex } = useTabs<'step' | 'stepBundle'>({
-    tabIds: ['step', 'stepBundle'],
-  });
+  const [tabId, setTabId] = useState('step');
 
   const uniqueStepCount = enabledSteps?.size ?? -1;
   const uniqueStepLimit = PageProps.limits()?.uniqueStepLimit;
@@ -49,7 +46,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
   };
 
   return (
-    <Tabs variant="line" index={tabIndex} onChange={setTabIndex} isLazy>
+    <BitkitTabs.Root value={tabId} onValueChange={({ value }) => setTabId(value)} lazyMount unmountOnExit>
       <FloatingDrawer onCloseComplete={handleCloseComplete} {...props}>
         <FloatingDrawerContent data-clarity-unmask="true">
           <FloatingDrawerCloseButton />
@@ -58,12 +55,10 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
               <BitkitHeading as="h3">Add Step</BitkitHeading>
               {showStepLimit && <BitkitTag labelText={`${uniqueStepCount}/${uniqueStepLimit} Steps used`} size="sm" />}
             </Box>
-            <Box position="relative" marginBlockStart="8" marginInline="-24">
-              <TabList paddingX="8" data-clarity-unmask="true">
-                <Tab>Step</Tab>
-                <Tab>Step bundle</Tab>
-              </TabList>
-            </Box>
+            <BitkitTabs.List marginBlockStart="8" marginInline="-24" paddingInline="8" data-clarity-unmask="true">
+              <BitkitTabs.Trigger value="step">Step</BitkitTabs.Trigger>
+              <BitkitTabs.Trigger value="stepBundle">Step bundle</BitkitTabs.Trigger>
+            </BitkitTabs.List>
             {stepLimitReached && (
               <BitkitAlert
                 marginBlockStart="16"
@@ -82,21 +77,21 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
             {tabId === 'stepBundle' && <StepBundleFilter mt="24" mb="12" />}
           </FloatingDrawerHeader>
           <FloatingDrawerBody pt="12">
-            <TabPanels>
-              <TabPanel>
+            <BitkitTabs.ContentGroup>
+              <BitkitTabs.Content value="step">
                 <AlgoliaStepList
                   enabledSteps={stepLimitReached ? enabledSteps : undefined}
                   onSelectStep={onSelectStep}
                 />
-              </TabPanel>
-              <TabPanel display="flex" flexDir="column" gap="12">
+              </BitkitTabs.Content>
+              <BitkitTabs.Content value="stepBundle" display="flex" flexDirection="column" gap="12">
                 <StepBundleList onSelectStep={onSelectStep} excludedStepBundleId={parentStepBundleId} />
-              </TabPanel>
-            </TabPanels>
+              </BitkitTabs.Content>
+            </BitkitTabs.ContentGroup>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
       </FloatingDrawer>
-    </Tabs>
+    </BitkitTabs.Root>
   );
 };
 
