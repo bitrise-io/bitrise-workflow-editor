@@ -1,12 +1,5 @@
 import { Card, CardProps, MarkdownContent } from '@bitrise/bitkit';
-import {
-  BitkitAvatar,
-  BitkitControlButton,
-  BitkitLinkButton,
-  BitkitOverflowTooltip,
-  IconPlus,
-  rem,
-} from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitControlButton, BitkitLinkButton, IconPlus, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
@@ -14,6 +7,7 @@ import { MouseEventHandler, useRef } from 'react';
 import removeMd from 'remove-markdown';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
+import LabelTooltip from '@/components/LabelTooltip';
 import StepBadge from '@/components/StepBadge';
 import { Maintainer } from '@/core/models/Step';
 import useIsTruncated from '@/hooks/useIsTruncated';
@@ -130,13 +124,9 @@ const AlgoliaStepListItem = ({
           />
         </Box>
         <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-          {title ? (
-            <BitkitOverflowTooltip disabled={!isTitleTruncated} placement="top" text={title}>
-              {titleText}
-            </BitkitOverflowTooltip>
-          ) : (
-            titleText
-          )}
+          <LabelTooltip disabled={!isTitleTruncated} text={title ?? ''} wrapTrigger>
+            {titleText}
+          </LabelTooltip>
           <Text
             color="text/secondary"
             transition={TRANSITION}

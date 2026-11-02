@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 
+import { markFloatingDrawerSwitch } from '@/components/unified-editor/FloatingDrawer/drawerSwitch';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
+
+export type PipelineConfigTab = 'properties' | 'triggers';
 
 export enum PipelinesPageDialogType {
   NONE,
@@ -13,6 +16,7 @@ export enum PipelinesPageDialogType {
   CREATE_PIPELINE,
   WORKFLOW_CONFIG,
   WORKFLOW_SELECTOR,
+  CREATE_WORKFLOW,
 }
 
 type State = {
@@ -24,6 +28,9 @@ type State = {
   openedDialogType: PipelinesPageDialogType;
   mountedDialogType: PipelinesPageDialogType;
   _nextDialog?: DialogParams;
+  // Between one dialog closing and the one replacing it opening (a frame).
+  isSwitchingDialog: boolean;
+  pipelineConfigTab?: PipelineConfigTab;
   selectionParent?: SelectionParent;
 };
 
@@ -36,6 +43,7 @@ type DialogParams = {
   workflowId?: string;
   parentWorkflowId?: string;
   selectionParent?: SelectionParent;
+  pipelineConfigTab?: PipelineConfigTab;
 };
 
 type Action = {
@@ -58,6 +66,7 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
   newStepBundleId: '',
   workflowId: '',
   parentWorkflowId: '',
+  isSwitchingDialog: false,
   openedDialogType: PipelinesPageDialogType.NONE,
   mountedDialogType: PipelinesPageDialogType.NONE,
   setPipelineId: (pipelineId = '') => {
@@ -94,24 +103,33 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
     parentWorkflowId = '',
     selectedStepIndices,
     selectionParent,
+    pipelineConfigTab,
   }) => {
     return () => {
       return set((state) => {
-        const { openedDialogType, closeDialog } = state;
+        const { openedDialogType } = state;
         if (openedDialogType !== PipelinesPageDialogType.NONE) {
-          closeDialog();
+          // Replacing an open dialog: swap it in place on the next frame rather than sliding
+          // this one out and the next one in.
+          const next = {
+            type,
+            selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
+            pipelineId,
+            stepBundleId,
+            newStepBundleId,
+            workflowId,
+            parentWorkflowId,
+            selectionParent: selectionParent || state.selectionParent,
+            pipelineConfigTab,
+          };
+          markFloatingDrawerSwitch();
+          requestAnimationFrame(() => get().openDialog(next)());
 
           return {
-            _nextDialog: {
-              type,
-              selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
-              pipelineId,
-              stepBundleId,
-              newStepBundleId,
-              workflowId,
-              parentWorkflowId,
-              selectionParent: selectionParent || state.selectionParent,
-            },
+            _nextDialog: undefined,
+            openedDialogType: PipelinesPageDialogType.NONE,
+            mountedDialogType: PipelinesPageDialogType.NONE,
+            isSwitchingDialog: true,
           };
         }
 
@@ -123,9 +141,11 @@ export const usePipelinesPageStore = create<State & Action>((set, get) => ({
           selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
           parentWorkflowId,
           _nextDialog: undefined,
+          isSwitchingDialog: false,
           openedDialogType: type,
           mountedDialogType: type,
           selectionParent: selectionParent || state.selectionParent,
+          pipelineConfigTab,
         };
       });
     };

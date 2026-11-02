@@ -1,8 +1,13 @@
 import { Box } from '@chakra-ui/react/box';
 import { useCallback } from 'react';
 
+import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
+import { FLOATING_DRAWER_WIDTH } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleCard from '@/components/unified-editor/StepSelectorDrawer/components/StepBundleCard';
 import { WorkflowCardContextProvider } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
+import useDeleteSelectedStepsOnKey, {
+  STEP_CANVAS_ATTRIBUTE,
+} from '@/components/unified-editor/WorkflowCard/hooks/useDeleteSelectedStepsOnKey';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { LibraryType } from '@/core/models/Step';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -11,7 +16,9 @@ import { useShallow } from '@/hooks/useShallow';
 import { useStepBundles } from '@/hooks/useStepBundles';
 
 import { StepBundlesPageDialogType, useStepBundlesPageStore } from '../StepBundlesPage.store';
-import StepBundlesSelector from './StepBundlesSelector';
+
+// The create dialog covers the page; everything else is a drawer beside the canvas.
+const DIALOGS_WITHOUT_DRAWER = [StepBundlesPageDialogType.NONE, StepBundlesPageDialogType.CREATE_STEP_BUNDLE];
 
 type Props = {
   stepBundleId: string;
@@ -26,7 +33,10 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
     );
   });
 
-  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent } =
+  const isDrawerOpen = useStepBundlesPageStore(
+    (s) => s.isSwitchingDialog || !DIALOGS_WITHOUT_DRAWER.includes(s.openedDialogType),
+  );
+  const { closeDialog, openDialog, selectedStepIndices, setSelectedStepIndices, selectionParent, isAddingStep } =
     useStepBundlesPageStore(
       useShallow((s) => ({
         closeDialog: s.closeDialog,
@@ -34,8 +44,19 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         selectedStepIndices: s.selectedStepIndices,
         selectionParent: s.selectionParent,
         setSelectedStepIndices: s.setSelectedStepIndices,
+        isAddingStep: s.openedDialogType === StepBundlesPageDialogType.STEP_SELECTOR,
       })),
     );
+
+  useDeleteSelectedStepsOnKey({
+    selectedStepIndices,
+    selectionParent,
+    isEnabled: !isAddingStep,
+    onDeleted: () => {
+      closeDialog();
+      setSelectedStepIndices([]);
+    },
+  });
 
   const handleSelectStep = useCallback<
     (props: { isMultiple?: boolean; stepIndex: number; type: LibraryType; stepBundleId?: string }) => void
@@ -176,9 +197,6 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
 
   return (
     <Box height="100%" display="flex" flexDirection="column" minWidth={[256, 320, 400]}>
-      <Box padding="12" gap="12" background="background/primary" borderBottom="1px solid" borderColor="border/regular">
-        <StepBundlesSelector />
-      </Box>
       <Box
         display="flex"
         flexDirection="column"
@@ -186,7 +204,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
         alignItems="center"
         overflowY="auto"
         padding="16"
+        // Keeps the card in view beside an open drawer rather than under it.
+        paddingInlineEnd={['16', isDrawerOpen ? `calc(${FLOATING_DRAWER_WIDTH} + 32px)` : '16']}
+        transition="padding-inline-end 200ms"
         background="background/secondary"
+        {...canvasDotsBackground}
+        // An inset shadow stays put while the content scrolls.
+        boxShadow={CANVAS_EDGE_SHADOW}
+        {...{ [STEP_CANVAS_ATTRIBUTE]: '' }}
       >
         <WorkflowCardContextProvider
           onAddStepToStepBundle={openStepSelectorDrawer}
@@ -198,8 +223,14 @@ const StepBundlesCanvasPanel = ({ stepBundleId }: Props) => {
           onGroupStepsToStepBundle={handleGroupStepsToStepBundle}
           selectedStepIndices={selectedStepIndices}
           selectionParent={selectionParent}
+          isAddingStep={isAddingStep}
         >
-          <StepBundleCard uniqueId="" stepIndex={-1} cvs={`bundle::${stepBundleId}`} />
+          <StepBundleCard
+            uniqueId=""
+            stepIndex={-1}
+            cvs={`bundle::${stepBundleId}`}
+            onEditStepBundle={openDialog({ type: StepBundlesPageDialogType.STEP_BUNDLE_DEFINITION, stepBundleId })}
+          />
         </WorkflowCardContextProvider>
       </Box>
     </Box>

@@ -31,7 +31,15 @@ const CrossFileJumpButton = ({ kind, id, nodeIds, label = 'Edit definition', onO
         id={id}
         nodeIds={nodeIds}
         onOpenChange={onOpenChange}
-        trigger={<BitkitControlButton size="xs" icon={IconArrowNortheast} label={label} />}
+        trigger={
+          <BitkitControlButton
+            size="xs"
+            icon={IconArrowNortheast}
+            label={label}
+            // Bitkit hides the tooltip on a control that opens a menu; every control button here names itself.
+            tooltipProps={{ disabled: false }}
+          />
+        }
       />
     </Box>
   );

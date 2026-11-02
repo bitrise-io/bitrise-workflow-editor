@@ -16,9 +16,22 @@ type Props = Omit<FloatingDrawerProps, 'children'> & {
   parentWorkflowId?: string;
   parentStepBundleId?: string;
   stepIndex: number;
+  // The Step bundles page's own bundle: the settings its old fixed panel had (ID and delete).
+  isDefinition?: boolean;
+  onDelete?: () => void;
+  onChangeId?: (id: string) => void;
 };
 
-const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, parentWorkflowId, parentStepBundleId, ...rest }: Props) => {
+const StepBundleConfigDrawer = ({
+  stepBundleId,
+  stepIndex,
+  parentWorkflowId,
+  parentStepBundleId,
+  isDefinition,
+  onDelete,
+  onChangeId,
+  ...rest
+}: Props) => {
   return (
     <StepBundleConfigProvider
       stepBundleId={stepBundleId}
@@ -31,10 +44,14 @@ const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, parentWorkflowId, par
           <FloatingDrawerContent>
             <FloatingDrawerCloseButton />
             <FloatingDrawerHeader>
-              <StepBundleConfigHeader variant="drawer" />
+              <StepBundleConfigHeader variant="drawer" isDefinition={isDefinition} />
             </FloatingDrawerHeader>
             <FloatingDrawerBody>
-              <StepBundleConfigContent variant="drawer" />
+              <StepBundleConfigContent
+                variant={isDefinition ? 'panel' : 'drawer'}
+                onDelete={onDelete}
+                onChangeId={onChangeId}
+              />
             </FloatingDrawerBody>
           </FloatingDrawerContent>
         </FloatingDrawer>

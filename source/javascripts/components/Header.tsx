@@ -3,7 +3,6 @@ import {
   BitkitButton,
   BitkitPageHeader,
   BitkitSegmentedControl,
-  BitkitTooltip,
   createBitkitToast,
   IconCode,
   IconWebUi,
@@ -14,6 +13,9 @@ import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
+import LabelTooltip from '@/components/LabelTooltip';
+import { isToolPath, tabLocationFor, useLastBlock } from '@/components/Navigation/lastBlock';
+import TOOLS from '@/components/Navigation/tools';
 import {
   trackConfigMergePopupShown,
   trackPushConfigChangesPopupShown,
@@ -79,22 +81,29 @@ const Header = () => {
   const [searchParams] = useSearchParams();
 
   const isYmlPage = currentPage === 'yml';
-  const editorView = isYmlPage ? 'yaml' : 'visual';
+  // A tool panel opened from the YAML view sits over the YAML, so the switch stays on YAML.
+  const isToolOverYaml = useLastBlock((s) => Boolean(s.isYamlView)) && TOOLS.some((tool) => tool.page === currentPage);
+  const isYamlView = isYmlPage || isToolOverYaml;
+  const editorView = isYamlView ? 'yaml' : 'visual';
 
   // Remember the last visual page so switching back from YAML returns to it.
   const lastVisualPathnameRef = useRef<string>(paths.workflows);
   useEffect(() => {
-    if (!isYmlPage) {
+    // A tool panel isn't a page: the page under it is remembered (by the tab) instead.
+    if (!isYamlView && !isToolPath(path.split('?')[0])) {
       lastVisualPathnameRef.current = path.split('?')[0];
     }
-  }, [isYmlPage, path]);
+  }, [isYamlView, path]);
 
   const handleEditorViewChange = useCallback(
     (value: string | null) => {
       if (value === 'yaml') {
         // Keep the active tab's visual page fresh: tab switches while in YAML
         // mode don't record locations, so this snapshot is what restores later.
-        recordActiveTabLocation(window.parent.location.hash);
+        const tabLocation = tabLocationFor(window.parent.location.hash);
+        if (tabLocation) {
+          recordActiveTabLocation(tabLocation);
+        }
         const searchParamsString = new URLSearchParams(searchParams).toString();
         navigate(searchParamsString ? `${paths.yml}?${searchParamsString}` : paths.yml);
         return;
@@ -387,7 +396,7 @@ const Header = () => {
       <BitkitPageHeader
         breadcrumb={trail}
         controls={
-          <BitkitTooltip
+          <LabelTooltip
             disabled={!visualEditorNotice}
             placement={isMobile ? 'bottom' : 'bottom-start'}
             text={visualEditorNotice?.description ?? ''}
@@ -406,7 +415,7 @@ const Header = () => {
                 YAML
               </BitkitSegmentedControl.Item>
             </BitkitSegmentedControl>
-          </BitkitTooltip>
+          </LabelTooltip>
         }
         // Stays masked in recordings, deliberately. `title` is a string and the component exposes
         // no hook onto its `h1`, so the only way to opt it out is to tag the root — which opts out
@@ -436,7 +445,7 @@ const Header = () => {
         >
           Discard
         </BitkitButton>
-        <BitkitTooltip
+        <LabelTooltip
           disabled={ymlStatus !== 'invalid'}
           placement={isMobile ? 'bottom' : 'bottom-start'}
           text="YAML is invalid, please fix it before saving."
@@ -454,7 +463,7 @@ const Header = () => {
           >
             Save changes
           </BitkitButton>
-        </BitkitTooltip>
+        </LabelTooltip>
       </BitkitPageHeader>
       {isModular ? (
         <GlobalDiffEditorDialog isOpen={isDiffViewerOpen} onClose={closeDiffViewer} />

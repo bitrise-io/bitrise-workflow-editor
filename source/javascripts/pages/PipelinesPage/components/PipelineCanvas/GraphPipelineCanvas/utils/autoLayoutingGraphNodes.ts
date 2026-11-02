@@ -1,8 +1,8 @@
 import dagre from '@dagrejs/dagre';
 
+import { PIPELINE_GRAPH_INSET, PIPELINE_GRAPH_TOP } from '../../../Toolbar/Toolbar';
 import {
-  CANVAS_PADDING,
-  TOOLBAR_CONTAINER_HEIGHT,
+  TRIGGER_NODE_SIZE,
   WORKFLOW_NODE_GAP_X,
   WORKFLOW_NODE_GAP_Y,
   WORKFLOW_NODE_HEIGHT,
@@ -10,27 +10,34 @@ import {
 } from '../GraphPipelineCanvas.const';
 import {
   GraphPipelineNodeType,
+  isAddWorkflowNode,
   isGeneratedWorkflowsPlaceholderNode,
   isPlaceholderNode,
+  isTriggerNode,
   isWorkflowNode,
   PipelineCanvasWorkflow,
 } from '../GraphPipelineCanvas.types';
 
 function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: GraphPipelineNodeType[]) {
   const graph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+  const hasTrigger = nodes.some(isTriggerNode);
 
   graph.setGraph({
     align: 'UL',
     rankdir: 'LR',
-    marginx: CANVAS_PADDING,
-    marginy: CANVAS_PADDING + TOOLBAR_CONTAINER_HEIGHT,
+    // Room on the left for the trigger node, which sits ahead of the first column.
+    marginx: PIPELINE_GRAPH_INSET + (hasTrigger ? TRIGGER_NODE_SIZE + WORKFLOW_NODE_GAP_X : 0),
+    // Room on top for the floating Pipeline controls.
+    marginy: PIPELINE_GRAPH_TOP,
     ranksep: WORKFLOW_NODE_GAP_X,
     nodesep: WORKFLOW_NODE_GAP_Y,
     edgesep: WORKFLOW_NODE_HEIGHT + WORKFLOW_NODE_GAP_Y,
   });
 
   nodes.forEach((node) => {
-    if (isPlaceholderNode(node)) {
+    if (isTriggerNode(node) || isAddWorkflowNode(node)) {
+      // Placed against the first column below, rather than ranked by dagre.
+    } else if (isPlaceholderNode(node)) {
       graph.setNode(node.id, { width: WORKFLOW_NODE_WIDTH, height: WORKFLOW_NODE_HEIGHT });
       node.data.dependsOn.forEach((source) => graph.setEdge(source, node.id));
     } else if (isGeneratedWorkflowsPlaceholderNode(node)) {
@@ -50,13 +57,39 @@ function autoLayoutingGraphNodes(workflows: PipelineCanvasWorkflow[], nodes: Gra
 
   dagre.layout(graph, { disableOptimalOrderHeuristic: true });
 
-  return nodes.map((node) => {
-    if (isWorkflowNode(node) && node.data.fixed) {
+  const laidOut = nodes.map((node) => {
+    if (isTriggerNode(node) || isAddWorkflowNode(node) || (isWorkflowNode(node) && node.data.fixed)) {
       return node;
     }
 
     const { x, y, width, height } = graph.node(node.id);
     return { ...node, position: { x: x - width / 2, y: y - height / 2 } };
+  });
+
+  // The first column: the Workflows that depend on nothing.
+  const rootIds = new Set(workflows.filter((w) => !w.dependsOn?.length).map((w) => w.id));
+  const roots = laidOut.filter((node) => isWorkflowNode(node) && rootIds.has(node.id));
+  if (roots.length === 0) {
+    return laidOut;
+  }
+  const columnX = Math.min(...roots.map((node) => node.position.x));
+  const columnTop = Math.min(...roots.map((node) => node.position.y));
+  const columnBottom = Math.max(
+    ...roots.map((node) => node.position.y + (node.measured?.height ?? node.height ?? WORKFLOW_NODE_HEIGHT)),
+  );
+
+  return laidOut.map((node) => {
+    if (isTriggerNode(node)) {
+      // Level with the top Workflow's header, where its incoming handle is.
+      return {
+        ...node,
+        position: { x: PIPELINE_GRAPH_INSET, y: columnTop + WORKFLOW_NODE_HEIGHT / 2 - TRIGGER_NODE_SIZE / 2 },
+      };
+    }
+    if (isAddWorkflowNode(node)) {
+      return { ...node, position: { x: columnX, y: columnBottom + WORKFLOW_NODE_GAP_Y } };
+    }
+    return node;
   });
 }
 

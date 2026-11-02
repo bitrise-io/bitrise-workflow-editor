@@ -2,8 +2,16 @@ import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
 import ProgressBitbot from '@/components/ProgressBitbot';
+import { CANVAS_EDGE_SHADOW, canvasDotsBackground } from '@/components/unified-editor/canvasDots';
 
-const LoadingState = ({ text = 'Loading...' }: { text?: string }) => {
+type Props = {
+  text?: string;
+  // Stands in for a canvas while it loads, with the canvas's gray, dots and inset edge, so nothing flips
+  // from white to gray when the page arrives.
+  isCanvas?: boolean;
+};
+
+const LoadingState = ({ text = 'Loading...', isCanvas }: Props) => {
   return (
     // `text` is a fixed UI label at every call site, so the whole placeholder is safe to unmask.
     <Box
@@ -13,6 +21,7 @@ const LoadingState = ({ text = 'Loading...' }: { text?: string }) => {
       alignItems="center"
       width="100%"
       height="100%"
+      {...(isCanvas && { background: 'background/secondary', ...canvasDotsBackground, boxShadow: CANVAS_EDGE_SHADOW })}
       data-clarity-unmask="true"
     >
       <ProgressBitbot />

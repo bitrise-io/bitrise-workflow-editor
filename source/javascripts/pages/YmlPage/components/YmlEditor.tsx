@@ -9,6 +9,8 @@ import { useCiConfigSettings } from '@/hooks/useCiConfigSettings';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { BACKGROUND_MODEL_URI } from '@/hooks/useYmlLanguageServices';
 
+import YmlEditorRegistry from '../ymlEditorRegistry';
+
 const YmlEditor = () => {
   const monacoEditorRef = useRef<Parameters<OnMount>[0]>();
   const enableBranchSwitching = useFeatureFlag('enable-branch-switching');
@@ -33,6 +35,7 @@ const YmlEditor = () => {
 
   const handleEditorDidMount: OnMount = (editor) => {
     monacoEditorRef.current = editor;
+    YmlEditorRegistry.registerYmlEditor(editor);
     MonacoUtils.setAliasMarkers(ROOT_MODEL_URI);
   };
 

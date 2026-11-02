@@ -97,6 +97,7 @@ const CreateEntityDialog = <T,>({
     <Dialog title={`Create ${entityName}`} onClose={onClose} onCloseComplete={handleCloseComplete} {...props}>
       <DialogBody as="form" display="flex" flexDir="column" gap="24" onSubmit={handleCreate}>
         <Input
+          size="md"
           autoFocus
           isRequired
           label="ID"
@@ -111,6 +112,7 @@ const CreateEntityDialog = <T,>({
         />
         {extraInputs?.includes('title') && (
           <Input
+            size="md"
             label="Title"
             placeholder={`${entityName} Title`}
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
@@ -118,12 +120,15 @@ const CreateEntityDialog = <T,>({
             {...register('title')}
           />
         )}
-        <Select label="Based on" {...register('baseEntityId')}>
-          <option key="" value="">
-            An empty {entityName}
-          </option>
-          <Options<T> baseEntities={baseEntities} />
-        </Select>
+        {/* Nothing to base it on (e.g. an empty Workflow): no picker. */}
+        {baseEntities.some(({ ids }) => ids.length > 0) && (
+          <Select size="md" label="Based on" {...register('baseEntityId')}>
+            <option key="" value="">
+              An empty {entityName}
+            </option>
+            <Options<T> baseEntities={baseEntities} />
+          </Select>
+        )}
       </DialogBody>
       <DialogFooter>
         <BitkitButton variant="secondary" onClick={onClose}>

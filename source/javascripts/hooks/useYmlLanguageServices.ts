@@ -134,8 +134,11 @@ function useYmlLanguageServices() {
       // to the store), so syncing it would clobber cursor/undo with round-tripped text. On
       // discard/external-init the store is authoritative — sync it too, but deferred past React's
       // render so Monaco's in-flight work on the unmounting editor isn't canceled.
+      // A tool panel can be open over the YAML page with its editor still mounted: an edit made in the panel is
+      // synced in too, as long as nobody is typing in that editor.
+      const isBeingTyped = monaco.editor.getEditors().some((e) => e.getModel() === model && e.hasTextFocus());
       if (model.isAttachedToEditor()) {
-        if (forceSync) {
+        if (forceSync || !isBeingTyped) {
           requestAnimationFrame(() => {
             if (!model.isDisposed() && model.getValue() !== content) model.setValue(content);
           });

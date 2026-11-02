@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { isToolOverYamlLocation, tabLocationFor } from '@/components/Navigation/lastBlock';
 import TreeService from '@/core/services/TreeService';
 import {
   bitriseYmlStore,
@@ -86,7 +87,8 @@ export function useFileTabs() {
   // carry over).
   const restoreTabLocation = useCallback(
     (nodeId: string) => {
-      if (isYmlPageLocation(currentLocation())) {
+      // A tool open over the YAML counts as YAML mode too; the tool panel closes back to the YAML.
+      if (isYmlPageLocation(currentLocation()) || isToolOverYamlLocation(currentLocation())) {
         return;
       }
 
@@ -108,7 +110,10 @@ export function useFileTabs() {
 
   const selectTab = useCallback(
     (nodeId: string) => {
-      recordActiveTabLocation(currentLocation());
+      const leftLocation = tabLocationFor(currentLocation());
+      if (leftLocation) {
+        recordActiveTabLocation(leftLocation);
+      }
       selectNode(nodeId);
       restoreTabLocation(nodeId);
     },
@@ -117,7 +122,10 @@ export function useFileTabs() {
 
   const openFile = useCallback(
     (nodeId: string) => {
-      recordActiveTabLocation(currentLocation());
+      const leftLocation = tabLocationFor(currentLocation());
+      if (leftLocation) {
+        recordActiveTabLocation(leftLocation);
+      }
       // Explicit "Open module" gesture → pin a permanent tab, not a preview that the next open replaces.
       openTab(nodeId, { preview: false });
       restoreTabLocation(nodeId);
@@ -126,7 +134,10 @@ export function useFileTabs() {
   );
 
   const selectMerged = useCallback(() => {
-    recordActiveTabLocation(currentLocation());
+    const leftLocation = tabLocationFor(currentLocation());
+    if (leftLocation) {
+      recordActiveTabLocation(leftLocation);
+    }
     selectMergedConfig();
     restoreTabLocation(MERGED_CONFIG_NODE_ID);
   }, [restoreTabLocation]);

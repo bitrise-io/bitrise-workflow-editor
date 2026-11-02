@@ -38,12 +38,13 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   }, [data?.resolvedInfo?.normalizedVersion]);
 
   if (!canChangeVersion) {
-    return <Input label="Version" placeholder="Always latest" isDisabled />;
+    return <Input size="md" label="Version" placeholder="Always latest" isDisabled />;
   }
 
   if (variant === 'select') {
     return (
       <Select
+        size="md"
         value={value}
         label="Version"
         backgroundSize="none"
@@ -64,6 +65,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 
   return (
     <Input
+      size="md"
       type="text"
       label="Version"
       defaultValue={value}
@@ -112,6 +114,7 @@ const PropertiesTab = () => {
         </BitkitLink>
       )}
       <Input
+        size="md"
         type="text"
         label="Title"
         defaultValue={title}

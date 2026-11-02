@@ -119,7 +119,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
         </Box>
         <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
           <Box display="flex" flexDirection="column" gap="16">
-            <Input label="Summary" {...register('opts.summary')} />
+            <Input size="md" label="Summary" {...register('opts.summary')} />
             <Textarea
               label="Value options"
               helperText="Add values as new lines."
@@ -130,7 +130,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
                 valueOptionsField.onChange(v ? v.split('\n') : []);
               }}
             />
-            <Input label="Category" {...register('opts.category')} />
+            <Input size="md" label="Category" {...register('opts.category')} />
             <Textarea label="Description" {...register('opts.description')} />
             <Checkbox
               isChecked={watch('opts.is_required')}

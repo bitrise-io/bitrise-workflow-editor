@@ -16,7 +16,7 @@ import FloatingDrawer, {
 import AlgoliaStepList from './components/AlgoliaStepList';
 import StepBundleFilter from './components/StepBundleFilter';
 import StepBundleList from './components/StepBundleList';
-import StepFilter from './components/StepFilter';
+import StepFilter, { StepFilterTags } from './components/StepFilter';
 import useSearch, { initializeSearchDefaults } from './hooks/useSearch';
 import { SelectStepHandlerFn } from './StepSelectorDrawer.types';
 
@@ -84,6 +84,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
           <FloatingDrawerBody pt="12">
             <TabPanels>
               <TabPanel>
+                <StepFilterTags marginBlockEnd="24" />
                 <AlgoliaStepList
                   enabledSteps={stepLimitReached ? enabledSteps : undefined}
                   onSelectStep={onSelectStep}

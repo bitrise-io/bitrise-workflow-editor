@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { markFloatingDrawerSwitch } from '@/components/unified-editor/FloatingDrawer/drawerSwitch';
 import { SelectionParent } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 
 export enum StepBundlesPageDialogType {
@@ -8,6 +9,8 @@ export enum StepBundlesPageDialogType {
   STEP_BUNDLE,
   STEP_CONFIG,
   STEP_SELECTOR,
+  // The page's own Step bundle (its definition), as opposed to STEP_BUNDLE, a bundle used inside it.
+  STEP_BUNDLE_DEFINITION,
 }
 
 type DialogParams = {
@@ -23,6 +26,8 @@ type State = {
   openedDialogType: StepBundlesPageDialogType;
   mountedDialogType: StepBundlesPageDialogType;
   _nextDialog?: DialogParams;
+  // Between one dialog closing and the one replacing it opening (a frame).
+  isSwitchingDialog: boolean;
   stepBundleId: string;
   selectionParent?: SelectionParent;
 };
@@ -40,6 +45,7 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   selectedStepIndices: [],
   stepBundleId: '',
   newStepBundleId: '',
+  isSwitchingDialog: false,
   openedDialogType: StepBundlesPageDialogType.NONE,
   mountedDialogType: StepBundlesPageDialogType.NONE,
   selectionParent: undefined,
@@ -57,24 +63,32 @@ export const useStepBundlesPageStore = create<State & Action>((set, get) => ({
   openDialog: ({ type, selectedStepIndices, stepBundleId, newStepBundleId, selectionParent }) => {
     return () => {
       return set((state) => {
-        const { openedDialogType, closeDialog, selectionParent: stateSelectionParent } = state;
+        const { openedDialogType, selectionParent: stateSelectionParent } = state;
         if (openedDialogType !== StepBundlesPageDialogType.NONE) {
-          closeDialog();
+          // Replacing an open dialog: swap it in place on the next frame rather than sliding
+          // this one out and the next one in.
+          const next = {
+            type,
+            selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
+            stepBundleId,
+            newStepBundleId,
+            selectionParent: selectionParent || stateSelectionParent,
+          };
+          markFloatingDrawerSwitch();
+          requestAnimationFrame(() => get().openDialog(next)());
 
           return {
-            _nextDialog: {
-              type,
-              selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
-              stepBundleId,
-              newStepBundleId,
-              selectionParent: selectionParent || stateSelectionParent,
-            },
+            _nextDialog: undefined,
+            openedDialogType: StepBundlesPageDialogType.NONE,
+            mountedDialogType: StepBundlesPageDialogType.NONE,
+            isSwitchingDialog: true,
           };
         }
 
         return {
           selectedStepIndices: selectedStepIndices || state.selectedStepIndices,
           _nextDialog: undefined,
+          isSwitchingDialog: false,
           openedDialogType: type,
           mountedDialogType: type,
           stepBundleId,

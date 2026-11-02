@@ -15,34 +15,71 @@ import {
   ModalOverlayProps,
   useBreakpointValue,
 } from 'chakra-ui-2--react';
-import { createContext, useContext, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-type FloatingDrawerProps = Omit<DrawerProps, 'size'> & {
-  size?: 'md' | 'lg';
+import { isFloatingDrawerSwitch } from './drawerSwitch';
+
+type FloatingDrawerProps = Omit<DrawerProps, 'size'>;
+
+// Every entity's drawer (Workflow, Step, Step bundle, Pipeline, …) is the same width, so moving between
+// them never resizes the panel. Pages that keep content beside a drawer reserve this much room.
+const FLOATING_DRAWER_WIDTH = 'clamp(420px, 40vw, 700px)';
+
+// The same width in pixels plus the drawer's 16px margin: how much of the page's right side an open
+// drawer covers. Below the tablet breakpoint the drawer comes up from the bottom instead, covering none.
+const floatingDrawerCoveredWidth = () =>
+  window.innerWidth < 768 ? 0 : Math.min(Math.max(420, window.innerWidth * 0.4), 700) + 16;
+
+// A click anywhere else in the editor closes the drawer. The drawer, its menus, tooltips and confirmation
+// dialogs are portalled out of #root, so clicks on them never count. The close waits for the click to do
+// its own thing first: if that opened another drawer, this one is already on its way out (they swap in
+// place) and stays out of the way. A drag to pan a canvas isn't a click.
+const useCloseOnClickOutside = (isOpen: boolean, onClose: () => void) => {
+  const isOpenRef = useRef(isOpen);
+  useLayoutEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const handleClick = (event: MouseEvent) => {
+      if (!(event.target as Element | null)?.closest('#root')) {
+        return;
+      }
+      timer = setTimeout(() => {
+        if (isOpenRef.current) {
+          onClose();
+        }
+      });
+    };
+    document.addEventListener('click', handleClick, true);
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+      clearTimeout(timer);
+    };
+  }, [isOpen, onClose]);
 };
 
-const FloatingDrawerContext = createContext<Required<Pick<FloatingDrawerProps, 'size'>>>({ size: 'md' });
-const useFloatingDrawerContext = () => useContext(FloatingDrawerContext);
-
-const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps) => {
-  const providerProps = useMemo(() => ({ size }), [size]);
+const FloatingDrawer = ({ children, ...props }: FloatingDrawerProps) => {
+  useCloseOnClickOutside(props.isOpen, props.onClose);
   const placement = useBreakpointValue<DrawerProps['placement']>({ base: 'bottom', tablet: 'right' }, { ssr: false });
 
   return (
-    <FloatingDrawerContext.Provider value={providerProps}>
-      <Drawer
-        isFullHeight
-        trapFocus={false}
-        placement={placement}
-        blockScrollOnMount={false}
-        closeOnOverlayClick={false}
-        {...props}
-      >
-        {/* NOTE: Without the overlay the close animation doesn't occur */}
-        <FloatingDrawerOverlay display="none" />
-        {children}
-      </Drawer>
-    </FloatingDrawerContext.Provider>
+    <Drawer
+      isFullHeight
+      trapFocus={false}
+      placement={placement}
+      blockScrollOnMount={false}
+      closeOnOverlayClick={false}
+      {...props}
+    >
+      {/* NOTE: Without the overlay the close animation doesn't occur */}
+      <FloatingDrawerOverlay display="none" />
+      {children}
+    </Drawer>
   );
 };
 
@@ -65,27 +102,18 @@ const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => 
   );
 };
 
-function getContentMaxWidth(size: 'md' | 'lg') {
-  switch (size) {
-    case 'lg':
-      return ['100%', 'clamp(420px, 55%, 1024px)'];
-    case 'md':
-    default:
-      return ['100%', 'clamp(420px, 40%, 700px)'];
-  }
-}
-
 const FloatingDrawerContent = (props: DrawerContentProps) => {
   const containerProps = useMemo<HTMLChakraProps<'div'>>(() => ({ display: 'contents' }), []);
-  const { size } = useFloatingDrawerContext();
-  const maxW = getContentMaxWidth(size);
+  // Decided once, on mount: a drawer that replaces another appears in place.
+  const [isSwappedIn] = useState(isFloatingDrawerSwitch);
+  const motionProps = useMemo(() => (isSwappedIn ? { initial: false as const } : undefined), [isSwappedIn]);
 
   return (
     <DrawerContent
       zIndex="fullDialog"
       top={0}
       gap={0}
-      maxW={maxW}
+      maxW={['100%', FLOATING_DRAWER_WIDTH]}
       padding={0}
       display="flex"
       flexDir="column"
@@ -94,9 +122,11 @@ const FloatingDrawerContent = (props: DrawerContentProps) => {
       border="1px solid"
       borderColor="border/regular"
       margin={[0, 16]}
-      marginTop={[0, 72]}
+      // 8px higher than the tab line's top edge, so the drawer reads as floating above the page.
+      marginTop={[0, 64]}
       borderRadius={[0, 12]}
       containerProps={containerProps}
+      motionProps={motionProps}
       {...props}
     />
   );
@@ -111,9 +141,11 @@ const FloatingDrawerBody = (props: ModalBodyProps) => {
 };
 
 export {
+  FLOATING_DRAWER_WIDTH,
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
+  floatingDrawerCoveredWidth,
   FloatingDrawerHeader,
   FloatingDrawerProps,
 };

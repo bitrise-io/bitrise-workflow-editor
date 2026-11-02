@@ -44,8 +44,7 @@ export const Empty: Story = {
 };
 
 // A cross-file ("ghost") workflow: defined in another module, so it can't be edited here. The card
-// renders with the subtler `minElevated` look (border/minimal + small shadow, no background tint)
-// and a jump-to-definition button instead of the editable chrome.
+// looks like any other, with a jump-to-definition button instead of the editable chrome.
 const GHOST_ROOT: TreeNode = {
   nodeId: 'n_root',
   path: 'bitrise.yml',

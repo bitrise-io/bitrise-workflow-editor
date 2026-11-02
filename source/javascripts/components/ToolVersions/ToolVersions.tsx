@@ -3,7 +3,6 @@ import {
   BitkitButton,
   BitkitLink,
   BitkitLinkButton,
-  BitkitTooltip,
   IconFlutter,
   IconNodejs,
   IconOpenInNew,
@@ -16,6 +15,7 @@ import { Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import { ParsedToolVersion } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import useNavigation from '@/hooks/useNavigation';
@@ -141,18 +141,18 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
               ) : (
                 <>
                   Set up the first tool. Supports{' '}
-                  <BitkitTooltip text="Ruby">
+                  <LabelTooltip text="Ruby">
                     <IconRuby size="16" aria-label="Ruby" />
-                  </BitkitTooltip>{' '}
-                  <BitkitTooltip text="Flutter">
+                  </LabelTooltip>{' '}
+                  <LabelTooltip text="Flutter">
                     <IconFlutter size="16" aria-label="Flutter" />
-                  </BitkitTooltip>{' '}
-                  <BitkitTooltip text="Node.js">
+                  </LabelTooltip>{' '}
+                  <LabelTooltip text="Node.js">
                     <IconNodejs size="16" aria-label="Node.js" />
-                  </BitkitTooltip>{' '}
-                  <BitkitTooltip text="Python">
+                  </LabelTooltip>{' '}
+                  <LabelTooltip text="Python">
                     <IconPython size="16" aria-label="Python" />
-                  </BitkitTooltip>{' '}
+                  </LabelTooltip>{' '}
                   and many more.
                 </>
               )}

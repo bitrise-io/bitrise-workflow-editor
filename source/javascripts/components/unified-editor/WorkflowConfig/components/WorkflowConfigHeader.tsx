@@ -5,6 +5,7 @@ import { Text } from '@chakra-ui/react/text';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import LabelTooltip from '@/components/LabelTooltip';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -15,11 +16,12 @@ import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig
 
 type Props = {
   variant: 'panel' | 'drawer';
+  withExplain?: boolean;
   context: 'pipeline' | 'workflow';
   parentWorkflowId?: string;
 };
 
-const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
+const WorkflowConfigHeader = ({ variant, context, parentWorkflowId, withExplain = variant === 'panel' }: Props) => {
   const id = useWorkflowConfigId();
   const title = useWorkflowConfigContext((s) => s?.userValues?.title);
 
@@ -75,17 +77,18 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
             </Text>
           )}
         </div>
-        {isAIButtonVisible && variant === 'panel' && (
-          <BitkitButton
-            state={isAIButtonDisabled ? 'disabled' : undefined}
-            disabledReason={tooltipLabel}
-            icon={IconSparkleFilled}
-            size="sm"
-            variant="ai-secondary"
-            onClick={onAIButtonClick}
-          >
-            Explain
-          </BitkitButton>
+        {isAIButtonVisible && withExplain && (
+          <LabelTooltip text={tooltipLabel ?? ''} disabled={!tooltipLabel}>
+            <BitkitButton
+              state={isAIButtonDisabled ? 'disabled' : undefined}
+              icon={IconSparkleFilled}
+              size="sm"
+              variant="ai-secondary"
+              onClick={onAIButtonClick}
+            >
+              Explain
+            </BitkitButton>
+          </LabelTooltip>
         )}
       </Box>
       <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">

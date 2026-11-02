@@ -1,8 +1,8 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
-import { BitkitHeading, BitkitLink } from '@bitrise/bitkit-v2';
-import { Text } from '@chakra-ui/react/text';
+import { BitkitLink } from '@bitrise/bitkit-v2';
 import { useEffect } from 'react';
 
+import ToolPageHeading from '@/components/Navigation/ToolPageHeading';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
 import GlobalProps from '@/core/utils/GlobalProps';
@@ -63,25 +63,21 @@ const ContainersPage = () => {
 
   return (
     <>
-      <BitkitHeading paddingBlockStart="32" paddingInline="32" marginBlockEnd="4" data-clarity-unmask="true">
-        Containers
-      </BitkitHeading>
-      <Text
-        textStyle="body/md/regular"
-        color="text/secondary"
-        paddingBlockEnd="24"
-        paddingInline="32"
-        data-clarity-unmask="true"
-      >
-        Create custom environments and services for your Workflows.{' '}
-        <BitkitLink
-          colorVariant="purple"
-          isExternal
-          href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html"
-        >
-          Learn more
-        </BitkitLink>
-      </Text>
+      <ToolPageHeading
+        label="Containers"
+        helperText={
+          <>
+            Create custom environments and services for your Workflows.{' '}
+            <BitkitLink
+              colorVariant="purple"
+              isExternal
+              href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html"
+            >
+              Learn more
+            </BitkitLink>
+          </>
+        }
+      />
       <Tabs index={tabIndex} onChange={onTabChange}>
         {/* The badges carry a bare count of container definitions — no ids, images or workflow
             names — so the tab strip counts as chrome rather than customer data. */}

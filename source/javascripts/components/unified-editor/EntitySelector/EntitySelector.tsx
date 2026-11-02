@@ -1,8 +1,9 @@
 import { Button, Dropdown, DropdownGroup, DropdownOption, DropdownProps, DropdownSearch } from '@bitrise/bitkit';
-import { BitkitEmptyState, BitkitTooltip, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { BitkitEmptyState, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useMemo, useRef, useState } from 'react';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
@@ -49,9 +50,9 @@ const CreateWithAIButton = ({
   );
 
   return tooltipLabel ? (
-    <BitkitTooltip text={tooltipLabel} wrapTrigger>
+    <LabelTooltip text={tooltipLabel} wrapTrigger>
       {button}
-    </BitkitTooltip>
+    </LabelTooltip>
   ) : (
     button
   );

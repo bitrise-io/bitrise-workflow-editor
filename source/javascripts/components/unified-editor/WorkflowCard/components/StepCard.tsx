@@ -4,7 +4,6 @@ import {
   BitkitColorButton,
   BitkitList,
   BitkitSkeletonGroup,
-  BitkitTooltip,
   IconContainer,
   IconErrorCircleFilled,
   IconWarningYellow,
@@ -20,6 +19,7 @@ import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import LabelTooltip from '@/components/LabelTooltip';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
 import { ContainerType } from '@/core/models/Container';
 import { Step } from '@/core/models/Step';
@@ -45,17 +45,17 @@ const StepSecondaryText = ({ errorText, isUpgradable, resolvedVersion }: StepSec
 
   if (errorText) {
     icon = (
-      <BitkitTooltip text={errorText} wrapTrigger>
+      <LabelTooltip text={errorText} wrapTrigger wrapperProps={{ display: 'flex' }}>
         <IconErrorCircleFilled marginInlineStart="4" size="16" color="icon/negative" />
-      </BitkitTooltip>
+      </LabelTooltip>
     );
   }
 
   if (isUpgradable && !icon) {
     icon = (
-      <BitkitTooltip text="New version is available" wrapTrigger>
+      <LabelTooltip text="New version is available" wrapTrigger wrapperProps={{ display: 'flex' }}>
         <IconWarningYellow marginInlineStart="4" size="16" />
-      </BitkitTooltip>
+      </LabelTooltip>
     );
   }
 

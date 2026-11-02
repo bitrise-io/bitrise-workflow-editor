@@ -13,6 +13,7 @@ const PriorityInput = (props: PriorityInputProps) => {
   const { onChange, value, helperText, ...rest } = props;
   return (
     <BitkitNumberInput
+      size="md"
       helperText={
         <>
           {helperText}{' '}

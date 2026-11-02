@@ -1,6 +1,7 @@
 import { BitkitButton, BitkitEmptyState, IconPlus, IconSparkleFilled, IconWorkflow } from '@bitrise/bitkit-v2';
 import { ButtonGroup } from '@chakra-ui/react/button';
 
+import LabelTooltip from '@/components/LabelTooltip';
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
@@ -32,16 +33,17 @@ const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => {
       {!isReadOnlyView && (
         <ButtonGroup gap="24">
           {isAIButtonVisible && (
-            <BitkitButton
-              state={isAIButtonDisabled ? 'disabled' : undefined}
-              disabledReason={tooltipLabel}
-              icon={IconSparkleFilled}
-              size="md"
-              variant="ai-primary"
-              onClick={onAIButtonClick}
-            >
-              Create Workflow with AI
-            </BitkitButton>
+            <LabelTooltip text={tooltipLabel ?? ''} disabled={!tooltipLabel}>
+              <BitkitButton
+                state={isAIButtonDisabled ? 'disabled' : undefined}
+                icon={IconSparkleFilled}
+                size="md"
+                variant="ai-primary"
+                onClick={onAIButtonClick}
+              >
+                Create Workflow with AI
+              </BitkitButton>
+            </LabelTooltip>
           )}
           <BitkitButton icon={IconPlus} size="md" onClick={onCreateWorkflow} variant="secondary">
             Create Workflow manually
