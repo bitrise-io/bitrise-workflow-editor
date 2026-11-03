@@ -1,6 +1,7 @@
-import { Checkbox, Dropdown, DropdownDetailedOption, DropdownGroup } from '@bitrise/bitkit';
+import { Dropdown, DropdownDetailedOption, DropdownGroup } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
+  BitkitCheckbox,
   BitkitIconComponent,
   BitkitLink,
   BitkitTooltip,
@@ -133,13 +134,16 @@ const StackSelector = ({
         text="Stack rollback is not available when your workspace is configured to use external hosts only."
       >
         <Box display="inline-block" marginBlockStart="16">
-          <Checkbox
-            isDisabled={isRollbackDisabled || isDisabled}
-            isChecked={!isRollbackDisabled && useRollbackVersion}
-            onChange={(e) => onChange(stack.value, e.target.checked)}
-          >
-            Use previous stack version <PreviousStackVersionTip disabled={!!disableRollbackOption} />
-          </Checkbox>
+          <BitkitCheckbox
+            labelText={
+              <>
+                Use previous stack version <PreviousStackVersionTip disabled={!!disableRollbackOption} />
+              </>
+            }
+            state={isRollbackDisabled || isDisabled ? 'disabled' : undefined}
+            checked={!isRollbackDisabled && !!useRollbackVersion}
+            onCheckedChange={({ checked }) => onChange(stack.value, checked === true)}
+          />
         </Box>
       </BitkitTooltip>
     </Box>
