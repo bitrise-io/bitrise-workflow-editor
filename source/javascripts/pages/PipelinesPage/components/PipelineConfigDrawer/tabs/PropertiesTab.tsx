@@ -1,5 +1,4 @@
-import { Textarea } from '@bitrise/bitkit';
-import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitTextArea, IconTrash } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useCallback } from 'react';
@@ -60,12 +59,13 @@ const SummaryInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
   const defaultValue = getBitriseYml().pipelines?.[pipelineId]?.summary || '';
 
   return (
-    <Textarea
-      name="summary"
+    <BitkitTextArea
+      optional
       label="Summary"
-      defaultValue={defaultValue}
-      isDisabled={isReadOnlyView}
-      onChange={(e) => PipelineService.updatePipelineField(pipelineId, 'summary', e.target.value)}
+      size="md"
+      state={isReadOnlyView ? 'disabled' : undefined}
+      textareaProps={{ name: 'summary', defaultValue }}
+      onValueChange={(value) => PipelineService.updatePipelineField(pipelineId, 'summary', value)}
     />
   );
 };
@@ -75,12 +75,13 @@ const DescriptionInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
   const defaultValue = getBitriseYml().pipelines?.[pipelineId]?.description || '';
 
   return (
-    <Textarea
-      name="description"
+    <BitkitTextArea
+      optional
       label="Description"
-      defaultValue={defaultValue}
-      isDisabled={isReadOnlyView}
-      onChange={(e) => PipelineService.updatePipelineField(pipelineId, 'description', e.target.value)}
+      size="md"
+      state={isReadOnlyView ? 'disabled' : undefined}
+      textareaProps={{ name: 'description', defaultValue }}
+      onValueChange={(value) => PipelineService.updatePipelineField(pipelineId, 'description', value)}
     />
   );
 };

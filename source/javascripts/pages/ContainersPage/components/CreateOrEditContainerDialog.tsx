@@ -1,4 +1,4 @@
-import { Collapse, Dialog, DialogBody, DialogFooter, DialogProps, Textarea } from '@bitrise/bitkit';
+import { Collapse, Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
@@ -6,6 +6,7 @@ import {
   BitkitHeading,
   BitkitLink,
   BitkitLinkButton,
+  BitkitTextArea,
   BitkitTextInput,
   IconPlus,
   IconTrash,
@@ -371,7 +372,8 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               control={control}
               name="userValues.options"
               render={({ field }) => (
-                <Textarea
+                <BitkitTextArea
+                  optional
                   label="Docker create options"
                   helperText={
                     <>
@@ -386,8 +388,8 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                     </>
                   }
                   placeholder='e.g. --privileged --health-cmd "redis-cli ping" --health-interval 1s --health-timeout 3s --health-retries 2'
-                  isDisabled={readOnly}
-                  {...field}
+                  state={readOnly ? 'disabled' : undefined}
+                  textareaProps={field}
                 />
               )}
             />

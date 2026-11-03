@@ -1,9 +1,7 @@
-import { Textarea } from '@bitrise/bitkit';
-import { BitkitButton, IconTrash } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitTextArea, IconTrash } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
-import { ChangeEventHandler } from 'react';
 
 import EditableInput from '@/components/EditableInput/EditableInput';
 import WorkflowService from '@/core/services/WorkflowService';
@@ -48,20 +46,39 @@ const NameInput = ({ onRename, isDisabled }: Pick<Props, 'onRename'> & { isDisab
 
 const SummaryInput = ({ workflowId, isDisabled }: { workflowId: string; isDisabled?: boolean }) => {
   const value = useWorkflowConfigContext((s) => s?.userValues?.summary || '');
-  const handleOnChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    WorkflowService.updateWorkflowField(workflowId, 'summary', e.target.value);
+  const handleValueChange = (newValue: string) => {
+    WorkflowService.updateWorkflowField(workflowId, 'summary', newValue);
   };
 
-  return <Textarea key={workflowId} label="Summary" value={value} isDisabled={isDisabled} onChange={handleOnChange} />;
+  return (
+    <BitkitTextArea
+      key={workflowId}
+      optional
+      label="Summary"
+      size="md"
+      value={value}
+      state={isDisabled ? 'disabled' : undefined}
+      onValueChange={handleValueChange}
+    />
+  );
 };
 
 const DescriptionInput = ({ workflowId, isDisabled }: { workflowId: string; isDisabled?: boolean }) => {
   const value = useWorkflowConfigContext((s) => s?.userValues?.description || '');
-  const handleOnChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    WorkflowService.updateWorkflowField(workflowId, 'description', e.target.value);
+  const handleValueChange = (newValue: string) => {
+    WorkflowService.updateWorkflowField(workflowId, 'description', newValue);
   };
 
-  return <Textarea label="Description" value={value} isDisabled={isDisabled} onChange={handleOnChange} />;
+  return (
+    <BitkitTextArea
+      optional
+      label="Description"
+      size="md"
+      value={value}
+      state={isDisabled ? 'disabled' : undefined}
+      onValueChange={handleValueChange}
+    />
+  );
 };
 
 const Priority = ({ workflowId, isDisabled }: { workflowId: string; isDisabled?: boolean }) => {

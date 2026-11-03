@@ -1,10 +1,11 @@
-import { Dialog, DialogBody, DialogFooter, IconButton, Textarea, Toggletip } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, IconButton, Toggletip } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitBadge,
   BitkitButton,
   BitkitCheckbox,
   BitkitIconButton,
+  BitkitTextArea,
   BitkitTextInput,
   IconEye,
   IconEyeSlash,
@@ -125,17 +126,13 @@ const SecretCard = (props: SecretCardProps) => {
     }
     if (secret.isEditing) {
       return (
-        <Textarea
-          sx={{
-            '& textarea': {
-              minHeight: '40',
-              height: '40',
-              paddingTop: '8',
-              paddingX: '11px',
-              fontSize: '2',
-            },
-          }}
-          {...register('value', { required: 'This field is required.' })}
+        <BitkitTextArea
+          label="Value"
+          labelHidden
+          size="md"
+          rows={1}
+          errorText={errors.value?.message}
+          textareaProps={register('value', { required: 'This field is required.' })}
         />
       );
     }
@@ -155,148 +152,143 @@ const SecretCard = (props: SecretCardProps) => {
   return (
     <Card.Root marginBlockEnd="16" paddingSize="md">
       <Card.Body>
-        <Box
-          as="form"
-          onSubmit={handleSubmit(onFormSubmit)}
-          width="100%"
-          display="flex"
-          gap="12"
-          flexDirection="column"
-        >
-          <Box width="100%" display="flex" gap="8">
-            <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
-              <BitkitTextInput
-                optional
-                flexGrow="1"
-                size="md"
-                state={secret.isSaved ? 'readOnly' : undefined}
-                errorText={errors?.key?.message}
-                inputProps={register('key', {
-                  validate: (v) => !isKeyUsed(v) || 'This key is already used!',
-                })}
-              />
-              <Box as="span" lineHeight="40px">
-                =
+        <Box asChild width="100%" display="flex" gap="12" flexDirection="column">
+          <form noValidate onSubmit={handleSubmit(onFormSubmit)}>
+            <Box width="100%" display="flex" gap="8">
+              <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
+                <BitkitTextInput
+                  optional
+                  flexGrow="1"
+                  size="md"
+                  state={secret.isSaved ? 'readOnly' : undefined}
+                  errorText={errors?.key?.message}
+                  inputProps={register('key', {
+                    validate: (v) => !isKeyUsed(v) || 'This key is already used!',
+                  })}
+                />
+                <Box as="span" lineHeight="40px">
+                  =
+                </Box>
+                {secretValueElement()}
               </Box>
-              {secretValueElement()}
-            </Box>
-            {secret.isShared ? (
-              <Box width="88px" display="flex" alignItems="center" justifyContent="center">
-                <Toggletip
-                  trigger="hover"
-                  label="Shared resources are managed at Workspace settings."
-                  learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
-                  button={{ href: secretSettingsUrl, label: 'Go to settings' }}
-                >
-                  <BitkitBadge>Shared</BitkitBadge>
-                </Toggletip>
-              </Box>
-            ) : (
-              <>
-                {!secret.isEditing && (
-                  <Box display="flex">
-                    <IconButton
-                      size="md"
-                      iconSize="24"
-                      color="button/secondary"
-                      iconName="Pencil"
-                      aria-label="Edit secret"
-                      variant="tertiary"
-                      onClick={() => {
-                        setIsShown(true);
-                        onEdit?.(secret.key);
-                      }}
-                      marginLeft="8"
-                    />
-                    <IconButton
-                      size="md"
-                      iconSize="24"
-                      iconName="MinusCircle"
-                      aria-label="Delete secret"
-                      variant="tertiary"
-                      isDanger
-                      onClick={() => onDelete(secret.key)}
-                    />
-                  </Box>
-                )}
-              </>
-            )}
-          </Box>
-          {!secret.isEditing && (
-            <Text color="text/secondary">
-              {[
-                secret.isExpand ? 'Variables are replaced in inputs' : '',
-                secret.isExpose ? 'Exposed for pull requests' : '',
-                secret.isProtected ? 'Protected' : '',
-              ]
-                .filter((s) => s)
-                .join(' • ')}
-            </Text>
-          )}
-          {secret.isEditing && (
-            <Box display="flex" flexDirection="column" marginBlock="16" gap="16">
-              <Controller
-                control={control}
-                name="isExpand"
-                render={({ field }) => (
-                  <BitkitCheckbox
-                    labelText="Replace variables in inputs"
-                    helperText="Enable this if you want to replace Env Vars in your input with the assigned value."
-                    checked={!!field.value}
-                    name={field.name}
-                    state={secret.isProtected ? 'readOnly' : undefined}
-                    onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="isExpose"
-                render={({ field }) => (
-                  <BitkitCheckbox
-                    labelText="Expose for pull requests"
-                    helperText="Be careful, this is a potential security risk."
-                    checked={!!field.value}
-                    name={field.name}
-                    state={secret.isProtected ? 'readOnly' : undefined}
-                    onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="isProtected"
-                render={({ field }) => (
-                  <BitkitCheckbox
-                    labelText="Protected"
-                    helperText="Value cannot be revealed or changed. Irreversible once saved. Delete to replace."
-                    checked={!!field.value}
-                    name={field.name}
-                    state={secret.isProtected ? 'readOnly' : undefined}
-                    onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                  />
-                )}
-              />
-              {saveError && <BitkitAlert variant="critical" messageText="Error while updating secret!" />}
-              <Box display="flex" justifyContent="space-between">
-                <Box display="flex" gap="16">
-                  <BitkitButton
-                    type="submit"
-                    size="md"
-                    state={saveLoading ? 'loading' : !watch('key') || !watch('value') ? 'disabled' : undefined}
+              {secret.isShared ? (
+                <Box width="88px" display="flex" alignItems="center" justifyContent="center">
+                  <Toggletip
+                    trigger="hover"
+                    label="Shared resources are managed at Workspace settings."
+                    learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
+                    button={{ href: secretSettingsUrl, label: 'Go to settings' }}
                   >
-                    Save
-                  </BitkitButton>
-                  <BitkitButton onClick={onCancelClick} size="md" variant="secondary">
-                    Cancel
+                    <BitkitBadge>Shared</BitkitBadge>
+                  </Toggletip>
+                </Box>
+              ) : (
+                <>
+                  {!secret.isEditing && (
+                    <Box display="flex">
+                      <IconButton
+                        size="md"
+                        iconSize="24"
+                        color="button/secondary"
+                        iconName="Pencil"
+                        aria-label="Edit secret"
+                        variant="tertiary"
+                        onClick={() => {
+                          setIsShown(true);
+                          onEdit?.(secret.key);
+                        }}
+                        marginLeft="8"
+                      />
+                      <IconButton
+                        size="md"
+                        iconSize="24"
+                        iconName="MinusCircle"
+                        aria-label="Delete secret"
+                        variant="tertiary"
+                        isDanger
+                        onClick={() => onDelete(secret.key)}
+                      />
+                    </Box>
+                  )}
+                </>
+              )}
+            </Box>
+            {!secret.isEditing && (
+              <Text color="text/secondary">
+                {[
+                  secret.isExpand ? 'Variables are replaced in inputs' : '',
+                  secret.isExpose ? 'Exposed for pull requests' : '',
+                  secret.isProtected ? 'Protected' : '',
+                ]
+                  .filter((s) => s)
+                  .join(' • ')}
+              </Text>
+            )}
+            {secret.isEditing && (
+              <Box display="flex" flexDirection="column" marginBlock="16" gap="16">
+                <Controller
+                  control={control}
+                  name="isExpand"
+                  render={({ field }) => (
+                    <BitkitCheckbox
+                      labelText="Replace variables in inputs"
+                      helperText="Enable this if you want to replace Env Vars in your input with the assigned value."
+                      checked={!!field.value}
+                      name={field.name}
+                      state={secret.isProtected ? 'readOnly' : undefined}
+                      onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="isExpose"
+                  render={({ field }) => (
+                    <BitkitCheckbox
+                      labelText="Expose for pull requests"
+                      helperText="Be careful, this is a potential security risk."
+                      checked={!!field.value}
+                      name={field.name}
+                      state={secret.isProtected ? 'readOnly' : undefined}
+                      onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="isProtected"
+                  render={({ field }) => (
+                    <BitkitCheckbox
+                      labelText="Protected"
+                      helperText="Value cannot be revealed or changed. Irreversible once saved. Delete to replace."
+                      checked={!!field.value}
+                      name={field.name}
+                      state={secret.isProtected ? 'readOnly' : undefined}
+                      onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                    />
+                  )}
+                />
+                {saveError && <BitkitAlert variant="critical" messageText="Error while updating secret!" />}
+                <Box display="flex" justifyContent="space-between">
+                  <Box display="flex" gap="16">
+                    <BitkitButton
+                      type="submit"
+                      size="md"
+                      state={saveLoading ? 'loading' : !watch('key') || !watch('value') ? 'disabled' : undefined}
+                    >
+                      Save
+                    </BitkitButton>
+                    <BitkitButton onClick={onCancelClick} size="md" variant="secondary">
+                      Cancel
+                    </BitkitButton>
+                  </Box>
+                  <BitkitButton size="md" variant="danger-secondary" onClick={() => onDelete(secret.key)}>
+                    Delete secret
                   </BitkitButton>
                 </Box>
-                <BitkitButton size="md" variant="danger-secondary" onClick={() => onDelete(secret.key)}>
-                  Delete secret
-                </BitkitButton>
               </Box>
-            </Box>
-          )}
+            )}
+          </form>
         </Box>
       </Card.Body>
 

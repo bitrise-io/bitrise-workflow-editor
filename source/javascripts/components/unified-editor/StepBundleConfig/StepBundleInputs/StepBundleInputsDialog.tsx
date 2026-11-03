@@ -1,10 +1,9 @@
-import { Collapse, Dialog, DialogBody, DialogFooter, Textarea } from '@bitrise/bitkit';
-import { BitkitButton, BitkitCheckbox, BitkitLinkButton, BitkitTextInput } from '@bitrise/bitkit-v2';
+import { Collapse, Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
+import { BitkitButton, BitkitCheckbox, BitkitLinkButton, BitkitTextArea, BitkitTextInput } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
-import { ChangeEvent } from 'react';
 import { Controller, useController, useForm } from 'react-hook-form';
 
 import { EnvironmentItemModel } from '@/core/models/BitriseYml';
@@ -122,18 +121,21 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
         <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
           <Box display="flex" flexDirection="column" gap="16">
             <BitkitTextInput optional label="Summary" inputProps={register('opts.summary')} />
-            <Textarea
+            <BitkitTextArea
+              optional
               label="Value options"
               helperText="Add values as new lines."
-              {...valueOptionsField}
-              value={valueOptionsField.value?.join('\n')}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
-                const v = e.target.value.trimStart();
-                valueOptionsField.onChange(v ? v.split('\n') : []);
+              textareaProps={{
+                ...valueOptionsField,
+                value: valueOptionsField.value?.join('\n'),
+                onChange: (e) => {
+                  const v = e.target.value.trimStart();
+                  valueOptionsField.onChange(v ? v.split('\n') : []);
+                },
               }}
             />
             <BitkitTextInput optional label="Category" inputProps={register('opts.category')} />
-            <Textarea label="Description" {...register('opts.description')} />
+            <BitkitTextArea optional label="Description" textareaProps={register('opts.description')} />
             <Controller
               control={control}
               name="opts.is_required"
