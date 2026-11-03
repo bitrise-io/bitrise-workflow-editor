@@ -1,9 +1,9 @@
-import { Checkbox, Input } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
+import { Input } from '@bitrise/bitkit';
+import { BitkitButton, BitkitCheckbox } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { Secret } from '@/core/models/Secret';
@@ -17,11 +17,12 @@ type Props = {
 
 const CreateSecret = ({ onCreate, onCancel }: Props) => {
   const {
+    control,
     register,
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<Secret>();
+  } = useForm<Secret>({ defaultValues: { isExpand: false, isExpose: false } });
 
   const handleCancel = () => {
     onCancel();
@@ -68,12 +69,32 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
           />
         </Box>
         <Box display="flex" gap="24" marginBlockStart="16">
-          <Checkbox {...register('isExpand')} flex="1">
-            Replace variables in inputs
-          </Checkbox>
-          <Checkbox {...register('isExpose')} flex="1">
-            Expose for Pull Requests
-          </Checkbox>
+          <Controller
+            control={control}
+            name="isExpand"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Replace variables in inputs"
+                flex="1"
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="isExpose"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Expose for Pull Requests"
+                flex="1"
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
         </Box>
       </Box>
       <ButtonGroup gap="12">
