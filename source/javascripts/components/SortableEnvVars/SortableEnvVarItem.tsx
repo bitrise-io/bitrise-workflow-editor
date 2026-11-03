@@ -1,5 +1,4 @@
-import { Checkbox } from '@bitrise/bitkit';
-import { BitkitControlButton, BitkitTextInput, IconDollar, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { BitkitCheckbox, BitkitControlButton, BitkitTextInput, IconDollar, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -134,13 +133,12 @@ const SortableEnvVarItem = ({
             />
           )}
         </Box>
-        <Checkbox
-          isChecked={env.isExpand !== false}
-          isDisabled={isReadOnlyView}
-          onChange={(e) => handleIsExpandChange(e.target.checked)}
-        >
-          Replace variables in inputs
-        </Checkbox>
+        <BitkitCheckbox
+          labelText="Replace variables in inputs"
+          checked={env.isExpand !== false}
+          state={isReadOnlyView ? 'disabled' : undefined}
+          onCheckedChange={({ checked }) => handleIsExpandChange(checked === true)}
+        />
       </Box>
     </Box>
   );

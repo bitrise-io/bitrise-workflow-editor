@@ -1,8 +1,9 @@
-import { Checkbox, Dialog, DialogBody, DialogFooter, IconButton, Textarea, Toggletip } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter, IconButton, Textarea, Toggletip } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitBadge,
   BitkitButton,
+  BitkitCheckbox,
   BitkitIconButton,
   BitkitTextInput,
   IconEye,
@@ -14,7 +15,7 @@ import { Card } from '@chakra-ui/react/card';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
 import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import { Secret } from '@/core/models/Secret';
 import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
@@ -72,6 +73,7 @@ const SecretCard = (props: SecretCardProps) => {
   }, [fetchedSecretValue, isShown, secret.isEditing, secret.isProtected, secret.value]);
 
   const {
+    control,
     register,
     watch,
     handleSubmit,
@@ -233,45 +235,48 @@ const SecretCard = (props: SecretCardProps) => {
           )}
           {secret.isEditing && (
             <Box display="flex" flexDirection="column" marginBlock="16" gap="16">
-              <Checkbox
-                isChecked={watch('isExpand')}
-                {...register('isExpand')}
-                isReadOnly={secret.isProtected}
-                style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
-              >
-                <Box display="flex" flexDirection="column">
-                  <Text textStyle="body/lg/regular">Replace variables in inputs</Text>
-                  <Text textStyle="body/sm/regular" color="text/helper">
-                    Enable this if you want to replace Env Vars in your input with the assigned value.
-                  </Text>
-                </Box>
-              </Checkbox>
-              <Checkbox
-                isChecked={watch('isExpose')}
-                {...register('isExpose')}
-                isReadOnly={secret.isProtected}
-                style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
-              >
-                <Box display="flex" flexDirection="column">
-                  <Text textStyle="body/lg/regular">Expose for pull requests</Text>
-                  <Text textStyle="body/sm/regular" color="text/helper">
-                    Be careful, this is a potential security risk.
-                  </Text>
-                </Box>
-              </Checkbox>
-              <Checkbox
-                isChecked={watch('isProtected')}
-                {...register('isProtected')}
-                isReadOnly={secret.isProtected}
-                style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
-              >
-                <Box display="flex" flexDirection="column">
-                  <Text textStyle="body/lg/regular">Protected</Text>
-                  <Text textStyle="body/sm/regular" color="text/helper">
-                    Value cannot be revealed or changed. Irreversible once saved. Delete to replace.
-                  </Text>
-                </Box>
-              </Checkbox>
+              <Controller
+                control={control}
+                name="isExpand"
+                render={({ field }) => (
+                  <BitkitCheckbox
+                    labelText="Replace variables in inputs"
+                    helperText="Enable this if you want to replace Env Vars in your input with the assigned value."
+                    checked={!!field.value}
+                    name={field.name}
+                    state={secret.isProtected ? 'readOnly' : undefined}
+                    onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="isExpose"
+                render={({ field }) => (
+                  <BitkitCheckbox
+                    labelText="Expose for pull requests"
+                    helperText="Be careful, this is a potential security risk."
+                    checked={!!field.value}
+                    name={field.name}
+                    state={secret.isProtected ? 'readOnly' : undefined}
+                    onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="isProtected"
+                render={({ field }) => (
+                  <BitkitCheckbox
+                    labelText="Protected"
+                    helperText="Value cannot be revealed or changed. Irreversible once saved. Delete to replace."
+                    checked={!!field.value}
+                    name={field.name}
+                    state={secret.isProtected ? 'readOnly' : undefined}
+                    onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                  />
+                )}
+              />
               {saveError && <BitkitAlert variant="critical" messageText="Error while updating secret!" />}
               <Box display="flex" justifyContent="space-between">
                 <Box display="flex" gap="16">
