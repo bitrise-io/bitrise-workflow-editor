@@ -1,7 +1,7 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitHeading, BitkitLinkButton, IconWarningYellow } from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitHeading, BitkitLinkButton, BitkitTabs, IconWarningYellow } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
+import { useState } from 'react';
 import semver from 'semver';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -35,6 +35,8 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
   const latestVersion = data?.resolvedInfo?.latestVersion || '0.0.0';
   const latestMajorVersion = VersionUtils.normalizeVersion(semver.major(latestVersion).toString());
   const stepHasOutputVariables = Boolean(data?.mergedValues?.outputs?.length ?? 0);
+  const [selectedTab, setSelectedTab] = useState('configuration');
+  const tabId = selectedTab === 'output-variables' && !stepHasOutputVariables ? 'configuration' : selectedTab;
 
   const isUpgradable = VersionUtils.hasVersionUpgrade(
     data?.resolvedInfo?.normalizedVersion,
@@ -42,7 +44,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
   );
 
   return (
-    <Tabs>
+    <BitkitTabs.Root value={tabId} onValueChange={({ value }) => setSelectedTab(value)}>
       <FloatingDrawer {...props}>
         <FloatingDrawerContent>
           <FloatingDrawerCloseButton />
@@ -87,36 +89,36 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 </Box>
               </Box>
             </Box>
-            <Box position="relative" marginBlockStart="8" marginInline="-24">
-              <TabList paddingX="8" data-clarity-unmask="true">
-                <Tab>Configuration</Tab>
-                <Tab>Properties</Tab>
-                {stepHasOutputVariables && <Tab>Output variables</Tab>}
-                <Tab>Containers</Tab>
-              </TabList>
-            </Box>
+            <BitkitTabs.List marginBlockStart="8" marginInline="-24" paddingInline="8" data-clarity-unmask="true">
+              <BitkitTabs.Trigger value="configuration">Configuration</BitkitTabs.Trigger>
+              <BitkitTabs.Trigger value="properties">Properties</BitkitTabs.Trigger>
+              {stepHasOutputVariables && (
+                <BitkitTabs.Trigger value="output-variables">Output variables</BitkitTabs.Trigger>
+              )}
+              <BitkitTabs.Trigger value="containers">Containers</BitkitTabs.Trigger>
+            </BitkitTabs.List>
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <TabPanels>
-              <TabPanel>
+            <BitkitTabs.ContentGroup>
+              <BitkitTabs.Content value="configuration">
                 <ConfigurationTab />
-              </TabPanel>
-              <TabPanel>
+              </BitkitTabs.Content>
+              <BitkitTabs.Content value="properties">
                 <PropertiesTab />
-              </TabPanel>
+              </BitkitTabs.Content>
               {stepHasOutputVariables && (
-                <TabPanel>
+                <BitkitTabs.Content value="output-variables">
                   <OutputVariablesTab />
-                </TabPanel>
+                </BitkitTabs.Content>
               )}
-              <TabPanel>
+              <BitkitTabs.Content value="containers">
                 <StepContainersTab />
-              </TabPanel>
-            </TabPanels>
+              </BitkitTabs.Content>
+            </BitkitTabs.ContentGroup>
           </FloatingDrawerBody>
         </FloatingDrawerContent>
       </FloatingDrawer>
-    </Tabs>
+    </BitkitTabs.Root>
   );
 };
 

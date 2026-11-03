@@ -4,7 +4,7 @@
 /* eslint-disable testing-library/no-node-access --
  * The subject under test is a DOM attribute on a container, not user-facing behaviour, so there is
  * no semantic query that expresses it: `data-clarity-unmask` is invisible to the accessibility tree
- * and several of the tagged elements (Thead, TabList, DialogFooter, Box, Card) have no role or name
+ * and several of the tagged elements (Thead, BitkitTabs.List, DialogFooter, Box, Card) have no role or name
  * to query by. Attribute selectors and `closest()` are the assertion, not a shortcut around one. */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,10 +19,7 @@ import {
   ListItem,
   Provider,
   Sidebar,
-  Tab,
   Table,
-  TabList,
-  Tabs,
   Th,
   Thead,
   Tr,
@@ -37,6 +34,7 @@ import {
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
+  BitkitTabs,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
@@ -137,11 +135,6 @@ describe('Clarity unmasking', () => {
               </Tr>
             </Thead>
           </Table>
-          <Tabs>
-            <TabList data-clarity-unmask="true">
-              <Tab>tab label</Tab>
-            </TabList>
-          </Tabs>
           {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
           <Dialog isOpen title="dialog title" onClose={() => {}}>
             <DialogFooter data-clarity-unmask="true">
@@ -151,9 +144,9 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(10);
+      expect(unmasked()).toHaveLength(9);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['column header', 'tab label', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
+      ['column header', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -185,6 +178,11 @@ describe('Clarity unmasking', () => {
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
           <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
+          <BitkitTabs.Root defaultValue="tab">
+            <BitkitTabs.List data-clarity-unmask="true">
+              <BitkitTabs.Trigger value="tab">tab label</BitkitTabs.Trigger>
+            </BitkitTabs.List>
+          </BitkitTabs.Root>
           {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
               their remaining props onto the link they render, so the attribute reaches the DOM. That
               forwarding is what this asserts — a release that stopped doing it would silently
@@ -200,7 +198,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(10);
+      expect(unmasked()).toHaveLength(11);
       [
         'alert message',
         'segment label',
@@ -210,6 +208,7 @@ describe('Clarity unmasking', () => {
         'empty state',
         'ribbon message',
         'heading',
+        'tab label',
         'breadcrumb item',
         'breadcrumb current item',
       ].forEach((label) => {
