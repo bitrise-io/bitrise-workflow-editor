@@ -62,6 +62,7 @@ const SummaryInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
     <BitkitTextArea
       optional
       label="Summary"
+      size="md"
       state={isReadOnlyView ? 'disabled' : undefined}
       textareaProps={{ name: 'summary', defaultValue }}
       onValueChange={(value) => PipelineService.updatePipelineField(pipelineId, 'summary', value)}
@@ -77,6 +78,7 @@ const DescriptionInput = ({ pipelineId }: Pick<Props, 'pipelineId'>) => {
     <BitkitTextArea
       optional
       label="Description"
+      size="md"
       state={isReadOnlyView ? 'disabled' : undefined}
       textareaProps={{ name: 'description', defaultValue }}
       onValueChange={(value) => PipelineService.updatePipelineField(pipelineId, 'description', value)}

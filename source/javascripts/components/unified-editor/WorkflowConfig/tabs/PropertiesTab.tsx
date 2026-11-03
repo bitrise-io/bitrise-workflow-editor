@@ -55,6 +55,7 @@ const SummaryInput = ({ workflowId, isDisabled }: { workflowId: string; isDisabl
       key={workflowId}
       optional
       label="Summary"
+      size="md"
       value={value}
       state={isDisabled ? 'disabled' : undefined}
       onValueChange={handleValueChange}
@@ -72,6 +73,7 @@ const DescriptionInput = ({ workflowId, isDisabled }: { workflowId: string; isDi
     <BitkitTextArea
       optional
       label="Description"
+      size="md"
       value={value}
       state={isDisabled ? 'disabled' : undefined}
       onValueChange={handleValueChange}

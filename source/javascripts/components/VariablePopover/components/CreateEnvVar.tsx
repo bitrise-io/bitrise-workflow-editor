@@ -65,7 +65,7 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
             labelHidden
             placeholder="Enter value"
             errorText={errors.value?.message}
-            textareaProps={{ ...register('value'), ...ignore1PasswordProps, wrap: 'off' }}
+            textareaProps={{ ...register('value'), ...ignore1PasswordProps }}
           />
         </Box>
         <Controller

@@ -102,7 +102,7 @@ const StepInput = forwardRef<HTMLTextAreaElement, Props>(
           placeholder={defaultValue || (isSensitive ? 'Add secret' : 'Enter value')}
           errorText={validationErrorIfRequired(value, isRequired)}
           helperText={hasHelperText ? <StepHelperText {...(helper ?? { summary: helperText })} /> : undefined}
-          textareaProps={{ ...ignore1PasswordProps, name, wrap: 'off', fontFamily: 'mono', onBlur: handleBlur }}
+          textareaProps={{ ...ignore1PasswordProps, name, fontFamily: 'mono', onBlur: handleBlur }}
           onValueChange={handleValueChange}
         />
         {isEditable && (

@@ -16,7 +16,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import { useIsReadOnlyView } from '@/hooks/useTree';
-import ignore1Password, { ignore1PasswordProps } from '@/utils/ignore1Password';
+import ignore1Password from '@/utils/ignore1Password';
 
 export type SortableEnvVar = EnvVar & {
   uniqueId: string;
@@ -115,6 +115,7 @@ const SortableEnvVarItem = ({
             =
           </Text>
           <BitkitTextArea
+            ref={ignore1Password}
             optional
             flex="1"
             autoresize
@@ -125,7 +126,6 @@ const SortableEnvVarItem = ({
             placeholder="Enter value"
             value={env.value}
             state={isReadOnlyView ? 'disabled' : undefined}
-            textareaProps={{ ...ignore1PasswordProps, wrap: 'off' }}
             onValueChange={handleValueChange}
           />
           {isReadOnlyView && jumpButton ? (

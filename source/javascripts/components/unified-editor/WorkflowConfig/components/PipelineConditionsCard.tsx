@@ -92,6 +92,7 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
       optional
       value={value}
       label="Additional running conditions"
+      size="md"
       placeholder="Enter any valid Go template"
       helperText="Enter any valid Go template. The workflow will only be executed if this template evaluates to true. You can use our `getenv` and `enveq` functions for interacting with env vars."
       onValueChange={handleValueChange}

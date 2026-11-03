@@ -2,7 +2,7 @@
  * Ref callback that stops 1Password from offering to fill an input.
  * Shared so the ref keeps one identity across renders.
  */
-const ignore1Password = (input: HTMLInputElement | null) => {
+const ignore1Password = (input: HTMLInputElement | HTMLTextAreaElement | null) => {
   input?.setAttribute('data-1p-ignore', '');
 };
 
