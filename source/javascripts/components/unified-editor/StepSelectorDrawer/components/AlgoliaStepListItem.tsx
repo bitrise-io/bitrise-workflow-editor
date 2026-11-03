@@ -1,4 +1,4 @@
-import { Card, CardProps, MarkdownContent } from '@bitrise/bitkit';
+import { MarkdownContent } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitControlButton,
@@ -8,6 +8,7 @@ import {
   rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { MouseEventHandler, useRef } from 'react';
@@ -20,7 +21,7 @@ import useIsTruncated from '@/hooks/useIsTruncated';
 
 import { STEP_HEIGHT } from './AlgoliaStepList.const';
 
-type Props = Omit<CardProps, 'onClick'> & {
+type Props = Omit<CardRootProps, 'onClick'> & {
   logo?: string;
   title?: string;
   version?: string;
@@ -47,17 +48,6 @@ const AlgoliaStepListItem = ({
   const isTitleTruncated = useIsTruncated(titleRef);
   const { open: isOpen, onOpen, onClose } = useDisclosure();
 
-  let hoverProps: Props = {};
-  if (!isDisabled) {
-    hoverProps = {
-      className: 'group',
-      _hover: {
-        boxShadow: 'small',
-        borderColor: 'border/strong',
-      },
-    };
-  }
-
   let cursor = 'pointer';
   if (isDisabled) {
     cursor = 'not-allowed';
@@ -83,15 +73,15 @@ const AlgoliaStepListItem = ({
   };
 
   return (
-    <Card
-      minW="0"
+    <Card.Root
+      elevation={false}
+      minWidth="0"
+      paddingSize="xs"
       role="button"
-      display="flex"
-      variant="outline"
       position="relative"
-      flexDirection="column"
       {...props}
-      {...hoverProps}
+      className={isDisabled ? undefined : 'group'}
+      interactive={!isDisabled}
       cursor={cursor}
       overflow="hidden"
       transition={TRANSITION}
@@ -101,108 +91,109 @@ const AlgoliaStepListItem = ({
       onClick={!isDisabled && !isOpen ? onClick : undefined}
       onMouseLeave={onClose}
     >
-      <Box
-        paddingInline="12"
-        gap="8"
-        display="flex"
-        transition={TRANSITION}
-        paddingBlock={isOpen ? '8' : '12'}
-        transitionProperty="padding"
-        borderBottom={isOpen ? '1px solid' : 'none'}
-        borderColor="border/regular"
-      >
-        <Box position="relative">
-          <BitkitAvatar
-            variant="image"
-            src={logo || defaultIcon}
-            name={title || ''}
-            transition={TRANSITION}
-            size={isOpen ? '32' : '40'}
-          />
-          <StepBadge
-            position="absolute"
-            transition={TRANSITION}
-            size={isOpen ? '16' : '24'}
-            right={isOpen ? '-4px' : '-6px'}
-            bottom={isOpen ? '-8px' : '-4px'}
-            isOfficial={maintainer === Maintainer.Bitrise}
-            isVerified={maintainer === Maintainer.Verified}
-          />
-        </Box>
-        <Box flex="1" display="flex" flexDirection="column" minWidth="0">
-          {title ? (
-            <BitkitOverflowTooltip disabled={!isTitleTruncated} placement="top" text={title}>
-              {titleText}
-            </BitkitOverflowTooltip>
-          ) : (
-            titleText
+      <Card.Body display="flex" flexDirection="column" height="full">
+        <Box
+          gap="8"
+          display="flex"
+          transition={TRANSITION}
+          paddingBlockEnd={isOpen ? '8' : '4'}
+          transitionProperty="padding"
+          borderBottom={isOpen ? '1px solid' : 'none'}
+          borderColor="border/regular"
+        >
+          <Box position="relative">
+            <BitkitAvatar
+              variant="image"
+              src={logo || defaultIcon}
+              name={title || ''}
+              transition={TRANSITION}
+              size={isOpen ? '32' : '40'}
+            />
+            <StepBadge
+              position="absolute"
+              transition={TRANSITION}
+              size={isOpen ? '16' : '24'}
+              right={isOpen ? '-4px' : '-6px'}
+              bottom={isOpen ? '-8px' : '-4px'}
+              isOfficial={maintainer === Maintainer.Bitrise}
+              isVerified={maintainer === Maintainer.Verified}
+            />
+          </Box>
+          <Box flex="1" display="flex" flexDirection="column" minWidth="0">
+            {title ? (
+              <BitkitOverflowTooltip disabled={!isTitleTruncated} placement="top" text={title}>
+                {titleText}
+              </BitkitOverflowTooltip>
+            ) : (
+              titleText
+            )}
+            <Text
+              color="text/secondary"
+              transition={TRANSITION}
+              marginBlockStart={isOpen ? '-4' : '0'}
+              textStyle={isOpen ? 'body/sm/regular' : 'body/md/regular'}
+            >
+              {version}
+            </Text>
+          </Box>
+
+          {!isDisabled && !isOpen && (
+            <IconPlus
+              boxSize="32"
+              padding="4"
+              display="none"
+              color="icon/interactive"
+              _groupHover={{ display: 'block' }}
+            />
           )}
-          <Text
-            color="text/secondary"
-            transition={TRANSITION}
-            marginBlockStart={isOpen ? '-4' : '0'}
-            textStyle={isOpen ? 'body/sm/regular' : 'body/md/regular'}
-          >
-            {version}
-          </Text>
+
+          {!isDisabled && isOpen && <BitkitControlButton label="Add to Workflow" icon={IconPlus} onClick={onClick} />}
         </Box>
 
-        {!isDisabled && !isOpen && (
-          <IconPlus
-            boxSize="32"
-            padding="4"
-            display="none"
-            color="icon/interactive"
-            _groupHover={{ display: 'block' }}
-          />
+        {!isOpen && (
+          <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular">
+            {removeMd(description || '')}
+          </Text>
         )}
 
-        {!isDisabled && isOpen && <BitkitControlButton label="Add to Workflow" icon={IconPlus} onClick={onClick} />}
-      </Box>
-
-      {!isOpen && (
-        <Text lineClamp="3" color="text/secondary" textStyle="body/sm/regular" paddingInline="12">
-          {removeMd(description || '')}
-        </Text>
-      )}
-
-      {isOpen && (
-        <Box
-          color="text/secondary"
-          overflowY="auto"
-          overflowX="clip"
-          overscrollBehaviorY="contain"
-          flex="1"
-          padding="12"
-        >
-          <MarkdownContent md={description || ''} size="sm" />
-        </Box>
-      )}
-
-      {!isDisabled && !isOpen && (
-        <Box
-          inset="0"
-          background="background/primary"
-          top="auto"
-          height={rem(26)}
-          display="none"
-          position="absolute"
-          borderBottomRadius="8"
-          _groupHover={{ display: 'block' }}
-        >
-          <BitkitLinkButton
-            size="sm"
-            paddingInline="12"
-            paddingBlockEnd="8"
-            top="-5px"
-            position="relative"
-            onClick={handleReadMoreClick}
+        {isOpen && (
+          <Box
+            color="text/secondary"
+            overflowY="auto"
+            overflowX="clip"
+            overscrollBehaviorY="contain"
+            flex="1"
+            paddingBlockStart="8"
           >
-            Read more
-          </BitkitLinkButton>
-        </Box>
-      )}
-    </Card>
+            <MarkdownContent md={description || ''} size="sm" />
+          </Box>
+        )}
+
+        {!isDisabled && !isOpen && (
+          <Box
+            inset="0"
+            background="background/secondary"
+            top="auto"
+            height={rem(22)}
+            display="none"
+            position="absolute"
+            borderBottomRadius="8"
+            _groupHover={{ display: 'block' }}
+          >
+            <BitkitLinkButton
+              size="sm"
+              paddingInline="16"
+              paddingBlockEnd="8"
+              top="-5px"
+              position="relative"
+              onClick={handleReadMoreClick}
+            >
+              Read more
+            </BitkitLinkButton>
+          </Box>
+        )}
+      </Card.Body>
+    </Card.Root>
   );
 };
 

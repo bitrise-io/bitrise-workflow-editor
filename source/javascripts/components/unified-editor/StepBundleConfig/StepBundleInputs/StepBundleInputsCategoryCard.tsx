@@ -1,4 +1,3 @@
-import { Card } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitButton,
@@ -11,6 +10,7 @@ import {
   IconTrash,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
@@ -119,9 +119,9 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
 
   if (!category) {
     return (
-      <Card variant="outline" p="16" mb="16">
-        {content}
-      </Card>
+      <Card.Root elevation={false} marginBlockEnd="16" paddingSize="sm">
+        <Card.Body>{content}</Card.Body>
+      </Card.Root>
     );
   }
 

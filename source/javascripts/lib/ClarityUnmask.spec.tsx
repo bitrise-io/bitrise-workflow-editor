@@ -12,7 +12,6 @@ import path from 'node:path';
 import {
   Breadcrumb,
   BreadcrumbLink,
-  Card,
   Dialog,
   DialogFooter,
   List,
@@ -38,6 +37,7 @@ import {
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
@@ -120,7 +120,7 @@ describe('Clarity unmasking', () => {
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
-          <Card data-clarity-unmask="true">card</Card>
+          <Card.Root data-clarity-unmask="true">card</Card.Root>
           <List data-clarity-unmask="true">
             <ListItem>list item</ListItem>
           </List>
