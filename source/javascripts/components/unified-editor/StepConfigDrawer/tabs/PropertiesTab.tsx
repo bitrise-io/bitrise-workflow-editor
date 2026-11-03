@@ -1,5 +1,5 @@
-import { Collapse, MarkdownContent, Select } from '@bitrise/bitkit';
-import { BitkitLink, BitkitLinkButton, BitkitTextInput, IconOpenInNew } from '@bitrise/bitkit-v2';
+import { Collapse, Select } from '@bitrise/bitkit';
+import { BitkitLink, BitkitLinkButton, BitkitMarkdown, BitkitTextInput, IconOpenInNew } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
@@ -135,11 +135,11 @@ const PropertiesTab = () => {
       <Separator />
       <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
         <Text textStyle="body/md/semibold">Summary</Text>
-        {summary && <MarkdownContent md={summary} />}
+        {summary && <BitkitMarkdown size="lg">{summary}</BitkitMarkdown>}
         {description && (
           <>
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
-              <MarkdownContent md={description} />
+              <BitkitMarkdown size="lg">{description}</BitkitMarkdown>
             </Collapse>
             <BitkitLinkButton alignSelf="start" onClick={toggleShowMore} data-e2e-tag="step-description__toggle">
               {showMore ? 'Show less' : 'Show more'}

@@ -1,5 +1,5 @@
-import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Toggletip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
+import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps } from '@bitrise/bitkit';
+import { BitkitAvatar, BitkitIconComponent, BitkitToggletip, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode, useMemo } from 'react';
@@ -70,14 +70,16 @@ const MachineTypeSelector = ({
     }
 
     return (
-      <Toggletip
-        label="Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales."
-        button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
+      <BitkitToggletip
+        text="Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales."
+        button={{ href: 'https://bitrise.io/demo', children: 'Reach out to sales' }}
+        triggerAriaLabel="About machine types"
+        wrapTrigger
       >
         <Box maxHeight="20px" marginBlockStart="-4px">
           {icon}
         </Box>
-      </Toggletip>
+      </BitkitToggletip>
     );
   };
 
