@@ -38,7 +38,11 @@ const TriggerFormBody = (props: Props) => {
 
   const { control, setValue, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
   const { conditions, isDraftPr, priority } = watch();
-  const { append, fields, remove } = useFieldArray({ control, name: 'conditions', keyName: 'uniqueId' });
+  const { append, fields, remove } = useFieldArray({
+    control,
+    name: 'conditions',
+    keyName: 'uniqueId',
+  });
 
   const optionsMap = useMemo(() => {
     return variant === 'legacy' ? LEGACY_OPTIONS_MAP[triggerType] : TARGET_BASED_OPTIONS_MAP[triggerType];
@@ -73,7 +77,7 @@ const TriggerFormBody = (props: Props) => {
           name="source"
           control={control}
           render={({ field }) => (
-            <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired mb="24" {...field}>
+            <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired {...field}>
               {pipelines.length > 0 && (
                 <optgroup label="Pipelines">
                   {pipelines.map((p) => (
@@ -108,7 +112,6 @@ const TriggerFormBody = (props: Props) => {
         <BitkitCheckbox
           labelText="Include draft pull requests"
           checked={isDraftPr !== false}
-          marginBlockStart="24"
           helperText={
             <>
               Supported for GitHub and GitLab.{' '}
@@ -131,7 +134,6 @@ const TriggerFormBody = (props: Props) => {
           helperText={`Assign a priority to builds started by this trigger. 
             Enter a value from -100 (lowest) to +100 (highest). This setting overrides 
             the priority assigned to this ${entity}.`}
-          marginBlockStart="24"
         />
       )}
     </>

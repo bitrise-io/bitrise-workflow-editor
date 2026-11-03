@@ -115,7 +115,11 @@ const EnvVarPopover = ({
         />
       </PopoverTrigger>
       <Portal>
-        <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">
+        {/* A bitkit-v2 dialog sets `pointer-events: none` on <body> while it is open, and this content
+            is portalled to <body>, so without this a click inside it falls through to the dialog
+            underneath. Drop it once this popover moves to bitkit-v2, whose overlays portal into the
+            dialog layer. */}
+        <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16" pointerEvents="auto">
           <PopoverHeader
             h="32"
             marginBottom="8"
