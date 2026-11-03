@@ -1,9 +1,10 @@
-import { Checkbox, Dialog, DialogBody, DialogFooter, IconButton, Textarea, Toggletip } from '@bitrise/bitkit';
+import { Checkbox, Dialog, DialogBody, DialogFooter, IconButton, Toggletip } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitBadge,
   BitkitButton,
   BitkitIconButton,
+  BitkitTextArea,
   BitkitTextInput,
   IconEye,
   IconEyeSlash,
@@ -123,17 +124,13 @@ const SecretCard = (props: SecretCardProps) => {
     }
     if (secret.isEditing) {
       return (
-        <Textarea
-          sx={{
-            '& textarea': {
-              minHeight: '40',
-              height: '40',
-              paddingTop: '8',
-              paddingX: '11px',
-              fontSize: '2',
-            },
-          }}
-          {...register('value', { required: 'This field is required.' })}
+        <BitkitTextArea
+          optional
+          label="Value"
+          labelHidden
+          size="md"
+          rows={1}
+          textareaProps={register('value', { required: 'This field is required.' })}
         />
       );
     }

@@ -1,5 +1,11 @@
-import { Textarea } from '@bitrise/bitkit';
-import { BitkitButton, BitkitIconButton, BitkitTextInput, IconRefresh, IconTrash } from '@bitrise/bitkit-v2';
+import {
+  BitkitButton,
+  BitkitIconButton,
+  BitkitTextArea,
+  BitkitTextInput,
+  IconRefresh,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
@@ -109,12 +115,14 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
         )}
       </Box>
       <Box display="flex" gap="8" width="100%">
-        <Textarea
+        <BitkitTextArea
+          optional
           flex="1"
           label="Description"
-          isDisabled={isReadOnlyView}
+          size="md"
+          state={isReadOnlyView ? 'disabled' : undefined}
           value={contextData.stepBundle?.mergedValues.description || ''}
-          onChange={(e) => handleFieldChange('description', e.target.value)}
+          onValueChange={(value) => handleFieldChange('description', value)}
         />
         {variant === 'drawer' && contextData.stepBundle?.userValues.description && (
           <BitkitIconButton

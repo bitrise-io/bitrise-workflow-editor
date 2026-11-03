@@ -1,14 +1,13 @@
 import { Checkbox } from '@bitrise/bitkit';
-import { BitkitButton, BitkitTextInput, IconDollar } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitTextArea, BitkitTextInput, IconDollar } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
 import { useForm } from 'react-hook-form';
 
-import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
-import ignore1Password from '@/utils/ignore1Password';
+import ignore1Password, { ignore1PasswordProps } from '@/utils/ignore1Password';
 
 type Props = {
   items: EnvVar[];
@@ -56,12 +55,17 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
             }}
           />
           <Text paddingBlockStart="12">=</Text>
-          <AutoGrowableInput
-            aria-label="Value"
+          <BitkitTextArea
+            optional
+            flex="1"
+            autoresize
+            rows={1}
+            size="md"
+            label="Value"
+            labelHidden
             placeholder="Enter value"
-            formControlProps={{ flex: '1' }}
             errorText={errors.value?.message}
-            {...register('value')}
+            textareaProps={{ ...register('value'), ...ignore1PasswordProps, wrap: 'off' }}
           />
         </Box>
         <Checkbox isRequired={false} {...register('isExpand')} marginTop="16">

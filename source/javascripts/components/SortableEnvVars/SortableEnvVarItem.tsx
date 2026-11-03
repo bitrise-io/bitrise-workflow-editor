@@ -1,17 +1,16 @@
 import { Checkbox } from '@bitrise/bitkit';
-import { BitkitControlButton, BitkitTextInput, IconDollar, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { BitkitControlButton, BitkitTextArea, BitkitTextInput, IconDollar, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode, useState } from 'react';
 
-import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import { useIsReadOnlyView } from '@/hooks/useTree';
-import ignore1Password from '@/utils/ignore1Password';
+import ignore1Password, { ignore1PasswordProps } from '@/utils/ignore1Password';
 
 export type SortableEnvVar = EnvVar & {
   uniqueId: string;
@@ -109,13 +108,19 @@ const SortableEnvVarItem = ({
           <Text color="text/tertiary" paddingBlockStart="8">
             =
           </Text>
-          <AutoGrowableInput
-            value={env.value}
-            aria-label="Value"
+          <BitkitTextArea
+            optional
+            flex="1"
+            autoresize
+            rows={1}
+            size="md"
+            label="Value"
+            labelHidden
             placeholder="Enter value"
-            isDisabled={isReadOnlyView}
-            formControlProps={{ flex: 1 }}
-            onChange={(e) => handleValueChange(e.target.value)}
+            value={env.value}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            textareaProps={{ ...ignore1PasswordProps, wrap: 'off' }}
+            onValueChange={handleValueChange}
           />
           {isReadOnlyView && jumpButton ? (
             // Center the small (xs) jump arrow against the value input rather than top-aligning it.
