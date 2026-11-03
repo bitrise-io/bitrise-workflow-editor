@@ -17,8 +17,10 @@ import {
   IconWorkflowFlow,
   rem,
 } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 import { useCallback, useEffect, useRef } from 'react';
 
+import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { bitriseYmlStore, getYmlString, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
 import { useCiConfigExpertStore } from '@/core/stores/CiConfigExpertStore';
@@ -33,7 +35,10 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
 
-type Props = Omit<BitkitPageSidebarProps, 'children'>;
+type Props = Omit<BitkitPageSidebarProps, 'children'> & {
+  /** Collapses the page navigation so only the module file tree is left (YAML view of a modular config). */
+  hidePageNav?: boolean;
+};
 type NavigationItemProps = {
   children: string;
   path: string;
@@ -86,7 +91,7 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   );
 };
 
-const Navigation = (props: Props) => {
+const Navigation = ({ hidePageNav = false, ...props }: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
@@ -138,78 +143,93 @@ const Navigation = (props: Props) => {
       // The width v1 had. There is no narrow icon-only mode in the design system, so the mobile rail
       // went with the migration.
       width={rem(256)}
+      overflow="hidden"
       {...props}
     >
-      <BitkitPageSidebar.Body>
-        <NavigationItem
-          path={withSearchParams(paths.workflows)}
-          icon={IconWorkflow}
-          intercomTarget="Workflows Page Navigation Item"
-        >
-          Workflows
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.pipelines)}
-          icon={IconWorkflowFlow}
-          intercomTarget="Pipelines Page Navigation Item"
-        >
-          Pipelines
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.stepBundles)}
-          icon={IconStep}
-          intercomTarget="Step Bundles Page Navigation Item"
-        >
-          Step bundles
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.secrets)}
-          icon={IconLock}
-          intercomTarget="Secrets Page Navigation Item"
-        >
-          Secrets
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.envVars)}
-          icon={IconDollar}
-          intercomTarget="Env Vars Page Navigation Item"
-        >
-          Env Vars
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.triggers)}
-          icon={IconTrigger}
-          intercomTarget="Triggers Page Navigation Item"
-        >
-          Triggers
-        </NavigationItem>
-        <NavigationItem
-          path={withSearchParams(paths.containers)}
-          icon={IconContainer}
-          intercomTarget="Containers Page Navigation Item"
-        >
-          Containers
-        </NavigationItem>
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.stacksAndMachines)}
-            icon={IconStack}
-            intercomTarget="Stacks & Machines Page Navigation Item"
-          >
-            Stacks & Machines
-          </NavigationItem>
-        )}
-        {RuntimeUtils.isWebsiteMode() && (
-          <NavigationItem
-            path={withSearchParams(paths.licenses)}
-            icon={IconKey}
-            intercomTarget="Licenses Page Navigation Item"
-          >
-            Licenses
-          </NavigationItem>
-        )}
-      </BitkitPageSidebar.Body>
-      <BitkitPageSidebar.Footer>
+      <Box
+        flex="0 1 auto"
+        minHeight={0}
+        display="grid"
+        gridTemplateRows={hidePageNav ? '0fr' : '1fr'}
+        visibility={hidePageNav ? 'hidden' : 'visible'}
+        transition="grid-template-rows 200ms ease-out, visibility 200ms"
+        _motionReduce={{ transition: 'none' }}
+      >
+        {/* The grid row can only close to 0 if its child clips: the Body's own padding would hold it open. */}
+        <Box minHeight={0} overflow="hidden" display="flex" flexDirection="column">
+          <BitkitPageSidebar.Body>
+            <NavigationItem
+              path={withSearchParams(paths.workflows)}
+              icon={IconWorkflow}
+              intercomTarget="Workflows Page Navigation Item"
+            >
+              Workflows
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.pipelines)}
+              icon={IconWorkflowFlow}
+              intercomTarget="Pipelines Page Navigation Item"
+            >
+              Pipelines
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.stepBundles)}
+              icon={IconStep}
+              intercomTarget="Step Bundles Page Navigation Item"
+            >
+              Step bundles
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.secrets)}
+              icon={IconLock}
+              intercomTarget="Secrets Page Navigation Item"
+            >
+              Secrets
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.envVars)}
+              icon={IconDollar}
+              intercomTarget="Env Vars Page Navigation Item"
+            >
+              Env Vars
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.triggers)}
+              icon={IconTrigger}
+              intercomTarget="Triggers Page Navigation Item"
+            >
+              Triggers
+            </NavigationItem>
+            <NavigationItem
+              path={withSearchParams(paths.containers)}
+              icon={IconContainer}
+              intercomTarget="Containers Page Navigation Item"
+            >
+              Containers
+            </NavigationItem>
+            {RuntimeUtils.isWebsiteMode() && (
+              <NavigationItem
+                path={withSearchParams(paths.stacksAndMachines)}
+                icon={IconStack}
+                intercomTarget="Stacks & Machines Page Navigation Item"
+              >
+                Stacks & Machines
+              </NavigationItem>
+            )}
+            {RuntimeUtils.isWebsiteMode() && (
+              <NavigationItem
+                path={withSearchParams(paths.licenses)}
+                icon={IconKey}
+                intercomTarget="Licenses Page Navigation Item"
+              >
+                Licenses
+              </NavigationItem>
+            )}
+          </BitkitPageSidebar.Body>
+        </Box>
+      </Box>
+      <FileTreeViewer withDivider={!hidePageNav} />
+      <BitkitPageSidebar.Footer marginBlockStart="auto">
         <BitkitPageSidebar.Item
           data-intercom-target="YAML Reference Navigation Item"
           href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"

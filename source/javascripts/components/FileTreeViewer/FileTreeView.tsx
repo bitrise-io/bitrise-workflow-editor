@@ -1,7 +1,7 @@
 import { BitkitTooltip, BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { useMemo } from 'react';
+import { useId, useMemo } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';
 import FileTreeService, { FileTreeFolder, FileTreeGroup } from '@/core/services/FileTreeService';
@@ -55,11 +55,13 @@ function collectFolderIds(nodes: RenderNode[], acc: string[]): string[] {
 
 const GroupTree = ({
   group,
+  labelId,
   selectedNodeId,
   onSelect,
   isNodeDisabled,
 }: {
   group: FileTreeGroup;
+  labelId: string;
 } & Pick<Props, 'selectedNodeId' | 'onSelect' | 'isNodeDisabled'>) => {
   const children = useMemo(() => toRenderNode(group.root), [group.root]);
 
@@ -79,6 +81,7 @@ const GroupTree = ({
 
   return (
     <BitkitTreeView
+      ids={{ label: labelId }}
       variant="files"
       collection={collection}
       selectionMode="single"
@@ -95,18 +98,7 @@ const GroupTree = ({
         nodeState.isBranch ? (
           <BitkitTreeView.Branch label={node.label} />
         ) : (
-          <BitkitTreeView.Leaf
-            label={node.label}
-            icon={IconFileYml}
-            // Clicking the already-selected file doesn't change the selection, so onSelectionChange
-            // never fires — handle that case here so selecting the active file still runs onSelect
-            // (which closes the picker). Other files are handled by onSelectionChange (single fire).
-            onClick={() => {
-              if (node.id === selectedNodeId) {
-                onSelect(node.id);
-              }
-            }}
-          />
+          <BitkitTreeView.Leaf label={node.label} icon={IconFileYml} />
         )
       }
     />
@@ -114,6 +106,7 @@ const GroupTree = ({
 };
 
 const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
+  const idPrefix = useId();
   const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
 
   const groups = useMemo(
@@ -123,11 +116,12 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
 
   return (
     <Box display="flex" flexDirection="column" gap="16">
-      {groups.map((group) => (
+      {groups.map((group, index) => (
         <Box key={group.key} display="flex" flexDirection="column">
-          {/* No `px`: header left-aligns with the title while the tree's own 8px inset indents file rows. */}
-          <Box display="flex" alignItems="center" gap="4" paddingBlock="6">
-            <Text textStyle="body/md/semibold">{group.header}</Text>
+          <Box display="flex" alignItems="center" gap="4" paddingBlock="6" paddingInlineStart="8">
+            <Text id={`${idPrefix}-${index}`} textStyle="body/md/semibold">
+              {group.header}
+            </Text>
             {group.isReadOnly && (
               <BitkitTooltip text="Modules included from another repository or ref are read-only.">
                 {/* Focusable + labelled so the read-only explanation is reachable by keyboard and
@@ -144,6 +138,7 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
           </Box>
           <GroupTree
             group={group}
+            labelId={`${idPrefix}-${index}`}
             selectedNodeId={selectedNodeId}
             onSelect={onSelect}
             isNodeDisabled={isNodeDisabled}

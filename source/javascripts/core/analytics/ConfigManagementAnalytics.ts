@@ -267,18 +267,6 @@ export function trackConfigBranchLoaded(currentBranch: string | undefined) {
 }
 
 /**
- * The user opened the file-explorer drawer (the "+" at the end of the module tab bar) to open a
- * YAML module. — Avo dc-5427
- */
-export function trackWorkflowEditorFileExplorerOpened() {
-  segmentTrack('Workflow Editor File Explorer Opened', {
-    app_slug: PageProps.appSlug(),
-    workspace_slug: GlobalProps.workspaceSlug(),
-    platform: 'website',
-  });
-}
-
-/**
  * A YAML module was opened as a tab (next to the read-only Merged Config tab). `openMethod` is the
  * source that opened it; `entityType` / `numberOfDefinitions` are only sent for `edit_definition`
  * (the "Edit definition" jump). — Avo dc-5427
