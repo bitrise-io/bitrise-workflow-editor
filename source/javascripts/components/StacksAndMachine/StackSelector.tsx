@@ -141,7 +141,7 @@ const StackSelector = ({
               </>
             }
             state={isRollbackDisabled || isDisabled ? 'disabled' : undefined}
-            checked={!isRollbackDisabled && useRollbackVersion}
+            checked={!isRollbackDisabled && !!useRollbackVersion}
             onCheckedChange={({ checked }) => onChange(stack.value, checked === true)}
           />
         </Box>

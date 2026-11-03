@@ -103,7 +103,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         }
                         marginBlockStart="12"
                         whiteSpace="nowrap"
-                        checked={isLastCommitOnly}
+                        checked={!!isLastCommitOnly}
                         onCheckedChange={({ checked }) =>
                           setValue(`conditions.${index}.isLastCommitOnly`, checked === true)
                         }
