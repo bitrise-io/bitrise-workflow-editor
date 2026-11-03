@@ -91,6 +91,7 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
           optional
           flex="1"
           label="Summary"
+          size="md"
           state={isReadOnlyView ? 'disabled' : undefined}
           value={contextData.stepBundle?.mergedValues.summary || ''}
           onValueChange={(value) => handleFieldChange('summary', value)}
