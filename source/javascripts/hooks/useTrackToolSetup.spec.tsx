@@ -1,9 +1,9 @@
 /**
  * @jest-environment jsdom
  */
-import { datadogRum } from '@datadog/browser-rum';
 import { act, renderHook } from '@testing-library/react';
 
+import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { recordToolSetupWrite } from '@/core/analytics/ToolSetupAnalytics';
 import { ParsedToolVersion } from '@/core/models/Tools';
 import { TreeNode } from '@/core/models/Tree';
@@ -22,13 +22,13 @@ import {
   updateBitriseYmlDocumentByString,
   updateFileDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 
 import useTrackToolSetup from './useTrackToolSetup';
 
-jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addAction: jest.fn() } }));
+// The real module reads `window.env` on load, which Jest doesn't have.
+jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ segmentTrack: jest.fn() }));
 
-const addAction = jest.mocked(datadogRum.addAction);
+const track = jest.mocked(segmentTrack);
 
 // Saves run back to back, and the store outlives each test, so every save needs its own `lastSavedAt`.
 let now = 0;
@@ -58,17 +58,17 @@ const removeInUi = (toolId: string, scope: ToolScope = ROOT) =>
     recordToolSetupWrite(scope, [toolId]);
   });
 
-const actions = () => addAction.mock.calls.map(([, context]) => context);
+const events = () => track.mock.calls.map(([, properties]) => properties);
 
 const mount = (ymlString = 'workflows:\n  primary: {}\n') => {
   renderHook(() => useTrackToolSetup());
   load(ymlString);
-  addAction.mockClear();
+  track.mockClear();
 };
 
 describe('useTrackToolSetup', () => {
   beforeEach(() => {
-    addAction.mockClear();
+    track.mockClear();
   });
 
   it('records a tool added in the UI, with its saved version', () => {
@@ -76,14 +76,15 @@ describe('useTrackToolSetup', () => {
     setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
     save();
 
-    expect(addAction).toHaveBeenCalledTimes(1);
-    expect(addAction).toHaveBeenCalledWith('tool_setup_saved', {
-      change: 'added',
-      scope: 'root',
-      tool: 'nodejs',
-      strategy: 'exact',
-      version: '22.1.0',
-      viaUi: true,
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith('Tool Setup Changed', {
+      event_type: 'product',
+      change_type: 'added',
+      tool_scope: 'root',
+      tool_id: 'nodejs',
+      version_strategy: 'exact',
+      tool_version: '22.1.0',
+      is_edited_via_ui: true,
     });
   });
 
@@ -92,7 +93,9 @@ describe('useTrackToolSetup', () => {
     ['2', '22', '22.', '22.1'].forEach((version) => setInUi('nodejs', { strategy: 'exact', version }));
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ change: 'added', version: '22.1', viaUi: true })]);
+    expect(events()).toEqual([
+      expect.objectContaining({ change_type: 'added', tool_version: '22.1', is_edited_via_ui: true }),
+    ]);
   });
 
   it('records a change made in YAML as not made in the UI', () => {
@@ -100,15 +103,16 @@ describe('useTrackToolSetup', () => {
     editYaml('tools:\n  ruby: "3.3:installed"\nworkflows:\n  primary: {}\n');
     save();
 
-    expect(actions()).toEqual([
+    expect(events()).toEqual([
       {
-        change: 'added',
-        scope: 'root',
-        tool: 'ruby',
-        strategy: 'latest-of',
-        version: '3.3',
-        preferInstalled: true,
-        viaUi: false,
+        event_type: 'product',
+        change_type: 'added',
+        tool_scope: 'root',
+        tool_id: 'ruby',
+        version_strategy: 'latest-of',
+        tool_version: '3.3',
+        is_prefer_installed: true,
+        is_edited_via_ui: false,
       },
     ]);
   });
@@ -118,8 +122,13 @@ describe('useTrackToolSetup', () => {
     setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
     save();
 
-    expect(actions()).toEqual([
-      expect.objectContaining({ change: 'updated', strategy: 'exact', previousStrategy: 'latest-of', viaUi: true }),
+    expect(events()).toEqual([
+      expect.objectContaining({
+        change_type: 'updated',
+        version_strategy: 'exact',
+        previous_version_strategy: 'latest-of',
+        is_edited_via_ui: true,
+      }),
     ]);
   });
 
@@ -130,7 +139,7 @@ describe('useTrackToolSetup', () => {
     setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby' })]);
+    expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby' })]);
   });
 
   it('credits the YAML editor when it changes a value the UI wrote', () => {
@@ -139,7 +148,7 @@ describe('useTrackToolSetup', () => {
     editYaml('tools:\n  nodejs: 20.0.0\nworkflows:\n  primary: {}\n');
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ version: '20.0.0', viaUi: false })]);
+    expect(events()).toEqual([expect.objectContaining({ tool_version: '20.0.0', is_edited_via_ui: false })]);
   });
 
   it('records a rename in the UI as one tool removed and another added', () => {
@@ -147,9 +156,19 @@ describe('useTrackToolSetup', () => {
     renameInUi('node', 'nodejs', PRIMARY);
     save();
 
-    expect(actions()).toEqual([
-      expect.objectContaining({ change: 'removed', scope: 'workflow', tool: 'node', viaUi: true }),
-      expect.objectContaining({ change: 'added', scope: 'workflow', tool: 'nodejs', viaUi: true }),
+    expect(events()).toEqual([
+      expect.objectContaining({
+        change_type: 'removed',
+        tool_scope: 'workflow',
+        tool_id: 'node',
+        is_edited_via_ui: true,
+      }),
+      expect.objectContaining({
+        change_type: 'added',
+        tool_scope: 'workflow',
+        tool_id: 'nodejs',
+        is_edited_via_ui: true,
+      }),
     ]);
   });
 
@@ -158,7 +177,7 @@ describe('useTrackToolSetup', () => {
     editYaml('tools:\n  ruby: 3.3.0\nworkflows:\n  renamed:\n    tools:\n      nodejs: latest\n');
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ change: 'added', scope: 'root', tool: 'ruby' })]);
+    expect(events()).toEqual([expect.objectContaining({ change_type: 'added', tool_scope: 'root', tool_id: 'ruby' })]);
   });
 
   it('records tools set up in the UI for a workflow the save creates', () => {
@@ -167,12 +186,12 @@ describe('useTrackToolSetup', () => {
     setInUi('nodejs', { strategy: 'absolute-latest-released' }, { type: 'workflow', workflowId: 'deploy' });
     save();
 
-    expect(actions()).toEqual([
+    expect(events()).toEqual([
       expect.objectContaining({
-        change: 'added',
-        scope: 'workflow',
-        strategy: 'absolute-latest-released',
-        viaUi: true,
+        change_type: 'added',
+        tool_scope: 'workflow',
+        version_strategy: 'absolute-latest-released',
+        is_edited_via_ui: true,
       }),
     ]);
   });
@@ -184,7 +203,7 @@ describe('useTrackToolSetup', () => {
     editYaml('tools:\n  nodejs: 22.1.0\nworkflows:\n  primary: {}\n');
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ viaUi: false })]);
+    expect(events()).toEqual([expect.objectContaining({ is_edited_via_ui: false })]);
   });
 
   it('forgets UI writes when the changes are discarded', () => {
@@ -194,7 +213,7 @@ describe('useTrackToolSetup', () => {
     editYaml('tools:\n  nodejs: 22.1.0\nworkflows:\n  primary: {}\n');
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ viaUi: false })]);
+    expect(events()).toEqual([expect.objectContaining({ is_edited_via_ui: false })]);
   });
 
   it('keeps UI writes when an edit applied in the diff dialog leaves them alone', () => {
@@ -204,7 +223,7 @@ describe('useTrackToolSetup', () => {
     act(() => forceRefreshStates());
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ tool: 'nodejs', viaUi: true })]);
+    expect(events()).toEqual([expect.objectContaining({ tool_id: 'nodejs', is_edited_via_ui: true })]);
   });
 
   it('ignores tools that were already there when a config that failed to parse is fixed', () => {
@@ -213,7 +232,7 @@ describe('useTrackToolSetup', () => {
     setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+    expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', is_edited_via_ui: true })]);
   });
 
   it('forgets UI writes when a config that fails to parse loads over another one', () => {
@@ -225,7 +244,7 @@ describe('useTrackToolSetup', () => {
     setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+    expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', is_edited_via_ui: true })]);
   });
 
   it('records tools added in YAML to a config that started empty', () => {
@@ -233,16 +252,9 @@ describe('useTrackToolSetup', () => {
     editYaml('tools:\n  nodejs: 22.1.0\n');
     save();
 
-    expect(actions()).toEqual([expect.objectContaining({ change: 'added', tool: 'nodejs', viaUi: false })]);
-  });
-
-  it('sends the workspace when there is one', () => {
-    mount();
-    jest.spyOn(GlobalProps, 'workspaceSlug').mockReturnValueOnce('workspace-slug');
-    setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
-    save();
-
-    expect(actions()).toEqual([expect.objectContaining({ workspaceSlug: 'workspace-slug' })]);
+    expect(events()).toEqual([
+      expect.objectContaining({ change_type: 'added', tool_id: 'nodejs', is_edited_via_ui: false }),
+    ]);
   });
 
   describe('modular config', () => {
@@ -277,13 +289,13 @@ describe('useTrackToolSetup', () => {
       act(() => updateBitriseYmlDocumentByString('tools:\n  nodejs: 20.0.0\n'));
       saveModular();
 
-      expect(actions()).toEqual(
+      expect(events()).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ version: '22.1.0', viaUi: true }),
-          expect.objectContaining({ version: '20.0.0', viaUi: false }),
+          expect.objectContaining({ tool_version: '22.1.0', is_edited_via_ui: true }),
+          expect.objectContaining({ tool_version: '20.0.0', is_edited_via_ui: false }),
         ]),
       );
-      expect(addAction).toHaveBeenCalledTimes(2);
+      expect(track).toHaveBeenCalledTimes(2);
     });
 
     it('forgets only the UI writes of a discarded file', () => {
@@ -296,13 +308,13 @@ describe('useTrackToolSetup', () => {
       act(() => updateFileDocumentByString('module', 'tools:\n  nodejs: 22.1.0\n'));
       saveModular();
 
-      expect(actions()).toEqual(
+      expect(events()).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ tool: 'ruby', viaUi: true }),
-          expect.objectContaining({ tool: 'nodejs', viaUi: false }),
+          expect.objectContaining({ tool_id: 'ruby', is_edited_via_ui: true }),
+          expect.objectContaining({ tool_id: 'nodejs', is_edited_via_ui: false }),
         ]),
       );
-      expect(addAction).toHaveBeenCalledTimes(2);
+      expect(track).toHaveBeenCalledTimes(2);
     });
 
     it('ignores tools that were already there when a module that failed to parse is fixed', () => {
@@ -312,7 +324,7 @@ describe('useTrackToolSetup', () => {
       setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
       saveModular();
 
-      expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+      expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', is_edited_via_ui: true })]);
     });
 
     it('prunes UI writes on a discard and saves while a module fails to parse', () => {
@@ -323,7 +335,7 @@ describe('useTrackToolSetup', () => {
       act(() => updateBitriseYmlDocumentByString('tools:\n  ruby: 3.3.0\n'));
       saveModular(BROKEN_MODULE);
 
-      expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: false })]);
+      expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', is_edited_via_ui: false })]);
     });
 
     it('keeps saving while a module has more aliases than the YAML library resolves', () => {
@@ -333,7 +345,7 @@ describe('useTrackToolSetup', () => {
       setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
       saveModular(manyAliases);
 
-      expect(actions()).toEqual([expect.objectContaining({ tool: 'ruby', viaUi: true })]);
+      expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', is_edited_via_ui: true })]);
     });
   });
 });

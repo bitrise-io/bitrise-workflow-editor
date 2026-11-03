@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { clearToolSetupWrites, pruneToolSetupWrites, trackToolSetupSaved } from '@/core/analytics/ToolSetupAnalytics';
 import { subscribeToDiscards, subscribeToSavedDocuments } from '@/core/stores/BitriseYmlStore';
 
-/** Records in RUM the tool entries each save changes. See `trackToolSetupSaved`. */
+/** Sends a Segment event for each tool entry a save changes. See `trackToolSetupSaved`. */
 function useTrackToolSetup() {
   useEffect(() => {
     const unsubscribeSaves = subscribeToSavedDocuments((next, prev, isSave) => {

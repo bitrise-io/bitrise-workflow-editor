@@ -1,11 +1,11 @@
-import { datadogRum } from '@datadog/browser-rum';
 import { isPlainObject } from 'es-toolkit';
 import { Document } from 'yaml';
 
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import { activeFileKey, bitriseYmlStore, configDocumentsByFile } from '@/core/stores/BitriseYmlStore';
-import GlobalProps from '@/core/utils/GlobalProps';
 import YmlUtils from '@/core/utils/YmlUtils';
+
+import { segmentTrack } from './SegmentBaseTracking';
 
 /** A tool entry as saved: where it sits and its raw version string. */
 type ToolEntry = { fileKey: string; workflowId?: string; toolId: string; value: string };
@@ -89,19 +89,22 @@ function describeVersion(value: string) {
 
   switch (parsed.strategy) {
     case 'exact':
-      return { strategy: parsed.strategy, version: parsed.version };
+      return { version_strategy: parsed.strategy, tool_version: parsed.version };
     case 'latest-of':
-      return { strategy: parsed.strategy, version: parsed.prefix, preferInstalled: parsed.preferInstalled };
+      return {
+        version_strategy: parsed.strategy,
+        tool_version: parsed.prefix,
+        is_prefer_installed: parsed.preferInstalled,
+      };
     default:
-      return { strategy: parsed.strategy };
+      return { version_strategy: parsed.strategy };
   }
 }
 
-/** Records in RUM each tool entry a save added, changed or removed, and whether the tool setup UI made it. */
+/** Sends a Segment event per tool entry a save added, changed or removed, and whether the tool setup UI made it. */
 export function trackToolSetupSaved(prevDocuments: Record<string, Document>, nextDocuments: Record<string, Document>) {
   const prev = snapshotTools(prevDocuments);
   const next = snapshotTools(nextDocuments);
-  const workspaceSlug = GlobalProps.workspaceSlug();
 
   new Set([...prev.entries.keys(), ...next.entries.keys()]).forEach((key) => {
     const before = prev.entries.get(key);
@@ -120,14 +123,14 @@ export function trackToolSetupSaved(prevDocuments: Record<string, Document>, nex
       return;
     }
 
-    datadogRum.addAction('tool_setup_saved', {
-      change: !before ? 'added' : !after ? 'removed' : 'updated',
-      scope: workflowId === undefined ? 'root' : 'workflow',
-      tool: toolId,
+    segmentTrack('Tool Setup Changed', {
+      event_type: 'product',
+      change_type: !before ? 'added' : !after ? 'removed' : 'updated',
+      tool_scope: workflowId === undefined ? 'root' : 'workflow',
+      tool_id: toolId,
       ...describeVersion(value),
-      ...(before && after && { previousStrategy: describeVersion(before.value).strategy }),
-      viaUi,
-      ...(workspaceSlug && { workspaceSlug }),
+      ...(before && after && { previous_version_strategy: describeVersion(before.value).version_strategy }),
+      is_edited_via_ui: viaUi,
     });
   });
 }

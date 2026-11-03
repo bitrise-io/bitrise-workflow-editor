@@ -155,10 +155,10 @@ its draft would not survive the row becoming a real one.
 
 ## Tool setup usage is counted at save
 
-The RUM action `tool_setup_saved` compares the `tools:` entries a save wrote with the ones it
+The Segment event `Tool Setup Changed` compares the `tools:` entries a save wrote with the ones it
 replaced, because a text field writes the YAML on every keystroke and an edit can still be
 discarded. To tell the UI from the YAML editor, `ToolVersions` records what each of its writes left
-in the document, and a saved value that matches counts as `viaUi`. The record lives in the
+in the document, and a saved value that matches counts as `is_edited_via_ui`. The record lives in the
 component's handlers rather than in `ToolsService`, so a later caller of the service is not counted
 as the UI.
 
