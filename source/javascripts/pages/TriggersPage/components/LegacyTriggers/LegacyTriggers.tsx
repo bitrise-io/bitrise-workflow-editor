@@ -1,5 +1,4 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { BitkitButton, BitkitHeading, BitkitLink, IconPlus } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitHeading, BitkitLink, BitkitTabs, IconPlus } from '@bitrise/bitkit-v2';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -19,7 +18,7 @@ const LegacyTriggers = () => {
   const triggers = useLegacyTriggers();
   const [triggerType, setTriggerType] = useState<TriggerType>('push');
   const [editedItem, setEditedItem] = useState<LegacyTrigger | undefined>();
-  const [tabIndex, setTabIndex] = useState(0);
+  const [selectedTab, setSelectedTab] = useState<TriggerType>('push');
 
   const onTriggerEdited = (trigger: LegacyTrigger) => {
     TriggerService.updateLegacyTrigger(trigger);
@@ -57,10 +56,9 @@ const LegacyTriggers = () => {
     onCloseDialog();
   };
 
-  const handleTabChange = (index: number) => {
-    setTabIndex(index);
-    const triggerTypes: TriggerType[] = ['push', 'pull_request', 'tag'];
-    setTriggerType(triggerTypes[index]);
+  const handleTabChange = ({ value }: { value: string }) => {
+    setSelectedTab(value as TriggerType);
+    setTriggerType(value as TriggerType);
   };
 
   if (triggers.push.length + triggers.pull_request.length + triggers.tag.length === 0) {
@@ -83,14 +81,14 @@ const LegacyTriggers = () => {
         </BitkitLink>
       </Text>
       {!isReadOnlyView && <ConvertLegacyTriggers triggers={triggers} />}
-      <Tabs marginTop="24" marginBottom="24" index={tabIndex} onChange={handleTabChange}>
-        <TabList data-clarity-unmask="true">
-          <Tab>Push</Tab>
-          <Tab>Pull request</Tab>
-          <Tab>Tag</Tab>
-        </TabList>
-        <TabPanels paddingTop="24">
-          <TabPanel>
+      <BitkitTabs.Root marginBlock="24" value={selectedTab} onValueChange={handleTabChange}>
+        <BitkitTabs.List data-clarity-unmask="true">
+          <BitkitTabs.Trigger value="push">Push</BitkitTabs.Trigger>
+          <BitkitTabs.Trigger value="pull_request">Pull request</BitkitTabs.Trigger>
+          <BitkitTabs.Trigger value="tag">Tag</BitkitTabs.Trigger>
+        </BitkitTabs.List>
+        <BitkitTabs.ContentGroup paddingBlockStart="24">
+          <BitkitTabs.Content value="push">
             {!isReadOnlyView && (
               <BitkitButton marginBottom="24" variant="secondary" size="md" onClick={onOpen} icon={IconPlus}>
                 Add push trigger
@@ -104,8 +102,8 @@ const LegacyTriggers = () => {
               onRemoveItem={onTriggerRemoved}
               onReorder={onReorder}
             />
-          </TabPanel>
-          <TabPanel>
+          </BitkitTabs.Content>
+          <BitkitTabs.Content value="pull_request">
             {!isReadOnlyView && (
               <BitkitButton marginBottom="24" variant="secondary" size="md" onClick={onOpen} icon={IconPlus}>
                 Add pull request trigger
@@ -119,8 +117,8 @@ const LegacyTriggers = () => {
               onRemoveItem={onTriggerRemoved}
               onReorder={onReorder}
             />
-          </TabPanel>
-          <TabPanel>
+          </BitkitTabs.Content>
+          <BitkitTabs.Content value="tag">
             {!isReadOnlyView && (
               <BitkitButton marginBottom="24" variant="secondary" size="md" onClick={onOpen} icon={IconPlus}>
                 Add tag trigger
@@ -134,9 +132,9 @@ const LegacyTriggers = () => {
               onRemoveItem={onTriggerRemoved}
               onReorder={onReorder}
             />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+          </BitkitTabs.Content>
+        </BitkitTabs.ContentGroup>
+      </BitkitTabs.Root>
       <AddOrEditTriggerDialog
         triggerType={triggerType}
         currentTriggers={triggers[triggerType]}

@@ -1,5 +1,4 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { BitkitHeading } from '@bitrise/bitkit-v2';
+import { BitkitHeading, BitkitTabs } from '@bitrise/bitkit-v2';
 import { create } from 'zustand';
 import { combine } from 'zustand/middleware';
 
@@ -7,30 +6,30 @@ import DefaultTab from './tabs/DefaultTab';
 import WorkflowsTab from './tabs/WorkflowsTab';
 
 const useTabs = create(
-  combine({ index: 0 }, (set) => ({
-    onChange: (index: number) => set({ index }),
+  combine({ value: 'default' }, (set) => ({
+    onValueChange: ({ value }: { value: string }) => set({ value }),
   })),
 );
 
 const StacksAndMachinesPage = () => {
   return (
-    <Tabs {...useTabs()} isLazy>
+    <BitkitTabs.Root {...useTabs()} lazyMount unmountOnExit>
       <BitkitHeading padding="32" data-clarity-unmask="true">
         Stacks & Machines
       </BitkitHeading>
-      <TabList px="16" data-clarity-unmask="true">
-        <Tab>Default</Tab>
-        <Tab>Workflows</Tab>
-      </TabList>
-      <TabPanels>
-        <TabPanel>
+      <BitkitTabs.List paddingInline="16" data-clarity-unmask="true">
+        <BitkitTabs.Trigger value="default">Default</BitkitTabs.Trigger>
+        <BitkitTabs.Trigger value="workflows">Workflows</BitkitTabs.Trigger>
+      </BitkitTabs.List>
+      <BitkitTabs.ContentGroup>
+        <BitkitTabs.Content value="default">
           <DefaultTab />
-        </TabPanel>
-        <TabPanel>
+        </BitkitTabs.Content>
+        <BitkitTabs.Content value="workflows">
           <WorkflowsTab />
-        </TabPanel>
-      </TabPanels>
-    </Tabs>
+        </BitkitTabs.Content>
+      </BitkitTabs.ContentGroup>
+    </BitkitTabs.Root>
   );
 };
 
