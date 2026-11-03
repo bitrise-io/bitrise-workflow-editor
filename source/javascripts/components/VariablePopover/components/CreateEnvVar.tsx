@@ -1,5 +1,4 @@
-import { Input } from '@bitrise/bitkit';
-import { BitkitButton, BitkitCheckbox } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitCheckbox, BitkitTextInput, IconDollar } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
@@ -8,6 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
+import ignore1Password from '@/utils/ignore1Password';
 
 type Props = {
   items: EnvVar[];
@@ -38,18 +38,22 @@ const CreateEnvVar = ({ onCreate, onCancel }: Props) => {
     <Box as="form" onSubmit={handleCreate} display="flex" flexDirection="column">
       <Box display="flex" flexDirection="column" gap="8" paddingBlockStart="12" paddingBlockEnd="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
-          <Input
-            autoFocus
+          <BitkitTextInput
+            optional
             flex="1"
             size="md"
-            aria-label="Key"
-            leftIconName="Dollars"
+            label="Key"
+            labelHidden
+            startElement={<IconDollar size="16" />}
             placeholder="Enter key"
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
             errorText={errors.key?.message}
-            {...register('key', {
-              validate: EnvVarService.validateKey,
-            })}
+            inputProps={{
+              autoFocus: true,
+              ...register('key', {
+                validate: EnvVarService.validateKey,
+              }),
+            }}
           />
           <Text paddingBlockStart="12">=</Text>
           <AutoGrowableInput

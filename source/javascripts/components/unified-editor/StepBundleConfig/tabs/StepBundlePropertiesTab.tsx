@@ -1,5 +1,5 @@
-import { Input, Textarea } from '@bitrise/bitkit';
-import { BitkitButton, BitkitIconButton, IconRefresh, IconTrash } from '@bitrise/bitkit-v2';
+import { Textarea } from '@bitrise/bitkit';
+import { BitkitButton, BitkitIconButton, BitkitTextInput, IconRefresh, IconTrash } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
@@ -53,9 +53,8 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
     <>
       {variant === 'panel' && (
         <EditableInput
-          isRequired
           helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
-          name="id"
+          inputProps={{ name: 'id' }}
           label="ID"
           isDisabled={isReadOnlyView}
           value={contextData.stepBundle?.id}
@@ -65,13 +64,14 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
         />
       )}
       <Box display="flex" gap="8" width="100%">
-        <Input
+        <BitkitTextInput
+          optional
           flex="1"
           helperText="Human-readable name, overridable per instance."
           label="Title"
           size="md"
-          isDisabled={isReadOnlyView}
-          onChange={(e) => handleFieldChange('title', e.target.value)}
+          state={isReadOnlyView ? 'disabled' : undefined}
+          onValueChange={(value) => handleFieldChange('title', value)}
           value={contextData.stepBundle?.mergedValues.title || ''}
         />
         {variant === 'drawer' && contextData.stepBundle?.userValues.title && (
@@ -87,12 +87,14 @@ const StepBundlePropertiesTab = ({ onDelete, onChangeId, variant }: StepBundlePr
         )}
       </Box>
       <Box display="flex" gap="8" width="100%">
-        <Input
+        <BitkitTextInput
+          optional
           flex="1"
           label="Summary"
-          isDisabled={isReadOnlyView}
+          size="md"
+          state={isReadOnlyView ? 'disabled' : undefined}
           value={contextData.stepBundle?.mergedValues.summary || ''}
-          onChange={(e) => handleFieldChange('summary', e.target.value)}
+          onValueChange={(value) => handleFieldChange('summary', value)}
         />
         {variant === 'drawer' && contextData.stepBundle?.userValues.summary && (
           <BitkitIconButton

@@ -1,7 +1,9 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps, Select } from '@bitrise/bitkit';
+import { BitkitButton, BitkitTextInput } from '@bitrise/bitkit-v2';
 import { ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
+
+import ignore1Password from '@/utils/ignore1Password';
 
 type BaseEntityType<T> = { ids: string[]; groupLabel?: string; type?: T };
 
@@ -96,26 +98,28 @@ const CreateEntityDialog = <T,>({
   return (
     <Dialog title={`Create ${entityName}`} onClose={onClose} onCloseComplete={handleCloseComplete} {...props}>
       <DialogBody as="form" display="flex" flexDir="column" gap="24" onSubmit={handleCreate}>
-        <Input
-          autoFocus
-          isRequired
+        <BitkitTextInput
           label="ID"
           placeholder={`${entityName} ID`}
-          inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+          inputRef={ignore1Password}
           helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
           errorText={errors.entityId?.message}
-          {...register('entityId', {
-            onChange: handleNameChange,
-            validate: validator,
-          })}
+          inputProps={{
+            autoFocus: true,
+            ...register('entityId', {
+              onChange: handleNameChange,
+              validate: validator,
+            }),
+          }}
         />
         {extraInputs?.includes('title') && (
-          <Input
+          <BitkitTextInput
+            optional
             label="Title"
             placeholder={`${entityName} Title`}
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
             helperText="Human-readable name, overridable per instance."
-            {...register('title')}
+            inputProps={register('title')}
           />
         )}
         <Select label="Based on" {...register('baseEntityId')}>

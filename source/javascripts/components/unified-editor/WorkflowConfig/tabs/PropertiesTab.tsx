@@ -35,8 +35,7 @@ const NameInput = ({ onRename, isDisabled }: Pick<Props, 'onRename'> & { isDisab
 
   return (
     <EditableInput
-      isRequired
-      name="name"
+      inputProps={{ name: 'name' }}
       label="Name"
       value={value}
       isDisabled={isDisabled}

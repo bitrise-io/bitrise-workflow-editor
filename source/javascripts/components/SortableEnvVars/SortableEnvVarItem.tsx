@@ -1,5 +1,4 @@
-import { Input } from '@bitrise/bitkit';
-import { BitkitCheckbox, BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { BitkitCheckbox, BitkitControlButton, BitkitTextInput, IconDollar, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -11,6 +10,7 @@ import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import { useIsReadOnlyView } from '@/hooks/useTree';
+import ignore1Password from '@/utils/ignore1Password';
 
 export type SortableEnvVar = EnvVar & {
   uniqueId: string;
@@ -91,17 +91,19 @@ const SortableEnvVarItem = ({
         visibility={sortable.isDragging ? 'hidden' : 'visible'}
       >
         <Box display="flex" alignItems="top" gap="8">
-          <Input
+          <BitkitTextInput
+            optional
             flex="1"
             size="md"
             value={env.key}
-            aria-label="Key"
-            leftIconName="Dollars"
+            label="Key"
+            labelHidden
+            startElement={<IconDollar size="16" />}
             placeholder="Enter key"
-            isDisabled={isReadOnlyView}
-            onChange={(e) => handleKeyChange(e.target.value)}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            onValueChange={handleKeyChange}
             errorText={errors.key !== true ? errors.key : undefined}
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
           />
           <Text color="text/tertiary" paddingBlockStart="8">
             =

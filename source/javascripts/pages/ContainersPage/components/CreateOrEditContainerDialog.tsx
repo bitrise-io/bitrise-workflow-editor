@@ -1,4 +1,4 @@
-import { Collapse, Dialog, DialogBody, DialogFooter, DialogProps, Input, Textarea } from '@bitrise/bitkit';
+import { Collapse, Dialog, DialogBody, DialogFooter, DialogProps, Textarea } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
@@ -6,6 +6,7 @@ import {
   BitkitHeading,
   BitkitLink,
   BitkitLinkButton,
+  BitkitTextInput,
   IconPlus,
   IconTrash,
   rem,
@@ -28,6 +29,7 @@ import EnvVarService from '@/core/services/EnvVarService';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
+import ignore1Password from '@/utils/ignore1Password';
 
 type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
   editedContainer: Container | null;
@@ -194,19 +196,17 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             validate: (value) => ContainerService.validateName(value, editedContainer?.id || '', containerIds),
           }}
           render={({ field: { onChange, ...fieldProps } }) => (
-            <Input
+            <BitkitTextInput
               label="Unique ID"
               helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
               placeholder="e.g. node, postgres, redis"
               errorText={formState.errors.id?.message}
-              isRequired
-              isDisabled={readOnly}
-              data-1p-ignore
-              onChange={(e) => {
-                const sanitizedValue = ContainerService.sanitizeName(e.target.value);
-                onChange(sanitizedValue);
+              state={readOnly ? 'disabled' : undefined}
+              inputRef={ignore1Password}
+              inputProps={{
+                ...fieldProps,
+                onChange: (e) => onChange(ContainerService.sanitizeName(e.target.value)),
               }}
-              {...fieldProps}
             />
           )}
         />
@@ -215,14 +215,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           name="userValues.image"
           rules={{ required: 'Image is required' }}
           render={({ field }) => (
-            <Input
+            <BitkitTextInput
               label="Image"
               helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
               placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
               errorText={formState.errors.userValues?.image?.message}
-              isRequired
-              isDisabled={readOnly}
-              {...field}
+              state={readOnly ? 'disabled' : undefined}
+              inputProps={field}
             />
           )}
         />
@@ -242,13 +241,14 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             },
           }}
           render={({ field }) => (
-            <Input
+            <BitkitTextInput
+              optional
               label="Ports"
               helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
               placeholder="e.g. 3000:3000, 5432:5432"
               errorText={formState.errors.userValues?.ports?.message}
-              isDisabled={readOnly}
-              {...field}
+              state={readOnly ? 'disabled' : undefined}
+              inputProps={field}
             />
           )}
         />
@@ -282,12 +282,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               control={control}
               name="userValues.credentials.server"
               render={({ field }) => (
-                <Input
+                <BitkitTextInput
+                  optional
                   label="Registry server"
                   helperText="Fully qualified registry server URL to be used by docker login command."
                   placeholder="e.g. ghcr.io"
-                  isDisabled={readOnly}
-                  {...field}
+                  state={readOnly ? 'disabled' : undefined}
+                  inputProps={field}
                 />
               )}
             />
@@ -312,13 +313,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   control={control}
                   name={`userValues.envs.${index}.key`}
                   render={({ field: { value, ...fieldProps } }) => (
-                    <Input
+                    <BitkitTextInput
+                      optional
                       label={index === 0 ? 'Environment Variables' : undefined}
                       placeholder="Key"
                       width="100%"
-                      value={value || ''}
-                      isDisabled={readOnly}
-                      {...fieldProps}
+                      state={readOnly ? 'disabled' : undefined}
+                      inputProps={{ ...fieldProps, value: value || '' }}
                     />
                   )}
                 />
@@ -326,7 +327,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
                   control={control}
                   name={`userValues.envs.${index}.value`}
                   render={({ field: { value, ...fieldProps } }) => (
-                    <Input placeholder="Value" width="100%" value={value || ''} isDisabled={readOnly} {...fieldProps} />
+                    <BitkitTextInput
+                      optional
+                      placeholder="Value"
+                      width="100%"
+                      state={readOnly ? 'disabled' : undefined}
+                      inputProps={{ ...fieldProps, value: value || '' }}
+                    />
                   )}
                 />
                 {!readOnly && (

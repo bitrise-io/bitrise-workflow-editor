@@ -1,10 +1,20 @@
-import { Dialog, DialogBody, DialogFooter, IconButton, Input, Textarea, Toggletip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitBadge, BitkitButton, BitkitCheckbox, IconLock } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, IconButton, Textarea, Toggletip } from '@bitrise/bitkit';
+import {
+  BitkitAlert,
+  BitkitBadge,
+  BitkitButton,
+  BitkitCheckbox,
+  BitkitIconButton,
+  BitkitTextInput,
+  IconEye,
+  IconEyeSlash,
+  IconLock,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Card } from '@chakra-ui/react/card';
 import { Skeleton } from '@chakra-ui/react/skeleton';
 import { Text } from '@chakra-ui/react/text';
-import { JSX, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Secret } from '@/core/models/Secret';
@@ -96,28 +106,18 @@ const SecretCard = (props: SecretCardProps) => {
     onCancel();
   };
 
-  const protectedIcon = <IconLock size="16" color="icon/tertiary" margin="12" />;
+  const protectedIcon = secret.isProtected ? <IconLock size="16" /> : undefined;
 
-  const showHideButton = (
-    <IconButton
-      size="md"
-      variant="secondary"
-      borderLeftRadius={0}
-      aria-label={isShown ? 'Hide' : 'Show'}
-      iconName={isShown ? 'HidePassword' : 'ShowPassword'}
-      onClick={() => (isShown ? setIsShown(false) : setIsShown(true))}
-    />
-  );
-
-  let valueInputAddon: JSX.Element;
-
-  if (!secret.isEditing) {
-    if (secret.isProtected) {
-      valueInputAddon = protectedIcon;
-    } else if (!secret.isShared) {
-      valueInputAddon = showHideButton;
-    }
-  }
+  const showHideButton =
+    !secret.isProtected && !secret.isShared ? (
+      <BitkitIconButton
+        size="md"
+        variant="secondary"
+        label={isShown ? 'Hide' : 'Show'}
+        icon={isShown ? IconEyeSlash : IconEye}
+        onClick={() => setIsShown(!isShown)}
+      />
+    ) : undefined;
 
   const secretValueElement = () => {
     if (isSecretValueLoading) {
@@ -140,19 +140,14 @@ const SecretCard = (props: SecretCardProps) => {
       );
     }
     return (
-      <Input
+      <BitkitTextInput
+        optional
         size="md"
-        isReadOnly
-        sx={{
-          '& input': {
-            pointerEvents: 'none',
-          },
-        }}
-        cursor="not-allowed"
-        type={isShown ? 'text' : 'password'}
-        rightAddon={valueInputAddon}
-        rightAddonPlacement="inside"
+        state="readOnly"
+        endElement={protectedIcon}
+        endAddon={showHideButton}
         value={watch('value') || ''}
+        inputProps={{ type: isShown ? 'text' : 'password' }}
       />
     );
   };
@@ -170,12 +165,13 @@ const SecretCard = (props: SecretCardProps) => {
         >
           <Box width="100%" display="flex" gap="8">
             <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
-              <Input
-                flexGrow={1}
+              <BitkitTextInput
+                optional
+                flexGrow="1"
                 size="md"
-                isReadOnly={secret.isSaved}
+                state={secret.isSaved ? 'readOnly' : undefined}
                 errorText={errors?.key?.message}
-                {...register('key', {
+                inputProps={register('key', {
                   validate: (v) => !isKeyUsed(v) || 'This key is already used!',
                 })}
               />

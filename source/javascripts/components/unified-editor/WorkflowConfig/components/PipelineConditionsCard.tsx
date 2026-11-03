@@ -1,6 +1,5 @@
-import { Input, Select, Textarea } from '@bitrise/bitkit';
-import { BitkitExpandableCard, BitkitSwitch } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import { Select, Textarea } from '@bitrise/bitkit';
+import { BitkitExpandableCard, BitkitSwitch, BitkitTextInput } from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { uniq } from 'es-toolkit';
@@ -109,7 +108,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     ]);
   });
 
-  const [value, setValue] = useState(initValue);
+  const [value, setValue] = useState(String(initValue));
   const [error, setError] = useState<string | undefined>(undefined);
 
   const validateAndPersist = (parallel: string | number) => {
@@ -134,7 +133,8 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
   };
 
   return (
-    <Input
+    <BitkitTextInput
+      optional
       size="md"
       value={value}
       errorText={error}
@@ -146,12 +146,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
         />
       }
       onChange={handleChange}
-      rightAddon={
-        <Box paddingInlineEnd="4">
-          <EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />
-        </Box>
-      }
-      rightAddonPlacement="inside"
+      endElement={<EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />}
     />
   );
 };
