@@ -1,5 +1,4 @@
-import { Tab, TabList } from '@bitrise/bitkit';
-import { BitkitButton, BitkitHeading, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitHeading, BitkitTabs, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -12,6 +11,7 @@ import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules 
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 
 import { useWorkflowConfigContext, useWorkflowConfigId } from '../WorkflowConfig.context';
+import { WorkflowConfigTab } from '../WorkflowConfig.types';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -88,11 +88,22 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
           </BitkitButton>
         )}
       </Box>
-      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">
-        <Tab>Configuration</Tab>
-        <Tab isDisabled={isCrossFile}>Properties</Tab>
-        {shouldShowTriggersTab && <Tab isDisabled={isCrossFile}>Triggers</Tab>}
-      </TabList>
+      <BitkitTabs.List
+        paddingInline="8"
+        marginInline={variant === 'drawer' ? '-24' : undefined}
+        marginBlockStart="16"
+        data-clarity-unmask="true"
+      >
+        <BitkitTabs.Trigger value={WorkflowConfigTab.CONFIGURATION}>Configuration</BitkitTabs.Trigger>
+        <BitkitTabs.Trigger value={WorkflowConfigTab.PROPERTIES} disabled={isCrossFile}>
+          Properties
+        </BitkitTabs.Trigger>
+        {shouldShowTriggersTab && (
+          <BitkitTabs.Trigger value={WorkflowConfigTab.TRIGGERS} disabled={isCrossFile}>
+            Triggers
+          </BitkitTabs.Trigger>
+        )}
+      </BitkitTabs.List>
     </>
   );
 };

@@ -1,5 +1,5 @@
-import { Card } from '@bitrise/bitkit';
 import { BitkitBadge, BitkitExpandableCard } from '@bitrise/bitkit-v2';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode } from 'react';
 
@@ -33,7 +33,11 @@ const StackAndMachineWrapper = (props: StackAndMachineWrapperProps) => {
       </BitkitExpandableCard>
     );
   }
-  return <Card padding="16">{children}</Card>;
+  return (
+    <Card.Root paddingSize="sm">
+      <Card.Body>{children}</Card.Body>
+    </Card.Root>
+  );
 };
 
 export default StackAndMachineWrapper;

@@ -1,5 +1,5 @@
-import { Card } from '@bitrise/bitkit';
 import { BitkitSwitch } from '@bitrise/bitkit-v2';
+import { Card } from '@chakra-ui/react/card';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { useState } from 'react';
 
@@ -75,17 +75,19 @@ const TargetBasedTriggersTabContent = (props: Props) => {
   return (
     <>
       <TargetBasedTriggerNotification />
-      <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
-        <BitkitSwitch
-          variant="fixed"
-          size="md"
-          label="Enable triggers"
-          helperText="When disabled and saved, none of the triggers below will execute a build."
-          checked={triggers.enabled !== false}
-          state={isReadOnly ? 'readOnly' : undefined}
-          onCheckedChange={handleGlobalTriggerEnabledToggled}
-        />
-      </Card>
+      <Card.Root elevation={false} marginBlockEnd="24" paddingSize="md">
+        <Card.Body>
+          <BitkitSwitch
+            variant="fixed"
+            size="md"
+            label="Enable triggers"
+            helperText="When disabled and saved, none of the triggers below will execute a build."
+            checked={triggers.enabled !== false}
+            state={isReadOnly ? 'readOnly' : undefined}
+            onCheckedChange={handleGlobalTriggerEnabledToggled}
+          />
+        </Card.Body>
+      </Card.Root>
       <TargetBasedTriggersCard
         triggerType="push"
         triggers={triggers.items.push}

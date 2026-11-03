@@ -1,5 +1,4 @@
-import { Tab, TabList, TabPanel, TabPanels, Tabs, useTabs } from '@bitrise/bitkit';
-import { BitkitHeading, BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitBadge, BitkitHeading, BitkitLink, BitkitTabs } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
 import { useEffect } from 'react';
 
@@ -13,16 +12,19 @@ import useSearchParams from '@/hooks/useSearchParams';
 
 import ExecutionContainersTab from './components/ExecutionContainersTab';
 import ServiceContainersTab from './components/ServiceContainersTab';
-import { getContainersBadge } from './utils/ContainersPage.utils';
 
 const TAB_IDS = [ContainerType.Execution, ContainerType.Service];
+
+const getContainersBadge = (count: number) => (
+  <BitkitBadge colorVariant={count > 0 ? 'purple' : 'neutral'}>{count}</BitkitBadge>
+);
 
 const ContainersPage = () => {
   const { [ContainerType.Execution]: executionContainers, [ContainerType.Service]: serviceContainers } =
     useModuleContainers();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const { setTabIndex, tabIndex } = useTabs({ tabIds: TAB_IDS });
+  const tabId = TAB_IDS.includes(searchParams.tab as ContainerType) ? searchParams.tab : TAB_IDS[0];
 
   const containerUsageLookup = useContainerWorkflowUsage();
   const countInUse = (containers: Container[]) =>
@@ -31,18 +33,16 @@ const ContainersPage = () => {
       return usageCount > 0;
     }).length;
 
-  const onTabChange = (index: number) => {
+  const onTabChange = ({ value }: { value: string }) => {
     setSearchParams({
       ...searchParams,
-      tab: TAB_IDS[index],
+      tab: value,
     });
   };
 
   useEffect(() => {
     if (searchParams.tab && TAB_IDS.includes(searchParams.tab as ContainerType)) {
-      const index = TAB_IDS.indexOf(searchParams.tab as ContainerType);
-      const tab = TAB_IDS[index];
-      setTabIndex(index);
+      const tab = searchParams.tab as ContainerType;
       segmentTrack('Container Subtab Displayed', {
         app_slug: PageProps.appSlug(),
         workspace_slug: GlobalProps.workspaceSlug(),
@@ -82,22 +82,26 @@ const ContainersPage = () => {
           Learn more
         </BitkitLink>
       </Text>
-      <Tabs index={tabIndex} onChange={onTabChange}>
+      <BitkitTabs.Root value={tabId} onValueChange={onTabChange}>
         {/* The badges carry a bare count of container definitions — no ids, images or workflow
             names — so the tab strip counts as chrome rather than customer data. */}
-        <TabList px="16" data-clarity-unmask="true">
-          <Tab badge={getContainersBadge(executionContainers.length)}>Execution containers</Tab>
-          <Tab badge={getContainersBadge(serviceContainers.length)}>Service containers</Tab>
-        </TabList>
-        <TabPanels p="32">
-          <TabPanel>
+        <BitkitTabs.List paddingInline="16" data-clarity-unmask="true">
+          <BitkitTabs.Trigger value={ContainerType.Execution} badge={getContainersBadge(executionContainers.length)}>
+            Execution containers
+          </BitkitTabs.Trigger>
+          <BitkitTabs.Trigger value={ContainerType.Service} badge={getContainersBadge(serviceContainers.length)}>
+            Service containers
+          </BitkitTabs.Trigger>
+        </BitkitTabs.List>
+        <BitkitTabs.ContentGroup padding="32">
+          <BitkitTabs.Content value={ContainerType.Execution}>
             <ExecutionContainersTab />
-          </TabPanel>
-          <TabPanel>
+          </BitkitTabs.Content>
+          <BitkitTabs.Content value={ContainerType.Service}>
             <ServiceContainersTab />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+          </BitkitTabs.Content>
+        </BitkitTabs.ContentGroup>
+      </BitkitTabs.Root>
     </>
   );
 };
