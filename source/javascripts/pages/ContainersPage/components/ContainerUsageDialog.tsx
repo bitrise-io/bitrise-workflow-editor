@@ -1,5 +1,4 @@
 import { BitkitDialog } from '@bitrise/bitkit-v2';
-import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 
 import { Container } from '@/core/models/Container';
@@ -33,7 +32,6 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
         {workflowsUsedByContainer.length !== 1 ? 's' : ''}.
       </Text>
       <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
-      <Separator />
     </BitkitDialog>
   );
 };

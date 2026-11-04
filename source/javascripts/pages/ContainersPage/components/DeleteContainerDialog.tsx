@@ -1,5 +1,4 @@
 import { BitkitButton, BitkitDialog } from '@bitrise/bitkit-v2';
-import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -94,10 +93,7 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
         )}
       </Text>
       {type === 'definition' && workflowsUsedByContainer.length > 0 && (
-        <>
-          <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
-          <Separator />
-        </>
+        <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
       )}
     </BitkitDialog>
   );
