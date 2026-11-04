@@ -12,6 +12,7 @@ import {
   IconTrash,
 } from '@bitrise/bitkit-v2';
 import { Card } from '@chakra-ui/react/card';
+import { HStack } from '@chakra-ui/react/stack';
 import { Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
@@ -93,26 +94,25 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                       )}
                     />
                     {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (
-                      <BitkitCheckbox
-                        labelText={
-                          <>
-                            Last commit only
-                            <BitkitToggletip
-                              text="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated."
-                              triggerAriaLabel="About Last commit only"
-                              wrapTrigger
-                            >
-                              <IconInfoCircle size="16" marginInlineStart="4" />
-                            </BitkitToggletip>
-                          </>
-                        }
-                        marginBlockStart="12"
-                        whiteSpace="nowrap"
-                        checked={!!isLastCommitOnly}
-                        onCheckedChange={({ checked }) =>
-                          setValue(`conditions.${index}.isLastCommitOnly`, checked === true)
-                        }
-                      />
+                      // The hint sits next to the checkbox, not inside its label: inside, it would
+                      // inherit the label's nowrap and sit on the text baseline.
+                      <HStack gap="4" marginBlockStart="12">
+                        <BitkitCheckbox
+                          labelText="Last commit only"
+                          whiteSpace="nowrap"
+                          checked={!!isLastCommitOnly}
+                          onCheckedChange={({ checked }) =>
+                            setValue(`conditions.${index}.isLastCommitOnly`, checked === true)
+                          }
+                        />
+                        <BitkitToggletip
+                          text="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated."
+                          triggerAriaLabel="About Last commit only"
+                          wrapTrigger
+                        >
+                          <IconInfoCircle size="16" />
+                        </BitkitToggletip>
+                      </HStack>
                     )}
                   </Td>
                   <Td height="auto" paddingBlock="12" verticalAlign="top">
