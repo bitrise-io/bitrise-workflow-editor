@@ -1,4 +1,4 @@
-import { Dialog, DialogBody, DialogFooter, IconButton, Toggletip } from '@bitrise/bitkit';
+import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitBadge,
@@ -7,9 +7,12 @@ import {
   BitkitIconButton,
   BitkitTextArea,
   BitkitTextInput,
+  BitkitToggletip,
   IconEye,
   IconEyeSlash,
   IconLock,
+  IconMinusCircle,
+  IconPencil,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Card } from '@chakra-ui/react/card';
@@ -173,39 +176,36 @@ const SecretCard = (props: SecretCardProps) => {
               </Box>
               {secret.isShared ? (
                 <Box width="88px" display="flex" alignItems="center" justifyContent="center">
-                  <Toggletip
-                    trigger="hover"
-                    label="Shared resources are managed at Workspace settings."
+                  <BitkitToggletip
+                    text="Shared resources are managed at Workspace settings."
+                    learnMoreTarget="_blank"
                     learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
-                    button={{ href: secretSettingsUrl, label: 'Go to settings' }}
+                    button={secretSettingsUrl ? { href: secretSettingsUrl, children: 'Go to settings' } : undefined}
+                    wrapTrigger
                   >
                     <BitkitBadge>Shared</BitkitBadge>
-                  </Toggletip>
+                  </BitkitToggletip>
                 </Box>
               ) : (
                 <>
                   {!secret.isEditing && (
                     <Box display="flex">
-                      <IconButton
+                      <BitkitIconButton
+                        icon={IconPencil}
+                        label="Edit secret"
                         size="md"
-                        iconSize="24"
-                        color="button/secondary"
-                        iconName="Pencil"
-                        aria-label="Edit secret"
                         variant="tertiary"
+                        marginInlineStart="8"
                         onClick={() => {
                           setIsShown(true);
                           onEdit?.(secret.key);
                         }}
-                        marginLeft="8"
                       />
-                      <IconButton
+                      <BitkitIconButton
+                        icon={IconMinusCircle}
+                        label="Delete secret"
                         size="md"
-                        iconSize="24"
-                        iconName="MinusCircle"
-                        aria-label="Delete secret"
-                        variant="tertiary"
-                        isDanger
+                        variant="danger-tertiary"
                         onClick={() => onDelete(secret.key)}
                       />
                     </Box>

@@ -1,10 +1,11 @@
-import { Select, Table, Tbody, Td, Th, Thead, Toggletip, Tr } from '@bitrise/bitkit';
+import { Select, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitCheckbox,
   BitkitControlButton,
   BitkitTextInput,
   BitkitToggleButton,
+  BitkitToggletip,
   IconInfoCircle,
   IconPlus,
   IconRegex,
@@ -96,9 +97,13 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         labelText={
                           <>
                             Last commit only
-                            <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">
+                            <BitkitToggletip
+                              text="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated."
+                              triggerAriaLabel="About last commit only"
+                              wrapTrigger
+                            >
                               <IconInfoCircle size="16" marginInlineStart="4" />
-                            </Toggletip>
+                            </BitkitToggletip>
                           </>
                         }
                         marginBlockStart="12"
