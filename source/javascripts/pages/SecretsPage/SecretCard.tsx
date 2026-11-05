@@ -178,6 +178,7 @@ const SecretCard = (props: SecretCardProps) => {
                 <Box width="88px" display="flex" alignItems="center" justifyContent="center">
                   <BitkitToggletip
                     text="Shared resources are managed at Workspace settings."
+                    learnMoreTarget="_blank"
                     learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
                     button={secretSettingsUrl ? { href: secretSettingsUrl, children: 'Go to settings' } : undefined}
                     wrapTrigger

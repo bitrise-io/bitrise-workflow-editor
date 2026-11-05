@@ -1,5 +1,5 @@
-import { Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitDefinitionTooltip, BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { DefinitionTooltip, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { BitkitLinkButton } from '@bitrise/bitkit-v2';
 import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 
@@ -65,12 +65,9 @@ const ContainerCard = (props: ContainerCardProps) => {
                 </Text>
               </Th>
               <Th color="text/primary">
-                <BitkitDefinitionTooltip
-                  textSize="sm"
-                  text='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'
-                >
+                <DefinitionTooltip label='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
                   Behavior
-                </BitkitDefinitionTooltip>
+                </DefinitionTooltip>
               </Th>
               <Th width="96px" />
             </Tr>
