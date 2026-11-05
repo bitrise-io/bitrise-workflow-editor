@@ -1,5 +1,5 @@
-import { Select, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitButton, BitkitEmptyState, BitkitHeading, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
+import { Select } from '@bitrise/bitkit';
+import { BitkitButton, BitkitEmptyState, BitkitHeading, BitkitLink, BitkitTable, IconKey } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -11,7 +11,9 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 const LicensesPage = () => {
   const workflows = useWorkflows();
   const workspaceSlug = GlobalProps.workspaceSlug();
-  const { data: licensePools, isPending } = useGetLicensePoolsQuery({ workspaceSlug });
+  const { data: licensePools, isPending } = useGetLicensePoolsQuery({
+    workspaceSlug,
+  });
 
   return (
     <Box padding="32">
@@ -42,20 +44,20 @@ const LicensesPage = () => {
         </BitkitEmptyState>
       )}
       {!isPending && !!licensePools?.length && (
-        <Table isFixed variant="borderless">
-          <Thead data-clarity-unmask="true">
-            <Tr>
-              <Th>Workflow</Th>
-              <Th>License pool</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+        <BitkitTable.Root variant="borderless" tableLayout="fixed">
+          <BitkitTable.Header data-clarity-unmask="true">
+            <BitkitTable.Row>
+              <BitkitTable.ColumnHeader>Workflow</BitkitTable.ColumnHeader>
+              <BitkitTable.ColumnHeader>License pool</BitkitTable.ColumnHeader>
+            </BitkitTable.Row>
+          </BitkitTable.Header>
+          <BitkitTable.Body>
             {Object.keys(workflows).map((wfId) => {
               const value = workflows[wfId]?.meta?.['bitrise.io']?.license_pool_id || '';
               return (
-                <Tr key={wfId}>
-                  <Td>{wfId}</Td>
-                  <Td>
+                <BitkitTable.Row key={wfId}>
+                  <BitkitTable.Cell>{wfId}</BitkitTable.Cell>
+                  <BitkitTable.Cell>
                     <Select
                       placeholder={!value ? 'No license pool selected' : undefined}
                       isDisabled={!wfId}
@@ -76,12 +78,12 @@ const LicensesPage = () => {
                         </option>
                       ))}
                     </Select>
-                  </Td>
-                </Tr>
+                  </BitkitTable.Cell>
+                </BitkitTable.Row>
               );
             })}
-          </Tbody>
-        </Table>
+          </BitkitTable.Body>
+        </BitkitTable.Root>
       )}
     </Box>
   );
