@@ -60,10 +60,7 @@ const ContainerCard = (props: ContainerCardProps) => {
               <BitkitTable.ColumnHeader>
                 {type === 'execution' ? 'Execution' : 'Service'} Container
               </BitkitTable.ColumnHeader>
-              <BitkitTable.DefinitionColumnHeader
-                method="hover"
-                text='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'
-              >
+              <BitkitTable.DefinitionColumnHeader text='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
                 Behavior
               </BitkitTable.DefinitionColumnHeader>
               <BitkitTable.ColumnHeader width="96" />
