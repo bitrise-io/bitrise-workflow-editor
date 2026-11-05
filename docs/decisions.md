@@ -70,6 +70,14 @@ an event handler leaves the document as it was, and the global error handler sho
 anchors warn about nothing. The YAML view keeps
 aliases and merge keys as written.
 
+The way out is the quick fix on each warning, which expands that alias or merge key. It's opt-in
+because one shared step list used by five workflows becomes five copies. One inside `[ … ]` or
+`{ … }` gets none, since its copy would lose its comments and fold onto one line. It's the one
+structured edit that doesn't go through a service: it edits the Monaco model as text, so it's a
+single undo step, reaches the store through `onChange` like typing, and leaves every line it doesn't
+expand byte-for-byte as it was. Serializing the expanded document instead would re-quote and
+re-indent the whole file.
+
 ## An alias with no anchor is a parse error
 
 The parser accepts it, then every serialization throws, so `toDoc` reports it as the parse error it

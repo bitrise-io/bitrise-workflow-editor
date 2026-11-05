@@ -117,12 +117,12 @@ function toDoc(raw: string) {
   return doc;
 }
 
-function toYml(root: Root) {
-  const rawError = rawErrorSource(root);
-  if (rawError !== undefined) {
-    return rawError;
-  }
-
+/**
+ * The options `toYml` stringifies `root` with: the sequence indent and flow collection padding most of
+ * its source uses, so the output keeps the file's style. `onScalar` lets `toYml` rewrite scalars in the
+ * same walk.
+ */
+function stringifyOptions(root: Root, onScalar?: (node: Scalar) => void) {
   let indents = 0;
   let paddings = 0;
 
@@ -146,21 +146,35 @@ function toYml(root: Root) {
         });
       }
     },
-    Scalar(__, node) {
-      if (typeof node.value === 'string' && /\t/.test(node.value)) {
-        node.type = 'BLOCK_LITERAL';
-        node.value = node.value.replace(/\t/g, '  ');
-      }
+    Scalar(_, node) {
+      onScalar?.(node);
     },
   });
 
-  return stringify(root, {
+  return {
     version: '1.1',
     schema: 'yaml-1.1',
     indentSeq: indents > 0,
     aliasDuplicateObjects: false,
     flowCollectionPadding: paddings >= 0,
-  });
+  } as const;
+}
+
+function toYml(root: Root) {
+  const rawError = rawErrorSource(root);
+  if (rawError !== undefined) {
+    return rawError;
+  }
+
+  return stringify(
+    root,
+    stringifyOptions(root, (node) => {
+      if (typeof node.value === 'string' && /\t/.test(node.value)) {
+        node.type = 'BLOCK_LITERAL';
+        node.value = node.value.replace(/\t/g, '  ');
+      }
+    }),
+  );
 }
 
 function toJSON(root: Root) {
@@ -748,6 +762,7 @@ function updateValueByValue(root: Root, path: WildcardPath, oldValue: unknown, n
 export default {
   toDoc,
   toYml,
+  stringifyOptions,
   toJSON,
   toScalar,
   isEquals,
