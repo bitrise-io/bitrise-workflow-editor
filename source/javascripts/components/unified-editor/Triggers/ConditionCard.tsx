@@ -1,8 +1,8 @@
 import { Select, Toggletip } from '@bitrise/bitkit';
 import {
   BitkitButton,
+  BitkitCheckbox,
   BitkitControlButton,
-  BitkitSwitch,
   BitkitTable,
   BitkitTextInput,
   BitkitToggleButton,
@@ -91,9 +91,8 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                       )}
                     />
                     {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (
-                      <BitkitSwitch
-                        size="md"
-                        label={
+                      <BitkitCheckbox
+                        labelText={
                           <>
                             Last commit only
                             <Toggletip label="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated.">

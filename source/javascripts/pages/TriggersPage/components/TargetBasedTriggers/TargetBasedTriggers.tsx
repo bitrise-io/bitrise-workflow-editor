@@ -1,9 +1,9 @@
 import {
+  BitkitCheckbox,
   BitkitEmptyState,
   BitkitIconButton,
   BitkitLink,
   BitkitSearchInput,
-  BitkitSwitch,
   BitkitTable,
   IconMinusCircle,
   IconPencil,
@@ -154,9 +154,8 @@ const TargetBasedTriggers = () => {
         </BitkitTable.Cell>
         <BitkitTable.Cell textAlign="end" whiteSpace="nowrap">
           <Box display="inline-flex" alignItems="center">
-            <BitkitSwitch
-              size="md"
-              label="Active"
+            <BitkitCheckbox
+              labelText="Active"
               marginInlineEnd="16"
               checked={trigger.isActive}
               state={isReadOnlyView ? 'disabled' : undefined}
