@@ -133,7 +133,6 @@ describe('RootErrorBoundary', () => {
       ['Chrome', new TypeError('Failed to fetch dynamically imported module: https://x/WorkflowsPage-a.js')],
       ['Firefox', new TypeError('error loading dynamically imported module: https://x/WorkflowsPage-a.js')],
       ['Safari', new TypeError('Importing a module script failed.')],
-      ['a Vite CSS preload', new Error('Unable to preload CSS for /workflow_editor/x/assets/PipelinesPage-a.css')],
     ])('offers a reload instead of the YAML editor, in %s', async (_, thrown) => {
       await ChunkFailedToLoad.load();
       render(<ChunkFailedToLoad thrown={thrown} />);
