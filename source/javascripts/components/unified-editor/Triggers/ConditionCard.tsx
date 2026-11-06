@@ -1,8 +1,9 @@
-import { Select, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Select } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitCheckbox,
   BitkitControlButton,
+  BitkitTable,
   BitkitTextInput,
   BitkitToggleButton,
   BitkitToggletip,
@@ -12,7 +13,6 @@ import {
   IconTrash,
 } from '@bitrise/bitkit-v2';
 import { Card } from '@chakra-ui/react/card';
-import { Tfoot } from 'chakra-ui-2--react';
 import { useMemo } from 'react';
 import { Controller, FieldArrayWithId, useFormContext } from 'react-hook-form';
 
@@ -50,26 +50,25 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
 
   return (
     <Card.Root elevation={false} overflow="hidden">
-      {/* TODO: The table pads itself, so the body's padding is off. The Table migration replaces this card with
-          BitkitTableCard; drop the Card.Root and Card.Body then. */}
+      {/* A plain card, not BitkitTableCard: that one always renders a title bar, and this table has no title. */}
       <Card.Body padding="0">
-        <Table borderRadius="8" variant="borderless" disableRowHover isFixed>
-          <Thead backgroundColor="background/primary" data-clarity-unmask="true">
-            <Tr>
-              <Th width="35%">Condition</Th>
-              <Th>Value</Th>
-              {!isTagCondition && <Th width="52px" />}
-            </Tr>
-          </Thead>
-          <Tbody>
+        <BitkitTable.Root variant="card" rowHover={false} tableLayout="fixed">
+          <BitkitTable.Header data-clarity-unmask="true">
+            <BitkitTable.Row>
+              <BitkitTable.ColumnHeader width="35%">Condition</BitkitTable.ColumnHeader>
+              <BitkitTable.ColumnHeader>Value</BitkitTable.ColumnHeader>
+              {!isTagCondition && <BitkitTable.ColumnHeader width="64" />}
+            </BitkitTable.Row>
+          </BitkitTable.Header>
+          <BitkitTable.Body>
             {fields.map((fieldItem, index) => {
               const cond = conditions[index] || {};
               const { isLastCommitOnly, isRegex, type } = cond;
               const isRequired = TriggerService.requiredField(type);
 
               return (
-                <Tr key={fieldItem.uniqueId}>
-                  <Td height="auto" paddingBlock="12" verticalAlign="top">
+                <BitkitTable.Row key={fieldItem.uniqueId}>
+                  <BitkitTable.Cell height="auto" paddingBlock="12" verticalAlign="top">
                     <Controller
                       name={`conditions.${index}.type`}
                       control={control}
@@ -114,15 +113,19 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         }
                       />
                     )}
-                  </Td>
-                  <Td height="auto" paddingBlock="12" verticalAlign="top">
+                  </BitkitTable.Cell>
+                  <BitkitTable.Cell height="auto" paddingBlock="12" verticalAlign="top">
                     <Controller
                       name={`conditions.${index}.value`}
                       render={({ field }) => (
                         <BitkitTextInput
                           value={field.value}
                           onValueChange={(value) => field.onChange(value.trimStart())}
-                          inputProps={{ name: field.name, onBlur: field.onBlur, required: isRequired }}
+                          inputProps={{
+                            name: field.name,
+                            onBlur: field.onBlur,
+                            required: isRequired,
+                          }}
                           placeholder={isRegex ? '.*' : '*'}
                           helperText={type ? CONDITION_HELPERTEXT_MAP[type] : undefined}
                           size="md"
@@ -138,9 +141,9 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         />
                       )}
                     />
-                  </Td>
+                  </BitkitTable.Cell>
                   {!isTagCondition && (
-                    <Td height="auto" paddingBlock="12" verticalAlign="top" paddingLeft="0">
+                    <BitkitTable.Cell height="auto" paddingBlock="12" verticalAlign="top" paddingInlineStart="0">
                       <BitkitControlButton
                         icon={IconTrash}
                         label="Remove"
@@ -150,16 +153,17 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         state={fields.length === 1 ? 'disabled' : undefined}
                         onClick={() => remove(index)}
                       />
-                    </Td>
+                    </BitkitTable.Cell>
                   )}
-                </Tr>
+                </BitkitTable.Row>
               );
             })}
-          </Tbody>
+          </BitkitTable.Body>
           {!isTagCondition && (
-            <Tfoot>
-              <Tr>
-                <Td>
+            <BitkitTable.Footer>
+              <BitkitTable.Row>
+                {/* A footer cell has no padding of its own; this lines the button's label up with the column text. */}
+                <BitkitTable.Cell colSpan={3} paddingBlock="12" paddingInline="12">
                   <BitkitButton
                     variant="tertiary"
                     size="md"
@@ -169,13 +173,11 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                   >
                     Add condition
                   </BitkitButton>
-                </Td>
-                <Td />
-                <Td />
-              </Tr>
-            </Tfoot>
+                </BitkitTable.Cell>
+              </BitkitTable.Row>
+            </BitkitTable.Footer>
           )}
-        </Table>
+        </BitkitTable.Root>
       </Card.Body>
     </Card.Root>
   );

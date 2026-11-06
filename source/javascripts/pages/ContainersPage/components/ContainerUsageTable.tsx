@@ -1,5 +1,4 @@
-import { Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitControlButton, IconArrowNortheast } from '@bitrise/bitkit-v2';
+import { BitkitControlButton, BitkitTable, IconArrowNortheast } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
@@ -21,20 +20,20 @@ const ContainerUsageTable = ({ containerId, workflows }: Props) => {
   const usageByWorkflow = useContainerUsageByWorkflow(containerId);
 
   return (
-    <Table isFixed variant="borderless" mt="24">
-      <Thead data-clarity-unmask="true">
-        <Tr>
-          <Th textStyle="heading/h5">Workflow name</Th>
-          <Th width="60px" textAlign="right" />
-        </Tr>
-      </Thead>
-      <Tbody>
+    <BitkitTable.Root variant="borderless" tableLayout="fixed" marginBlockStart="24">
+      <BitkitTable.Header data-clarity-unmask="true">
+        <BitkitTable.Row>
+          <BitkitTable.ColumnHeader>Workflow name</BitkitTable.ColumnHeader>
+          <BitkitTable.ColumnHeader width="64" />
+        </BitkitTable.Row>
+      </BitkitTable.Header>
+      <BitkitTable.Body>
         {workflows.map((workflowId) => (
-          <Tr key={workflowId}>
-            <Td>
+          <BitkitTable.Row key={workflowId}>
+            <BitkitTable.Cell>
               <Text textStyle="body/md/regular">{workflowId}</Text>
-            </Td>
-            <Td>
+            </BitkitTable.Cell>
+            <BitkitTable.Cell textAlign="end">
               {isModular ? (
                 <CrossFileJumpButton
                   kind="workflows"
@@ -50,11 +49,11 @@ const ContainerUsageTable = ({ containerId, workflows }: Props) => {
                   onClick={() => replace('/workflows', { workflow_id: workflowId })}
                 />
               )}
-            </Td>
-          </Tr>
+            </BitkitTable.Cell>
+          </BitkitTable.Row>
         ))}
-      </Tbody>
-    </Table>
+      </BitkitTable.Body>
+    </BitkitTable.Root>
   );
 };
 
