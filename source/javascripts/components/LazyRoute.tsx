@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Route, RouteProps } from 'wouter';
 
+import ChunkLoadErrorBoundary from '@/components/ChunkLoadErrorBoundary';
 import Discardable from '@/components/Discardable';
 import LoadingState from '@/components/LoadingState';
 import PageProps from '@/core/utils/PageProps';
@@ -14,11 +15,13 @@ const LazyRoute = (props: RouteProps) => {
   }
 
   return (
-    <Suspense fallback={<LoadingState />}>
-      <Discardable>
-        <Route {...props} />
-      </Discardable>
-    </Suspense>
+    <ChunkLoadErrorBoundary>
+      <Suspense fallback={<LoadingState />}>
+        <Discardable>
+          <Route {...props} />
+        </Discardable>
+      </Suspense>
+    </ChunkLoadErrorBoundary>
   );
 };
 

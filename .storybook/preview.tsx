@@ -1,4 +1,5 @@
 import '../source/javascripts/typings/globals.d.ts';
+import '@xyflow/react/dist/style.css';
 
 import { Provider } from '@bitrise/bitkit';
 import { BitkitProvider } from '@bitrise/bitkit-v2';

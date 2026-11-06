@@ -55,3 +55,12 @@ export const NotAnErrorThrown: Story = { ...OnAVisualPage, args: { thrown: undef
 export const ErrorWithoutAMessage: Story = { ...OnAVisualPage, args: { thrown: new Error('') } };
 
 export const UnprintableValueThrown: Story = { ...OnAVisualPage, args: { thrown: Object.create(null) } };
+
+export const ChunkFailedToLoad: Story = {
+  ...OnASelectedWorkflow,
+  args: {
+    thrown: new TypeError(
+      'Failed to fetch dynamically imported module: https://app.bitrise.io/workflow_editor/2.5.16985/assets/WorkflowsPage-CDfdHTQA.js',
+    ),
+  },
+};
