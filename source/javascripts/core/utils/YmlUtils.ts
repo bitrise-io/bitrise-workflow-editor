@@ -363,9 +363,8 @@ function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
 
 /**
  * Walks the live document on every call, so each wildcard edit in a mutator sees the keys and indices
- * that the previous edits left behind; caching the result breaks that. Matches come in descending
- * order, indices compared as numbers, so a caller deleting them one by one never shifts an index it
- * has yet to visit.
+ * that the previous edits left behind; caching the result breaks that. Matches come in reverse
+ * document order, so a caller deleting them one by one never shifts an index it has yet to visit.
  */
 function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = []) {
   const matches: Path[] = [];
@@ -396,9 +395,7 @@ function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = [
 
   walk(isDocument(root) ? root.contents : root, []);
 
-  return matches
-    .sort((a, b) => b.join('.').localeCompare(a.join('.'), undefined, { numeric: true }))
-    .map((match): [Path, Path] => [match, match.slice(0, keep.length)]);
+  return matches.reverse().map((match): [Path, Path] => [match, match.slice(0, keep.length)]);
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
