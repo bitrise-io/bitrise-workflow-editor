@@ -361,81 +361,41 @@ function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
   }
 }
 
-const collectPathsCache = new WeakMap<Root, Path[]>();
-
 /**
- * Collects all paths in a YAML document.
- *
- * **IMPORTANT: Caching behavior**
- * - Results are cached using WeakMap with the root object as the key
- * - Cache is based on object identity, not document content
- * - Safe across mutations because `updateBitriseYmlDocument` clones the document before mutating
- * - **UNSAFE** if called multiple times within a single mutation transaction after in-place modifications
- *
- * @example
- * // ✅ SAFE: Cache invalidated by clone
- * updateBitriseYmlDocument(({ doc }) => {
- *   const paths = collectPaths(doc);  // First call caches
- *   YmlUtils.setIn(doc, ['new'], 'value');
- *   return doc;
- * });
- * // Next transaction gets a new clone, so new cache entry
- *
- * @example
- * // ⚠️ UNSAFE: Returns stale cached data
- * updateBitriseYmlDocument(({ doc }) => {
- *   const paths1 = collectPaths(doc);     // Caches result
- *   YmlUtils.setIn(doc, ['new'], 'value'); // Mutates doc in-place
- *   const paths2 = collectPaths(doc);     // Returns stale cache (missing 'new' field)
- *   return doc;
- * });
+ * Walks the live document on every call, so each wildcard edit in a mutator sees the keys and indices
+ * that the previous edits left behind; caching the result breaks that. Matches come in reverse
+ * document order, so a caller deleting them one by one never shifts an index it has yet to visit.
  */
-function collectPaths(root: Root) {
-  if (collectPathsCache.has(root)) {
-    return collectPathsCache.get(root)!;
-  }
-
-  if (!isDocument(root) && !isCollection(root)) {
-    throw new Error('Root node must be a YAML Document or YAML Collection');
-  }
-
-  function traverseAndCollectPaths(subject: unknown, ancestorPath: Path = []) {
-    const paths: Path[] = [];
-
-    if (Array.isArray(subject)) {
-      subject.forEach((item, index) => {
-        const path = [...ancestorPath, index];
-        paths.push(path, ...traverseAndCollectPaths(item, path));
-      });
-    } else if (typeof subject === 'object' && subject !== null) {
-      Object.entries(subject).forEach(([key, item]) => {
-        const path = [...ancestorPath, key];
-        paths.push(path, ...traverseAndCollectPaths(item, path));
-      });
-    }
-
-    return paths;
-  }
-
-  const paths = traverseAndCollectPaths(root.toJSON()).sort((a, b) => b.join('.').localeCompare(a.join('.')));
-
-  collectPathsCache.set(root, paths);
-
-  return paths;
-}
-
 function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = []) {
-  return collectPaths(root).reduce<[Path, Path][]>((result, possiblePath) => {
-    if (possiblePath.length !== path.length) {
-      return result;
+  const matches: Path[] = [];
+
+  function walk(node: unknown, nodePath: Path) {
+    if (nodePath.length === path.length) {
+      matches.push(nodePath);
+      return;
     }
 
-    if (possiblePath.every((part, index) => [part, '*'].includes(path[index]))) {
-      result.push([possiblePath, possiblePath.slice(0, keep.length)]);
-    }
+    const segment = path[nodePath.length];
 
-    return result;
-  }, []);
+    if (isMap(node)) {
+      node.items.forEach(({ key, value }) => {
+        const keyValue = isScalar(key) ? key.value : key;
+        if ((typeof keyValue === 'string' || typeof keyValue === 'number') && [keyValue, '*'].includes(segment)) {
+          walk(value, [...nodePath, keyValue]);
+        }
+      });
+    } else if (isSeq(node)) {
+      node.items.forEach((item, index) => {
+        if (segment === '*' || segment === index) {
+          walk(item, [...nodePath, index]);
+        }
+      });
+    }
+  }
+
+  walk(isDocument(root) ? root.contents : root, []);
+
+  return matches.reverse().map((match): [Path, Path] => [match, match.slice(0, keep.length)]);
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();
@@ -766,7 +726,6 @@ export default {
   updateValueByValue,
   updateValueByPredicate,
   getMatchingPaths,
-  collectPaths,
   unflowEmptyCollection,
   findAliasesAndMergeKeys,
   isMergeKey,
