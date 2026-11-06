@@ -1,8 +1,8 @@
-import { List, ListItem } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitHeading,
   BitkitLink,
+  BitkitList,
   IconArrowNortheast,
   IconPlus,
   IconSparkleFilled,
@@ -81,13 +81,13 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
           <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
             <BitkitHeading as="h3">Get started with Pipelines</BitkitHeading>
 
-            <List flex="1" variant="unordered" pl="8" textStyle="body/md/regular">
-              <ListItem>Parallelize tasks for faster build cycles</ListItem>
-              <ListItem>
+            <BitkitList flex="1" size="md">
+              <BitkitList.Item>Parallelize tasks for faster build cycles</BitkitList.Item>
+              <BitkitList.Item>
                 Every Pipeline run is visualized in a simple diagram, making it easy to see dependencies and bottlenecks
-              </ListItem>
-              <ListItem>Edit Workflows directly in the Pipeline</ListItem>
-            </List>
+              </BitkitList.Item>
+              <BitkitList.Item>Edit Workflows directly in the Pipeline</BitkitList.Item>
+            </BitkitList>
 
             {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
             {!isReadOnlyView && (

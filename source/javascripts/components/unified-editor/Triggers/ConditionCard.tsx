@@ -107,7 +107,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                         />
                         <BitkitToggletip
                           text="When checked, only the latest commit message is evaluated. When unchecked, all commits in a push are evaluated."
-                          triggerAriaLabel="About Last commit only"
+                          triggerAriaLabel="About last commit only"
                           wrapTrigger
                         >
                           <IconInfoCircle size="16" />

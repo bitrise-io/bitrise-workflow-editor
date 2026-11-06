@@ -1,8 +1,8 @@
-import { MarkdownContent } from '@bitrise/bitkit';
 import {
   BitkitAvatar,
   BitkitControlButton,
   BitkitLinkButton,
+  BitkitMarkdown,
   BitkitOverflowTooltip,
   IconPlus,
   rem,
@@ -165,7 +165,7 @@ const AlgoliaStepListItem = ({
             flex="1"
             paddingBlockStart="8"
           >
-            <MarkdownContent md={description || ''} size="sm" />
+            <BitkitMarkdown size="sm">{description || ''}</BitkitMarkdown>
           </Box>
         )}
 

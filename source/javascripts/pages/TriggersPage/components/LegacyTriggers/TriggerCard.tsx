@@ -89,10 +89,17 @@ const TriggerCard = (props: TriggerCardProps) => {
         {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
         {!isReadOnlyView && (
           <>
-            <BitkitIconButton icon={IconPencil} label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+            <BitkitIconButton
+              icon={IconPencil}
+              label="Edit trigger"
+              size="md"
+              variant="tertiary"
+              onClick={handleEdit}
+            />
             <BitkitIconButton
               icon={IconMinusCircle}
               label="Remove trigger"
+              size="md"
               variant="danger-tertiary"
               onClick={handleRemove}
             />

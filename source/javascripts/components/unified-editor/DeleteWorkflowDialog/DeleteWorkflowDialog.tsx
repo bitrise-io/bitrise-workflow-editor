@@ -1,5 +1,4 @@
-import { List, ListItem } from '@bitrise/bitkit';
-import { BitkitButton, BitkitDialog } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitDialog, BitkitList, IconCheck, IconCross } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
 import { useCallback } from 'react';
 
@@ -40,17 +39,17 @@ const DeleteWorkflowDialog = ({ isOpen, workflowId, onDeleteWorkflow, onClose }:
       <Text>
         Are you sure you want to delete <strong>{workflowId}</strong>?
       </Text>
-      <List variant="unstyled" spacing="6" data-clarity-unmask="true">
-        <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
+      <BitkitList data-clarity-unmask="true">
+        <BitkitList.Item icon={IconCross} iconColor="icon/negative">
           All settings, Steps and EnvVars specific to this Workflow will be deleted.
-        </ListItem>
-        <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
+        </BitkitList.Item>
+        <BitkitList.Item icon={IconCross} iconColor="icon/negative">
           Dependent automated tasks, builds and deployments will stop functioning.
-        </ListItem>
-        <ListItem iconSize="24" iconName="Check" iconColor="icon/positive">
+        </BitkitList.Item>
+        <BitkitList.Item icon={IconCheck} iconColor="icon/positive">
           Historical build logs will remain accessible.
-        </ListItem>
-      </List>
+        </BitkitList.Item>
+      </BitkitList>
       <Text textStyle="body/lg/semibold" data-clarity-unmask="true">
         This action cannot be undone after the YML is saved.
       </Text>

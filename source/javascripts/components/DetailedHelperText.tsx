@@ -1,5 +1,5 @@
-import { Collapse, MarkdownContent } from '@bitrise/bitkit';
-import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { Collapse } from '@bitrise/bitkit';
+import { BitkitLinkButton, BitkitMarkdown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 
@@ -14,10 +14,14 @@ const DetailedHelperText = ({ summary, details }: Props) => {
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
-      <MarkdownContent md={summary} size="sm" gap="8" />
+      <BitkitMarkdown size="sm" gap="8">
+        {summary}
+      </BitkitMarkdown>
 
       <Collapse in={isOpen}>
-        <MarkdownContent md={details} size="sm" gap="8" />
+        <BitkitMarkdown size="sm" gap="8">
+          {details}
+        </BitkitMarkdown>
       </Collapse>
 
       <BitkitLinkButton alignSelf="start" onClick={onToggle}>
