@@ -361,69 +361,6 @@ function addIn(root: Root, path: Path, value: unknown, stringToTypedValue = true
   }
 }
 
-const collectPathsCache = new WeakMap<Root, Path[]>();
-
-/**
- * Collects all paths in a YAML document.
- *
- * **IMPORTANT: Caching behavior**
- * - Results are cached using WeakMap with the root object as the key
- * - Cache is based on object identity, not document content
- * - Safe across mutations because `updateBitriseYmlDocument` clones the document before mutating
- * - **UNSAFE** if called multiple times within a single mutation transaction after in-place modifications
- *
- * @example
- * // ✅ SAFE: Cache invalidated by clone
- * updateBitriseYmlDocument(({ doc }) => {
- *   const paths = collectPaths(doc);  // First call caches
- *   YmlUtils.setIn(doc, ['new'], 'value');
- *   return doc;
- * });
- * // Next transaction gets a new clone, so new cache entry
- *
- * @example
- * // ⚠️ UNSAFE: Returns stale cached data
- * updateBitriseYmlDocument(({ doc }) => {
- *   const paths1 = collectPaths(doc);     // Caches result
- *   YmlUtils.setIn(doc, ['new'], 'value'); // Mutates doc in-place
- *   const paths2 = collectPaths(doc);     // Returns stale cache (missing 'new' field)
- *   return doc;
- * });
- */
-function collectPaths(root: Root) {
-  if (collectPathsCache.has(root)) {
-    return collectPathsCache.get(root)!;
-  }
-
-  if (!isDocument(root) && !isCollection(root)) {
-    throw new Error('Root node must be a YAML Document or YAML Collection');
-  }
-
-  function traverseAndCollectPaths(subject: unknown, ancestorPath: Path = []) {
-    const paths: Path[] = [];
-
-    if (Array.isArray(subject)) {
-      subject.forEach((item, index) => {
-        const path = [...ancestorPath, index];
-        paths.push(path, ...traverseAndCollectPaths(item, path));
-      });
-    } else if (typeof subject === 'object' && subject !== null) {
-      Object.entries(subject).forEach(([key, item]) => {
-        const path = [...ancestorPath, key];
-        paths.push(path, ...traverseAndCollectPaths(item, path));
-      });
-    }
-
-    return paths;
-  }
-
-  const paths = traverseAndCollectPaths(root.toJSON()).sort((a, b) => b.join('.').localeCompare(a.join('.')));
-
-  collectPathsCache.set(root, paths);
-
-  return paths;
-}
-
 /**
  * Walks the live document on every call, so each wildcard edit in a mutator sees the keys and indices
  * that the previous edits left behind; caching the result breaks that. Matches come in descending
@@ -792,7 +729,6 @@ export default {
   updateValueByValue,
   updateValueByPredicate,
   getMatchingPaths,
-  collectPaths,
   unflowEmptyCollection,
   findAliasesAndMergeKeys,
   isMergeKey,

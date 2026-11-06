@@ -476,48 +476,6 @@ describe('YmlUtils', () => {
     });
   });
 
-  describe('collectPaths', () => {
-    it('should collect paths from a YAML document', () => {
-      const root = YmlUtils.toDoc(`
-        workflows:
-          wf1:
-            steps:
-              - script: {}
-              - clone: {}
-          wf2:
-            steps:
-              - deploy: {}
-          123:
-            steps:
-              - test: {}
-      `);
-
-      const paths = YmlUtils.collectPaths(root);
-
-      expect(paths).toEqual([
-        ['workflows', 'wf2', 'steps', 0, 'deploy'],
-        ['workflows', 'wf2', 'steps', 0],
-        ['workflows', 'wf2', 'steps'],
-        ['workflows', 'wf2'],
-
-        ['workflows', 'wf1', 'steps', 1, 'clone'],
-        ['workflows', 'wf1', 'steps', 1],
-
-        ['workflows', 'wf1', 'steps', 0, 'script'],
-        ['workflows', 'wf1', 'steps', 0],
-        ['workflows', 'wf1', 'steps'],
-        ['workflows', 'wf1'],
-
-        ['workflows', '123', 'steps', 0, 'test'],
-        ['workflows', '123', 'steps', 0],
-        ['workflows', '123', 'steps'],
-        ['workflows', '123'],
-
-        ['workflows'],
-      ]);
-    });
-  });
-
   describe('setIn', () => {
     it('should set a value in a YMLMap at the specified path', () => {
       const root = YmlUtils.toDoc(yaml`
