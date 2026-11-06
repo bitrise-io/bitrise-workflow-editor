@@ -1,6 +1,4 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
-import { Separator } from '@chakra-ui/react/separator';
+import { BitkitButton, BitkitDialog } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
@@ -13,7 +11,9 @@ import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
 import ContainerUsageTable from './ContainerUsageTable';
 
-type DeleteContainerDialogProps = Omit<DialogProps, 'title'> & {
+type DeleteContainerDialogProps = {
+  isOpen: boolean;
+  onClose: () => void;
   selectedContainerId: string;
   source: ContainerType;
   type: 'definition' | 'reference';
@@ -63,36 +63,39 @@ const DeleteContainerDialog = (props: DeleteContainerDialogProps) => {
   };
 
   return (
-    <Dialog title="Delete container?" isOpen={isOpen} onClose={handleClose}>
-      <DialogBody>
-        <Text marginBlockEnd="24">
-          Are you sure you want to delete{' '}
-          <Text as="span" textStyle="body/lg/semibold">
-            {selectedContainerId}?
-          </Text>
+    <BitkitDialog
+      title="Delete container?"
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) handleClose();
+      }}
+      footerButtons={
+        <>
+          <BitkitButton variant="secondary" onClick={handleClose}>
+            Cancel
+          </BitkitButton>
+          <BitkitButton variant="danger-primary" onClick={handleDelete}>
+            Delete
+          </BitkitButton>
+        </>
+      }
+    >
+      <Text>
+        Are you sure you want to delete{' '}
+        <Text as="span" textStyle="body/lg/semibold">
+          {selectedContainerId}?
         </Text>
-        <Text>
-          The container will be permanently deleted.
-          {type === 'definition' && workflowsUsedByContainer.length > 0 && (
-            <Text as="span"> It will be removed from {workflowsUsedByContainer.length} Workflows.</Text>
-          )}
-        </Text>
+      </Text>
+      <Text>
+        The container will be permanently deleted.
         {type === 'definition' && workflowsUsedByContainer.length > 0 && (
-          <>
-            <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
-            <Separator />
-          </>
+          <Text as="span"> It will be removed from {workflowsUsedByContainer.length} Workflows.</Text>
         )}
-      </DialogBody>
-      <DialogFooter>
-        <BitkitButton variant="secondary" onClick={handleClose}>
-          Cancel
-        </BitkitButton>
-        <BitkitButton variant="danger-primary" onClick={handleDelete}>
-          Delete
-        </BitkitButton>
-      </DialogFooter>
-    </Dialog>
+      </Text>
+      {type === 'definition' && workflowsUsedByContainer.length > 0 && (
+        <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
+      )}
+    </BitkitDialog>
   );
 };
 

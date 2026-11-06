@@ -1,8 +1,9 @@
-import { Collapse, Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
+import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
   BitkitControlButton,
+  BitkitFormDialog,
   BitkitHeading,
   BitkitLink,
   BitkitLinkButton,
@@ -32,7 +33,10 @@ import PageProps from '@/core/utils/PageProps';
 import useContainers from '@/hooks/useContainers';
 import ignore1Password from '@/utils/ignore1Password';
 
-type CreateOrEditContainerDialogProps = Omit<DialogProps, 'title'> & {
+type CreateOrEditContainerDialogProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCloseComplete?: () => void;
   editedContainer: Container | null;
   type: 'execution' | 'service';
   /** Read-only "view details" mode (merged/cross-file view): every field disabled, no save. */
@@ -171,7 +175,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   }, [isOpen, editedContainer, type, reset]);
 
   return (
-    <Dialog
+    <BitkitFormDialog
       title={
         readOnly
           ? `${type === 'execution' ? 'Execution' : 'Service'} container details`
@@ -179,228 +183,18 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             ? `Edit ${type} container`
             : `Create ${type} container`
       }
-      isOpen={isOpen}
-      onClose={onClose}
-      onCloseComplete={() => {
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+      onExitComplete={() => {
         reset();
         onCloseComplete?.();
       }}
       scrollBehavior="inside"
-      as="form"
       onSubmit={handleSubmit(onSubmit)}
-    >
-      <DialogBody display="flex" flexDir="column" gap="16">
-        <Controller
-          control={control}
-          name="id"
-          rules={{
-            validate: (value) => ContainerService.validateName(value, editedContainer?.id || '', containerIds),
-          }}
-          render={({ field: { onChange, ...fieldProps } }) => (
-            <BitkitTextInput
-              label="Unique ID"
-              helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
-              placeholder="e.g. node, postgres, redis"
-              errorText={formState.errors.id?.message}
-              state={readOnly ? 'disabled' : undefined}
-              inputRef={ignore1Password}
-              inputProps={{
-                ...fieldProps,
-                onChange: (e) => onChange(ContainerService.sanitizeName(e.target.value)),
-              }}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="userValues.image"
-          rules={{ required: 'Image is required' }}
-          render={({ field }) => (
-            <BitkitTextInput
-              label="Image"
-              helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
-              placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
-              errorText={formState.errors.userValues?.image?.message}
-              state={readOnly ? 'disabled' : undefined}
-              inputProps={field}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="userValues.ports"
-          rules={{
-            validate: (ports) => {
-              const convertedPorts =
-                ports === ''
-                  ? []
-                  : ports
-                      .split(',')
-                      .map((port) => port.trim())
-                      .filter((port) => port !== '');
-              return ContainerService.validatePorts(convertedPorts);
-            },
-          }}
-          render={({ field }) => (
-            <BitkitTextInput
-              optional
-              label="Ports"
-              helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
-              placeholder="e.g. 3000:3000, 5432:5432"
-              errorText={formState.errors.userValues?.ports?.message}
-              state={readOnly ? 'disabled' : undefined}
-              inputProps={field}
-            />
-          )}
-        />
-        <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
-          <Box display="flex" flexDirection="column" gap="16">
-            <BitkitHeading as="h3" marginBlockStart="8">
-              Authentication credentials
-            </BitkitHeading>
-            <BitkitAlert
-              variant="info"
-              titleText="Authentication recommended"
-              messageText={
-                <>
-                  <Text textStyle="body/md/regular">
-                    Authenticate to pull private images and avoid rate limits issues. Add credentials here (Bitrise CLI
-                    runs docker login automatically) or use an OAuth Step.
-                  </Text>
-                  <Text textStyle="body/md/regular">
-                    <BitkitLink
-                      href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#docker-authentication-credentials"
-                      isExternal
-                      isUnderlined
-                    >
-                      Learn more
-                    </BitkitLink>
-                  </Text>
-                </>
-              }
-            />
-            <Controller
-              control={control}
-              name="userValues.credentials.server"
-              render={({ field }) => (
-                <BitkitTextInput
-                  optional
-                  label="Registry server"
-                  helperText="Fully qualified registry server URL to be used by docker login command."
-                  placeholder="e.g. ghcr.io"
-                  state={readOnly ? 'disabled' : undefined}
-                  inputProps={field}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="userValues.credentials.username"
-              render={({ field }) => (
-                <StepInput label="Username" isSensitive size="lg" isDisabled={readOnly} {...field} />
-              )}
-            />
-            <Controller
-              control={control}
-              name="userValues.credentials.password"
-              render={({ field }) => (
-                <StepInput label="Password" isSensitive size="lg" isDisabled={readOnly} {...field} />
-              )}
-            />
-            <Separator marginBlockStart="8" />
-            {fields.map((item, index) => (
-              <Box key={item.id} display="flex" alignItems="flex-end" gap={rem(10)}>
-                <Controller
-                  control={control}
-                  name={`userValues.envs.${index}.key`}
-                  render={({ field: { value, ...fieldProps } }) => (
-                    <BitkitTextInput
-                      optional
-                      label={index === 0 ? 'Environment Variables' : undefined}
-                      placeholder="Key"
-                      width="100%"
-                      state={readOnly ? 'disabled' : undefined}
-                      inputProps={{ ...fieldProps, value: value || '' }}
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name={`userValues.envs.${index}.value`}
-                  render={({ field: { value, ...fieldProps } }) => (
-                    <BitkitTextInput
-                      optional
-                      placeholder="Value"
-                      width="100%"
-                      state={readOnly ? 'disabled' : undefined}
-                      inputProps={{ ...fieldProps, value: value || '' }}
-                    />
-                  )}
-                />
-                {!readOnly && (
-                  <ButtonGroup>
-                    <EnvVarPopover
-                      size="lg"
-                      onSelect={(envVar) => update(index, { ...fields[index], value: `$${envVar.key}` })}
-                      showCreate={false}
-                    />
-                    <BitkitControlButton
-                      icon={IconTrash}
-                      isDanger
-                      state={fields.length === 1 ? 'disabled' : undefined}
-                      size="lg"
-                      label="Remove environment variable"
-                      onClick={() => remove(index)}
-                    />
-                  </ButtonGroup>
-                )}
-              </Box>
-            ))}
-            {!readOnly && (
-              <BitkitButton
-                variant="tertiary"
-                icon={IconPlus}
-                size="md"
-                width="fit-content"
-                onClick={() => append({ key: '', value: '', source: '' })}
-              >
-                Add Env Var
-              </BitkitButton>
-            )}
-            <Separator />
-            <Controller
-              control={control}
-              name="userValues.options"
-              render={({ field }) => (
-                <BitkitTextArea
-                  optional
-                  label="Docker create options"
-                  helperText={
-                    <>
-                      Additional parameters passed to docker create command.{' '}
-                      <BitkitLink
-                        colorVariant="purple"
-                        href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#container-resource-options"
-                        isExternal
-                      >
-                        Learn more about not supported options
-                      </BitkitLink>
-                    </>
-                  }
-                  placeholder='e.g. --privileged --health-cmd "redis-cli ping" --health-interval 1s --health-timeout 3s --health-retries 2'
-                  state={readOnly ? 'disabled' : undefined}
-                  textareaProps={field}
-                />
-              )}
-            />
-          </Box>
-        </Collapse>
-        <BitkitLinkButton alignSelf="start" onClick={onToggle}>
-          {isShowMore ? 'Show less options' : 'Show more options'}
-        </BitkitLinkButton>
-      </DialogBody>
-      <DialogFooter>
-        {readOnly ? (
+      footerButtons={
+        readOnly ? (
           <BitkitButton variant="secondary" onClick={onClose}>
             Close
           </BitkitButton>
@@ -413,9 +207,223 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
               {editedContainer ? 'Save' : 'Create container'}
             </BitkitButton>
           </>
+        )
+      }
+    >
+      <Controller
+        control={control}
+        name="id"
+        rules={{
+          validate: (value) => ContainerService.validateName(value, editedContainer?.id || '', containerIds),
+        }}
+        render={({ field: { onChange, ...fieldProps } }) => (
+          <BitkitTextInput
+            label="Unique ID"
+            helperText="The unique ID is for referencing in YAML. Allowed characters: A-Za-z0-9-_."
+            placeholder="e.g. node, postgres, redis"
+            errorText={formState.errors.id?.message}
+            state={readOnly ? 'disabled' : undefined}
+            inputRef={ignore1Password}
+            inputProps={{
+              ...fieldProps,
+              onChange: (e) => onChange(ContainerService.sanitizeName(e.target.value)),
+            }}
+          />
         )}
-      </DialogFooter>
-    </Dialog>
+      />
+      <Controller
+        control={control}
+        name="userValues.image"
+        rules={{ required: 'Image is required' }}
+        render={({ field }) => (
+          <BitkitTextInput
+            label="Image"
+            helperText="For Docker Hub use the format of [name]:[version], for other registries use [registry server]/[owner]/[name]:[version]."
+            placeholder="e.g. node:18-alpine, ghcr.io/your-github-user/your-private-image:v1.1"
+            errorText={formState.errors.userValues?.image?.message}
+            state={readOnly ? 'disabled' : undefined}
+            inputProps={field}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="userValues.ports"
+        rules={{
+          validate: (ports) => {
+            const convertedPorts =
+              ports === ''
+                ? []
+                : ports
+                    .split(',')
+                    .map((port) => port.trim())
+                    .filter((port) => port !== '');
+            return ContainerService.validatePorts(convertedPorts);
+          },
+        }}
+        render={({ field }) => (
+          <BitkitTextInput
+            optional
+            label="Ports"
+            helperText="List of port mappings in the format of [HostPort01]:[ContainerPort01]. Separate multiple with commas."
+            placeholder="e.g. 3000:3000, 5432:5432"
+            errorText={formState.errors.userValues?.ports?.message}
+            state={readOnly ? 'disabled' : undefined}
+            inputProps={field}
+          />
+        )}
+      />
+      <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
+        <Box display="flex" flexDirection="column" gap="16">
+          <BitkitHeading as="h3" marginBlockStart="8">
+            Authentication credentials
+          </BitkitHeading>
+          <BitkitAlert
+            variant="info"
+            titleText="Authentication recommended"
+            messageText={
+              <>
+                <Text textStyle="body/md/regular">
+                  Authenticate to pull private images and avoid rate limits issues. Add credentials here (Bitrise CLI
+                  runs docker login automatically) or use an OAuth Step.
+                </Text>
+                <Text textStyle="body/md/regular">
+                  <BitkitLink
+                    href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#docker-authentication-credentials"
+                    isExternal
+                    isUnderlined
+                  >
+                    Learn more
+                  </BitkitLink>
+                </Text>
+              </>
+            }
+          />
+          <Controller
+            control={control}
+            name="userValues.credentials.server"
+            render={({ field }) => (
+              <BitkitTextInput
+                optional
+                label="Registry server"
+                helperText="Fully qualified registry server URL to be used by docker login command."
+                placeholder="e.g. ghcr.io"
+                state={readOnly ? 'disabled' : undefined}
+                inputProps={field}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="userValues.credentials.username"
+            render={({ field }) => (
+              <StepInput label="Username" isSensitive size="lg" isDisabled={readOnly} {...field} />
+            )}
+          />
+          <Controller
+            control={control}
+            name="userValues.credentials.password"
+            render={({ field }) => (
+              <StepInput label="Password" isSensitive size="lg" isDisabled={readOnly} {...field} />
+            )}
+          />
+          <Separator marginBlockStart="8" />
+          {fields.map((item, index) => (
+            <Box key={item.id} display="flex" alignItems="flex-end" gap={rem(10)}>
+              <Controller
+                control={control}
+                name={`userValues.envs.${index}.key`}
+                render={({ field: { value, ...fieldProps } }) => (
+                  <BitkitTextInput
+                    optional
+                    label={index === 0 ? 'Environment Variables' : undefined}
+                    placeholder="Key"
+                    width="100%"
+                    state={readOnly ? 'disabled' : undefined}
+                    inputProps={{ ...fieldProps, value: value || '' }}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name={`userValues.envs.${index}.value`}
+                render={({ field: { value, ...fieldProps } }) => (
+                  <BitkitTextInput
+                    optional
+                    placeholder="Value"
+                    width="100%"
+                    state={readOnly ? 'disabled' : undefined}
+                    inputProps={{ ...fieldProps, value: value || '' }}
+                  />
+                )}
+              />
+              {!readOnly && (
+                <ButtonGroup>
+                  <EnvVarPopover
+                    size="lg"
+                    onSelect={(envVar) =>
+                      update(index, {
+                        ...fields[index],
+                        value: `$${envVar.key}`,
+                      })
+                    }
+                    showCreate={false}
+                  />
+                  <BitkitControlButton
+                    icon={IconTrash}
+                    isDanger
+                    state={fields.length === 1 ? 'disabled' : undefined}
+                    size="lg"
+                    label="Remove environment variable"
+                    onClick={() => remove(index)}
+                  />
+                </ButtonGroup>
+              )}
+            </Box>
+          ))}
+          {!readOnly && (
+            <BitkitButton
+              variant="tertiary"
+              icon={IconPlus}
+              size="md"
+              width="fit-content"
+              onClick={() => append({ key: '', value: '', source: '' })}
+            >
+              Add Env Var
+            </BitkitButton>
+          )}
+          <Separator />
+          <Controller
+            control={control}
+            name="userValues.options"
+            render={({ field }) => (
+              <BitkitTextArea
+                optional
+                label="Docker create options"
+                helperText={
+                  <>
+                    Additional parameters passed to docker create command.{' '}
+                    <BitkitLink
+                      colorVariant="purple"
+                      href="https://docs.bitrise.io/en/bitrise-platform/infrastructure/docker-containers-on-bitrise/about-docker-containers-on-bitrise.html#container-resource-options"
+                      isExternal
+                    >
+                      Learn more about not supported options
+                    </BitkitLink>
+                  </>
+                }
+                placeholder='e.g. --privileged --health-cmd "redis-cli ping" --health-interval 1s --health-timeout 3s --health-retries 2'
+                state={readOnly ? 'disabled' : undefined}
+                textareaProps={field}
+              />
+            )}
+          />
+        </Box>
+      </Collapse>
+      <BitkitLinkButton alignSelf="start" onClick={onToggle}>
+        {isShowMore ? 'Show less options' : 'Show more options'}
+      </BitkitLinkButton>
+    </BitkitFormDialog>
   );
 };
 

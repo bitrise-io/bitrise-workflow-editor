@@ -1,5 +1,4 @@
 import { BitkitButton } from '@bitrise/bitkit-v2';
-import { ButtonGroup } from '@chakra-ui/react/button';
 import { useFormContext } from 'react-hook-form';
 
 import { trackAddTrigger, trackEditTrigger } from '@/core/analytics/TriggerAnalytics';
@@ -48,7 +47,7 @@ const TriggerFormFooter = (props: Props) => {
   }
 
   return (
-    <ButtonGroup gap="16">
+    <>
       <BitkitButton variant="secondary" onClick={handleCancel}>
         Cancel
       </BitkitButton>
@@ -60,7 +59,7 @@ const TriggerFormFooter = (props: Props) => {
       >
         {editedItem ? 'Apply changes' : 'Add trigger'}
       </BitkitButton>
-    </ButtonGroup>
+    </>
   );
 };
 

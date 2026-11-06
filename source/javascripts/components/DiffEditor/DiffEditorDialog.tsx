@@ -1,9 +1,5 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, IconCross } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitDialog } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { ButtonGroup } from '@chakra-ui/react/button';
-import { Text } from '@chakra-ui/react/text';
-import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
 
@@ -18,19 +14,32 @@ import {
 import YmlUtils from '@/core/utils/YmlUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useModelValidationStatus from '@/hooks/useModelValidationStatus';
+import useMountedWhileOpen from '@/hooks/useMountedWhileOpen';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 import DiffEditor, { type Props as DiffEditorProps } from './DiffEditor';
 
-type ContentProps = {
+export type DiffEditorDialogProps = {
+  isOpen: boolean;
   onClose: VoidFunction;
+};
+
+type ContentProps = DiffEditorDialogProps & {
+  onExitComplete: VoidFunction;
   nodeId?: string;
   tabs?: ReactNode;
   isReadOnly?: boolean;
 };
 
-export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: ContentProps) => {
+export const DiffEditorDialogContent = ({
+  isOpen,
+  onClose,
+  onExitComplete,
+  nodeId,
+  tabs,
+  isReadOnly,
+}: ContentProps) => {
   // useModelValidationStatus only accepts 'valid' | 'invalid' | 'warnings'; map the new
   // 'pending' seed to 'valid' (the diff editor recomputes its own status from markers anyway).
   const seedStatus = useYmlValidationStatus();
@@ -105,41 +114,21 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
   );
 
   return (
-    <>
-      <ModalHeader display="flex" gap="16" alignItems="center">
-        <Text as="h1" textStyle="comp/dialog/title">
+    <BitkitDialog
+      size="full"
+      title={
+        <Box as="span" display="flex" gap="16" alignItems="center">
           View and edit YAML changes
-        </Text>
-        <YmlValidationBadge status={ymlStatus} />
-      </ModalHeader>
-      <ModalCloseButton size="large">
-        <IconCross />
-      </ModalCloseButton>
-      <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
-        <BitkitAlert
-          variant="info"
-          messageText={
-            tabs
-              ? 'For the merged config you can only view your changes. For each module you can edit the right side of the diff view, and your changes will be applied.'
-              : isReadOnly
-                ? 'This file is read-only — changes here cannot be applied.'
-                : 'You can edit the right side of the diff view, and your changes will be applied.'
-          }
-        />
-        {tabs}
-        <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
-          <DiffEditor
-            key={nodeId ?? 'legacy'}
-            originalText={originalText}
-            modifiedText={modifiedText}
-            onChange={setCurrentText}
-            onMount={handleEditorMount}
-            readOnly={isReadOnly}
-          />
+          <YmlValidationBadge status={ymlStatus} />
         </Box>
-      </DialogBody>
-      <DialogFooter>
-        <ButtonGroup gap="16">
+      }
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+      onExitComplete={onExitComplete}
+      footerButtons={
+        <>
           <BitkitButton variant="secondary" onClick={onClose}>
             Cancel
           </BitkitButton>
@@ -152,27 +141,43 @@ export const DiffEditorDialogContent = ({ onClose, nodeId, tabs, isReadOnly }: C
           >
             Apply changes
           </BitkitButton>
-        </ButtonGroup>
-      </DialogFooter>
-    </>
-  );
-};
-
-export const DiffEditorDialogShell = ({ onClose, children, ...rest }: Omit<DialogProps, 'title'>) => {
-  return (
-    <Dialog {...rest} variant="empty" title="" size="full" onClose={onClose} minHeight={['100dvh', 'unset']}>
-      {children}
-    </Dialog>
+        </>
+      }
+    >
+      <BitkitAlert
+        variant="info"
+        messageText={
+          tabs
+            ? 'For the merged config you can only view your changes. For each module you can edit the right side of the diff view, and your changes will be applied.'
+            : isReadOnly
+              ? 'This file is read-only — changes here cannot be applied.'
+              : 'You can edit the right side of the diff view, and your changes will be applied.'
+        }
+      />
+      {tabs}
+      <Box flex="1" display="flex" flexDirection="column" gap="16" minWidth="0">
+        <DiffEditor
+          key={nodeId ?? 'legacy'}
+          originalText={originalText}
+          modifiedText={modifiedText}
+          onChange={setCurrentText}
+          onMount={handleEditorMount}
+          readOnly={isReadOnly}
+        />
+      </Box>
+    </BitkitDialog>
   );
 };
 
 // The legacy (non-modular) diff dialog: a single document diff, no file tabs.
-const DiffEditorDialog = ({ onClose, nodeId, ...rest }: Omit<DialogProps, 'title'> & { nodeId?: string }) => {
-  return (
-    <DiffEditorDialogShell {...rest} onClose={onClose}>
-      <DiffEditorDialogContent onClose={onClose} nodeId={nodeId} />
-    </DiffEditorDialogShell>
-  );
+const DiffEditorDialog = ({ isOpen, onClose, nodeId }: DiffEditorDialogProps & { nodeId?: string }) => {
+  const { isMounted, onExitComplete } = useMountedWhileOpen(isOpen);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return <DiffEditorDialogContent isOpen={isOpen} onClose={onClose} onExitComplete={onExitComplete} nodeId={nodeId} />;
 };
 
 export default DiffEditorDialog;
