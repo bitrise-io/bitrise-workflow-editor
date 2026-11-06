@@ -71,8 +71,15 @@ export const routes = [
   },
 ];
 
+// A failed import is cached by the browser for the life of the page, so a preload that fails in a
+// hidden tab breaks that page until a reload. A failure is only reported once the page is opened.
 export function preloadRoutes() {
+  if (document.visibilityState !== 'visible') {
+    document.addEventListener('visibilitychange', preloadRoutes, { once: true });
+    return;
+  }
+
   routes.forEach((route) => {
-    route.component.preload();
+    route.component.preload().catch(() => {});
   });
 }

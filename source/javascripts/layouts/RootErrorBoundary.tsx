@@ -33,9 +33,34 @@ function messageOf(thrown: unknown) {
   }
 }
 
+// Chrome, Firefox and Safari word a failed dynamic import differently; the last one is Vite's CSS preload.
+const CHUNK_LOAD_ERROR = /dynamically imported module|Importing a module script failed|Unable to preload CSS/;
+
+function isChunkLoadError(thrown: unknown) {
+  return thrown instanceof Error && CHUNK_LOAD_ERROR.test(thrown.message);
+}
+
+// The browser keeps a failed import failed until the page reloads, so a reload is the only way out.
+const ChunkLoadErrorFallback = () => (
+  <BitkitProvider>
+    <ErrorPage eyebrow="Error – This page couldn't load" headline="This page couldn't be loaded">
+      <Text textStyle="body/lg/regular">
+        Part of the editor failed to download, usually because the connection dropped. Reload to try again.
+      </Text>
+      <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={WindowUtils.reloadEditor}>
+        Reload
+      </BitkitButton>
+    </ErrorPage>
+  </BitkitProvider>
+);
+
 // Datadog's boundary reports the error and, unlike a check on the error value, also catches a thrown
 // `undefined`. The fallback never calls `resetError`: retrying re-renders the tree that just threw.
 const ErrorPageFallback = ({ error }: { error: unknown }) => {
+  if (isChunkLoadError(error)) {
+    return <ChunkLoadErrorFallback />;
+  }
+
   const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
 
   return (
