@@ -1,8 +1,11 @@
 /**
  * @jest-environment jsdom
  */
+import { datadogRum } from '@datadog/browser-rum';
+
 import { preloadRoutes, routes } from './routes';
 
+jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn() } }));
 jest.mock('react-lazy-with-preload', () => ({
   lazyWithPreload: () => Object.assign(() => null, { preload: jest.fn(() => Promise.resolve()) }),
 }));
@@ -15,7 +18,7 @@ const preloads = () => routes.map((route) => route.component.preload as jest.Moc
 
 describe('preloadRoutes', () => {
   beforeEach(() => {
-    preloads().forEach((preload) => preload.mockClear());
+    jest.clearAllMocks();
     setVisibility('visible');
   });
 
@@ -37,17 +40,18 @@ describe('preloadRoutes', () => {
     preloads().forEach((preload) => expect(preload).toHaveBeenCalledTimes(1));
   });
 
-  it('does not leave a failed preload as an unhandled rejection', async () => {
+  it('reports a failed preload to RUM instead of leaving it as an unhandled rejection', async () => {
     const unhandled = jest.fn();
     process.on('unhandledRejection', unhandled);
-    preloads().forEach((preload) =>
-      preload.mockReturnValueOnce(Promise.reject(new TypeError('Failed to fetch dynamically imported module'))),
-    );
+    const error = new TypeError('Failed to fetch dynamically imported module');
+    preloads().forEach((preload) => preload.mockReturnValueOnce(Promise.reject(error)));
 
     preloadRoutes();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     process.off('unhandledRejection', unhandled);
     expect(unhandled).not.toHaveBeenCalled();
+    expect(datadogRum.addError).toHaveBeenCalledTimes(routes.length);
+    expect(datadogRum.addError).toHaveBeenCalledWith(error, { source: 'route-preload', visibilityState: 'visible' });
   });
 });

@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { PropsWithChildren } from 'react';
 
 import { isYmlPageLocation } from '@/core/stores/BitriseYmlStore';
+import { isChunkLoadError } from '@/core/utils/chunkLoadError';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { navigate } from '@/hooks/useHashLocation';
 import { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
@@ -33,20 +34,11 @@ function messageOf(thrown: unknown) {
   }
 }
 
-// Chrome/Firefox and Safari word a failed dynamic import differently.
-const CHUNK_LOAD_ERROR = /dynamically imported module|Importing a module script failed/;
-
-function isChunkLoadError(thrown: unknown) {
-  return thrown instanceof Error && CHUNK_LOAD_ERROR.test(thrown.message);
-}
-
 // The browser keeps a failed import failed until the page reloads, so a reload is the only way out.
 const ChunkLoadErrorFallback = () => (
   <BitkitProvider>
     <ErrorPage eyebrow="Error – This page couldn't load" headline="This page couldn't be loaded">
-      <Text textStyle="body/lg/regular">
-        Part of the editor failed to download, usually because the connection dropped. Reload to try again.
-      </Text>
+      <Text textStyle="body/lg/regular">Part of the editor failed to download. Reload to try again.</Text>
       <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={WindowUtils.reloadEditor}>
         Reload
       </BitkitButton>
