@@ -424,18 +424,44 @@ function collectPaths(root: Root) {
   return paths;
 }
 
+/**
+ * Walks the live document on every call, so each wildcard edit in a mutator sees the keys and indices
+ * that the previous edits left behind; caching the result breaks that. Matches come in descending
+ * order, indices compared as numbers, so a caller deleting them one by one never shifts an index it
+ * has yet to visit.
+ */
 function getMatchingPaths(root: Root, path: WildcardPath, keep: WildcardPath = []) {
-  return collectPaths(root).reduce<[Path, Path][]>((result, possiblePath) => {
-    if (possiblePath.length !== path.length) {
-      return result;
+  const matches: Path[] = [];
+
+  function walk(node: unknown, nodePath: Path) {
+    if (nodePath.length === path.length) {
+      matches.push(nodePath);
+      return;
     }
 
-    if (possiblePath.every((part, index) => [part, '*'].includes(path[index]))) {
-      result.push([possiblePath, possiblePath.slice(0, keep.length)]);
-    }
+    const segment = path[nodePath.length];
 
-    return result;
-  }, []);
+    if (isMap(node)) {
+      node.items.forEach(({ key, value }) => {
+        const keyValue = isScalar(key) ? key.value : key;
+        if ((typeof keyValue === 'string' || typeof keyValue === 'number') && [keyValue, '*'].includes(segment)) {
+          walk(value, [...nodePath, keyValue]);
+        }
+      });
+    } else if (isSeq(node)) {
+      node.items.forEach((item, index) => {
+        if (segment === '*' || segment === index) {
+          walk(item, [...nodePath, index]);
+        }
+      });
+    }
+  }
+
+  walk(isDocument(root) ? root.contents : root, []);
+
+  return matches
+    .sort((a, b) => b.join('.').localeCompare(a.join('.'), undefined, { numeric: true }))
+    .map((match): [Path, Path] => [match, match.slice(0, keep.length)]);
 }
 
 const isEqualsCache = new WeakMap<Root, WeakMap<Root, boolean>>();

@@ -451,6 +451,29 @@ describe('YmlUtils', () => {
         [['workflows', 'wf1', 'steps', 0, 'script', 'execution_container'], []],
       ]);
     });
+
+    it('should order sequence indices numerically, highest first', () => {
+      const root = YmlUtils.toDoc(`list: [a, b, c, d, e, f, g, h, i, j, k, l]`);
+
+      const indices = YmlUtils.getMatchingPaths(root, ['list', '*']).map(([path]) => path[1]);
+
+      expect(indices).toEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    });
+
+    it('should reflect edits made earlier on the same document', () => {
+      const root = YmlUtils.toDoc(`
+        workflows:
+          wf1:
+            depends_on: [wf0]
+      `);
+
+      YmlUtils.getMatchingPaths(root, ['workflows', '*', 'depends_on', '*']);
+      YmlUtils.updateKeyByPath(root, ['workflows', 'wf1'], 'wf2');
+
+      expect(YmlUtils.getMatchingPaths(root, ['workflows', '*', 'depends_on', '*'])).toEqual([
+        [['workflows', 'wf2', 'depends_on', 0], []],
+      ]);
+    });
   });
 
   describe('collectPaths', () => {
