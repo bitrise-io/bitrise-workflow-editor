@@ -1,5 +1,5 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, List, ListItem } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
+import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
+import { BitkitButton, BitkitList, IconCheck, IconCross } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
 import { useCallback } from 'react';
 
@@ -23,17 +23,17 @@ const DeletePipelineDialog = ({ pipelineId, onClose, onDeletePipeline, ...props 
         <Text>
           Are you sure you want to delete <strong>{pipelineId}</strong>?
         </Text>
-        <List variant="unstyled" spacing="6">
-          <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
+        <BitkitList>
+          <BitkitList.Item icon={IconCross} iconColor="icon/negative">
             All settings of this Pipeline will be deleted.
-          </ListItem>
-          <ListItem iconSize="24" iconName="Cross" iconColor="icon/negative">
+          </BitkitList.Item>
+          <BitkitList.Item icon={IconCross} iconColor="icon/negative">
             Dependent automated tasks, builds and deployments will stop functioning.
-          </ListItem>
-          <ListItem iconSize="24" iconName="Check" iconColor="icon/positive">
+          </BitkitList.Item>
+          <BitkitList.Item icon={IconCheck} iconColor="icon/positive">
             Historical build logs will remain accessible.
-          </ListItem>
-        </List>
+          </BitkitList.Item>
+        </BitkitList>
         <Text textStyle="body/lg/semibold">This action cannot be undone after the YML is saved.</Text>
       </DialogBody>
       <DialogFooter>
