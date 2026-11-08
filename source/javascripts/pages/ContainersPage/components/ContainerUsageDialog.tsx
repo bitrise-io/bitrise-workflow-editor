@@ -1,5 +1,4 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
-import { Separator } from '@chakra-ui/react/separator';
+import { BitkitDialog } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
 
 import { Container } from '@/core/models/Container';
@@ -7,7 +6,9 @@ import useContainerWorkflowUsage from '@/hooks/useContainerWorkflowUsage';
 
 import ContainerUsageTable from './ContainerUsageTable';
 
-type ContainerUsageDialogProps = Omit<DialogProps, 'title'> & {
+type ContainerUsageDialogProps = {
+  isOpen: boolean;
+  onClose: () => void;
   selectedContainerId: Container['id'];
 };
 
@@ -15,18 +16,23 @@ const ContainerUsageDialog = (props: ContainerUsageDialogProps) => {
   const { isOpen, onClose, selectedContainerId } = props;
   const workflowsUsedByContainer = useContainerWorkflowUsage(selectedContainerId);
   return (
-    <Dialog title="Container usage" isOpen={isOpen} onClose={onClose}>
-      <DialogBody>
+    <BitkitDialog
+      title="Container usage"
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+    >
+      <Text>
         Container{' '}
         <Text as="span" textStyle="body/lg/semibold">
           {selectedContainerId}
         </Text>{' '}
-        is used in {workflowsUsedByContainer.length} Workflow{workflowsUsedByContainer.length !== 1 ? 's' : ''}.
-        <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
-        <Separator />
-      </DialogBody>
-      <DialogFooter />
-    </Dialog>
+        is used in {workflowsUsedByContainer.length} Workflow
+        {workflowsUsedByContainer.length !== 1 ? 's' : ''}.
+      </Text>
+      <ContainerUsageTable containerId={selectedContainerId} workflows={workflowsUsedByContainer} />
+    </BitkitDialog>
   );
 };
 

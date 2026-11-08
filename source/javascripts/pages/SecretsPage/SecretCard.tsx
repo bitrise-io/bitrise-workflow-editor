@@ -1,9 +1,9 @@
-import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitBadge,
   BitkitButton,
   BitkitCheckbox,
+  BitkitDialog,
   BitkitIconButton,
   BitkitTextArea,
   BitkitTextInput,
@@ -135,7 +135,9 @@ const SecretCard = (props: SecretCardProps) => {
           size="md"
           rows={1}
           errorText={errors.value?.message}
-          textareaProps={register('value', { required: 'This field is required.' })}
+          textareaProps={register('value', {
+            required: 'This field is required.',
+          })}
         />
       );
     }
@@ -292,35 +294,40 @@ const SecretCard = (props: SecretCardProps) => {
         </Box>
       </Card.Body>
 
-      <Dialog title="Save and protect Secret permanently?" maxWidth="640" isOpen={!!confirmCallback} onClose={() => {}}>
-        <DialogBody>
-          <Text>
-            Making a Secret protected is irreversible. <br />
-            To change the value, you will need to delete this Secret Environment Variable and create a new one.
-          </Text>
-        </DialogBody>
-        <DialogFooter>
-          <BitkitButton
-            variant="secondary"
-            onClick={() => {
-              setValue('isProtected', false);
-              setConfirmCallback(undefined);
-            }}
-          >
-            Cancel
-          </BitkitButton>
-          <BitkitButton
-            variant="danger-primary"
-            state={saveLoading ? 'loading' : undefined}
-            onClick={() => {
-              confirmCallback?.();
-              setConfirmCallback(undefined);
-            }}
-          >
-            Save and protect
-          </BitkitButton>
-        </DialogFooter>
-      </Dialog>
+      <BitkitDialog
+        title="Save and protect Secret permanently?"
+        dismissible={false}
+        state={saveLoading ? 'loading' : undefined}
+        open={!!confirmCallback}
+        footerButtons={
+          <>
+            <BitkitButton
+              variant="secondary"
+              onClick={() => {
+                setValue('isProtected', false);
+                setConfirmCallback(undefined);
+              }}
+            >
+              Cancel
+            </BitkitButton>
+            <BitkitButton
+              variant="danger-primary"
+              state={saveLoading ? 'loading' : undefined}
+              onClick={() => {
+                confirmCallback?.();
+                setConfirmCallback(undefined);
+              }}
+            >
+              Save and protect
+            </BitkitButton>
+          </>
+        }
+      >
+        <Text>
+          Making a Secret protected is irreversible. <br />
+          To change the value, you will need to delete this Secret Environment Variable and create a new one.
+        </Text>
+      </BitkitDialog>
     </Card.Root>
   );
 };

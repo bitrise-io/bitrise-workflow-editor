@@ -1,4 +1,3 @@
-import { DialogProps } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
 import { trackCreateWorkflowDialogShown, trackWorkflowCreated } from '@/core/analytics/WorkflowAnalytics';
@@ -8,7 +7,10 @@ import { useWorkflows } from '@/hooks/useWorkflows';
 
 import CreateEntityDialog from '../CreateEntityDialog/CreateEntityDialog';
 
-type Props = Omit<DialogProps, 'title'> & {
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCloseComplete?: () => void;
   onCreateWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
 };
 
