@@ -1,4 +1,4 @@
-import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
+import { BitkitFormDialog } from '@bitrise/bitkit-v2';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -92,7 +92,9 @@ const AddOrEditTriggerDialog = (props: Props) => {
     return targetBasedDefaults;
   }, [currentTriggers.length, editedItem, source, sourceId, triggerType, variant]);
 
-  const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({ defaultValues });
+  const formMethods = useForm<TargetBasedTrigger | LegacyTrigger>({
+    defaultValues,
+  });
   const { handleSubmit, reset } = formMethods;
 
   useEffect(() => {
@@ -105,21 +107,19 @@ const AddOrEditTriggerDialog = (props: Props) => {
 
   return (
     <FormProvider {...formMethods}>
-      <Dialog
-        as="form"
-        maxWidth="640"
-        isOpen={isOpen}
-        onClose={onCancel}
+      <BitkitFormDialog
+        open={isOpen}
+        onOpenChange={({ open }) => {
+          if (!open) onCancel();
+        }}
         title={title}
         onSubmit={handleSubmit(onSubmit)}
-      >
-        <DialogBody>
-          <TriggerFormBody source={source} triggerType={triggerType} showTarget={showTarget} variant={variant} />
-        </DialogBody>
-        <DialogFooter>
+        footerButtons={
           <TriggerFormFooter editedItem={editedItem} onCancel={onCancel} currentTriggers={currentTriggers} />
-        </DialogFooter>
-      </Dialog>
+        }
+      >
+        <TriggerFormBody source={source} triggerType={triggerType} showTarget={showTarget} variant={variant} />
+      </BitkitFormDialog>
     </FormProvider>
   );
 };

@@ -106,7 +106,12 @@ const StepInput = forwardRef<HTMLTextAreaElement, Props>(
           onValueChange={handleValueChange}
         />
         {isEditable && (
-          <ButtonGroup gap="6" alignSelf="start" marginBlockStart={label ? '24' : undefined}>
+          <ButtonGroup
+            gap="6"
+            alignSelf="start"
+            marginBlockStart={label ? '24' : undefined}
+            paddingBlockStart={label && isSensitive ? '4' : undefined}
+          >
             {!!value && !isSensitive && (
               <BitkitIconButton
                 size="md"

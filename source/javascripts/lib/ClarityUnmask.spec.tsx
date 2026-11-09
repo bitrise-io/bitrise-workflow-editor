@@ -4,12 +4,12 @@
 /* eslint-disable testing-library/no-node-access --
  * The subject under test is a DOM attribute on a container, not user-facing behaviour, so there is
  * no semantic query that expresses it: `data-clarity-unmask` is invisible to the accessibility tree
- * and several of the tagged elements (BitkitTable.Header, BitkitTabs.List, DialogFooter, Box, Card) have no role or name
+ * and several of the tagged elements (BitkitTable.Header, BitkitTabs.List, Box, Card) have no role or name
  * to query by. Attribute selectors and `closest()` are the assertion, not a shortcut around one. */
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { Breadcrumb, BreadcrumbLink, Dialog, DialogFooter, List, ListItem, Provider, Sidebar } from '@bitrise/bitkit';
+import { Breadcrumb, BreadcrumbLink, List, ListItem, Provider, Sidebar } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitAlert,
@@ -116,18 +116,12 @@ describe('Clarity unmasking', () => {
             <BreadcrumbLink data-clarity-unmask="true">breadcrumb link</BreadcrumbLink>
           </Breadcrumb>
           <Sidebar data-clarity-unmask="true">sidebar</Sidebar>
-          {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
-          <Dialog isOpen title="dialog title" onClose={() => {}}>
-            <DialogFooter data-clarity-unmask="true">
-              <BitkitButton>dialog action</BitkitButton>
-            </DialogFooter>
-          </Dialog>
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(8);
+      expect(unmasked()).toHaveLength(7);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['list item', 'dialog action', 'sidebar'].forEach((label) => {
+      ['list item', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -223,8 +217,10 @@ describe('Clarity unmasking', () => {
       'components/unified-editor/ChainWorkflowDrawer/ChainWorkflowDrawer.tsx': 2,
       'components/unified-editor/ConfigSettingsMenu/ConfigSettingsMenu.tsx': 3,
       'components/unified-editor/ContainersTab/ContainerCard.tsx': 1,
-      'components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog.tsx': 2,
-      'components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog.tsx': 3,
+      // One more each since the dialogs moved to BitkitDialog: its footer is a slot, so the attribute
+      // that sat on the footer wrapper went onto both buttons. They render fixed labels.
+      'components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog.tsx': 3,
+      'components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog.tsx': 4,
       'components/unified-editor/EntitySelector/EntitySelector.tsx': 1,
       'components/unified-editor/StepBundleConfig/StepBundleConfigHeader.tsx': 1,
       'components/unified-editor/StepConfigDrawer/StepConfigDrawer.tsx': 1,
@@ -254,7 +250,9 @@ describe('Clarity unmasking', () => {
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/WorkflowSelectorDrawer.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/NoWorkflowsEmptyState.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/SearchResultEmptyState.tsx': 1,
-      'pages/SecretsPage/SecretsPage.tsx': 11,
+      // Twelve since the delete dialog moved to BitkitDialog: the footer wrapper's attribute went onto
+      // its two fixed-label buttons.
+      'pages/SecretsPage/SecretsPage.tsx': 12,
       'pages/StacksAndMachinesPage/StacksAndMachinesPage.tsx': 2,
       'pages/StacksAndMachinesPage/tabs/WorkflowsTab.tsx': 1,
       'pages/StepBundlesPage/StepBundlesPage.tsx': 1,

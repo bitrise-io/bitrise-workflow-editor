@@ -1,7 +1,13 @@
-import { Collapse, Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
-import { BitkitButton, BitkitCheckbox, BitkitLinkButton, BitkitTextArea, BitkitTextInput } from '@bitrise/bitkit-v2';
+import { Collapse } from '@bitrise/bitkit';
+import {
+  BitkitButton,
+  BitkitCheckbox,
+  BitkitFormDialog,
+  BitkitLinkButton,
+  BitkitTextArea,
+  BitkitTextInput,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { ButtonGroup } from '@chakra-ui/react/button';
 import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { Controller, useController, useForm } from 'react-hook-form';
@@ -62,7 +68,10 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
     },
   });
   const { field: valueField } = useController({ control, name: 'value' });
-  const { field: valueOptionsField } = useController({ control, name: 'opts.value_options' });
+  const { field: valueOptionsField } = useController({
+    control,
+    name: 'opts.value_options',
+  });
 
   const mode = key ? 'edit' : 'append';
 
@@ -74,136 +83,133 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
 
   const isSubmitDisabled = !(!!watch('key') && formState.isDirty) || !!formState.errors.key?.message;
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onCancel}
-      onCloseComplete={reset}
+    <BitkitFormDialog
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onCancel();
+      }}
+      onExitComplete={() => reset()}
       title={mode === 'edit' ? 'Edit bundle input' : 'New bundle input'}
       scrollBehavior="inside"
-      as="form"
       onSubmit={handleSubmit(onFormSubmit)}
-    >
-      <DialogBody>
-        <BitkitTextInput
-          optional
-          label="Title"
-          helperText="This will be the label of the input. Keep it short and descriptive."
-          size="md"
-          marginBlockEnd="16"
-          inputProps={register('opts.title')}
-        />
-        <Box display="flex" justifyContent="space-between" alignItems="center" marginBlockEnd="16">
-          <BitkitTextInput
-            errorText={formState.errors.key?.message}
-            label="Key"
-            helperText="Use this key as variable in Step inputs."
-            size="md"
-            flex="1"
-            inputProps={{
-              ...keyField,
-              onChange: (e) => keyField.onChange(StepBundleService.sanitizeInputKey(e.target.value)),
-            }}
-          />
-          <Text as="span" marginInline="8">
-            =
-          </Text>
-          {valueOptions?.length ? (
-            <StepSelectInput
-              label="Default value"
-              helperText="Value must be a string."
-              options={valueOptions ?? []}
-              {...valueField}
-            />
-          ) : (
-            <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
-          )}
-        </Box>
-        <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
-          <Box display="flex" flexDirection="column" gap="16">
-            <BitkitTextInput optional label="Summary" inputProps={register('opts.summary')} />
-            <BitkitTextArea
-              optional
-              label="Value options"
-              helperText="Add values as new lines."
-              textareaProps={{
-                ...valueOptionsField,
-                value: valueOptionsField.value?.join('\n'),
-                onChange: (e) => {
-                  const v = e.target.value.trimStart();
-                  valueOptionsField.onChange(v ? v.split('\n') : []);
-                },
-              }}
-            />
-            <BitkitTextInput optional label="Category" inputProps={register('opts.category')} />
-            <BitkitTextArea optional label="Description" textareaProps={register('opts.description')} />
-            <Controller
-              control={control}
-              name="opts.is_required"
-              render={({ field }) => (
-                <BitkitCheckbox
-                  labelText="Required"
-                  helperText="Input must have a valid value, or the Step will fail."
-                  checked={!!field.value}
-                  name={field.name}
-                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="opts.is_sensitive"
-              render={({ field }) => (
-                <BitkitCheckbox
-                  labelText="Sensitive"
-                  helperText="Input accepts only Secrets as values."
-                  checked={!!field.value}
-                  name={field.name}
-                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="opts.is_dont_change_value"
-              render={({ field }) => (
-                <BitkitCheckbox
-                  labelText="Read-only value"
-                  helperText="The default value shouldn't be changed on the UI."
-                  checked={!!field.value}
-                  name={field.name}
-                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="opts.is_expand"
-              render={({ field }) => (
-                <BitkitCheckbox
-                  labelText="Expand Env Vars in inputs"
-                  helperText="If a value is an Env Var, the CLI will pass its value to the Step. Uncheck to pass the key as a string."
-                  marginBlockEnd="16"
-                  checked={!!field.value}
-                  name={field.name}
-                  onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                />
-              )}
-            />
-          </Box>
-        </Collapse>
-        <BitkitLinkButton onClick={onToggle}>{isShowMore ? 'Show less options' : 'Show more options'}</BitkitLinkButton>
-      </DialogBody>
-      <DialogFooter>
-        <ButtonGroup display="flex" gap="8">
+      footerButtons={
+        <>
           <BitkitButton variant="secondary" onClick={onCancel}>
             Cancel
           </BitkitButton>
           <BitkitButton state={isSubmitDisabled ? 'disabled' : undefined} type="submit">
             {mode === 'edit' ? 'Update' : 'Create'}
           </BitkitButton>
-        </ButtonGroup>
-      </DialogFooter>
-    </Dialog>
+        </>
+      }
+    >
+      <BitkitTextInput
+        optional
+        label="Title"
+        helperText="This will be the label of the input. Keep it short and descriptive."
+        size="md"
+        inputProps={register('opts.title')}
+      />
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <BitkitTextInput
+          errorText={formState.errors.key?.message}
+          label="Key"
+          helperText="Use this key as variable in Step inputs."
+          size="md"
+          flex="1"
+          inputProps={{
+            ...keyField,
+            onChange: (e) => keyField.onChange(StepBundleService.sanitizeInputKey(e.target.value)),
+          }}
+        />
+        <Text as="span" marginInline="8">
+          =
+        </Text>
+        {valueOptions?.length ? (
+          <StepSelectInput
+            label="Default value"
+            helperText="Value must be a string."
+            options={valueOptions ?? []}
+            {...valueField}
+          />
+        ) : (
+          <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
+        )}
+      </Box>
+      <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
+        <Box display="flex" flexDirection="column" gap="16">
+          <BitkitTextInput optional label="Summary" inputProps={register('opts.summary')} />
+          <BitkitTextArea
+            optional
+            label="Value options"
+            helperText="Add values as new lines."
+            textareaProps={{
+              ...valueOptionsField,
+              value: valueOptionsField.value?.join('\n'),
+              onChange: (e) => {
+                const v = e.target.value.trimStart();
+                valueOptionsField.onChange(v ? v.split('\n') : []);
+              },
+            }}
+          />
+          <BitkitTextInput optional label="Category" inputProps={register('opts.category')} />
+          <BitkitTextArea optional label="Description" textareaProps={register('opts.description')} />
+          <Controller
+            control={control}
+            name="opts.is_required"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Required"
+                helperText="Input must have a valid value, or the Step will fail."
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="opts.is_sensitive"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Sensitive"
+                helperText="Input accepts only Secrets as values."
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="opts.is_dont_change_value"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Read-only value"
+                helperText="The default value shouldn't be changed on the UI."
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="opts.is_expand"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Expand Env Vars in inputs"
+                helperText="If a value is an Env Var, the CLI will pass its value to the Step. Uncheck to pass the key as a string."
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
+        </Box>
+      </Collapse>
+      <BitkitLinkButton onClick={onToggle}>{isShowMore ? 'Show less options' : 'Show more options'}</BitkitLinkButton>
+    </BitkitFormDialog>
   );
 };
 

@@ -1,11 +1,8 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, IconArrowLeft, IconArrowRight, IconCross } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitDialog, IconArrowLeft, IconArrowRight } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
 import { useQuery } from '@tanstack/react-query';
-import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import { toMerged } from 'es-toolkit';
 import { useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -22,11 +19,14 @@ import PageProps from '@/core/utils/PageProps';
 import { useSaveCiConfig } from '@/hooks/useCiConfig';
 import useCurrentPage from '@/hooks/useCurrentPage';
 import useModelValidationStatus from '@/hooks/useModelValidationStatus';
+import useMountedWhileOpen from '@/hooks/useMountedWhileOpen';
 
 import YmlValidationBadge from '../YmlValidationBadge';
 import { diffEditorOptions, mergeYamls, readOnlyDiffEditorOptions } from './mergeYamls';
 
-type Props = Omit<DialogProps, 'title'> & {
+type Props = {
+  isOpen: boolean;
+  onClose: VoidFunction;
   targetBranch: string;
   isNewTargetBranch: boolean;
 };
@@ -57,11 +57,15 @@ function useInitialCiConfigs() {
 }
 
 const ConfigMergeDialogContent = ({
+  isOpen,
   onClose,
+  onExitComplete,
   targetBranch,
   isNewTargetBranch,
 }: {
+  isOpen: boolean;
   onClose: VoidFunction;
+  onExitComplete: VoidFunction;
   targetBranch: string;
   isNewTargetBranch: boolean;
 }) => {
@@ -172,151 +176,149 @@ const ConfigMergeDialogContent = ({
     { capture: true },
   );
 
-  if (isFetching) {
-    return <LoadingState />;
-  }
+  const isReady = !isFetching && !initialError && !!data;
 
-  if (initialError || !data) {
-    return (
-      <Box paddingInline="32">
+  return (
+    <BitkitDialog
+      size="full"
+      title={
+        <Box as="span" display="flex" gap="16" alignItems="center">
+          Review changes
+          {isReady && <YmlValidationBadge status={ymlStatus} />}
+        </Box>
+      }
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) handleCancel();
+      }}
+      onExitComplete={onExitComplete}
+      state={isSaving ? 'loading' : undefined}
+      footerButtons={
+        isReady && (
+          <>
+            <BitkitButton variant="secondary" state={isLoading ? 'disabled' : undefined} onClick={handleCancel}>
+              Cancel
+            </BitkitButton>
+            <BitkitButton
+              state={isLoading ? 'loading' : ymlStatus === 'invalid' ? 'disabled' : undefined}
+              disabledReason="YAML is invalid, please fix it before applying changes"
+              onClick={handleSave}
+            >
+              Apply changes
+            </BitkitButton>
+          </>
+        )
+      }
+    >
+      {isFetching && <LoadingState />}
+      {!isFetching && !isReady && (
         <BitkitAlert
           variant="critical"
           titleText="Error fetching initial configs"
           messageText={initialError?.message || 'Initial configs not found'}
         />
-      </Box>
-    );
-  }
+      )}
+      {isReady && (
+        <>
+          <Text>
+            There are changes outside your current editing session. Review the differences and resolve any conflicts to
+            proceed.
+          </Text>
+          <Box display="flex" flex="1" gap="4">
+            <Box display="flex" flexDirection="column" flex="1" gap="4">
+              <Text textStyle="body/md/semibold">Your changes</Text>
+              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
+                <DiffEditor
+                  theme="vs-dark"
+                  language="yaml"
+                  original={baseYml}
+                  modified={yourYml}
+                  options={readOnlyDiffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
+                />
+              </Box>
+            </Box>
 
-  return (
-    <>
-      <ModalHeader display="flex" gap="16" alignItems="center">
-        <Text as="h1" textStyle="comp/dialog/title">
-          Review changes
-        </Text>
-        <YmlValidationBadge status={ymlStatus} />
-      </ModalHeader>
-      <ModalCloseButton size="large">
-        <IconCross />
-      </ModalCloseButton>
-      <DialogBody flex="1" display="flex" flexDirection="column" gap={24}>
-        <Text>
-          There are changes outside your current editing session. Review the differences and resolve any conflicts to
-          proceed.
-        </Text>
-        <Box display="flex" flex="1" gap="4">
-          <Box display="flex" flexDirection="column" flex="1" gap="4">
-            <Text textStyle="body/md/semibold">Your changes</Text>
-            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
-              <DiffEditor
-                theme="vs-dark"
-                language="yaml"
-                original={baseYml}
-                modified={yourYml}
-                options={readOnlyDiffEditorOptions}
-                keepCurrentModifiedModel
-                keepCurrentOriginalModel
-              />
+            <Box alignSelf="center">
+              <IconArrowRight color="icon/tertiary" />
+            </Box>
+
+            <Box display="flex" flexDirection="column" flex="1" gap="4">
+              <Text textStyle="body/md/semibold">Results</Text>
+              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)">
+                <DiffEditor
+                  theme="vs-dark"
+                  language="yaml"
+                  original={baseYml}
+                  modified={mergedYml}
+                  options={diffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
+                  onMount={onFinalYmlEditorMount}
+                />
+              </Box>
+            </Box>
+
+            <Box alignSelf="center">
+              <IconArrowLeft color="icon/tertiary" />
+            </Box>
+
+            <Box display="flex" flexDirection="column" flex="1" gap="4">
+              <Text textStyle="body/md/semibold">Remote changes</Text>
+              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
+                <DiffEditor
+                  theme="vs-dark"
+                  language="yaml"
+                  original={baseYml}
+                  modified={remoteYml}
+                  options={readOnlyDiffEditorOptions}
+                  keepCurrentModifiedModel
+                  keepCurrentOriginalModel
+                />
+              </Box>
             </Box>
           </Box>
-
-          <Box alignSelf="center">
-            <IconArrowRight color="icon/tertiary" />
-          </Box>
-
-          <Box display="flex" flexDirection="column" flex="1" gap="4">
-            <Text textStyle="body/md/semibold">Results</Text>
-            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)">
-              <DiffEditor
-                theme="vs-dark"
-                language="yaml"
-                original={baseYml}
-                modified={mergedYml}
-                options={diffEditorOptions}
-                keepCurrentModifiedModel
-                keepCurrentOriginalModel
-                onMount={onFinalYmlEditorMount}
-              />
-            </Box>
-          </Box>
-
-          <Box alignSelf="center">
-            <IconArrowLeft color="icon/tertiary" />
-          </Box>
-
-          <Box display="flex" flexDirection="column" flex="1" gap="4">
-            <Text textStyle="body/md/semibold">Remote changes</Text>
-            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
-              <DiffEditor
-                theme="vs-dark"
-                language="yaml"
-                original={baseYml}
-                modified={remoteYml}
-                options={readOnlyDiffEditorOptions}
-                keepCurrentModifiedModel
-                keepCurrentOriginalModel
-              />
-            </Box>
-          </Box>
-        </Box>
-        <BitkitAlert
-          variant="info"
-          titleText="Merge conflict auto-resolution"
-          messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before saving."
-        />
-        {(clientError || saveError) && (
           <BitkitAlert
-            variant="critical"
-            titleText="Error saving..."
-            messageText={
-              clientError?.message || saveError?.getResponseErrorMessage() || saveError?.message || 'Unknown error'
-            }
+            variant="info"
+            titleText="Merge conflict auto-resolution"
+            messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before saving."
           />
-        )}
-      </DialogBody>
-      <DialogFooter>
-        <ButtonGroup gap="16">
-          <BitkitButton variant="secondary" state={isLoading ? 'disabled' : undefined} onClick={handleCancel}>
-            Cancel
-          </BitkitButton>
-          <BitkitButton
-            state={isLoading ? 'loading' : ymlStatus === 'invalid' ? 'disabled' : undefined}
-            disabledReason="YAML is invalid, please fix it before applying changes"
-            onClick={handleSave}
-          >
-            Apply changes
-          </BitkitButton>
-        </ButtonGroup>
-      </DialogFooter>
-    </>
-  );
-};
-
-const ConfigMergeDialog = ({ isOpen, onClose, targetBranch, isNewTargetBranch, ...props }: Props) => {
-  const currentPage = useCurrentPage();
-
-  const handleClose = () => {
-    onClose();
-    trackConfigMergePopupDismissed(currentPage);
-  };
-
-  return (
-    <Dialog
-      {...props}
-      title=""
-      size="full"
-      isOpen={isOpen}
-      variant="empty"
-      onClose={handleClose}
-      minHeight={['100dvh', 'unset']}
-    >
-      <ConfigMergeDialogContent onClose={onClose} targetBranch={targetBranch} isNewTargetBranch={isNewTargetBranch} />
+          {(clientError || saveError) && (
+            <BitkitAlert
+              variant="critical"
+              titleText="Error saving..."
+              messageText={
+                clientError?.message || saveError?.getResponseErrorMessage() || saveError?.message || 'Unknown error'
+              }
+            />
+          )}
+        </>
+      )}
       <style>{`
         .monaco-diff-editor .conflict {
           border: 1px solid rgba(255, 0, 0, 1);
         }
       `}</style>
-    </Dialog>
+    </BitkitDialog>
+  );
+};
+
+const ConfigMergeDialog = ({ isOpen, onClose, targetBranch, isNewTargetBranch }: Props) => {
+  const { isMounted, onExitComplete } = useMountedWhileOpen(isOpen);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return (
+    <ConfigMergeDialogContent
+      isOpen={isOpen}
+      onClose={onClose}
+      onExitComplete={onExitComplete}
+      targetBranch={targetBranch}
+      isNewTargetBranch={isNewTargetBranch}
+    />
   );
 };
 
