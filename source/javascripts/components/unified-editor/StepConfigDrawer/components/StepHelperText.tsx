@@ -1,7 +1,5 @@
-import { BitkitLinkButton, BitkitMarkdown } from '@bitrise/bitkit-v2';
+import { BitkitCollapsible, BitkitMarkdown } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useDisclosure } from '@chakra-ui/react/hooks';
-import { Collapse } from 'chakra-ui-2--react';
 
 type Props = {
   summary?: string;
@@ -9,8 +7,6 @@ type Props = {
 };
 
 const StepHelperText = ({ summary, details }: Props) => {
-  const { open: isOpen, onToggle } = useDisclosure();
-  const showMoreLabel = isOpen ? 'Show less' : 'Show more';
   const detailsText = details?.trim() || '';
   const summaryText = summary?.trim() || detailsText?.split('\n')[0].trim() || '';
   const isOneLinerDetails = detailsText.split('\n').length <= 1;
@@ -44,20 +40,11 @@ const StepHelperText = ({ summary, details }: Props) => {
         </BitkitMarkdown>
       )}
       {detailsText && (
-        <>
-          <Collapse
-            in={isOpen}
-            startingHeight={isDetailsOverlapsSummary ? 20 : 0}
-            transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
-          >
-            <BitkitMarkdown size="sm" gap="8">
-              {detailsText}
-            </BitkitMarkdown>
-          </Collapse>
-          <BitkitLinkButton alignSelf="start" onClick={onToggle}>
-            {showMoreLabel}
-          </BitkitLinkButton>
-        </>
+        <BitkitCollapsible collapsedHeight={isDetailsOverlapsSummary ? '20px' : '0px'}>
+          <BitkitMarkdown size="sm" gap="8">
+            {detailsText}
+          </BitkitMarkdown>
+        </BitkitCollapsible>
       )}
     </Box>
   );

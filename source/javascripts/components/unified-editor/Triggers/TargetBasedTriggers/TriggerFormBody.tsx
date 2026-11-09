@@ -1,5 +1,4 @@
-import { Select } from '@bitrise/bitkit';
-import { BitkitCheckbox, BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitCheckbox, BitkitLink, BitkitNativeSelect } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -77,7 +76,7 @@ const TriggerFormBody = (props: Props) => {
           name="source"
           control={control}
           render={({ field }) => (
-            <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired {...field}>
+            <BitkitNativeSelect label="Target" placeholder="Select a Pipeline or Workflow" {...field}>
               {pipelines.length > 0 && (
                 <optgroup label="Pipelines">
                   {pipelines.map((p) => (
@@ -96,7 +95,7 @@ const TriggerFormBody = (props: Props) => {
                   ))}
                 </optgroup>
               )}
-            </Select>
+            </BitkitNativeSelect>
           )}
         />
       )}

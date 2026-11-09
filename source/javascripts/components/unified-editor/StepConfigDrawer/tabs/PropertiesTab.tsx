@@ -1,7 +1,12 @@
-import { Collapse, Select } from '@bitrise/bitkit';
-import { BitkitLink, BitkitLinkButton, BitkitMarkdown, BitkitTextInput, IconOpenInNew } from '@bitrise/bitkit-v2';
+import {
+  BitkitCollapsible,
+  BitkitLink,
+  BitkitMarkdown,
+  BitkitNativeSelect,
+  BitkitTextInput,
+  IconOpenInNew,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { ChangeEventHandler, useEffect, useState } from 'react';
@@ -45,13 +50,11 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 
   if (variant === 'select') {
     return (
-      <Select
+      <BitkitNativeSelect
         value={value}
         label="Version"
-        backgroundSize="none"
-        isDisabled={isReadOnlyView}
+        state={isReadOnlyView ? 'disabled' : undefined}
         onChange={onStepVersionChange}
-        isRequired
       >
         {selectableVersions?.map((s) => {
           return (
@@ -60,7 +63,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
             </option>
           );
         })}
-      </Select>
+      </BitkitNativeSelect>
     );
   }
 
@@ -84,7 +87,6 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 const PropertiesTab = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { open: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
   const [title, setTitle] = useState<string>();
@@ -137,14 +139,9 @@ const PropertiesTab = () => {
         <Text textStyle="body/md/semibold">Summary</Text>
         {summary && <BitkitMarkdown size="lg">{summary}</BitkitMarkdown>}
         {description && (
-          <>
-            <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
-              <BitkitMarkdown size="lg">{description}</BitkitMarkdown>
-            </Collapse>
-            <BitkitLinkButton alignSelf="start" onClick={toggleShowMore} data-e2e-tag="step-description__toggle">
-              {showMore ? 'Show less' : 'Show more'}
-            </BitkitLinkButton>
-          </>
+          <BitkitCollapsible collapsedHeight="0px">
+            <BitkitMarkdown size="lg">{description}</BitkitMarkdown>
+          </BitkitCollapsible>
         )}
       </Box>
     </Box>

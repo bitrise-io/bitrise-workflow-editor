@@ -1,5 +1,12 @@
-import { Select, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitButton, BitkitEmptyState, BitkitHeading, BitkitLink, IconKey } from '@bitrise/bitkit-v2';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
+import {
+  BitkitButton,
+  BitkitEmptyState,
+  BitkitHeading,
+  BitkitLink,
+  BitkitNativeSelect,
+  IconKey,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -56,9 +63,10 @@ const LicensesPage = () => {
                 <Tr key={wfId}>
                   <Td>{wfId}</Td>
                   <Td>
-                    <Select
+                    <BitkitNativeSelect
                       placeholder={!value ? 'No license pool selected' : undefined}
-                      isDisabled={!wfId}
+                      optional
+                      state={!wfId ? 'disabled' : undefined}
                       onChange={(e) => {
                         StackAndMachineService.updateLicensePoolId(
                           e.target.value,
@@ -75,7 +83,7 @@ const LicensesPage = () => {
                           {pool.name}
                         </option>
                       ))}
-                    </Select>
+                    </BitkitNativeSelect>
                   </Td>
                 </Tr>
               );

@@ -1,4 +1,3 @@
-import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   IconChevronDown,
@@ -35,6 +34,7 @@ import useWorkflow from '@/hooks/useWorkflow';
 import { useSelection, useWorkflowActions } from '../contexts/WorkflowCardContext';
 import useReactFlowZoom from '../hooks/useReactFlowZoom';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
+import CardCollapse from './CardCollapse';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
 import WorkflowStepList from './WorkflowStepList';
@@ -228,7 +228,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
         </Box>
 
         {!isCrossFile && (
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <CardCollapse open={isOpen}>
             <SortableWorkflowsContext containerRef={containerRef}>
               <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
                 <ChainedWorkflowList key={`${id}->before_run`} placement="before_run" parentWorkflowId={id} />
@@ -238,7 +238,7 @@ const ChainedWorkflowCard = ({ id, index, uniqueId, placement, isSortable, isDra
                 <ChainedWorkflowList key={`${id}->after_run`} placement="after_run" parentWorkflowId={id} />
               </Box>
             </SortableWorkflowsContext>
-          </Collapse>
+          </CardCollapse>
         )}
       </Card.Body>
     </Card.Root>

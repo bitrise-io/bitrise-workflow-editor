@@ -1,4 +1,3 @@
-import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   BitkitTooltip,
@@ -17,6 +16,7 @@ import { memo, PropsWithChildren, useMemo, useRef, useState } from 'react';
 
 import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
+import CardCollapse from '@/components/unified-editor/WorkflowCard/components/CardCollapse';
 import PipelineService from '@/core/services/PipelineService';
 import {
   useCrossFileEntity,
@@ -210,7 +210,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
         </Box>
 
         {!isCrossFile && (
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <CardCollapse open={isOpen}>
             <SortableWorkflowsContext containerRef={containerRef}>
               <Box display="flex" flexDirection="column" gap="8" padding="8" ref={containerRef}>
                 <ChainedWorkflowList
@@ -226,7 +226,7 @@ const WorkflowCardContent = memo(function WorkflowCardContent({
                 />
               </Box>
             </SortableWorkflowsContext>
-          </Collapse>
+          </CardCollapse>
         )}
       </Card.Body>
     </Card.Root>

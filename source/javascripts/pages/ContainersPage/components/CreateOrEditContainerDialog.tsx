@@ -1,12 +1,11 @@
-import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
+  BitkitCollapsible,
   BitkitControlButton,
   BitkitFormDialog,
   BitkitHeading,
   BitkitLink,
-  BitkitLinkButton,
   BitkitTextArea,
   BitkitTextInput,
   IconPlus,
@@ -54,7 +53,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
   const { editedContainer, isOpen, onClose, onCloseComplete, type, readOnly = false } = props;
 
   const containerIds = useContainers().all.map((container) => container.id);
-  const { open: isShowMore, onToggle, onOpen: expandShowMore } = useDisclosure();
+  const { open: isShowMore, onOpen: expandShowMore, setOpen: setShowMore } = useDisclosure();
 
   // In read-only "view details" mode, expand the extra options on open so everything is visible at a
   // glance. Done on each open (not via defaultOpen, which only applies on first mount) because the
@@ -273,7 +272,13 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
           />
         )}
       />
-      <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
+      <BitkitCollapsible
+        collapsedHeight="0px"
+        openLabel="Show more options"
+        closedLabel="Show less options"
+        open={isShowMore}
+        onOpenChange={setShowMore}
+      >
         <Box display="flex" flexDirection="column" gap="16">
           <BitkitHeading as="h3" marginBlockStart="8">
             Authentication credentials
@@ -419,10 +424,7 @@ const CreateOrEditContainerDialog = (props: CreateOrEditContainerDialogProps) =>
             )}
           />
         </Box>
-      </Collapse>
-      <BitkitLinkButton alignSelf="start" onClick={onToggle}>
-        {isShowMore ? 'Show less options' : 'Show more options'}
-      </BitkitLinkButton>
+      </BitkitCollapsible>
     </BitkitFormDialog>
   );
 };
