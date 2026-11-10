@@ -15,6 +15,14 @@ type ExtraOpts = {
 
 type ClientOpts = RequestInit & ExtraOpts;
 
+// The website names its CSRF cookie __Host-CSRF-TOKEN on RDE sessions. There a CSRF-TOKEN cookie can be the one that
+// staging and review envs set on .bitrise.dev, which the browser lists before the session's own.
+const CSRF_COOKIE_NAMES = ['__Host-CSRF-TOKEN', 'CSRF-TOKEN'];
+
+function getCsrfToken(): string {
+  return CSRF_COOKIE_NAMES.map((name) => getCookie(name)).find(Boolean) || '';
+}
+
 class ClientError extends Error {
   public error: Error;
 
@@ -80,7 +88,7 @@ function mapToErrorMessage(status: number): string {
 async function raw(url: string, options?: ClientOpts) {
   const headers = toMerged(DEFAULT_HEADERS, {
     ...options?.headers,
-    ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') }),
+    ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCsrfToken() }),
   });
 
   const controller = new AbortController();
