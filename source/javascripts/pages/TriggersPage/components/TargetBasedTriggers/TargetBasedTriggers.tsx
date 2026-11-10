@@ -1,7 +1,6 @@
 import {
   BitkitCheckbox,
   BitkitEmptyState,
-  BitkitIconButton,
   BitkitLink,
   BitkitSearchInput,
   BitkitTable,
@@ -12,6 +11,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
+import { VisuallyHidden } from '@chakra-ui/react/visually-hidden';
 import { useMemo, useState } from 'react';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
@@ -152,40 +152,39 @@ const TargetBasedTriggers = () => {
             triggerDisabled={!trigger.isActive || !trigger.isTriggersModelActive}
           />
         </BitkitTable.Cell>
-        <BitkitTable.Cell textAlign="end" whiteSpace="nowrap">
-          <Box display="inline-flex" alignItems="center">
-            <BitkitCheckbox
-              labelText="Active"
-              marginInlineEnd="16"
-              checked={trigger.isActive}
-              state={isReadOnlyView ? 'disabled' : undefined}
-              onCheckedChange={() => handleActiveChange(trigger)}
-            />
-            {isReadOnlyView ? (
-              // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
-              // collapse to a jump-to-definition arrow over the modules that actually carry a trigger;
-              // otherwise show nothing.
-              useJump && (
-                <CrossFileJumpButton kind={source} id={sourceId} nodeIds={triggerNodesBySource.get(trigger.source)} />
-              )
-            ) : (
-              <>
-                <BitkitIconButton
-                  icon={IconPencil}
-                  variant="tertiary"
-                  label="Edit trigger"
-                  onClick={() => handleOpenDialog(trigger)}
-                />
-                <BitkitIconButton
-                  variant="danger-tertiary"
-                  icon={IconMinusCircle}
-                  label="Delete trigger"
-                  onClick={() => handleDeleteTrigger(trigger)}
-                />
-              </>
-            )}
-          </Box>
+        {/* A checkbox, not a switch: the editor saves through "Save changes", not on toggle. It edits a
+            value, so the row is not marked selected. */}
+        <BitkitTable.Cell whiteSpace="nowrap">
+          <BitkitCheckbox
+            labelText="Active"
+            size="md"
+            checked={trigger.isActive}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            onCheckedChange={() => handleActiveChange(trigger)}
+          />
         </BitkitTable.Cell>
+        {isReadOnlyView ? (
+          // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
+          // collapse to a jump-to-definition arrow over the modules that actually carry a trigger;
+          // otherwise leave the cell empty.
+          <BitkitTable.Cell textAlign="end">
+            {useJump && (
+              <CrossFileJumpButton kind={source} id={sourceId} nodeIds={triggerNodesBySource.get(trigger.source)} />
+            )}
+          </BitkitTable.Cell>
+        ) : (
+          <BitkitTable.RowActionsCell
+            actions={[
+              { icon: IconPencil, label: 'Edit trigger', onClick: () => handleOpenDialog(trigger) },
+              {
+                danger: true,
+                icon: IconMinusCircle,
+                label: 'Delete trigger',
+                onClick: () => handleDeleteTrigger(trigger),
+              },
+            ]}
+          />
+        )}
       </BitkitTable.Row>
     );
   };
@@ -208,7 +207,12 @@ const TargetBasedTriggers = () => {
               Type
             </BitkitTable.SortableColumnHeader>
             <BitkitTable.ColumnHeader>Conditions</BitkitTable.ColumnHeader>
-            <BitkitTable.ColumnHeader />
+            <BitkitTable.ColumnHeader width="1%">
+              <VisuallyHidden>Active</VisuallyHidden>
+            </BitkitTable.ColumnHeader>
+            <BitkitTable.ColumnHeader>
+              <VisuallyHidden>Actions</VisuallyHidden>
+            </BitkitTable.ColumnHeader>
           </BitkitTable.Row>
         </BitkitTable.Header>
         <BitkitTable.Body>{triggers.map((trigger) => renderRow(trigger, useJump))}</BitkitTable.Body>

@@ -98,6 +98,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                       <HStack gap="4" marginBlockStart="12">
                         <BitkitCheckbox
                           labelText="Last commit only"
+                          size="md"
                           whiteSpace="nowrap"
                           checked={!!isLastCommitOnly}
                           onCheckedChange={({ checked }) =>

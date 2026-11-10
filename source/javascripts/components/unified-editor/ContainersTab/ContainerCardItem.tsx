@@ -57,6 +57,7 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
           <Box display="inline-block">
             <BitkitCheckbox
               labelText="Recreate container"
+              size="md"
               checked={reference.recreate}
               onCheckedChange={({ checked }) => onRecreate(reference.id, checked === true)}
               value={reference.id}
