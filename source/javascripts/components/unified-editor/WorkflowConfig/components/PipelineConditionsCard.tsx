@@ -1,5 +1,10 @@
-import { Select } from '@bitrise/bitkit';
-import { BitkitExpandableCard, BitkitSwitch, BitkitTextArea, BitkitTextInput } from '@bitrise/bitkit-v2';
+import {
+  BitkitExpandableCard,
+  BitkitNativeSelect,
+  BitkitSwitch,
+  BitkitTextArea,
+  BitkitTextInput,
+} from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { uniq } from 'es-toolkit';
@@ -68,13 +73,13 @@ const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps
   };
 
   return (
-    <Select size="md" isRequired label="Always run" value={value} helperText={helperText} onChange={handleChange}>
+    <BitkitNativeSelect size="md" label="Always run" value={value} helperText={helperText} onChange={handleChange}>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
         </option>
       ))}
-    </Select>
+    </BitkitNativeSelect>
   );
 };
 

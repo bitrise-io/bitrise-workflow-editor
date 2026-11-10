@@ -1,8 +1,8 @@
-import { Select } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitCheckbox,
   BitkitControlButton,
+  BitkitNativeSelect,
   BitkitTable,
   BitkitTextInput,
   BitkitToggleButton,
@@ -74,7 +74,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                       name={`conditions.${index}.type`}
                       control={control}
                       render={({ field }) => (
-                        <Select placeholder="Select a condition type" size="md" {...field}>
+                        <BitkitNativeSelect placeholder="Select a condition type" size="md" optional {...field}>
                           {Object.entries(optionsMap).map(([optionType, text]) => {
                             const isConditionTypeUsed = conditions.some((condition) => condition.type === optionType);
                             const isTypeOfCurrentCard = optionType === type;
@@ -89,7 +89,7 @@ const ConditionCard = ({ triggerType, fields, append, optionsMap, remove }: Prop
                               </option>
                             );
                           })}
-                        </Select>
+                        </BitkitNativeSelect>
                       )}
                     />
                     {triggerType === 'push' && (type === 'changed_files' || type === 'commit_message') && (

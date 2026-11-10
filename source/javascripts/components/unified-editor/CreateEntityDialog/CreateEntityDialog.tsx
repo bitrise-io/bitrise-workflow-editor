@@ -1,5 +1,4 @@
-import { Select } from '@bitrise/bitkit';
-import { BitkitButton, BitkitFormDialog, BitkitTextInput } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitFormDialog, BitkitNativeSelect, BitkitTextInput } from '@bitrise/bitkit-v2';
 import { ChangeEvent, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -142,12 +141,12 @@ const CreateEntityDialog = <T,>({
           inputProps={register('title')}
         />
       )}
-      <Select label="Based on" {...register('baseEntityId')}>
+      <BitkitNativeSelect label="Based on" optional {...register('baseEntityId')}>
         <option key="" value="">
           An empty {entityName}
         </option>
         <Options<T> baseEntities={baseEntities} />
-      </Select>
+      </BitkitNativeSelect>
     </BitkitFormDialog>
   );
 };

@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { PropsWithChildren } from 'react';
 
 import { isYmlPageLocation } from '@/core/stores/BitriseYmlStore';
+import { isChunkLoadError } from '@/core/utils/chunkLoadError';
 import WindowUtils from '@/core/utils/WindowUtils';
 import { navigate } from '@/hooks/useHashLocation';
 import { getSearchParamsFromLocationHash } from '@/hooks/useSearchParams';
@@ -33,9 +34,25 @@ function messageOf(thrown: unknown) {
   }
 }
 
+// The browser keeps a failed import failed until the page reloads, so a reload is the only way out.
+const ChunkLoadErrorFallback = () => (
+  <BitkitProvider>
+    <ErrorPage eyebrow="Error – This page couldn't load" headline="This page couldn't be loaded">
+      <Text textStyle="body/lg/regular">Part of the editor failed to download. Reload to try again.</Text>
+      <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={WindowUtils.reloadEditor}>
+        Reload
+      </BitkitButton>
+    </ErrorPage>
+  </BitkitProvider>
+);
+
 // Datadog's boundary reports the error and, unlike a check on the error value, also catches a thrown
 // `undefined`. The fallback never calls `resetError`: retrying re-renders the tree that just threw.
 const ErrorPageFallback = ({ error }: { error: unknown }) => {
+  if (isChunkLoadError(error)) {
+    return <ChunkLoadErrorFallback />;
+  }
+
   const offerYmlEditor = !isYmlPageLocation(window.parent.location.hash);
 
   return (
