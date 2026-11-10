@@ -34,6 +34,7 @@ jest.mock('@bitrise/bitkit-v2', () => ({
 
 const composed = composeStories(stories);
 const {
+  ChunkFailedToLoad,
   ErrorWithoutAMessage,
   NotAnErrorThrown,
   OnABranch,
@@ -124,6 +125,30 @@ describe('RootErrorBoundary', () => {
       await renderStory(OnTheYamlPage);
 
       expect(buttonLabels()).toEqual([]);
+    });
+  });
+
+  describe('when part of the editor failed to download', () => {
+    it.each([
+      ['Chrome', new TypeError('Failed to fetch dynamically imported module: https://x/WorkflowsPage-a.js')],
+      ['Firefox', new TypeError('error loading dynamically imported module: https://x/WorkflowsPage-a.js')],
+      ['Safari', new TypeError('Importing a module script failed.')],
+      ['a Vite CSS preload', new Error('Unable to preload CSS for /workflow_editor/x/assets/PipelinesPage-a.css')],
+    ])('offers a reload instead of the YAML editor, in %s', async (_, thrown) => {
+      await ChunkFailedToLoad.load();
+      render(<ChunkFailedToLoad thrown={thrown} />);
+
+      expect(screen.getByText("This page couldn't be loaded")).toBeDefined();
+      expect(buttonLabels()).toEqual(['Reload']);
+    });
+
+    it('reloads the editor where it was, keeping the page and the selected entity', async () => {
+      await renderStory(ChunkFailedToLoad);
+
+      fireEvent.click(screen.getByText('Reload'));
+
+      expect(window.parent.location.hash).toBe('#!/workflows?workflow_id=primary');
+      expect(WindowUtils.reloadEditor).toHaveBeenCalledTimes(1);
     });
   });
 });

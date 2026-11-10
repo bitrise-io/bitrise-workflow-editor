@@ -1,5 +1,6 @@
 /* _eslint-disable import/no-import-module-exports */
 import '@/monaco-workers';
+import '@xyflow/react/dist/style.css';
 
 import { Provider } from '@bitrise/bitkit';
 import { BitkitProvider } from '@bitrise/bitkit-v2';

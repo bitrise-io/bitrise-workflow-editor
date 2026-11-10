@@ -1982,7 +1982,7 @@ describe('ContainerService', () => {
         const result1 = ContainerService.getWorkflowsUsingContainer(bitriseYmlStore.getState().ymlDocument, 'golang_1');
         const result2 = ContainerService.getWorkflowsUsingContainer(bitriseYmlStore.getState().ymlDocument, 'golang_2');
 
-        expect(result1).toEqual(['test', 'build']);
+        expect(result1).toEqual(['build', 'test']);
         expect(result2).toEqual(['test']);
       });
 
@@ -2099,7 +2099,7 @@ describe('ContainerService', () => {
         const result1 = ContainerService.getWorkflowsUsingContainer(bitriseYmlStore.getState().ymlDocument, 'postgres');
         const result2 = ContainerService.getWorkflowsUsingContainer(bitriseYmlStore.getState().ymlDocument, 'redis');
 
-        expect(result1).toEqual(['test', 'integration']);
+        expect(result1).toEqual(['integration', 'test']);
         expect(result2).toEqual(['test']);
       });
 
