@@ -1,3 +1,4 @@
+import { datadogRum } from '@datadog/browser-rum';
 import { lazyWithPreload } from 'react-lazy-with-preload';
 
 import { EntityKind } from '@/core/models/Tree';
@@ -71,8 +72,18 @@ export const routes = [
   },
 ];
 
+// A failed import is cached by the browser for the life of the page, so a failed preload breaks that
+// page until a reload. Waiting for a visible tab assumes hidden tabs fail more often; the reported
+// visibility state is there to confirm or refute that.
 export function preloadRoutes() {
+  if (document.visibilityState !== 'visible') {
+    document.addEventListener('visibilitychange', preloadRoutes, { once: true });
+    return;
+  }
+
   routes.forEach((route) => {
-    route.component.preload();
+    route.component.preload().catch((error) => {
+      datadogRum.addError(error, { source: 'route-preload', visibilityState: document.visibilityState });
+    });
   });
 }
