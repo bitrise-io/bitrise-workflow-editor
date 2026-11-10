@@ -1,4 +1,3 @@
-import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitControlButton,
   BitkitList,
@@ -20,6 +19,7 @@ import { otherModulesLabel } from '@/components/EntityModuleProvenance';
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import SortablePlaceholder from '@/components/SortablePlaceholder/SortablePlaceholder';
 import useContainerReferences from '@/components/unified-editor/ContainersTab/hooks/useContainerReferences';
+import CardCollapse from '@/components/unified-editor/WorkflowCard/components/CardCollapse';
 import StepMenu from '@/components/unified-editor/WorkflowCard/components/StepMenu';
 import { ContainerType } from '@/core/models/Container';
 import { LibraryType } from '@/core/models/Step';
@@ -266,11 +266,11 @@ const StepBundleCard = (props: StepBundleCardProps) => {
           </Box>
         </Box>
         {!isCrossFile && (
-          <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
+          <CardCollapse open={isOpen}>
             <Box padding="8" ref={containerRef}>
               <StepBundleStepList stepBundleId={StepBundleService.cvsToId(cvs)} />
             </Box>
-          </Collapse>
+          </CardCollapse>
         )}
       </Card.Body>
     </Card.Root>
