@@ -92,13 +92,17 @@ const MachineTypeSelector = ({
     }
 
     const region = selectedRegion || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
+    const specs = machineType.availableInRegions[region]?.join(' • ');
 
-    return (
+    return specs ? (
       <Text as="span" color="text/helper" textStyle="body/sm/regular">
-        {machineType.availableInRegions[region]?.join(' • ')}
+        {specs}
       </Text>
-    );
+    ) : undefined;
   };
+
+  const regionHelperText = helperText();
+  const hasHelperText = !!regionHelperText || hasUnavailableMachines;
 
   return (
     <BitkitSelect
@@ -106,16 +110,18 @@ const MachineTypeSelector = ({
       errorText={isInvalid ? 'Invalid machine type' : undefined}
       flex="1"
       helperText={
-        <>
-          {helperText()}
-          {hasUnavailableMachines && (
-            <Text as="span" display="block">
-              <BitkitLink href="https://bitrise.io/demo" isExternal>
-                Reach out to sales
-              </BitkitLink>
-            </Text>
-          )}
-        </>
+        hasHelperText ? (
+          <>
+            {regionHelperText}
+            {hasUnavailableMachines && (
+              <Text as="span" display="block">
+                <BitkitLink href="https://bitrise.io/demo" isExternal>
+                  Reach out to sales
+                </BitkitLink>
+              </Text>
+            )}
+          </>
+        ) : undefined
       }
       items={toItems(optionGroups)}
       label="Machine type"

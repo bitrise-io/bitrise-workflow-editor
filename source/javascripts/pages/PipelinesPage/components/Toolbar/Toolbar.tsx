@@ -70,20 +70,30 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     setDebouncedSearch(value);
   };
 
+  // The search starts over every time the menu opens.
+  const onOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setSearch('');
+      setDebouncedSearch('');
+      setDebouncedSearch.flush();
+    }
+  };
+
   const onCreatePipeline = () => {
-    setIsOpen(false);
+    onOpenChange(false);
     onCreatePipelineClick?.();
   };
 
   const onCreatePipelineWithAI = () => {
-    setIsOpen(false);
+    onOpenChange(false);
     onAIButtonClick();
   };
 
   const items = useMemo(
     () =>
       keys
-        .filter((id) => id?.toLowerCase().includes(debouncedSearch?.toLowerCase()))
+        .filter((id) => [id, options[id]].some((text) => text?.toLowerCase().includes(debouncedSearch?.toLowerCase())))
         .map((id) => ({ label: options[id], value: id })),
     [debouncedSearch, keys, options],
   );
@@ -116,7 +126,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
         placeholder={hasOptions ? 'Select a Pipeline' : 'Create a Pipeline first'}
         searchPlaceholder="Filter by name..."
         searchValue={search}
-        selectProps={{ onOpenChange: ({ open }) => setIsOpen(open), open: isOpen }}
+        selectProps={{ onOpenChange: ({ open }) => onOpenChange(open), open: isOpen }}
         size="md"
         state={hasOptions ? undefined : 'disabled'}
         value={selectedPipeline}

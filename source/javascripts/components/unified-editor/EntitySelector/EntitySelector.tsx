@@ -41,20 +41,26 @@ const EntitySelector = (props: EntitySelectorProps) => {
     return [...primary, ...secondary];
   }, [entityIds, search, secondaryEntities]);
 
+  // The search starts over every time the menu opens.
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) setSearch('');
+  };
+
   const handleCreate = () => {
-    setIsOpen(false);
+    handleOpenChange(false);
     onCreate?.();
   };
 
   const handleCreateWithAI = () => {
-    setIsOpen(false);
+    handleOpenChange(false);
     onAIButtonClick();
   };
 
   return (
     <BitkitSelect
-      emptyHelperText="Modify your search to get results"
-      emptyLabel={`No ${entityName}s are matching your filter`}
+      emptyHelperText={search ? 'Modify your search to get results' : undefined}
+      emptyLabel={search ? `No ${entityName}s are matching your filter` : `No ${entityName}s yet`}
       flex="1"
       items={items}
       label={entityName}
@@ -62,7 +68,7 @@ const EntitySelector = (props: EntitySelectorProps) => {
       minWidth="0"
       searchPlaceholder="Filter by name..."
       searchValue={search}
-      selectProps={{ onOpenChange: ({ open }) => setIsOpen(open), open: isOpen }}
+      selectProps={{ onOpenChange: ({ open }) => handleOpenChange(open), open: isOpen }}
       size="md"
       value={value ?? ''}
       onSearchChange={setSearch}
