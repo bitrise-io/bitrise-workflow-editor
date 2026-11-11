@@ -4,10 +4,11 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { recordToolSetupWrite } from '@/core/analytics/ToolSetupAnalytics';
+import { recordToolSetupWrite, renameToolSetupWorkflow } from '@/core/analytics/ToolSetupAnalytics';
 import { ParsedToolVersion } from '@/core/models/Tools';
 import { TreeNode } from '@/core/models/Tree';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
+import WorkflowService from '@/core/services/WorkflowService';
 import {
   applyModularSaveResult,
   applySaveResult,
@@ -56,6 +57,15 @@ const removeInUi = (toolId: string, scope: ToolScope = ROOT) =>
   act(() => {
     ToolsService.deleteTool(toolId, scope);
     recordToolSetupWrite(scope, [toolId]);
+  });
+
+// What `useRenameWorkflow` does: rename, keep the old ID selected through a copy, then drop the copy.
+const renameWorkflowInUi = (oldId: string, newId: string) =>
+  act(() => {
+    WorkflowService.renameWorkflow(oldId, newId);
+    renameToolSetupWorkflow(oldId, newId);
+    WorkflowService.createWorkflow(oldId, newId);
+    WorkflowService.deleteWorkflow(oldId);
   });
 
 const events = () => track.mock.calls.map(([, properties]) => properties);
@@ -261,6 +271,33 @@ describe('useTrackToolSetup', () => {
 
     expect(events()).toEqual([
       expect.objectContaining({ tool_change_type: 'added', tool_scope: 'root', tool_id: 'ruby' }),
+    ]);
+  });
+
+  it('keeps a UI write when the UI renames its workflow before the save', () => {
+    mount('workflows:\n  primary:\n    tools:\n      ruby: 3.3.0\n');
+    setInUi('nodejs', { strategy: 'exact', version: '22.1.0' }, PRIMARY);
+    renameWorkflowInUi('primary', 'build');
+    save();
+
+    expect(events()).toEqual([
+      expect.objectContaining({
+        tool_change_type: 'added',
+        tool_scope: 'workflow',
+        tool_id: 'nodejs',
+        tool_edit_method: 'ui',
+      }),
+    ]);
+  });
+
+  it('records a UI removal in a workflow the UI renames before the save', () => {
+    mount('workflows:\n  primary:\n    tools:\n      nodejs: 22.1.0\n      ruby: 3.3.0\n');
+    removeInUi('nodejs', PRIMARY);
+    renameWorkflowInUi('primary', 'build');
+    save();
+
+    expect(events()).toEqual([
+      expect.objectContaining({ tool_change_type: 'removed', tool_id: 'nodejs', tool_edit_method: 'ui' }),
     ]);
   });
 

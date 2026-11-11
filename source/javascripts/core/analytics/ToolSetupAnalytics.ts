@@ -14,6 +14,9 @@ type ToolEntry = { fileKey: string; scope: ToolScope; toolId: string; value: str
 
 type ToolSnapshot = { entries: Map<string, ToolEntry>; scopes: Set<string> };
 
+/** What the tool setup UI last left in an entry, `null` for one it removed. */
+type UiWrite = Omit<ToolEntry, 'value'> & { value: string | null };
+
 const workflowIdOf = (scope: ToolScope) => (scope.type === 'workflow' ? scope.workflowId : null);
 
 const scopeKey = (fileKey: string, scope: ToolScope) => JSON.stringify([fileKey, workflowIdOf(scope)]);
@@ -27,8 +30,8 @@ const toRawValue = (value: unknown) => (typeof value === 'string' ? value : Stri
 /** Hand-written YAML can hold anything where a map belongs, so only a map is read. */
 const mapEntries = (value: unknown) => (isPlainObject(value) ? Object.entries(value) : []);
 
-/** What the tool setup UI last left in each entry it wrote, `null` for one it removed. */
-const uiWrites = new Map<string, string | null>();
+/** The tool setup UI's writes, keyed by entry. */
+const uiWrites = new Map<string, UiWrite>();
 
 /**
  * Remembers what a tool setup UI write left in the active file. Read back from the document rather than
@@ -36,11 +39,29 @@ const uiWrites = new Map<string, string | null>();
  */
 export function recordToolSetupWrite(scope: ToolScope, toolIds: string[]) {
   const state = bitriseYmlStore.getState();
+  const fileKey = activeFileKey(state);
   const tools = ToolsService.getToolsForScope(state.yml, scope);
 
   toolIds.forEach((toolId) => {
     const value = Object.keys(tools).includes(toolId) ? toRawValue(tools[toolId]) : null;
-    uiWrites.set(entryKey(activeFileKey(state), scope, toolId), value);
+    uiWrites.set(entryKey(fileKey, scope, toolId), { fileKey, scope, toolId, value });
+  });
+}
+
+/**
+ * Moves the UI writes of a workflow the UI renamed in the active file to its new ID, so its tools still
+ * count as the UI's. A removal stays under the old ID, where the save reports it.
+ */
+export function renameToolSetupWorkflow(oldWorkflowId: string, newWorkflowId: string) {
+  const fileKey = activeFileKey(bitriseYmlStore.getState());
+  const scope: ToolScope = { type: 'workflow', workflowId: newWorkflowId };
+
+  [...uiWrites].forEach(([key, write]) => {
+    const isMoved = write.fileKey === fileKey && workflowIdOf(write.scope) === oldWorkflowId && write.value !== null;
+    if (isMoved) {
+      uiWrites.delete(key);
+      uiWrites.set(entryKey(fileKey, scope, write.toolId), { ...write, scope });
+    }
   });
 }
 
@@ -159,7 +180,8 @@ export function trackToolSetupSaved(prevDocuments: Record<string, Document>, nex
       return;
     }
 
-    const viaUi = uiWrites.has(key) && uiWrites.get(key) === (after?.value ?? null);
+    const write = uiWrites.get(key);
+    const viaUi = write !== undefined && write.value === (after?.value ?? null);
     // A scope missing from either snapshot, such as a renamed workflow or a file with parse errors, has
     // nothing to compare with, so only entries the UI wrote count there.
     const scopeId = scopeKey(fileKey, scope);
@@ -192,8 +214,8 @@ export function clearToolSetupWrites() {
 export function pruneToolSetupWrites() {
   const { entries } = snapshotTools(configDocumentsByFile(bitriseYmlStore.getState()));
 
-  uiWrites.forEach((value, key) => {
-    if (value !== (entries.get(key)?.value ?? null)) {
+  uiWrites.forEach((write, key) => {
+    if (write.value !== (entries.get(key)?.value ?? null)) {
       uiWrites.delete(key);
     }
   });
