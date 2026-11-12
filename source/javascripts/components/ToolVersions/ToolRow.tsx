@@ -83,9 +83,10 @@ const ToolRow = ({
   const [manualOther, setManualOther] = useState(false);
   // A `latest-of` the YAML cannot hold yet. It stands in only for the document it was started on,
   // so a discard or any other edit drops it. See `docs/decisions.md`.
-  const ymlDocument = useStore(bitriseYmlStore, (s) => s.ymlDocument);
   const [heldDraft, setHeldDraft] = useState<{ parsed: ParsedToolVersion; document: Document } | null>(null);
-  const draft = heldDraft?.document === ymlDocument ? heldDraft.parsed : null;
+  // Only whether the draft is still current, so an edit elsewhere does not render this row again.
+  const isDraftCurrent = useStore(bitriseYmlStore, (s) => heldDraft?.document === s.ymlDocument);
+  const draft = isDraftCurrent && heldDraft ? heldDraft.parsed : null;
   // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
   const [versionSearch, setVersionSearch] = useState('');
   // The line a switch to exact seeds along, held while the list it seeds from is still on its way.
@@ -267,7 +268,7 @@ const ToolRow = ({
       setHeldDraft(null);
       onChange(next);
     } else {
-      setHeldDraft({ parsed: next, document: ymlDocument });
+      setHeldDraft({ parsed: next, document: bitriseYmlStore.getState().ymlDocument });
     }
   };
 
