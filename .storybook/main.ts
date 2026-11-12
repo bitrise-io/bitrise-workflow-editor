@@ -19,6 +19,10 @@ const config: StorybookConfig = {
     const { mergeConfig } = await import('vite');
     const testBitriseYmlFile = path.resolve(__dirname, '..', 'spec', 'integration', 'test_bitrise.yml');
 
+    // Storybook pins the hot reload socket's client port to its own. Without it, the client uses the page's port,
+    // so the socket also connects through a proxy on another port, like a remote dev env's tunnel.
+    if (typeof config.server?.hmr === 'object') delete config.server.hmr.port;
+
     return mergeConfig(config, {
       resolve: {
         alias: {
