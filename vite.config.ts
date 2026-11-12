@@ -50,11 +50,9 @@ function absoluteUrlsPlugin(urlPrefix: string): Plugin {
   };
 }
 
-// Serves @bitrise/bitkit-v2 from a bitkit-v2 checkout's dist/ instead of the npm package. The bare imports of its
-// files resolve like the npm package's, from its folder in node_modules. React, Chakra and Emotion then come from
-// this repo, so they load once, and the versions npm nests under the package come from there. @zag-js/dom-query
-// is one: Chakra v2 puts 0.x at the top of node_modules, and Bitkit needs 1.x. Packages only the checkout has
-// come from its node_modules.
+// The checkout's bare imports resolve from the npm package's folder, as the package's own do: React, Chakra and
+// Emotion load once from this repo, and nested versions still apply, like @zag-js/dom-query 1.x, which Chakra v2
+// hoists as 0.x. Packages only the checkout has come from its node_modules.
 function localBitkitV2Plugin(dir: string): Plugin {
   const entry = join(dir, 'dist/main.js');
   const packageImporter = join(rootDir, 'node_modules/@bitrise/bitkit-v2/package.json');
@@ -75,8 +73,7 @@ export default defineConfig(({ mode }) => {
   const isWebsiteMode = (env.MODE || 'CLI') === 'WEBSITE';
   const urlPrefix = isWebsiteMode ? env.PUBLIC_URL_ROOT || '' : '';
   const root = resolve(rootDir, 'source');
-  // Remote dev envs set this to a bitkit-v2 checkout, which they keep built, to try Bitkit changes in the editor.
-  // Resolved, so a trailing slash can't break the importer check in localBitkitV2Plugin.
+  // A bitkit-v2 checkout that remote dev envs keep built. Resolved, so a trailing slash can't break the importer check.
   const localBitkitV2 = env.BITKIT_V2_LOCAL_PATH ? resolve(env.BITKIT_V2_LOCAL_PATH) : undefined;
 
   return {
