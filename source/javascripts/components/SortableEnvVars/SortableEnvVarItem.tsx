@@ -1,16 +1,22 @@
-import { Checkbox, Input } from '@bitrise/bitkit';
-import { BitkitControlButton, IconMinusCircle } from '@bitrise/bitkit-v2';
+import {
+  BitkitCheckbox,
+  BitkitControlButton,
+  BitkitTextArea,
+  BitkitTextInput,
+  IconDollar,
+  IconMinusCircle,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ReactNode, useState } from 'react';
 
-import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/services/EnvVarService';
 import { useIsReadOnlyView } from '@/hooks/useTree';
+import ignore1Password from '@/utils/ignore1Password';
 
 export type SortableEnvVar = EnvVar & {
   uniqueId: string;
@@ -91,28 +97,36 @@ const SortableEnvVarItem = ({
         visibility={sortable.isDragging ? 'hidden' : 'visible'}
       >
         <Box display="flex" alignItems="top" gap="8">
-          <Input
+          <BitkitTextInput
+            optional
             flex="1"
             size="md"
             value={env.key}
-            aria-label="Key"
-            leftIconName="Dollars"
+            label="Key"
+            labelHidden
+            startElement={<IconDollar size="16" />}
             placeholder="Enter key"
-            isDisabled={isReadOnlyView}
-            onChange={(e) => handleKeyChange(e.target.value)}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            onValueChange={handleKeyChange}
             errorText={errors.key !== true ? errors.key : undefined}
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
           />
           <Text color="text/tertiary" paddingBlockStart="8">
             =
           </Text>
-          <AutoGrowableInput
-            value={env.value}
-            aria-label="Value"
+          <BitkitTextArea
+            ref={ignore1Password}
+            optional
+            flex="1"
+            autoresize
+            rows={1}
+            size="md"
+            label="Value"
+            labelHidden
             placeholder="Enter value"
-            isDisabled={isReadOnlyView}
-            formControlProps={{ flex: 1 }}
-            onChange={(e) => handleValueChange(e.target.value)}
+            value={env.value}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            onValueChange={handleValueChange}
           />
           {isReadOnlyView && jumpButton ? (
             // Center the small (xs) jump arrow against the value input rather than top-aligning it.
@@ -131,13 +145,12 @@ const SortableEnvVarItem = ({
             />
           )}
         </Box>
-        <Checkbox
-          isChecked={env.isExpand !== false}
-          isDisabled={isReadOnlyView}
-          onChange={(e) => handleIsExpandChange(e.target.checked)}
-        >
-          Replace variables in inputs
-        </Checkbox>
+        <BitkitCheckbox
+          labelText="Replace variables in inputs"
+          checked={env.isExpand !== false}
+          state={isReadOnlyView ? 'disabled' : undefined}
+          onCheckedChange={({ checked }) => handleIsExpandChange(checked === true)}
+        />
       </Box>
     </Box>
   );

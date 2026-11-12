@@ -1,9 +1,7 @@
-import { Input } from '@bitrise/bitkit';
-import { BitkitIconButton, IconCopy } from '@bitrise/bitkit-v2';
+import { BitkitIconButton, BitkitTextInput, IconCopy } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
-import { FormControl } from 'chakra-ui-2--react';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
@@ -26,24 +24,20 @@ const OutputVariablesTab = () => {
         return (
           <Fragment key={key}>
             <Box display="flex" flexDirection="column" gap="8">
-              <FormControl>
-                <Input
-                  type="text"
-                  label={opts?.title || 'Output variable'}
-                  value={variable}
-                  isReadOnly
-                  rightAddon={
-                    <BitkitIconButton
-                      variant="secondary"
-                      icon={IconCopy}
-                      label="Copy variable name"
-                      onClick={() => copy(variable)}
-                    />
-                  }
-                  rightAddonPlacement="inside"
-                />
-                <StepHelperText summary={opts?.summary} details={opts?.description} />
-              </FormControl>
+              <BitkitTextInput
+                label={opts?.title || 'Output variable'}
+                value={variable}
+                state="readOnly"
+                endAddon={
+                  <BitkitIconButton
+                    variant="secondary"
+                    icon={IconCopy}
+                    label="Copy variable name"
+                    onClick={() => copy(variable)}
+                  />
+                }
+              />
+              <StepHelperText summary={opts?.summary} details={opts?.description} />
             </Box>
             {!isLast && <Separator />}
           </Fragment>

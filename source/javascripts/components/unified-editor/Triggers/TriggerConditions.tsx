@@ -1,7 +1,7 @@
-import { Tooltip } from '@bitrise/bitkit';
 import {
   BitkitIconComponent,
   BitkitTag,
+  BitkitTooltip,
   IconBranch,
   IconChat,
   IconCommit,
@@ -65,14 +65,14 @@ const TriggerConditions = (props: TriggerConditionsProps) => {
       {(!conditions || conditions.length === 0) && <BitkitTag labelText="No conditions." size="sm" />}
       {conditions.map(({ type, value }, index) => (
         <Fragment key={type + value}>
-          <Tooltip label={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]}>
+          <BitkitTooltip text={triggerDisabled ? 'Disabled' : TOOLTIP_MAP[type]}>
             <BitkitTag
               icon={ICON_MAP[type]}
               labelText={value}
               size="sm"
               state={triggerDisabled ? 'disabled' : undefined}
             />
-          </Tooltip>
+          </BitkitTooltip>
           {conditions.length - 1 > index && (
             <Text as="span" textStyle="body/md/regular" color="text/secondary">
               and

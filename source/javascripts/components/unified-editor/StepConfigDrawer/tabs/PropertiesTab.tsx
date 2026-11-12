@@ -1,7 +1,12 @@
-import { Collapse, Input, MarkdownContent, Select } from '@bitrise/bitkit';
-import { BitkitLink, BitkitLinkButton, IconOpenInNew } from '@bitrise/bitkit-v2';
+import {
+  BitkitCollapsible,
+  BitkitLink,
+  BitkitMarkdown,
+  BitkitNativeSelect,
+  BitkitTextInput,
+  IconOpenInNew,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { ChangeEventHandler, useEffect, useState } from 'react';
@@ -10,6 +15,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import { useIsReadOnlyView } from '@/hooks/useTree';
+import ignore1Password from '@/utils/ignore1Password';
 
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
@@ -22,6 +28,7 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   const { data, stepBundleId, workflowId, stepIndex } = useStepDrawerContext();
   const isReadOnlyView = useIsReadOnlyView();
   const [value, setValue] = useState(data?.resolvedInfo?.normalizedVersion);
+  const [draft, setDraft] = useState<string>();
   const changeStepVersion = useDebounceCallback(StepService.changeStepVersion, 250);
 
   const onStepVersionChange: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
@@ -38,18 +45,16 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
   }, [data?.resolvedInfo?.normalizedVersion]);
 
   if (!canChangeVersion) {
-    return <Input label="Version" placeholder="Always latest" isDisabled />;
+    return <BitkitTextInput optional label="Version" placeholder="Always latest" state="disabled" />;
   }
 
   if (variant === 'select') {
     return (
-      <Select
+      <BitkitNativeSelect
         value={value}
         label="Version"
-        backgroundSize="none"
-        isDisabled={isReadOnlyView}
+        state={isReadOnlyView ? 'disabled' : undefined}
         onChange={onStepVersionChange}
-        isRequired
       >
         {selectableVersions?.map((s) => {
           return (
@@ -58,19 +63,23 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
             </option>
           );
         })}
-      </Select>
+      </BitkitNativeSelect>
     );
   }
 
   return (
-    <Input
-      type="text"
+    <BitkitTextInput
+      optional
       label="Version"
-      defaultValue={value}
       placeholder="Always latest"
-      isDisabled={isReadOnlyView}
-      onChange={onStepVersionChange}
-      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+      state={isReadOnlyView ? 'disabled' : undefined}
+      value={draft ?? value ?? ''}
+      onChange={(e) => {
+        setDraft(e.target.value);
+        onStepVersionChange(e);
+      }}
+      inputRef={ignore1Password}
+      inputProps={{ onBlur: () => setDraft(undefined) }}
     />
   );
 };
@@ -78,10 +87,9 @@ const StepVersion = ({ variant, canChangeVersion, selectableVersions }: StepVers
 const PropertiesTab = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const defaultStepLibrary = useDefaultStepLibrary();
-  const { open: showMore, onToggle: toggleShowMore } = useDisclosure();
   const updateStepField = useDebounceCallback(StepService.updateStepField, 250);
   const { workflowId, stepBundleId, stepIndex, data, isLoading } = useStepDrawerContext();
-  const [title, setTitle] = useState(data?.mergedValues?.title);
+  const [title, setTitle] = useState<string>();
 
   const cvs = data?.cvs || '';
   const summary = data?.mergedValues?.summary;
@@ -111,14 +119,14 @@ const PropertiesTab = () => {
           View source code
         </BitkitLink>
       )}
-      <Input
-        type="text"
+      <BitkitTextInput
+        optional
         label="Title"
-        defaultValue={title}
         placeholder="Step title"
-        isDisabled={isReadOnlyView}
+        state={isReadOnlyView ? 'disabled' : undefined}
+        value={title ?? data?.mergedValues?.title ?? ''}
         onChange={handleTitleChange}
-        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+        inputRef={ignore1Password}
       />
       <Separator />
       <StepVersion
@@ -129,16 +137,11 @@ const PropertiesTab = () => {
       <Separator />
       <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
         <Text textStyle="body/md/semibold">Summary</Text>
-        {summary && <MarkdownContent md={summary} />}
+        {summary && <BitkitMarkdown size="lg">{summary}</BitkitMarkdown>}
         {description && (
-          <>
-            <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
-              <MarkdownContent md={description} />
-            </Collapse>
-            <BitkitLinkButton alignSelf="start" onClick={toggleShowMore} data-e2e-tag="step-description__toggle">
-              {showMore ? 'Show less' : 'Show more'}
-            </BitkitLinkButton>
-          </>
+          <BitkitCollapsible collapsedHeight="0px">
+            <BitkitMarkdown size="lg">{description}</BitkitMarkdown>
+          </BitkitCollapsible>
         )}
       </Box>
     </Box>

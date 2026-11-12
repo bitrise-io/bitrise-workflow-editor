@@ -4,35 +4,12 @@
 /* eslint-disable testing-library/no-node-access --
  * The subject under test is a DOM attribute on a container, not user-facing behaviour, so there is
  * no semantic query that expresses it: `data-clarity-unmask` is invisible to the accessibility tree
- * and several of the tagged elements (Thead, TabList, DialogFooter, Box, Card) have no role or name
+ * and several of the tagged elements (BitkitTable.Header, BitkitTabs.List, Box, Card) have no role or name
  * to query by. Attribute selectors and `closest()` are the assertion, not a shortcut around one. */
 import fs from 'node:fs';
 import path from 'node:path';
 
-import {
-  Breadcrumb,
-  BreadcrumbLink,
-  Button,
-  Card,
-  Dialog,
-  DialogFooter,
-  List,
-  ListItem,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Provider,
-  Sidebar,
-  Tab,
-  Table,
-  TabList,
-  Tabs,
-  Text as BitkitV1Text,
-  Th,
-  Thead,
-  Tr,
-} from '@bitrise/bitkit';
+import { Breadcrumb, BreadcrumbLink, List, ListItem, Provider, Sidebar } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitAlert,
@@ -43,9 +20,12 @@ import {
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
+  BitkitTable,
+  BitkitTabs,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
@@ -127,10 +107,8 @@ describe('Clarity unmasking', () => {
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
-          {/* Still tagged in unified-editor until the second half of the Text migration lands. */}
-          <BitkitV1Text data-clarity-unmask="true">v1 text</BitkitV1Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
-          <Card data-clarity-unmask="true">card</Card>
+          <Card.Root data-clarity-unmask="true">card</Card.Root>
           <List data-clarity-unmask="true">
             <ListItem>list item</ListItem>
           </List>
@@ -138,38 +116,12 @@ describe('Clarity unmasking', () => {
             <BreadcrumbLink data-clarity-unmask="true">breadcrumb link</BreadcrumbLink>
           </Breadcrumb>
           <Sidebar data-clarity-unmask="true">sidebar</Sidebar>
-          <Table>
-            <Thead data-clarity-unmask="true">
-              <Tr>
-                <Th>column header</Th>
-              </Tr>
-            </Thead>
-          </Table>
-          <Tabs>
-            <TabList data-clarity-unmask="true">
-              <Tab>tab label</Tab>
-            </TabList>
-          </Tabs>
-          <Menu isOpen>
-            <MenuButton as={Button} data-clarity-unmask="true">
-              menu button
-            </MenuButton>
-            <MenuList data-clarity-unmask="true">
-              <MenuItem>menu item</MenuItem>
-            </MenuList>
-          </Menu>
-          {/* DialogFooter reads the modal style context, so it is mounted the way the app mounts it. */}
-          <Dialog isOpen title="dialog title" onClose={() => {}}>
-            <DialogFooter data-clarity-unmask="true">
-              <BitkitButton>dialog action</BitkitButton>
-            </DialogFooter>
-          </Dialog>
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(13);
+      expect(unmasked()).toHaveLength(7);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['column header', 'tab label', 'menu item', 'list item', 'dialog action', 'sidebar'].forEach((label) => {
+      ['list item', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -181,12 +133,16 @@ describe('Clarity unmasking', () => {
           <BitkitSegmentedControl value="a" data-clarity-unmask="true">
             <BitkitSegmentedControl.Item value="a">segment label</BitkitSegmentedControl.Item>
           </BitkitSegmentedControl>
-          {/* Portalled: the attribute has to sit on the item itself, since a tagged ancestor in the
-              main tree would not enclose the portalled node. */}
+          {/* Portalled: a tagged ancestor in the main tree would not enclose the portalled node, so the
+              attribute goes on the item itself, or on the menu, which forwards it to the portalled
+              role="menu" element around every item. */}
           <BitkitActionMenu open trigger={<button type="button">trigger</button>}>
             <BitkitActionMenu.Item value="x" data-clarity-unmask="true">
               action menu item
             </BitkitActionMenu.Item>
+          </BitkitActionMenu>
+          <BitkitActionMenu open data-clarity-unmask="true" trigger={<button type="button">other trigger</button>}>
+            <BitkitActionMenu.Item value="y">action menu root item</BitkitActionMenu.Item>
           </BitkitActionMenu>
           <BitkitButton data-clarity-unmask="true">bitkit button</BitkitButton>
           <BitkitEmptyState
@@ -197,6 +153,18 @@ describe('Clarity unmasking', () => {
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
           <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
+          <BitkitTable.Root>
+            <BitkitTable.Header data-clarity-unmask="true">
+              <BitkitTable.Row>
+                <BitkitTable.ColumnHeader>column header</BitkitTable.ColumnHeader>
+              </BitkitTable.Row>
+            </BitkitTable.Header>
+          </BitkitTable.Root>
+          <BitkitTabs.Root defaultValue="tab">
+            <BitkitTabs.List data-clarity-unmask="true">
+              <BitkitTabs.Trigger value="tab">tab label</BitkitTabs.Trigger>
+            </BitkitTabs.List>
+          </BitkitTabs.Root>
           {/* Tagged on the crumbs themselves: since bitkit-v2#410 both Item and CurrentItem spread
               their remaining props onto the link they render, so the attribute reaches the DOM. That
               forwarding is what this asserts — a release that stopped doing it would silently
@@ -212,15 +180,18 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(9);
+      expect(unmasked()).toHaveLength(12);
       [
         'alert message',
         'segment label',
         'action menu item',
+        'action menu root item',
         'bitkit button',
         'empty state',
         'ribbon message',
         'heading',
+        'column header',
+        'tab label',
         'breadcrumb item',
         'breadcrumb current item',
       ].forEach((label) => {
@@ -246,9 +217,10 @@ describe('Clarity unmasking', () => {
       'components/unified-editor/ChainWorkflowDrawer/ChainWorkflowDrawer.tsx': 2,
       'components/unified-editor/ConfigSettingsMenu/ConfigSettingsMenu.tsx': 3,
       'components/unified-editor/ContainersTab/ContainerCard.tsx': 1,
-      'components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog.tsx': 2,
-      'components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog.tsx': 3,
-      'components/unified-editor/EntitySelector/EntitySelector.tsx': 1,
+      // One more each since the dialogs moved to BitkitDialog: its footer is a slot, so the attribute
+      // that sat on the footer wrapper went onto both buttons. They render fixed labels.
+      'components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog.tsx': 3,
+      'components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog.tsx': 4,
       'components/unified-editor/StepBundleConfig/StepBundleConfigHeader.tsx': 1,
       'components/unified-editor/StepConfigDrawer/StepConfigDrawer.tsx': 1,
       'components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.tsx': 2,
@@ -277,7 +249,9 @@ describe('Clarity unmasking', () => {
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/WorkflowSelectorDrawer.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/NoWorkflowsEmptyState.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/SearchResultEmptyState.tsx': 1,
-      'pages/SecretsPage/SecretsPage.tsx': 11,
+      // Twelve since the delete dialog moved to BitkitDialog: the footer wrapper's attribute went onto
+      // its two fixed-label buttons.
+      'pages/SecretsPage/SecretsPage.tsx': 12,
       'pages/StacksAndMachinesPage/StacksAndMachinesPage.tsx': 2,
       'pages/StacksAndMachinesPage/tabs/WorkflowsTab.tsx': 1,
       'pages/StepBundlesPage/StepBundlesPage.tsx': 1,

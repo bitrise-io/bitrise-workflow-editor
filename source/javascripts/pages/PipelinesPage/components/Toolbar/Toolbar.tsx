@@ -1,7 +1,14 @@
-import { Button, Dropdown, DropdownOption, DropdownSearch, Tooltip } from '@bitrise/bitkit';
-import { BitkitButton, IconPlay, IconPlus, IconSettings, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import {
+  BitkitButton,
+  BitkitSelect,
+  IconPlay,
+  IconPlus,
+  IconPlusCircle,
+  IconSettings,
+  IconSparkleFilled,
+} from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
@@ -25,7 +32,7 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
   const isMergedConfigSelected = useIsMergedConfigSelected();
   const isModularFileTab = !!tree && !isMergedConfigSelected;
   const isReadOnlyView = useIsReadOnlyView();
-  const dropdownRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
 
   const {
@@ -63,43 +70,45 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
     setDebouncedSearch(value);
   };
 
+  // The search starts over every time the menu opens.
+  const onOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setSearch('');
+      setDebouncedSearch('');
+      setDebouncedSearch.flush();
+    }
+  };
+
   const onCreatePipeline = () => {
+    onOpenChange(false);
     onCreatePipelineClick?.();
-    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 
   const onCreatePipelineWithAI = () => {
+    onOpenChange(false);
     onAIButtonClick();
-    dropdownRef.current?.click();
   };
 
-  const [pipelineIds] = useMemo(() => {
-    const ids: string[] = [];
+  const items = useMemo(
+    () =>
+      keys
+        .filter((id) => [id, options[id]].some((text) => text?.toLowerCase().includes(debouncedSearch?.toLowerCase())))
+        .map((id) => ({ label: options[id], value: id })),
+    [debouncedSearch, keys, options],
+  );
 
-    keys.forEach((id) => {
-      if (id?.toLowerCase().includes(debouncedSearch?.toLowerCase())) {
-        ids.push(id);
-      }
-    });
-
-    return [ids];
-  }, [debouncedSearch, keys]);
-
-  const runButtonTooltip = useMemo(() => {
-    if (isModularFileTab) {
-      return 'Only available in the Merged config tab';
-    }
-
-    if (hasUnsavedChanges) {
-      return 'Save changes before running';
-    }
-
-    return 'Run Pipeline';
-  }, [hasUnsavedChanges, isModularFileTab]);
+  let runButtonDisabledReason;
+  if (isModularFileTab) {
+    runButtonDisabledReason = 'Only available in the Merged config tab';
+  } else if (hasUnsavedChanges) {
+    runButtonDisabledReason = 'Save changes before running';
+  } else if (isEmpty) {
+    runButtonDisabledReason = 'Add Workflows to the Pipeline before running';
+  }
 
   return (
     <Box
-      css={{ '--dropdown-floating-max': '359px' }}
       {...props}
       padding="8"
       gap="8"
@@ -109,71 +118,36 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       justifyContent="space-between"
       backgroundColor="background/primary"
     >
-      <Dropdown
-        ref={dropdownRef}
+      <BitkitSelect
         flex="1"
+        items={items}
+        label="Pipeline"
+        labelHidden
+        placeholder={hasOptions ? 'Select a Pipeline' : 'Create a Pipeline first'}
+        searchPlaceholder="Filter by name..."
+        searchValue={search}
+        selectProps={{ onOpenChange: ({ open }) => onOpenChange(open), open: isOpen }}
         size="md"
-        disabled={!hasOptions}
+        state={hasOptions ? undefined : 'disabled'}
         value={selectedPipeline}
-        formLabel={selectedPipeline ?? 'Select a Pipeline'}
-        onChange={(e) => onSelectPipeline(e.target.value || '')}
-        placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
-        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
+        onSearchChange={onSearchChange}
+        onValueChange={(value) => onSelectPipeline(value || '')}
       >
-        {pipelineIds.map((key) => (
-          <DropdownOption value={key} key={key}>
-            {options[key]}
-          </DropdownOption>
-        ))}
         {/* Create actions are hidden (not disabled) on the read-only merged/ghost view (BIVS-3721). */}
         {!isReadOnlyView && (
-          <Box
-            width="100%"
-            marginBlockStart="8"
-            paddingBlock="12"
-            marginBlockEnd="-12"
-            bottom="-12"
-            position="sticky"
-            borderTop="1px solid"
-            borderColor="border/regular"
-            backgroundColor="background/primary"
-          >
-            <Button
-              w="100%"
-              border="none"
-              textStyle="body/lg/regular"
-              borderRadius="0"
-              variant="secondary"
-              leftIconName="PlusCircle"
-              justifyContent="flex-start"
-              onClick={onCreatePipeline}
-            >
-              Create Pipeline
-            </Button>
-            {isAIButtonVisible && (
-              <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel} display="block">
-                <Button
-                  w="100%"
-                  border="none"
-                  textStyle="body/lg/regular"
-                  borderRadius="0"
-                  variant="secondary"
-                  leftIcon={<IconSparkleFilled color={isAIButtonDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
-                  justifyContent="flex-start"
-                  isDisabled={isAIButtonDisabled}
-                  _disabled={{
-                    backgroundColor: 'background/primary',
-                    color: 'button/secondary/fg-disabled',
-                  }}
-                  onClick={onCreatePipelineWithAI}
-                >
-                  Create Pipeline with AI
-                </Button>
-              </Tooltip>
-            )}
-          </Box>
+          <BitkitSelect.Action icon={IconPlusCircle} label="Create Pipeline" onClick={onCreatePipeline} />
         )}
-      </Dropdown>
+        {!isReadOnlyView && isAIButtonVisible && (
+          <BitkitSelect.Action
+            colorVariant="ai"
+            icon={IconSparkleFilled}
+            label="Create Pipeline with AI"
+            state={isAIButtonDisabled ? 'disabled' : undefined}
+            tooltip={tooltipLabel}
+            onClick={onCreatePipelineWithAI}
+          />
+        )}
+      </BitkitSelect>
 
       {shouldShowGraphPipelineActions && (
         <>
@@ -203,22 +177,17 @@ const Toolbar = ({ onCreatePipelineClick, onRunClick, onWorkflowsClick, onProper
       )}
 
       {RuntimeUtils.isWebsiteMode() && (
-        <Tooltip
-          label={runButtonTooltip}
-          aria-label={runButtonTooltip}
-          shouldWrapChildren={isEmpty || isModularFileTab || hasUnsavedChanges}
+        <BitkitButton
+          size="md"
+          variant="secondary"
+          icon={IconPlay}
+          state={runButtonDisabledReason ? 'disabled' : undefined}
+          disabledReason={runButtonDisabledReason}
+          onClick={onRunClick}
+          data-clarity-unmask="true"
         >
-          <BitkitButton
-            size="md"
-            variant="secondary"
-            icon={IconPlay}
-            state={isEmpty || isModularFileTab || hasUnsavedChanges ? 'disabled' : undefined}
-            onClick={onRunClick}
-            data-clarity-unmask="true"
-          >
-            Run
-          </BitkitButton>
-        </Tooltip>
+          Run
+        </BitkitButton>
       )}
     </Box>
   );

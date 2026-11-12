@@ -1,6 +1,6 @@
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 
-import TargerBasedTriggersTabContent from '../../Triggers/TargetBasedTriggers/TargetBasedTriggersTabContent';
+import TargetBasedTriggersTabContent from '../../Triggers/TargetBasedTriggers/TargetBasedTriggersTabContent';
 
 const TriggersTab = () => {
   const sourceId = useWorkflowConfigContext((s) => s?.id);
@@ -9,7 +9,7 @@ const TriggersTab = () => {
     return null;
   }
 
-  return <TargerBasedTriggersTabContent source="workflows" sourceId={sourceId} />;
+  return <TargetBasedTriggersTabContent source="workflows" sourceId={sourceId} />;
 };
 
 export default TriggersTab;

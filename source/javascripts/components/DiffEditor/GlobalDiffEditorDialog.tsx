@@ -1,4 +1,3 @@
-import { DialogProps } from '@bitrise/bitkit';
 import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
 import { useState } from 'react';
 
@@ -6,14 +5,23 @@ import TreeService from '@/core/services/TreeService';
 import { isFileDirty, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
+import useMountedWhileOpen from '@/hooks/useMountedWhileOpen';
 
-import { DiffEditorDialogContent, DiffEditorDialogShell } from './DiffEditorDialog';
+import { DiffEditorDialogContent, DiffEditorDialogProps } from './DiffEditorDialog';
 
-const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
+const GlobalDiffEditorDialogBody = ({
+  isOpen,
+  onClose,
+  onExitComplete,
+}: DiffEditorDialogProps & { onExitComplete: VoidFunction }) => {
   const dirtyFiles = useBitriseYmlStore((s) =>
     Object.values(s.files)
       .filter((slice) => isFileDirty(slice))
-      .map((slice) => ({ nodeId: slice.nodeId, name: TreeService.fileName(slice.path), editable: slice.editable })),
+      .map((slice) => ({
+        nodeId: slice.nodeId,
+        name: TreeService.fileName(slice.path),
+        editable: slice.editable,
+      })),
   );
 
   const activeNodeId = useBitriseYmlStore((s) => s.selectedNodeId);
@@ -33,7 +41,9 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
 
   return (
     <DiffEditorDialogContent
+      isOpen={isOpen}
       onClose={onClose}
+      onExitComplete={onExitComplete}
       nodeId={effectiveTab}
       isReadOnly={isMerged || !selectedFile?.editable}
       tabs={
@@ -54,12 +64,14 @@ const GlobalDiffEditorDialogBody = ({ onClose }: { onClose: VoidFunction }) => {
   );
 };
 
-const GlobalDiffEditorDialog = ({ onClose, ...rest }: Omit<DialogProps, 'title'>) => {
-  return (
-    <DiffEditorDialogShell {...rest} onClose={onClose}>
-      <GlobalDiffEditorDialogBody onClose={onClose} />
-    </DiffEditorDialogShell>
-  );
+const GlobalDiffEditorDialog = ({ isOpen, onClose }: DiffEditorDialogProps) => {
+  const { isMounted, onExitComplete } = useMountedWhileOpen(isOpen);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return <GlobalDiffEditorDialogBody isOpen={isOpen} onClose={onClose} onExitComplete={onExitComplete} />;
 };
 
 export default GlobalDiffEditorDialog;

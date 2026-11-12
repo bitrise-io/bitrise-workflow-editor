@@ -1,10 +1,17 @@
-import { Dropdown, DropdownDetailedOption, DropdownGroup, DropdownProps, Toggletip } from '@bitrise/bitkit';
-import { BitkitAvatar, BitkitIconComponent, IconApple, IconCpu, IconLinux } from '@bitrise/bitkit-v2';
+import {
+  BitkitIconComponent,
+  BitkitLink,
+  BitkitSelect,
+  type BitkitSelectProps,
+  IconApple,
+  IconCpu,
+  IconLinux,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { MachineRegionName, MachineTypeOption, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
+import { MachineRegionName, MachineTypeOptionGroup } from '@/core/models/StackAndMachine';
 import { doesHardwareVaryByRegion, MachineTypeWithValue } from '@/core/services/StackAndMachineService';
 
 const getIcon = (osId?: string): BitkitIconComponent => {
@@ -19,27 +26,29 @@ const getIcon = (osId?: string): BitkitIconComponent => {
   }
 };
 
-const renderOptions = (machineTypeOptions: MachineTypeOption[]) => {
-  return machineTypeOptions.map((props) => {
-    const icon = getIcon(props.os);
+// A machine whose hardware differs by region lists one region per line.
+const toHelperText = (subtitle: string) =>
+  subtitle.includes('\n')
+    ? subtitle.split('\n').map((line) => (
+        <Text as="span" display="block" key={line}>
+          {line}
+        </Text>
+      ))
+    : subtitle;
 
-    return <DropdownDetailedOption {...props} key={props.value} icon={<BitkitAvatar variant="icon" icon={icon} />} />;
-  });
-};
-
-const renderFormLabel = (machineTypeOption: MachineTypeOption) => {
-  const { title, os } = machineTypeOption;
-  const icon = getIcon(os);
-
-  return (
-    <Box display="flex" gap="12" alignItems="center">
-      <BitkitAvatar variant="icon" icon={icon} size="24" />
-      {title}
-    </Box>
+const toItems = (optionGroups: MachineTypeOptionGroup[]) =>
+  optionGroups.flatMap((group) =>
+    group.options.map((option) => ({
+      disabled: option.isDisabled,
+      group: optionGroups.length > 1 ? group.label : undefined,
+      helperText: option.subtitle ? toHelperText(option.subtitle) : undefined,
+      icon: getIcon(option.os),
+      label: option.title,
+      value: option.value,
+    })),
   );
-};
 
-type Props = Pick<DropdownProps<string | null>, 'width'> & {
+type Props = Pick<BitkitSelectProps, 'width'> & {
   isLoading: boolean;
   isInvalid: boolean;
   isDisabled: boolean;
@@ -64,22 +73,7 @@ const MachineTypeSelector = ({
     [machineType],
   );
 
-  const toggletip = (icon: ReactNode) => {
-    if (!optionGroups.find((group) => group.options.find((option) => option.isDisabled))) {
-      return null;
-    }
-
-    return (
-      <Toggletip
-        label="Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales."
-        button={{ href: 'https://bitrise.io/demo', label: 'Reach out to sales' }}
-      >
-        <Box maxHeight="20px" marginBlockStart="-4px">
-          {icon}
-        </Box>
-      </Toggletip>
-    );
-  };
+  const hasUnavailableMachines = optionGroups.some((group) => group.options.some((option) => option.isDisabled));
 
   const helperText = () => {
     if (doesHardwareVaryByRegionForSelectedMachineType && !selectedRegion) {
@@ -98,51 +92,48 @@ const MachineTypeSelector = ({
     }
 
     const region = selectedRegion || (Object.keys(machineType.availableInRegions)[0] as MachineRegionName);
+    const specs = machineType.availableInRegions[region]?.join(' • ');
 
-    return (
+    return specs ? (
       <Text as="span" color="text/helper" textStyle="body/sm/regular">
-        {machineType.availableInRegions[region]?.join(' • ')}
+        {specs}
       </Text>
-    );
+    ) : undefined;
   };
 
-  let selectedOption: MachineTypeOption | null = null;
-  optionGroups.find((group) => {
-    const option = group.options.find(({ value }) => value === machineType.value);
-    if (option) {
-      selectedOption = option;
-      return true;
-    }
-  });
+  const regionHelperText = helperText();
+  const hasHelperText = !!regionHelperText || hasUnavailableMachines;
 
   return (
-    <Dropdown
+    <BitkitSelect
       {...boxProps}
-      flex="1"
-      formLabel={selectedOption && renderFormLabel(selectedOption)}
-      required
-      search={false}
-      label="Machine type"
-      labelHelp={toggletip}
-      dropdownMaxHeight="25rem"
-      disabled={isLoading || isDisabled}
-      isError={isInvalid}
       errorText={isInvalid ? 'Invalid machine type' : undefined}
-      helperText={helperText()}
+      flex="1"
+      helperText={
+        hasHelperText ? (
+          <>
+            {regionHelperText}
+            {hasUnavailableMachines && (
+              <Text as="span" display="block">
+                <BitkitLink href="https://bitrise.io/demo" isExternal>
+                  Reach out to sales
+                </BitkitLink>
+              </Text>
+            )}
+          </>
+        ) : undefined
+      }
+      items={toItems(optionGroups)}
+      label="Machine type"
+      state={isLoading || isDisabled ? 'disabled' : undefined}
+      tooltip={
+        hasUnavailableMachines
+          ? 'Select your machine type for builds. Options vary by plan. For stronger machines, please contact sales.'
+          : undefined
+      }
       value={machineType.value}
-      onChange={(e) => onChange(e.target.value ?? '')}
-    >
-      {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
-      {optionGroups.length > 1 && (
-        <>
-          {optionGroups.map((group) => (
-            <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-              {renderOptions(group.options)}
-            </DropdownGroup>
-          ))}
-        </>
-      )}
-    </Dropdown>
+      onValueChange={(value) => onChange(value ?? '')}
+    />
   );
 };
 

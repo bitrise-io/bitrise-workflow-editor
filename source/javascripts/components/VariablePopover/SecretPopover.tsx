@@ -1,16 +1,6 @@
-import { IconButton } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitIconButton, BitkitPopover, IconDollar, IconPlus } from '@bitrise/bitkit-v2';
 import { Text } from '@chakra-ui/react/text';
-import {
-  List,
-  ListItem,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  Portal,
-} from 'chakra-ui-2--react';
+import { List, ListItem } from 'chakra-ui-2--react';
 import { useState } from 'react';
 
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
@@ -80,83 +70,63 @@ const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMod
   });
 
   return (
-    <Popover isLazy isOpen={isOpen} onOpen={open} onClose={close} returnFocusOnClose={false} placement="bottom-end">
-      <PopoverTrigger>
-        <IconButton
-          size={size}
-          iconName="Dollars"
-          variant="secondary"
-          aria-label="Insert secret"
-          tooltipProps={{ 'aria-label': 'Insert secret' }}
-        />
-      </PopoverTrigger>
-      <Portal>
-        <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">
-          <PopoverHeader
-            h="32"
-            marginBottom="8"
-            display="flex"
-            flexDir="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            {isMode(Mode.CREATE) && <Text textStyle="heading/h4">Create secret</Text>}
-            {isMode(Mode.SELECT) && (
-              <>
-                <Text textStyle="heading/h4">Insert secret</Text>
-                <BitkitButton variant="tertiary" size="sm" icon={IconPlus} onClick={() => switchTo(Mode.CREATE)}>
-                  Create
-                </BitkitButton>
-              </>
-            )}
-          </PopoverHeader>
-          <PopoverBody>
-            {isMode(Mode.CREATE) && <CreateSecret {...getCreateFormProps()} />}
-            {isMode(Mode.SELECT) && (
-              <>
-                <FilterInput
-                  {...getFilterInputProps({
-                    label: 'Filter by key or source',
-                    paddingBlock: '8',
-                    placeholder: 'Filter by key or source',
+    <BitkitPopover
+      open={isOpen}
+      onOpenChange={(nextOpen) => (nextOpen ? open() : close())}
+      positioning={{ placement: 'bottom-end' }}
+      trigger={<BitkitIconButton size={size} icon={IconDollar} variant="secondary" label="Insert secret" />}
+      title={isMode(Mode.CREATE) ? 'Create secret' : 'Insert secret'}
+      footer={
+        isMode(Mode.SELECT) && (
+          <BitkitButton variant="tertiary" size="sm" icon={IconPlus} onClick={() => switchTo(Mode.CREATE)}>
+            Create
+          </BitkitButton>
+        )
+      }
+    >
+      {isMode(Mode.CREATE) && <CreateSecret {...getCreateFormProps()} />}
+      {isMode(Mode.SELECT) && (
+        <>
+          <FilterInput
+            {...getFilterInputProps({
+              label: 'Filter by key or source',
+              paddingBlock: '8',
+              placeholder: 'Filter by key or source',
+            })}
+          />
+          {isLoading ? (
+            <LoadingState />
+          ) : (
+            <List
+              {...getActionListProps({
+                maxH: '18rem',
+                overflowY: 'scroll',
+                marginInlineStart: 0,
+              })}
+            >
+              {filteredItems.length === 0 && (
+                <Text marginBlockStart="16" marginBlockEnd="8">
+                  No secrets found
+                </Text>
+              )}
+              {filteredItems.map((ev) => (
+                <ListItem
+                  key={ev.key}
+                  {...getActionListItemProps(ev, {
+                    padding: '8',
                   })}
-                />
-                {isLoading ? (
-                  <LoadingState />
-                ) : (
-                  <List
-                    {...getActionListProps({
-                      maxH: '18rem',
-                      overflowY: 'scroll',
-                      marginInlineStart: 0,
-                    })}
-                  >
-                    {filteredItems.length === 0 && (
-                      <Text marginBlockStart="16" marginBlockEnd="8">
-                        No secrets found
-                      </Text>
-                    )}
-                    {filteredItems.map((ev) => (
-                      <ListItem
-                        key={ev.key}
-                        {...getActionListItemProps(ev, {
-                          padding: '8',
-                        })}
-                      >
-                        <Text textStyle="code/lg">${ev.key}</Text>
-                        <Text textStyle="body/sm/regular" color="text/secondary">
-                          {ev.source}
-                        </Text>
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-              </>
-            )}
-          </PopoverBody>
-        </PopoverContent>
-      </Portal>
-    </Popover>
+                >
+                  <Text textStyle="code/lg">${ev.key}</Text>
+                  <Text textStyle="body/sm/regular" color="text/secondary">
+                    {ev.source}
+                  </Text>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </>
+      )}
+    </BitkitPopover>
   );
 };
 

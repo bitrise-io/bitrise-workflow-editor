@@ -1,6 +1,4 @@
-import { Button, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
-import { Separator } from '@chakra-ui/react/separator';
-import { Text } from '@chakra-ui/react/text';
+import { BitkitActionMenu, BitkitButton, IconPlus, IconReplace } from '@bitrise/bitkit-v2';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
 import { Container, ContainerType } from '@/core/models/Container';
@@ -39,46 +37,43 @@ const ContainersMenu = (props: ContainersMenuProps) => {
   };
 
   return (
-    <Menu>
-      <MenuButton
-        as={Button}
-        variant="tertiary"
-        leftIconName={actionType === 'Add' ? 'Plus' : 'Replace'}
-        size="sm"
-        isDisabled={isReadOnlyView}
-      >
-        {actionType} container
-      </MenuButton>
-      <MenuList>
-        {containers.map((container) => (
-          <MenuItem
-            key={container.id}
-            onClick={() => {
-              onSelectContainer(container.id);
-              segmentTrack('Container Assigned', {
-                app_slug: PageProps.appSlug(),
-                workspace_slug: GlobalProps.workspaceSlug(),
-                container_type: type,
-                container_unique_id: container.id,
-                container_image: container.userValues.image,
-                source,
-                step_id: stepId,
-                step_bundle_id: stepBundleId,
-                step_version: stepVersion,
-              });
-            }}
-            display="flex"
-            flexDir="column"
-            alignItems="flex-start"
-          >
-            <Text>{container.id}</Text>
-            <Text color="text/helper">{container.userValues.image}</Text>
-          </MenuItem>
-        ))}
-        {containers.length > 0 && <Separator borderColor="border/minimal" marginBlockEnd="8" />}
-        <MenuItem onClick={handleManageContainers}>Manage containers</MenuItem>
-      </MenuList>
-    </Menu>
+    <BitkitActionMenu
+      trigger={
+        <BitkitButton
+          variant="tertiary"
+          icon={actionType === 'Add' ? IconPlus : IconReplace}
+          size="sm"
+          state={isReadOnlyView ? 'disabled' : undefined}
+        >
+          {`${actionType} container`}
+        </BitkitButton>
+      }
+    >
+      {containers.map((container) => (
+        <BitkitActionMenu.Item
+          key={container.id}
+          secondaryText={container.userValues.image}
+          onClick={() => {
+            onSelectContainer(container.id);
+            segmentTrack('Container Assigned', {
+              app_slug: PageProps.appSlug(),
+              workspace_slug: GlobalProps.workspaceSlug(),
+              container_type: type,
+              container_unique_id: container.id,
+              container_image: container.userValues.image,
+              source,
+              step_id: stepId,
+              step_bundle_id: stepBundleId,
+              step_version: stepVersion,
+            });
+          }}
+        >
+          {container.id}
+        </BitkitActionMenu.Item>
+      ))}
+      {containers.length > 0 && <BitkitActionMenu.Separator />}
+      <BitkitActionMenu.Item onClick={handleManageContainers}>Manage containers</BitkitActionMenu.Item>
+    </BitkitActionMenu>
   );
 };
 

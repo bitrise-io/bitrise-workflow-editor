@@ -1,6 +1,10 @@
-import { ExpandableCard, Input, Select, Textarea } from '@bitrise/bitkit';
-import { BitkitSwitch } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import {
+  BitkitExpandableCard,
+  BitkitNativeSelect,
+  BitkitSwitch,
+  BitkitTextArea,
+  BitkitTextInput,
+} from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { uniq } from 'es-toolkit';
@@ -16,21 +20,6 @@ import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store
 type PipelineConditionInputProps = {
   pipelineId: string;
   workflowId: string;
-};
-
-const ButtonContent = () => {
-  const pipelineId = usePipelinesPageStore((s) => s.pipelineId);
-
-  return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" minWidth="0">
-      <Box display="flex" flexDirection="column" alignItems="flex-start" minWidth="0">
-        <Text textStyle="body/lg/semibold">Pipeline Conditions</Text>
-        <Text textStyle="body/md/regular" color="text/secondary" truncate maxWidth="full">
-          Running conditions related to {pipelineId}
-        </Text>
-      </Box>
-    </Box>
-  );
 };
 
 const AbortOnFailToggle = ({ pipelineId, workflowId }: PipelineConditionInputProps) => {
@@ -84,13 +73,13 @@ const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps
   };
 
   return (
-    <Select size="md" isRequired label="Always run" value={value} helperText={helperText} onChange={handleChange}>
+    <BitkitNativeSelect size="md" label="Always run" value={value} helperText={helperText} onChange={handleChange}>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
         </option>
       ))}
-    </Select>
+    </BitkitNativeSelect>
   );
 };
 
@@ -99,17 +88,19 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
   );
 
-  const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'run_if.expression', e.target.value);
+  const handleValueChange = (newValue: string) => {
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'run_if.expression', newValue);
   };
 
   return (
-    <Textarea
+    <BitkitTextArea
+      optional
       value={value}
       label="Additional running conditions"
+      size="md"
       placeholder="Enter any valid Go template"
       helperText="Enter any valid Go template. The workflow will only be executed if this template evaluates to true. You can use our `getenv` and `enveq` functions for interacting with env vars."
-      onChange={handleChange}
+      onValueChange={handleValueChange}
     />
   );
 };
@@ -124,7 +115,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     ]);
   });
 
-  const [value, setValue] = useState(initValue);
+  const [value, setValue] = useState(String(initValue));
   const [error, setError] = useState<string | undefined>(undefined);
 
   const validateAndPersist = (parallel: string | number) => {
@@ -149,7 +140,8 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
   };
 
   return (
-    <Input
+    <BitkitTextInput
+      optional
       size="md"
       value={value}
       errorText={error}
@@ -161,12 +153,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
         />
       }
       onChange={handleChange}
-      rightAddon={
-        <Box paddingInlineEnd="4">
-          <EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />
-        </Box>
-      }
-      rightAddonPlacement="inside"
+      endElement={<EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />}
     />
   );
 };
@@ -175,7 +162,15 @@ const PipelineConditionsCard = () => {
   const [pipelineId, workflowId] = usePipelinesPageStore(useShallow((s) => [s.pipelineId, s.workflowId]));
 
   return (
-    <ExpandableCard padding="24px" buttonPadding="16px 24px" buttonContent={<ButtonContent />}>
+    <BitkitExpandableCard
+      elevation={false}
+      subtitle={
+        <Text as="span" display="block" truncate>
+          Running conditions related to {pipelineId}
+        </Text>
+      }
+      title="Pipeline Conditions"
+    >
       <AbortOnFailToggle pipelineId={pipelineId} workflowId={workflowId} />
 
       <Separator marginBlock="24" />
@@ -186,7 +181,7 @@ const PipelineConditionsCard = () => {
 
       <Separator marginBlock="24" />
       <ParallelInput pipelineId={pipelineId} workflowId={workflowId} />
-    </ExpandableCard>
+    </BitkitExpandableCard>
   );
 };
 

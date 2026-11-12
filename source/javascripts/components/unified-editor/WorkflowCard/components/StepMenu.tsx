@@ -1,5 +1,12 @@
-import { OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
-import { Separator } from '@chakra-ui/react/separator';
+import {
+  BitkitActionMenu,
+  BitkitControlButton,
+  IconArrowUp,
+  IconCopy,
+  IconMoreVertical,
+  IconStep,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 
 import { useSelection, useStepActions } from '@/components/unified-editor/WorkflowCard/contexts/WorkflowCardContext';
 import { Step } from '@/core/models/Step';
@@ -42,9 +49,9 @@ const StepMenu = (props: StepMenuProps) => {
   const menuItems = [];
   if (isUpgradable && finalIndices.length === 1) {
     menuItems.push(
-      <OverflowMenuItem
+      <BitkitActionMenu.Item
         key="upgrade"
-        leftIconName="ArrowUp"
+        icon={IconArrowUp}
         onClick={(e) => {
           e.stopPropagation();
           if (workflowId && onUpgradeStep) {
@@ -56,15 +63,15 @@ const StepMenu = (props: StepMenuProps) => {
         }}
       >
         Update version
-      </OverflowMenuItem>,
+      </BitkitActionMenu.Item>,
     );
   }
 
   if (onGroupStepsToStepBundle) {
     menuItems.push(
-      <OverflowMenuItem
+      <BitkitActionMenu.Item
         key="group"
-        leftIconName="Steps"
+        icon={IconStep}
         onClick={(e) => {
           e.stopPropagation();
           if (onGroupStepsToStepBundle && finalIndices) {
@@ -74,14 +81,14 @@ const StepMenu = (props: StepMenuProps) => {
         }}
       >
         New bundle with {finalIndices.length} item{suffix}
-      </OverflowMenuItem>,
+      </BitkitActionMenu.Item>,
     );
   }
   if (isClonable && finalIndices.length === 1) {
     menuItems.push(
-      <OverflowMenuItem
+      <BitkitActionMenu.Item
         key="duplicate"
-        leftIconName="Duplicate"
+        icon={IconCopy}
         onClick={(e) => {
           e.stopPropagation();
           if (workflowId && onCloneStep) {
@@ -93,19 +100,19 @@ const StepMenu = (props: StepMenuProps) => {
         }}
       >
         Duplicate
-      </OverflowMenuItem>,
+      </BitkitActionMenu.Item>,
     );
   }
   if (menuItems.length > 0) {
-    menuItems.push(<Separator key="divider" marginBlock="8" />);
+    menuItems.push(<BitkitActionMenu.Separator key="divider" />);
   }
 
   if (isDeletable) {
     menuItems.push(
-      <OverflowMenuItem
+      <BitkitActionMenu.Item
         isDanger
         key="delete"
-        leftIconName="Trash"
+        icon={IconTrash}
         onClick={(e) => {
           e.stopPropagation();
           if (workflowId && onDeleteStep) {
@@ -117,28 +124,30 @@ const StepMenu = (props: StepMenuProps) => {
         }}
       >
         Delete item{suffix}
-      </OverflowMenuItem>,
+      </BitkitActionMenu.Item>,
     );
   }
 
   return (
-    <OverflowMenu
-      placement="bottom-end"
+    <BitkitActionMenu
       size="md"
-      buttonSize="xs"
-      buttonProps={{
-        'aria-label': 'Show step actions',
-        iconName: 'MoreVertical',
-        onClick: (e) => {
-          e.stopPropagation();
-        },
-        display: forceVisible ? 'inline-flex' : 'none',
-        _groupHover: { display: 'inline-flex' },
-        _active: { display: 'inline-flex' },
-      }}
+      positioning={{ placement: 'bottom-end' }}
+      trigger={
+        <BitkitControlButton
+          icon={IconMoreVertical}
+          label="Show step actions"
+          size="xs"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          display={forceVisible ? 'inline-flex' : 'none'}
+          _groupHover={{ display: 'inline-flex' }}
+          _open={{ display: 'inline-flex' }}
+        />
+      }
     >
       {menuItems}
-    </OverflowMenu>
+    </BitkitActionMenu>
   );
 };
 

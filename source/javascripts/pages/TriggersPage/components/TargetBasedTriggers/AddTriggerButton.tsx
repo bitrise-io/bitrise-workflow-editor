@@ -1,4 +1,4 @@
-import { Button, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
+import { BitkitActionMenu, BitkitButton, IconPlus, IconPull, IconPush, IconTag } from '@bitrise/bitkit-v2';
 
 import { TriggerType } from '@/core/models/Trigger';
 import { useIsReadOnlyView } from '@/hooks/useTree';
@@ -16,22 +16,24 @@ const AddTriggerButton = ({ onAddTrigger }: Props) => {
   }
 
   return (
-    <Menu>
-      <MenuButton as={Button} variant="secondary" size="md" leftIconName="Plus" data-clarity-unmask="true">
-        Add trigger
-      </MenuButton>
-      <MenuList data-clarity-unmask="true">
-        <MenuItem onClick={() => onAddTrigger('push')} leftIconName="Push">
-          Push
-        </MenuItem>
-        <MenuItem onClick={() => onAddTrigger('pull_request')} leftIconName="Pull">
-          Pull request
-        </MenuItem>
-        <MenuItem onClick={() => onAddTrigger('tag')} leftIconName="Tag">
-          Tag
-        </MenuItem>
-      </MenuList>
-    </Menu>
+    <BitkitActionMenu
+      data-clarity-unmask="true"
+      trigger={
+        <BitkitButton variant="secondary" size="md" icon={IconPlus} data-clarity-unmask="true">
+          Add trigger
+        </BitkitButton>
+      }
+    >
+      <BitkitActionMenu.Item icon={IconPush} onClick={() => onAddTrigger('push')}>
+        Push
+      </BitkitActionMenu.Item>
+      <BitkitActionMenu.Item icon={IconPull} onClick={() => onAddTrigger('pull_request')}>
+        Pull request
+      </BitkitActionMenu.Item>
+      <BitkitActionMenu.Item icon={IconTag} onClick={() => onAddTrigger('tag')}>
+        Tag
+      </BitkitActionMenu.Item>
+    </BitkitActionMenu>
   );
 };
 

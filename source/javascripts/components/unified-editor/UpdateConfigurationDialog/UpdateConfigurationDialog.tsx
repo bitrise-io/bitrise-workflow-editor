@@ -119,27 +119,30 @@ const UpdateConfigurationDialog = ({ isOpen, onClose }: Props) => {
         <Box display="flex" flexDirection="column" gap="24">
           <BitkitSectionHeading label={isModular ? moduleCountLabel(changedModules.length) : 'Changed configuration'} />
           <Card.Root elevation={false} overflow="hidden">
-            <Table.Root variant="borderless" size="md">
-              <Table.Body>
-                {rows.map((row) => (
-                  <Table.Row key={row.key}>
-                    <Table.Cell>{row.name}</Table.Cell>
-                    <Table.Cell display="flex" alignItems="center" justifyContent="flex-end" gap="8">
-                      <BitkitControlButton
-                        icon={IconDownload}
-                        label="Download changed version"
-                        onClick={() => handleDownload(row)}
-                      />
-                      <BitkitControlButton
-                        icon={IconCopy}
-                        label="Copy changed configuration"
-                        onClick={() => handleCopy(row)}
-                      />
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
+            {/* The table pads its own cells, so the body adds none. */}
+            <Card.Body padding="0">
+              <Table.Root variant="borderless" size="md">
+                <Table.Body>
+                  {rows.map((row) => (
+                    <Table.Row key={row.key}>
+                      <Table.Cell>{row.name}</Table.Cell>
+                      <Table.Cell display="flex" alignItems="center" justifyContent="flex-end" gap="8">
+                        <BitkitControlButton
+                          icon={IconDownload}
+                          label="Download changed version"
+                          onClick={() => handleDownload(row)}
+                        />
+                        <BitkitControlButton
+                          icon={IconCopy}
+                          label="Copy changed configuration"
+                          onClick={() => handleCopy(row)}
+                        />
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+            </Card.Body>
           </Card.Root>
         </Box>
       </Box>

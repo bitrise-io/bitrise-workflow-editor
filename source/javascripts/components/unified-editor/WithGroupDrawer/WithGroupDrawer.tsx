@@ -1,5 +1,4 @@
-import { Input } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitHeading, BitkitTagsInput } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitHeading, BitkitTagsInput, BitkitTextInput } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -13,6 +12,7 @@ import StepService from '@/core/services/StepService';
 import useDefaultStepLibrary from '@/hooks/useDefaultStepLibrary';
 import useNavigation from '@/hooks/useNavigation';
 import useStep from '@/hooks/useStep';
+import ignore1Password from '@/utils/ignore1Password';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   workflowId: string;
@@ -43,11 +43,10 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {!!container && (
-            <Input
-              isRequired
-              isReadOnly
+            <BitkitTextInput
+              state="readOnly"
               label="Image"
-              inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+              inputRef={ignore1Password}
               marginBlockEnd="24"
               value={container}
             />

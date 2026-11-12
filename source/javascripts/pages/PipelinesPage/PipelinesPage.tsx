@@ -1,5 +1,3 @@
-import '@xyflow/react/dist/style.css';
-
 import { Box } from '@chakra-ui/react/box';
 import { useEffect, useMemo } from 'react';
 

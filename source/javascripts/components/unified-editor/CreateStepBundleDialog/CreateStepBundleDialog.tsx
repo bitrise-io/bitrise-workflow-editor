@@ -1,5 +1,3 @@
-import { DialogProps } from '@bitrise/bitkit';
-
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
 import { StepBundleCreationSource } from '@/core/models/StepBundle';
 import StepBundleService from '@/core/services/StepBundleService';
@@ -14,7 +12,10 @@ type BaseEntityGroup = {
   type: StepBundleCreationSource;
 };
 
-type Props = Omit<DialogProps, 'title'> & {
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCloseComplete?: () => void;
   onCreateStepBundle: (stepBundleId: string, baseEntityId?: string, title?: string) => void;
 };
 

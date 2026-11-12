@@ -1,7 +1,8 @@
-import { Dialog, DialogBody, DialogFooter, DialogProps, Input, Select } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
-import { ChangeEvent } from 'react';
+import { BitkitButton, BitkitFormDialog, BitkitNativeSelect, BitkitTextInput } from '@bitrise/bitkit-v2';
+import { ChangeEvent, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+
+import ignore1Password, { ignore1PasswordProps } from '@/utils/ignore1Password';
 
 type BaseEntityType<T> = { ids: string[]; groupLabel?: string; type?: T };
 
@@ -36,7 +37,9 @@ type FormValues = {
   baseEntityId: string;
 };
 
-export type Props<T> = Omit<DialogProps, 'onCloseComplete' | 'title'> & {
+export type Props<T> = {
+  isOpen: boolean;
+  onClose: () => void;
   baseEntities: BaseEntityType<T>[];
   entityName: string;
   extraInputs?: 'title'[];
@@ -50,13 +53,15 @@ const CreateEntityDialog = <T,>({
   baseEntities,
   entityName,
   extraInputs,
+  isOpen,
   onClose,
   onCloseComplete,
   onCreateEntity,
   sanitizer,
   validator,
-  ...props
 }: Props<T>) => {
+  const idInputRef = useRef<HTMLInputElement>(null);
+
   const {
     reset,
     register,
@@ -94,46 +99,55 @@ const CreateEntityDialog = <T,>({
   };
 
   return (
-    <Dialog title={`Create ${entityName}`} onClose={onClose} onCloseComplete={handleCloseComplete} {...props}>
-      <DialogBody as="form" display="flex" flexDir="column" gap="24" onSubmit={handleCreate}>
-        <Input
-          autoFocus
-          isRequired
-          label="ID"
-          placeholder={`${entityName} ID`}
-          inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-          helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
-          errorText={errors.entityId?.message}
-          {...register('entityId', {
+    <BitkitFormDialog
+      title={`Create ${entityName}`}
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+      onExitComplete={handleCloseComplete}
+      onSubmit={handleCreate}
+      initialFocusEl={() => idInputRef.current}
+      footerButtons={
+        <>
+          <BitkitButton variant="secondary" onClick={onClose}>
+            Cancel
+          </BitkitButton>
+          <BitkitButton type="submit">{`Create ${entityName}`}</BitkitButton>
+        </>
+      }
+    >
+      <BitkitTextInput
+        label="ID"
+        placeholder={`${entityName} ID`}
+        inputRef={idInputRef}
+        helperText="Unique ID for referencing in YAML. Allowed characters: A-Za-z0-9-_."
+        errorText={errors.entityId?.message}
+        inputProps={{
+          ...ignore1PasswordProps,
+          ...register('entityId', {
             onChange: handleNameChange,
             validate: validator,
-          })}
+          }),
+        }}
+      />
+      {extraInputs?.includes('title') && (
+        <BitkitTextInput
+          optional
+          label="Title"
+          placeholder={`${entityName} Title`}
+          inputRef={ignore1Password}
+          helperText="Human-readable name, overridable per instance."
+          inputProps={register('title')}
         />
-        {extraInputs?.includes('title') && (
-          <Input
-            label="Title"
-            placeholder={`${entityName} Title`}
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
-            helperText="Human-readable name, overridable per instance."
-            {...register('title')}
-          />
-        )}
-        <Select label="Based on" {...register('baseEntityId')}>
-          <option key="" value="">
-            An empty {entityName}
-          </option>
-          <Options<T> baseEntities={baseEntities} />
-        </Select>
-      </DialogBody>
-      <DialogFooter>
-        <BitkitButton variant="secondary" onClick={onClose}>
-          Cancel
-        </BitkitButton>
-        <BitkitButton type="submit" onClick={handleCreate}>
-          {`Create ${entityName}`}
-        </BitkitButton>
-      </DialogFooter>
-    </Dialog>
+      )}
+      <BitkitNativeSelect label="Based on" optional {...register('baseEntityId')}>
+        <option key="" value="">
+          An empty {entityName}
+        </option>
+        <Options<T> baseEntities={baseEntities} />
+      </BitkitNativeSelect>
+    </BitkitFormDialog>
   );
 };
 

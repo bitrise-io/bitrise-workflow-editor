@@ -7,8 +7,8 @@ export default {
   component: StepBundleConfigDrawer,
   args: {
     isOpen: true,
-    parentWorkflowId: 'wf7',
-    stepIndex: 2,
+    parentWorkflowId: 'wf1',
+    stepIndex: 0,
   },
   argTypes: {
     onClose: { type: 'function' },
@@ -19,6 +19,7 @@ export const Drawer: StoryObj<typeof StepBundleConfigDrawer> = {};
 
 export const Empty: StoryObj<typeof StepBundleConfigDrawer> = {
   args: {
+    parentWorkflowId: 'wf7',
     stepIndex: 5,
   },
 };

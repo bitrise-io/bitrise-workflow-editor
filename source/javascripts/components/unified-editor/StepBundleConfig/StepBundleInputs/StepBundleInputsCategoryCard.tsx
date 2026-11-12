@@ -1,8 +1,17 @@
-import { Card, ExpandableCard, OverflowMenu, OverflowMenuItem } from '@bitrise/bitkit';
-import { BitkitButton, IconPlus } from '@bitrise/bitkit-v2';
+import {
+  BitkitActionMenu,
+  BitkitButton,
+  BitkitControlButton,
+  BitkitExpandableCard,
+  IconCopy,
+  IconMoreVertical,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { Card } from '@chakra-ui/react/card';
 import { Separator } from '@chakra-ui/react/separator';
-import { Text } from '@chakra-ui/react/text';
 import { Fragment } from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 
@@ -63,35 +72,28 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
                   isSensitive={opts?.is_sensitive}
                   isDisabled={opts?.is_dont_change_value || isReadOnlyView}
                   onChange={(changedValue) => onChange(key, changedValue, index)}
-                  flex={1}
-                  formLabelProps={{
-                    optionalIndicator: (
-                      <Text as="span" textStyle="body/md/regular" color="text/secondary" marginInlineStart="4">
-                        (optional)
-                      </Text>
-                    ),
-                    requiredIndicator: null,
-                  }}
                 />
               )}
 
-              <OverflowMenu buttonProps={{ marginTop: '28', 'aria-label': 'More', iconName: 'MoreVertical' }}>
-                <OverflowMenuItem leftIconName="Duplicate" onClick={() => copy(key)}>
+              <BitkitActionMenu
+                trigger={<BitkitControlButton icon={IconMoreVertical} label="More" marginBlockStart="24" size="md" />}
+              >
+                <BitkitActionMenu.Item icon={IconCopy} onClick={() => copy(key)}>
                   Copy key
-                </OverflowMenuItem>
+                </BitkitActionMenu.Item>
                 {/* Read-only (merged/ghost): no edit/delete CTAs — hidden, not disabled (BIVS-3721). */}
                 {!isReadOnlyView && (
                   <>
-                    <OverflowMenuItem leftIconName="Pencil" onClick={() => onEdit(index)}>
+                    <BitkitActionMenu.Item icon={IconPencil} onClick={() => onEdit(index)}>
                       Edit input
-                    </OverflowMenuItem>
-                    <Separator />
-                    <OverflowMenuItem leftIconName="Trash" isDanger onClick={() => onDelete(index)}>
+                    </BitkitActionMenu.Item>
+                    <BitkitActionMenu.Separator />
+                    <BitkitActionMenu.Item icon={IconTrash} isDanger onClick={() => onDelete(index)}>
                       Delete
-                    </OverflowMenuItem>
+                    </BitkitActionMenu.Item>
                   </>
                 )}
-              </OverflowMenu>
+              </BitkitActionMenu>
             </Box>
             <Separator marginBlock="16" />
           </Fragment>
@@ -107,16 +109,16 @@ const StepBundleInputsCategoryCard = ({ category, items = [], onAdd, onChange, o
 
   if (!category) {
     return (
-      <Card variant="outline" p="16" mb="16">
-        {content}
-      </Card>
+      <Card.Root elevation={false} marginBlockEnd="16" paddingSize="sm">
+        <Card.Body>{content}</Card.Body>
+      </Card.Root>
     );
   }
 
   return (
-    <ExpandableCard mb={16} buttonContent={<Text textStyle="body/lg/semibold">{category}</Text>}>
+    <BitkitExpandableCard elevation={false} marginBlockEnd="16" title={category}>
       {content}
-    </ExpandableCard>
+    </BitkitExpandableCard>
   );
 };
 

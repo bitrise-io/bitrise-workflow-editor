@@ -1,8 +1,8 @@
-import { Card, List, ListItem, Tooltip } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitHeading,
   BitkitLink,
+  BitkitList,
   IconArrowNortheast,
   IconPlus,
   IconSparkleFilled,
@@ -10,6 +10,7 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
+import { Card } from '@chakra-ui/react/card';
 import { Image } from '@chakra-ui/react/image';
 
 import useAIButton from '@/hooks/useAIButton';
@@ -38,17 +39,16 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
     <Box display="flex" flexDirection={isAIButtonVisible ? 'column' : 'row'} alignItems="center" gap="24">
       <ButtonGroup gap="24">
         {isAIButtonVisible && (
-          <Tooltip label={tooltipLabel} isDisabled={!tooltipLabel}>
-            <BitkitButton
-              state={isAIButtonDisabled ? 'disabled' : undefined}
-              icon={IconSparkleFilled}
-              size="md"
-              variant="ai-primary"
-              onClick={onAIButtonClick}
-            >
-              Create Pipeline with AI
-            </BitkitButton>
-          </Tooltip>
+          <BitkitButton
+            state={isAIButtonDisabled ? 'disabled' : undefined}
+            disabledReason={tooltipLabel}
+            icon={IconSparkleFilled}
+            size="md"
+            variant="ai-primary"
+            onClick={onAIButtonClick}
+          >
+            Create Pipeline with AI
+          </BitkitButton>
         )}
         <BitkitButton alignSelf={['stretch', 'center']} icon={IconPlus} size="md" onClick={onCreate}>
           Create Pipeline
@@ -76,51 +76,45 @@ const CreateFirstGraphPipelineEmptyState = ({ onCreate }: Props) => {
       alignItems={['flex-start', 'center']}
       background="background/secondary"
     >
-      <Card
-        p="24"
-        display="flex"
-        flexDir={['column', 'row']}
-        gap="32"
-        variant="outline"
-        width="auto"
-        data-clarity-unmask="true"
-      >
-        <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
-          <BitkitHeading as="h3">Get started with Pipelines</BitkitHeading>
+      <Card.Root elevation={false} data-clarity-unmask="true">
+        <Card.Body display="flex" flexDirection={['column', 'row']} gap="32">
+          <Box maxWidth={rem(420)} display="flex" flexDirection="column" gap="16">
+            <BitkitHeading as="h3">Get started with Pipelines</BitkitHeading>
 
-          <List flex="1" variant="unordered" pl="8" textStyle="body/md/regular">
-            <ListItem>Parallelize tasks for faster build cycles</ListItem>
-            <ListItem>
-              Every Pipeline run is visualized in a simple diagram, making it easy to see dependencies and bottlenecks
-            </ListItem>
-            <ListItem>Edit Workflows directly in the Pipeline</ListItem>
-          </List>
+            <BitkitList flex="1" size="md">
+              <BitkitList.Item>Parallelize tasks for faster build cycles</BitkitList.Item>
+              <BitkitList.Item>
+                Every Pipeline run is visualized in a simple diagram, making it easy to see dependencies and bottlenecks
+              </BitkitList.Item>
+              <BitkitList.Item>Edit Workflows directly in the Pipeline</BitkitList.Item>
+            </BitkitList>
 
-          {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
+            {/* Read-only views (merged config, cross-repo/ref files) can't create — show no actions. */}
+            {!isReadOnlyView && (
+              <Box display={['none', 'flex']} gap="24" alignItems="center">
+                {actions}
+              </Box>
+            )}
+          </Box>
+
+          <Box
+            padding="8"
+            maxWidth={rem(436)}
+            display="flex"
+            borderRadius="8"
+            background="background/secondary"
+            alignItems="center"
+          >
+            <Image src={graphPipelineImage} alt="Graph Pipeline" />
+          </Box>
+
           {!isReadOnlyView && (
-            <Box display={['none', 'flex']} gap="24" alignItems="center">
+            <Box display={['flex', 'none']} flexDirection="column" gap="24" alignItems="center">
               {actions}
             </Box>
           )}
-        </Box>
-
-        <Box
-          padding="8"
-          maxWidth={rem(436)}
-          display="flex"
-          borderRadius="8"
-          background="background/secondary"
-          alignItems="center"
-        >
-          <Image src={graphPipelineImage} alt="Graph Pipeline" />
-        </Box>
-
-        {!isReadOnlyView && (
-          <Box display={['flex', 'none']} flexDirection="column" gap="24" alignItems="center">
-            {actions}
-          </Box>
-        )}
-      </Card>
+        </Card.Body>
+      </Card.Root>
     </Box>
   );
 };

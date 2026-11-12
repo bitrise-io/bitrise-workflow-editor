@@ -1,11 +1,11 @@
-import TargerBasedTriggersTabContent from '@/components/unified-editor/Triggers/TargetBasedTriggers/TargetBasedTriggersTabContent';
+import TargetBasedTriggersTabContent from '@/components/unified-editor/Triggers/TargetBasedTriggers/TargetBasedTriggersTabContent';
 
 type Props = {
   pipelineId: string;
 };
 
 const TriggersTab = ({ pipelineId }: Props) => {
-  return <TargerBasedTriggersTabContent source="pipelines" sourceId={pipelineId} />;
+  return <TargetBasedTriggersTabContent source="pipelines" sourceId={pipelineId} />;
 };
 
 export default TriggersTab;

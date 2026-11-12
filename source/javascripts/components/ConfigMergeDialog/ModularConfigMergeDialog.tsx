@@ -1,10 +1,7 @@
-import { DialogBody, DialogFooter, Tooltip } from '@bitrise/bitkit';
-import { BitkitAlert, BitkitButton, BitkitTabs, IconArrowLeft, IconArrowRight, IconCross } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitButton, BitkitDialog, BitkitTabs, IconArrowLeft, IconArrowRight } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
 import { DiffEditor, MonacoDiffEditor } from '@monaco-editor/react';
-import { ModalCloseButton, ModalHeader } from 'chakra-ui-2--react';
 import type { editor, IDisposable } from 'monaco-editor';
 import { useMemo, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -14,9 +11,9 @@ import TreeService from '@/core/services/TreeService';
 import { getFileSlice, updateFileDocumentByString } from '@/core/stores/BitriseYmlStore';
 import MonacoUtils from '@/core/utils/MonacoUtils';
 import YmlUtils from '@/core/utils/YmlUtils';
+import useMountedWhileOpen from '@/hooks/useMountedWhileOpen';
 import usePushBranch from '@/hooks/usePushBranch';
 
-import { DiffEditorDialogShell } from '../DiffEditor/DiffEditorDialog';
 import { diffEditorOptions, mergeYamls, readOnlyDiffEditorOptions } from './mergeYamls';
 
 type Props = {
@@ -81,12 +78,16 @@ function buildFileMerges(conflict: PushBranchConflict): FileMerge[] {
 }
 
 const ModularConfigMergeDialogBody = ({
+  isOpen,
   onClose,
+  onExitComplete,
   branch,
   message,
   initialConflict,
 }: {
+  isOpen: boolean;
   onClose: VoidFunction;
+  onExitComplete: VoidFunction;
   branch: string;
   message: string;
   initialConflict: PushBranchConflict;
@@ -145,7 +146,10 @@ const ModularConfigMergeDialogBody = ({
       disposables.push(
         modified.onDidChangeModelContent((e) => {
           touched.current.add(mountedNodeId);
-          setResolved((prev) => ({ ...prev, [mountedNodeId]: modified.getValue() }));
+          setResolved((prev) => ({
+            ...prev,
+            [mountedNodeId]: modified.getValue(),
+          }));
 
           const removable = e.changes.reduce<Set<string>>((acc, c) => {
             for (let i = c.range.startLineNumber; i <= c.range.endLineNumber; i += 1) {
@@ -213,136 +217,139 @@ const ModularConfigMergeDialogBody = ({
   );
 
   return (
-    <>
-      <ModalHeader display="flex" gap="16" alignItems="center">
-        <Text as="h1" textStyle="comp/dialog/title">
-          Review changes
-        </Text>
-      </ModalHeader>
-      <ModalCloseButton size="large">
-        <IconCross />
-      </ModalCloseButton>
-      <DialogBody flex="1" display="flex" flexDirection="column" gap="16" minHeight="0">
-        <Text>
-          There are changes outside your current editing session. Review the differences for each of the modules and
-          resolve any conflicts to proceed.
-        </Text>
-
-        <BitkitTabs.Root value={effectiveTab} onValueChange={({ value }) => setSelectedTab(value)}>
-          <BitkitTabs.List>
-            {fileMerges.map((file) => (
-              <BitkitTabs.Trigger key={file.nodeId} value={file.nodeId}>
-                {file.name}
-              </BitkitTabs.Trigger>
-            ))}
-          </BitkitTabs.List>
-        </BitkitTabs.Root>
-
-        {activeMerge && (
-          <Box display="flex" flex="1" gap="4" minHeight="0">
-            <Box display="flex" flexDirection="column" flex="1" gap="4">
-              <Text textStyle="body/md/semibold">Your changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
-                <DiffEditor
-                  key={`${activeMerge.nodeId}-yours`}
-                  theme="vs-dark"
-                  language="yaml"
-                  original={activeMerge.baseYml}
-                  modified={activeMerge.yourYml}
-                  options={readOnlyDiffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
-                />
-              </Box>
-            </Box>
-
-            <Box alignSelf="center">
-              <IconArrowRight color="icon/tertiary" />
-            </Box>
-
-            <Box display="flex" flexDirection="column" flex="1" gap="4">
-              <Text textStyle="body/md/semibold">Results</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)">
-                <DiffEditor
-                  key={`${activeMerge.nodeId}-results`}
-                  theme="vs-dark"
-                  language="yaml"
-                  original={activeMerge.baseYml}
-                  modified={resolved[activeMerge.nodeId] ?? activeMerge.mergedYml}
-                  options={diffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
-                  onMount={onResultEditorMount(activeMerge.nodeId, activeMerge.decorations)}
-                />
-              </Box>
-            </Box>
-
-            <Box alignSelf="center">
-              <IconArrowLeft color="icon/tertiary" />
-            </Box>
-
-            <Box display="flex" flexDirection="column" flex="1" gap="4">
-              <Text textStyle="body/md/semibold">Remote changes</Text>
-              <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
-                <DiffEditor
-                  key={`${activeMerge.nodeId}-remote`}
-                  theme="vs-dark"
-                  language="yaml"
-                  original={activeMerge.baseYml}
-                  modified={activeMerge.remoteYml}
-                  options={readOnlyDiffEditorOptions}
-                  keepCurrentModifiedModel
-                  keepCurrentOriginalModel
-                />
-              </Box>
-            </Box>
-          </Box>
-        )}
-
-        <BitkitAlert
-          variant="info"
-          titleText="Merge conflict auto-resolution"
-          messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before applying."
-        />
-        {clientError && <BitkitAlert variant="critical" titleText="Error pushing changes" messageText={clientError} />}
-      </DialogBody>
-      <DialogFooter>
-        <ButtonGroup gap="16">
+    <BitkitDialog
+      size="full"
+      title="Review changes"
+      open={isOpen}
+      onOpenChange={({ open }) => {
+        if (!open) onClose();
+      }}
+      onExitComplete={onExitComplete}
+      state={isPushPending ? 'loading' : undefined}
+      footerButtons={
+        <>
           <BitkitButton variant="secondary" state={isPushPending ? 'disabled' : undefined} onClick={onClose}>
             Cancel
           </BitkitButton>
-          <Tooltip
-            placement="top-end"
-            isDisabled={!isInvalid}
-            label="YAML is invalid, please fix it before applying changes"
+          <BitkitButton
+            state={isPushPending ? 'loading' : isInvalid ? 'disabled' : undefined}
+            disabledReason="YAML is invalid, please fix it before applying changes"
+            onClick={handleApply}
           >
-            <BitkitButton state={isPushPending ? 'loading' : isInvalid ? 'disabled' : undefined} onClick={handleApply}>
-              Apply changes
-            </BitkitButton>
-          </Tooltip>
-        </ButtonGroup>
-      </DialogFooter>
-    </>
+            Apply changes
+          </BitkitButton>
+        </>
+      }
+    >
+      <Text>
+        There are changes outside your current editing session. Review the differences for each of the modules and
+        resolve any conflicts to proceed.
+      </Text>
+
+      <BitkitTabs.Root value={effectiveTab} onValueChange={({ value }) => setSelectedTab(value)}>
+        <BitkitTabs.List>
+          {fileMerges.map((file) => (
+            <BitkitTabs.Trigger key={file.nodeId} value={file.nodeId}>
+              {file.name}
+            </BitkitTabs.Trigger>
+          ))}
+        </BitkitTabs.List>
+      </BitkitTabs.Root>
+
+      {activeMerge && (
+        <Box display="flex" flex="1" gap="4" minHeight="0">
+          <Box display="flex" flexDirection="column" flex="1" gap="4">
+            <Text textStyle="body/md/semibold">Your changes</Text>
+            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
+              <DiffEditor
+                key={`${activeMerge.nodeId}-yours`}
+                theme="vs-dark"
+                language="yaml"
+                original={activeMerge.baseYml}
+                modified={activeMerge.yourYml}
+                options={readOnlyDiffEditorOptions}
+                keepCurrentModifiedModel
+                keepCurrentOriginalModel
+              />
+            </Box>
+          </Box>
+
+          <Box alignSelf="center">
+            <IconArrowRight color="icon/tertiary" />
+          </Box>
+
+          <Box display="flex" flexDirection="column" flex="1" gap="4">
+            <Text textStyle="body/md/semibold">Results</Text>
+            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)">
+              <DiffEditor
+                key={`${activeMerge.nodeId}-results`}
+                theme="vs-dark"
+                language="yaml"
+                original={activeMerge.baseYml}
+                modified={resolved[activeMerge.nodeId] ?? activeMerge.mergedYml}
+                options={diffEditorOptions}
+                keepCurrentModifiedModel
+                keepCurrentOriginalModel
+                onMount={onResultEditorMount(activeMerge.nodeId, activeMerge.decorations)}
+              />
+            </Box>
+          </Box>
+
+          <Box alignSelf="center">
+            <IconArrowLeft color="icon/tertiary" />
+          </Box>
+
+          <Box display="flex" flexDirection="column" flex="1" gap="4">
+            <Text textStyle="body/md/semibold">Remote changes</Text>
+            <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
+              <DiffEditor
+                key={`${activeMerge.nodeId}-remote`}
+                theme="vs-dark"
+                language="yaml"
+                original={activeMerge.baseYml}
+                modified={activeMerge.remoteYml}
+                options={readOnlyDiffEditorOptions}
+                keepCurrentModifiedModel
+                keepCurrentOriginalModel
+              />
+            </Box>
+          </Box>
+        </Box>
+      )}
+
+      <BitkitAlert
+        variant="info"
+        titleText="Merge conflict auto-resolution"
+        messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before applying."
+      />
+      {clientError && <BitkitAlert variant="critical" titleText="Error pushing changes" messageText={clientError} />}
+      <style>{`
+          .monaco-diff-editor .conflict {
+            border: 1px solid rgba(255, 0, 0, 1);
+          }
+        `}</style>
+    </BitkitDialog>
   );
 };
 
 const ModularConfigMergeDialog = ({ isOpen, onClose, branch, message, conflict }: Props) => {
+  const { isMounted, onExitComplete } = useMountedWhileOpen(isOpen);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
-    <DiffEditorDialogShell isOpen={isOpen} onClose={onClose}>
-      {/* Re-mount the body per branch-HEAD so a fresh conflict set re-seeds cleanly. */}
-      <ModularConfigMergeDialogBody
-        key={conflict.commitSha}
-        onClose={onClose}
-        branch={branch}
-        message={message}
-        initialConflict={conflict}
-      />
-      <style>{`
-        .monaco-diff-editor .conflict {
-          border: 1px solid rgba(255, 0, 0, 1);
-        }
-      `}</style>
-    </DiffEditorDialogShell>
+    // Re-mount per branch-HEAD so a fresh conflict set re-seeds cleanly.
+    <ModularConfigMergeDialogBody
+      key={conflict.commitSha}
+      isOpen={isOpen}
+      onClose={onClose}
+      onExitComplete={onExitComplete}
+      branch={branch}
+      message={message}
+      initialConflict={conflict}
+    />
   );
 };
 

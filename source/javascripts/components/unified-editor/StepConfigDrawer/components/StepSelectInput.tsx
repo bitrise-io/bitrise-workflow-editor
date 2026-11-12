@@ -1,6 +1,6 @@
-import { Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
+import { BitkitSelect } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 
 import { EnvVarPopover } from '@/components/VariablePopover';
 import { useIsReadOnlyView } from '@/hooks/useTree';
@@ -8,61 +8,61 @@ import { useIsReadOnlyView } from '@/hooks/useTree';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
 
-type Props = Omit<DropdownProps<string | null>, 'onChange'> & {
+const DEFAULT_ITEM_VALUE = '__default__';
+
+type Props = {
+  name?: string;
+  label?: string;
+  value?: string | null;
+  defaultValue?: string | null;
   options: string[];
   helper?: { summary?: string; details?: string };
+  helperText?: string;
   isDisabled?: boolean;
   isSensitive?: boolean;
+  disabled?: boolean;
   onChange?: (value: string) => void;
 };
 
-const StepSelectInput = forwardRef(
-  ({ label, options, isSensitive, isDisabled, helper, helperText, onChange, ...props }: Props, ref) => {
+const StepSelectInput = forwardRef<HTMLDivElement, Props>(
+  ({ label, options, isSensitive, isDisabled, disabled, helper, helperText, onChange, ...props }, ref) => {
     const { stepBundleId, workflowId } = useStepDrawerContext();
     const isReadOnlyView = useIsReadOnlyView();
     const [value, setValue] = useState(props.value ?? props.defaultValue ?? '');
 
-    const insertVariable = (key: string) => {
-      setValue(`$${key}`);
-      onChange?.(`$${key}`);
+    const selectedValue = value || (props.defaultValue ? DEFAULT_ITEM_VALUE : (props.value ?? ''));
+    const items = [
+      ...(props.defaultValue ? [{ label: `Default (${props.defaultValue})`, value: DEFAULT_ITEM_VALUE }] : []),
+      ...options.map((option) => ({ label: option, value: option })),
+      ...(value && !options.includes(value) ? [{ label: value, value }] : []),
+    ];
+
+    const handleValueChange = (newValue: string) => {
+      setValue(newValue);
+      onChange?.(newValue);
     };
 
     return (
       <Box display="flex" flex={1} gap="6">
-        <Dropdown
+        <BitkitSelect
           ref={ref}
-          {...props}
           flex="1"
           size="md"
-          value={value}
-          search={false}
           label={label}
-          readOnly={isSensitive || isDisabled || isReadOnlyView}
+          items={items}
+          selectProps={{ lazyMount: true, unmountOnExit: true }}
+          value={selectedValue}
+          state={isSensitive || isDisabled || disabled || isReadOnlyView ? 'readOnly' : undefined}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
-          onChange={(e) => {
-            setValue(e.target.value ?? '');
-            onChange?.(e.target.value ?? '');
-          }}
-        >
-          {props.defaultValue && <DropdownOption value="">Default ({props.defaultValue})</DropdownOption>}
-          {options.map((option) => {
-            return (
-              <DropdownOption key={option} value={option}>
-                {option}
-              </DropdownOption>
-            );
-          })}
-          {value && options.every((optionValue) => optionValue !== value) && (
-            <DropdownOption value={value}>{value}</DropdownOption>
-          )}
-        </Dropdown>
+          onValueChange={(newValue) => handleValueChange(newValue === DEFAULT_ITEM_VALUE ? '' : (newValue ?? ''))}
+        />
         {!isReadOnlyView && (
           <Box paddingBlockStart="24">
             <EnvVarPopover
               size="md"
               workflowId={workflowId}
               stepBundleId={stepBundleId}
-              onSelect={({ key }) => insertVariable(key)}
+              onSelect={({ key }) => handleValueChange(`$${key}`)}
             />
           </Box>
         )}
@@ -70,5 +70,7 @@ const StepSelectInput = forwardRef(
     );
   },
 );
+
+StepSelectInput.displayName = 'StepSelectInput';
 
 export default StepSelectInput;

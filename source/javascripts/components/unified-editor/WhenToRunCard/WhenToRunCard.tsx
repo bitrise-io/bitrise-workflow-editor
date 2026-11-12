@@ -1,5 +1,4 @@
-import { ExpandableCard } from '@bitrise/bitkit';
-import { BitkitIconButton, BitkitSwitch, IconRefresh } from '@bitrise/bitkit-v2';
+import { BitkitExpandableCard, BitkitIconButton, BitkitSwitch, IconRefresh } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
@@ -33,7 +32,7 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
   } = props;
 
   return (
-    <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">When to run</Text>}>
+    <BitkitExpandableCard elevation={false} title="When to run">
       <Box display="flex" alignItems="center" gap="4" minHeight="32">
         <Text flex="1">Run even if previous Step(s) failed</Text>
         {!!onIsAlwaysRunReset && (
@@ -77,7 +76,7 @@ const WhenToRunCard = (props: WhenToRunCardProps) => {
         defaultValue={defaultValuesRunIf}
         onChange={onRunIfChange}
       />
-    </ExpandableCard>
+    </BitkitExpandableCard>
   );
 };
 

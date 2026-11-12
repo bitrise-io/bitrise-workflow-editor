@@ -1,13 +1,12 @@
-import { Checkbox, Input } from '@bitrise/bitkit';
-import { BitkitButton } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitCheckbox, BitkitTextArea, BitkitTextInput, IconDollar } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { Text } from '@chakra-ui/react/text';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
-import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { Secret } from '@/core/models/Secret';
 import SecretService from '@/core/services/SecretService';
+import ignore1Password, { ignore1PasswordProps } from '@/utils/ignore1Password';
 
 type Props = {
   items: Secret[];
@@ -17,11 +16,12 @@ type Props = {
 
 const CreateSecret = ({ onCreate, onCancel }: Props) => {
   const {
+    control,
     register,
     formState: { errors },
     handleSubmit,
     reset,
-  } = useForm<Secret>();
+  } = useForm<Secret>({ defaultValues: { isExpand: false, isExpose: false } });
 
   const handleCancel = () => {
     onCancel();
@@ -45,35 +45,64 @@ const CreateSecret = ({ onCreate, onCancel }: Props) => {
     >
       <Box display="flex" flexDirection="column" gap="8" paddingBlockStart="12" paddingBlockEnd="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
-          <Input
-            autoFocus
+          <BitkitTextInput
+            optional
             flex="1"
             size="md"
-            aria-label="Key"
-            leftIconName="Dollars"
+            label="Key"
+            labelHidden
+            startElement={<IconDollar size="16" />}
             placeholder="Enter key"
-            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            inputRef={ignore1Password}
             errorText={errors.key?.message}
-            {...register('key', {
-              validate: SecretService.validateKey,
-            })}
+            inputProps={{
+              autoFocus: true,
+              ...register('key', {
+                validate: SecretService.validateKey,
+              }),
+            }}
           />
           <Text paddingBlockStart="12">=</Text>
-          <AutoGrowableInput
-            aria-label="Value"
+          <BitkitTextArea
+            optional
+            flex="1"
+            autoresize
+            rows={1}
+            size="md"
+            label="Value"
+            labelHidden
             placeholder="Enter value"
-            formControlProps={{ flex: '1' }}
             errorText={errors.value?.message}
-            {...register('value')}
+            textareaProps={{ ...register('value'), ...ignore1PasswordProps }}
           />
         </Box>
         <Box display="flex" gap="24" marginBlockStart="16">
-          <Checkbox {...register('isExpand')} flex="1">
-            Replace variables in inputs
-          </Checkbox>
-          <Checkbox {...register('isExpose')} flex="1">
-            Expose for Pull Requests
-          </Checkbox>
+          <Controller
+            control={control}
+            name="isExpand"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Replace variables in inputs"
+                flex="1"
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="isExpose"
+            render={({ field }) => (
+              <BitkitCheckbox
+                labelText="Expose for Pull Requests"
+                flex="1"
+                checked={!!field.value}
+                name={field.name}
+                onCheckedChange={({ checked }) => field.onChange(checked === true)}
+              />
+            )}
+          />
         </Box>
       </Box>
       <ButtonGroup gap="12">
