@@ -1,9 +1,24 @@
-import { Input, InputProps } from '@bitrise/bitkit';
-import { BitkitControlButton, IconCheck, IconCross, IconPencil } from '@bitrise/bitkit-v2';
+import {
+  BitkitControlButton,
+  BitkitTextInput,
+  BitkitTextInputProps,
+  IconCheck,
+  IconCross,
+  IconPencil,
+} from '@bitrise/bitkit-v2';
 import { ButtonGroup } from '@chakra-ui/react/button';
 import { ChangeEventHandler, KeyboardEventHandler, Reducer, useCallback, useEffect, useReducer } from 'react';
 
-type Props = InputProps & {
+import ignore1Password from '@/utils/ignore1Password';
+
+type Props = Omit<
+  BitkitTextInputProps,
+  'endElement' | 'inputProps' | 'inputRef' | 'onChange' | 'onValueChange' | 'state' | 'value'
+> & {
+  defaultValue?: string;
+  inputProps?: Omit<NonNullable<BitkitTextInputProps['inputProps']>, 'defaultValue' | 'onChange' | 'value'>;
+  isDisabled?: boolean;
+  value?: string;
   onCommit?: (value: string) => void;
   sanitize?: (value: string) => string;
   validate?: (value: string) => true | string;
@@ -20,7 +35,7 @@ const defaultValidateFn: Props['validate'] = () => true;
 const defaultSanitizeFn: Props['sanitize'] = (value) => value;
 
 const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidateFn, onCommit, ...props }: Props) => {
-  const { size = 'md', value, defaultValue, isDisabled, ...inputProps } = props;
+  const { size = 'md', value, defaultValue, isDisabled, ...rest } = props;
   const buttonSize = size === 'lg' ? 'md' : 'sm';
 
   // TODO maybe useEditable hook from Chakra UI
@@ -97,20 +112,18 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
   );
 
   return (
-    <Input
-      {...inputProps}
+    <BitkitTextInput
+      {...rest}
       size={size}
-      isDisabled={isDisabled}
+      state={isDisabled ? 'disabled' : !editable.isEditing ? 'readOnly' : undefined}
       value={editable.value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      isReadOnly={!editable.isEditing}
-      inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+      inputRef={ignore1Password}
       errorText={editable.validationResult === true ? undefined : editable.validationResult}
-      rightAddonPlacement="inside"
-      rightAddon={
+      endElement={
         editable.isEditing ? (
-          <ButtonGroup marginInline="8" gap="0">
+          <ButtonGroup gap="0">
             <BitkitControlButton
               size={buttonSize}
               icon={IconCheck}
@@ -122,7 +135,6 @@ const EditableInput = ({ sanitize = defaultSanitizeFn, validate = defaultValidat
           </ButtonGroup>
         ) : (
           <BitkitControlButton
-            marginInline="8"
             size={buttonSize}
             label="Edit"
             icon={IconPencil}

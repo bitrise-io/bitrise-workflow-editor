@@ -1,7 +1,7 @@
-import { Dialog, DialogBody, DialogFooter } from '@bitrise/bitkit';
 import {
   BitkitAlert,
   BitkitButton,
+  BitkitDialog,
   BitkitEmptyState,
   BitkitHeading,
   BitkitLink,
@@ -222,29 +222,36 @@ const SecretsPage = () => {
 
       {/* Tagged per static child rather than on the Dialog, matching the delete workflow / delete
           step bundle dialogs: a future body addition then stays masked until reviewed. */}
-      <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
-        <DialogBody>
-          {deleteError && (
-            <BitkitAlert variant="critical" data-clarity-unmask="true" messageText="Error while deleting secret!" />
-          )}
-          <Text data-clarity-unmask="true">
-            Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
-            This action cannot be undone.
-          </Text>
-        </DialogBody>
-        <DialogFooter data-clarity-unmask="true">
-          <BitkitButton variant="secondary" onClick={() => setDeleteId(null)}>
-            Cancel
-          </BitkitButton>
-          <BitkitButton
-            variant="danger-primary"
-            state={deleteLoading ? 'loading' : undefined}
-            onClick={() => handleDelete(deleteId)}
-          >
-            Delete secret
-          </BitkitButton>
-        </DialogFooter>
-      </Dialog>
+      <BitkitDialog
+        title="Delete Secret?"
+        size="sm"
+        dismissible={false}
+        state={deleteLoading ? 'loading' : undefined}
+        open={Boolean(deleteId)}
+        footerButtons={
+          <>
+            <BitkitButton variant="secondary" onClick={() => setDeleteId(null)} data-clarity-unmask="true">
+              Cancel
+            </BitkitButton>
+            <BitkitButton
+              variant="danger-primary"
+              state={deleteLoading ? 'loading' : undefined}
+              onClick={() => handleDelete(deleteId)}
+              data-clarity-unmask="true"
+            >
+              Delete secret
+            </BitkitButton>
+          </>
+        }
+      >
+        {deleteError && (
+          <BitkitAlert variant="critical" data-clarity-unmask="true" messageText="Error while deleting secret!" />
+        )}
+        <Text data-clarity-unmask="true">
+          Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
+          This action cannot be undone.
+        </Text>
+      </BitkitDialog>
     </Box>
   );
 };

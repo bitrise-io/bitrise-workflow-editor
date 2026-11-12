@@ -1,4 +1,3 @@
-import { DialogProps } from '@bitrise/bitkit';
 import { useEffect } from 'react';
 
 import CreateEntityDialog from '@/components/unified-editor/CreateEntityDialog/CreateEntityDialog';
@@ -10,7 +9,10 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import usePipelineConversionNotification from '../../hooks/usePipelineConversionNotification';
 import usePipelineSelector from '../../hooks/usePipelineSelector';
 
-type Props = Omit<DialogProps, 'title'> & {
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  onCloseComplete?: () => void;
   onCreatePipeline: (pipelineId: string, basePipelineId?: string) => void;
 };
 

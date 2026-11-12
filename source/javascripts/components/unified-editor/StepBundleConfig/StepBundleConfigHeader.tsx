@@ -1,5 +1,4 @@
-import { Tab, TabList } from '@bitrise/bitkit';
-import { BitkitHeading, BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { BitkitHeading, BitkitLinkButton, BitkitTabs } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { ReactNode } from 'react';
@@ -12,6 +11,7 @@ import useNavigation from '@/hooks/useNavigation';
 import { useCrossFileEntity, useIsMergedConfigSelected, useOtherDefiningModules } from '@/hooks/useTree';
 
 import { useStepBundleConfigContext } from './StepBundleConfig.context';
+import { StepBundleConfigTab } from './types/StepBundle.types';
 
 type HeaderProps = {
   variant: 'panel' | 'drawer';
@@ -74,11 +74,16 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
           {subtitle}
         </Text>
       </Box>
-      <TabList paddingX="8" mx={variant === 'drawer' ? '-24' : '0'} mt="16" data-clarity-unmask="true">
-        <Tab>Configuration</Tab>
-        <Tab>Properties</Tab>
-        <Tab>Containers</Tab>
-      </TabList>
+      <BitkitTabs.List
+        paddingInline="8"
+        marginInline={variant === 'drawer' ? '-24' : undefined}
+        marginBlockStart="16"
+        data-clarity-unmask="true"
+      >
+        <BitkitTabs.Trigger value={StepBundleConfigTab.CONFIGURATION}>Configuration</BitkitTabs.Trigger>
+        <BitkitTabs.Trigger value={StepBundleConfigTab.PROPERTIES}>Properties</BitkitTabs.Trigger>
+        <BitkitTabs.Trigger value={StepBundleConfigTab.CONTAINERS}>Containers</BitkitTabs.Trigger>
+      </BitkitTabs.List>
     </>
   );
 };

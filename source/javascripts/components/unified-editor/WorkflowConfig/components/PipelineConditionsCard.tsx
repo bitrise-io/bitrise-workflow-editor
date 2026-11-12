@@ -1,6 +1,10 @@
-import { Input, Select, Textarea } from '@bitrise/bitkit';
-import { BitkitExpandableCard, BitkitSwitch } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
+import {
+  BitkitExpandableCard,
+  BitkitNativeSelect,
+  BitkitSwitch,
+  BitkitTextArea,
+  BitkitTextInput,
+} from '@bitrise/bitkit-v2';
 import { Separator } from '@chakra-ui/react/separator';
 import { Text } from '@chakra-ui/react/text';
 import { uniq } from 'es-toolkit';
@@ -69,13 +73,13 @@ const AlwaysRunSelect = ({ pipelineId, workflowId }: PipelineConditionInputProps
   };
 
   return (
-    <Select size="md" isRequired label="Always run" value={value} helperText={helperText} onChange={handleChange}>
+    <BitkitNativeSelect size="md" label="Always run" value={value} helperText={helperText} onChange={handleChange}>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
         </option>
       ))}
-    </Select>
+    </BitkitNativeSelect>
   );
 };
 
@@ -84,17 +88,19 @@ const RunIfInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) => 
     (s) => s.yml.pipelines?.[pipelineId]?.workflows?.[workflowId]?.run_if?.expression ?? '',
   );
 
-  const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'run_if.expression', e.target.value);
+  const handleValueChange = (newValue: string) => {
+    PipelineService.updatePipelineWorkflowField(pipelineId, workflowId, 'run_if.expression', newValue);
   };
 
   return (
-    <Textarea
+    <BitkitTextArea
+      optional
       value={value}
       label="Additional running conditions"
+      size="md"
       placeholder="Enter any valid Go template"
       helperText="Enter any valid Go template. The workflow will only be executed if this template evaluates to true. You can use our `getenv` and `enveq` functions for interacting with env vars."
-      onChange={handleChange}
+      onValueChange={handleValueChange}
     />
   );
 };
@@ -109,7 +115,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
     ]);
   });
 
-  const [value, setValue] = useState(initValue);
+  const [value, setValue] = useState(String(initValue));
   const [error, setError] = useState<string | undefined>(undefined);
 
   const validateAndPersist = (parallel: string | number) => {
@@ -134,7 +140,8 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
   };
 
   return (
-    <Input
+    <BitkitTextInput
+      optional
       size="md"
       value={value}
       errorText={error}
@@ -146,12 +153,7 @@ const ParallelInput = ({ pipelineId, workflowId }: PipelineConditionInputProps) 
         />
       }
       onChange={handleChange}
-      rightAddon={
-        <Box paddingInlineEnd="4">
-          <EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />
-        </Box>
-      }
-      rightAddonPlacement="inside"
+      endElement={<EnvVarPopover size="sm" onSelect={({ key }) => insertVariable(key)} />}
     />
   );
 };

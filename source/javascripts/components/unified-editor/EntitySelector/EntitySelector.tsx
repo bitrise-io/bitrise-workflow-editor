@@ -1,12 +1,10 @@
-import { Button, Dropdown, DropdownGroup, DropdownOption, DropdownProps, DropdownSearch } from '@bitrise/bitkit';
-import { BitkitEmptyState, BitkitTooltip, IconMagnifier, IconSparkleFilled } from '@bitrise/bitkit-v2';
-import { Box } from '@chakra-ui/react/box';
-import { useMemo, useRef, useState } from 'react';
+import { BitkitSelect, IconPlus, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { useMemo, useState } from 'react';
 
 import useAIButton from '@/hooks/useAIButton';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
-export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChange'> {
+export type EntitySelectorProps = {
   entityIds: string[];
   entityName?: string;
   onChange: (selectedValue: string | undefined) => void;
@@ -15,53 +13,14 @@ export interface EntitySelectorProps extends Omit<DropdownProps<string>, 'onChan
     label: string;
     ids: string[];
   };
-}
-
-// Its own component, not inline JSX: the v1 Dropdown rewrites the `children` of every element below it
-// into an array, and BitkitTooltip wraps an array in an inline span. An element without `children` is
-// left alone. The span `wrapTrigger` adds while the button is disabled stays full width because the
-// footer is a flex column. The v1 Button has no `disabledReason`, so the reason goes in a tooltip.
-const CreateWithAIButton = ({
-  entityName,
-  isDisabled,
-  onClick,
-  tooltipLabel,
-}: {
-  entityName?: string;
-  isDisabled: boolean;
-  onClick: VoidFunction;
-  tooltipLabel?: string;
-}) => {
-  const button = (
-    <Button
-      borderRadius="0"
-      color="button.secondary"
-      textStyle="body/lg/regular"
-      justifyContent="flex-start"
-      leftIcon={<IconSparkleFilled color={isDisabled ? 'icon/disabled' : 'status/ai/icon'} />}
-      variant="tertiary"
-      width="100%"
-      isDisabled={isDisabled}
-      onClick={onClick}
-    >
-      Create {entityName} with AI
-    </Button>
-  );
-
-  return tooltipLabel ? (
-    <BitkitTooltip text={tooltipLabel} wrapTrigger>
-      {button}
-    </BitkitTooltip>
-  ) : (
-    button
-  );
+  value?: string;
 };
 
 const EntitySelector = (props: EntitySelectorProps) => {
   const { entityIds, entityName, onChange, onCreate, secondaryEntities, value } = props;
 
-  const dropdownRef = useRef<HTMLButtonElement>(null);
   const isReadOnlyView = useIsReadOnlyView();
+  const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
 
   const { isVisible, tooltipLabel, getAIButtonProps } = useAIButton({
@@ -72,100 +31,64 @@ const EntitySelector = (props: EntitySelectorProps) => {
   const { isDisabled: isAIButtonDisabled, onClick: onAIButtonClick } = getAIButtonProps();
   const isAIButtonVisible = isVisible && entityName === 'Workflow';
 
-  const filteredIds = useMemo(() => {
-    return entityIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));
-  }, [entityIds, search]);
+  const items = useMemo(() => {
+    const matches = (id: string) => id.toLowerCase().includes(search.toLowerCase());
+    const primary = entityIds.filter(matches).map((id) => ({ label: id, value: id }));
+    const secondary = (secondaryEntities?.ids ?? [])
+      .filter(matches)
+      .map((id) => ({ group: secondaryEntities?.label, label: id, value: id }));
 
-  const filteredSecondaryIds = useMemo(() => {
-    const secondaryIds = secondaryEntities?.ids || [];
+    return [...primary, ...secondary];
+  }, [entityIds, search, secondaryEntities]);
 
-    return secondaryIds.filter((id) => id.toLowerCase().includes(search.toLowerCase()));
-  }, [secondaryEntities, search]);
-
-  const hasNoSearchResults = search && filteredIds.length === 0 && filteredSecondaryIds.length === 0;
+  // The search starts over every time the menu opens.
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) setSearch('');
+  };
 
   const handleCreate = () => {
+    handleOpenChange(false);
     onCreate?.();
-    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
 
   const handleCreateWithAI = () => {
+    handleOpenChange(false);
     onAIButtonClick();
-    dropdownRef.current?.click();
   };
 
   return (
-    <Dropdown
+    <BitkitSelect
+      emptyHelperText={search ? 'Modify your search to get results' : undefined}
+      emptyLabel={search ? `No ${entityName}s are matching your filter` : `No ${entityName}s yet`}
       flex="1"
-      size="md"
-      ref={dropdownRef}
-      dropdownMaxHeight="359px"
+      items={items}
+      label={entityName}
+      labelHidden
       minWidth="0"
-      value={value}
-      onChange={({ target: { value: selectedValue } }) => onChange(selectedValue || undefined)}
-      search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={setSearch} />}
+      searchPlaceholder="Filter by name..."
+      searchValue={search}
+      selectProps={{ onOpenChange: ({ open }) => handleOpenChange(open), open: isOpen }}
+      size="md"
+      value={value ?? ''}
+      onSearchChange={setSearch}
+      onValueChange={(selectedValue) => onChange(selectedValue || undefined)}
     >
-      {filteredIds.map((id) => (
-        <DropdownOption key={id} value={id}>
-          {id}
-        </DropdownOption>
-      ))}
-      {!!secondaryEntities && filteredSecondaryIds.length > 0 && (
-        <DropdownGroup label={secondaryEntities.label} labelProps={{ whiteSpace: 'nowrap' }}>
-          {filteredSecondaryIds.map((id) => (
-            <DropdownOption key={id} value={id}>
-              {id}
-            </DropdownOption>
-          ))}
-        </DropdownGroup>
+      {/* Read-only views (merged config, cross-repo/ref files) can't create, so they show no actions. */}
+      {!isReadOnlyView && !!onCreate && (
+        <BitkitSelect.Action icon={IconPlus} label={`Create ${entityName}`} onClick={handleCreate} />
       )}
-      {hasNoSearchResults && (
-        <BitkitEmptyState
-          data-clarity-unmask="true"
-          icon={IconMagnifier}
-          colorVariant="white"
-          headingText={`No ${entityName}s are matching your filter`}
-          bodyText="Modify your search to get results"
+      {!isReadOnlyView && isAIButtonVisible && (
+        <BitkitSelect.Action
+          colorVariant="ai"
+          icon={IconSparkleFilled}
+          label={`Create ${entityName} with AI`}
+          state={isAIButtonDisabled ? 'disabled' : undefined}
+          tooltip={tooltipLabel}
+          onClick={handleCreateWithAI}
         />
       )}
-      {/* Read-only views (merged config, cross-repo/ref files) can't create — show no footer at all. */}
-      {!isReadOnlyView && (!!onCreate || isAIButtonVisible) && (
-        <Box
-          display="flex"
-          flexDirection="column"
-          paddingBlock="8"
-          position="sticky"
-          bottom="-8"
-          marginBlockEnd="-8"
-          borderTop="1px solid"
-          borderColor="border/regular"
-          backgroundColor="background/primary"
-        >
-          {!!onCreate && (
-            <Button
-              borderRadius="0"
-              color="button.secondary"
-              textStyle="body/lg/regular"
-              justifyContent="flex-start"
-              leftIconName="Plus"
-              variant="tertiary"
-              width="100%"
-              onClick={handleCreate}
-            >
-              Create {entityName}
-            </Button>
-          )}
-          {isAIButtonVisible && (
-            <CreateWithAIButton
-              entityName={entityName}
-              isDisabled={isAIButtonDisabled}
-              onClick={handleCreateWithAI}
-              tooltipLabel={tooltipLabel}
-            />
-          )}
-        </Box>
-      )}
-    </Dropdown>
+    </BitkitSelect>
   );
 };
 

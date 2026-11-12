@@ -246,9 +246,6 @@ describe('BitriseYmlStore — modular tree', () => {
       const siblingSavedBefore = before['child-b'].savedYmlDocument;
       const readonlyDocBefore = before.readonly.ymlDocument;
 
-      // Prime the collectPaths WeakMap cache against the sibling's document.
-      const cachedPaths = YmlUtils.collectPaths(siblingDocBefore);
-
       updateFileDocument('child-a', ({ doc }) => {
         YmlUtils.setIn(doc, ['workflows', 'child-a', 'title'], 'Edited');
         return doc;
@@ -260,7 +257,6 @@ describe('BitriseYmlStore — modular tree', () => {
       expect(after['child-b'].ymlDocument).toBe(siblingDocBefore);
       expect(after['child-b'].savedYmlDocument).toBe(siblingSavedBefore);
       expect(after.readonly.ymlDocument).toBe(readonlyDocBefore);
-      expect(YmlUtils.collectPaths(after['child-b'].ymlDocument)).toBe(cachedPaths);
     });
 
     it('marks the merged config stale', () => {

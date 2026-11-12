@@ -1,6 +1,6 @@
-import { CardProps } from '@bitrise/bitkit';
-import { BitkitIconButton, IconPlay } from '@bitrise/bitkit-v2';
+import { BitkitIconButton, IconPlay, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
+import { CardRootProps } from '@chakra-ui/react/card';
 import { isEqual } from 'es-toolkit';
 import { useCallback, useMemo } from 'react';
 
@@ -28,9 +28,9 @@ type Props = {
   workflowId: string;
 };
 
-const containerProps: CardProps = {
-  maxW: 400,
-  marginX: 'auto',
+const containerProps: CardRootProps = {
+  maxWidth: rem(400),
+  marginInline: 'auto',
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {

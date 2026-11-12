@@ -798,6 +798,44 @@ describe('WorkflowService', () => {
       expect(getYmlString()).toEqual(expectedYml);
     });
 
+    it('should rename a pipeline workflow that has its own depends_on', () => {
+      updateBitriseYmlDocumentByString(yaml`
+          pipelines:
+            graph:
+              workflows:
+                wf0: {}
+                wf1:
+                  depends_on:
+                  - wf0
+                wf2:
+                  depends_on:
+                  - wf1
+          workflows:
+            wf0: {}
+            wf1: {}
+            wf2: {}
+        `);
+
+      WorkflowService.renameWorkflow('wf1', 'wf3');
+
+      expect(getYmlString()).toEqual(yaml`
+        pipelines:
+          graph:
+            workflows:
+              wf0: {}
+              wf3:
+                depends_on:
+                - wf0
+              wf2:
+                depends_on:
+                - wf3
+        workflows:
+          wf0: {}
+          wf3: {}
+          wf2: {}
+      `);
+    });
+
     it('should throw an error if the workflow to rename does not exist', () => {
       updateBitriseYmlDocumentByString(yaml`
           workflows:

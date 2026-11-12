@@ -1,5 +1,4 @@
-import { Checkbox, Select } from '@bitrise/bitkit';
-import { BitkitLink } from '@bitrise/bitkit-v2';
+import { BitkitCheckbox, BitkitLink, BitkitNativeSelect } from '@bitrise/bitkit-v2';
 import { useMemo } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -38,7 +37,11 @@ const TriggerFormBody = (props: Props) => {
 
   const { control, setValue, watch } = useFormContext<TargetBasedTrigger | LegacyTrigger>();
   const { conditions, isDraftPr, priority } = watch();
-  const { append, fields, remove } = useFieldArray({ control, name: 'conditions', keyName: 'uniqueId' });
+  const { append, fields, remove } = useFieldArray({
+    control,
+    name: 'conditions',
+    keyName: 'uniqueId',
+  });
 
   const optionsMap = useMemo(() => {
     return variant === 'legacy' ? LEGACY_OPTIONS_MAP[triggerType] : TARGET_BASED_OPTIONS_MAP[triggerType];
@@ -73,7 +76,7 @@ const TriggerFormBody = (props: Props) => {
           name="source"
           control={control}
           render={({ field }) => (
-            <Select label="Target" placeholder="Select a Pipeline or Workflow" isRequired mb="24" {...field}>
+            <BitkitNativeSelect label="Target" placeholder="Select a Pipeline or Workflow" {...field}>
               {pipelines.length > 0 && (
                 <optgroup label="Pipelines">
                   {pipelines.map((p) => (
@@ -92,7 +95,7 @@ const TriggerFormBody = (props: Props) => {
                   ))}
                 </optgroup>
               )}
-            </Select>
+            </BitkitNativeSelect>
           )}
         />
       )}
@@ -105,9 +108,9 @@ const TriggerFormBody = (props: Props) => {
         remove={remove}
       />
       {triggerType === 'pull_request' && (
-        <Checkbox
-          isChecked={isDraftPr !== false}
-          marginBlockStart="24"
+        <BitkitCheckbox
+          labelText="Include draft pull requests"
+          checked={isDraftPr !== false}
           helperText={
             <>
               Supported for GitHub and GitLab.{' '}
@@ -120,10 +123,8 @@ const TriggerFormBody = (props: Props) => {
               </BitkitLink>
             </>
           }
-          onChange={(e) => setValue(`isDraftPr`, e.target.checked)}
-        >
-          Include draft pull requests
-        </Checkbox>
+          onCheckedChange={({ checked }) => setValue(`isDraftPr`, checked === true)}
+        />
       )}
       {variant === 'target-based' && (
         <PriorityInput
@@ -132,7 +133,6 @@ const TriggerFormBody = (props: Props) => {
           helperText={`Assign a priority to builds started by this trigger. 
             Enter a value from -100 (lowest) to +100 (highest). This setting overrides 
             the priority assigned to this ${entity}.`}
-          marginBlockStart="24"
         />
       )}
     </>

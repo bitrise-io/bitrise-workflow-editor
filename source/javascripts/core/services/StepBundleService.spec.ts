@@ -631,6 +631,48 @@ describe('StepBundleService', () => {
       `);
     });
 
+    it('deletes every reference from a workflow with more than ten steps', () => {
+      updateBitriseYmlDocumentByString(
+        yaml`
+          workflows:
+            primary:
+              steps:
+              - step0:
+              - step1:
+              - bundle::sb1:
+              - step3:
+              - step4:
+              - step5:
+              - step6:
+              - step7:
+              - step8:
+              - step9:
+              - bundle::sb1:
+              - step11:
+          step_bundles:
+            sb1: {}
+        `,
+      );
+
+      StepBundleService.deleteStepBundle('sb1');
+
+      expect(getYmlString()).toEqual(yaml`
+        workflows:
+          primary:
+            steps:
+            - step0:
+            - step1:
+            - step3:
+            - step4:
+            - step5:
+            - step6:
+            - step7:
+            - step8:
+            - step9:
+            - step11:
+      `);
+    });
+
     it('deletes the step bundle references from workflows', () => {
       updateBitriseYmlDocumentByString(
         yaml`

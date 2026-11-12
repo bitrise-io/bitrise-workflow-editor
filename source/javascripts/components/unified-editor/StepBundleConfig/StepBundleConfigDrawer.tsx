@@ -1,4 +1,4 @@
-import { Tabs } from '@bitrise/bitkit';
+import { BitkitTabs } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -10,6 +10,7 @@ import FloatingDrawer, {
 import StepBundleConfigContent from './StepBundleConfigContent';
 import StepBundleConfigHeader from './StepBundleConfigHeader';
 import StepBundleConfigProvider from './StepBundleConfigProvider';
+import { StepBundleConfigTab } from './types/StepBundle.types';
 
 type Props = Omit<FloatingDrawerProps, 'children'> & {
   stepBundleId?: string;
@@ -26,7 +27,7 @@ const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, parentWorkflowId, par
       parentStepBundleId={parentStepBundleId}
       stepIndex={stepIndex}
     >
-      <Tabs>
+      <BitkitTabs.Root defaultValue={StepBundleConfigTab.CONFIGURATION}>
         <FloatingDrawer {...rest}>
           <FloatingDrawerContent>
             <FloatingDrawerCloseButton />
@@ -38,7 +39,7 @@ const StepBundleConfigDrawer = ({ stepBundleId, stepIndex, parentWorkflowId, par
             </FloatingDrawerBody>
           </FloatingDrawerContent>
         </FloatingDrawer>
-      </Tabs>
+      </BitkitTabs.Root>
     </StepBundleConfigProvider>
   );
 };

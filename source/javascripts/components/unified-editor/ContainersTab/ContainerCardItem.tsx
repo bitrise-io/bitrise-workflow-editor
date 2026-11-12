@@ -1,5 +1,4 @@
-import { Checkbox, Td, Tr } from '@bitrise/bitkit';
-import { BitkitControlButton, BitkitTooltip, IconMinusCircle } from '@bitrise/bitkit-v2';
+import { BitkitCheckbox, BitkitControlButton, BitkitTable, BitkitTooltip, IconMinusCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
@@ -44,31 +43,31 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
   };
 
   return (
-    <Tr key={reference.id}>
-      <Td>
-        <Text textStyle="body/md/regular" color="text/body" paddingInline="12" truncate maxWidth="full">
+    <BitkitTable.Row key={reference.id}>
+      <BitkitTable.Cell>
+        <Text textStyle="body/md/regular" color="text/body" truncate maxWidth="full">
           {reference.id}
         </Text>
-        <Text textStyle="body/sm/regular" color="text/secondary" paddingInline="12" truncate maxWidth="full">
+        <Text textStyle="body/sm/regular" color="text/secondary" truncate maxWidth="full">
           {container?.userValues.image}
         </Text>
-      </Td>
-      <Td>
+      </BitkitTable.Cell>
+      <BitkitTable.Cell>
         <BitkitTooltip disabled={!isDisabled} text="Edit containers in the Step bundle definition.">
           <Box display="inline-block">
-            <Checkbox
-              isChecked={reference.recreate}
-              onChange={(e) => onRecreate(reference.id, e.target.checked)}
+            <BitkitCheckbox
+              labelText="Recreate container"
+              size="md"
+              checked={reference.recreate}
+              onCheckedChange={({ checked }) => onRecreate(reference.id, checked === true)}
               value={reference.id}
-              isDisabled={isDisabled || isReadOnlyView}
-            >
-              Recreate container
-            </Checkbox>
+              state={isDisabled || isReadOnlyView ? 'disabled' : undefined}
+            />
           </Box>
         </BitkitTooltip>
-      </Td>
-      <Td width="96px">
-        <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4" paddingInlineEnd="12">
+      </BitkitTable.Cell>
+      <BitkitTable.Cell>
+        <Box display="flex" alignItems="center" justifyContent="flex-end" gap="4">
           {/* Jump to where the container is defined (a file picker when it's defined across modules). */}
           <CrossFileJumpButton kind="containers" id={reference.id} />
           {/* Read-only (merged/ghost) view has no CTAs — the remove button is hidden, not disabled. */}
@@ -82,8 +81,8 @@ const ContainerCardItem = (props: ContainerCardItemProps) => {
             />
           )}
         </Box>
-      </Td>
-    </Tr>
+      </BitkitTable.Cell>
+    </BitkitTable.Row>
   );
 };
 

@@ -13,3 +13,9 @@ export type InputListItem = {
   input: EnvironmentItemModel;
   instanceValue?: string;
 };
+
+export enum StepBundleConfigTab {
+  CONFIGURATION = 'configuration',
+  PROPERTIES = 'properties',
+  CONTAINERS = 'containers',
+}
