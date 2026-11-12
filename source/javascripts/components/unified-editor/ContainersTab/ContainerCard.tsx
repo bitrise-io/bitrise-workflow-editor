@@ -1,5 +1,4 @@
-import { DefinitionTooltip, Table, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
-import { BitkitLinkButton } from '@bitrise/bitkit-v2';
+import { BitkitLinkButton, BitkitTable } from '@bitrise/bitkit-v2';
 import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 
@@ -53,26 +52,21 @@ const ContainerCard = (props: ContainerCardProps) => {
 
   return (
     <Card.Root elevation={false} overflow="hidden">
-      {/* TODO: The table pads itself, so the body's padding is off. The Table migration replaces this card with
-          BitkitTableCard; drop the Card.Root and Card.Body then. */}
+      {/* A plain card, not BitkitTableCard: that one always renders a title bar, and this table has no title. */}
       <Card.Body padding="0">
-        <Table variant="borderless" disableRowHover isFixed>
-          <Thead data-clarity-unmask="true">
-            <Tr>
-              <Th>
-                <Text paddingInline="12" color="text/primary">
-                  {type === 'execution' ? 'Execution' : 'Service'} Container
-                </Text>
-              </Th>
-              <Th color="text/primary">
-                <DefinitionTooltip label='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
-                  Behavior
-                </DefinitionTooltip>
-              </Th>
-              <Th width="96px" />
-            </Tr>
-          </Thead>
-          <Tbody>
+        <BitkitTable.Root variant="card" rowHover={false} tableLayout="fixed">
+          <BitkitTable.Header data-clarity-unmask="true">
+            <BitkitTable.Row>
+              <BitkitTable.ColumnHeader>
+                {type === 'execution' ? 'Execution' : 'Service'} Container
+              </BitkitTable.ColumnHeader>
+              <BitkitTable.DefinitionColumnHeader text='By default, this step will use an already running container if any. Check "Recreate container" to destroy it and create a clean instance.'>
+                Behavior
+              </BitkitTable.DefinitionColumnHeader>
+              <BitkitTable.ColumnHeader width="96" />
+            </BitkitTable.Row>
+          </BitkitTable.Header>
+          <BitkitTable.Body>
             {!!definitionReferences &&
               (!instanceReferences?.length || type === ContainerType.Service) &&
               definitionReferences.map((reference) => {
@@ -113,47 +107,43 @@ const ContainerCard = (props: ContainerCardProps) => {
               // Read-only (e.g. a cross-file step/step bundle defined in another module): no add menu —
               // just a note when nothing is assigned. Assigned containers render as read-only rows above.
               references.length === 0 && (
-                <Tr>
-                  <Td colSpan={3}>
-                    <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
+                <BitkitTable.Row>
+                  <BitkitTable.Cell colSpan={3}>
+                    <Text textStyle="body/md/regular" color="text/secondary">
                       No {type} containers.
                     </Text>
-                  </Td>
-                </Tr>
+                  </BitkitTable.Cell>
+                </BitkitTable.Row>
               )
             ) : (
-              <Tr>
+              <BitkitTable.Row>
                 {!containers.length ? (
-                  <Td colSpan={3}>
-                    <Text textStyle="body/md/regular" color="text/secondary" paddingInlineStart="12">
+                  <BitkitTable.Cell colSpan={3}>
+                    <Text textStyle="body/md/regular" color="text/secondary">
                       No {type} containers available.{' '}
                       <BitkitLinkButton onClick={() => replace('/containers', { tab: type })}>
                         {`Manage ${type} containers`}
                       </BitkitLinkButton>
                     </Text>
-                  </Td>
+                  </BitkitTable.Cell>
                 ) : (
-                  <>
-                    <Td>
-                      <ContainersMenu
-                        actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
-                        containers={availableContainers}
-                        onSelectContainer={onAddContainer}
-                        source={source}
-                        stepBundleId={stepBundleId}
-                        stepId={stepId}
-                        stepVersion={stepVersion}
-                        type={type}
-                      />
-                    </Td>
-                    <Td />
-                    <Td />
-                  </>
+                  <BitkitTable.Cell colSpan={3}>
+                    <ContainersMenu
+                      actionType={type === ContainerType.Execution && references?.length ? 'Change' : 'Add'}
+                      containers={availableContainers}
+                      onSelectContainer={onAddContainer}
+                      source={source}
+                      stepBundleId={stepBundleId}
+                      stepId={stepId}
+                      stepVersion={stepVersion}
+                      type={type}
+                    />
+                  </BitkitTable.Cell>
                 )}
-              </Tr>
+              </BitkitTable.Row>
             )}
-          </Tbody>
-        </Table>
+          </BitkitTable.Body>
+        </BitkitTable.Root>
       </Card.Body>
     </Card.Root>
   );

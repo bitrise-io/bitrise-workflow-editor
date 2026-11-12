@@ -1,9 +1,8 @@
-import { Dropdown, DropdownDetailedOption, DropdownGroup } from '@bitrise/bitkit';
 import {
-  BitkitAvatar,
   BitkitCheckbox,
   BitkitIconComponent,
   BitkitLink,
+  BitkitSelect,
   BitkitTooltip,
   IconQuestionCircle,
   IconStack,
@@ -13,7 +12,7 @@ import {
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 
-import { StackOption, StackOptionGroup } from '@/core/models/StackAndMachine';
+import { StackOptionGroup } from '@/core/models/StackAndMachine';
 import { StackWithValue } from '@/core/services/StackAndMachineService';
 
 const StackHelperText = ({ description, descriptionUrl }: { description?: string; descriptionUrl?: string }) => {
@@ -64,20 +63,15 @@ const getIcon = (osId?: string): BitkitIconComponent => {
   }
 };
 
-const renderOptions = (stacks: StackOption[]) => {
-  return stacks.map((stack) => {
-    const icon = getIcon(stack.os);
-    return (
-      <DropdownDetailedOption
-        key={stack.value}
-        value={stack.value}
-        title={stack.label}
-        subtitle=""
-        icon={<BitkitAvatar variant="icon" icon={icon} />}
-      />
-    );
-  });
-};
+const toItems = (optionGroups: StackOptionGroup[]) =>
+  optionGroups.flatMap((group) =>
+    group.options.map((stack) => ({
+      group: optionGroups.length > 1 ? group.label : undefined,
+      icon: getIcon(stack.os),
+      label: stack.label,
+      value: stack.value,
+    })),
+  );
 
 type Props = Pick<BoxProps, 'width'> & {
   isLoading: boolean;
@@ -107,26 +101,15 @@ const StackSelector = ({
 
   return (
     <Box {...boxProps} flex="1">
-      <Dropdown
-        required
-        search={false}
-        label="Stack"
-        dropdownMaxHeight="25rem"
-        disabled={isLoading || isDisabled}
-        isError={isInvalid}
+      <BitkitSelect
         errorText={isInvalid ? 'Invalid stack config. Select a valid stack from the list.' : undefined}
         helperText={<StackHelperText description={stack.description} descriptionUrl={stack.descriptionUrl} />}
+        items={toItems(optionGroups)}
+        label="Stack"
+        state={isLoading || isDisabled ? 'disabled' : undefined}
         value={stack.value}
-        onChange={(e) => onChange(e.target.value ?? '')}
-      >
-        {optionGroups.length === 1 && renderOptions(optionGroups[0].options)}
-        {optionGroups.length > 1 &&
-          optionGroups.map((group) => (
-            <DropdownGroup key={group.label} label={group.label} labelProps={{ whiteSpace: 'nowrap' }}>
-              {renderOptions(group.options)}
-            </DropdownGroup>
-          ))}
-      </Dropdown>
+        onValueChange={(value) => onChange(value ?? '')}
+      />
       {/* The "?" tooltip sits inside the rollback one. Only one tooltip opens at a time, and the pointer
           reaches every enclosing trigger, so only one of the two is enabled. */}
       <BitkitTooltip

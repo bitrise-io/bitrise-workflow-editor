@@ -4,12 +4,12 @@
 /* eslint-disable testing-library/no-node-access --
  * The subject under test is a DOM attribute on a container, not user-facing behaviour, so there is
  * no semantic query that expresses it: `data-clarity-unmask` is invisible to the accessibility tree
- * and several of the tagged elements (Thead, BitkitTabs.List, Box, Card) have no role or name
+ * and several of the tagged elements (BitkitTable.Header, BitkitTabs.List, Box, Card) have no role or name
  * to query by. Attribute selectors and `closest()` are the assertion, not a shortcut around one. */
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { Breadcrumb, BreadcrumbLink, List, ListItem, Provider, Sidebar, Table, Th, Thead, Tr } from '@bitrise/bitkit';
+import { Breadcrumb, BreadcrumbLink, List, ListItem, Provider, Sidebar } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitAlert,
@@ -20,6 +20,7 @@ import {
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
+  BitkitTable,
   BitkitTabs,
   IconInfoCircle,
 } from '@bitrise/bitkit-v2';
@@ -115,19 +116,12 @@ describe('Clarity unmasking', () => {
             <BreadcrumbLink data-clarity-unmask="true">breadcrumb link</BreadcrumbLink>
           </Breadcrumb>
           <Sidebar data-clarity-unmask="true">sidebar</Sidebar>
-          <Table>
-            <Thead data-clarity-unmask="true">
-              <Tr>
-                <Th>column header</Th>
-              </Tr>
-            </Thead>
-          </Table>
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(8);
+      expect(unmasked()).toHaveLength(7);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['column header', 'list item', 'sidebar'].forEach((label) => {
+      ['list item', 'sidebar'].forEach((label) => {
         expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
       });
     });
@@ -159,6 +153,13 @@ describe('Clarity unmasking', () => {
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
           <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
+          <BitkitTable.Root>
+            <BitkitTable.Header data-clarity-unmask="true">
+              <BitkitTable.Row>
+                <BitkitTable.ColumnHeader>column header</BitkitTable.ColumnHeader>
+              </BitkitTable.Row>
+            </BitkitTable.Header>
+          </BitkitTable.Root>
           <BitkitTabs.Root defaultValue="tab">
             <BitkitTabs.List data-clarity-unmask="true">
               <BitkitTabs.Trigger value="tab">tab label</BitkitTabs.Trigger>
@@ -179,7 +180,7 @@ describe('Clarity unmasking', () => {
         </Wrapper>,
       );
 
-      expect(unmasked()).toHaveLength(11);
+      expect(unmasked()).toHaveLength(12);
       [
         'alert message',
         'segment label',
@@ -189,6 +190,7 @@ describe('Clarity unmasking', () => {
         'empty state',
         'ribbon message',
         'heading',
+        'column header',
         'tab label',
         'breadcrumb item',
         'breadcrumb current item',
@@ -219,7 +221,6 @@ describe('Clarity unmasking', () => {
       // that sat on the footer wrapper went onto both buttons. They render fixed labels.
       'components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog.tsx': 3,
       'components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog.tsx': 4,
-      'components/unified-editor/EntitySelector/EntitySelector.tsx': 1,
       'components/unified-editor/StepBundleConfig/StepBundleConfigHeader.tsx': 1,
       'components/unified-editor/StepConfigDrawer/StepConfigDrawer.tsx': 1,
       'components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.tsx': 2,

@@ -1,10 +1,9 @@
-import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@bitrise/bitkit';
 import {
   BitkitCheckbox,
   BitkitEmptyState,
-  BitkitIconButton,
   BitkitLink,
   BitkitSearchInput,
+  BitkitTable,
   IconMinusCircle,
   IconPencil,
   IconTrigger,
@@ -12,7 +11,8 @@ import {
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { AriaAttributes, useMemo, useState } from 'react';
+import { VisuallyHidden } from '@chakra-ui/react/visually-hidden';
+import { useMemo, useState } from 'react';
 
 import CrossFileJumpButton from '@/components/JumpToDefinitionLink/CrossFileJumpButton';
 import AddOrEditTriggerDialog from '@/components/unified-editor/Triggers/TargetBasedTriggers/AddOrEditTriggerDialog';
@@ -29,6 +29,12 @@ import { useIsMergedConfigSelected, useIsReadOnlyView } from '@/hooks/useTree';
 
 import AddTriggerButton from './AddTriggerButton';
 
+type SortColumn = 'sourceId' | 'triggerType';
+type SortProps = {
+  direction: 'ascending' | 'descending';
+  condition: SortColumn;
+};
+
 const TargetBasedTriggers = () => {
   const isReadOnlyView = useIsReadOnlyView();
   const isMergedView = useIsMergedConfigSelected();
@@ -36,13 +42,21 @@ const TargetBasedTriggers = () => {
   const [editedItem, setEditedItem] = useState<TargetBasedTrigger | undefined>(undefined);
 
   const [filterString, setFilterString] = useState('');
-  const [sortProps, setSortProps] = useState<{
-    direction: AriaAttributes['aria-sort'];
-    condition: 'sourceId' | 'triggerType';
-  }>({
+  const [sortProps, setSortProps] = useState<SortProps>({
     direction: 'ascending',
     condition: 'sourceId',
   });
+
+  // A new column starts ascending; clicking the sorted column again flips it.
+  const handleSort = (condition: SortColumn) => {
+    setSortProps((current) => ({
+      condition,
+      direction: current.condition === condition && current.direction === 'ascending' ? 'descending' : 'ascending',
+    }));
+  };
+
+  const getSortDirection = (condition: SortColumn) =>
+    sortProps.condition === condition ? sortProps.direction : 'none';
 
   const pipelineableTriggers = useAllTargetBasedTriggers();
   const filteredTriggers = useMemo(() => {
@@ -121,15 +135,15 @@ const TargetBasedTriggers = () => {
   const renderRow = (trigger: TargetBasedTrigger, useJump: boolean) => {
     const [source, sourceId] = trigger.source.split('#') as [TriggerSource, string];
     return (
-      <Tr key={trigger.uniqueId}>
-        <Td>
+      <BitkitTable.Row key={trigger.uniqueId}>
+        <BitkitTable.Cell>
           <Text>{sourceId}</Text>
           <Text textStyle="body/md/regular" color="text/secondary">
             {source === 'workflows' ? 'Workflow' : 'Pipeline'}
           </Text>
-        </Td>
-        <Td>{TYPE_MAP[trigger.triggerType]}</Td>
-        <Td>
+        </BitkitTable.Cell>
+        <BitkitTable.Cell>{TYPE_MAP[trigger.triggerType]}</BitkitTable.Cell>
+        <BitkitTable.Cell>
           <TriggerConditions
             conditions={trigger.conditions}
             isDraftPr={trigger.isDraftPr}
@@ -137,75 +151,73 @@ const TargetBasedTriggers = () => {
             triggerType={trigger.triggerType}
             triggerDisabled={!trigger.isActive || !trigger.isTriggersModelActive}
           />
-        </Td>
-        <Td display="flex" justifyContent="flex-end" alignItems="center">
-          <Box display="flex" alignItems="center">
-            <BitkitCheckbox
-              labelText="Active"
-              marginInlineEnd="16"
-              checked={trigger.isActive}
-              state={isReadOnlyView ? 'disabled' : undefined}
-              onCheckedChange={() => handleActiveChange(trigger)}
-            />
-            {isReadOnlyView ? (
-              // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
-              // collapse to a jump-to-definition arrow over the modules that actually carry a trigger;
-              // otherwise show nothing.
-              useJump && (
-                <CrossFileJumpButton kind={source} id={sourceId} nodeIds={triggerNodesBySource.get(trigger.source)} />
-              )
-            ) : (
-              <>
-                <BitkitIconButton
-                  icon={IconPencil}
-                  variant="tertiary"
-                  label="Edit trigger"
-                  onClick={() => handleOpenDialog(trigger)}
-                />
-                <BitkitIconButton
-                  variant="danger-tertiary"
-                  icon={IconMinusCircle}
-                  label="Delete trigger"
-                  onClick={() => handleDeleteTrigger(trigger)}
-                />
-              </>
+        </BitkitTable.Cell>
+        {/* A checkbox, not a switch: the editor saves through "Save changes", not on toggle. It edits a
+            value, so the row is not marked selected. */}
+        <BitkitTable.Cell whiteSpace="nowrap">
+          <BitkitCheckbox
+            labelText="Active"
+            size="md"
+            checked={trigger.isActive}
+            state={isReadOnlyView ? 'disabled' : undefined}
+            onCheckedChange={() => handleActiveChange(trigger)}
+          />
+        </BitkitTable.Cell>
+        {isReadOnlyView ? (
+          // Read-only (merged/ghost): no edit/delete CTAs (BIVS-3721). When the target is grouped,
+          // collapse to a jump-to-definition arrow over the modules that actually carry a trigger;
+          // otherwise leave the cell empty.
+          <BitkitTable.Cell textAlign="end">
+            {useJump && (
+              <CrossFileJumpButton kind={source} id={sourceId} nodeIds={triggerNodesBySource.get(trigger.source)} />
             )}
-          </Box>
-        </Td>
-      </Tr>
+          </BitkitTable.Cell>
+        ) : (
+          <BitkitTable.RowActionsCell
+            actions={[
+              { icon: IconPencil, label: 'Edit trigger', onClick: () => handleOpenDialog(trigger) },
+              {
+                danger: true,
+                icon: IconMinusCircle,
+                label: 'Delete trigger',
+                onClick: () => handleDeleteTrigger(trigger),
+              },
+            ]}
+          />
+        )}
+      </BitkitTable.Row>
     );
   };
 
   const renderTable = (triggers: TargetBasedTrigger[], useJump: boolean) => (
-    <TableContainer marginBlockEnd="32">
-      <Table>
-        <Thead data-clarity-unmask="true">
-          <Tr>
-            <Th
-              isSortable
-              onSortClick={(sortDirection) => {
-                setSortProps({ direction: sortDirection, condition: 'sourceId' });
-              }}
-              sortedBy={sortProps.condition === 'sourceId' ? sortProps.direction : undefined}
+    <BitkitTable.ScrollArea marginBlockEnd="32">
+      <BitkitTable.Root>
+        <BitkitTable.Header data-clarity-unmask="true">
+          <BitkitTable.Row>
+            <BitkitTable.SortableColumnHeader
+              direction={getSortDirection('sourceId')}
+              onSort={() => handleSort('sourceId')}
             >
               Target
-            </Th>
-            <Th
-              isSortable
-              onSortClick={(sortDirection) => {
-                setSortProps({ direction: sortDirection, condition: 'triggerType' });
-              }}
-              sortedBy={sortProps.condition === 'triggerType' ? sortProps.direction : undefined}
+            </BitkitTable.SortableColumnHeader>
+            <BitkitTable.SortableColumnHeader
+              direction={getSortDirection('triggerType')}
+              onSort={() => handleSort('triggerType')}
             >
               Type
-            </Th>
-            <Th>Conditions</Th>
-            <Th />
-          </Tr>
-        </Thead>
-        <Tbody>{triggers.map((trigger) => renderRow(trigger, useJump))}</Tbody>
-      </Table>
-    </TableContainer>
+            </BitkitTable.SortableColumnHeader>
+            <BitkitTable.ColumnHeader>Conditions</BitkitTable.ColumnHeader>
+            <BitkitTable.ColumnHeader width="1%">
+              <VisuallyHidden>Active</VisuallyHidden>
+            </BitkitTable.ColumnHeader>
+            <BitkitTable.ColumnHeader>
+              <VisuallyHidden>Actions</VisuallyHidden>
+            </BitkitTable.ColumnHeader>
+          </BitkitTable.Row>
+        </BitkitTable.Header>
+        <BitkitTable.Body>{triggers.map((trigger) => renderRow(trigger, useJump))}</BitkitTable.Body>
+      </BitkitTable.Root>
+    </BitkitTable.ScrollArea>
   );
 
   return (

@@ -1,14 +1,12 @@
-import { Collapse } from '@bitrise/bitkit';
 import {
   BitkitButton,
   BitkitCheckbox,
+  BitkitCollapsible,
   BitkitFormDialog,
-  BitkitLinkButton,
   BitkitTextArea,
   BitkitTextInput,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
-import { useDisclosure } from '@chakra-ui/react/hooks';
 import { Text } from '@chakra-ui/react/text';
 import { Controller, useController, useForm } from 'react-hook-form';
 
@@ -31,7 +29,6 @@ type StepBundleInputsDialogProps = {
 
 const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
   const { ids, index, input, isOpen, onCancel, onSubmit } = props;
-  const { open: isShowMore, onToggle } = useDisclosure();
 
   const { opts, key, value } = expandInput(input);
 
@@ -136,7 +133,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
           <StepInput label="Default value" helperText="Value must be a string." {...valueField} />
         )}
       </Box>
-      <Collapse in={isShowMore} style={{ overflow: 'visible' }}>
+      <BitkitCollapsible collapsedHeight="0px" openLabel="Show more options" closedLabel="Show less options">
         <Box display="flex" flexDirection="column" gap="16">
           <BitkitTextInput optional label="Summary" inputProps={register('opts.summary')} />
           <BitkitTextArea
@@ -207,8 +204,7 @@ const StepBundleInputsDialog = (props: StepBundleInputsDialogProps) => {
             )}
           />
         </Box>
-      </Collapse>
-      <BitkitLinkButton onClick={onToggle}>{isShowMore ? 'Show less options' : 'Show more options'}</BitkitLinkButton>
+      </BitkitCollapsible>
     </BitkitFormDialog>
   );
 };
