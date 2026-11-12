@@ -27,11 +27,10 @@ const FileTreeViewer = ({ withDivider = true }: { withDivider?: boolean }) => {
           rootNode={tree}
           selectedNodeId={selectedNodeId}
           onSelect={(nodeId) => {
+            // Only a not-yet-open tab counts as opening a module (re-selecting an open tab doesn't).
             const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
             if (!alreadyOpen) {
-              trackWorkflowEditorYmlModuleOpened({
-                openMethod: 'file_explorer',
-              });
+              trackWorkflowEditorYmlModuleOpened({ openMethod: 'file_explorer' });
             }
             openFile(nodeId);
           }}

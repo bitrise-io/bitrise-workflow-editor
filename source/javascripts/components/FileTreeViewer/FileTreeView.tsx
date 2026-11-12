@@ -9,10 +9,8 @@ import PageProps from '@/core/utils/PageProps';
 
 type Props = {
   rootNode: TreeNode;
-  filter?: (node: TreeNode) => boolean;
   selectedNodeId?: string;
   onSelect: (nodeId: string) => void;
-  isNodeDisabled?: (node: TreeNode) => boolean;
 };
 
 // Folder ids are path strings, file ids are node_ids.
@@ -20,7 +18,6 @@ type RenderNode = {
   id: string;
   label: string;
   isFile: boolean;
-  node?: TreeNode;
   children: RenderNode[];
 };
 
@@ -37,7 +34,6 @@ function toRenderNode(folder: FileTreeFolder): RenderNode[] {
     id: file.nodeId,
     label: file.fileName,
     isFile: true,
-    node: file.node,
     children: [],
   }));
   return [...files, ...folders];
@@ -58,11 +54,10 @@ const GroupTree = ({
   labelId,
   selectedNodeId,
   onSelect,
-  isNodeDisabled,
 }: {
   group: FileTreeGroup;
   labelId: string;
-} & Pick<Props, 'selectedNodeId' | 'onSelect' | 'isNodeDisabled'>) => {
+} & Pick<Props, 'selectedNodeId' | 'onSelect'>) => {
   const children = useMemo(() => toRenderNode(group.root), [group.root]);
 
   const collection = useMemo(
@@ -72,9 +67,8 @@ const GroupTree = ({
         nodeToValue: (node) => node.id,
         nodeToString: (node) => node.label,
         nodeToChildren: (node) => node.children,
-        isNodeDisabled: (node) => Boolean(node.isFile && node.node && isNodeDisabled?.(node.node)),
       }),
-    [children, isNodeDisabled],
+    [children],
   );
 
   const expandedValue = useMemo(() => [GROUP_ROOT_ID, ...collectFolderIds(children, [])], [children]);
@@ -105,13 +99,13 @@ const GroupTree = ({
   );
 };
 
-const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabled }: Props) => {
+const FileTreeView = ({ rootNode, selectedNodeId, onSelect }: Props) => {
   const idPrefix = useId();
   const projectRepoLabel = PageProps.app()?.gitRepoSlug || PageProps.app()?.name || 'This repository';
 
   const groups = useMemo(
-    () => FileTreeService.buildFileTree(rootNode, { projectRepoLabel, filter }),
-    [rootNode, projectRepoLabel, filter],
+    () => FileTreeService.buildFileTree(rootNode, { projectRepoLabel }),
+    [rootNode, projectRepoLabel],
   );
 
   return (
@@ -141,7 +135,6 @@ const FileTreeView = ({ rootNode, filter, selectedNodeId, onSelect, isNodeDisabl
             labelId={`${idPrefix}-${index}`}
             selectedNodeId={selectedNodeId}
             onSelect={onSelect}
-            isNodeDisabled={isNodeDisabled}
           />
         </Box>
       ))}

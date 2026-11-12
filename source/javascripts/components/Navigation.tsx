@@ -32,6 +32,7 @@ import useCurrentPage from '@/hooks/useCurrentPage';
 import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
+import { useTree } from '@/hooks/useTree';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import { paths } from '@/routes';
 
@@ -95,6 +96,7 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
   const currentPage = useCurrentPage();
   const isDefaultTabRef = useRef(true);
   const { data } = useCiConfigSettings();
+  const hasModules = Boolean(useTree());
   const withSearchParams = usePathWithSearchParams();
   const yamlSelector = currentPage === 'workflows' || currentPage === 'pipelines' ? currentPage : undefined;
 
@@ -143,11 +145,12 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
       // The width v1 had. There is no narrow icon-only mode in the design system, so the mobile rail
       // went with the migration.
       width={rem(256)}
-      overflow="hidden"
       {...props}
     >
       <Box
-        flex="0 1 auto"
+        // Stands in for `Body` in the column. Without the module tree it takes the free space and never
+        // shrinks, as `Body` does; with the tree it shrinks so that `Body` scrolls.
+        flex={hasModules ? '0 1 auto' : '1 0 auto'}
         minHeight={0}
         display="grid"
         gridTemplateRows={hidePageNav ? '0fr' : '1fr'}
@@ -229,7 +232,7 @@ const Navigation = ({ hidePageNav = false, ...props }: Props) => {
         </Box>
       </Box>
       <FileTreeViewer withDivider={!hidePageNav} />
-      <BitkitPageSidebar.Footer marginBlockStart="auto">
+      <BitkitPageSidebar.Footer>
         <BitkitPageSidebar.Item
           data-intercom-target="YAML Reference Navigation Item"
           href="https://docs.bitrise.io/en/bitrise-ci/references/configuration-yaml-reference.html"

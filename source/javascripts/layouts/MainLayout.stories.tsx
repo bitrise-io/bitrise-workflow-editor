@@ -29,14 +29,6 @@ export default {
     layout: 'fullscreen',
   },
   beforeEach({ msw }) {
-    // Bitkit v1 checkboxes assign HTMLElement.prototype.focus, which is read-only here. Remove once #1971 is merged.
-    const { defineProperty } = Object;
-    Object.defineProperty = (target, key, descriptor) =>
-      defineProperty(
-        target,
-        key,
-        target === HTMLElement.prototype && key === 'focus' ? { ...descriptor, writable: true } : descriptor,
-      );
     msw.use(
       getBranches(),
       getCiConfig(),
@@ -50,9 +42,6 @@ export default {
       getDefaultOutputs(':appSlug'),
     );
     openPage('/workflows');
-    return () => {
-      Object.defineProperty = defineProperty;
-    };
   },
 } as Meta<typeof MainLayout>;
 
