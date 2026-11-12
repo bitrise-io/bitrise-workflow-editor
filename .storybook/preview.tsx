@@ -51,6 +51,10 @@ const preview: Preview = {
   decorators: [
     (Story, context) => {
       useEffect(() => {
+        // A modular story loads its own tree in `beforeEach`, and this would replace its root file.
+        if (bitriseYmlStore.getState().tree) {
+          return;
+        }
         bitriseYmlStore.setState({
           yml: TEST_BITRISE_YML,
           ymlDocument: YmlUtils.toDoc(YmlUtils.toYml(TEST_BITRISE_YML as never)),

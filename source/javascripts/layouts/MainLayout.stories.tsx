@@ -1,7 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
+import { http, HttpResponse } from 'msw';
 
 import { LARGE_MODULAR_ROOT, MODULAR_ROOT } from '@/components/FileTreeViewer/FileTreeViewer.mocks';
 import { getBranches, getCiConfig } from '@/components/unified-editor/SwitchBranchDialog/SwitchBranchDialog.mswMocks';
+import type { WireTreeNode } from '@/core/api/BitriseYmlApi';
 import { getDefaultOutputs } from '@/core/api/EnvVarsApi.mswMocks';
 import { getCertificates, getFileStorageDocuments, getProvProfiles, getSecrets } from '@/core/api/SecretApi.mswMocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
@@ -16,6 +18,13 @@ type Story = StoryObj<typeof MainLayout>;
 const openPage = (path: string) => {
   window.parent.location.hash = `#!${path}`;
 };
+
+// The fixture's modules hold only comments, so the root file is what they merge into.
+const mergeConfig = () =>
+  http.post('/api/app/:projectSlug/config/merge', async ({ request }) => {
+    const { root } = (await request.json()) as { root: WireTreeNode };
+    return HttpResponse.json({ merged_yml: root.contents });
+  });
 
 const modularConfig =
   (root = MODULAR_ROOT) =>
@@ -40,8 +49,15 @@ export default {
       getStacksAndMachines(),
       getFileStorageDocuments(),
       getDefaultOutputs(':appSlug'),
+      mergeConfig(),
     );
+    // `window.parent` is the manager, which outlives the story, so its hash is put back afterwards.
+    const previousHash = window.parent.location.hash;
     openPage('/workflows');
+
+    return () => {
+      window.parent.location.hash = previousHash;
+    };
   },
 } as Meta<typeof MainLayout>;
 

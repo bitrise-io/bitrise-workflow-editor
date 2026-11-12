@@ -1,7 +1,7 @@
 import { BitkitTooltip, BitkitTreeView, createTreeCollection, IconFileYml, IconInfoCircle } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
-import { useId, useMemo } from 'react';
+import { useId, useMemo, useState } from 'react';
 
 import { TreeNode } from '@/core/models/Tree';
 import FileTreeService, { FileTreeFolder, FileTreeGroup } from '@/core/services/FileTreeService';
@@ -71,7 +71,25 @@ const GroupTree = ({
     [children],
   );
 
-  const expandedValue = useMemo(() => [GROUP_ROOT_ID, ...collectFolderIds(children, [])], [children]);
+  const folderIds = useMemo(() => collectFolderIds(children, []), [children]);
+
+  // The tree stays mounted while the config changes, so it tracks the folders the user closed rather
+  // than the open ones: a folder added by a save or a reload starts open, like the rest.
+  const [collapsedIds, setCollapsedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const expandedValue = useMemo(
+    () => [GROUP_ROOT_ID, ...folderIds.filter((id) => !collapsedIds.has(id))],
+    [folderIds, collapsedIds],
+  );
+
+  // A module opened from a tab or a jump-to-definition gets its folders opened, once per selection.
+  const [revealedNodeId, setRevealedNodeId] = useState(selectedNodeId);
+  if (selectedNodeId !== revealedNodeId) {
+    setRevealedNodeId(selectedNodeId);
+    const parentIds = selectedNodeId ? collection.getParentNodes(selectedNodeId).map((node) => node.id) : [];
+    if (parentIds.some((id) => collapsedIds.has(id))) {
+      setCollapsedIds((prev) => new Set([...prev].filter((id) => !parentIds.includes(id))));
+    }
+  }
 
   return (
     <BitkitTreeView
@@ -80,7 +98,10 @@ const GroupTree = ({
       collection={collection}
       selectionMode="single"
       selectedValue={selectedNodeId ? [selectedNodeId] : []}
-      defaultExpandedValue={expandedValue}
+      expandedValue={expandedValue}
+      onExpandedChange={(details) => {
+        setCollapsedIds(new Set(folderIds.filter((id) => !details.expandedValue.includes(id))));
+      }}
       onSelectionChange={(details) => {
         const id = details.selectedValue[0];
         const selected = id ? collection.findNode(id) : undefined;

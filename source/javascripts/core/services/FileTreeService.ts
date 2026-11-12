@@ -35,7 +35,6 @@ export type FileTreeGroup = {
 type BuildOptions = {
   /** Label for the working-repo group header (the project's `gitRepoSlug`). */
   projectRepoLabel: string;
-  filter?: (node: TreeNode) => boolean;
 };
 
 /** Short ref label for group headers, e.g. `@branch-a`, `:v1.4.0`, `:9d1df`. */
@@ -158,23 +157,19 @@ function buildFileTree(root: TreeNode | undefined, options: BuildOptions): FileT
       group = { key, ref, files: [] };
       groups.set(key, group);
     }
-    if (!options.filter || options.filter(node)) {
-      group.files.push(node);
-    }
+    group.files.push(node);
 
     node.includes.forEach((child) => visit(child, ref));
   };
 
   visit(root, { repository: null, branch: null, tag: null, commit: null });
 
-  const descriptors = [...groups.values()]
-    .filter((group) => group.files.length > 0)
-    .map((group) => {
-      const isWorking = isWorkingRepoRef(group.ref);
-      const repoName = group.ref.repository ?? options.projectRepoLabel;
-      const header = isWorking ? options.projectRepoLabel : `${repoName}${refMarker(group.ref) ?? ''}`;
-      return { group, isWorking, header };
-    });
+  const descriptors = [...groups.values()].map((group) => {
+    const isWorking = isWorkingRepoRef(group.ref);
+    const repoName = group.ref.repository ?? options.projectRepoLabel;
+    const header = isWorking ? options.projectRepoLabel : `${repoName}${refMarker(group.ref) ?? ''}`;
+    return { group, isWorking, header };
+  });
 
   // Working repo first; other groups follow, sorted by header for stability.
   descriptors.sort((a, b) => {
