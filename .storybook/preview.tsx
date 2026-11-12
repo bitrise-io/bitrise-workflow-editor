@@ -20,6 +20,8 @@ const queryClient = new QueryClient({
 const preview: Preview = {
   beforeEach: () => {
     queryClient.clear();
+    // The store is a module singleton, so a modular story's tree would otherwise stay for the next story.
+    bitriseYmlStore.setState(bitriseYmlStore.getInitialState(), true);
     window.env.MODE = 'WEBSITE';
     window.parent.globalProps = {
       user: { slug: 'user-1', username: 'ninja' },
