@@ -189,6 +189,19 @@ function withConfiguredValue(options: VersionOption[], configured: string): Vers
   return [{ value: configured, label: configured }, ...options];
 }
 
+/**
+ * The first `count` options, so a menu renders a page at a time. A `selected` option past the first
+ * `pageSize` is moved to the top, since the select reads its label from the options it is given, and
+ * it stays there as pages are added so the list does not shift.
+ */
+function getOptionsPage(options: VersionOption[], selected: string, count: number, pageSize: number) {
+  const index = options.findIndex(({ value }) => value === selected);
+  const ordered =
+    index >= pageSize ? [options[index], ...options.slice(0, index), ...options.slice(index + 1)] : options;
+
+  return ordered.slice(0, count);
+}
+
 /** Options for the exact version dropdown. Semver newest first, then the rest in catalog order. */
 function getVersionOptions(toolVersions: ToolVersions | undefined): VersionOption[] {
   const versions = toolVersions?.versions ?? [];
@@ -338,6 +351,7 @@ export default {
   getVersionOptions,
   getPrefixOptions,
   withConfiguredValue,
+  getOptionsPage,
   isVersionInCatalog,
   getToolIdOptions,
   getAvailableToolIdOptions,
