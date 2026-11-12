@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import react from '@vitejs/plugin-react-swc';
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { defineConfig, loadEnv, type Plugin, searchForWorkspaceRoot } from 'vite';
 import viteCompression from 'vite-plugin-compression';
 
 import packageJson from './package.json';
@@ -50,20 +50,44 @@ function absoluteUrlsPlugin(urlPrefix: string): Plugin {
   };
 }
 
+// Serves @bitrise/bitkit-v2 from a bitkit-v2 checkout's dist/ instead of the npm package. The bare imports of its
+// files resolve like the npm package's, from its folder in node_modules. React, Chakra and Emotion then come from
+// this repo, so they load once, and the versions npm nests under the package come from there. @zag-js/dom-query
+// is one: Chakra v2 puts 0.x at the top of node_modules, and Bitkit needs 1.x. Packages only the checkout has
+// come from its node_modules.
+function localBitkitV2Plugin(dir: string): Plugin {
+  const entry = join(dir, 'dist/main.js');
+  const packageImporter = join(rootDir, 'node_modules/@bitrise/bitkit-v2/package.json');
+  return {
+    name: 'local-bitkit-v2',
+    enforce: 'pre',
+    async resolveId(source, importer, options) {
+      if (source === '@bitrise/bitkit-v2') return entry;
+      if (!importer?.startsWith(`${dir}/`) || !/^[\w@]/.test(source) || source.includes(':')) return null;
+      return this.resolve(source, packageImporter, { ...options, skipSelf: true });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, '');
   const isProd = env.NODE_ENV === 'production';
   const isWebsiteMode = (env.MODE || 'CLI') === 'WEBSITE';
   const urlPrefix = isWebsiteMode ? env.PUBLIC_URL_ROOT || '' : '';
+  const root = resolve(rootDir, 'source');
+  // Remote dev envs set this to a bitkit-v2 checkout, which they keep built, to try Bitkit changes in the editor.
+  // Resolved, so a trailing slash can't break the importer check in localBitkitV2Plugin.
+  const localBitkitV2 = env.BITKIT_V2_LOCAL_PATH ? resolve(env.BITKIT_V2_LOCAL_PATH) : undefined;
 
   return {
-    root: resolve(rootDir, 'source'),
+    root,
     base: `${urlPrefix}/${version}/`,
 
     plugins: [
       react(),
       localFeatureFlagsPlugin(),
       ...(!isProd && urlPrefix ? [absoluteUrlsPlugin(urlPrefix)] : []),
+      ...(localBitkitV2 ? [localBitkitV2Plugin(localBitkitV2)] : []),
       ...(isProd ? [viteCompression({ algorithm: 'gzip', ext: '.gz', threshold: 1024 })] : []),
     ],
 
@@ -116,6 +140,8 @@ export default defineConfig(({ mode }) => {
       // rejects HMR WebSocket upgrades from any other origin (e.g. when the
       // page is loaded through a tunnel/remote dev box). Allow all in dev.
       cors: true,
+      // A list of its own replaces Vite's default, the workspace root, so it's added back
+      ...(localBitkitV2 ? { fs: { allow: [searchForWorkspaceRoot(root), localBitkitV2] } } : {}),
     },
 
     envPrefix: ['MODE', 'VITE_', 'CLARITY', 'NODE_ENV', 'DATADOG_RUM', 'PUBLIC_URL_ROOT', 'INTERCOM_APP_ID'],
