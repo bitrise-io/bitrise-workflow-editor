@@ -42,6 +42,7 @@ declare global {
       };
       env?: {
         SEGMENT_JS_WRITE_KEY_NEW: string;
+        CSRF_COOKIE_NAME?: string;
       };
       featureFlags?: {
         user: { [s: string]: unknown };
