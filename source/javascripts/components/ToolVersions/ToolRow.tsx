@@ -45,6 +45,10 @@ const PREFER_INSTALLED_TOOLTIP_TEXT =
 const TOOL_ID_COLUMN_WIDTH = rem(160);
 const VERSION_COLUMN_WIDTH = rem(240);
 
+// java lists thousands of versions, and rendering them all stalls the page, so the menu grows a page
+// at a time as it is scrolled. Search still runs over the whole list.
+const VERSION_PAGE_SIZE = 100;
+
 // The newest release on `line`, or overall when the line has none.
 const getExactSeed = (toolVersions: ToolVersions | undefined, line: string) =>
   ToolVersionUtils.getLatestVersion(toolVersions, line) ?? ToolVersionUtils.getLatestVersion(toolVersions) ?? '';
@@ -83,11 +87,14 @@ const ToolRow = ({
   const [manualOther, setManualOther] = useState(false);
   // A `latest-of` the YAML cannot hold yet. It stands in only for the document it was started on,
   // so a discard or any other edit drops it. See `docs/decisions.md`.
-  const ymlDocument = useStore(bitriseYmlStore, (s) => s.ymlDocument);
   const [heldDraft, setHeldDraft] = useState<{ parsed: ParsedToolVersion; document: Document } | null>(null);
-  const draft = heldDraft?.document === ymlDocument ? heldDraft.parsed : null;
+  // Only whether the draft is still current, so an edit elsewhere does not render this row again.
+  const isDraftCurrent = useStore(bitriseYmlStore, (s) => heldDraft?.document === s.ymlDocument);
+  const draft = isDraftCurrent && heldDraft ? heldDraft.parsed : null;
   // Filters the version list, which runs to hundreds of entries for nodejs and thousands for java.
   const [versionSearch, setVersionSearch] = useState('');
+  const [shownOptionCount, setShownOptionCount] = useState(VERSION_PAGE_SIZE);
+  const [highlightedVersion, setHighlightedVersion] = useState<string | null>(null);
   // The line a switch to exact seeds along, held while the list it seeds from is still on its way.
   const [pendingSeed, setPendingSeed] = useState<{ line: string } | null>(null);
   const writtenSeed = useRef<{ line: string } | null>(null);
@@ -161,6 +168,10 @@ const ToolRow = ({
       ? versionOptions.filter(({ label, value }) => value === shownVersion || label.toLowerCase().includes(query))
       : versionOptions;
   }, [versionOptions, versionSearch, shownVersion]);
+  const pagedVersionOptions = useMemo(
+    () => ToolsService.getOptionsPage(searchedVersionOptions, shownVersion, shownOptionCount, VERSION_PAGE_SIZE),
+    [searchedVersionOptions, shownVersion, shownOptionCount],
+  );
 
   // Validate the trimmed value, as the CLI does, so the error and the warning cannot disagree.
   const trimmedVersion = shownVersion.trim();
@@ -267,7 +278,7 @@ const ToolRow = ({
       setHeldDraft(null);
       onChange(next);
     } else {
-      setHeldDraft({ parsed: next, document: ymlDocument });
+      setHeldDraft({ parsed: next, document: bitriseYmlStore.getState().ymlDocument });
     }
   };
 
@@ -315,12 +326,49 @@ const ToolRow = ({
     applyChange(ToolsService.toParsedToolVersion(newStrategy, ''));
   };
 
-  // Closing a menu counts as visiting the field, and its search starts over on the next open.
+  // Closing a menu counts as visiting the field, and its search and paging start over on the next open.
   const handleVersionMenuOpenChange = ({ open }: { open: boolean }) => {
     if (!open) {
       setVersionTouched(true);
       setVersionSearch('');
+      setShownOptionCount(VERSION_PAGE_SIZE);
     }
+  };
+
+  // A new search can leave the highlighted option unrendered, which would stall the arrow keys.
+  const handleVersionSearchChange = (search: string) => {
+    setVersionSearch(search);
+    setShownOptionCount(VERSION_PAGE_SIZE);
+    setHighlightedVersion(null);
+  };
+
+  const handleVersionListScrolledToBottom = () => {
+    if (shownOptionCount < searchedVersionOptions.length) {
+      setShownOptionCount(shownOptionCount + VERSION_PAGE_SIZE);
+    }
+  };
+
+  // Keyboard navigation stops short of the scroll bottom, so reaching the last option loads the next page too.
+  const handleVersionHighlightChange = ({
+    highlightedValue,
+    highlightedIndex,
+  }: {
+    highlightedValue: string | null;
+    highlightedIndex: number;
+  }) => {
+    setHighlightedVersion(highlightedValue);
+    if (highlightedIndex === pagedVersionOptions.length - 1) {
+      handleVersionListScrolledToBottom();
+    }
+  };
+
+  // The menu mounts only while open, so a closed one renders none of its items.
+  const versionSelectProps = {
+    lazyMount: true,
+    unmountOnExit: true,
+    highlightedValue: highlightedVersion,
+    onOpenChange: handleVersionMenuOpenChange,
+    onHighlightChange: handleVersionHighlightChange,
   };
 
   const handleVersionChange = (newVersion: string) => {
@@ -403,17 +451,18 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={searchedVersionOptions}
+                  items={pagedVersionOptions}
                   isLoading={isVersionsLoading}
                   // With no version list there is nothing to pick from. Read-only rather than
                   // disabled, so the configured version stays legible and reachable by keyboard
                   // and screen readers; the alert below points to the YAML editor instead.
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  selectProps={{ onOpenChange: handleVersionMenuOpenChange }}
+                  selectProps={versionSelectProps}
                   errorText={displayedVersionError}
                   warningText={catalogWarning}
                   searchValue={versionSearch}
-                  onSearchChange={setVersionSearch}
+                  onSearchChange={handleVersionSearchChange}
+                  onScrolledToBottom={handleVersionListScrolledToBottom}
                   value={shownVersion}
                   onValueChange={handleVersionChange}
                 />
@@ -421,14 +470,15 @@ const ToolRow = ({
                 <BitkitSelect
                   size="lg"
                   placeholder="Select"
-                  items={searchedVersionOptions}
+                  items={pagedVersionOptions}
                   isLoading={isVersionsLoading}
                   state={isVersionsError || isReadOnly ? 'readOnly' : undefined}
-                  selectProps={{ onOpenChange: handleVersionMenuOpenChange }}
+                  selectProps={versionSelectProps}
                   helperText={versionHint}
                   warningText={catalogWarning}
                   searchValue={versionSearch}
-                  onSearchChange={setVersionSearch}
+                  onSearchChange={handleVersionSearchChange}
+                  onScrolledToBottom={handleVersionListScrolledToBottom}
                   value={shownVersion}
                   onValueChange={handleVersionChange}
                 />
