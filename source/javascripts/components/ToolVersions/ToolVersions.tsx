@@ -16,6 +16,7 @@ import { Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
 import { ComponentProps, memo, useState } from 'react';
 
+import { recordToolSetupWrite } from '@/core/analytics/ToolSetupAnalytics';
 import { ParsedToolVersion } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import useNavigation from '@/hooks/useNavigation';
@@ -58,9 +59,18 @@ const ConfiguredToolRow = memo(function ConfiguredToolRow({
       strategy={parsed.strategy}
       version={ToolsService.getVersionInputValue(parsed)}
       preferInstalled={parsed.strategy === 'latest-of' && parsed.preferInstalled}
-      onIdChange={(newId) => ToolsService.renameTool(toolId, newId, scope)}
-      onChange={(newParsed) => ToolsService.setTool(toolId, newParsed, scope)}
-      onRemove={() => ToolsService.deleteTool(toolId, scope)}
+      onIdChange={(newId) => {
+        ToolsService.renameTool(toolId, newId, scope);
+        recordToolSetupWrite(scope, [toolId, newId]);
+      }}
+      onChange={(newParsed) => {
+        ToolsService.setTool(toolId, newParsed, scope);
+        recordToolSetupWrite(scope, [toolId]);
+      }}
+      onRemove={() => {
+        ToolsService.deleteTool(toolId, scope);
+        recordToolSetupWrite(scope, [toolId]);
+      }}
     />
   );
 });
@@ -154,6 +164,7 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
             isReadOnly={isReadOnly}
             onIdChange={(newId) => {
               ToolsService.setTool(newId, pendingVersion, scope);
+              recordToolSetupWrite(scope, [newId]);
               setHasPendingRow(false);
             }}
             onChange={setPendingVersion}
