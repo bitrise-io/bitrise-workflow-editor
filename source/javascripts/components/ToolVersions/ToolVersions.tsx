@@ -14,13 +14,13 @@ import {
 import { Box } from '@chakra-ui/react/box';
 import { Stack } from '@chakra-ui/react/stack';
 import { Text } from '@chakra-ui/react/text';
-import { useState } from 'react';
+import { ComponentProps, memo, useState } from 'react';
 
 import { recordToolSetupWrite } from '@/core/analytics/ToolSetupAnalytics';
 import { ParsedToolVersion } from '@/core/models/Tools';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
 import useNavigation from '@/hooks/useNavigation';
-import { useToolCatalog, useToolsForScope } from '@/hooks/useTools';
+import { useToolCatalog, useToolIdsForScope, useToolsForScope } from '@/hooks/useTools';
 import { paths } from '@/routes';
 
 import ToolRow from './ToolRow';
@@ -30,7 +30,50 @@ const DOCS_URL =
 const CLI_DOCS_URL = `${DOCS_URL}#tool-setup-during-workflow-execution`;
 
 // A new row has no tool yet, so no prefix candidates either.
-const NEW_ROW_VERSION: ParsedToolVersion = { strategy: 'absolute-latest-released' };
+const NEW_ROW_VERSION: ParsedToolVersion = {
+  strategy: 'absolute-latest-released',
+};
+
+type ConfiguredToolRowProps = Pick<
+  ComponentProps<typeof ToolRow>,
+  'toolId' | 'existingToolIds' | 'catalog' | 'allowUnset' | 'isCatalogLoading' | 'isReadOnly'
+> & {
+  versionString: string;
+  workflowId?: string;
+};
+
+// Takes only plain values and builds its callbacks itself, so it renders again only when its own tool
+// changes. A row with thousands of versions would otherwise render with every edit to another row.
+const ConfiguredToolRow = memo(function ConfiguredToolRow({
+  versionString,
+  workflowId,
+  ...rowProps
+}: ConfiguredToolRowProps) {
+  const { toolId } = rowProps;
+  const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
+  const parsed = ToolsService.parseToolVersion(versionString);
+
+  return (
+    <ToolRow
+      {...rowProps}
+      strategy={parsed.strategy}
+      version={ToolsService.getVersionInputValue(parsed)}
+      preferInstalled={parsed.strategy === 'latest-of' && parsed.preferInstalled}
+      onIdChange={(newId) => {
+        ToolsService.renameTool(toolId, newId, scope);
+        recordToolSetupWrite(scope, [toolId, newId]);
+      }}
+      onChange={(newParsed) => {
+        ToolsService.setTool(toolId, newParsed, scope);
+        recordToolSetupWrite(scope, [toolId]);
+      }}
+      onRemove={() => {
+        ToolsService.deleteTool(toolId, scope);
+        recordToolSetupWrite(scope, [toolId]);
+      }}
+    />
+  );
+});
 
 const HeaderLinkSeparator = () => (
   <Text as="span" color="text/tertiary" aria-hidden="true">
@@ -49,13 +92,13 @@ type Props = {
 const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
   const scope: ToolScope = workflowId ? { type: 'workflow', workflowId } : { type: 'root' };
   const tools = useToolsForScope(scope);
+  const existingToolIds = useToolIdsForScope(scope);
   const { replace } = useNavigation();
   const { data: catalog, isLoading: isCatalogLoading, isError: isCatalogError } = useToolCatalog();
   const [hasPendingRow, setHasPendingRow] = useState(false);
   const [pendingVersion, setPendingVersion] = useState<ParsedToolVersion>(NEW_ROW_VERSION);
 
   const allowUnset = scope.type === 'workflow';
-  const existingToolIds = Object.keys(tools);
 
   const handleAddNew = () => {
     setPendingVersion(NEW_ROW_VERSION);
@@ -94,36 +137,20 @@ const ToolVersions = ({ workflowId, stackReportUrl, isReadOnly }: Props) => {
       </Stack>
 
       <Stack gap="16">
-        {Object.entries(tools).map(([toolId, versionString]) => {
-          const parsed = ToolsService.parseToolVersion(versionString);
-          return (
-            <ToolRow
-              // A row belongs to its scope too, so switching workflow remounts it with nothing held over.
-              key={`${scope.type === 'workflow' ? scope.workflowId : ''}/${toolId}`}
-              toolId={toolId}
-              strategy={parsed.strategy}
-              version={ToolsService.getVersionInputValue(parsed)}
-              preferInstalled={parsed.strategy === 'latest-of' && parsed.preferInstalled}
-              existingToolIds={existingToolIds}
-              catalog={catalog}
-              allowUnset={allowUnset}
-              isCatalogLoading={isCatalogLoading}
-              isReadOnly={isReadOnly}
-              onIdChange={(newId) => {
-                ToolsService.renameTool(toolId, newId, scope);
-                recordToolSetupWrite(scope, [toolId, newId]);
-              }}
-              onChange={(newParsed) => {
-                ToolsService.setTool(toolId, newParsed, scope);
-                recordToolSetupWrite(scope, [toolId]);
-              }}
-              onRemove={() => {
-                ToolsService.deleteTool(toolId, scope);
-                recordToolSetupWrite(scope, [toolId]);
-              }}
-            />
-          );
-        })}
+        {Object.entries(tools).map(([toolId, versionString]) => (
+          <ConfiguredToolRow
+            // A row belongs to its scope too, so switching workflow remounts it with nothing held over.
+            key={`${workflowId ?? ''}/${toolId}`}
+            toolId={toolId}
+            versionString={versionString}
+            workflowId={workflowId}
+            existingToolIds={existingToolIds}
+            catalog={catalog}
+            allowUnset={allowUnset}
+            isCatalogLoading={isCatalogLoading}
+            isReadOnly={isReadOnly}
+          />
+        ))}
         {hasPendingRow && (
           <ToolRow
             toolId=""

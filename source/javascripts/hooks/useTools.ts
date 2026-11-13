@@ -9,6 +9,11 @@ export function useToolsForScope(scope: ToolScope): Tools {
   return useBitriseYmlStore(({ yml }) => ToolsService.getToolsForScope(yml, scope));
 }
 
+/** The same array until a tool is added, removed or renamed, so a version edit leaves it alone. */
+export function useToolIdsForScope(scope: ToolScope): string[] {
+  return useBitriseYmlStore(({ yml }) => Object.keys(ToolsService.getToolsForScope(yml, scope)));
+}
+
 export function useToolCatalog() {
   return useQuery({
     queryKey: ['tool-catalog'],

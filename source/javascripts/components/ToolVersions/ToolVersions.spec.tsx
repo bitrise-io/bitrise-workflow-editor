@@ -18,6 +18,7 @@ jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ segmentTrack: jest.fn
 // Every workflow configures `deno` the same way, so only the row's key can tell them apart.
 jest.mock('@/hooks/useTools', () => ({
   useToolsForScope: () => ({ deno: 'latest' }),
+  useToolIdsForScope: () => ['deno'],
   useToolCatalog: () => ({ data: undefined, isLoading: false, isError: false }),
   useToolVersions: () => ({ data: undefined, isLoading: false, isError: false }),
 }));

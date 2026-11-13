@@ -221,7 +221,6 @@ describe('Clarity unmasking', () => {
       // that sat on the footer wrapper went onto both buttons. They render fixed labels.
       'components/unified-editor/DeleteStepBundleDialog/DeleteStepBundleDialog.tsx': 3,
       'components/unified-editor/DeleteWorkflowDialog/DeleteWorkflowDialog.tsx': 4,
-      'components/unified-editor/EntitySelector/EntitySelector.tsx': 1,
       'components/unified-editor/StepBundleConfig/StepBundleConfigHeader.tsx': 1,
       'components/unified-editor/StepConfigDrawer/StepConfigDrawer.tsx': 1,
       'components/unified-editor/StepSelectorDrawer/StepSelectorDrawer.tsx': 2,

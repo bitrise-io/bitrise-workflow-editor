@@ -259,6 +259,22 @@ describe('ToolsService', () => {
     });
   });
 
+  describe('getOptionsPage', () => {
+    const options = ['5', '4', '3', '2', '1'].map((value) => ({ value, label: value }));
+    const pageValues = (selected: string, count: number) =>
+      ToolsService.getOptionsPage(options, selected, count, 2).map(({ value }) => value);
+
+    it('keeps a selected option on the first page where it is', () => {
+      expect(pageValues('4', 2)).toEqual(['5', '4']);
+    });
+
+    it('moves a selected option past the first page to the top, and keeps it there as pages are added', () => {
+      expect(pageValues('2', 2)).toEqual(['2', '5']);
+      expect(pageValues('2', 4)).toEqual(['2', '5', '4', '3']);
+      expect(pageValues('2', 6)).toEqual(['2', '5', '4', '3', '1']);
+    });
+  });
+
   describe('isVersionInCatalog', () => {
     const catalog = versionCatalog('nodejs', ['24.0.0', '22.4.1']);
 

@@ -156,6 +156,26 @@ describe('ToolRow', () => {
     );
   });
 
+  it('renders a long version list a page at a time, keeping a selected version past the first page', async () => {
+    const user = userEvent.setup();
+    const versions = Array.from({ length: 250 }, (_, index) => `${250 - index}.0.0`);
+    mockVersions({ toolId: 'nodejs', versions: versions.map((version) => ({ version, isSemver: true })) });
+    renderToolRow({ strategy: 'exact', version: '10.0.0' });
+    const select = screen.getAllByRole('combobox')[2];
+
+    // Only the hidden native <option> exists until the menu opens.
+    expect(screen.getAllByRole('option', { name: '10.0.0', hidden: true })).toHaveLength(1);
+    expect(select.textContent).toContain('10.0.0');
+
+    await openSelect(user, select);
+    const options = screen.getAllByRole('option');
+    expect(options).toHaveLength(100);
+    expect(options[0].textContent).toContain('10.0.0');
+
+    await user.keyboard('{End}');
+    expect(screen.getAllByRole('option')).toHaveLength(200);
+  });
+
   describe('switching to exact', () => {
     const REQUIRED_ERROR = 'Tool version is required';
 

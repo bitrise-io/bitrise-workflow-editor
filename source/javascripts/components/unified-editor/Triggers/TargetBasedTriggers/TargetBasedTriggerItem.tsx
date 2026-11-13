@@ -8,7 +8,7 @@ import {
   IconPlay,
   IconTrash,
 } from '@bitrise/bitkit-v2';
-import { Box } from 'chakra-ui-2--react';
+import { Box } from '@chakra-ui/react/box';
 
 import { TargetBasedTrigger } from '@/core/models/Trigger';
 

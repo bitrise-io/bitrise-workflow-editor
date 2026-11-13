@@ -1,6 +1,7 @@
 import { toMerged } from 'es-toolkit';
 
 import { getCookie } from '../utils/CommonUtils';
+import GlobalProps from '../utils/GlobalProps';
 
 const DEFAULT_TIMEOUT = 60_000;
 const DEFAULT_HEADERS = {
@@ -14,6 +15,15 @@ type ExtraOpts = {
 };
 
 type ClientOpts = RequestInit & ExtraOpts;
+
+// The website passes its CSRF cookie's name in globalProps.env of the page around the editor's iframe. On RDE sessions
+// the name has the session's id, because a CSRF-TOKEN cookie there can be the one that staging and review envs set on
+// .bitrise.dev, which the browser lists before the session's own.
+const DEFAULT_CSRF_COOKIE_NAME = 'CSRF-TOKEN';
+
+function getCsrfToken(): string {
+  return getCookie(GlobalProps.env()?.CSRF_COOKIE_NAME || DEFAULT_CSRF_COOKIE_NAME);
+}
 
 class ClientError extends Error {
   public error: Error;
@@ -80,7 +90,7 @@ function mapToErrorMessage(status: number): string {
 async function raw(url: string, options?: ClientOpts) {
   const headers = toMerged(DEFAULT_HEADERS, {
     ...options?.headers,
-    ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCookie('CSRF-TOKEN') }),
+    ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCsrfToken() }),
   });
 
   const controller = new AbortController();
