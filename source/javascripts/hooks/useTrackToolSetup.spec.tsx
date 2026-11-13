@@ -173,6 +173,16 @@ describe('useTrackToolSetup', () => {
     ]);
   });
 
+  it('records nothing for a tool entry that holds a map instead of a version', () => {
+    mount();
+    editYaml(
+      'defaults: &defaults\n  ruby: 3.3.0\ntools:\n  <<: *defaults\n  nodejs:\n    version: 22\nworkflows:\n  primary: {}\n',
+    );
+    save();
+
+    expect(events()).toEqual([]);
+  });
+
   it('records a removed tool with the version it had, and no update flags', () => {
     mount('tools:\n  nodejs: "22:latest"\nworkflows:\n  primary: {}\n');
     removeInUi('nodejs');

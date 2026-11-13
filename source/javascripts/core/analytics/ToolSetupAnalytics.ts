@@ -82,6 +82,11 @@ function snapshotTools(documents: Record<string, Document>): ToolSnapshot {
   const addScope = (fileKey: string, yml: BitriseYml, scope: ToolScope) => {
     scopes.add(scopeKey(fileKey, scope));
     mapEntries(ToolsService.getToolsForScope(yml, scope)).forEach(([toolId, value]) => {
+      // A map or a list holds no version, such as a `<<` merge key, which `toJSON` keeps as a plain key.
+      if (typeof value === 'object' && value !== null) {
+        return;
+      }
+
       entries.set(entryKey(fileKey, scope, toolId), { fileKey, scope, toolId, value: toRawValue(value) });
     });
   };
