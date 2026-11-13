@@ -20,6 +20,8 @@ const queryClient = new QueryClient({
 const preview: Preview = {
   beforeEach: () => {
     queryClient.clear();
+    // The store is a module singleton, so a modular story's tree would otherwise stay for the next story.
+    bitriseYmlStore.setState(bitriseYmlStore.getInitialState(), true);
     window.env.MODE = 'WEBSITE';
     window.parent.globalProps = {
       user: { slug: 'user-1', username: 'ninja' },
@@ -49,6 +51,10 @@ const preview: Preview = {
   decorators: [
     (Story, context) => {
       useEffect(() => {
+        // A modular story loads its own tree in `beforeEach`, and this would replace its root file.
+        if (bitriseYmlStore.getState().tree) {
+          return;
+        }
         bitriseYmlStore.setState({
           yml: TEST_BITRISE_YML,
           ymlDocument: YmlUtils.toDoc(YmlUtils.toYml(TEST_BITRISE_YML as never)),

@@ -1,4 +1,5 @@
-import { BitkitPopover } from '@bitrise/bitkit-v2';
+import { BitkitPageSidebar, rem } from '@bitrise/bitkit-v2';
+import { Box } from '@chakra-ui/react/box';
 
 import { trackWorkflowEditorYmlModuleOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { bitriseYmlStore } from '@/core/stores/BitriseYmlStore';
@@ -7,14 +8,7 @@ import { useSelectedNodeId, useTree } from '@/hooks/useTree';
 
 import FileTreeView from './FileTreeView';
 
-type Props = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** Anchor for the popover — the tab strip's add button, which can't be a popover trigger. */
-  getAnchor: () => HTMLElement | null;
-};
-
-const FileTreeViewer = ({ open, onOpenChange, getAnchor }: Props) => {
+const FileTreeViewer = ({ withDivider = true }: { withDivider?: boolean }) => {
   const tree = useTree();
   const selectedNodeId = useSelectedNodeId();
   const { openFile } = useFileTabs();
@@ -24,29 +18,33 @@ const FileTreeViewer = ({ open, onOpenChange, getAnchor }: Props) => {
   }
 
   return (
-    <BitkitPopover
-      title="Open module"
-      open={open}
-      onOpenChange={onOpenChange}
-      positioning={{ getAnchorElement: getAnchor }}
-      // The add button is the anchor, not a trigger, so keep clicks on it from counting as an
-      // outside-dismiss — otherwise it would fight the button's own open/close toggle.
-      persistentElements={[getAnchor]}
-    >
-      <FileTreeView
-        rootNode={tree}
-        selectedNodeId={selectedNodeId}
-        onSelect={(nodeId) => {
-          // Only a not-yet-open tab counts as opening a module (re-selecting an open tab doesn't).
-          const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
-          if (!alreadyOpen) {
-            trackWorkflowEditorYmlModuleOpened({ openMethod: 'file_explorer' });
-          }
-          openFile(nodeId);
-          onOpenChange(false);
-        }}
-      />
-    </BitkitPopover>
+    // The tree never gets shorter than its group header + 3 modules (128), on top of the 1px rule and
+    // the 48px title: on short windows the navigation scrolls instead.
+    <BitkitPageSidebar.Section minHeight={rem(177)} title="Configuration modules" withDivider={withDivider}>
+      {/* 16 + the tree's own 8px inset puts the top-level icons under the nav icons. Masked again: the
+          navigation above unmasks its subtree, and these are customer repos and paths. */}
+      <Box
+        data-clarity-mask="true"
+        width="max-content"
+        minWidth="full"
+        paddingInlineStart="16"
+        paddingInlineEnd="8"
+        paddingBlockEnd="8"
+      >
+        <FileTreeView
+          rootNode={tree}
+          selectedNodeId={selectedNodeId}
+          onSelect={(nodeId) => {
+            // Only a not-yet-open tab counts as opening a module (re-selecting an open tab doesn't).
+            const alreadyOpen = bitriseYmlStore.getState().openTabs.some((tab) => tab.nodeId === nodeId);
+            if (!alreadyOpen) {
+              trackWorkflowEditorYmlModuleOpened({ openMethod: 'file_explorer' });
+            }
+            openFile(nodeId);
+          }}
+        />
+      </Box>
+    </BitkitPageSidebar.Section>
   );
 };
 
