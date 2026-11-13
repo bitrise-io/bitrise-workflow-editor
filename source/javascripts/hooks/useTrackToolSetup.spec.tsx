@@ -19,6 +19,7 @@ import {
   updateBitriseYmlDocumentByString,
   updateFileDocumentByString,
 } from '@/core/stores/BitriseYmlStore';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 import useTrackToolSetup from './useTrackToolSetup';
 
@@ -26,6 +27,7 @@ import useTrackToolSetup from './useTrackToolSetup';
 jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ segmentTrack: jest.fn() }));
 
 const track = jest.mocked(segmentTrack);
+jest.spyOn(RuntimeUtils, 'isWebsiteMode').mockReturnValue(true);
 
 // Saves run back to back, and the store outlives each test, so every save needs its own `lastSavedAt`.
 let now = 0;
