@@ -4,17 +4,13 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { segmentTrack } from '@/core/analytics/SegmentBaseTracking';
-import { recordToolSetupWrite, renameToolSetupWorkflow } from '@/core/analytics/ToolSetupAnalytics';
+import { recordToolSetupWrite } from '@/core/analytics/ToolSetupAnalytics';
 import { ParsedToolVersion } from '@/core/models/Tools';
 import { TreeNode } from '@/core/models/Tree';
 import ToolsService, { ToolScope } from '@/core/services/ToolsService';
-import WorkflowService from '@/core/services/WorkflowService';
 import {
   applyModularSaveResult,
   applySaveResult,
-  discardBitriseYmlDocument,
-  discardFile,
-  forceRefreshStates,
   getFileYmlString,
   getYmlString,
   initializeBitriseYmlDocument,
@@ -57,15 +53,6 @@ const removeInUi = (toolId: string, scope: ToolScope = ROOT) =>
   act(() => {
     ToolsService.deleteTool(toolId, scope);
     recordToolSetupWrite(scope, [toolId]);
-  });
-
-// What `useRenameWorkflow` does: rename, keep the old ID selected through a copy, then drop the copy.
-const renameWorkflowInUi = (oldId: string, newId: string) =>
-  act(() => {
-    WorkflowService.renameWorkflow(oldId, newId);
-    renameToolSetupWorkflow(oldId, newId);
-    WorkflowService.createWorkflow(oldId, newId);
-    WorkflowService.deleteWorkflow(oldId);
   });
 
 const events = () => track.mock.calls.map(([, properties]) => properties);
@@ -274,33 +261,6 @@ describe('useTrackToolSetup', () => {
     ]);
   });
 
-  it('keeps a UI write when the UI renames its workflow before the save', () => {
-    mount('workflows:\n  primary:\n    tools:\n      ruby: 3.3.0\n');
-    setInUi('nodejs', { strategy: 'exact', version: '22.1.0' }, PRIMARY);
-    renameWorkflowInUi('primary', 'build');
-    save();
-
-    expect(events()).toEqual([
-      expect.objectContaining({
-        tool_change_type: 'added',
-        tool_scope: 'workflow',
-        tool_id: 'nodejs',
-        tool_edit_method: 'ui',
-      }),
-    ]);
-  });
-
-  it('records a UI removal in a workflow the UI renames before the save', () => {
-    mount('workflows:\n  primary:\n    tools:\n      nodejs: 22.1.0\n      ruby: 3.3.0\n');
-    removeInUi('nodejs', PRIMARY);
-    renameWorkflowInUi('primary', 'build');
-    save();
-
-    expect(events()).toEqual([
-      expect.objectContaining({ tool_change_type: 'removed', tool_id: 'nodejs', tool_edit_method: 'ui' }),
-    ]);
-  });
-
   it('records tools set up in the UI for a workflow the save creates', () => {
     mount();
     editYaml('workflows:\n  primary: {}\n  deploy: {}\n');
@@ -325,26 +285,6 @@ describe('useTrackToolSetup', () => {
     save();
 
     expect(events()).toEqual([expect.objectContaining({ tool_edit_method: 'yaml_editor' })]);
-  });
-
-  it('forgets UI writes when the changes are discarded', () => {
-    mount();
-    setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
-    act(() => discardBitriseYmlDocument());
-    editYaml('tools:\n  nodejs: 22.1.0\nworkflows:\n  primary: {}\n');
-    save();
-
-    expect(events()).toEqual([expect.objectContaining({ tool_edit_method: 'yaml_editor' })]);
-  });
-
-  it('keeps UI writes when an edit applied in the diff dialog leaves them alone', () => {
-    mount();
-    setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
-    editYaml(`project_type: ios\n${getYmlString()}`);
-    act(() => forceRefreshStates());
-    save();
-
-    expect(events()).toEqual([expect.objectContaining({ tool_id: 'nodejs', tool_edit_method: 'ui' })]);
   });
 
   it('ignores tools that were already there when a config that failed to parse is fixed', () => {
@@ -419,25 +359,6 @@ describe('useTrackToolSetup', () => {
       expect(track).toHaveBeenCalledTimes(2);
     });
 
-    it('forgets only the UI writes of a discarded file', () => {
-      mountModular(node('root', '{}\n', [node('module', '{}\n')]));
-      act(() => selectNode('root'));
-      setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
-      act(() => selectNode('module'));
-      setInUi('nodejs', { strategy: 'exact', version: '22.1.0' });
-      act(() => discardFile('module'));
-      act(() => updateFileDocumentByString('module', 'tools:\n  nodejs: 22.1.0\n'));
-      saveModular();
-
-      expect(events()).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ tool_id: 'ruby', tool_edit_method: 'ui' }),
-          expect.objectContaining({ tool_id: 'nodejs', tool_edit_method: 'yaml_editor' }),
-        ]),
-      );
-      expect(track).toHaveBeenCalledTimes(2);
-    });
-
     it('ignores tools that were already there when a module that failed to parse is fixed', () => {
       mountModular(node('root', '{}\n', [node('module', BROKEN_MODULE)]));
       act(() => updateFileDocumentByString('module', 'tools:\n  nodejs: 22.1.0\n'));
@@ -446,17 +367,6 @@ describe('useTrackToolSetup', () => {
       saveModular();
 
       expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', tool_edit_method: 'ui' })]);
-    });
-
-    it('prunes UI writes on a discard and saves while a module fails to parse', () => {
-      mountModular(node('root', '{}\n', [node('module', BROKEN_MODULE)]));
-      act(() => selectNode('root'));
-      setInUi('ruby', { strategy: 'exact', version: '3.3.0' });
-      act(() => discardBitriseYmlDocument());
-      act(() => updateBitriseYmlDocumentByString('tools:\n  ruby: 3.3.0\n'));
-      saveModular(BROKEN_MODULE);
-
-      expect(events()).toEqual([expect.objectContaining({ tool_id: 'ruby', tool_edit_method: 'yaml_editor' })]);
     });
 
     it('keeps saving while a module has more aliases than the YAML library resolves', () => {

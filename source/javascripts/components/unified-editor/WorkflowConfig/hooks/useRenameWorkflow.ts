@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { renameToolSetupWorkflow } from '@/core/analytics/ToolSetupAnalytics';
 import WorkflowService from '@/core/services/WorkflowService';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
@@ -39,7 +38,6 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
         setIsRenaming(true);
 
         WorkflowService.renameWorkflow(selectedWorkflowId, newWorkflowId);
-        renameToolSetupWorkflow(selectedWorkflowId, newWorkflowId);
         WorkflowService.createWorkflow(selectedWorkflowId, newWorkflowId);
 
         setNextWorkflowId(newWorkflowId);

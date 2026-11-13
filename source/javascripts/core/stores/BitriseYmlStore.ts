@@ -281,16 +281,9 @@ export function activeFileKey(s: BitriseYmlStoreState) {
   return s.tree ? (s.selectedNodeId ?? '') : SINGLE_FILE_KEY;
 }
 
-/** {@link configDocuments} keyed by file, the way {@link activeFileKey} names them. */
-export function configDocumentsByFile(s: BitriseYmlStoreState): Record<string, Document> {
-  return s.tree
-    ? Object.fromEntries(Object.entries(s.files).map(([nodeId, file]) => [nodeId, file.ymlDocument]))
-    : { [SINGLE_FILE_KEY]: s.ymlDocument };
-}
-
 /**
- * {@link savedConfigDocuments} keyed by file, like {@link configDocumentsByFile}. A single-file config that
- * did not parse when it was loaded has only an empty stand-in, so it is left out.
+ * {@link savedConfigDocuments} keyed by file, the way {@link activeFileKey} names them. A single-file config
+ * that did not parse when it was loaded has only an empty stand-in, so it is left out.
  */
 export function savedConfigDocumentsByFile(s: BitriseYmlStoreState): Record<string, Document> {
   if (s.tree) {
@@ -302,7 +295,7 @@ export function savedConfigDocumentsByFile(s: BitriseYmlStoreState): Record<stri
 
 /** Every document of the config: each file of a modular config, or the one document otherwise. */
 export function configDocuments(s: BitriseYmlStoreState) {
-  return Object.values(configDocumentsByFile(s));
+  return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
 }
 
 /** {@link configDocuments} as last loaded or saved. */
@@ -333,36 +326,6 @@ export function subscribeToSavedDocuments(
         shallow(a.documents, b.documents),
     },
   );
-}
-
-/**
- * Calls `listener` when a discard may have put saved documents back. `forceRefreshStates` bumps the same
- * `discardKey` after edits that keep the changes, such as applying the diff dialog, so the listener has to
- * check the documents rather than assume they were reverted.
- */
-export function subscribeToDiscards(listener: () => void) {
-  const unsubscribeAll = bitriseYmlStore.subscribe((s) => s.discardKey, listener);
-  // A single file reset to its own saved document counts too, which needs no `discardKey` change.
-  const unsubscribeFiles = bitriseYmlStore.subscribe(
-    (s) => s.files,
-    (files, prevFiles) => {
-      Object.entries(files).forEach(([nodeId, file]) => {
-        const prev = prevFiles[nodeId];
-        const isResetToSaved =
-          prev?.savedYmlDocument === file.savedYmlDocument &&
-          prev.ymlDocument !== file.ymlDocument &&
-          file.ymlDocument === file.savedYmlDocument;
-        if (isResetToSaved) {
-          listener();
-        }
-      });
-    },
-  );
-
-  return () => {
-    unsubscribeAll();
-    unsubscribeFiles();
-  };
 }
 
 export function isFileDirty(slice?: FileSlice) {

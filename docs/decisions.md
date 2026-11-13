@@ -160,8 +160,7 @@ replaced, because a text field writes the YAML on every keystroke and an edit ca
 discarded. To tell the UI from the YAML editor, `ToolVersions` records what each of its writes left
 in the document, and a saved value that matches is sent as `tool_edit_method: ui`. The record lives
 in the component's handlers rather than in `ToolsService`, so a later caller of the service is not
-counted as the UI. For the same reason, `useRenameWorkflow` moves the records of a workflow it
-renames.
+counted as the UI.
 
 ## Things that fail somewhere else
 
