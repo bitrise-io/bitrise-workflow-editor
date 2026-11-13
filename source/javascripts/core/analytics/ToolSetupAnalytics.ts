@@ -49,7 +49,7 @@ export function recordToolSetupWrite(scope: ToolScope, toolIds: string[]) {
  * partial parse can drop or move tools, or one `toJSON` throws on, such as too many aliases. Its tools then
  * count only when the UI wrote them. This runs inside store updates, so a throw would break the save.
  */
-function readConfig(document: Document) {
+function toConfig(document: Document) {
   if (document.errors.length > 0) {
     return undefined;
   }
@@ -59,6 +59,20 @@ function readConfig(document: Document) {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * An edit replaces the stored document, so one save's result is the next save's start. Like
+ * `isEqualsCache`, this ignores the tabs `toYml` rewrites in place.
+ */
+const configCache = new WeakMap<Document, BitriseYml | undefined>();
+
+function readConfig(document: Document) {
+  if (!configCache.has(document)) {
+    configCache.set(document, toConfig(document));
+  }
+
+  return configCache.get(document);
 }
 
 function snapshotTools(documents: Record<string, Document>): ToolSnapshot {
