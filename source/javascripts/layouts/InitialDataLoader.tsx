@@ -1,4 +1,4 @@
-import { BitkitButton, createBitkitToast } from '@bitrise/bitkit-v2';
+import { createBitkitToast, dismissBitkitToast } from '@bitrise/bitkit-v2';
 import { datadogRum } from '@datadog/browser-rum';
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { useEventListener } from 'usehooks-ts';
@@ -17,8 +17,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import useSearchParams from '@/hooks/useSearchParams';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlLanguageServices from '@/hooks/useYmlLanguageServices';
-import { ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
-import ErrorPage from '@/layouts/ErrorPage';
+import { ConfigLoadFailedProvider, ConfigLoadingProvider } from '@/layouts/ConfigLoading.context';
 import { preloadRoutes } from '@/routes';
 
 /**
@@ -226,24 +225,26 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
     }
   }, [data, ymlSettings?.usesRepositoryYml, configBranch]);
 
-  if (error) {
-    let detailedErrorMessage = 'Error – Failed to load the bitrise.yml';
-    if (error.status) {
-      if (error.data?.error_msg) {
-        detailedErrorMessage = `${error.status} – ${error.data.error_msg}`;
-      } else if (error.statusText) {
-        detailedErrorMessage = `${error.status} – ${error.statusText}`;
-      }
+  // A failed load doesn't take the whole editor down: the layout keeps the shell and routes to the
+  // pages that work without the config (Secrets). The error is a critical toast with a retry, replaced
+  // on every new failure and closed once a retry succeeds.
+  const errorToastId = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (errorToastId.current) {
+      dismissBitkitToast(errorToastId.current);
+      errorToastId.current = undefined;
+    }
+    if (!error) {
+      return;
     }
 
-    return (
-      <ErrorPage eyebrow={detailedErrorMessage} headline={error.message}>
-        <BitkitButton alignSelf="start" variant="primary" size="lg" onClick={() => refetch()}>
-          Try again
-        </BitkitButton>
-      </ErrorPage>
-    );
-  }
+    errorToastId.current = createBitkitToast({
+      variant: 'critical',
+      titleText: 'Failed to load the configuration',
+      messageText: 'There was a problem loading the configuration. Only Secrets are available until it loads.',
+      action: { label: 'Try again', onClick: () => refetch() },
+    });
+  }, [error, refetch]);
 
   // Expose whether the config is still loading (settings check + tree/legacy fetch) so the layout
   // can show the loading state in the content area while keeping the header + navigation visible.
@@ -254,7 +255,11 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
   // URL, stripping an id that only resolves once the config is in the store. Deriving the gate
   // (rather than flipping it from an effect) also closes it in the very render where the requested
   // branch changes, so a branch switch unmounts the routes before they can see the stale config.
-  return <ConfigLoadingProvider value={!isBootstrapped}>{children}</ConfigLoadingProvider>;
+  return (
+    <ConfigLoadFailedProvider value={Boolean(error)}>
+      <ConfigLoadingProvider value={!isBootstrapped}>{children}</ConfigLoadingProvider>
+    </ConfigLoadFailedProvider>
+  );
 };
 
 export default InitialDataLoader;

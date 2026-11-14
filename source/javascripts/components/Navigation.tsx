@@ -31,6 +31,7 @@ import useHashLocation from '@/hooks/useHashLocation';
 import useParentMessageListener from '@/hooks/useParentMessageListener';
 import useSearchParams from '@/hooks/useSearchParams';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
+import { useIsConfigLoadFailed, useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import { paths } from '@/routes';
 
 type Props = Omit<BitkitPageSidebarProps, 'children'>;
@@ -60,6 +61,11 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
   // Blocking on the broader validation status trapped users on the current page whenever the YAML
   // was merely schema-invalid (SSW-3087).
   const visualEditorNotice = useVisualEditorNotice();
+  // Nothing is navigable until the config load settles. If it failed, only Secrets works; every
+  // other page reads the config. (The loading flag stays on after a failure, so failure decides.)
+  const isConfigLoadFailed = useIsConfigLoadFailed();
+  const isConfigLoading = useIsConfigLoading() && !isConfigLoadFailed;
+  const isUnavailable = isConfigLoadFailed && !path.startsWith(paths.secrets);
 
   const handleNavigation = useCallback(() => {
     if (visualEditorNotice?.disabled && !path.startsWith(paths.yml)) {
@@ -80,6 +86,8 @@ const NavigationItem = ({ children, path, icon, intercomTarget }: NavigationItem
       icon={icon}
       onClick={handleNavigation}
       selected={isSelected}
+      state={isConfigLoading || isUnavailable ? 'disabled' : undefined}
+      disabledReason={isUnavailable ? 'Unavailable because the configuration failed to load.' : undefined}
     >
       {children}
     </BitkitPageSidebar.Item>
