@@ -110,10 +110,6 @@ function getSecretItemPath({ appSlug, secretKey }: { appSlug: string; secretKey:
   return SECRET_ITEM_PATH.replace(':appSlug', appSlug).replace(':secretKey', secretKey);
 }
 
-function getSecretFingerprintPath(params: { appSlug: string; secretKey: string }): string {
-  return `${getSecretItemPath(params)}/fingerprint`;
-}
-
 function getSecretLocalPath() {
   return SECRETS_LOCAL_PATH;
 }
@@ -141,33 +137,15 @@ async function getSecretValue({
   signal?: AbortSignal;
 }): Promise<string | undefined> {
   if (RuntimeUtils.isWebsiteMode()) {
-    const response = await Client.get<SecretsMonolithResponse[number]>(getSecretItemPath(params), {
+    // Protected secrets never come with `value`; behind the peek flag they come with a partly masked `masked_value`.
+    const response = await Client.get<MonolithSecretItem & { masked_value?: string }>(getSecretItemPath(params), {
       signal,
     });
-    return response.value;
+    return response.value ?? response.masked_value;
   }
 
   // CLI mode
   return undefined;
-}
-
-// Website only: the CLI's local secrets have no protected values to fingerprint, and the card hides the button there.
-async function getSecretFingerprint({
-  appSlug,
-  secretKey,
-  fingerprintKey,
-  signal,
-}: {
-  appSlug: string;
-  secretKey: string;
-  fingerprintKey: string;
-  signal?: AbortSignal;
-}): Promise<string | undefined> {
-  const response = await Client.post<{ fingerprint: string }>(getSecretFingerprintPath({ appSlug, secretKey }), {
-    body: JSON.stringify({ fingerprint_key: fingerprintKey }),
-    signal,
-  });
-  return response?.fingerprint;
 }
 
 async function upsertSecret({
@@ -385,8 +363,7 @@ export type {
 export default {
   getSecrets,
   getSecretValue,
-  getSecretFingerprint,
-  getSecretFingerprintPath,
+  getSecretItemPath,
   upsertSecret,
   deleteSecret,
   getSecretPath,

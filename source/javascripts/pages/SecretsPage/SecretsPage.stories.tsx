@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { set } from 'es-toolkit/compat';
 
-import { getSecretFingerprint, getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import { getProtectedSecretPeek, getSecrets, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 
 import SecretsPage from './SecretsPage';
 
@@ -23,7 +23,7 @@ export const SecretsPageEmptyState: Story = {
 
 export const Secrets: Story = {};
 
-export const SecretsProtectedFingerprint: Story = {
+export const SecretsProtectedPeek: Story = {
   beforeEach({ msw }) {
     msw.use(
       getSecrets([
@@ -36,10 +36,10 @@ export const SecretsProtectedFingerprint: Story = {
           exposed_for_pull_requests: false,
         },
       ]),
-      getSecretFingerprint(),
+      getProtectedSecretPeek(),
     );
-    set(window, 'localFeatureFlags.protected-secret-fingerprint', true);
-    return () => set(window, 'localFeatureFlags.protected-secret-fingerprint', false);
+    set(window, 'localFeatureFlags.protected-secret-peek', true);
+    return () => set(window, 'localFeatureFlags.protected-secret-peek', false);
   },
 };
 

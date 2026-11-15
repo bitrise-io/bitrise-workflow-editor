@@ -89,12 +89,4 @@ function useUpsertSecret({
   });
 }
 
-// A mutation rather than a query: every request is audit-logged on the backend, so it must only fire on an explicit
-// submit, never on the refetch-on-focus or retry a query would do.
-function useSecretFingerprint({ appSlug, secretKey }: { appSlug: string; secretKey: string }) {
-  return useMutation<string | undefined, DefaultError, string>({
-    mutationFn: (fingerprintKey) => SecretApi.getSecretFingerprint({ appSlug, secretKey, fingerprintKey }),
-  });
-}
-
-export { useDeleteSecret, useSecretFingerprint, useSecrets, useSecretValue, useUpsertSecret };
+export { useDeleteSecret, useSecrets, useSecretValue, useUpsertSecret };

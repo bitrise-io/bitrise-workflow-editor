@@ -37,10 +37,18 @@ export const getSecrets = (override?: SecretsMonolithResponse) => {
   });
 };
 
-export const getSecretFingerprint = () => {
-  return http.post(SecretApi.getSecretFingerprintPath({ appSlug: ':appSlug', secretKey: ':secretKey' }), async () => {
+export const getProtectedSecretPeek = (maskedValue = `sk-l${'*'.repeat(20)}`) => {
+  return http.get(SecretApi.getSecretItemPath({ appSlug: ':appSlug', secretKey: ':secretKey' }), async ({ params }) => {
     await delay();
-    return HttpResponse.json({ fingerprint: '655171' });
+    return HttpResponse.json({
+      id: crypto.randomUUID(),
+      name: String(params.secretKey),
+      scope: 'app',
+      is_protected: true,
+      expand_in_step_inputs: false,
+      exposed_for_pull_requests: false,
+      masked_value: maskedValue,
+    });
   });
 };
 
