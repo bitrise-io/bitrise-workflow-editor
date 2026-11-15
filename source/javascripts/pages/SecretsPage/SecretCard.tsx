@@ -42,7 +42,7 @@ const SecretCard = (props: SecretCardProps) => {
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
   const isPeekEnabled = useFeatureFlag('protected-secret-peek');
-  // A protected secret's eye shows a partly masked value from the backend. Unsaved ones have nothing stored yet.
+  // Unsaved protected secrets have nothing stored to peek at yet.
   const canPeek = isPeekEnabled && secret.isProtected && !!secret.isSaved;
 
   const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
