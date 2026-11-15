@@ -48,7 +48,7 @@ const SecretCard = (props: SecretCardProps) => {
   const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
     appSlug,
     secretKey: secret.key,
-    // Every protected fetch is audit-logged as a peek, so editing (which also sets isShown) must not trigger one.
+    isProtected: secret.isProtected,
     options: { enabled: isShown && (secret.isProtected ? canPeek && !secret.isEditing : true) },
   });
 
@@ -204,7 +204,9 @@ const SecretCard = (props: SecretCardProps) => {
                         variant="tertiary"
                         marginInlineStart="8"
                         onClick={() => {
-                          setIsShown(true);
+                          // Editing never reveals a protected value, and a leftover isShown would peek it as soon
+                          // as another card takes over editing.
+                          setIsShown(!secret.isProtected);
                           onEdit?.(secret.key);
                         }}
                       />

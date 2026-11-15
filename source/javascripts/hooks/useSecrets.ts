@@ -14,8 +14,9 @@ function getSecretsQueryKey(appSlug: string) {
   return ['app', appSlug, 'secrets'];
 }
 
-function getSecretValueQueryKey(appSlug: string, secretKey: string) {
-  return ['app', appSlug, 'secret', secretKey];
+// Protection is part of the key so a secret that was just switched to protected can't fall back to its cached plaintext.
+function getSecretValueQueryKey(appSlug: string, secretKey: string, isProtected: boolean) {
+  return ['app', appSlug, 'secret', secretKey, isProtected];
 }
 
 function useSecrets({
@@ -37,17 +38,21 @@ function useSecrets({
 function useSecretValue({
   appSlug,
   secretKey,
+  isProtected = false,
   options,
 }: {
   appSlug: string;
   secretKey: string;
+  isProtected?: boolean;
   options?: Omit<UseQueryOptions<string | undefined>, 'queryKey' | 'queryFn'>;
 }) {
   return useQuery<string | undefined>({
-    queryKey: getSecretValueQueryKey(appSlug, secretKey),
+    queryKey: getSecretValueQueryKey(appSlug, secretKey, isProtected),
     queryFn: ({ signal }) => SecretApi.getSecretValue({ appSlug, secretKey, signal }),
     staleTime: 0,
     gcTime: 0,
+    // Each protected fetch is an audited peek, so only an explicit eye click may send one.
+    ...(isProtected && { retry: false, refetchOnReconnect: false }),
     ...options,
   });
 }
