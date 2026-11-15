@@ -10,6 +10,7 @@ import {
   BitkitToggletip,
   IconEye,
   IconEyeSlash,
+  IconKey,
   IconLock,
   IconMinusCircle,
   IconPencil,
@@ -22,7 +23,10 @@ import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Secret } from '@/core/models/Secret';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
+
+import SecretFingerprintDialog from './SecretFingerprintDialog';
 
 interface SecretCardProps {
   appSlug: string;
@@ -39,7 +43,9 @@ const SecretCard = (props: SecretCardProps) => {
   const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl } = props;
 
   const [isShown, setIsShown] = useState(false);
+  const [isFingerprintOpen, setIsFingerprintOpen] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
+  const isFingerprintEnabled = useFeatureFlag('protected-secret-fingerprint');
 
   const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
     appSlug,
@@ -112,8 +118,23 @@ const SecretCard = (props: SecretCardProps) => {
 
   const protectedIcon = secret.isProtected ? <IconLock size="16" /> : undefined;
 
-  const showHideButton =
-    !secret.isProtected && !secret.isShared ? (
+  const showHideButton = (() => {
+    if (secret.isShared) return undefined;
+
+    if (secret.isProtected) {
+      // Unsaved protected secrets have no stored value to fingerprint yet.
+      return isFingerprintEnabled && secret.isSaved ? (
+        <BitkitIconButton
+          size="md"
+          variant="secondary"
+          label="Show fingerprint"
+          icon={IconKey}
+          onClick={() => setIsFingerprintOpen(true)}
+        />
+      ) : undefined;
+    }
+
+    return (
       <BitkitIconButton
         size="md"
         variant="secondary"
@@ -121,7 +142,8 @@ const SecretCard = (props: SecretCardProps) => {
         icon={isShown ? IconEyeSlash : IconEye}
         onClick={() => setIsShown(!isShown)}
       />
-    ) : undefined;
+    );
+  })();
 
   const secretValueElement = () => {
     if (isSecretValueLoading) {
@@ -328,6 +350,11 @@ const SecretCard = (props: SecretCardProps) => {
           To change the value, you will need to delete this Secret Environment Variable and create a new one.
         </Text>
       </BitkitDialog>
+
+      {/* Mounted only while open so a reopened dialog starts from a blank key and a fresh request. */}
+      {isFingerprintOpen && (
+        <SecretFingerprintDialog appSlug={appSlug} secretKey={secret.key} onClose={() => setIsFingerprintOpen(false)} />
+      )}
     </Card.Root>
   );
 };

@@ -8,7 +8,7 @@ import SecretApi, {
   SecretsMonolithResponse,
 } from './SecretApi';
 
-export const getSecrets = (override?: SecretsMonolithResponse[]) => {
+export const getSecrets = (override?: SecretsMonolithResponse) => {
   return http.get(SecretApi.getSecretPath(':appSlug'), async () => {
     await delay();
 
@@ -34,6 +34,13 @@ export const getSecrets = (override?: SecretsMonolithResponse[]) => {
       ] satisfies SecretsMonolithResponse);
 
     return HttpResponse.json(secrets);
+  });
+};
+
+export const getSecretFingerprint = () => {
+  return http.post(SecretApi.getSecretFingerprintPath({ appSlug: ':appSlug', secretKey: ':secretKey' }), async () => {
+    await delay();
+    return HttpResponse.json({ fingerprint: '655171' });
   });
 };
 

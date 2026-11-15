@@ -110,6 +110,10 @@ function getSecretItemPath({ appSlug, secretKey }: { appSlug: string; secretKey:
   return SECRET_ITEM_PATH.replace(':appSlug', appSlug).replace(':secretKey', secretKey);
 }
 
+function getSecretFingerprintPath(params: { appSlug: string; secretKey: string }): string {
+  return `${getSecretItemPath(params)}/fingerprint`;
+}
+
 function getSecretLocalPath() {
   return SECRETS_LOCAL_PATH;
 }
@@ -145,6 +149,25 @@ async function getSecretValue({
 
   // CLI mode
   return undefined;
+}
+
+// Website only: the CLI's local secrets have no protected values to fingerprint, and the card hides the button there.
+async function getSecretFingerprint({
+  appSlug,
+  secretKey,
+  fingerprintKey,
+  signal,
+}: {
+  appSlug: string;
+  secretKey: string;
+  fingerprintKey: string;
+  signal?: AbortSignal;
+}): Promise<string | undefined> {
+  const response = await Client.post<{ fingerprint: string }>(getSecretFingerprintPath({ appSlug, secretKey }), {
+    body: JSON.stringify({ fingerprint_key: fingerprintKey }),
+    signal,
+  });
+  return response?.fingerprint;
 }
 
 async function upsertSecret({
@@ -362,6 +385,8 @@ export type {
 export default {
   getSecrets,
   getSecretValue,
+  getSecretFingerprint,
+  getSecretFingerprintPath,
   upsertSecret,
   deleteSecret,
   getSecretPath,
