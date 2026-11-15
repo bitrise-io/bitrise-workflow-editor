@@ -11,3 +11,13 @@ const ConfigLoadingContext = createContext(false);
 export const ConfigLoadingProvider = ConfigLoadingContext.Provider;
 
 export const useIsConfigLoading = () => useContext(ConfigLoadingContext);
+
+/**
+ * True when the initial CI config couldn't be loaded. The layout then keeps the shell but offers only
+ * the pages that don't read the config (Secrets).
+ */
+const ConfigLoadFailedContext = createContext(false);
+
+export const ConfigLoadFailedProvider = ConfigLoadFailedContext.Provider;
+
+export const useIsConfigLoadFailed = () => useContext(ConfigLoadFailedContext);

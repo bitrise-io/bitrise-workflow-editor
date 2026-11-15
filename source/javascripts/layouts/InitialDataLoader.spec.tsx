@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { ComponentType, ReactNode, StrictMode } from 'react';
 
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
@@ -55,20 +55,16 @@ jest.mock('@chakra-ui/react/box', () => ({ Box: ({ children }: { children?: Reac
 jest.mock('@chakra-ui/react/text', () => ({
   Text: ({ children }: { children?: ReactNode }) => <span>{children}</span>,
 }));
-jest.mock('@chakra-ui/react/image', () => ({ Image: () => <img alt="" /> }));
+jest.mock('@/pages/SecretsPage/SecretsPage', () => ({ __esModule: true, default: () => <div>Secrets page</div> }));
 
 // The v2 barrel re-exports a markdown component whose ESM dependency tree doesn't belong in this
-// test, so the two components the error branch renders are stubbed. Toasts are captured so the
+// test. Toasts are captured so the
 // branch-load notifications stay assertable.
 const createBitkitToastMock = jest.fn();
 jest.mock('@bitrise/bitkit-v2', () => ({
-  BitkitButton: ({ children, onClick }: { children?: ReactNode; onClick?: () => void }) => (
-    <button type="button" onClick={onClick}>
-      {children}
-    </button>
-  ),
-  BitkitLink: ({ children, href }: { children?: ReactNode; href?: string }) => <a href={href}>{children}</a>,
   createBitkitToast: (...args: unknown[]) => createBitkitToastMock(...args),
+  dismissBitkitToast: jest.fn(),
+  rem: (px: number) => `${px / 16}rem`,
 }));
 
 jest.mock('@datadog/browser-rum', () => ({ datadogRum: { addError: jest.fn(), addAction: jest.fn() } }));
@@ -203,15 +199,22 @@ describe('InitialDataLoader', () => {
     });
   });
 
-  it('renders the error screen and retries from it', () => {
+  it('keeps the shell on a failed load, routes to Secrets and offers a retry in a toast', () => {
+    window.parent.location.hash = '#!/workflows?branch=feature';
     const refetch = jest.fn();
     treeQuery = { data: undefined, error: { status: 500, statusText: 'Server Error', message: 'Boom' }, refetch };
 
     renderApp();
 
-    expect(screen.getByText('500 – Server Error')).toBeDefined();
-    expect(screen.getByText('Boom')).toBeDefined();
-    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(screen.getByText('Secrets page')).toBeDefined();
+    expect(screen.queryByTestId('selected-workflow')).toBeNull();
+    expect(window.parent.location.hash).toBe('#!/secrets?branch=feature');
+    expect(createBitkitToastMock).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'critical', titleText: 'Failed to load the configuration' }),
+    );
+
+    const [{ action }] = createBitkitToastMock.mock.lastCall as [{ action: { onClick: () => void } }];
+    action.onClick();
     expect(refetch).toHaveBeenCalled();
   });
 

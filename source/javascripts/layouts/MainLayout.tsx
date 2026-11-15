@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react/box';
+import { useEffect } from 'react';
 import { Redirect, Router, Switch } from 'wouter';
 
 import Header from '@/components/Header';
@@ -11,13 +12,14 @@ import useHashSearch from '@/hooks/useHashSearch';
 import useMergedConfigSync from '@/hooks/useMergedConfigSync';
 import useTrackYamlAliases from '@/hooks/useTrackYamlAliases';
 import { useTree } from '@/hooks/useTree';
-import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
+import { useIsConfigLoadFailed, useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import VisualEditorDisabledRedirect from '@/layouts/VisualEditorDisabledRedirect';
+import SecretsPage from '@/pages/SecretsPage/SecretsPage';
 import OpenFileTabs from '@/pages/YmlPage/components/OpenFileTabs/OpenFileTabs';
 import { paths, routes } from '@/routes';
 
 const MainLayout = () => {
-  const [currentPath] = useHashLocation();
+  const [currentPath, navigate] = useHashLocation();
   const isYmlPage = currentPath.startsWith(paths.yml);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
@@ -30,6 +32,16 @@ const MainLayout = () => {
   // The header + navigation stay visible during the initial config load; only the content area
   // shows the loading state (settings check + tree/legacy fetch).
   const isConfigLoading = useIsConfigLoading();
+  const isConfigLoadFailed = useIsConfigLoadFailed();
+
+  // Without a config only Secrets works, so any other page the URL asks for lands there instead.
+  // The query string (e.g. `?branch=`) is kept so "Try again" reloads the same branch.
+  useEffect(() => {
+    if (isConfigLoadFailed && !currentPath.startsWith(paths.secrets)) {
+      const [, query] = currentPath.split('?');
+      navigate(query ? `${paths.secrets}?${query}` : paths.secrets);
+    }
+  }, [isConfigLoadFailed, currentPath, navigate]);
 
   useMergedConfigSync();
   useTrackYamlAliases();
@@ -44,7 +56,9 @@ const MainLayout = () => {
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">
-            {isConfigLoading ? (
+            {isConfigLoadFailed ? (
+              <SecretsPage />
+            ) : isConfigLoading ? (
               <LoadingState />
             ) : (
               <Router hook={useHashLocation} searchHook={useHashSearch}>

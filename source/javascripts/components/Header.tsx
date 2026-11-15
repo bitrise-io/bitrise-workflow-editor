@@ -46,6 +46,7 @@ import useSearchParams from '@/hooks/useSearchParams';
 import useVisualEditorNotice from '@/hooks/useVisualEditorNotice';
 import useYmlHasChanges from '@/hooks/useYmlHasChanges';
 import useYmlValidationStatus from '@/hooks/useYmlValidationStatus';
+import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 import { usePipelinesPageStore } from '@/pages/PipelinesPage/PipelinesPage.store';
 import { useStepBundlesPageStore } from '@/pages/StepBundlesPage/StepBundlesPage.store';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
@@ -74,6 +75,9 @@ const Header = () => {
   // only the view switch, and the notice explains it in the switch's tooltip (see useVisualEditorNotice).
   const ymlStatus = useYmlValidationStatus();
   const visualEditorNotice = useVisualEditorNotice();
+  // No view to switch to until the config is in the store. The flag also stays on after a failed load,
+  // which keeps the user on Secrets.
+  const isConfigLoading = useIsConfigLoading();
 
   const [path, navigate] = useHashLocation();
   const [searchParams] = useSearchParams();
@@ -394,6 +398,7 @@ const Header = () => {
           >
             <BitkitSegmentedControl
               size="sm"
+              state={isConfigLoading ? 'disabled' : undefined}
               value={editorView}
               aria-label="Editor view"
               data-clarity-unmask="true"
