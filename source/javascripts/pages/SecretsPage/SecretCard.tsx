@@ -22,6 +22,7 @@ import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Secret } from '@/core/models/Secret';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
 
 interface SecretCardProps {
@@ -40,11 +41,15 @@ const SecretCard = (props: SecretCardProps) => {
 
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
+  const isPeekEnabled = useFeatureFlag('protected-secret-peek');
+  // Unsaved protected secrets have nothing stored to peek at yet.
+  const canPeek = isPeekEnabled && secret.isProtected && !!secret.isSaved;
 
   const { data: fetchedSecretValue, isFetching: isSecretValueLoading } = useSecretValue({
     appSlug,
     secretKey: secret.key,
-    options: { enabled: !secret.isProtected && isShown },
+    isProtected: secret.isProtected,
+    options: { enabled: isShown && (secret.isProtected ? canPeek && !secret.isEditing : true) },
   });
 
   const {
@@ -70,7 +75,7 @@ const SecretCard = (props: SecretCardProps) => {
     }
 
     if (secret.isProtected) {
-      return '';
+      return secret.isEditing ? '' : fetchedSecretValue || '';
     }
 
     return fetchedSecretValue || secret.value;
@@ -113,7 +118,7 @@ const SecretCard = (props: SecretCardProps) => {
   const protectedIcon = secret.isProtected ? <IconLock size="16" /> : undefined;
 
   const showHideButton =
-    !secret.isProtected && !secret.isShared ? (
+    (!secret.isProtected || canPeek) && !secret.isShared ? (
       <BitkitIconButton
         size="md"
         variant="secondary"
@@ -199,7 +204,9 @@ const SecretCard = (props: SecretCardProps) => {
                         variant="tertiary"
                         marginInlineStart="8"
                         onClick={() => {
-                          setIsShown(true);
+                          // Editing never reveals a protected value, and a leftover isShown would peek it as soon
+                          // as another card takes over editing.
+                          setIsShown(!secret.isProtected);
                           onEdit?.(secret.key);
                         }}
                       />

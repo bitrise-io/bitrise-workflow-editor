@@ -137,10 +137,11 @@ async function getSecretValue({
   signal?: AbortSignal;
 }): Promise<string | undefined> {
   if (RuntimeUtils.isWebsiteMode()) {
-    const response = await Client.get<SecretsMonolithResponse[number]>(getSecretItemPath(params), {
+    // Protected secrets never come with `value`; behind the peek flag they come with a partly masked `masked_value`.
+    const response = await Client.get<MonolithSecretItem & { masked_value?: string }>(getSecretItemPath(params), {
       signal,
     });
-    return response.value;
+    return response.value ?? response.masked_value;
   }
 
   // CLI mode
@@ -362,6 +363,7 @@ export type {
 export default {
   getSecrets,
   getSecretValue,
+  getSecretItemPath,
   upsertSecret,
   deleteSecret,
   getSecretPath,
