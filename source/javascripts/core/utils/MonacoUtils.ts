@@ -3,7 +3,7 @@ import { type EditorProps, loader } from '@monaco-editor/react';
 import { debounce } from 'es-toolkit';
 import * as monaco from 'monaco-editor';
 import { type languages } from 'monaco-editor';
-import { configureMonacoYaml } from 'monaco-yaml';
+import { configureMonacoYaml, type JSONSchema } from 'monaco-yaml';
 import { type Document } from 'yaml';
 
 import AlgoliaApi from '../api/AlgoliaApi';
@@ -64,14 +64,33 @@ const configureForYaml: BeforeMountHandler = (monacoInstance) => {
 
   // TODO: Skip YAML worker configuration in dev WEBSITE mode due to cross-origin restrictions
   if (!(window.env?.MODE === 'WEBSITE' && window.env?.NODE_ENV !== 'production')) {
-    configureMonacoYaml(monacoInstance, {
-      hover: true,
-      validate: true,
-      completion: true,
-      yamlVersion: '1.1',
-      enableSchemaRequest: true,
-      schemas: [{ fileMatch: ['*'], uri: `https://www.schemastore.org/bitrise.json?t=${Date.now()}` }],
-    });
+    const configure = (stepSchema?: JSONSchema) =>
+      configureMonacoYaml(monacoInstance, {
+        hover: true,
+        validate: true,
+        completion: true,
+        yamlVersion: '1.1',
+        enableSchemaRequest: true,
+        schemas: [
+          { fileMatch: ['*'], uri: `https://www.schemastore.org/bitrise.json?t=${Date.now()}` },
+          ...(stepSchema
+            ? [{ fileMatch: [], uri: 'https://json.schemastore.org/bitrise-step.json', schema: stepSchema }]
+            : []),
+        ],
+      });
+
+    // bitrise.json's `$id` is on json.schemastore.org, so its relative `$ref: bitrise-step.json` resolves there.
+    // That host only redirects to www.schemastore.org, and the redirect has no CORS header, so the worker's fetch
+    // is blocked, and the failed `$ref` disables completion and hover. Registering the step schema inline under the
+    // URI the `$ref` resolves to skips that fetch. Configuring only once it's loaded keeps the worker from making
+    // the blocked request first.
+    fetch('https://www.schemastore.org/bitrise-step.json')
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
+      .catch((error): undefined => {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to load the Bitrise step schema', error);
+      })
+      .then((stepSchema?: JSONSchema) => configure(stepSchema));
   }
 
   isConfiguredForYaml = true;
