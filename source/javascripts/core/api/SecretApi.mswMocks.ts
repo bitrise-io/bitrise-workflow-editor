@@ -146,3 +146,22 @@ export const getFileStorageDocuments = () => {
     } satisfies FileStorageDocumentsResponse);
   });
 };
+
+export const upsertSecretError = (status: number, body: Record<string, string>) => {
+  const respond = async () => {
+    await delay();
+    return HttpResponse.json(body, { status });
+  };
+
+  return [
+    http.post(SecretApi.getSecretPath(':appSlug'), respond),
+    http.patch(SecretApi.getSecretItemPath({ appSlug: ':appSlug', secretKey: ':secretKey' }), respond),
+  ];
+};
+
+export const deleteSecretError = (status: number, body: Record<string, string>) => {
+  return http.delete(SecretApi.getSecretItemPath({ appSlug: ':appSlug', secretKey: ':secretKey' }), async () => {
+    await delay();
+    return HttpResponse.json(body, { status });
+  });
+};

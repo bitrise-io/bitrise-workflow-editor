@@ -249,9 +249,8 @@ describe('Clarity unmasking', () => {
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/WorkflowSelectorDrawer.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/NoWorkflowsEmptyState.tsx': 1,
       'pages/PipelinesPage/components/WorkflowSelectorDrawer/components/SearchResultEmptyState.tsx': 1,
-      // Twelve since the delete dialog moved to BitkitDialog: the footer wrapper's attribute went onto
-      // its two fixed-label buttons.
-      'pages/SecretsPage/SecretsPage.tsx': 12,
+      // The delete dialog's error alert is masked: it can show a server message with the Secret's name.
+      'pages/SecretsPage/SecretsPage.tsx': 11,
       'pages/StacksAndMachinesPage/StacksAndMachinesPage.tsx': 2,
       'pages/StacksAndMachinesPage/tabs/WorkflowsTab.tsx': 1,
       'pages/StepBundlesPage/StepBundlesPage.tsx': 1,
