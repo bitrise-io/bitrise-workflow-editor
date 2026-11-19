@@ -18,6 +18,7 @@ import PageProps from '@/core/utils/PageProps';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 
 import SecretCard from './SecretCard';
+import SecretErrorAlert from './SecretErrorAlert';
 
 const SecretsPage = () => {
   const appSlug = PageProps.appSlug();
@@ -39,7 +40,7 @@ const SecretsPage = () => {
 
   const {
     mutate: deleteSecret,
-    isError: deleteError,
+    error: deleteError,
     isPending: deleteLoading,
     reset: resetDelete,
   } = useDeleteSecret({
@@ -244,9 +245,7 @@ const SecretsPage = () => {
           </>
         }
       >
-        {deleteError && (
-          <BitkitAlert variant="critical" data-clarity-unmask="true" messageText="Error while deleting secret!" />
-        )}
+        <SecretErrorAlert error={deleteError} operation="delete" />
         <Text data-clarity-unmask="true">
           Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
           This action cannot be undone.
