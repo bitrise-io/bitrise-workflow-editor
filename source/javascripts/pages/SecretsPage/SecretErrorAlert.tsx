@@ -12,7 +12,7 @@ const SecretErrorAlert = ({ error, operation }: Props) => {
     return null;
   }
 
-  return <BitkitAlert variant="critical" data-clarity-unmask="true" {...getSecretErrorContent(error, operation)} />;
+  return <BitkitAlert variant="critical" {...getSecretErrorContent(error, operation)} />;
 };
 
 export default SecretErrorAlert;
