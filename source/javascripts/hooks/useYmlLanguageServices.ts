@@ -107,6 +107,7 @@ function useYmlLanguageServices() {
     // Configure Monaco language services (idempotent — safe to call multiple times)
     MonacoUtils.configureForYaml(monaco);
     MonacoUtils.configureEnvVarsCompletionProvider(monaco);
+    MonacoUtils.configureAliasQuickFixes(monaco);
     // The Bitrise LSP integration runs a Monaco worker that queries Algolia (steplib_steps)
     // on every document change for diagnostics/completion/hover. Gate it behind a flag so it
     // can be disabled without a deploy. When off, editing falls back to plain monaco-yaml.
