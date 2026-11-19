@@ -1,5 +1,4 @@
 import {
-  BitkitAlert,
   BitkitBadge,
   BitkitButton,
   BitkitCheckbox,
@@ -24,6 +23,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { Secret } from '@/core/models/Secret';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
+
+import SecretErrorAlert from './SecretErrorAlert';
 
 interface SecretCardProps {
   appSlug: string;
@@ -54,7 +55,7 @@ const SecretCard = (props: SecretCardProps) => {
 
   const {
     mutate: saveSecret,
-    isError: saveError,
+    error: saveError,
     isPending: saveLoading,
     reset: resetSave,
   } = useUpsertSecret({
@@ -163,7 +164,7 @@ const SecretCard = (props: SecretCardProps) => {
     <Card.Root marginBlockEnd="16" paddingSize="md">
       <Card.Body>
         <Box asChild width="100%" display="flex" gap="12" flexDirection="column">
-          <form noValidate onSubmit={handleSubmit(onFormSubmit)}>
+          <form noValidate onSubmit={handleSubmit(onFormSubmit, () => resetSave())}>
             <Box width="100%" display="flex" gap="8">
               <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
                 <BitkitTextInput
@@ -173,6 +174,10 @@ const SecretCard = (props: SecretCardProps) => {
                   state={secret.isSaved ? 'readOnly' : undefined}
                   errorText={errors?.key?.message}
                   inputProps={register('key', {
+                    pattern: {
+                      value: /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+                      message: "Use only letters, digits, and underscores, and don't start with a digit.",
+                    },
                     validate: (v) => !isKeyUsed(v) || 'This key is already used!',
                   })}
                 />
@@ -187,7 +192,14 @@ const SecretCard = (props: SecretCardProps) => {
                     text="Shared resources are managed at Workspace settings."
                     learnMoreTarget="_blank"
                     learnMoreUrl="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
-                    button={secretSettingsUrl ? { href: secretSettingsUrl, children: 'Go to settings' } : undefined}
+                    button={
+                      secretSettingsUrl
+                        ? {
+                            href: secretSettingsUrl,
+                            children: 'Go to settings',
+                          }
+                        : undefined
+                    }
                     wrapTrigger
                   >
                     <BitkitBadge>Shared</BitkitBadge>
@@ -277,7 +289,7 @@ const SecretCard = (props: SecretCardProps) => {
                     />
                   )}
                 />
-                {saveError && <BitkitAlert variant="critical" messageText="Error while updating secret!" />}
+                <SecretErrorAlert error={saveError} operation="save" />
                 <Box display="flex" justifyContent="space-between">
                   <Box display="flex" gap="16">
                     <BitkitButton
