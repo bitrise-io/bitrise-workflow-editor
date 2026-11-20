@@ -59,6 +59,6 @@ describe('StepConfigDrawer', () => {
     rerender(tree(1));
     expect(screen.queryByRole('tab', { name: 'Output variables' })).toBeNull();
     expect(screen.getByRole('tab', { name: 'Configuration', selected: true })).not.toBeNull();
-    expect(screen.getByText('configuration panel')).not.toBeNull();
+    expect(await screen.findByText('configuration panel')).not.toBeNull();
   });
 });
