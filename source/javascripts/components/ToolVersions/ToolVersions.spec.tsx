@@ -13,6 +13,8 @@ import ToolVersions from './ToolVersions';
 jest.mock('react-markdown', () => ({ __esModule: true, default: () => null }));
 jest.mock('@/hooks/useNavigation', () => ({ __esModule: true, default: () => ({ replace: jest.fn() }) }));
 jest.mock('@/routes', () => ({ paths: { stacksAndMachines: '/stacks-and-machines' } }));
+// The real module reads `window.env` on load, which Jest doesn't have.
+jest.mock('@/core/analytics/SegmentBaseTracking', () => ({ segmentTrack: jest.fn() }));
 // Every workflow configures `deno` the same way, so only the row's key can tell them apart.
 jest.mock('@/hooks/useTools', () => ({
   useToolsForScope: () => ({ deno: 'latest' }),

@@ -2,9 +2,8 @@ import { datadogRum } from '@datadog/browser-rum';
 import { countBy, isEqual } from 'es-toolkit';
 import { useEffect } from 'react';
 import { Document } from 'yaml';
-import { shallow } from 'zustand/shallow';
 
-import { bitriseYmlStore, savedConfigDocuments } from '@/core/stores/BitriseYmlStore';
+import { bitriseYmlStore, savedConfigDocuments, subscribeToSavedDocuments } from '@/core/stores/BitriseYmlStore';
 import YmlUtils from '@/core/utils/YmlUtils';
 import { useIsConfigLoading } from '@/layouts/ConfigLoading.context';
 
@@ -38,23 +37,17 @@ function useTrackYamlAliases() {
       datadogRum.addAction('yaml_aliases_loaded', loaded);
     }
 
-    // Compares saved documents, so typing and discarding never reach it. Loads, branch switches and storage
-    // changes also replace them, but only a save sets `lastSavedAt`.
-    return bitriseYmlStore.subscribe(
-      (s) => ({ documents: savedConfigDocuments(s), lastSavedAt: s.lastSavedAt }),
-      (next, prev) => {
-        if (next.lastSavedAt === prev.lastSavedAt) {
-          return;
-        }
-        const before = countAliasesAndMergeKeys(prev.documents);
-        const after = countAliasesAndMergeKeys(next.documents);
-        if (!isEqual(before, after)) {
-          datadogRum.addAction('yaml_aliases_changed', { before, after });
-        }
-      },
-      // Identity is enough, and it's cheap: this runs on every store update, keystrokes included.
-      { equalityFn: (a, b) => a.lastSavedAt === b.lastSavedAt && shallow(a.documents, b.documents) },
-    );
+    // Compares saved documents, so typing and discarding never reach it.
+    return subscribeToSavedDocuments((next, prev, isSave) => {
+      if (!isSave) {
+        return;
+      }
+      const before = countAliasesAndMergeKeys(Object.values(prev));
+      const after = countAliasesAndMergeKeys(Object.values(next));
+      if (!isEqual(before, after)) {
+        datadogRum.addAction('yaml_aliases_changed', { before, after });
+      }
+    });
   }, [isConfigLoading]);
 }
 

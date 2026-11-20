@@ -2,6 +2,7 @@
 import { Document } from 'yaml';
 import { createStore, ExtractState, StoreApi } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
 
 import { BitriseYml } from '../models/BitriseYml';
 import { EntityIndex, TreeNode, TreeNodeSource } from '../models/Tree';
@@ -272,6 +273,26 @@ export function updateBitriseYmlDocument(mutator: YamlMutator) {
   commitActiveFileDocument(active.nodeId, active.slice, mutator({ doc: state.ymlDocument.clone() }));
 }
 
+/** Stands in for a `node_id` in a single-file config, whose one document has none. */
+const SINGLE_FILE_KEY = '';
+
+/** The file edits land in: the selected file of a modular config, or the one document otherwise. */
+export function activeFileKey(s: BitriseYmlStoreState) {
+  return s.tree ? (s.selectedNodeId ?? '') : SINGLE_FILE_KEY;
+}
+
+/**
+ * {@link savedConfigDocuments} keyed by file, the way {@link activeFileKey} names them. A single-file config
+ * that did not parse when it was loaded has only an empty stand-in, so it is left out.
+ */
+export function savedConfigDocumentsByFile(s: BitriseYmlStoreState): Record<string, Document> {
+  if (s.tree) {
+    return Object.fromEntries(Object.entries(s.files).map(([nodeId, file]) => [nodeId, file.savedYmlDocument]));
+  }
+
+  return s.__savedInvalidYmlString === undefined ? { [SINGLE_FILE_KEY]: s.savedYmlDocument } : {};
+}
+
 /** Every document of the config: each file of a modular config, or the one document otherwise. */
 export function configDocuments(s: BitriseYmlStoreState) {
   return s.tree ? Object.values(s.files).map((file) => file.ymlDocument) : [s.ymlDocument];
@@ -279,7 +300,32 @@ export function configDocuments(s: BitriseYmlStoreState) {
 
 /** {@link configDocuments} as last loaded or saved. */
 export function savedConfigDocuments(s: BitriseYmlStoreState) {
-  return s.tree ? Object.values(s.files).map((file) => file.savedYmlDocument) : [s.savedYmlDocument];
+  return Object.values(savedConfigDocumentsByFile(s));
+}
+
+/**
+ * Calls `listener` whenever the saved documents change. `isSave` tells a save apart from a load, a branch
+ * switch or a storage change, which replace them too but leave `lastSavedAt`.
+ */
+export function subscribeToSavedDocuments(
+  listener: (next: Record<string, Document>, prev: Record<string, Document>, isSave: boolean) => void,
+) {
+  return bitriseYmlStore.subscribe(
+    (s) => ({
+      documents: savedConfigDocumentsByFile(s),
+      lastSavedAt: s.lastSavedAt,
+      // Left out of `documents` while it does not parse, but every load still replaces it.
+      singleFileDocument: s.tree ? undefined : s.savedYmlDocument,
+    }),
+    (next, prev) => listener(next.documents, prev.documents, next.lastSavedAt !== prev.lastSavedAt),
+    // Identity is enough, and it's cheap: this runs on every store update, keystrokes included.
+    {
+      equalityFn: (a, b) =>
+        a.lastSavedAt === b.lastSavedAt &&
+        a.singleFileDocument === b.singleFileDocument &&
+        shallow(a.documents, b.documents),
+    },
+  );
 }
 
 export function isFileDirty(slice?: FileSlice) {
