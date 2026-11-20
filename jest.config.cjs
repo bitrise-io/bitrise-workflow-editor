@@ -7,7 +7,7 @@ module.exports = {
     // the app builds with Vite's `jsx: react-jsx`) can be mounted in tests. With the classic
     // runtime swc emits bare `React.createElement`, and rendering any real component in jest
     // then throws `React is not defined`.
-    '^.+\\.(t|j)sx?$': ['@swc/jest', { jsc: { transform: { react: { runtime: 'automatic' } } } }],
+    '^.+\\.(t|m?j)sx?$': ['@swc/jest', { jsc: { transform: { react: { runtime: 'automatic' } } } }],
   },
   moduleNameMapper: {
     '\\.(css|less|svg)$': 'identity-obj-proxy',
@@ -29,7 +29,11 @@ module.exports = {
   // ESM dist. Both barrels re-export a markdown component; a test that renders them should
   // `jest.mock('react-markdown', ...)` rather than pull in that ESM dependency tree.
   // Storybook ships ESM only; it is compiled too so a spec can render stories with `composeStories`.
-  transformIgnorePatterns: ['/node_modules/(?!(@bitrise/(languageserver|bitkit(-v2)?)|@storybook|storybook)/)', '\\.pnp\\.[^\\/]+$'],
+  // node-diff3 ships ESM only as well.
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@bitrise/(languageserver|bitkit(-v2)?)|@storybook|storybook|node-diff3)/)',
+    '\\.pnp\\.[^\\/]+$',
+  ],
   setupFiles: ['<rootDir>/spec/set-node-env.ts'],
   setupFilesAfterEnv: ['<rootDir>/spec/setup-jest.ts'],
   moduleDirectories: ['node_modules', '<rootDir>/spec/__mocks__'],
