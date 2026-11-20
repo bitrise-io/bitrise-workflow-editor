@@ -1,8 +1,6 @@
 import { BitkitTabs, IconGroup } from '@bitrise/bitkit-v2';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
-import FileTreeViewer from '@/components/FileTreeViewer/FileTreeViewer';
-import { trackWorkflowEditorFileExplorerOpened } from '@/core/analytics/ConfigManagementAnalytics';
 import { FileTabInfo, useFileTabs } from '@/hooks/useFileTabs';
 
 import DiscardFileTabDialog from './DiscardFileTabDialog';
@@ -11,8 +9,6 @@ const OpenFileTabs = () => {
   const { fileTabs, activeTab, mergedConfigNodeId, selectTab, selectMergedConfig, closeTab, discardFile } =
     useFileTabs();
   const [discardNodeId, setDiscardNodeId] = useState<string | null>(null);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  const addButtonRef = useRef<HTMLButtonElement>(null);
 
   const discardTab = fileTabs.find((tab) => tab.nodeId === discardNodeId);
 
@@ -55,21 +51,7 @@ const OpenFileTabs = () => {
             {tab.name}
           </BitkitTabs.Trigger>
         ))}
-        <BitkitTabs.AddButton
-          ref={addButtonRef}
-          label="Open module"
-          onClick={() => {
-            // Keep the analytics side effect out of the state updater (React may call updaters more
-            // than once, e.g. in StrictMode) — fire once here, only when opening.
-            if (!pickerOpen) {
-              trackWorkflowEditorFileExplorerOpened();
-            }
-            setPickerOpen((open) => !open);
-          }}
-        />
       </BitkitTabs.List>
-
-      <FileTreeViewer open={pickerOpen} onOpenChange={setPickerOpen} getAnchor={() => addButtonRef.current} />
 
       <DiscardFileTabDialog
         isOpen={Boolean(discardTab)}

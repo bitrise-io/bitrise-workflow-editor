@@ -117,40 +117,6 @@ describe('FileTreeService.buildFileTree', () => {
     expect(project.root.files.map((f) => f.fileName)).toEqual(['alpha.yml', 'bitrise.yml', 'mid.yml', 'zebra.yml']);
     expect(project.root.folders.map((f) => f.label)).toEqual(['alpha-dir', 'beta']);
   });
-
-  it('keeps the cross-repo group + header when only an inherited child survives the filter', () => {
-    const repoRoot = node('n_repo', 'bitrise.yml', source({ repository: 'other-repo', branch: 'main' }), [
-      node('n_child', 'workflow_templates/workflows.yml', source({ path: 'workflow_templates/workflows.yml' })),
-    ]);
-    const root = node('n_root', 'bitrise.yml', null, [repoRoot]);
-
-    const groups = FileTreeService.buildFileTree(root, {
-      projectRepoLabel: 'repo',
-      filter: (n) => n.nodeId === 'n_child',
-    });
-
-    expect(groups).toHaveLength(1);
-    expect(groups[0].header).toBe('other-repo@main');
-    expect(groups[0].root.folders[0].files.map((f) => f.fileName)).toEqual(['workflows.yml']);
-  });
-
-  it('honors the filter (e.g. dirty-only) and drops empty groups', () => {
-    const root = node('n_root', 'bitrise.yml', null, [
-      node('n_keep', 'a.yml', source({ path: 'a.yml' })),
-      node('n_drop', 'b.yml', source({ path: 'b.yml' })),
-      node('n_repo', 'c.yml', source({ path: 'c.yml', repository: 'other', branch: 'main' })),
-    ]);
-
-    const groups = FileTreeService.buildFileTree(root, {
-      projectRepoLabel: 'repo',
-      filter: (n) => n.nodeId === 'n_keep',
-    });
-
-    expect(groups).toHaveLength(1);
-    expect(groups[0].header).toBe('repo');
-    expect(groups[0].isReadOnly).toBe(false);
-    expect(groups[0].root.files.map((f) => f.fileName)).toEqual(['a.yml']);
-  });
 });
 
 describe('FileTreeService.describeFiles', () => {

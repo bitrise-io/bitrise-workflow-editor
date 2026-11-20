@@ -43,6 +43,8 @@ const MainLayout = () => {
     }
   }, [isConfigLoadFailed, currentPath, navigate]);
 
+  const showSidebar = !isYmlPage || isModular;
+
   useMergedConfigSync();
   useTrackYamlAliases();
 
@@ -52,7 +54,7 @@ const MainLayout = () => {
       {tabsUnderHeader && <OpenFileTabs />}
       <Box display="flex" flex="1" minHeight={0}>
         {/* style instead of conditional unmount — keeps CI_CONFIG_RECEIVED / REQUEST_AI_DRAWER_OPEN listeners alive on the YAML page. */}
-        <Navigation style={{ display: isYmlPage ? 'none' : undefined }} />
+        <Navigation style={{ display: showSidebar ? undefined : 'none' }} hidePageNav={isYmlPage && isModular} />
         <Box display="flex" flexDirection="column" flex="1" minWidth={0} minHeight={0}>
           {isModular && !tabsUnderHeader && <OpenFileTabs />}
           <Box flex="1" overflowX="hidden" overflowY="auto">
