@@ -4,7 +4,7 @@
 import { renderHook } from '@testing-library/react';
 
 import { TreeNode } from '@/core/models/Tree';
-import { initializeModularConfig, updateBitriseYmlDocumentByString } from '@/core/stores/BitriseYmlStore';
+import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 
 import useSelectedWorkflow from './useSelectedWorkflow';
 
@@ -14,11 +14,14 @@ function moduleNode(nodeId: string, contents: string, includes: TreeNode[] = [])
 
 describe('useSelectedWorkflow', () => {
   beforeEach(() => {
-    updateBitriseYmlDocumentByString(yaml`
-      workflows:
-        wf1: {}
-        wf2: {}
-    `);
+    initializeBitriseYmlDocument({
+      ymlString: yaml`
+        workflows:
+          wf1: {}
+          wf2: {}
+      `,
+      version: '1',
+    });
     window.parent.location.hash = '#/workflows?workflow_id=wf1';
   });
 

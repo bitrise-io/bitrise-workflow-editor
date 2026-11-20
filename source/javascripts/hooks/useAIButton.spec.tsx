@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 import { TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
@@ -59,7 +59,7 @@ describe('useAIButton', () => {
     const { getAIButtonProps } = renderHook(() =>
       useAIButton({ action: 'explain_pipeline', source: 'pipeline_drawer' }),
     ).result.current;
-    getAIButtonProps().onClick();
+    act(() => getAIButtonProps().onClick());
 
     expect(postMessage).toHaveBeenCalledWith(
       'OPEN_CI_CONFIG_EXPERT',

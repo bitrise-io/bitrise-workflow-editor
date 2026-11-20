@@ -102,7 +102,7 @@ describe('Clarity unmasking', () => {
   describe('forwards the attribute to the DOM', () => {
     // Every component the app tags. A composite that swallows an unknown `data-*` prop instead of
     // spreading it onto its DOM root would silently re-mask that chrome, so each one is pinned here.
-    it('through the bitkit components the app tags', () => {
+    it('through the bitkit components the app tags', async () => {
       render(
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
@@ -118,6 +118,8 @@ describe('Clarity unmasking', () => {
           <Sidebar data-clarity-unmask="true">sidebar</Sidebar>
         </Wrapper>,
       );
+      // BitkitProvider's toaster subscribes from a microtask queued on mount.
+      await screen.findByText('sidebar');
 
       expect(unmasked()).toHaveLength(7);
       // The wrappers above must actually contain their label, not just carry the attribute somewhere.
@@ -126,7 +128,7 @@ describe('Clarity unmasking', () => {
       });
     });
 
-    it('through the bitkit-v2 components the app tags', () => {
+    it('through the bitkit-v2 components the app tags', async () => {
       render(
         <Wrapper>
           <BitkitAlert variant="info" messageText="alert message" data-clarity-unmask="true" />
@@ -179,6 +181,8 @@ describe('Clarity unmasking', () => {
           </BitkitBreadcrumb>
         </Wrapper>,
       );
+      // Zag machines start from a microtask queued on mount; awaiting lets it settle inside the test.
+      await screen.findByText('segment label');
 
       expect(unmasked()).toHaveLength(12);
       [

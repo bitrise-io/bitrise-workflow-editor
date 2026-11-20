@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 
 import { bitriseYmlStore, initializeBitriseYmlDocument } from '@/core/stores/BitriseYmlStore';
 
@@ -83,7 +83,7 @@ describe('VisualEditorDisabledRedirect', () => {
     const { rerender } = render(<VisualEditorDisabledRedirect>page</VisualEditorDisabledRedirect>);
     expect(screen.getByText('page')).toBeTruthy();
 
-    initializeBitriseYmlDocument({ ymlString: 'a: 1\n', version: '1' });
+    act(() => initializeBitriseYmlDocument({ ymlString: 'a: 1\n', version: '1' }));
     setPath('/workflows');
     rerender(<VisualEditorDisabledRedirect>page</VisualEditorDisabledRedirect>);
     expect(screen.getByText('page')).toBeTruthy();
