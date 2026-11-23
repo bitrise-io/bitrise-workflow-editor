@@ -1,5 +1,4 @@
-import { ListItemProps } from '@bitrise/bitkit';
-import { ListProps } from 'chakra-ui-2--react';
+import { ListItemProps, ListProps } from 'chakra-ui-2--react';
 import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { type FilterInputProps } from '../components/FilterInput';
