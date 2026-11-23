@@ -56,11 +56,11 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
             </BitkitTabs.List>
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <BitkitTabs.ContentGroup height="100%">
+            <BitkitTabs.ContentGroup>
               <BitkitTabs.Content value="properties">
                 <PropertiesTab onDelete={props.onClose} pipelineId={pipelineId} />
               </BitkitTabs.Content>
-              <BitkitTabs.Content value="triggers" overflowY="auto" height="100%">
+              <BitkitTabs.Content value="triggers">
                 <TriggersTab pipelineId={pipelineId} />
               </BitkitTabs.Content>
             </BitkitTabs.ContentGroup>
