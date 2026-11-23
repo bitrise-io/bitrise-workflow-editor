@@ -37,8 +37,6 @@ const TriggerCard = (props: TriggerCardProps) => {
     disabled: isReadOnlyView,
   });
 
-  // BitkitDraggableCard's handle only takes a ref (it is built for @dnd-kit/react), so the @dnd-kit/core
-  // listeners sit on the card and pass on only the events that start on the handle.
   const handleNode = useRef<HTMLButtonElement | null>(null);
   const handleRef = useCallback(
     (node: HTMLButtonElement | null) => {
