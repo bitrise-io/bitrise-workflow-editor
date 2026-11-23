@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { Breadcrumb, BreadcrumbLink, Provider, Sidebar } from '@bitrise/bitkit';
+import { Provider } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitAlert,
@@ -18,6 +18,7 @@ import {
   BitkitEmptyState,
   BitkitHeading,
   BitkitList,
+  BitkitPageSidebar,
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
@@ -110,20 +111,12 @@ describe('Clarity unmasking', () => {
           <Text data-clarity-unmask="true">text</Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
           <Card.Root data-clarity-unmask="true">card</Card.Root>
-          <Breadcrumb>
-            <BreadcrumbLink data-clarity-unmask="true">breadcrumb link</BreadcrumbLink>
-          </Breadcrumb>
-          <Sidebar data-clarity-unmask="true">sidebar</Sidebar>
         </Wrapper>,
       );
       // BitkitProvider's toaster subscribes from a microtask queued on mount.
-      await screen.findByText('sidebar');
+      await screen.findByText('button');
 
-      expect(unmasked()).toHaveLength(6);
-      // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['sidebar'].forEach((label) => {
-        expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
-      });
+      expect(unmasked()).toHaveLength(4);
     });
 
     it('through the bitkit-v2 components the app tags', async () => {
@@ -156,6 +149,11 @@ describe('Clarity unmasking', () => {
           <BitkitList data-clarity-unmask="true">
             <BitkitList.Item>list item</BitkitList.Item>
           </BitkitList>
+          <BitkitPageSidebar data-clarity-unmask="true">
+            <BitkitPageSidebar.Body>
+              <BitkitPageSidebar.Item>sidebar item</BitkitPageSidebar.Item>
+            </BitkitPageSidebar.Body>
+          </BitkitPageSidebar>
           <BitkitTable.Root>
             <BitkitTable.Header data-clarity-unmask="true">
               <BitkitTable.Row>
@@ -185,7 +183,7 @@ describe('Clarity unmasking', () => {
       // Zag machines start from a microtask queued on mount; awaiting lets it settle inside the test.
       await screen.findByText('segment label');
 
-      expect(unmasked()).toHaveLength(13);
+      expect(unmasked()).toHaveLength(14);
       [
         'alert message',
         'segment label',
@@ -196,6 +194,7 @@ describe('Clarity unmasking', () => {
         'ribbon message',
         'heading',
         'list item',
+        'sidebar item',
         'column header',
         'tab label',
         'breadcrumb item',
