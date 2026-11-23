@@ -27,6 +27,7 @@ jest.mock('../FloatingDrawer/FloatingDrawer', () => {
     FloatingDrawerCloseButton: () => null,
     FloatingDrawerContent: Passthrough,
     FloatingDrawerHeader: Passthrough,
+    FloatingDrawerTitle: Passthrough,
   };
 });
 jest.mock('./StepConfigDrawerProvider', () => ({
