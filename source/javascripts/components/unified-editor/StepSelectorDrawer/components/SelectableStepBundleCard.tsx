@@ -1,9 +1,9 @@
-import { Popover, PopoverContent, PopoverTrigger } from '@bitrise/bitkit';
 import { Card } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
+import PreviewHoverCard from '@/components/PreviewHoverCard/PreviewHoverCard';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 
@@ -28,30 +28,8 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
   };
 
   return (
-    <Popover trigger="hover" placement="left-start" offset={[0, 40]} isLazy>
-      <PopoverTrigger>
-        <Card.Root asChild elevation={false} interactive textAlign="start">
-          <button type="button" onClick={handleClick}>
-            <Card.Body paddingBlock="8" paddingInline="12">
-              <Text textStyle="body/lg/semibold" marginBlockEnd="4">
-                {title || id}
-              </Text>
-              <Text textStyle="body/md/regular" color="text/secondary">
-                {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
-                the hover preview (StepBundleCard) to avoid a nested interactive control. */}
-                <EntityModuleProvenance
-                  kind="stepBundles"
-                  id={id}
-                  withJumpLink={false}
-                  pathTextStyle="body/md/semibold"
-                  fallback={usedInWorkflowsText}
-                />
-              </Text>
-            </Card.Body>
-          </button>
-        </Card.Root>
-      </PopoverTrigger>
-      <PopoverContent width={320}>
+    <PreviewHoverCard
+      preview={
         <WorkflowCardContextProvider>
           <StepBundleCard
             uniqueId=""
@@ -61,8 +39,29 @@ const SelectableStepBundleCard = (props: SelectableStepBundleCardProps) => {
             isCollapsable={false}
           />
         </WorkflowCardContextProvider>
-      </PopoverContent>
-    </Popover>
+      }
+    >
+      <Card.Root asChild elevation={false} interactive textAlign="start">
+        <button type="button" onClick={handleClick}>
+          <Card.Body paddingBlock="8" paddingInline="12">
+            <Text textStyle="body/lg/semibold" marginBlockEnd="4">
+              {title || id}
+            </Text>
+            <Text textStyle="body/md/regular" color="text/secondary">
+              {/* The card is itself a click target (selects the bundle); the jump-to-definition lives in
+              the hover preview (StepBundleCard) to avoid a nested interactive control. */}
+              <EntityModuleProvenance
+                kind="stepBundles"
+                id={id}
+                withJumpLink={false}
+                pathTextStyle="body/md/semibold"
+                fallback={usedInWorkflowsText}
+              />
+            </Text>
+          </Card.Body>
+        </button>
+      </Card.Root>
+    </PreviewHoverCard>
   );
 };
 
