@@ -91,6 +91,9 @@ const StepCard = ({
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
+  // Esc or a click elsewhere closes the multi-select hint until the Step is selected again; only
+  // "Got it" retires it for good. Without this the hint, being the top layer, swallows Esc, so the
+  // Step drawer under it can't be closed from the keyboard.
   const [isHintClosed, setIsHintClosed] = useState(false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
