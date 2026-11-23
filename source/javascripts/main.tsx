@@ -2,7 +2,6 @@
 import '@/monaco-workers';
 import '@xyflow/react/dist/style.css';
 
-import { Provider } from '@bitrise/bitkit';
 import { BitkitProvider } from '@bitrise/bitkit-v2';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
@@ -72,13 +71,11 @@ const App = () => {
       <RootErrorBoundary>
         <QueryClientProvider client={DefaultQueryClient}>
           <ReactFlowProvider>
-            <Provider resetCSS={false}>
-              <BitkitProvider>
-                <InitialDataLoader>
-                  <MainLayout />
-                </InitialDataLoader>
-              </BitkitProvider>
-            </Provider>
+            <BitkitProvider>
+              <InitialDataLoader>
+                <MainLayout />
+              </InitialDataLoader>
+            </BitkitProvider>
           </ReactFlowProvider>
         </QueryClientProvider>
       </RootErrorBoundary>

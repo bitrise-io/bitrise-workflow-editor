@@ -1,7 +1,6 @@
 import '../source/javascripts/typings/globals.d.ts';
 import '@xyflow/react/dist/style.css';
 
-import { Provider } from '@bitrise/bitkit';
 import { BitkitProvider } from '@bitrise/bitkit-v2';
 import type { Preview } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -63,15 +62,13 @@ const preview: Preview = {
       }, [context.parameters.bitriseYmlStore]);
 
       return (
-        <Provider resetCSS={false}>
-          <BitkitProvider>
-            <QueryClientProvider client={queryClient}>
-              <ReactFlowProvider>
-                <Story />
-              </ReactFlowProvider>
-            </QueryClientProvider>
-          </BitkitProvider>
-        </Provider>
+        <BitkitProvider>
+          <QueryClientProvider client={queryClient}>
+            <ReactFlowProvider>
+              <Story />
+            </ReactFlowProvider>
+          </QueryClientProvider>
+        </BitkitProvider>
       );
     },
   ],

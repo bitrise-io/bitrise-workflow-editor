@@ -121,8 +121,8 @@ end up on master as a single commit.
 ## Tech standards
 
 1. TypeScript and React throughout. The AngularJS migration finished in May 2025 and there is no legacy tier left.
-1. New UI work uses `@bitrise/bitkit-v2` (Chakra v3). `@bitrise/bitkit` (Chakra v2) is legacy — port v1 components to
-   v2 in any file you already touch.
+1. UI is built from `@bitrise/bitkit-v2` (Chakra v3). The bitkit v1 and Chakra v2 packages are gone; don't bring them
+   back.
 1. Nothing type-checks unless you run `npx tsc --noEmit`, so run it before calling a typed change done.
 1. Four ESLint rules encode architectural boundaries rather than style. If `npm run lint` fails on
    `no-restricted-syntax` or `no-restricted-imports`, you crossed a boundary — see [CLAUDE.md](CLAUDE.md#traps).

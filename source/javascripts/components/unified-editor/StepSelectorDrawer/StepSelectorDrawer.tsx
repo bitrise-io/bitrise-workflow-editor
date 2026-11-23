@@ -76,7 +76,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
             {tabId === 'step' && <StepFilter mt="24" mb="12" />}
             {tabId === 'stepBundle' && <StepBundleFilter mt="24" mb="12" />}
           </FloatingDrawerHeader>
-          <FloatingDrawerBody pt="12">
+          <FloatingDrawerBody paddingBlockStart="12">
             <BitkitTabs.ContentGroup>
               <BitkitTabs.Content value="step">
                 <AlgoliaStepList

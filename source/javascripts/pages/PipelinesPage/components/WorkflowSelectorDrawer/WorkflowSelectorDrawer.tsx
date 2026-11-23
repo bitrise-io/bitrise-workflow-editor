@@ -25,7 +25,7 @@ const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Prop
             Add Workflows
           </BitkitHeading>
         </FloatingDrawerHeader>
-        <FloatingDrawerBody display="flex" flexDir="column" gap="12">
+        <FloatingDrawerBody display="flex" flexDirection="column" gap="12">
           <WorkflowsList pipelineId={pipelineId} onSelectWorkflow={onSelectWorkflow} />
         </FloatingDrawerBody>
       </FloatingDrawerContent>

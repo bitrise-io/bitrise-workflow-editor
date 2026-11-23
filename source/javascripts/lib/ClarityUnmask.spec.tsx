@@ -9,12 +9,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { Provider } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitAlert,
   BitkitBreadcrumb,
   BitkitButton,
+  BitkitDrawer,
   BitkitEmptyState,
   BitkitHeading,
   BitkitList,
@@ -78,13 +78,8 @@ function unmaskCountsBySourceFile(): Record<string, number> {
   return counts;
 }
 
-// Both design-system providers: bitkit v1 components read the Chakra v2 theme through `Provider`,
-// bitkit-v2 components read the Chakra v3 system through `BitkitProvider` — same as the app root.
-const Wrapper = ({ children }: PropsWithChildren) => (
-  <Provider resetCSS={false}>
-    <BitkitProvider>{children}</BitkitProvider>
-  </Provider>
-);
+// The same provider as the app root: bitkit-v2 components read the Chakra v3 system through it.
+const Wrapper = ({ children }: PropsWithChildren) => <BitkitProvider>{children}</BitkitProvider>;
 const unmasked = () => document.querySelectorAll(UNMASK_SELECTOR);
 
 /**
@@ -104,7 +99,7 @@ describe('Clarity unmasking', () => {
   describe('forwards the attribute to the DOM', () => {
     // Every component the app tags. A composite that swallows an unknown `data-*` prop instead of
     // spreading it onto its DOM root would silently re-mask that chrome, so each one is pinned here.
-    it('through the bitkit components the app tags', async () => {
+    it('through the Chakra primitives the app tags', async () => {
       render(
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
@@ -146,6 +141,12 @@ describe('Clarity unmasking', () => {
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
           <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
+          {/* The floating drawers tag their content panel (FloatingDrawerContent). */}
+          <BitkitDrawer.Root open>
+            <BitkitDrawer.Positioner>
+              <BitkitDrawer.Content data-clarity-unmask="true">drawer content</BitkitDrawer.Content>
+            </BitkitDrawer.Positioner>
+          </BitkitDrawer.Root>
           <BitkitList data-clarity-unmask="true">
             <BitkitList.Item>list item</BitkitList.Item>
           </BitkitList>
@@ -183,7 +184,7 @@ describe('Clarity unmasking', () => {
       // Zag machines start from a microtask queued on mount; awaiting lets it settle inside the test.
       await screen.findByText('segment label');
 
-      expect(unmasked()).toHaveLength(14);
+      expect(unmasked()).toHaveLength(15);
       [
         'alert message',
         'segment label',
@@ -193,6 +194,7 @@ describe('Clarity unmasking', () => {
         'empty state',
         'ribbon message',
         'heading',
+        'drawer content',
         'list item',
         'sidebar item',
         'column header',
