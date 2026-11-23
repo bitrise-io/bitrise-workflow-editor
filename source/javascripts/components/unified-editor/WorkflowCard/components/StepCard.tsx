@@ -14,7 +14,7 @@ import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { memo, MouseEvent, ReactNode, useMemo } from 'react';
+import { memo, MouseEvent, ReactNode, useMemo, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -91,6 +91,7 @@ const StepCard = ({
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
+  const [isHintClosed, setIsHintClosed] = useState(false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
   const {
@@ -168,6 +169,7 @@ const StepCard = ({
 
   const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
+        setIsHintClosed(false);
         onSelectStep?.({
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
@@ -249,7 +251,12 @@ const StepCard = ({
           <BitkitToggletip
             button={{ children: 'Got it', onClick: () => setIsMultiSelectAccepted(true) }}
             disabled={isMultiSelectAccepted}
-            open={isHighlighted && selectedStepIndices?.length === 1}
+            open={isHighlighted && selectedStepIndices?.length === 1 && !isHintClosed}
+            onOpenChange={({ open }) => {
+              if (!open) {
+                setIsHintClosed(true);
+              }
+            }}
             text="To select multiple Steps, hold ‘⌘’ or 'Ctrl' key."
           >
             <Box

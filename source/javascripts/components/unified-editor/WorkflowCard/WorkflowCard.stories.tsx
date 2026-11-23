@@ -80,19 +80,6 @@ export const Ghost: Story = {
   },
 };
 
-// A single selected Step shows the multi-select hint above it until "Got it" is clicked, which is
-// remembered in localStorage — so the story forgets it first.
-export const SelectedStep: Story = {
-  args: {
-    isCollapsable: false,
-    selectedStepIndices: [1],
-    selectionParent: { id: 'wf1', type: 'workflow' },
-  },
-  beforeEach: () => {
-    localStorage.removeItem('multiSelectAccepted');
-  },
-};
-
 // wf2 runs wf1 before it and wf3, wf7, wf7 after it, so the card shows chained workflow cards.
 export const WithChainedWorkflows: Story = {
   args: {
