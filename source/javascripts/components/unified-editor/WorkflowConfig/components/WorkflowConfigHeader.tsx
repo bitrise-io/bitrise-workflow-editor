@@ -4,6 +4,7 @@ import { Text } from '@chakra-ui/react/text';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import { useFloatingDrawerTitleId } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -20,6 +21,7 @@ type Props = {
 };
 
 const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => {
+  const titleId = useFloatingDrawerTitleId();
   const id = useWorkflowConfigId();
   const title = useWorkflowConfigContext((s) => s?.userValues?.title);
 
@@ -58,7 +60,9 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
         paddingInline={variant === 'panel' ? '24' : '0'}
       >
         <div>
-          <BitkitHeading as="h3">{title || id || 'Workflow'}</BitkitHeading>
+          <BitkitHeading as="h3" id={titleId}>
+            {title || id || 'Workflow'}
+          </BitkitHeading>
           {showSubTitle && !isCrossFile && (
             <Text textStyle="body/md/regular" color="text/secondary">
               {WorkflowService.getUsedByText(dependants)}

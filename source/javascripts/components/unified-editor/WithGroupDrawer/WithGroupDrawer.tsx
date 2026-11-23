@@ -1,4 +1,4 @@
-import { BitkitAlert, BitkitHeading, BitkitTagsInput, BitkitTextInput } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitTagsInput, BitkitTextInput } from '@bitrise/bitkit-v2';
 
 import FloatingDrawer, {
   FloatingDrawerBody,
@@ -6,6 +6,7 @@ import FloatingDrawer, {
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import { WithGroup } from '@/core/models/Step';
 import StepService from '@/core/services/StepService';
@@ -39,7 +40,7 @@ const WithGroupDrawer = ({ workflowId, stepIndex, ...props }: Props) => {
       <FloatingDrawerContent>
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
-          <BitkitHeading as="h3">{title}</BitkitHeading>
+          <FloatingDrawerTitle>{title}</FloatingDrawerTitle>
         </FloatingDrawerHeader>
         <FloatingDrawerBody>
           {!!container && (

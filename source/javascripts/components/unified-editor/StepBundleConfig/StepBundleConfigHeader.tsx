@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import { useFloatingDrawerTitleId } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
@@ -18,6 +19,7 @@ type HeaderProps = {
 };
 
 const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
+  const titleId = useFloatingDrawerTitleId();
   const { cvs, stepBundleId, title } = useStepBundleConfigContext((s) => ({
     cvs: s.stepBundle?.cvs || '',
     stepBundleId: s.stepBundle?.id || s.stepBundleId || '',
@@ -69,7 +71,9 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   return (
     <>
       <Box paddingBlockStart={variant === 'panel' ? '16' : '0'} paddingInline={variant === 'panel' ? '24' : '0'}>
-        <BitkitHeading as="h3">{title}</BitkitHeading>
+        <BitkitHeading as="h3" id={titleId}>
+          {title}
+        </BitkitHeading>
         <Text textStyle="body/md/regular" color="text/secondary">
           {subtitle}
         </Text>

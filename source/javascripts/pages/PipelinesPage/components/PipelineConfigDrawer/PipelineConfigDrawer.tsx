@@ -1,4 +1,4 @@
-import { BitkitButton, BitkitHeading, BitkitTabs, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitTabs, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import FloatingDrawer, {
@@ -7,6 +7,7 @@ import FloatingDrawer, {
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useAIButton from '@/hooks/useAIButton';
 
@@ -36,7 +37,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">
-              <BitkitHeading as="h3">{pipelineId}</BitkitHeading>
+              <FloatingDrawerTitle>{pipelineId}</FloatingDrawerTitle>
               {isAIButtonVisible && (
                 <BitkitButton
                   state={isAIButtonDisabled ? 'disabled' : undefined}

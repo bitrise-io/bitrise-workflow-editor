@@ -1,11 +1,10 @@
-import { BitkitHeading } from '@bitrise/bitkit-v2';
-
 import FloatingDrawer, {
   FloatingDrawerBody,
   FloatingDrawerCloseButton,
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 
 import WorkflowsList from './components/WorkflowsList';
@@ -21,9 +20,7 @@ const WorkflowSelectorDrawer = ({ pipelineId, onSelectWorkflow, ...props }: Prop
       <FloatingDrawerContent>
         <FloatingDrawerCloseButton />
         <FloatingDrawerHeader>
-          <BitkitHeading as="h3" data-clarity-unmask="true">
-            Add Workflows
-          </BitkitHeading>
+          <FloatingDrawerTitle data-clarity-unmask="true">Add Workflows</FloatingDrawerTitle>
         </FloatingDrawerHeader>
         <FloatingDrawerBody display="flex" flexDirection="column" gap="12">
           <WorkflowsList pipelineId={pipelineId} onSelectWorkflow={onSelectWorkflow} />

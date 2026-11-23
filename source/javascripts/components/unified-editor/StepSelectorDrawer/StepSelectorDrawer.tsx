@@ -1,4 +1,4 @@
-import { BitkitAlert, BitkitHeading, BitkitTabs, BitkitTag } from '@bitrise/bitkit-v2';
+import { BitkitAlert, BitkitTabs, BitkitTag } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { useEffect, useState } from 'react';
 
@@ -11,6 +11,7 @@ import FloatingDrawer, {
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 } from '../FloatingDrawer/FloatingDrawer';
 import AlgoliaStepList from './components/AlgoliaStepList';
 import StepBundleFilter from './components/StepBundleFilter';
@@ -52,7 +53,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="12">
-              <BitkitHeading as="h3">Add Step</BitkitHeading>
+              <FloatingDrawerTitle>Add Step</FloatingDrawerTitle>
               {showStepLimit && <BitkitTag labelText={`${uniqueStepCount}/${uniqueStepLimit} Steps used`} size="sm" />}
             </Box>
             <BitkitTabs.List marginBlockStart="8" marginInline="-24" paddingInline="8" data-clarity-unmask="true">
