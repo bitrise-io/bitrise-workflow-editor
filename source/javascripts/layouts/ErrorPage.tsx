@@ -23,7 +23,7 @@ const ErrorPage = ({ eyebrow, headline, children }: ErrorPageProps) => (
     alignItems="center"
     marginInline="auto"
     paddingInline="5%"
-    backgroundImage="linear-gradient(315deg, var(--colors-purple-30), var(--colors-purple-10))"
+    background="gradient/video/bg"
   >
     <Box display="flex" flexDirection="column" gap="32" color="text/on-color" maxWidth="50%">
       <BitkitLink href="/" target="_top">
