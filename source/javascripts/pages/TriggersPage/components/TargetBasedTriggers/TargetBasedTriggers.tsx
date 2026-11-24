@@ -159,7 +159,7 @@ const TargetBasedTriggers = () => {
             labelText="Active"
             size="md"
             checked={trigger.isActive}
-            state={isReadOnlyView ? 'disabled' : undefined}
+            state={isReadOnlyView ? 'readOnly' : undefined}
             onCheckedChange={() => handleActiveChange(trigger)}
           />
         </BitkitTable.Cell>

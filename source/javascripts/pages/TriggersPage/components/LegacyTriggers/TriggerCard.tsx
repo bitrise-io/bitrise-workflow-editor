@@ -86,7 +86,7 @@ const TriggerCard = (props: TriggerCardProps) => {
             labelText="Active"
             marginInlineEnd="16"
             checked={isActive}
-            state={isReadOnlyView ? 'disabled' : undefined}
+            state={isReadOnlyView ? 'readOnly' : undefined}
             onCheckedChange={() => handleActiveChange()}
           />
           {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
