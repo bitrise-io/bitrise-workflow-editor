@@ -31,7 +31,6 @@ const LegacyEmptyState = ({ type }: Props) => {
       data-clarity-unmask="true"
       icon={IconTrigger}
       headingText={title}
-      maxHeight="208"
       bodyText={
         <>
           {description}{' '}

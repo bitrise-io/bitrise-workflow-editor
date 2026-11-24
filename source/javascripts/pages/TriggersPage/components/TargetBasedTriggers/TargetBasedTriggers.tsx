@@ -253,7 +253,6 @@ const TargetBasedTriggers = () => {
           data-clarity-unmask="true"
           icon={IconTrigger}
           headingText="Target based triggers will appear here"
-          maxHeight="208"
           marginBlockEnd="24"
           bodyText={
             <>
