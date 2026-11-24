@@ -1,11 +1,4 @@
-import {
-  BitkitDrawer,
-  BitkitDrawerBodyProps,
-  BitkitDrawerContentProps,
-  BitkitHeading,
-  BitkitHeadingProps,
-  rem,
-} from '@bitrise/bitkit-v2';
+import { BitkitDrawer, BitkitDrawerContentProps, BitkitHeading, BitkitHeadingProps, rem } from '@bitrise/bitkit-v2';
 import { Portal } from '@chakra-ui/react/portal';
 import { createContext, ReactNode, RefObject, useContext, useId, useMemo, useRef } from 'react';
 
@@ -97,18 +90,7 @@ const FloatingDrawerContent = (props: BitkitDrawerContentProps) => {
   );
 };
 
-/**
- * The floating recipe gives the body 24px of top padding under a header with tabs, but its selector
- * looks for `.chakra-drawer__header`, and the header renders as `.drawer__header`, so the body keeps
- * 8px. This is the same rule with the class that exists; a body that sets its own top padding (the
- * Step selector's 12px) keeps it. Drop it once Bitkit fixes its selector.
- */
-const PADDING_UNDER_TABS = { '.drawer__header:has([role=tablist]) ~ &': { paddingBlockStart: '24' } };
-
-const FloatingDrawerBody = ({ css, ...props }: BitkitDrawerBodyProps) => {
-  const hasOwnTopPadding = props.paddingBlockStart !== undefined;
-  return <BitkitDrawer.Body css={hasOwnTopPadding ? css : [PADDING_UNDER_TABS, css]} {...props} />;
-};
+const FloatingDrawerBody = BitkitDrawer.Body;
 const FloatingDrawerCloseButton = BitkitDrawer.CloseButton;
 const FloatingDrawerHeader = BitkitDrawer.Header;
 
