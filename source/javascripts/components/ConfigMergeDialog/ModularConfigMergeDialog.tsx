@@ -257,7 +257,13 @@ const ModularConfigMergeDialogBody = ({
       </BitkitTabs.Root>
 
       {activeMerge && (
-        <Box display="flex" flex="1" gap="4" minHeight="0">
+        <Box
+          display="flex"
+          flex="1"
+          gap="4"
+          minHeight="0"
+          css={{ '& .monaco-diff-editor .conflict': { border: '1px solid', borderColor: 'border/error' } }}
+        >
           <Box display="flex" flexDirection="column" flex="1" gap="4">
             <Text textStyle="body/md/semibold">Your changes</Text>
             <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
@@ -323,11 +329,6 @@ const ModularConfigMergeDialogBody = ({
         messageText="In case of a conflict, remote changes will take priority over your local changes. To retain your changes, edit the results before applying."
       />
       {clientError && <BitkitAlert variant="critical" titleText="Error pushing changes" messageText={clientError} />}
-      <style>{`
-          .monaco-diff-editor .conflict {
-            border: 1px solid rgba(255, 0, 0, 1);
-          }
-        `}</style>
     </BitkitDialog>
   );
 };

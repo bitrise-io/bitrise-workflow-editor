@@ -4,8 +4,8 @@ import { CSSProperties } from 'react';
 type Props = HandleProps & { style?: CSSProperties };
 
 const style: (props: Props) => CSSProperties = ({ style: externalStyle, position }) => ({
-  background: 'rgba(255, 255, 255, 0)',
-  border: '1px solid rgba(255, 255, 255, 0)',
+  background: 'transparent',
+  border: '1px solid transparent',
   left: position === Position.Left ? 0 : undefined,
   right: position === Position.Right ? 0 : undefined,
   ...externalStyle,

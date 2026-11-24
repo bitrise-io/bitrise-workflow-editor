@@ -224,7 +224,12 @@ const ConfigMergeDialogContent = ({
             There are changes outside your current editing session. Review the differences and resolve any conflicts to
             proceed.
           </Text>
-          <Box display="flex" flex="1" gap="4">
+          <Box
+            display="flex"
+            flex="1"
+            gap="4"
+            css={{ '& .monaco-diff-editor .conflict': { border: '1px solid', borderColor: 'border/error' } }}
+          >
             <Box display="flex" flexDirection="column" flex="1" gap="4">
               <Text textStyle="body/md/semibold">Your changes</Text>
               <Box flex="1" borderRadius="8" overflow="hidden" background="rgb(30,30,30)" opacity="0.9">
@@ -295,11 +300,6 @@ const ConfigMergeDialogContent = ({
           )}
         </>
       )}
-      <style>{`
-        .monaco-diff-editor .conflict {
-          border: 1px solid rgba(255, 0, 0, 1);
-        }
-      `}</style>
     </BitkitDialog>
   );
 };
