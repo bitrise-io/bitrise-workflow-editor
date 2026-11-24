@@ -64,6 +64,7 @@ const TriggerCard = (props: TriggerCardProps) => {
       isDragging={isOverlay}
       isDropTarget={isDragging && !isOverlay}
       marginBottom="12"
+      state={isReadOnlyView ? 'readOnly' : undefined}
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       <Box display="flex">
