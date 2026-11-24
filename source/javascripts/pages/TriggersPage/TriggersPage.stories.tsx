@@ -3,6 +3,9 @@ import { delay, http, HttpResponse } from 'msw';
 
 import UserApi from '@/core/api/UserApi';
 import { BitriseYml } from '@/core/models/BitriseYml';
+import { TreeNode } from '@/core/models/Tree';
+import { initializeModularConfig } from '@/core/stores/BitriseYmlStore';
+import YmlUtils from '@/core/utils/YmlUtils';
 
 import TriggersPage from './TriggersPage';
 
@@ -74,3 +77,21 @@ export const TriggersPageEmptyState: StoryObj<typeof TriggersPage> = {
 };
 
 export const TriggersPageWithTriggerMap: StoryObj<typeof TriggersPage> = {};
+
+// The open file is read-only (as a file from another repository or ref is), so the trigger cards'
+// drag handles render disabled and their edit and remove buttons are hidden.
+const READ_ONLY_ROOT: TreeNode = {
+  nodeId: 'n_root',
+  path: 'bitrise.yml',
+  contents: YmlUtils.toYml(TEST_BITRISE_YML as never),
+  source: null,
+  commitSha: 'a1b2c3d4e5f6789012345678901234567890abcd',
+  editable: false,
+  includes: [],
+};
+
+export const TriggersPageReadOnly: StoryObj<typeof TriggersPage> = {
+  beforeEach: () => {
+    initializeModularConfig({ root: READ_ONLY_ROOT, branch: 'main', commitSha: READ_ONLY_ROOT.commitSha });
+  },
+};
