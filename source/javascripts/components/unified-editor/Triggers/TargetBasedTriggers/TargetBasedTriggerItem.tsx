@@ -28,7 +28,9 @@ const TargetBasedTriggerItem = (props: Props) => {
   const triggerDisabled = !trigger.isActive;
   return (
     <Box
-      padding="16px 20px 16px 24px"
+      paddingBlock="16"
+      paddingInlineStart="24"
+      paddingInlineEnd="20"
       borderBlockEnd="1px solid"
       borderBlockEndColor="border/minimal"
       display="flex"

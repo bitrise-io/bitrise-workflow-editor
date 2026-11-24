@@ -1,3 +1,4 @@
+import { rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -29,7 +30,7 @@ const meta: Meta<typeof DiffEditor> = {
     onChange: { action: 'onChange' },
   },
   render: (args) => (
-    <Box height="500px">
+    <Box height={rem(500)}>
       <DiffEditor {...args} />
     </Box>
   ),

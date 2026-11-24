@@ -8,6 +8,7 @@ import {
   IconDownload,
   IconFolder,
   IconGlobe,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box, type BoxProps } from '@chakra-ui/react/box';
 import { Skeleton } from '@chakra-ui/react/skeleton';
@@ -56,7 +57,14 @@ const ConfigSettingsMenu = (props: Props) => {
   const sourceLabel = usesRepositoryYml ? (branchLabel ?? '') : 'Stored on Bitrise';
 
   const labelText = (
-    <Text as="span" display="inline-block" textStyle="body/md/regular" color="text/secondary" maxWidth="240px" truncate>
+    <Text
+      as="span"
+      display="inline-block"
+      textStyle="body/md/regular"
+      color="text/secondary"
+      maxWidth={rem(240)}
+      truncate
+    >
       {sourceLabel}
     </Text>
   );

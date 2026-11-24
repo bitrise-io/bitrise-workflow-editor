@@ -12,6 +12,7 @@ import {
   IconLock,
   IconMinusCircle,
   IconPencil,
+  rem,
 } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Card } from '@chakra-ui/react/card';
@@ -181,13 +182,13 @@ const SecretCard = (props: SecretCardProps) => {
                     validate: (v) => !isKeyUsed(v) || 'This key is already used!',
                   })}
                 />
-                <Box as="span" lineHeight="40px">
+                <Box as="span" lineHeight={rem(40)}>
                   =
                 </Box>
                 {secretValueElement()}
               </Box>
               {secret.isShared ? (
-                <Box width="88px" display="flex" alignItems="center" justifyContent="center">
+                <Box width={rem(88)} display="flex" alignItems="center" justifyContent="center">
                   <BitkitToggletip
                     text="Shared resources are managed at Workspace settings."
                     learnMoreTarget="_blank"
