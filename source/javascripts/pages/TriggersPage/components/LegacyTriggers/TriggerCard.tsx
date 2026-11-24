@@ -10,7 +10,6 @@ import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { SyntheticEvent, useCallback, useMemo, useRef } from 'react';
 
 import TriggerConditions from '@/components/unified-editor/Triggers/TriggerConditions';
 import { trackTriggerEnabledToggled } from '@/core/analytics/TriggerAnalytics';
@@ -32,33 +31,10 @@ const TriggerCard = (props: TriggerCardProps) => {
   const { conditions, source, isDraftPr, isActive } = triggerItem;
   const [target, targetId] = source.split('#') as [TriggerSource, string];
 
-  const { isDragging, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
+  const { attributes, isDragging, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
     id: triggerItem.uniqueId,
     disabled: isReadOnlyView,
   });
-
-  const handleNode = useRef<HTMLButtonElement | null>(null);
-  const handleRef = useCallback(
-    (node: HTMLButtonElement | null) => {
-      handleNode.current = node;
-      setActivatorNodeRef(node);
-    },
-    [setActivatorNodeRef],
-  );
-  const handleListeners = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(listeners ?? {}).map(([eventName, listener]) => [
-          eventName,
-          (event: SyntheticEvent) => {
-            if (handleNode.current?.contains(event.target as Node)) {
-              listener(event);
-            }
-          },
-        ]),
-      ),
-    [listeners],
-  );
 
   const handleRemove = () => {
     if (onRemove) {
@@ -83,12 +59,12 @@ const TriggerCard = (props: TriggerCardProps) => {
   return (
     <BitkitDraggableCard
       ref={setNodeRef}
-      handleRef={handleRef}
+      handleProps={{ ...attributes, ...listeners, 'aria-label': 'Reorder trigger' }}
+      handleRef={setActivatorNodeRef}
       isDragging={isOverlay}
       isDropTarget={isDragging && !isOverlay}
       marginBottom="12"
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      {...handleListeners}
     >
       <Box display="flex">
         <Box flex="1" minWidth="0" paddingInlineEnd="16" display="flex" flexDirection="column" gap="4">
