@@ -18,7 +18,32 @@
       WFE_VERSION: "%WFE_VERSION%",
     };
   </script>
+  <script>
+    // Bitkit dark mode. On the website the editor is a same-origin iframe, and the page around it has already
+    // checked the enable-dark-mode flag and the bitkitColorMode preference and put the result on its <html>, so
+    // copying that class and color-scheme is all the editor does. It runs before the first paint so the editor
+    // doesn't flash light, and follows the page when the user switches modes or System mode follows the OS.
+    // The CLI has no page around it and stays light.
+    (function () {
+      var root = document.documentElement;
+      var pageRoot;
+      try {
+        if (window.parent === window) return;
+        pageRoot = window.parent.document.documentElement;
+      } catch (e) {
+        return;
+      }
+      var apply = function () {
+        root.classList.toggle('dark', pageRoot.classList.contains('dark'));
+        root.classList.toggle('light', pageRoot.classList.contains('light'));
+        root.style.colorScheme = pageRoot.style.colorScheme;
+      };
+      apply();
+      new MutationObserver(apply).observe(pageRoot, { attributes: true, attributeFilter: ['class', 'style'] });
+    })();
+  </script>
 </head>
+
 
 <body>
   <div id="root"></div>
