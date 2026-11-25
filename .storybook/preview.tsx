@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
 import { setupWorker } from 'msw/browser';
 import { mswLoader } from 'msw-storybook-addon/csf3';
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 
 import { bitriseYmlStore } from '../source/javascripts/core/stores/BitriseYmlStore';
 import YmlUtils from '../source/javascripts/core/utils/YmlUtils';
@@ -41,11 +41,40 @@ const preview: Preview = {
       window.parent.pageProps = undefined;
     };
   },
+  // The editor copies the website's colour mode onto its <html> (source/index.html); this toolbar does the same.
+  globalTypes: {
+    colorMode: {
+      description: 'Bitkit colour mode',
+      toolbar: {
+        title: 'Colour mode',
+        icon: 'mirror',
+        dynamicTitle: true,
+        items: [
+          { value: 'light', title: 'Light', icon: 'sun' },
+          { value: 'dark', title: 'Dark', icon: 'moon' },
+        ],
+      },
+    },
+  },
+  initialGlobals: { colorMode: 'light' },
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
+
     controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } },
   },
   decorators: [
+    (Story, { globals }) => {
+      const colorMode = globals.colorMode === 'dark' ? 'dark' : 'light';
+
+      useLayoutEffect(() => {
+        const root = document.documentElement;
+        root.classList.toggle('dark', colorMode === 'dark');
+        root.classList.toggle('light', colorMode === 'light');
+        root.style.colorScheme = colorMode;
+      }, [colorMode]);
+
+      return <Story />;
+    },
     (Story, context) => {
       useEffect(() => {
         bitriseYmlStore.setState({
