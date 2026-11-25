@@ -14,7 +14,7 @@ import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { memo, MouseEvent, ReactNode, useMemo, useState } from 'react';
+import { memo, MouseEvent, ReactNode, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -162,6 +162,7 @@ const StepCard = ({
 
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
 
+  const rowRef = useRef<HTMLDivElement>(null);
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
@@ -251,18 +252,9 @@ const StepCard = ({
             {showSecondary && <Box height={rem(14)} width={rem(75)} />}
           </BitkitSkeletonGroup>
         ) : (
-          <BitkitToggletip
-            button={{ children: 'Got it', onClick: () => setIsMultiSelectAccepted(true) }}
-            disabled={isMultiSelectAccepted}
-            open={isHighlighted && selectedStepIndices?.length === 1 && !isHintClosed}
-            onOpenChange={({ open }) => {
-              if (!open) {
-                setIsHintClosed(true);
-              }
-            }}
-            text="To select multiple Steps, hold ‘⌘’ or 'Ctrl' key."
-          >
+          <>
             <Box
+              ref={rowRef}
               padding="4"
               paddingInlineStart={isSortable ? 0 : 4}
               gap="8"
@@ -303,7 +295,20 @@ const StepCard = ({
 
               {buttonGroup}
             </Box>
-          </BitkitToggletip>
+            {/* Anchored to the row, not opened by it: the row stays a plain Step button. */}
+            <BitkitToggletip
+              button={{ children: 'Got it', onClick: () => setIsMultiSelectAccepted(true) }}
+              disabled={isMultiSelectAccepted}
+              open={isHighlighted && selectedStepIndices?.length === 1 && !isHintClosed}
+              onOpenChange={({ open }) => {
+                if (!open) {
+                  setIsHintClosed(true);
+                }
+              }}
+              text="To select multiple Steps, hold ‘⌘’ or 'Ctrl' key."
+              positioning={{ getAnchorElement: () => rowRef.current }}
+            />
+          </>
         )}
       </Card.Body>
     </Card.Root>
