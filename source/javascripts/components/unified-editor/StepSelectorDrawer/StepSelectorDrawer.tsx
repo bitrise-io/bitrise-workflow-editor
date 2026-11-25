@@ -56,7 +56,7 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, onCloseComplete, paren
               <FloatingDrawerTitle>Add Step</FloatingDrawerTitle>
               {showStepLimit && <BitkitTag labelText={`${uniqueStepCount}/${uniqueStepLimit} Steps used`} size="sm" />}
             </Box>
-            <BitkitTabs.List marginBlockStart="8" marginInline="-24" paddingInline="8" data-clarity-unmask="true">
+            <BitkitTabs.List marginBlockStart="8" data-clarity-unmask="true">
               <BitkitTabs.Trigger value="step">Step</BitkitTabs.Trigger>
               <BitkitTabs.Trigger value="stepBundle">Step bundle</BitkitTabs.Trigger>
             </BitkitTabs.List>

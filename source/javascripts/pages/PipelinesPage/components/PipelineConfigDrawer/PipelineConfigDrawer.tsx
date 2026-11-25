@@ -51,7 +51,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
                 </BitkitButton>
               )}
             </Box>
-            <BitkitTabs.List marginInline="-24" marginBlockStart="16" paddingInline="8" data-clarity-unmask="true">
+            <BitkitTabs.List marginBlockStart="16" data-clarity-unmask="true">
               <BitkitTabs.Trigger value="properties">Properties</BitkitTabs.Trigger>
               <BitkitTabs.Trigger value="triggers">Triggers</BitkitTabs.Trigger>
             </BitkitTabs.List>

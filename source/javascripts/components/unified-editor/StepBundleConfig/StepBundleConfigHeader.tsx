@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
-import { useFloatingDrawerTitleId } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
+import { FloatingDrawerTitle } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
@@ -19,7 +19,6 @@ type HeaderProps = {
 };
 
 const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
-  const titleId = useFloatingDrawerTitleId();
   const { cvs, stepBundleId, title } = useStepBundleConfigContext((s) => ({
     cvs: s.stepBundle?.cvs || '',
     stepBundleId: s.stepBundle?.id || s.stepBundleId || '',
@@ -71,16 +70,18 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   return (
     <>
       <Box paddingBlockStart={variant === 'panel' ? '16' : '0'} paddingInline={variant === 'panel' ? '24' : '0'}>
-        <BitkitHeading as="h3" id={titleId}>
-          {title}
-        </BitkitHeading>
+        {variant === 'drawer' ? (
+          <FloatingDrawerTitle>{title}</FloatingDrawerTitle>
+        ) : (
+          <BitkitHeading as="h3">{title}</BitkitHeading>
+        )}
         <Text textStyle="body/md/regular" color="text/secondary">
           {subtitle}
         </Text>
       </Box>
       <BitkitTabs.List
-        paddingInline="8"
-        marginInline={variant === 'drawer' ? '-24' : undefined}
+        // In the drawer, the drawer's recipe lines the tabs up with the header.
+        paddingInline={variant === 'panel' ? '8' : undefined}
         marginBlockStart="16"
         data-clarity-unmask="true"
       >

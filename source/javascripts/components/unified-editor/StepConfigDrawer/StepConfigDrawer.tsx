@@ -90,7 +90,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 </Box>
               </Box>
             </Box>
-            <BitkitTabs.List marginBlockStart="8" marginInline="-24" paddingInline="8" data-clarity-unmask="true">
+            <BitkitTabs.List marginBlockStart="8" data-clarity-unmask="true">
               <BitkitTabs.Trigger value="configuration">Configuration</BitkitTabs.Trigger>
               <BitkitTabs.Trigger value="properties">Properties</BitkitTabs.Trigger>
               {stepHasOutputVariables && (
