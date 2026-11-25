@@ -22,6 +22,25 @@ const FloatingDrawerContext = createContext<RefObject<HTMLDivElement> | undefine
 const FloatingDrawer = ({ children, isOpen, onClose, onCloseComplete, size = 'md' }: FloatingDrawerProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // The dialog listens for Escape on the document before anything inside sees the key, so an Escape
+  // that closes Monaco's suggestions would close the drawer too. For a key from an editor, close only
+  // once it bubbles out of the editor: Monaco stops the key when it uses it.
+  const handleEscapeKeyDown = (event: KeyboardEvent) => {
+    const content = contentRef.current;
+    if (!content || !(event.target instanceof Element) || !event.target.closest('.monaco-editor')) {
+      return;
+    }
+
+    event.preventDefault();
+    const closeIfUnused = (bubbled: Event) => {
+      if (bubbled === event) {
+        onClose();
+      }
+    };
+    content.addEventListener('keydown', closeIfUnused, { once: true });
+    setTimeout(() => content.removeEventListener('keydown', closeIfUnused));
+  };
+
   return (
     <BitkitDrawer.Root
       lazyMount
@@ -40,6 +59,7 @@ const FloatingDrawer = ({ children, isOpen, onClose, onCloseComplete, size = 'md
           ? activeElement
           : contentRef.current;
       }}
+      onEscapeKeyDown={handleEscapeKeyDown}
       onExitComplete={onCloseComplete}
       onOpenChange={({ open }) => {
         if (!open) {
