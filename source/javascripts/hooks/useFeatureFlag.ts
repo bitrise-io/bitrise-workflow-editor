@@ -6,6 +6,7 @@ const defaultValues = {
   'enable-wfe-modular-yaml-editing': false,
   'enable-wfe-bitrise-lsp-integration': false,
   'protected-secret-peek': false,
+  'enforce-protected-secrets': false,
 };
 
 type FeatureFlags = typeof defaultValues;

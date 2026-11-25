@@ -49,6 +49,14 @@ export const SecretsProtectedPeek: Story = {
   },
 };
 
+// Add a Secret: there is no Protected option, and it saves as protected without the confirmation.
+export const SecretsEnforcedProtection: Story = {
+  beforeEach() {
+    set(window, 'localFeatureFlags.enforce-protected-secrets', true);
+    return () => set(window, 'localFeatureFlags.enforce-protected-secrets', false);
+  },
+};
+
 export const SecretsShared: Story = {
   beforeEach: () => {
     set(window, 'parent.globalProps.account.sharedResourcesAvailable', true);

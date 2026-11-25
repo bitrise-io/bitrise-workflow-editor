@@ -43,6 +43,7 @@ const SecretCard = (props: SecretCardProps) => {
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
   const isPeekEnabled = useFeatureFlag('protected-secret-peek');
+  const isProtectionEnforced = useFeatureFlag('enforce-protected-secrets');
   // Unsaved protected secrets have nothing stored to peek at yet.
   const canPeek = isPeekEnabled && secret.isProtected && !!secret.isSaved;
 
@@ -99,10 +100,15 @@ const SecretCard = (props: SecretCardProps) => {
   const onFormSubmit = (formData: Secret) => {
     if (secret.isShared) return;
 
-    if (!secret.isProtected && formData.isProtected) {
-      setConfirmCallback(() => () => saveForm(formData));
+    const data = isProtectionEnforced ? { ...formData, isProtected: true } : formData;
+    // A new Secret has no choice to confirm when protection is enforced; an existing unprotected one still does,
+    // since saving it is what makes its value unreadable.
+    const isNewEnforcedSecret = isProtectionEnforced && !secret.isSaved;
+
+    if (!secret.isProtected && data.isProtected && !isNewEnforcedSecret) {
+      setConfirmCallback(() => () => saveForm(data));
     } else {
-      saveForm(formData);
+      saveForm(data);
     }
   };
 
@@ -239,7 +245,7 @@ const SecretCard = (props: SecretCardProps) => {
                 {[
                   secret.isExpand ? 'Variables are replaced in inputs' : '',
                   secret.isExpose ? 'Exposed for pull requests' : '',
-                  secret.isProtected ? 'Protected' : '',
+                  secret.isProtected && !isProtectionEnforced ? 'Protected' : '',
                 ]
                   .filter((s) => s)
                   .join(' • ')}
@@ -275,20 +281,22 @@ const SecretCard = (props: SecretCardProps) => {
                     />
                   )}
                 />
-                <Controller
-                  control={control}
-                  name="isProtected"
-                  render={({ field }) => (
-                    <BitkitCheckbox
-                      labelText="Protected"
-                      helperText="Value cannot be revealed or changed. Irreversible once saved. Delete to replace."
-                      checked={!!field.value}
-                      name={field.name}
-                      state={secret.isProtected ? 'readOnly' : undefined}
-                      onCheckedChange={({ checked }) => field.onChange(checked === true)}
-                    />
-                  )}
-                />
+                {!isProtectionEnforced && (
+                  <Controller
+                    control={control}
+                    name="isProtected"
+                    render={({ field }) => (
+                      <BitkitCheckbox
+                        labelText="Protected"
+                        helperText="Value cannot be revealed or changed. Irreversible once saved. Delete to replace."
+                        checked={!!field.value}
+                        name={field.name}
+                        state={secret.isProtected ? 'readOnly' : undefined}
+                        onCheckedChange={({ checked }) => field.onChange(checked === true)}
+                      />
+                    )}
+                  />
+                )}
                 <SecretErrorAlert error={saveError} operation="save" />
                 <Box display="flex" justifyContent="space-between">
                   <Box display="flex" gap="16">

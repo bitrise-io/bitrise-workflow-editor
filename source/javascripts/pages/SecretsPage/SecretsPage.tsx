@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Secret } from '@/core/models/Secret';
 import GlobalProps from '@/core/utils/GlobalProps';
 import PageProps from '@/core/utils/PageProps';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { useDeleteSecret, useSecrets } from '@/hooks/useSecrets';
 
 import SecretCard from './SecretCard';
@@ -26,6 +27,7 @@ const SecretsPage = () => {
   const planSelectorPath = `/organization/${GlobalProps.workspaceSlug()}/credit_subscription/plan_selector_page`;
   const sharedSecretsAvailable = GlobalProps.workspace()?.sharedResourcesAvailable;
 
+  const isProtectionEnforced = useFeatureFlag('enforce-protected-secrets');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [appSecretList, setAppSecretList] = useState<Secret[]>([]);
   const [workspaceSecretList, setWorkspaceSecretList] = useState<Secret[]>([]);
@@ -161,8 +163,9 @@ const SecretsPage = () => {
         Secret Environment Variables
       </BitkitHeading>
       <Text data-clarity-unmask="true">
-        Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
-        on the UI by marking them as protected.{' '}
+        {isProtectionEnforced
+          ? 'Secrets are not shown in the bitrise.yml. They are stored encrypted, and their values cannot be revealed once saved.'
+          : 'Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed on the UI by marking them as protected.'}{' '}
         <BitkitLink
           colorVariant="purple"
           href="https://docs.bitrise.io/en/bitrise-ci/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise-94446"
