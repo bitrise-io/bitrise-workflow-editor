@@ -19,7 +19,6 @@ const PreviewHoverCard = ({ children, preview }: Props) => (
   <HoverCard.Root
     lazyMount
     unmountOnExit
-    // The delays of the bitkit v1 hover popover this replaced.
     openDelay={200}
     closeDelay={200}
     positioning={{ placement: 'left-start', offset: { mainAxis: 40 } }}
