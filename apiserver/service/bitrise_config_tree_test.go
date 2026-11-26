@@ -109,43 +109,139 @@ func TestGetBitriseYMLTreeHandler_modular(t *testing.T) {
 	require.Contains(t, resp.MergedYML, "release")
 }
 
-func TestPostBitriseYMLTreeHandler_writesEditableModified(t *testing.T) {
-	dir := t.TempDir()
-	withWorkdir(t, dir)
-	require.NoError(t, fileutil.WriteStringToFile(filepath.Join(dir, "bitrise.yml"), "format_version: \"13\"\ninclude:\n  - path: modules/wf.yml\n"))
-	require.NoError(t, os.MkdirAll(filepath.Join(dir, "modules"), 0o755))
-	require.NoError(t, fileutil.WriteStringToFile(filepath.Join(dir, "modules", "wf.yml"), "workflows:\n  build: {}\n"))
-	config.BitriseYMLPath = "bitrise.yml"
+const moduleYML = "workflows:\n  build: {}\n"
 
-	payload := map[string]any{
-		"root": wireTreeNode{
-			NodeID:   "n_root",
-			Path:     "bitrise.yml",
-			Contents: "format_version: \"13\"\ninclude:\n  - path: modules/wf.yml\n",
-			Editable: true,
-			Modified: false,
-			Includes: []wireTreeNode{{
-				NodeID:   "n_wf",
-				Path:     "modules/wf.yml",
-				Contents: "workflows:\n  build: {}\n  deploy: {}\n",
-				Source:   &wireTreeNodeSource{Path: "modules/wf.yml"},
-				Editable: true,
-				Modified: true,
-				Includes: []wireTreeNode{},
-			}},
-		},
+func rootIncluding(path string) string {
+	return "format_version: \"13\"\ninclude:\n  - path: " + path + "\n"
+}
+
+func writeFiles(t *testing.T, dir string, files map[string]string) {
+	t.Helper()
+	for path, contents := range files {
+		require.NoError(t, os.MkdirAll(filepath.Dir(filepath.Join(dir, path)), 0o755))
+		require.NoError(t, fileutil.WriteStringToFile(filepath.Join(dir, path), contents))
 	}
-	body, err := json.Marshal(payload)
+}
+
+func modifiedInclude(path, contents string) wireTreeNode {
+	return wireTreeNode{Path: path, Contents: contents, Editable: true, Modified: true, Includes: []wireTreeNode{}}
+}
+
+func postTree(t *testing.T, root wireTreeNode) *httptest.ResponseRecorder {
+	t.Helper()
+	body, err := json.Marshal(map[string]any{"root": root})
 	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("POST", "/api/bitrise-yml/tree", bytes.NewReader(body))
 	http.HandlerFunc(PostBitriseYMLTreeHandler).ServeHTTP(rr, req)
+	return rr
+}
+
+func TestPostBitriseYMLTreeHandler_writesEditableModified(t *testing.T) {
+	dir := t.TempDir()
+	withWorkdir(t, dir)
+	writeFiles(t, dir, map[string]string{"bitrise.yml": rootIncluding("modules/wf.yml"), "modules/wf.yml": moduleYML})
+	config.BitriseYMLPath = "bitrise.yml"
+
+	rr := postTree(t, wireTreeNode{
+		Path:     "bitrise.yml",
+		Contents: rootIncluding("modules/wf.yml"),
+		Editable: true,
+		Includes: []wireTreeNode{modifiedInclude("modules/wf.yml", moduleYML+"  deploy: {}\n")},
+	})
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
 	written, err := fileutil.ReadStringFromFile(filepath.Join(dir, "modules", "wf.yml"))
 	require.NoError(t, err)
 	require.Contains(t, written, "deploy")
+}
+
+func TestPostBitriseYMLTreeHandler_configInSubdirWritesIncludesRelativeToWorkdir(t *testing.T) {
+	dir := t.TempDir()
+	withWorkdir(t, dir)
+	writeFiles(t, dir, map[string]string{"ci/bitrise.yml": rootIncluding("ci/modules/wf.yml"), "ci/modules/wf.yml": moduleYML})
+	config.BitriseYMLPath = "ci/bitrise.yml"
+
+	rr := postTree(t, wireTreeNode{
+		Path:     "bitrise.yml",
+		Contents: rootIncluding("ci/modules/wf.yml") + "pipelines:\n  release:\n    workflows:\n      build: {}\n",
+		Editable: true,
+		Modified: true,
+		Includes: []wireTreeNode{modifiedInclude("ci/modules/wf.yml", moduleYML+"  deploy: {}\n")},
+	})
+
+	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
+	root, err := fileutil.ReadStringFromFile(filepath.Join(dir, "ci", "bitrise.yml"))
+	require.NoError(t, err)
+	require.Contains(t, root, "release")
+	module, err := fileutil.ReadStringFromFile(filepath.Join(dir, "ci", "modules", "wf.yml"))
+	require.NoError(t, err)
+	require.Contains(t, module, "deploy")
+	require.NoDirExists(t, filepath.Join(dir, "ci", "ci"))
+}
+
+func TestPostBitriseYMLTreeHandler_refusesPathsOutsideTheResolvedTree(t *testing.T) {
+	parent := t.TempDir()
+	dir := filepath.Join(parent, "repo")
+	writeFiles(t, dir, map[string]string{"bitrise.yml": rootIncluding("modules/wf.yml"), "modules/wf.yml": moduleYML, "package.json": "{}"})
+	withWorkdir(t, dir)
+	config.BitriseYMLPath = "bitrise.yml"
+
+	for name, postedPath := range map[string]string{
+		"absolute path":             filepath.Join(parent, "pwned.yml"),
+		"relative path escape":      "../pwned.yml",
+		"repo file not in the tree": "package.json",
+	} {
+		t.Run(name, func(t *testing.T) {
+			rr := postTree(t, wireTreeNode{
+				Path:     "bitrise.yml",
+				Contents: rootIncluding("modules/wf.yml"),
+				Editable: true,
+				Includes: []wireTreeNode{modifiedInclude(postedPath, moduleYML)},
+			})
+
+			require.Equal(t, http.StatusBadRequest, rr.Code, rr.Body.String())
+			require.NoFileExists(t, filepath.Join(parent, "pwned.yml"))
+			packageJSON, err := fileutil.ReadStringFromFile(filepath.Join(dir, "package.json"))
+			require.NoError(t, err)
+			require.Equal(t, "{}", packageJSON)
+		})
+	}
+}
+
+func TestPostBitriseYMLTreeHandler_refusesIncludesThatEscapeTheWorkdir(t *testing.T) {
+	for name, tc := range map[string]struct {
+		include string
+		symlink bool
+	}{
+		"relative path": {include: "../outside.yml"},
+		"symlink":       {include: "modules/wf.yml", symlink: true},
+	} {
+		t.Run(name, func(t *testing.T) {
+			parent := t.TempDir()
+			dir := filepath.Join(parent, "repo")
+			writeFiles(t, parent, map[string]string{"repo/bitrise.yml": rootIncluding(tc.include), "outside.yml": "workflows:\n  original: {}\n"})
+			if tc.symlink {
+				require.NoError(t, os.MkdirAll(filepath.Join(dir, "modules"), 0o755))
+				require.NoError(t, os.Symlink(filepath.Join(parent, "outside.yml"), filepath.Join(dir, tc.include)))
+			}
+			withWorkdir(t, dir)
+			config.BitriseYMLPath = "bitrise.yml"
+
+			rr := postTree(t, wireTreeNode{
+				Path:     "bitrise.yml",
+				Contents: rootIncluding(tc.include),
+				Editable: true,
+				Includes: []wireTreeNode{modifiedInclude(tc.include, moduleYML)},
+			})
+
+			require.Equal(t, http.StatusBadRequest, rr.Code, rr.Body.String())
+			outside, err := fileutil.ReadStringFromFile(filepath.Join(parent, "outside.yml"))
+			require.NoError(t, err)
+			require.Contains(t, outside, "original")
+		})
+	}
 }
 
 func TestPostBitriseYMLTreeMergeHandler(t *testing.T) {
