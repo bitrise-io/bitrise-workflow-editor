@@ -181,6 +181,26 @@ func TestPostBitriseYMLTreeHandler_configInSubdirWritesIncludesRelativeToWorkdir
 	require.NoDirExists(t, filepath.Join(dir, "ci", "ci"))
 }
 
+func TestPostBitriseYMLTreeHandler_rootOnlySaveDoesNotNeedTheIncludesOnDisk(t *testing.T) {
+	dir := t.TempDir()
+	withWorkdir(t, dir)
+	writeFiles(t, dir, map[string]string{"bitrise.yml": rootIncluding("modules/wf.yml")})
+	config.BitriseYMLPath = "bitrise.yml"
+
+	rr := postTree(t, wireTreeNode{
+		Path:     "bitrise.yml",
+		Contents: "format_version: \"13\"\nworkflows:\n  build: {}\n",
+		Editable: true,
+		Modified: true,
+		Includes: []wireTreeNode{},
+	})
+
+	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
+	root, err := fileutil.ReadStringFromFile(filepath.Join(dir, "bitrise.yml"))
+	require.NoError(t, err)
+	require.NotContains(t, root, "include")
+}
+
 func TestPostBitriseYMLTreeHandler_refusesPathsOutsideTheResolvedTree(t *testing.T) {
 	parent := t.TempDir()
 	dir := filepath.Join(parent, "repo")

@@ -242,14 +242,17 @@ func PostBitriseYMLTreeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	onDisk, err := resolveConfigTree()
-	if err != nil {
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to %s", err)
-		return
-	}
+	modifiedIncludes := collectIncludes(reqObj.Root.Includes, isEditableModified)
 	writable := map[string]bool{}
-	for _, node := range collectIncludes(onDisk.Root.Includes, isEditable) {
-		writable[node.Path] = true
+	if len(modifiedIncludes) > 0 {
+		onDisk, err := resolveConfigTree()
+		if err != nil {
+			RespondWithJSONBadRequestErrorMessage(w, "Failed to %s", err)
+			return
+		}
+		for _, node := range collectIncludes(onDisk.Root.Includes, isEditable) {
+			writable[node.Path] = true
+		}
 	}
 
 	workdir, err := os.OpenRoot(".")
@@ -264,7 +267,6 @@ func PostBitriseYMLTreeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	modifiedIncludes := collectIncludes(reqObj.Root.Includes, isEditableModified)
 	for _, node := range modifiedIncludes {
 		if !writable[node.Path] {
 			log.Errorf("Refusing to write %s: not an editable file of the config on disk", node.Path)
