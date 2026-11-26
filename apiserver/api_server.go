@@ -1,10 +1,11 @@
 package apiserver
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"runtime"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
@@ -14,42 +15,48 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
-func chooseFreePort() (string, error) {
-	address, err := net.ResolveTCPAddr("tcp", "localhost:0")
-	if err != nil {
-		return "", err
+// listen listens on the given port, or on a free one when it is empty.
+func listen(host, port string) (net.Listener, int, error) {
+	if port == "" {
+		port = "0"
 	}
-
-	listener, err := net.ListenTCP("tcp", address)
+	listener, err := net.Listen("tcp", net.JoinHostPort(host, port))
 	if err != nil {
-		return "", err
+		return nil, 0, err
 	}
-	defer func() {
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
 		if err := listener.Close(); err != nil {
 			log.Errorf("Failed to close port, error: %s", err)
 		}
-	}()
-
-	addr, ok := listener.Addr().(*net.TCPAddr)
-	if !ok {
-		return "", fmt.Errorf("listener did not return *net.TCPAddr")
+		return nil, 0, fmt.Errorf("listener did not return *net.TCPAddr")
 	}
+	return listener, addr.Port, nil
+}
 
-	port := addr.Port
-	return fmt.Sprintf("%d", port), nil
+func newAPIToken() (string, error) {
+	buf := make([]byte, 32)
+	if _, err := rand.Read(buf); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(buf), nil
 }
 
 // LaunchServer ...
 func LaunchServer() error {
-	port := os.Getenv("PORT")
-	if port == "" {
-		var err error
-		if port, err = chooseFreePort(); err != nil {
-			return fmt.Errorf("Failed to find free port, error: %s", err)
-		}
+	// The /api routes require the token whatever the bind host is.
+	bindHost := utility.EnvString("BIND_HOST", "127.0.0.1")
+	listener, port, err := listen(bindHost, utility.EnvString("PORT", ""))
+	if err != nil {
+		return fmt.Errorf("Failed to listen, error: %s", err)
 	}
 
-	log.Printf("Starting API server at http://localhost:%s", port)
+	token, err := newAPIToken()
+	if err != nil {
+		return fmt.Errorf("Failed to generate API token, error: %s", err)
+	}
+
+	log.Printf("Starting API server on %s", listener.Addr())
 
 	isServeFilesThroughMiddlemanServer := (utility.EnvString("USE_DEV_SERVER", "false") == "true")
 	if isServeFilesThroughMiddlemanServer {
@@ -59,7 +66,7 @@ func LaunchServer() error {
 	config.BitriseYMLPath = utility.EnvString("BITRISE_CONFIG", "bitrise.yml")
 	config.SecretsYMLPath = utility.EnvString("BITRISE_SECRETS", ".bitrise.secrets.yml")
 
-	if _, err := SetupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
+	if _, err := SetupRoutes(isServeFilesThroughMiddlemanServer, requireLocalCaller(token, port)); err != nil {
 		return fmt.Errorf("Failed to setup routes, error: %s", err)
 	}
 
@@ -68,14 +75,14 @@ func LaunchServer() error {
 		if runtime.GOOS == "linux" {
 			openCmd = "xdg-open"
 		}
-		workflowEditorURL := fmt.Sprintf("http://localhost:%s/%s/", port, version.VERSION)
+		workflowEditorURL := fmt.Sprintf("http://127.0.0.1:%d/%s/?token=%s", port, version.VERSION, token)
 		log.Printf("Workflow editor URL: %s", workflowEditorURL)
 		if err := command.NewWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
 			log.Printf(" [!] Failed to open workflow editor in browser, error: %s", err)
 		}
 	}
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.Serve(listener, nil); err != nil {
 		return fmt.Errorf("Can't start HTTP listener: %v", err)
 	}
 	return nil

@@ -9,11 +9,16 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import Client from '@/core/api/client';
+import Client, { isUnauthorized } from '@/core/api/client';
+import LocalApiToken from '@/core/api/localApiToken';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import InitialDataLoader from '@/layouts/InitialDataLoader';
 import MainLayout from '@/layouts/MainLayout';
 import RootErrorBoundary from '@/layouts/RootErrorBoundary';
+
+if (RuntimeUtils.isLocalMode()) {
+  LocalApiToken.capture();
+}
 
 const loaders = [];
 if (import.meta.env.CLARITY === 'true') {
@@ -61,7 +66,7 @@ const DefaultQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 3,
+      retry: (failureCount, error) => !isUnauthorized(error) && failureCount < 3,
     },
   },
 });

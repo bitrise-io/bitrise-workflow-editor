@@ -4,6 +4,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { ComponentType, ReactNode, StrictMode } from 'react';
 
+import { ClientError } from '@/core/api/client';
 import { GetConfigResponse, TreeNode } from '@/core/models/Tree';
 import { bitriseYmlStore, MERGED_CONFIG_NODE_ID } from '@/core/stores/BitriseYmlStore';
 import PageProps from '@/core/utils/PageProps';
@@ -216,6 +217,24 @@ describe('InitialDataLoader', () => {
     const [{ action }] = createBitkitToastMock.mock.lastCall as [{ action: { onClick: () => void } }];
     action.onClick();
     expect(refetch).toHaveBeenCalled();
+  });
+
+  it("shows the server's reason for a refused load, without a retry that can't succeed", () => {
+    const serverMessage =
+      'Missing or invalid API token. Open the Workflow Editor with the link the bitrise CLI printed.';
+    treeQuery = {
+      data: undefined,
+      error: new ClientError(new Error('Unauthorized'), { status: 401 } as Response, { error: serverMessage }),
+      refetch: jest.fn(),
+    };
+
+    renderApp();
+
+    expect(createBitkitToastMock).toHaveBeenLastCalledWith({
+      variant: 'critical',
+      titleText: 'Failed to load the configuration',
+      messageText: serverMessage,
+    });
   });
 
   it('fetches the merge before bootstrapping when the tree endpoint did not carry one', async () => {

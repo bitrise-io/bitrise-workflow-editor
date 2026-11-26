@@ -5,6 +5,7 @@ import { useEventListener } from 'usehooks-ts';
 
 import { trackConfigBranchLoaded } from '@/core/analytics/ConfigManagementAnalytics';
 import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import { isUnauthorized } from '@/core/api/client';
 import { initializeBitriseYmlDocument, initializeModularConfig } from '@/core/stores/BitriseYmlStore';
 import { isBrowserExtensionError } from '@/core/utils/CommonUtils';
 import PageProps from '@/core/utils/PageProps';
@@ -238,11 +239,14 @@ const InitialDataLoader = ({ children }: PropsWithChildren) => {
       return;
     }
 
+    const unauthorizedMessage = isUnauthorized(error) ? error.getResponseErrorMessage() : undefined;
     errorToastId.current = createBitkitToast({
       variant: 'critical',
       titleText: 'Failed to load the configuration',
-      messageText: 'There was a problem loading the configuration. Only Secrets are available until it loads.',
-      action: { label: 'Try again', onClick: () => refetch() },
+      messageText:
+        unauthorizedMessage ??
+        'There was a problem loading the configuration. Only Secrets are available until it loads.',
+      ...(!unauthorizedMessage && { action: { label: 'Try again', onClick: () => refetch() } }),
     });
   }, [error, refetch]);
 
