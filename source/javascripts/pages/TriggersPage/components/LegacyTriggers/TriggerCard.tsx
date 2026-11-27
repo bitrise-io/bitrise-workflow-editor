@@ -1,5 +1,11 @@
-import { DraggableCard, DraggableCardProps } from '@bitrise/bitkit';
-import { BitkitCheckbox, BitkitIconButton, IconArrowRight, IconMinusCircle, IconPencil } from '@bitrise/bitkit-v2';
+import {
+  BitkitCheckbox,
+  BitkitDraggableCard,
+  BitkitIconButton,
+  IconArrowRight,
+  IconMinusCircle,
+  IconPencil,
+} from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
@@ -11,28 +17,24 @@ import { TriggerSource } from '@/core/models/Trigger';
 import { LegacyTrigger } from '@/core/models/Trigger.legacy';
 import { useIsReadOnlyView } from '@/hooks/useTree';
 
-interface TriggerCardProps extends DraggableCardProps {
+type TriggerCardProps = {
   triggerItem: LegacyTrigger;
+  isOverlay?: boolean;
   onRemove?: (triggerItem: LegacyTrigger) => void;
   onEdit?: (triggerItem: LegacyTrigger) => void;
   onActiveChange?: (triggerItem: LegacyTrigger) => void;
-}
+};
 
 const TriggerCard = (props: TriggerCardProps) => {
-  const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
+  const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange } = props;
   const isReadOnlyView = useIsReadOnlyView();
   const { conditions, source, isDraftPr, isActive } = triggerItem;
   const [target, targetId] = source.split('#') as [TriggerSource, string];
 
-  const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
+  const { attributes, isDragging, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
     id: triggerItem.uniqueId,
     disabled: isReadOnlyView,
   });
-
-  const style: DraggableCardProps = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
 
   const handleRemove = () => {
     if (onRemove) {
@@ -55,51 +57,53 @@ const TriggerCard = (props: TriggerCardProps) => {
   };
 
   return (
-    <DraggableCard
-      activatorRef={setActivatorNodeRef}
-      activatorListeners={listeners}
+    <BitkitDraggableCard
       ref={setNodeRef}
+      handleProps={{ ...attributes, ...listeners, 'aria-label': 'Reorder trigger' }}
+      handleRef={setActivatorNodeRef}
+      isDragging={isOverlay}
+      isDropTarget={isDragging && !isOverlay}
       marginBottom="12"
-      isDragging={active?.id === triggerItem.uniqueId}
-      isOverlay={isOverlay}
-      {...style}
-      {...rest}
+      state={isReadOnlyView ? 'readOnly' : undefined}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
     >
-      <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDirection="column" gap="4">
-        <Text textStyle="body/md/semibold">Trigger conditions</Text>
-        <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} triggerType={triggerItem.triggerType} />
-      </Box>
-      <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
-        <IconArrowRight marginInlineEnd="16" />
-        <Box display="flex" flexDirection="column" gap="4">
-          <Text>{targetId}</Text>
-          <Text textStyle="body/md/regular" color="text/secondary">
-            {target === 'workflows' ? 'Workflow' : 'Pipeline'}
-          </Text>
+      <Box display="flex">
+        <Box flex="1" minWidth="0" paddingInlineEnd="16" display="flex" flexDirection="column" gap="4">
+          <Text textStyle="body/md/semibold">Trigger conditions</Text>
+          <TriggerConditions conditions={conditions} isDraftPr={isDraftPr} triggerType={triggerItem.triggerType} />
+        </Box>
+        <Box flex="1" minWidth="0" paddingInlineEnd="16" display="flex" alignItems="center">
+          <IconArrowRight marginInlineEnd="16" />
+          <Box display="flex" flexDirection="column" gap="4">
+            <Text>{targetId}</Text>
+            <Text textStyle="body/md/regular" color="text/secondary">
+              {target === 'workflows' ? 'Workflow' : 'Pipeline'}
+            </Text>
+          </Box>
+        </Box>
+        <Box display="flex" alignItems="center">
+          <BitkitCheckbox
+            labelText="Active"
+            marginInlineEnd="16"
+            checked={isActive}
+            state={isReadOnlyView ? 'readOnly' : undefined}
+            onCheckedChange={() => handleActiveChange()}
+          />
+          {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
+          {!isReadOnlyView && (
+            <>
+              <BitkitIconButton icon={IconPencil} label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+              <BitkitIconButton
+                icon={IconMinusCircle}
+                label="Remove trigger"
+                variant="danger-tertiary"
+                onClick={handleRemove}
+              />
+            </>
+          )}
         </Box>
       </Box>
-      <Box display="flex" alignItems="center">
-        <BitkitCheckbox
-          labelText="Active"
-          marginInlineEnd="16"
-          checked={isActive}
-          state={isReadOnlyView ? 'disabled' : undefined}
-          onCheckedChange={() => handleActiveChange()}
-        />
-        {/* Read-only (merged/ghost) view has no edit/remove CTAs — hidden, not disabled (BIVS-3721). */}
-        {!isReadOnlyView && (
-          <>
-            <BitkitIconButton icon={IconPencil} label="Edit trigger" variant="tertiary" onClick={handleEdit} />
-            <BitkitIconButton
-              icon={IconMinusCircle}
-              label="Remove trigger"
-              variant="danger-tertiary"
-              onClick={handleRemove}
-            />
-          </>
-        )}
-      </Box>
-    </DraggableCard>
+    </BitkitDraggableCard>
   );
 };
 

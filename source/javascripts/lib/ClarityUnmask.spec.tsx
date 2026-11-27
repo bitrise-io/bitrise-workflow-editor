@@ -9,14 +9,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { Breadcrumb, BreadcrumbLink, List, ListItem, Provider, Sidebar } from '@bitrise/bitkit';
 import {
   BitkitActionMenu,
   BitkitAlert,
   BitkitBreadcrumb,
   BitkitButton,
+  BitkitDrawer,
   BitkitEmptyState,
   BitkitHeading,
+  BitkitList,
+  BitkitPageSidebar,
   BitkitProvider,
   BitkitRibbon,
   BitkitSegmentedControl,
@@ -76,13 +78,8 @@ function unmaskCountsBySourceFile(): Record<string, number> {
   return counts;
 }
 
-// Both design-system providers: bitkit v1 components read the Chakra v2 theme through `Provider`,
-// bitkit-v2 components read the Chakra v3 system through `BitkitProvider` — same as the app root.
-const Wrapper = ({ children }: PropsWithChildren) => (
-  <Provider resetCSS={false}>
-    <BitkitProvider>{children}</BitkitProvider>
-  </Provider>
-);
+// The same provider as the app root: bitkit-v2 components read the Chakra v3 system through it.
+const Wrapper = ({ children }: PropsWithChildren) => <BitkitProvider>{children}</BitkitProvider>;
 const unmasked = () => document.querySelectorAll(UNMASK_SELECTOR);
 
 /**
@@ -102,30 +99,19 @@ describe('Clarity unmasking', () => {
   describe('forwards the attribute to the DOM', () => {
     // Every component the app tags. A composite that swallows an unknown `data-*` prop instead of
     // spreading it onto its DOM root would silently re-mask that chrome, so each one is pinned here.
-    it('through the bitkit components the app tags', async () => {
+    it('through the Chakra primitives the app tags', async () => {
       render(
         <Wrapper>
           <Box data-clarity-unmask="true">box</Box>
           <Text data-clarity-unmask="true">text</Text>
           <BitkitButton data-clarity-unmask="true">button</BitkitButton>
           <Card.Root data-clarity-unmask="true">card</Card.Root>
-          <List data-clarity-unmask="true">
-            <ListItem>list item</ListItem>
-          </List>
-          <Breadcrumb>
-            <BreadcrumbLink data-clarity-unmask="true">breadcrumb link</BreadcrumbLink>
-          </Breadcrumb>
-          <Sidebar data-clarity-unmask="true">sidebar</Sidebar>
         </Wrapper>,
       );
       // BitkitProvider's toaster subscribes from a microtask queued on mount.
-      await screen.findByText('sidebar');
+      await screen.findByText('button');
 
-      expect(unmasked()).toHaveLength(7);
-      // The wrappers above must actually contain their label, not just carry the attribute somewhere.
-      ['list item', 'sidebar'].forEach((label) => {
-        expect(screen.getByText(label).closest(UNMASK_SELECTOR)).not.toBeNull();
-      });
+      expect(unmasked()).toHaveLength(4);
     });
 
     it('through the bitkit-v2 components the app tags', async () => {
@@ -155,6 +141,20 @@ describe('Clarity unmasking', () => {
           />
           <BitkitRibbon data-clarity-unmask="true">ribbon message</BitkitRibbon>
           <BitkitHeading data-clarity-unmask="true">heading</BitkitHeading>
+          {/* The floating drawers tag their content panel (FloatingDrawerContent). */}
+          <BitkitDrawer.Root open>
+            <BitkitDrawer.Positioner>
+              <BitkitDrawer.Content data-clarity-unmask="true">drawer content</BitkitDrawer.Content>
+            </BitkitDrawer.Positioner>
+          </BitkitDrawer.Root>
+          <BitkitList data-clarity-unmask="true">
+            <BitkitList.Item>list item</BitkitList.Item>
+          </BitkitList>
+          <BitkitPageSidebar data-clarity-unmask="true">
+            <BitkitPageSidebar.Body>
+              <BitkitPageSidebar.Item>sidebar item</BitkitPageSidebar.Item>
+            </BitkitPageSidebar.Body>
+          </BitkitPageSidebar>
           <BitkitTable.Root>
             <BitkitTable.Header data-clarity-unmask="true">
               <BitkitTable.Row>
@@ -184,7 +184,7 @@ describe('Clarity unmasking', () => {
       // Zag machines start from a microtask queued on mount; awaiting lets it settle inside the test.
       await screen.findByText('segment label');
 
-      expect(unmasked()).toHaveLength(12);
+      expect(unmasked()).toHaveLength(15);
       [
         'alert message',
         'segment label',
@@ -194,6 +194,9 @@ describe('Clarity unmasking', () => {
         'empty state',
         'ribbon message',
         'heading',
+        'drawer content',
+        'list item',
+        'sidebar item',
         'column header',
         'tab label',
         'breadcrumb item',

@@ -1,4 +1,4 @@
-import { BitkitTextArea } from '@bitrise/bitkit-v2';
+import { BitkitTextArea, rem } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Stack } from '@chakra-ui/react/stack';
 import { useEffect, useRef, useState } from 'react';
@@ -30,7 +30,7 @@ const YamlPanel = () => {
   };
 
   return (
-    <Stack gap="8" minWidth="320" flexShrink="0">
+    <Stack gap="8" minWidth={rem(320)} flexShrink="0">
       <BitkitTextArea
         label="bitrise.yml"
         errorText={parseError}

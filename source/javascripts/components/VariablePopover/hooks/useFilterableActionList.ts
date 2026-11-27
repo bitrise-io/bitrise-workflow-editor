@@ -1,5 +1,4 @@
-import { ListItemProps } from '@bitrise/bitkit';
-import { ListProps } from 'chakra-ui-2--react';
+import { ListItemProps, ListRootProps } from '@chakra-ui/react/list';
 import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { type FilterInputProps } from '../components/FilterInput';
@@ -10,7 +9,7 @@ export type FilterableActionListResult<TActionItem> = {
   focusFilterInput: () => void;
   clearFilterInput: () => void;
   getFilterInputProps: (props: Omit<FilterInputProps, 'ref' | 'value' | 'onChange'>) => FilterInputProps;
-  getActionListProps: (props: Omit<ListProps, 'ref'>) => ListProps;
+  getActionListProps: (props: Omit<ListRootProps, 'ref'>) => ListRootProps;
   getActionListItemProps: (item: TActionItem, props?: ListItemProps) => ListItemProps;
 };
 
@@ -56,9 +55,12 @@ const useFilterableActionList = <TActionItem>({
     [filter],
   );
 
-  const getActionListProps = useCallback((props: Omit<ListProps, 'ref'> = {}) => {
+  const getActionListProps = useCallback((props: Omit<ListRootProps, 'ref'> = {}) => {
     return {
       ref: listRef,
+      // Unstyled: the theme's list recipe is BitkitList's, which lays each item out as a row
+      // behind a bullet. These items are plain stacked options.
+      unstyled: true,
       ...props,
     };
   }, []);

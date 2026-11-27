@@ -1,4 +1,4 @@
-import { BitkitAvatar, BitkitHeading, BitkitLinkButton, BitkitTabs, IconWarningYellow } from '@bitrise/bitkit-v2';
+import { BitkitAvatar, BitkitLinkButton, BitkitTabs, IconWarningYellow } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 import { Text } from '@chakra-ui/react/text';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ import FloatingDrawer, {
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 } from '../FloatingDrawer/FloatingDrawer';
 import { useStepDrawerContext } from './StepConfigDrawer.context';
 import StepConfigDrawerProvider from './StepConfigDrawerProvider';
@@ -59,9 +60,9 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
 
               <Box flex="1" minWidth="0">
                 <Box display="flex" gap="4" alignItems="center">
-                  <BitkitHeading as="h3" truncate maxWidth="full">
+                  <FloatingDrawerTitle truncate maxWidth="full">
                     {data?.mergedValues?.title || 'Loading...'}
-                  </BitkitHeading>
+                  </FloatingDrawerTitle>
                   <StepBadge
                     isOfficial={data?.resolvedInfo?.isOfficial}
                     isVerified={data?.resolvedInfo?.isVerified}
@@ -89,7 +90,7 @@ const StepConfigDrawerContent = (props: Omit<Props, 'workflowId' | 'stepBundleId
                 </Box>
               </Box>
             </Box>
-            <BitkitTabs.List marginBlockStart="8" marginInline="-24" paddingInline="8" data-clarity-unmask="true">
+            <BitkitTabs.List marginBlockStart="8" data-clarity-unmask="true">
               <BitkitTabs.Trigger value="configuration">Configuration</BitkitTabs.Trigger>
               <BitkitTabs.Trigger value="properties">Properties</BitkitTabs.Trigger>
               {stepHasOutputVariables && (

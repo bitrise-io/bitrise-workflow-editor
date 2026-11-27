@@ -159,7 +159,7 @@ const TargetBasedTriggers = () => {
             labelText="Active"
             size="md"
             checked={trigger.isActive}
-            state={isReadOnlyView ? 'disabled' : undefined}
+            state={isReadOnlyView ? 'readOnly' : undefined}
             onCheckedChange={() => handleActiveChange(trigger)}
           />
         </BitkitTable.Cell>
@@ -253,7 +253,6 @@ const TargetBasedTriggers = () => {
           data-clarity-unmask="true"
           icon={IconTrigger}
           headingText="Target based triggers will appear here"
-          maxHeight="208"
           marginBlockEnd="24"
           bodyText={
             <>

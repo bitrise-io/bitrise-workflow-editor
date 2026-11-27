@@ -1,4 +1,4 @@
-import { BitkitButton, BitkitHeading, BitkitTabs, IconSparkleFilled } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitTabs, IconSparkleFilled } from '@bitrise/bitkit-v2';
 import { Box } from '@chakra-ui/react/box';
 
 import FloatingDrawer, {
@@ -7,6 +7,7 @@ import FloatingDrawer, {
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import useAIButton from '@/hooks/useAIButton';
 
@@ -36,7 +37,7 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
           <FloatingDrawerCloseButton />
           <FloatingDrawerHeader>
             <Box display="flex" gap="16">
-              <BitkitHeading as="h3">{pipelineId}</BitkitHeading>
+              <FloatingDrawerTitle>{pipelineId}</FloatingDrawerTitle>
               {isAIButtonVisible && (
                 <BitkitButton
                   state={isAIButtonDisabled ? 'disabled' : undefined}
@@ -50,17 +51,17 @@ const PipelineConfigDrawer = ({ pipelineId, ...props }: Props) => {
                 </BitkitButton>
               )}
             </Box>
-            <BitkitTabs.List marginInline="-24" marginBlockStart="16" paddingInline="8" data-clarity-unmask="true">
+            <BitkitTabs.List marginBlockStart="16" data-clarity-unmask="true">
               <BitkitTabs.Trigger value="properties">Properties</BitkitTabs.Trigger>
               <BitkitTabs.Trigger value="triggers">Triggers</BitkitTabs.Trigger>
             </BitkitTabs.List>
           </FloatingDrawerHeader>
           <FloatingDrawerBody>
-            <BitkitTabs.ContentGroup height="100%">
+            <BitkitTabs.ContentGroup>
               <BitkitTabs.Content value="properties">
                 <PropertiesTab onDelete={props.onClose} pipelineId={pipelineId} />
               </BitkitTabs.Content>
-              <BitkitTabs.Content value="triggers" overflowY="auto" height="100%">
+              <BitkitTabs.Content value="triggers">
                 <TriggersTab pipelineId={pipelineId} />
               </BitkitTabs.Content>
             </BitkitTabs.ContentGroup>

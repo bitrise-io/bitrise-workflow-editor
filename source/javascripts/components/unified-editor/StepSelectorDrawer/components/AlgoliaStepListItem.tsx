@@ -113,8 +113,8 @@ const AlgoliaStepListItem = ({
               position="absolute"
               transition={TRANSITION}
               size={isOpen ? '16' : '24'}
-              right={isOpen ? '-4px' : '-6px'}
-              bottom={isOpen ? '-8px' : '-4px'}
+              right={isOpen ? '-4' : '-6'}
+              bottom={isOpen ? '-8' : '-4'}
               isOfficial={maintainer === Maintainer.Bitrise}
               isVerified={maintainer === Maintainer.Verified}
             />
@@ -184,7 +184,7 @@ const AlgoliaStepListItem = ({
               size="sm"
               paddingInline="16"
               paddingBlockEnd="8"
-              top="-5px"
+              top="-4"
               position="relative"
               onClick={handleReadMoreClick}
             >

@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import { FloatingDrawerTitle } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import StepBundleService from '@/core/services/StepBundleService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import useNavigation from '@/hooks/useNavigation';
@@ -69,14 +70,18 @@ const StepBundleConfigHeader = ({ variant }: HeaderProps) => {
   return (
     <>
       <Box paddingBlockStart={variant === 'panel' ? '16' : '0'} paddingInline={variant === 'panel' ? '24' : '0'}>
-        <BitkitHeading as="h3">{title}</BitkitHeading>
+        {variant === 'drawer' ? (
+          <FloatingDrawerTitle>{title}</FloatingDrawerTitle>
+        ) : (
+          <BitkitHeading as="h3">{title}</BitkitHeading>
+        )}
         <Text textStyle="body/md/regular" color="text/secondary">
           {subtitle}
         </Text>
       </Box>
       <BitkitTabs.List
-        paddingInline="8"
-        marginInline={variant === 'drawer' ? '-24' : undefined}
+        // In the drawer, the drawer's recipe lines the tabs up with the header.
+        paddingInline={variant === 'panel' ? '8' : undefined}
         marginBlockStart="16"
         data-clarity-unmask="true"
       >

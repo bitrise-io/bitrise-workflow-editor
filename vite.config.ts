@@ -51,8 +51,8 @@ function absoluteUrlsPlugin(urlPrefix: string): Plugin {
 }
 
 // The checkout's bare imports resolve from the npm package's folder, as the package's own do: React, Chakra and
-// Emotion load once from this repo, and nested versions still apply, like @zag-js/dom-query 1.x, which Chakra v2
-// hoists as 0.x. Packages only the checkout has come from its node_modules.
+// Emotion load once from this repo, and a nested version the package resolves to still applies. Packages only the
+// checkout has come from its node_modules.
 function localBitkitV2Plugin(dir: string): Plugin {
   const entry = join(dir, 'dist/main.js');
   const packageImporter = join(rootDir, 'node_modules/@bitrise/bitkit-v2/package.json');

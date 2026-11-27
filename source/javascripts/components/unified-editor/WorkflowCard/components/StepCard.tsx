@@ -1,8 +1,8 @@
 import {
   BitkitAvatar,
-  BitkitColorButton,
   BitkitList,
   BitkitSkeletonGroup,
+  BitkitToggletip,
   BitkitTooltip,
   IconContainer,
   IconErrorCircleFilled,
@@ -14,8 +14,7 @@ import { Card, CardRootProps } from '@chakra-ui/react/card';
 import { Text } from '@chakra-ui/react/text';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent } from 'chakra-ui-2--react';
-import { memo, MouseEvent, ReactNode, useMemo } from 'react';
+import { memo, MouseEvent, ReactNode, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -92,6 +91,10 @@ const StepCard = ({
 }: StepCardProps) => {
   const zoom = useReactFlowZoom();
   const [isMultiSelectAccepted, setIsMultiSelectAccepted] = useLocalStorage('multiSelectAccepted', false);
+  // Esc or a click elsewhere closes the multi-select hint until the Step is selected again; only
+  // "Got it" retires it for good. Without this the hint, being the top layer, swallows Esc, so the
+  // Step drawer under it can't be closed from the keyboard.
+  const [isHintClosed, setIsHintClosed] = useState(false);
   const { isSelected, selectedStepIndices } = useSelection();
   const defaultStepLibrary = useDefaultStepLibrary();
   const {
@@ -159,6 +162,7 @@ const StepCard = ({
 
   const { library } = StepService.parseStepCVS(step?.cvs || '', defaultStepLibrary);
 
+  const rowRef = useRef<HTMLDivElement>(null);
   const isButton = !!onSelectStep;
   const isPlaceholder = sortable.isDragging;
   const isUpgradable =
@@ -169,6 +173,7 @@ const StepCard = ({
 
   const handleClick = isButton
     ? (e: MouseEvent<HTMLDivElement>) => {
+        setIsHintClosed(false);
         onSelectStep?.({
           isMultiple: e.ctrlKey || e.metaKey,
           stepIndex,
@@ -247,74 +252,63 @@ const StepCard = ({
             {showSecondary && <Box height={rem(14)} width={rem(75)} />}
           </BitkitSkeletonGroup>
         ) : (
-          <Popover isLazy isOpen={isHighlighted && selectedStepIndices?.length === 1} placement="top">
-            <PopoverAnchor>
-              <Box
-                padding="4"
-                paddingInlineStart={isSortable ? 0 : 4}
-                gap="8"
-                flex="1"
-                minWidth="0"
-                display="flex"
-                onClick={handleClick}
-                role={isButton ? 'button' : 'div'}
-              >
-                <BitkitAvatar variant="image" src={icon} name={title} />
+          <>
+            <Box
+              ref={rowRef}
+              padding="4"
+              paddingInlineStart={isSortable ? 0 : 4}
+              gap="8"
+              flex="1"
+              minWidth="0"
+              display="flex"
+              onClick={handleClick}
+              role={isButton ? 'button' : 'div'}
+            >
+              <BitkitAvatar variant="image" src={icon} name={title} />
 
-                <Box minWidth="0" textAlign="left" flex="1">
-                  <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                    {title}
-                  </Text>
-                  <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
-                    {showSecondary && (
-                      <BitkitList.Item>
-                        <StepSecondaryText
-                          isUpgradable={isUpgradable}
-                          errorText={error ? 'Failed to load Step' : undefined}
-                          resolvedVersion={step?.resolvedInfo?.resolvedVersion}
-                        />
-                      </BitkitList.Item>
-                    )}
-                    {referenceIds.length > 0 && (
-                      <BitkitList.Item>
-                        <Box display="flex" alignItems="center" gap="4">
-                          <IconContainer size="16" color="icon/tertiary" />
-                          <Text textStyle="body/sm/regular" truncate maxWidth="full">
-                            {referenceIds}
-                          </Text>
-                        </Box>
-                      </BitkitList.Item>
-                    )}
-                  </BitkitList>
-                </Box>
-
-                {buttonGroup}
+              <Box minWidth="0" textAlign="left" flex="1">
+                <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                  {title}
+                </Text>
+                <BitkitList variant="inline" size="sm" textColor="secondary" flexWrap="nowrap">
+                  {showSecondary && (
+                    <BitkitList.Item>
+                      <StepSecondaryText
+                        isUpgradable={isUpgradable}
+                        errorText={error ? 'Failed to load Step' : undefined}
+                        resolvedVersion={step?.resolvedInfo?.resolvedVersion}
+                      />
+                    </BitkitList.Item>
+                  )}
+                  {referenceIds.length > 0 && (
+                    <BitkitList.Item>
+                      <Box display="flex" alignItems="center" gap="4">
+                        <IconContainer size="16" color="icon/tertiary" />
+                        <Text textStyle="body/sm/regular" truncate maxWidth="full">
+                          {referenceIds}
+                        </Text>
+                      </Box>
+                    </BitkitList.Item>
+                  )}
+                </BitkitList>
               </Box>
-            </PopoverAnchor>
-            {!isMultiSelectAccepted && (
-              <PopoverContent
-                background="neutral.10"
-                color="neutral.100"
-                sx={{
-                  '--popper-arrow-bg': '#201b22',
-                }}
-              >
-                <PopoverArrow />
-                <PopoverBody
-                  display="flex"
-                  alignItems="center"
-                  color="neutral.100"
-                  padding="16"
-                  textStyle="body/md/regular"
-                >
-                  <Text paddingInlineEnd="16">To select multiple Steps, hold ‘⌘’ or 'Ctrl' key.</Text>
-                  <BitkitColorButton colorVariant="white" onClick={() => setIsMultiSelectAccepted(true)}>
-                    Got it
-                  </BitkitColorButton>
-                </PopoverBody>
-              </PopoverContent>
-            )}
-          </Popover>
+
+              {buttonGroup}
+            </Box>
+            {/* Anchored to the row, not opened by it: the row stays a plain Step button. */}
+            <BitkitToggletip
+              button={{ children: 'Got it', onClick: () => setIsMultiSelectAccepted(true) }}
+              disabled={isMultiSelectAccepted}
+              open={isHighlighted && selectedStepIndices?.length === 1 && !isHintClosed}
+              onOpenChange={({ open }) => {
+                if (!open) {
+                  setIsHintClosed(true);
+                }
+              }}
+              text="To select multiple Steps, hold ‘⌘’ or 'Ctrl' key."
+              positioning={{ getAnchorElement: () => rowRef.current }}
+            />
+          </>
         )}
       </Card.Body>
     </Card.Root>

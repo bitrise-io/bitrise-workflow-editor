@@ -1,6 +1,8 @@
+import { useToken } from '@chakra-ui/react/styled-system';
 import { Edge, Node } from '@xyflow/react';
 
 const usePipelineStageEdges = (nodes: Node[]): Edge[] => {
+  const [stroke] = useToken('colors', ['border/regular']);
   const edges: Edge[] = [];
 
   for (let i = 1; i < nodes.length; i++) {
@@ -15,7 +17,7 @@ const usePipelineStageEdges = (nodes: Node[]): Edge[] => {
       deletable: false,
       focusable: false,
       interactionWidth: 0,
-      style: { strokeWidth: 2, stroke: 'var(--colors-border-regular)', cursor: 'grab' },
+      style: { strokeWidth: 2, stroke, cursor: 'grab' },
     });
   }
 

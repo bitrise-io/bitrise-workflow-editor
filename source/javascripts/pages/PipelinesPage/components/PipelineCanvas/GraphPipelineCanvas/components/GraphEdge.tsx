@@ -1,3 +1,4 @@
+import { useToken } from '@chakra-ui/react/styled-system';
 import {
   BaseEdge,
   ConnectionLineComponentProps,
@@ -14,12 +15,17 @@ import {
   SELECTED_GRAPH_EDGE_ZINDEX,
 } from '../GraphPipelineCanvas.const';
 
+// React Flow's edges take a plain inline style, so the colours are resolved from the theme here.
+const EDGE_COLOR_TOKENS = ['border/regular', 'border/hover', 'border/selected'];
+const CONNECTION_COLOR_TOKENS = ['icon/interactive', 'icon/negative'];
+
 const edgeStyle = (style?: CSSProperties) => {
   return { strokeWidth: 2, ...style };
 };
 
 const GraphEdge = ({ id, style, selected, data, ...props }: EdgeProps) => {
   const { updateEdge } = useReactFlow();
+  const [base, highlighted, selectedColor] = useToken('colors', EDGE_COLOR_TOKENS);
   const [path] = getSmoothStepPath({ ...props, offset: 0, borderRadius: 12 });
 
   const zIndex = useMemo(() => {
@@ -39,9 +45,9 @@ const GraphEdge = ({ id, style, selected, data, ...props }: EdgeProps) => {
       path={path}
       style={edgeStyle({
         ...style,
-        ...{ stroke: 'var(--colors-border-regular)' },
-        ...(data?.highlighted ? { stroke: 'var(--colors-border-hover)' } : {}),
-        ...(selected ? { stroke: 'var(--colors-border-selected)' } : {}),
+        stroke: base,
+        ...(data?.highlighted ? { stroke: highlighted } : {}),
+        ...(selected ? { stroke: selectedColor } : {}),
       })}
     />
   );
@@ -53,9 +59,8 @@ export const ConnectionGraphEdge = (props: ConnectionLineComponentProps) => {
   const targetXOffset = toPosition === Position.Left ? -6 : 8;
   const sourceXOffset = fromPosition === Position.Left ? -6 : 8;
 
-  const stroke = ['valid', null].includes(connectionStatus)
-    ? 'var(--colors-icon-interactive)'
-    : 'var(--colors-icon-negative)';
+  const [valid, invalid] = useToken('colors', CONNECTION_COLOR_TOKENS);
+  const stroke = ['valid', null].includes(connectionStatus) ? valid : invalid;
 
   const [path] = getSmoothStepPath({
     offset: 0,

@@ -1,114 +1,90 @@
-import { IconCross } from '@bitrise/bitkit-v2';
-import {
-  CloseButtonProps,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerContentProps,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerProps,
-  HTMLChakraProps,
-  ModalBodyProps,
-  ModalHeaderProps,
-  ModalOverlayProps,
-  useBreakpointValue,
-} from 'chakra-ui-2--react';
-import { createContext, useContext, useMemo } from 'react';
+import { BitkitDrawer, BitkitDrawerContentProps, rem } from '@bitrise/bitkit-v2';
+import { Portal } from '@chakra-ui/react/portal';
+import { createContext, ReactNode, RefObject, useContext, useRef } from 'react';
 
-type FloatingDrawerProps = Omit<DrawerProps, 'size'> & {
+type FloatingDrawerProps = {
+  children: ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
+  onCloseComplete?: () => void;
   size?: 'md' | 'lg';
 };
 
-const FloatingDrawerContext = createContext<Required<Pick<FloatingDrawerProps, 'size'>>>({ size: 'md' });
-const useFloatingDrawerContext = () => useContext(FloatingDrawerContext);
+const FloatingDrawerContext = createContext<RefObject<HTMLDivElement> | undefined>(undefined);
 
-const FloatingDrawer = ({ children, size = 'md', ...props }: FloatingDrawerProps) => {
-  const providerProps = useMemo(() => ({ size }), [size]);
-  const placement = useBreakpointValue<DrawerProps['placement']>({ base: 'bottom', tablet: 'right' }, { ssr: false });
+/**
+ * A non-modal floating drawer: the canvas and the page header stay usable while it is open, so
+ * selecting another Step or saving does not need the drawer closed first. That is why it has no
+ * backdrop and starts below the 72px page header.
+ * Opening it focuses the panel itself (or a field inside that took focus on mount) rather than its
+ * first button, the close button.
+ */
+const FloatingDrawer = ({ children, isOpen, onClose, onCloseComplete, size = 'md' }: FloatingDrawerProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // The dialog listens for Escape on the document before anything inside sees the key, so an Escape
+  // that closes Monaco's suggestions would close the drawer too. For a key from an editor, close only
+  // once it bubbles out of the editor: Monaco stops the key when it uses it.
+  const handleEscapeKeyDown = (event: KeyboardEvent) => {
+    const content = contentRef.current;
+    if (!content || !(event.target instanceof Element) || !event.target.closest('.monaco-editor')) {
+      return;
+    }
+
+    event.preventDefault();
+    const closeIfUnused = (bubbled: Event) => {
+      if (bubbled === event) {
+        onClose();
+      }
+    };
+    content.addEventListener('keydown', closeIfUnused, { once: true });
+    setTimeout(() => content.removeEventListener('keydown', closeIfUnused));
+  };
 
   return (
-    <FloatingDrawerContext.Provider value={providerProps}>
-      <Drawer
-        isFullHeight
-        trapFocus={false}
-        placement={placement}
-        blockScrollOnMount={false}
-        closeOnOverlayClick={false}
-        {...props}
-      >
-        {/* NOTE: Without the overlay the close animation doesn't occur */}
-        <FloatingDrawerOverlay display="none" />
-        {children}
-      </Drawer>
-    </FloatingDrawerContext.Provider>
+    <BitkitDrawer.Root
+      lazyMount
+      unmountOnExit
+      modal={false}
+      trapFocus={false}
+      preventScroll={false}
+      closeOnInteractOutside={false}
+      open={isOpen}
+      size={size}
+      variant="floating"
+      initialFocusEl={() => {
+        const { activeElement } = document;
+        // Keep an `autoFocus` field (the Step selector's search) focused.
+        return activeElement instanceof HTMLElement && contentRef.current?.contains(activeElement)
+          ? activeElement
+          : contentRef.current;
+      }}
+      onEscapeKeyDown={handleEscapeKeyDown}
+      onExitComplete={onCloseComplete}
+      onOpenChange={({ open }) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
+      <Portal>
+        <BitkitDrawer.Positioner paddingBlockStart={rem(72)}>
+          <FloatingDrawerContext.Provider value={contentRef}>{children}</FloatingDrawerContext.Provider>
+        </BitkitDrawer.Positioner>
+      </Portal>
+    </BitkitDrawer.Root>
   );
 };
 
-const FloatingDrawerOverlay = (props: ModalOverlayProps) => {
-  return (
-    <DrawerOverlay
-      top="0px"
-      zIndex="fullDialogOverlay"
-      bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
-      {...props}
-    />
-  );
+const FloatingDrawerContent = (props: BitkitDrawerContentProps) => {
+  const contentRef = useContext(FloatingDrawerContext);
+  return <BitkitDrawer.Content ref={contentRef} {...props} />;
 };
 
-const FloatingDrawerCloseButton = ({ children, ...props }: CloseButtonProps) => {
-  return (
-    <DrawerCloseButton size="md" {...props}>
-      {children ?? <IconCross />}
-    </DrawerCloseButton>
-  );
-};
-
-function getContentMaxWidth(size: 'md' | 'lg') {
-  switch (size) {
-    case 'lg':
-      return ['100%', 'clamp(420px, 55%, 1024px)'];
-    case 'md':
-    default:
-      return ['100%', 'clamp(420px, 40%, 700px)'];
-  }
-}
-
-const FloatingDrawerContent = (props: DrawerContentProps) => {
-  const containerProps = useMemo<HTMLChakraProps<'div'>>(() => ({ display: 'contents' }), []);
-  const { size } = useFloatingDrawerContext();
-  const maxW = getContentMaxWidth(size);
-
-  return (
-    <DrawerContent
-      zIndex="fullDialog"
-      top={0}
-      gap={0}
-      maxW={maxW}
-      padding={0}
-      display="flex"
-      flexDir="column"
-      overflow="hidden"
-      boxShadow="large"
-      border="1px solid"
-      borderColor="border/regular"
-      margin={[0, 16]}
-      marginTop={[0, 72]}
-      borderRadius={[0, 12]}
-      containerProps={containerProps}
-      {...props}
-    />
-  );
-};
-
-const FloatingDrawerHeader = (props: ModalHeaderProps) => {
-  return <DrawerHeader p="24" pb="0" color="initial" textTransform="initial" fontWeight="initial" {...props} />;
-};
-
-const FloatingDrawerBody = (props: ModalBodyProps) => {
-  return <DrawerBody p="24" flex="1" overflowY="auto" {...props} />;
-};
+const FloatingDrawerBody = BitkitDrawer.Body;
+const FloatingDrawerCloseButton = BitkitDrawer.CloseButton;
+const FloatingDrawerHeader = BitkitDrawer.Header;
+const FloatingDrawerTitle = BitkitDrawer.Title;
 
 export {
   FloatingDrawerBody,
@@ -116,6 +92,7 @@ export {
   FloatingDrawerContent,
   FloatingDrawerHeader,
   FloatingDrawerProps,
+  FloatingDrawerTitle,
 };
 
 export default FloatingDrawer;

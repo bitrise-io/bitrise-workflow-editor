@@ -1,6 +1,6 @@
-import { BitkitButton, BitkitIconButton, BitkitPopover, IconDollar, IconPlus } from '@bitrise/bitkit-v2';
+import { BitkitButton, BitkitIconButton, BitkitPopover, IconDollar, IconPlus, rem } from '@bitrise/bitkit-v2';
+import { List } from '@chakra-ui/react/list';
 import { Text } from '@chakra-ui/react/text';
-import { List, ListItem } from 'chakra-ui-2--react';
 import { useState } from 'react';
 
 import useMultiModePopover, { Mode } from '@/components/VariablePopover/hooks/useMultiModePopover';
@@ -97,9 +97,9 @@ const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMod
           {isLoading ? (
             <LoadingState />
           ) : (
-            <List
+            <List.Root
               {...getActionListProps({
-                maxH: '18rem',
+                maxHeight: rem(288),
                 overflowY: 'scroll',
                 marginInlineStart: 0,
               })}
@@ -110,7 +110,7 @@ const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMod
                 </Text>
               )}
               {filteredItems.map((ev) => (
-                <ListItem
+                <List.Item
                   key={ev.key}
                   {...getActionListItemProps(ev, {
                     padding: '8',
@@ -120,9 +120,9 @@ const SecretPopover = ({ size, onSelect, isOpen: initialIsOpen, mode: initialMod
                   <Text textStyle="body/sm/regular" color="text/secondary">
                     {ev.source}
                   </Text>
-                </ListItem>
+                </List.Item>
               ))}
-            </List>
+            </List.Root>
           )}
         </>
       )}

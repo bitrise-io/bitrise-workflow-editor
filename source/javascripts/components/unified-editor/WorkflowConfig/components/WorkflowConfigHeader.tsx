@@ -4,6 +4,7 @@ import { Text } from '@chakra-ui/react/text';
 
 import EntityModuleProvenance from '@/components/EntityModuleProvenance';
 import JumpToDefinitionLink from '@/components/JumpToDefinitionLink/JumpToDefinitionLink';
+import { FloatingDrawerTitle } from '@/components/unified-editor/FloatingDrawer/FloatingDrawer';
 import WorkflowService from '@/core/services/WorkflowService';
 import useAIButton from '@/hooks/useAIButton';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
@@ -58,7 +59,11 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
         paddingInline={variant === 'panel' ? '24' : '0'}
       >
         <div>
-          <BitkitHeading as="h3">{title || id || 'Workflow'}</BitkitHeading>
+          {variant === 'drawer' ? (
+            <FloatingDrawerTitle>{title || id || 'Workflow'}</FloatingDrawerTitle>
+          ) : (
+            <BitkitHeading as="h3">{title || id || 'Workflow'}</BitkitHeading>
+          )}
           {showSubTitle && !isCrossFile && (
             <Text textStyle="body/md/regular" color="text/secondary">
               {WorkflowService.getUsedByText(dependants)}
@@ -89,8 +94,8 @@ const WorkflowConfigHeader = ({ variant, context, parentWorkflowId }: Props) => 
         )}
       </Box>
       <BitkitTabs.List
-        paddingInline="8"
-        marginInline={variant === 'drawer' ? '-24' : undefined}
+        // In the drawer, the drawer's recipe lines the tabs up with the header.
+        paddingInline={variant === 'panel' ? '8' : undefined}
         marginBlockStart="16"
         data-clarity-unmask="true"
       >

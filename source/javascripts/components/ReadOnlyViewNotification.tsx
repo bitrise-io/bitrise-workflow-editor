@@ -1,4 +1,4 @@
-import { BitkitAlert } from '@bitrise/bitkit-v2';
+import { BitkitAlert, rem } from '@bitrise/bitkit-v2';
 import { useState } from 'react';
 
 import { useReadOnlyView, useSelectedNodeId } from '@/hooks/useTree';
@@ -29,9 +29,8 @@ const ReadOnlyViewNotification = () => {
       insetBlockStart="0"
       insetInlineStart="50%"
       transform="translateX(-50%)"
-      width="600px"
+      width={rem(600)}
       zIndex="100"
-      boxShadow="large"
     />
   );
 };
