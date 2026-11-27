@@ -204,34 +204,42 @@ function getHttpsGitUrl(cvs: string, defaultStepLibrary: string): string {
 function getRawGitUrl(cvs: string, defaultStepLibrary: string, fallbackBranch: string = 'master'): string {
   const { version } = parseStepCVS(cvs, defaultStepLibrary);
   const branch = version || fallbackBranch;
-  let url = getHttpsGitUrl(cvs, defaultStepLibrary);
 
-  if (url.endsWith('.git')) {
-    url = url.slice(0, -4);
-  }
-
-  if (url.startsWith('https://github.com')) {
-    // https: https://github.com/bitrise-io/steps-fastlane.git
-    // git@:  git@github.com:bitrise-io/steps-fastlane.git
-    // raw:   https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml
-    return url.replace('https://github.com', 'https://raw.githubusercontent.com').concat(`/${branch}/step.yml`);
-  }
-  if (url.startsWith('https://gitlab.com')) {
-    // https: https://gitlab.com/steplib/steps-fastlane.git
-    // git@:  git@gitlab.com:steplib/steps-fastlane.git
-    // raw:   https://gitlab.com/steplib/steps-fastlane/-/raw/master/step.yml - DOES NOT WORK DUE TO CORS POLICY
-    // api:   https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master
-    // return url.concat(`/-/raw/${branch}/step.yml`);
-    const [group, project] = url.replace('https://gitlab.com/', '').split('/');
-    return `https://gitlab.com/api/v4/projects/${group}%2F${project}/repository/files/step.yml?ref=${branch}`;
-  }
-  if (url.startsWith('https://bitbucket.org')) {
-    // clone: https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git
-    // raw:   https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml
-    return url.concat(`/raw/${branch}/step.yml`);
+  let repository: URL;
+  try {
+    repository = new URL(getHttpsGitUrl(cvs, defaultStepLibrary));
+  } catch {
+    return '';
   }
 
-  return `${url}/step.yml`;
+  if (repository.protocol !== 'https:') {
+    return '';
+  }
+
+  const path = repository.pathname.replace(/\.git$/, '');
+
+  switch (repository.hostname) {
+    case 'github.com':
+      // https: https://github.com/bitrise-io/steps-fastlane.git
+      // git@:  git@github.com:bitrise-io/steps-fastlane.git
+      // raw:   https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml
+      return `https://raw.githubusercontent.com${path}/${branch}/step.yml`;
+    case 'gitlab.com': {
+      // https: https://gitlab.com/steplib/steps-fastlane.git
+      // git@:  git@gitlab.com:steplib/steps-fastlane.git
+      // raw:   https://gitlab.com/steplib/steps-fastlane/-/raw/master/step.yml - DOES NOT WORK DUE TO CORS POLICY
+      // api:   https://gitlab.com/api/v4/projects/steplib%2Fsteps-fastlane/repository/files/step.yml?ref=master
+      const [group, project] = path.slice(1).split('/');
+      return `https://gitlab.com/api/v4/projects/${group}%2F${project}/repository/files/step.yml?ref=${branch}`;
+    }
+    case 'bitbucket.org':
+      // clone: https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane.git
+      // raw:   https://bitbucket.org/zoltan-szabo-bitrise/steps-fastlane/raw/master/step.yml
+      return `https://bitbucket.org${path}/raw/${branch}/step.yml`;
+    default:
+      // The step's author picks this URL, and the editor requests it in every viewer's browser
+      return '';
+  }
 }
 
 function resolveTitle(cvs: string, defaultStepLibrary: string, step?: StepListItemModel[0]): string {
