@@ -42,4 +42,19 @@ describe('the local API token', () => {
 
     expect(sentAuthorization()).toBeUndefined();
   });
+
+  it("is this launch's, even when storage still has an older one and refuses the new", async () => {
+    sessionStorage.setItem('wfe-local-api-token', 'previous-launch-token');
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+    });
+    window.history.replaceState(null, '', '/2.5.0/?token=this-launch-token');
+
+    await jest.isolateModulesAsync(async () => {
+      const { default: FreshLocalApiToken } = await import('./localApiToken');
+      FreshLocalApiToken.capture();
+
+      expect(FreshLocalApiToken.get()).toBe('this-launch-token');
+    });
+  });
 });

@@ -24,10 +24,13 @@ function capture() {
 }
 
 function get(): string | null {
-  try {
-    return sessionStorage.getItem(STORAGE_KEY) ?? token;
-  } catch {
+  if (token) {
     return token;
+  }
+  try {
+    return sessionStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
   }
 }
 
