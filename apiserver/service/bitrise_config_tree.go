@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -125,52 +126,57 @@ func toWireTreeNode(node models.ConfigFileTreeModel, rootPath string, isRoot boo
 	return wire
 }
 
-// GetBitriseYMLTreeHandler resolves the modular include tree from disk (via the bitrise CLI's
-// configmerge) and returns it in the FE wire shape, plus the merged config. A non-modular config
-// comes back as a single root node, so the FE consumes one shape either way.
-func GetBitriseYMLTreeHandler(w http.ResponseWriter, r *http.Request) {
+// resolveConfigTree reads the include tree from disk (via the bitrise CLI's configmerge) in the FE
+// wire shape, plus the merged config. A non-modular config is a single root node, so callers
+// consume one shape either way.
+func resolveConfigTree() (getConfigTreeResponse, error) {
 	rootPath := filepath.Base(config.BitriseYMLPath)
 
 	isModular, err := configmerge.IsModularConfig(config.BitriseYMLPath)
 	if err != nil {
 		log.Errorf("Failed to detect modular config (%s), error: %s", config.BitriseYMLPath, err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to read bitrise.yml, error: %s", err)
-		return
+		return getConfigTreeResponse{}, fmt.Errorf("read bitrise.yml: %w", err)
 	}
 
 	if !isModular {
 		contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
 		if err != nil {
 			log.Errorf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
-			RespondWithJSONBadRequestErrorMessage(w, "Failed to read bitrise.yml, error: %s", err)
-			return
+			return getConfigTreeResponse{}, fmt.Errorf("read bitrise.yml: %w", err)
 		}
-		RespondWithJSON(w, http.StatusOK, getConfigTreeResponse{
+		return getConfigTreeResponse{
 			Root:      wireTreeNode{NodeID: nodeID(rootPath), Path: rootPath, Contents: contStr, Editable: true, Includes: []wireTreeNode{}},
 			MergedYML: contStr,
-		})
-		return
+		}, nil
 	}
 
 	reader, err := configmerge.NewConfigReader(configMergeLogger())
 	if err != nil {
 		log.Errorf("Failed to init config reader, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to resolve config tree, error: %s", err)
-		return
+		return getConfigTreeResponse{}, fmt.Errorf("resolve config tree: %w", err)
 	}
 	merger := configmerge.NewMerger(reader, configMergeLogger())
 
 	mergedYML, tree, err := merger.MergeConfig(config.BitriseYMLPath)
 	if err != nil {
 		log.Errorf("Failed to merge modular config (%s), error: %s", config.BitriseYMLPath, err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to resolve config tree, error: %s", err)
-		return
+		return getConfigTreeResponse{}, fmt.Errorf("resolve config tree: %w", err)
 	}
 
-	RespondWithJSON(w, http.StatusOK, getConfigTreeResponse{
+	return getConfigTreeResponse{
 		Root:      toWireTreeNode(*tree, rootPath, true),
 		MergedYML: mergedYML,
-	})
+	}, nil
+}
+
+// GetBitriseYMLTreeHandler returns the include tree and the merged config as read from disk.
+func GetBitriseYMLTreeHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := resolveConfigTree()
+	if err != nil {
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to %s", err)
+		return
+	}
+	RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func toConfigFileTree(node wireTreeNode) models.ConfigFileTreeModel {
@@ -181,17 +187,26 @@ func toConfigFileTree(node wireTreeNode) models.ConfigFileTreeModel {
 	return models.ConfigFileTreeModel{Path: node.Path, Contents: node.Contents, Includes: includes}
 }
 
-func collectEditableModified(node wireTreeNode, out *[]wireTreeNode) {
-	if node.Editable && node.Modified {
-		*out = append(*out, node)
+func collectIncludes(nodes []wireTreeNode, keep func(wireTreeNode) bool) []wireTreeNode {
+	var out []wireTreeNode
+	for _, node := range nodes {
+		if keep(node) {
+			out = append(out, node)
+		}
+		out = append(out, collectIncludes(node.Includes, keep)...)
 	}
-	for _, child := range node.Includes {
-		collectEditableModified(child, out)
-	}
+	return out
 }
+
+func isEditable(node wireTreeNode) bool { return node.Editable }
+
+func isEditableModified(node wireTreeNode) bool { return node.Editable && node.Modified }
 
 // PostBitriseYMLTreeHandler validates the merged tree, then writes each changed, editable module
 // file back to disk. Read-only (cross-ref) files are never written; unmodified files are skipped.
+//
+// Include paths come from the tree on disk, not the request, and are written through an os.Root
+// at the working directory, which configmerge resolves local includes against.
 func PostBitriseYMLTreeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
 		RespondWithJSONBadRequestErrorMessage(w, "Empty request body")
@@ -227,21 +242,54 @@ func PostBitriseYMLTreeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repoRoot := filepath.Dir(config.BitriseYMLPath)
-	var toWrite []wireTreeNode
-	collectEditableModified(reqObj.Root, &toWrite)
-	for _, node := range toWrite {
-		target := node.Path
-		if !filepath.IsAbs(target) {
-			target = filepath.Join(repoRoot, node.Path)
-		}
-		if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-			log.Errorf("Failed to create module dir (%s), error: %s", filepath.Dir(target), err)
-			RespondWithJSONBadRequestErrorMessage(w, "Failed to write module file (%s), error: %s", node.Path, err)
+	modifiedIncludes := collectIncludes(reqObj.Root.Includes, isEditableModified)
+	writable := map[string]bool{}
+	if len(modifiedIncludes) > 0 {
+		onDisk, err := resolveConfigTree()
+		if err != nil {
+			RespondWithJSONBadRequestErrorMessage(w, "Failed to %s", err)
 			return
 		}
-		if err := fileutil.WriteStringToFile(target, node.Contents); err != nil {
-			log.Errorf("Failed to write module file (%s), error: %s", target, err)
+		for _, node := range collectIncludes(onDisk.Root.Includes, isEditable) {
+			writable[node.Path] = true
+		}
+	}
+
+	workdir, err := os.OpenRoot(".")
+	if err != nil {
+		log.Errorf("Failed to open the working directory, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to open the working directory, error: %s", err)
+		return
+	}
+	defer func() {
+		if err := workdir.Close(); err != nil {
+			log.Errorf("Failed to close the working directory, error: %s", err)
+		}
+	}()
+
+	for _, node := range modifiedIncludes {
+		if !writable[node.Path] {
+			log.Errorf("Refusing to write %s: not an editable file of the config on disk", node.Path)
+			RespondWithJSONBadRequestErrorMessage(w, "Refusing to write %s: not an editable file of the config on disk", node.Path)
+			return
+		}
+		if _, err := workdir.Stat(node.Path); err != nil {
+			log.Errorf("Refusing to write %s, error: %s", node.Path, err)
+			RespondWithJSONBadRequestErrorMessage(w, "Refusing to write %s, error: %s", node.Path, err)
+			return
+		}
+	}
+
+	if isEditableModified(reqObj.Root) {
+		if err := fileutil.WriteStringToFile(config.BitriseYMLPath, reqObj.Root.Contents); err != nil {
+			log.Errorf("Failed to write bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
+			RespondWithJSONBadRequestErrorMessage(w, "Failed to write bitrise.yml, error: %s", err)
+			return
+		}
+	}
+	for _, node := range modifiedIncludes {
+		if err := workdir.WriteFile(node.Path, []byte(node.Contents), 0o644); err != nil {
+			log.Errorf("Failed to write module file (%s), error: %s", node.Path, err)
 			RespondWithJSONBadRequestErrorMessage(w, "Failed to write module file (%s), error: %s", node.Path, err)
 			return
 		}
