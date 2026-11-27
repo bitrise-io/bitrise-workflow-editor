@@ -194,8 +194,12 @@ async function getDirectGitStepByCvs(cvs: string, defaultStepLibrary: string): P
     stepYml = result?.step ?? {};
   } else {
     const url = StepService.getRawGitUrl(cvs, defaultStepLibrary);
-    if (url.startsWith('https://gitlab.com')) {
-      const result = await Client.get<{ content: string }>(url);
+    if (!url) {
+      throw new Error('Git steps can only be loaded from github.com, gitlab.com or bitbucket.org');
+    }
+
+    if (url.startsWith('https://gitlab.com/')) {
+      const result = await Client.get<{ content: string }>(url, { excludeCSRF: true });
       stepYml = parse(atob(result.content)) as StepModel;
     } else {
       const result = await Client.text(url, {

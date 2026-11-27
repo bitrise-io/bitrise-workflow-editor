@@ -741,10 +741,23 @@ describe('StepService', () => {
       });
     });
 
-    it('should return the raw URL for a generic Git repository', () => {
-      const cvs = 'git::https://example.com/steps-fastlane.git@master';
+    describe('URLs it has no raw file address for', () => {
+      it.each([
+        ['another host', 'git::https://example.com/steps-fastlane.git@master'],
+        ['a host that only starts with github.com', 'git::https://github.com.evil.example/org/step.git@master'],
+        ['a host that only starts with gitlab.com', 'git::https://gitlab.com.evil.example/org/step.git@master'],
+        ['a path on the page origin', 'git::/app/some/path?x=1#'],
+        ['a protocol-relative URL', 'git:://evil.example/org/step.git'],
+        ['another scheme', 'git::ftp://github.com/org/step.git'],
+      ])('returns nothing for %s', (_, cvs) => {
+        expect(StepService.getRawGitUrl(cvs, BITRISE_STEP_LIBRARY_URL)).toBe('');
+      });
+    });
+
+    it('should drop the query and the fragment of the repository URL', () => {
+      const cvs = 'git::https://github.com/bitrise-io/steps-fastlane.git?x=1#';
       expect(StepService.getRawGitUrl(cvs, BITRISE_STEP_LIBRARY_URL)).toBe(
-        'https://example.com/steps-fastlane/step.yml',
+        'https://raw.githubusercontent.com/bitrise-io/steps-fastlane/master/step.yml',
       );
     });
 
