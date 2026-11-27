@@ -33,6 +33,9 @@ COPY . .
 # Build steps that use the source
 RUN go install
 
+# The website and proxy-handler containers reach this one as workflow-editor:4000
+ENV BIND_HOST=0.0.0.0
+
 CMD ["npm", "run", "start:website"]
 
 EXPOSE 4000

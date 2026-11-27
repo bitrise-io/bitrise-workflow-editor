@@ -2,6 +2,7 @@ import { toMerged } from 'es-toolkit';
 
 import { getCookie } from '../utils/CommonUtils';
 import GlobalProps from '../utils/GlobalProps';
+import LocalApiToken from './localApiToken';
 
 const DEFAULT_TIMEOUT = 60_000;
 const DEFAULT_HEADERS = {
@@ -55,6 +56,10 @@ class ClientError extends Error {
   }
 }
 
+function isUnauthorized(error: unknown): error is ClientError {
+  return error instanceof ClientError && error.status === 401;
+}
+
 function mapToErrorMessage(status: number): string {
   let errorMessage = '';
   switch (status) {
@@ -88,9 +93,11 @@ function mapToErrorMessage(status: number): string {
 }
 
 async function raw(url: string, options?: ClientOpts) {
+  const localApiToken = url.startsWith('/api/') ? LocalApiToken.get() : null;
   const headers = toMerged(DEFAULT_HEADERS, {
     ...options?.headers,
     ...(options?.excludeCSRF ? {} : { 'X-CSRF-TOKEN': getCsrfToken() }),
+    ...(localApiToken ? { Authorization: `Bearer ${localApiToken}` } : {}),
   });
 
   const controller = new AbortController();
@@ -201,7 +208,7 @@ async function text(url: string, options?: ClientOpts) {
   return response.text();
 }
 
-export { ClientError };
+export { ClientError, isUnauthorized };
 export default {
   get,
   post,

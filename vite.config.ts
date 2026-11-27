@@ -129,7 +129,7 @@ export default defineConfig(({ mode }) => {
 
     server: {
       port: parseInt(env.DEV_SERVER_PORT || '4567', 10),
-      proxy: { '/api': 'http://localhost:4000' },
+      proxy: { '/api': 'http://127.0.0.1:4000' },
       // server.origin must be a full URL (http://...). Skip for relative prefixes.
       origin: /^https?:\/\//.test(urlPrefix) ? urlPrefix : undefined,
       allowedHosts: true,

@@ -43,7 +43,8 @@ go install
 npm start          # start both the local plugin api and the Vite dev server
 ```
 
-1. In your browser, you can reach the Workflow Editor on `localhost:4000/{version}`. Be aware that you usually have to
+1. The API server opens the Workflow Editor in your browser, and prints the link as `Workflow editor URL`. Use that
+   link: the `/api` routes need the token it carries, which changes on every start. Be aware that you usually have to
    wait a while until dev server starts up (then refresh)
 1. By default, the Workflow Editor will open the `test_bitrise.yml` from integration folder (used for integration
    testing). Please do not commit this file if you have any changes with it (e2e tests would fail).

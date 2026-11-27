@@ -30,7 +30,8 @@ npm run storybook        # Storybook on 6006
 go vet ./... && go test ./...
 ```
 
-The dev server is at `localhost:4000/{version}`, with the version from package.json.
+The dev server is at `127.0.0.1:4000/{version}/?token=…`: open the `Workflow editor URL` the Go server
+prints. Without its per-start token every `/api` call is a 401.
 
 ## The rule nothing enforces
 

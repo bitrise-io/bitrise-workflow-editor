@@ -18,8 +18,9 @@ import (
 )
 
 // SetupRoutes ...
-func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
+func SetupRoutes(isServeFilesThroughMiddlemanServer bool, apiGuard mux.MiddlewareFunc) (*mux.Router, error) {
 	r := mux.NewRouter()
+	r.Use(apiGuard)
 
 	r.HandleFunc("/api/bitrise-yml", wrapHandlerFunc(service.GetBitriseYMLHandler)).Methods("GET")
 	r.HandleFunc("/api/bitrise-yml", wrapHandlerFunc(service.PostBitriseYMLHandler)).Methods("POST")
